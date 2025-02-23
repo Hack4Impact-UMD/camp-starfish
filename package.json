@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@types/react-router-dom": "^5.3.3",
     "firebase": "^11.3.1",
     "next": "15.1.7",
     "react": "^19.0.0",
