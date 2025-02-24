@@ -1,0 +1,40 @@
+.container {
+    width: 100%;
+    max-width: 100%;
+    height: 112px;
+    position: relative;
+    background-color: #002D45;
+    padding: 13px 128px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.left-section {
+    display: flex;
+    align-items: center;
+}
+
+.text-container {
+    display: flex;
+    gap: 80px;
+    color: #ffffff;
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 24px;
+    font-family: var(--font-lato), sans-serif;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.logo {
+    width: 100.94px;
+    height: 72px;
+    cursor: pointer;
+}
+
+.profile {
+    width: 72px;
+    height: 72px;
+}
