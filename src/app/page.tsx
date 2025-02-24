@@ -1,5 +1,5 @@
-import ErrorPage from "./ErrorPage";
 
 export default function Home() {
-  return <><ErrorPage/></>
+  throw new Error("It seems we can't find what you're looking for");
+  return <></>;
 }
