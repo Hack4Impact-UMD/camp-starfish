@@ -2,48 +2,67 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import animation25 from "@/assets/loading/loadingAnimation25.svg";
-import animation50 from "@/assets/loading/loadingAnimation50.svg";
-import animation75 from "@/assets/loading/loadingAnimation75.svg";
-import animation100 from "@/assets/loading/loadingAnimation100.svg";
+import loadingAnimation25 from "@/assets/loading/loadingAnimation25.svg";
+import loadingAnimation50 from "@/assets/loading/loadingAnimation50.svg";
+import loadingAnimation75 from "@/assets/loading/loadingAnimation75.svg";
+import loadingAnimation100 from "@/assets/loading/loadingAnimation100.svg";
 
 function LoadingPage() {
     const [loading, setLoading] = useState(0);
+    const [isClient, setIsClient] = useState(false);
 
     useEffect(() => {
-        if (typeof window === "undefined") return;
-        if (loading < 4) {
+        setIsClient(true);
+    }, []);
+
+    useEffect(() => {
+        if (isClient && loading < 4) {
             const timeout = setTimeout(() => {
-                setLoading((prev) => prev + 1);
+                setLoading((prev) => (prev < 3 ? prev + 1 : 0));
             }, 500);
             return () => clearTimeout(timeout);
         }
-    }, [loading]);
+    }, [loading, isClient]);
 
-    const svgFiles = [animation25, animation50, animation75, animation100];
+    if (!isClient) return null;
+
+    const svgFiles = [
+        loadingAnimation25,
+        loadingAnimation50,
+        loadingAnimation75,
+        loadingAnimation100,
+    ];
+
+    const headingStyle = {
+        color: "black",
+        fontFamily: "Lato, sans-serif",
+        fontWeight: 900,
+    };
+
     return (
         <div className="flex flex-col items-center justify-center h-screen bg-white">
-            {/* Navbar Space */}
-
-            {/* Loading Text */}
-            <h1>LOADING...</h1>
-
-            {/* Loading Animation */}
-            <div className="flex space-x-4 mt-4">
+            <h1 style={headingStyle}>LOADING...</h1>
+            <div
+                className="relative w-60 h-20 flex justify-center items-center"
+                style={{ position: "relative", width: "100px", height: "100px" }} // fixed size
+            >
                 {svgFiles.map((file, index) => (
-                <motion.img
-                    key={index}
-                    src={file}
-                    alt={`Loading animation ${index + 1}`}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: loading > index ? 1 : 0 }}
-                    transition={{ duration: 0.5 }}
-                    width={50}
-                    height={50}
-                />
+                    <motion.img
+                        key={index}
+                        src={file.src}
+                        alt={`Loading animation ${index + 1}`}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: loading === index ? 1 : 0 }}  // Clean opacity transition
+                        transition={{ duration: 0.5 }}
+                        width={100} // set width explicitly
+                        height={100} // set height explicitly
+                        style={{
+                            position: "absolute",
+                        }}
+                    />
                 ))}
             </div>
-        </div >
+        </div>
     );
 }
 
