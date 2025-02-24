@@ -44,7 +44,7 @@ function LoadingPage() {
             <h1 style={headingStyle}>LOADING...</h1>
             <div
                 className="relative w-60 h-20 flex justify-center items-center"
-                style={{ position: "relative", width: "100px", height: "100px" }} // fixed size
+                style={{ position: "relative", width: "100px", height: "100px" }}
             >
                 {svgFiles.map((file, index) => (
                     <motion.img
@@ -52,10 +52,10 @@ function LoadingPage() {
                         src={file.src}
                         alt={`Loading animation ${index + 1}`}
                         initial={{ opacity: 0 }}
-                        animate={{ opacity: loading === index ? 1 : 0 }}  // Clean opacity transition
+                        animate={{ opacity: loading === index ? 1 : 0 }}
                         transition={{ duration: 0.5 }}
-                        width={100} // set width explicitly
-                        height={100} // set height explicitly
+                        width={100}
+                        height={100}
                         style={{
                             position: "absolute",
                         }}
