@@ -2,7 +2,7 @@ import React from 'react';
 import Link from 'next/link'; // Use Next.js Link instead of react-router-dom
 import darkBgLogo from '../assets/logos/darkBgLogo.png';
 import profile from '../assets/logos/Profile.png';
-import './navbar.css';
+import './Navbar.css';
 
 const Navbar: React.FC = () => {
   return (
