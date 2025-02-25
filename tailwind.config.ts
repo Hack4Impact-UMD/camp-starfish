@@ -26,6 +26,11 @@ export default {
           white_bg: 'rgba(96, 96, 96, 0.07)'
         }
       },
+      fontFamily: {
+        lato: "var(--font-lato)",
+        newSpirit: "var(--font-new-spirit)",
+        besteam: "var(--font-besteam)",
+      },
     },
   },
   plugins: [],
