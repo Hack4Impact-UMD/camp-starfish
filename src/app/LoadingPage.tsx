@@ -6,6 +6,8 @@ import loadingAnimation25 from "@/assets/loading/loadingAnimation25.svg";
 import loadingAnimation50 from "@/assets/loading/loadingAnimation50.svg";
 import loadingAnimation75 from "@/assets/loading/loadingAnimation75.svg";
 import loadingAnimation100 from "@/assets/loading/loadingAnimation100.svg";
+import { text } from "stream/consumers";
+import { line } from "framer-motion/client";
 
 /**
  * LoadingPage Component
@@ -50,14 +52,17 @@ function LoadingPage() {
     const headingStyle = {
         color: "black",
         fontFamily: "Lato, sans-serif",
+        fontSize: "32px",
         fontWeight: 900,
+        textTransform: "uppercase",
+        lineHeight: 'normal',
     };
 
     return (
         <div className="flex flex-col items-center justify-center h-screen bg-white">
-            <h1 style={headingStyle}>LOADING...</h1>
+            <h1 style={headingStyle}>Loading...</h1>
             <div
-                className="relative w-60 h-20 flex justify-center items-center"
+                className="relative w-40 h-40 flex justify-center items-center"
                 style={{ position: "relative", width: "100px", height: "100px" }}
             >
                 {svgFiles.map((file, index) => (
