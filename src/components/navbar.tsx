@@ -23,7 +23,9 @@ const Navbar: React.FC = () => {
 
       {/* Profile Picture on the right */}
       <div>
+        <Link href="/profile">
         <img className="profile" src={profile.src} alt="Profile" />
+        </Link>
       </div>
     </nav>
   );
