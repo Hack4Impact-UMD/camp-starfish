@@ -54,10 +54,8 @@ function LoadingPage() {
                         src={file.src} // Load current SVG file
                         alt={`Loading animation ${index + 1}`}
                         initial={{ opacity: 0 }}
-                        animate={{ opacity: loading === index ? 1 : 0 }} // Show active animation
+                        animate={{ opacity: loading === index ? 1 : 0, scale: 2.75 }} // Show active animation
                         transition={{ duration: 0.5 }} // Smooth fading transition
-                        width={100}
-                        height={100}
                         style={{
                             position: "absolute", // Position each SVG on top of each other
                         }}
