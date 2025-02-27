@@ -12,7 +12,7 @@ import loadingAnimation100 from "@/assets/loading/loadingAnimation100.svg";
  * Looping animation using 4 SVG images. Cycles through each image 
  * every 500ms. Uses Framer Motion for smooth transitions.
  */
-function LoadingPage() {
+function Animate() {
     const [loading, setLoading] = useState(0); // Track current loading animation
     const [isClient, setIsClient] = useState(false); // Track if component is mounted
 
@@ -27,9 +27,9 @@ function LoadingPage() {
      * Cycle through loading animations every 500ms
      */
     useEffect(() => {
-        if (isClient && loading < 4) {
+        if (isClient && loading < svgFiles.length) {
             const timeout = setTimeout(() => {
-                setLoading((prev) => (prev < 3 ? prev + 1 : 0));
+                setLoading((prev) => (prev < svgFiles.length - 1 ? prev + 1 : 0));
             }, 500);
             return () => clearTimeout(timeout);
         }
@@ -65,4 +65,4 @@ function LoadingPage() {
     );
 }
 
-export default LoadingPage;
+export default Animate;

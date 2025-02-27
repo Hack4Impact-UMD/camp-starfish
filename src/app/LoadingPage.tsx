@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Animation from "./Animation";
 
 /**
@@ -9,31 +8,6 @@ import Animation from "./Animation";
  * every 500ms. Uses Framer Motion for smooth transitions.
  */
 function LoadingPage() {
-    const [loading, setLoading] = useState(0); // Track current loading animation
-    const [isClient, setIsClient] = useState(false); // Track if component is mounted
-
-    /**
-     * Set isClient to true when component is mounted
-     */
-    useEffect(() => {
-        setIsClient(true);
-    }, []);
-
-    /**
-     * Cycle through loading animations every 500ms
-     */
-    useEffect(() => {
-        if (isClient && loading < 4) {
-            const timeout = setTimeout(() => {
-                setLoading((prev) => (prev < 3 ? prev + 1 : 0));
-            }, 500);
-            return () => clearTimeout(timeout);
-        }
-    }, [loading, isClient]);
-
-    // Return null if not running on client
-    if (!isClient) return null;
-
     // Style for "LOADING..." heading
     const headingStyle = {
         color: "black",
