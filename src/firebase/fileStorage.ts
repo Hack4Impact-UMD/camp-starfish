@@ -1,27 +1,36 @@
-import { getStorage, ref } from "firebase/storage";
+import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 
 const storage = getStorage();
 
-export function uploadImage(img: File, path: string) {
+export async function uploadImage(img: File, path: string) {
 
-
-
-}
-
-export function downloadImage(path: string) {
-
-
+    let uploadRef = ref(storage, path);
+    await uploadBytes(uploadRef, img);
 
 }
 
-export function uploadImages(imgs: File[], paths: string[]) {
+export async function downloadImage(path: string) {
 
+    let downloadRef = ref(storage, path);
+    return await getDownloadURL(downloadRef);
+
+}
+
+export async function uploadImages(imgs: File[], paths: string[]) {
     
+    let uploadPromises = imgs.map((img, i) => {
+        uploadImage(img, paths[i]);
+    });
+
+    await Promise.all(uploadPromises);
 
 }
 
-export function downloadImages(paths: string[]) {
+export async function downloadImages(paths: string[]) {
 
+    let downloadPromises = paths.map((path) => {
+        downloadImage(path);
+    });
 
-
+    return await Promise.all(downloadPromises);
 }
