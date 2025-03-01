@@ -1,3 +1,9 @@
+import ParentHome from "./ParentHome"
 export default function Home() {
-  return <></>
+  return(
+    <>
+      <ParentHome />
+    </>
+
+  )
 }
