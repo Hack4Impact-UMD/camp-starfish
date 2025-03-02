@@ -54,7 +54,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${lato.variable} ${newSpirit.variable} ${besteam.variable} antialiased`}>
+      <body className={`${lato.variable} ${newSpirit.variable} ${besteam.variable} antialiased w-screen h-screen`}>
         <Navbar />
         {children}
       </body>
