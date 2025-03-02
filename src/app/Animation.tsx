@@ -13,6 +13,13 @@ import loadingAnimation100 from "@/assets/loading/loadingAnimation100.svg";
  * every 500ms. Uses Framer Motion for smooth transitions.
  */
 function Animate() {
+    // Array of SVG files
+    const svgFiles = [
+        loadingAnimation25,
+        loadingAnimation50,
+        loadingAnimation75,
+        loadingAnimation100,
+    ];
     const [loading, setLoading] = useState(0); // Track current loading animation
     const [isClient, setIsClient] = useState(false); // Track if component is mounted
 
@@ -37,14 +44,6 @@ function Animate() {
 
     // Return null if not running on client
     if (!isClient) return null;
-
-    // Array of SVG files
-    const svgFiles = [
-        loadingAnimation25,
-        loadingAnimation50,
-        loadingAnimation75,
-        loadingAnimation100,
-    ];
 
     return (
         <div className="flex flex-col items-center justify-center h-screen bg-white">
