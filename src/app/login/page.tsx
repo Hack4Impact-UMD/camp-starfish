@@ -29,7 +29,7 @@ export default function LoginPage() {
         {/* Signup Link */}
         <p className="text-gray-500 text-sm mt-[43px] font-lato ">
           Haven’t registered yet? Go to{" "}
-          <a href="#" className="text-blue-500 font-medium underline">
+          <a href="https://starfish.campintouch.com/ui/forms/application/camper/App" target="_blank" className="text-blue-500 font-medium underline">
             CampMinder
           </a>
         </p>
