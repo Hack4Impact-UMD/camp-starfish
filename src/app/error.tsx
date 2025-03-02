@@ -8,7 +8,7 @@ export default function Error({
   error: Error & { digest?: string };
 }) {
   return (
-    <div className="flex items-center justify-center h-screen flex-col bg-white">
+    <div className="flex items-center justify-center w-full h-full flex-col bg-white">
       <h1
         className="text-black text-6xl font-semibold mb-4"
         style={{ fontFamily: "var(--font-new-spirit)" }}
