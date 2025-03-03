@@ -1,7 +1,7 @@
 
 export default function StaffHome() {
   return (
-    <div className= "p-20 font-lato text-[20px] font-normal leading-normal text-black">
+    <div className= "p-20 font-lato text-[20px] font-normal leading-normal text-black bg-white">
       {/* Welcome Section */}
       <div className= "mb-[100px]">
         <h1 className= "text-[80px] font-semibold font-newSpirit">Welcome, staffName!</h1>
