@@ -13,7 +13,7 @@ const Navbar: React.FC = () => {
   ];
 
   return (
-    <nav className="w-full h-[112px] bg-camp-primary px-32 flex items-center justify-between">
+    <nav className="w-full h-[112px] bg-camp-primary px-32 flex items-center justify-between gap-20">
       {/* Logo on the left */}
       <div className="flex-none">
         <Link href="/">
@@ -22,9 +22,9 @@ const Navbar: React.FC = () => {
       </div>
 
       {/* Centered Text Container */}
-      <div className="flex gap-20 text-white text-[20px] font-bold leading-6 font-lato">
+      <div className="flex gap-20 text-white text-[20px] font-bold leading-6 font-lato shrink">
         {["Example Item 1", "Example Item 2", "Example Item 3", "Example Item 4"].map((item, index) => (
-          <span key={index} className="cursor-pointer">
+          <span key={index} className="cursor-pointer shrink">
             {item}
           </span>
         ))}
