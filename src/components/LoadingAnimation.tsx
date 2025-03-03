@@ -8,11 +8,11 @@ import loadingAnimation75 from "@/assets/loading/loadingAnimation75.svg";
 import loadingAnimation100 from "@/assets/loading/loadingAnimation100.svg";
 
 /**
- * Animation Component
+ * Loading Animation Component
  * Looping animation using 4 SVG images. Cycles through each image 
  * every 500ms. Uses Framer Motion for smooth transitions.
  */
-function Animate() {
+function LoadingAnimation() {
     // Array of SVG files
     const svgFiles = [
         loadingAnimation25,
@@ -21,29 +21,16 @@ function Animate() {
         loadingAnimation100,
     ];
     const [loading, setLoading] = useState(0); // Track current loading animation
-    const [isClient, setIsClient] = useState(false); // Track if component is mounted
-
-    /**
-     * Set isClient to true when component is mounted
-     */
-    useEffect(() => {
-        setIsClient(true);
-    }, []);
 
     /**
      * Cycle through loading animations every 500ms
      */
     useEffect(() => {
-        if (isClient && loading < svgFiles.length) {
-            const timeout = setTimeout(() => {
-                setLoading((prev) => (prev < svgFiles.length - 1 ? prev + 1 : 0));
-            }, 500);
-            return () => clearTimeout(timeout);
-        }
-    }, [loading, isClient]);
-
-    // Return null if not running on client
-    if (!isClient) return null;
+        const timeout = setTimeout(() => {
+            setLoading((prev) => (prev < svgFiles.length - 1 ? prev + 1 : 0));
+        }, 500);
+        return () => clearTimeout(timeout);
+    }, [loading]);
 
     return (
         <div className="flex flex-col items-center justify-center h-screen bg-white">
@@ -64,4 +51,4 @@ function Animate() {
     );
 }
 
-export default Animate;
+export default LoadingAnimation;

@@ -1,12 +1,10 @@
 "use client";
 
 import React from 'react';
-import LoadingPage from './LoadingPage';
-import Animation from './Animation';
+import LoadingPage from './loading';
 
 export default function Home() {
   return <>
     <LoadingPage />
-    <Animation />
   </>
 }
