@@ -23,7 +23,7 @@ export default function StaffHome() {
           <p>Sample instruction text goes here</p>
         </div>
         { /* Campers */}
-        <div className= "flex flex-col gap-[32px] w-full last:mb-0">
+        <div className= "flex flex-col gap-[32px] w-full">
           <h3 className= "text-[32px] font-black transform uppercase">Campers</h3>
           <p>Sample instruction text goes here</p>
         </div>
