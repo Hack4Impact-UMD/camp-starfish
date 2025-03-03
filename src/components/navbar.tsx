@@ -15,9 +15,11 @@ const Navbar: React.FC = () => {
   return (
     <nav className="w-full h-[112px] bg-camp-primary px-32 flex items-center justify-between">
       {/* Logo on the left */}
-      <Link href="/">
-        <img className="w-[100.94px] h-[72px] cursor-pointer" src={darkBgLogo.src} alt="Camp Starfish Logo" />
-      </Link>
+      <div className="flex-none">
+        <Link href="/">
+          <img className="w-[100.94px] h-[72px] flex-none cursor-pointer" src={darkBgLogo.src} alt="Camp Starfish Logo" />
+        </Link>
+      </div>
 
       {/* Centered Text Container */}
       <div className="flex gap-20 text-white text-[20px] font-bold leading-6 font-lato">
@@ -44,9 +46,11 @@ const Navbar: React.FC = () => {
       )}
       */}
 
+      <div className="flex-none">
         <Link href="/profile">
-          <img className="w-[48px] h-[48px] cursor-pointer" src={profile.src} alt="Profile" />
+          <img className="w-[48px] h-[48px] flex-none cursor-pointer" src={profile.src} alt="Profile" />
         </Link>
+      </div>
       {/* Profile Picture on the right
       {user?.isAuthenticated && (
         <Link href="/profile">
