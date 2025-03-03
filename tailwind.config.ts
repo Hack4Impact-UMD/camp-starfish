@@ -18,7 +18,8 @@ export default {
             green: "#07B862",
             blue: "#00BDCE",
             orange: "F4831F"
-          }
+          },
+          white: "#FFFFFF"
         },
         pattern: {
           primary_bg: 'rgba(255, 255, 255, 0.07)',
