@@ -32,8 +32,7 @@ export default function LoginPage() {
         <div className="flex flex-row w-5/6 mt-[14px]">
           <img src={ErrorIcon.src} alt="Error Icon" />
           <p className="text-[#D32F2F] text-sm font-lato text-left pl-2">
-            Email not registered with CampMinder. Please try again or contact
-            admin.
+            Email not registered with CampMinder. Please try again or contact admin.
           </p>
         </div>
 
