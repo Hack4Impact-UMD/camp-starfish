@@ -18,13 +18,19 @@ export default {
             green: "#07B862",
             blue: "#00BDCE",
             orange: "F4831F"
-          }
+          },
+          white: "#FFFFFF"
         },
         pattern: {
-          primary_bg: 'rgba(255, 255, 255, 0.07)',
-          secondary_bg: 'rgba(255, 255, 255, 0.40)',
-          white_bg: 'rgba(96, 96, 96, 0.07)'
-        }
+          primary_bg: "rgba(255, 255, 255, 0.07)",
+          secondary_bg: "rgba(255, 255, 255, 0.40)",
+          white_bg: "rgba(96, 96, 96, 0.07)",
+        },
+      },
+      fontFamily: {
+        lato: ["var(--font-lato)"],
+        newSpirit: ["var(--font-newSpirit)"],
+        besteam: ["var(--font-besteam)"],
       },
       fontFamily: {
         lato: "var(--font-lato)",
