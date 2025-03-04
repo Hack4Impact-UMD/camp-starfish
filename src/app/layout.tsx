@@ -31,7 +31,7 @@ const newSpirit = localFont({
     { path: "../../public/fonts/NewSpirit/NewSpirit-SemiBold.ttf", weight: "600", style: "normal" },
     { path: "../../public/fonts/NewSpirit/NewSpirit-SemiBoldItalic.ttf", weight: "600", style: "italic" },
   ],
-  variable: "--font-new-spirit"
+  variable: "--font-newSpirit"
 })
 
 const besteam = localFont({
@@ -54,7 +54,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${lato.variable} ${newSpirit.variable} ${besteam.variable} antialiased`}
+        className={`${lato.variable} ${newSpirit.variable} ${besteam.variable} antialiased w-screen h-screen`}
       >
         {children}
       </body>
