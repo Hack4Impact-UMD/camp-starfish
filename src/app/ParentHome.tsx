@@ -1,4 +1,7 @@
 "use client";
+
+import { redirect } from "next/navigation";
+
 export default function ParentHome() {
     return (
         <div className="flex flex-row text-[20px] items-center justify-center h-screen text-black bg-white">
@@ -8,7 +11,7 @@ export default function ParentHome() {
                 <p>You can view and download your camper’s photos now</p>
                 <button
                     className="bg-camp-tert-green px-24 py-3 font-lato font-bold rounded-full text-white gap-[56px]"
-                    onClick={() => console.log("View Albums button clicked.")}
+                    onClick={() => redirect("/albums")}
                 >
                     VIEW ALBUMS
                 </button>
