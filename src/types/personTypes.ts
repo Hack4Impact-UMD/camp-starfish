@@ -1,25 +1,41 @@
+import { PhotoPermissions } from "./albumTypes";
+
 export interface Person {
-  firstName: string;
-  middleName?: string;
-  lastName: string;
-  
+  name: {
+    firstName: string;
+    middleName?: string;
+    lastName: string;
+  }
 }
 
 export interface Camper extends Person {
+  campminderId: number;
   dateOfBirth: string; // ISO-8601
-  guardians: Parent[];
+  photoPermissions: PhotoPermissions;
+  parentIds: UserIds[];
+  programIds: string[];
 }
 
-export interface Parent extends Person {
-  
+export interface UserIds {
+  campminderId: number;
+  uid: string | null;
 }
 
-export interface Staff extends Person {
-
+export interface User extends Person {
+  ids: UserIds;
+  email: string;
+  role: Role;
 }
 
-// Permissions for sharing photos with a given child in them
-// public: photo can be used online in promotional materials
-// semi-private: photo can not be used publicly, but other Camp Starfish parents can see it if their child is also in the photo
-// private: only the child's parents can see the photo
-export type PhotoPermissions = 'public' | 'semi-private' | 'private'
+export interface Parent extends User {
+  role: "PARENT";
+  camperIds: number[];
+}
+
+export interface Employee extends User {
+  role: EmployeeRole;
+  programIds: string[];
+}
+
+export type Role = "PARENT" | EmployeeRole;
+export type EmployeeRole = "STAFF" | "PHOTOGRAPHER" | "ADMIN";
