@@ -1,4 +1,4 @@
-import { db } from "./firebase";
+import { db } from "../../config/firebase";
 import { Parent, Camper } from "../../types/personTypes";
 import {
   doc,
