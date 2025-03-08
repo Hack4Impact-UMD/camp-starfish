@@ -35,6 +35,7 @@ const newSpirit = localFont({
   variable: "--font-new-spirit"
 });
 
+
 const besteam = localFont({
   src: "../../public/fonts/Besteam.ttf",
   weight: "400",
