@@ -48,7 +48,7 @@ const Navbar: React.FC = () => {
 
       <div className="flex-none">
         <Link href="/profile">
-          <img className="w-[48px] h-[48px] flex-none cursor-pointer" src={profile.src} alt="Profile" />
+          <img className="w-[62px] h-[62px] flex-none cursor-pointer" src={profile.src} alt="Profile" />
         </Link>
       </div>
       {/* Profile Picture on the right
