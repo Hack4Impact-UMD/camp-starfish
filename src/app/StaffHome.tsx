@@ -1,3 +1,5 @@
+"use client";
+
 import GalleryCardOne from "../components/GalleryCardOne";
 export default function StaffHome() {
   return (
@@ -10,11 +12,11 @@ export default function StaffHome() {
       {/* Content Section */}
       <div className="flex flex-row flex-wrap items-start justify-between gap-[104px]">
         {/* Albums */}
-        <GalleryCardOne title = "ALBUMS" description = "Manage photos from past and ongoing programs"/>
+        <GalleryCardOne title="ALBUMS" description="Manage photos from past and ongoing programs"/>
         {/* Programs */}
-        <GalleryCardOne title = "PROGRAMS" description = "Use the activity scheduler to organize campers and staff"/>
+        <GalleryCardOne title="PROGRAMS" description="Use the activity scheduler to organize campers and staff"/>
         { /* Campers */}
-        <GalleryCardOne title = "CAMPERS" description = "Access the cohort list and each camper’s details"/>
+        <GalleryCardOne title="CAMPERS" description="Access the cohort list and each camper’s details"/>
       </div>
     </div>
   )
