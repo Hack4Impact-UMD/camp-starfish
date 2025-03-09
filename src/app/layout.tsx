@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import localFont from "next/font/local";
+import Navbar from "../components/navbar"; // Adjust the path as needed
 
 const lato = localFont({
   src: [
@@ -32,14 +33,15 @@ const newSpirit = localFont({
     { path: "../../public/fonts/NewSpirit/NewSpirit-SemiBoldItalic.ttf", weight: "600", style: "italic" },
   ],
   variable: "--font-new-spirit"
-})
+});
+
 
 const besteam = localFont({
   src: "../../public/fonts/Besteam.ttf",
   weight: "400",
   style: "regular",
   variable: "--font-besteam"
-})
+});
 
 export const metadata: Metadata = {
   title: "Camp Starfish",
@@ -48,14 +50,13 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="en">
-      <body
-        className={`${lato.variable} ${newSpirit.variable} ${besteam.variable} antialiased`}
-      >
+      <body className={`${lato.variable} ${newSpirit.variable} ${besteam.variable} antialiased w-screen h-screen`}>
+        <Navbar />
         {children}
       </body>
     </html>
