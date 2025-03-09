@@ -1,16 +1,17 @@
 "use client";
 
 import React from "react";
-import BgPattern from "@/assets/patterns/bgPattern.svg";
 import GoogleIcon from "@/assets/icons/Google.svg";
 import ErrorIcon from "@/assets/icons/errorIcon.svg";
+import BackgroundPattern from "@/components/BackgroundPattern";
 
 export default function LoginPage() {
   return (
-    <div
-      className="min-h-full flex items-center justify-center bg-camp-primary bg-cover bg-center"
-      style={{ backgroundImage: `url(${BgPattern.src})` }}
-    >
+    <div className="min-h-full flex items-center justify-center bg-camp-primary">
+      <div className="absolute inset-0 w-full h-full">
+        <BackgroundPattern fill="#FFFFFF" opacity={0.1} />
+      </div>
+
       <div className="bg-[#F1F1F1] m-5 py-8 px-5 rounded-2xl w-5/6 max-w-[424px] min-h-[300px] flex flex-col items-center text-center shadow-lg">
         <h1 className="text-black text-[32px] font-lato font-bold pb-4">
           WELCOME
@@ -32,7 +33,8 @@ export default function LoginPage() {
         <div className="flex flex-row w-5/6 mt-[14px]">
           <img src={ErrorIcon.src} alt="Error Icon" />
           <p className="text-[#D32F2F] text-sm font-lato text-left pl-2">
-            Email not registered with CampMinder. Please try again or contact admin.
+            Email not registered with CampMinder. Please try again or contact
+            admin.
           </p>
         </div>
 
