@@ -1,6 +1,6 @@
 "use client"
 
-import { uploadImages } from "@/firebase/fileStorage";
+import { downloadImages, uploadImages } from "@/data/storage/fileOperations";
 import { useRef, useState } from "react";
 
 export default function FileTest() {
@@ -10,6 +10,7 @@ export default function FileTest() {
     const fileInput = useRef<HTMLInputElement | null>(null);
 
     let [uploadedList, setUploadedList] = useState<string[]>([]);
+    let [downloadedList, setDownloadedList] = useState<string[]>([]);
 
     return (
         <div className="p-4">
@@ -24,21 +25,33 @@ export default function FileTest() {
                         let files = (fileInput.current.files) ? Array.from(fileInput.current.files) : [];
 
                         if (paths.length != files?.length) {
-                            alert(`Paths and files dont match. ${paths.length} paths found and ${files?.length} files`);
+                            alert(`Paths and files dont match. ${paths.length} paths found and ${files?.length} files`)
                         } else {
                             await uploadImages(files, paths);
-                            setUploadedList(paths.map((x, i) => `${files[i].name} → ${x}`))
+                            setUploadedList(paths.map((x, i) => `${files[i].name} → ${x}`));
+                            fileInput.current.value = "";
+                            filePathInputUpload.current.value = "";
                         }
                     }
                 }}/>
             
             {(uploadedList.length > 0) ? <p className="mt-4">Files Uploaded: </p> : null}
-            <ul>{uploadedList.map(x => <li className="" key={x}>{x}</li>)}</ul>
+            <ul>{uploadedList.map(x => <li key={x}>{x}</li>)}</ul>
 
             <h1 className="text-2xl mt-5">Download Files</h1>
             <input className="block border my-2" type="text" ref={filePathInputDownload} placeholder="Enter file download path"/>
             <p>^ comma separate for downloading multiple files</p>
-            <input className="block bg-blue-500 hover:bg-blue-700 text-white p-2 rounded" type="button" value="Download"/>
+            <input className="block bg-blue-500 hover:bg-blue-700 text-white p-2 rounded" type="button" value="Download"
+                onClick={async () => {
+                    
+                    if(filePathInputDownload.current) {
+                        let paths = filePathInputDownload.current.value.split(",").map(x => x.trim()).filter(x => x);
+                        setDownloadedList(await downloadImages(paths));
+                    }
+                    
+                }}/>
+            {(downloadedList.length > 0) ? <p className="mt-4">Files Downloaded: </p> : null}
+            <ul>{downloadedList.map(x => <li key={x}><a className="link" href={x}>{x}</a></li>)}</ul>
         </div>
     );
 

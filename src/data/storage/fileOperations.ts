@@ -27,9 +27,7 @@ export async function uploadImages(imgs: File[], paths: string[]) {
 
 export async function downloadImages(paths: string[]) {
 
-    let downloadPromises = paths.map((path) => {
-        downloadImage(path);
-    });
+    let downloadPromises = paths.map((path) => downloadImage(path));
 
     return await Promise.all(downloadPromises);
 }
