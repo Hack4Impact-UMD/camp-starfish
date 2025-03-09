@@ -17,19 +17,16 @@ const AlbumsPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-100">
         <div className="container mx-auto px-4 py-6">
-            {/* Flex container for title and icons */}
             <div className="flex items-center justify-between">
                 <h1 className="text-5xl font-newSpirit font-bold text-camp-primary">
                     Albums
                 </h1>
-                {/* Icons pushed to the right */}
                 <div className="flex items-center gap-4 ml-auto">
                     <img className="w-[72px] h-[72px] flex-none cursor-pointer" src={frame92.src} alt="Frame 92" />
                     <img className="w-[72px] h-[72px] flex-none cursor-pointer" src={createAlbum.src} alt="Create Album" />
                 </div>
             </div>
 
-            {/* Albums Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-6">
                 {albums.map((album, index) => (
                     <AlbumCard className="cursor-pointer" key={index} {...album} />
