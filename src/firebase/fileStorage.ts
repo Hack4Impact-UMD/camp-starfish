@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 
 const storage = getStorage();
@@ -34,32 +33,4 @@ export async function downloadImages(paths: string[]) {
     });
 
     return await Promise.all(downloadPromises);
-=======
-import { getStorage, ref } from "firebase/storage";
-
-const storage = getStorage();
-
-export function uploadImage(img: File, path: string) {
-
-
-
-}
-
-export function downloadImage(path: string) {
-
-
-
-}
-
-export function uploadImages(imgs: File[], paths: string[]) {
-
-    
-
-}
-
-export function downloadImages(paths: string[]) {
-
-
-
->>>>>>> 1f513fd (function structures)
 }
