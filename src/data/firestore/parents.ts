@@ -1,51 +1,55 @@
-import { db } from "../../config/firebase";
-import { Parent, Camper } from "../../types/personTypes";
+import { db } from "@/config/firebase";
+import { Parent, Camper } from "@/types/personTypes";
 import {
   doc,
-  getDoc,
-  setDoc,
-  updateDoc,
-  deleteDoc,
   query,
   where,
   getDocs,
   collection,
-  Transaction
+  Transaction,
 } from "firebase/firestore";
 
 const PARENTS_COLLECTION = "parents";
 const CAMPERS_COLLECTION = "campers";
 
-// Helper function to get parent reference by uid or campminderId
-export const getParentRefById = async (transaction: Transaction, id: string | number) => {
-  let parentRef = doc(db, PARENTS_COLLECTION, String(id));
-  let parentDoc = await transaction.get(parentRef);
+// Helper function to get parent document by uid or campminderId
+export const getParentDocById = async (
+  transaction: Transaction,
+  id: string | number
+) => {
+  const parentsCollection = collection(db, PARENTS_COLLECTION);
 
-  if (!parentDoc.exists()) {
-    // If not found by campminderId, try querying by uid
-    const parentsCollection = collection(db, PARENTS_COLLECTION);
-    const q = query(parentsCollection, where("ids.uid", "==", id));
-    const querySnapshot = await getDocs(q);
-    if (!querySnapshot.empty) {
-      parentRef = querySnapshot.docs[0].ref;
-      parentDoc = querySnapshot.docs[0];
-    } else {
-      throw new Error("Parent not found.");
-    }
+  // Single query checking both "ids.uid" and "ids.campminderId"
+  const q = query(
+    parentsCollection,
+    where("ids.uid", "==", id),
+    where("ids.campminderId", "==", id)
+  );
+
+  const querySnapshot = await getDocs(q);
+  if (querySnapshot.empty) {
+    throw new Error("Parent not found.");
   }
 
-  return { parentRef, parentDoc };
+  // Return only the document snapshot (not the ref separately)
+  return querySnapshot.docs[0];
 };
 
 // Get a parent by campminderId or uid
-export const getParentById = async (transaction: Transaction, id: string | number): Promise<Parent> => {
-  const { parentDoc } = await getParentRefById(transaction, id);
+export const getParentById = async (
+  transaction: Transaction,
+  id: string | number
+): Promise<Parent> => {
+  const parentDoc = await getParentDocById(transaction, id);
   return parentDoc.data() as Parent;
 };
 
 // Create a new parent
-export const createParent = async (transaction: Transaction, parent: Parent): Promise<void> => {
-  const parentId = parent.ids.uid ?? parent.ids.campminderId; // Use UID if available
+export const createParent = async (
+  transaction: Transaction,
+  parent: Parent
+): Promise<void> => {
+  const parentId = parent.ids.campminderId;
   const parentRef = doc(db, PARENTS_COLLECTION, String(parentId));
   const parentDoc = await transaction.get(parentRef);
 
@@ -66,8 +70,12 @@ export const createParent = async (transaction: Transaction, parent: Parent): Pr
 };
 
 // Update a parent
-export const updateParent = async (transaction: Transaction, id: string | number, updates: Partial<Parent>): Promise<void> => {
-  const { parentRef } = await getParentRefById(transaction, id);
+export const updateParent = async (
+  transaction: Transaction,
+  id: string | number,
+  updates: Partial<Parent>
+): Promise<void> => {
+  const parentDoc = await getParentDocById(transaction, id);
 
   // If updating camperIds, ensure the new camperIds exist
   if (updates.camperIds) {
@@ -80,12 +88,15 @@ export const updateParent = async (transaction: Transaction, id: string | number
     }
   }
 
-  transaction.update(parentRef, updates);
+  transaction.update(parentDoc.ref, updates); // Use parentDoc.ref directly
 };
 
 // Delete a parent and remove the parent from all associated campers
-export const deleteParent = async (transaction: Transaction, id: string | number): Promise<void> => {
-  const { parentRef, parentDoc } = await getParentRefById(transaction, id);
+export const deleteParent = async (
+  transaction: Transaction,
+  id: string | number
+): Promise<void> => {
+  const parentDoc = await getParentDocById(transaction, id);
   const parentData = parentDoc.data() as Parent;
 
   // Remove this parent from all referenced Campers
@@ -102,5 +113,5 @@ export const deleteParent = async (transaction: Transaction, id: string | number
     }
   }
 
-  transaction.delete(parentRef);
+  transaction.delete(parentDoc.ref); // Use parentDoc.ref directly
 };
