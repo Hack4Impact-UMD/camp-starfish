@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import cross from "../assets/cross.svg";
 
 function ConfirmationModal({ text, onConfirm }: { text: string; onConfirm: () => void }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -29,13 +30,13 @@ function ConfirmationModal({ text, onConfirm }: { text: string; onConfirm: () =>
             {/* Modal Overlay */}
             {isModalOpen && (
                 <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center">
-                    <div className="bg-[#F1F1F1] p-[48px_56px] rounded-lg shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] w-[576px] h-fit text-center gap-[36px]">
+                    <div className="relative bg-[#F1F1F1] p-[48px_56px] rounded-lg shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] w-[576px] h-fit text-center gap-[36px]">
                         {/* Close Button */}
                         <button
                             onClick={handleCancel}
-                            className="absolute top-40 right-40"
+                            className="absolute top-6 right-6 flex-shrink-0"
                         >
-                            {/* <img src={}></img> */}
+                            <img src={cross.src} alt="close" className="w-[29px] h-[29px] aspect-[29/29]" />
                         </button>
 
                         {/* Confirmation Text */}
