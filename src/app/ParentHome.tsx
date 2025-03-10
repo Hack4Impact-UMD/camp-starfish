@@ -9,7 +9,7 @@ export default function ParentHome() {
         <div className="relative flex flex-col lg:flex-row text-[20px] items-center justify-center flex-1 min-h-screen text-black bg-white px-6 lg:gap-x-8 overflow-hidden w-full">
             {/* Left Half */}
             <div className="flex flex-col items-center lg:items-start justify-center w-full lg:w-1/2 h-full p-6 lg:p-12 lg:ml-[20px] gap-8 text-center lg:text-left mt-[-40px] z-10">
-                <h1 className="text-[40px] lg:text-[80px] font-semibold font-newSpirit">Welcome, parentName!</h1>
+                <h1 className="text-[40px] lg:text-[80px] font-semibold font-newSpirit text-camp-primary">Welcome, parentName!</h1>
                 <p>You can view and download your camper’s photos now</p>
                 <button
                     className="bg-camp-tert-green px-12 lg:px-24 py-3 font-lato font-bold rounded-full text-white whitespace-nowrap"
