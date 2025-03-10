@@ -17,7 +17,7 @@ export default {
           tert: {
             green: "#07B862",
             blue: "#00BDCE",
-            orange: "F4831F"
+            orange: "#F4831F"
           },
           white: "#FFFFFF"
         },
