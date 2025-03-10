@@ -1,7 +1,8 @@
 "use client";
 import { onAuthStateChanged, User, IdTokenResult } from "firebase/auth";
 import React, { JSX, createContext, useEffect, useState } from "react";
-import { auth } from "@/config/firebase";
+import { auth, functions } from "@/config/firebase";
+import { httpsCallable } from "firebase/functions";
 
 export interface AuthContextType {
   user: User | null;
@@ -28,7 +29,12 @@ export default function AuthProvider({
       if (newUser) {
         let newToken = await newUser.getIdTokenResult();
         if (!newToken.claims.role) {
-          // TODO: use Cloud Function to set role
+          try {
+            await httpsCallable(functions, "checkWhitelist")();
+            newToken = await newUser.getIdTokenResult(true);
+          } catch (error) {
+            setError("An error occurred while trying to authenticate.");
+          }
         }
         setUser(newUser);
         setToken(newToken);

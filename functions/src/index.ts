@@ -7,14 +7,21 @@
  * See a full list of supported triggers at https://firebase.google.com/docs/functions
  */
 
-import {onRequest} from "firebase-functions/v2/https";
-import * as logger from "firebase-functions/logger";
+import { HttpsError, onCall } from "firebase-functions/v2/https";
+import { initializeApp } from "firebase-admin";
 
-// Start writing functions
-// https://firebase.google.com/docs/functions/typescript
+const admin = initializeApp();
 
-export const helloWorld = onRequest((request, response) => {
-  response.set("Access-Control-Allow-Origin", "*");
-  logger.info("Hello logs take 2!", {structuredData: true});
-  response.send({ data: "Hello from Firebase!"});
+export const checkWhitelist = onCall(async (req, res) => {
+  return new Promise(async (resolve, reject) => {
+    // TODO: Check if user email is somewhere in database, delete account if not
+    const uid = await req.auth?.uid;
+    if (!uid) {
+      reject("Unauthenticated");
+      throw new HttpsError("failed-precondition", "Unauthenticated");
+    }
+
+    await admin.auth().setCustomUserClaims(uid, { role: "ADMIN" });
+    resolve(`User with uid ${uid} has been given ADMIN role`);
+  });
 });
