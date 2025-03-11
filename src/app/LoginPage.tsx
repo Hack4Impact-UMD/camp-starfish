@@ -13,7 +13,7 @@ export default function LoginPage() {
       </div>
 
       <div className="bg-[#F1F1F1] m-5 py-8 px-5 rounded-2xl w-5/6 max-w-[424px] min-h-[300px] flex flex-col items-center text-center shadow-lg relative">
-        <h1 className="text-black text-[32px] font-lato font-bold pb-4 text-camp-tert-dark_grey">
+        <h1 className="text-black text-[32px] font-lato font-bold pb-4 text-camp-text-modalTitle">
           WELCOME
         </h1>
         <p className="text-gray-600 text-xl pb-10 font-lato">
