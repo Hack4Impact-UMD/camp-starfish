@@ -18,8 +18,10 @@ function ConfirmationModal({ text, onConfirm, cannotUndo, callingObject }: { tex
     return (
         <>
             {/* Open Button */}
-            <div className="flex items-center justify-center min-h-screen" onClick = {() => setIsModalOpen(true)}>
-                {callingObject}
+            <div className="flex items-center justify-center min-h-screen">
+                {React.cloneElement(callingObject, {
+                    onClick: () => setIsModalOpen(true),
+                })}
             </div>
 
             {/* Modal Overlay */}
