@@ -7,7 +7,7 @@ import LoadingAnimation from "../components/LoadingAnimation";
  * Displays looping animated loading indicator using 4 SVG images. Cycles through each image 
  * every 500ms. Uses Framer Motion for smooth transitions.
  */
-export default function Loading() {
+export default function LoadingPage() {
     return (
         <div className="flex flex-col items-center justify-center h-full w-full bg-white">
             <h1 className="font-lato text-black text-[32px] font-extrabold leading-normal transform uppercase">Loading...</h1>
