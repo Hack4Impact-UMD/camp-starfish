@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, JSX } from "react";
-import cross from "../assets/cross.svg";
+import cross from "../assets/icon/crossIcon.svg";
 
 function ConfirmationModal({ text, onConfirm, cannotUndo, callingObject }: { text: string; onConfirm: () => void; cannotUndo: boolean, callingObject: JSX.Element }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
