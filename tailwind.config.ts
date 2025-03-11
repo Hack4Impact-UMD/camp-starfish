@@ -11,16 +11,38 @@ export default {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        
         camp: {
           primary: "#002D45",
           secondary: "#FFDE59",
           tert: {
             green: "#07B862",
             blue: "#00BDCE",
-            orange: "F4831F"
+            orange: "#F4831F",
           },
-          white: "#FFFFFF"
+          white: "#FFFFFF",
+
+          text: {
+            modalTitle: "#333333",
+            modalSecondaryTitle: "#4A4A4A",
+            headingBody: "#002D45",
+            subheading: "#324D5B",
+            toolButtons: "#324D5B",
+            error: "#D32F2F",
+            link: "#1D70B8",
+          },
+          buttons: {
+            buttonTextDark: "#FFFFFF",
+            buttonTextLight: "#333333",
+            neutral: "#BDC3C7",
+          },
+          background: {
+            default: "#F8FAFC",
+            modal: "#F1F1F1",
+            standardComponent: "#F7F7F7",
+          },
         },
+
         pattern: {
           primary_bg: "rgba(255, 255, 255, 0.07)",
           secondary_bg: "rgba(255, 255, 255, 0.40)",
