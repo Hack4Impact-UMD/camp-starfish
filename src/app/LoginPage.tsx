@@ -4,8 +4,12 @@ import React from "react";
 import GoogleIcon from "@/assets/icons/Google.svg";
 import ErrorIcon from "@/assets/icons/errorIcon.svg";
 import BackgroundPattern from "@/components/BackgroundPattern";
+import { useAuth } from "@/auth/useAuth";
+import { signInWithGooglePopup } from "@/auth/authN";
 
 export default function LoginPage() {
+  const auth = useAuth();
+
   return (
     <div className="relative min-h-full w-full flex items-center justify-center bg-camp-primary overflow-hidden">
       <div className="absolute inset-0 h-full">
@@ -13,7 +17,7 @@ export default function LoginPage() {
       </div>
 
       <div className="bg-[#F1F1F1] m-5 py-8 px-5 rounded-2xl w-5/6 max-w-[424px] min-h-[300px] flex flex-col items-center text-center shadow-lg relative">
-        <h1 className="text-black text-[32px] font-lato font-bold pb-4">
+        <h1 className="text-black text-[32px] font-lato font-bold pb-4 text-camp-text-modalTitle">
           WELCOME
         </h1>
         <p className="text-gray-600 text-xl pb-10 font-lato">
@@ -21,7 +25,7 @@ export default function LoginPage() {
         </p>
 
         {/* Google Sign-in Button */}
-        <button
+        <button onClick={signInWithGooglePopup}
           className="flex flex-row justify-around items-center w-5/6 max-w-[344px] bg-white 
                     py-4 px-12 rounded-full shadow-[0_4px_4px_-1px_rgba(0,0,0,0.2)] font-lato text-xl text-gray-600"
         >
@@ -30,13 +34,12 @@ export default function LoginPage() {
         </button>
 
         {/* Error Message */}
-        <div className="flex flex-row w-5/6 mt-[14px]">
+        {auth.error && <div className="flex flex-row w-5/6 mt-[14px]">
           <img src={ErrorIcon.src} alt="Error Icon" />
           <p className="text-[#D32F2F] text-sm font-lato text-left pl-2">
-            Email not registered with CampMinder. Please try again or contact
-            admin.
+            {auth.error}
           </p>
-        </div>
+        </div>}
 
         {/* Signup Link */}
         <p className="text-gray-500 text-sm mt-[43px] font-lato ">

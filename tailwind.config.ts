@@ -54,11 +54,6 @@ export default {
         newSpirit: ["var(--font-newSpirit)"],
         besteam: ["var(--font-besteam)"],
       },
-      fontFamily: {
-        lato: "var(--font-lato)",
-        newSpirit: "var(--font-new-spirit)",
-        besteam: "var(--font-besteam)",
-      },
     },
   },
   plugins: [],
