@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import cross from "../assets/cross.svg";
 
-function ConfirmationModal({ text, onConfirm }: { text: string; onConfirm: () => void }) {
+function ConfirmationModal({ text, onConfirm, cannotUndo }: { text: string; onConfirm: () => void; cannotUndo: boolean }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const handleConfirm = () => {
@@ -41,11 +41,15 @@ function ConfirmationModal({ text, onConfirm }: { text: string; onConfirm: () =>
 
                         {/* Confirmation Text */}
                         <h2 className="text-[29px] font-lato font-bold text-[#333] text-center mb-2 p-[8px] gap-[8px]">
-                            Are you sure you want to <span className="font-bold">{text}</span>?
+                            {text}
                         </h2>
-                        <p className="flex flex-col justify-center items-center text-[20px] text-[#4A4A4A] font-lato font-normal mb-6 gap-[36px]">
-                            WARNING: This action cannot be undone
-                        </p>
+                        { cannotUndo && (
+                                <p className="flex flex-col justify-center items-center text-[20px] text-[#4A4A4A] font-lato font-normal mb-6 gap-[36px]">
+                                    WARNING: This action cannot be undone
+                                </p>
+                            )
+                        }
+                        
 
                         {/* Buttons */}
                         <div className="flex justify-center gap-4">

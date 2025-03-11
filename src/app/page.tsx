@@ -1,5 +1,5 @@
 "use client";
-import ConfirmationModal from "../components/ConfirmationModal.tsx";
+import ConfirmationModal from "../components/ConfirmationModal";
 
 export default function Home() {
   return (
