@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import localFont from "next/font/local";
-import Navbar from "../components/navbar"; // Adjust the path as needed
+import Navbar from "../components/Navbar"; // Adjust the path as needed
+import AuthProvider from "@/auth/AuthProvider";
 
 const lato = localFont({
   src: [
@@ -55,9 +56,15 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${lato.variable} ${newSpirit.variable} ${besteam.variable} antialiased w-screen h-screen`}>
-        <Navbar />
-        {children}
+      <body
+        className={`${lato.variable} ${newSpirit.variable} ${besteam.variable} antialiased w-screen h-screen`}
+      >
+        <AuthProvider>
+          <>
+            <Navbar />
+            {children}
+          </>
+        </AuthProvider>
       </body>
     </html>
   );
