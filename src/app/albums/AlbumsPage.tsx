@@ -1,9 +1,10 @@
 "use client";
 
 import React from "react";
-import AlbumCard from "../components/AlbumCard";
-import createAlbum from "@/assets/Create Album.svg";
-import frame92 from "@/assets/Frame 92.svg";
+import AlbumCard from "../../components/AlbumCard";
+import plusIcon from "@/assets/icons/plusIcon.svg";
+import filterIcon from "@/assets/icons/filterIcon.svg";
+import testPicture from "@/assets/pictures/test-picture.png";
 
 const AlbumsPage: React.FC = () => {
   // Sample data for albums, get data from Firebase
@@ -11,19 +12,20 @@ const AlbumsPage: React.FC = () => {
     title: "Program 1",
     date: "June 2024",
     photoCount: 156,
-    imageUrl: "/path/to/image.jpg", // Replace with actual image URL
+    imageUrl: testPicture.src, // Replace with actual image URL
+    albumId: "album-1",
   });
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="h-full w-full bg-gray-100">
         <div className="container mx-auto px-4 py-6">
             <div className="flex items-center justify-between">
                 <h1 className="text-5xl font-newSpirit font-bold text-camp-primary">
                     Albums
                 </h1>
                 <div className="flex items-center gap-4 ml-auto">
-                    <img className="w-[72px] h-[72px] flex-none cursor-pointer" src={frame92.src} alt="Frame 92" />
-                    <img className="w-[72px] h-[72px] flex-none cursor-pointer" src={createAlbum.src} alt="Create Album" />
+                    <img className="w-[72px] h-[72px] flex-none cursor-pointer" src={filterIcon.src} alt="Filter" />
+                    <img className="w-[72px] h-[72px] flex-none cursor-pointer" src={plusIcon.src} alt="Plus" />
                 </div>
             </div>
 
