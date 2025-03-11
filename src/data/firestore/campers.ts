@@ -1,6 +1,6 @@
 import { db } from "../../config/firebase";
 import { Camper } from "../../types/personTypes";
-import { doc, getDoc, setDoc, updateDoc, deleteDoc, Transaction } from "firebase/firestore";
+import { doc, Transaction } from "firebase/firestore";
 
 const CAMPERS_COLLECTION = "campers";
 
