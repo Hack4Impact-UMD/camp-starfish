@@ -3,6 +3,7 @@ import { onAuthStateChanged, User, IdTokenResult } from "firebase/auth";
 import React, { JSX, createContext, useEffect, useState } from "react";
 import { auth, functions } from "@/config/firebase";
 import { httpsCallable } from "firebase/functions";
+import LoadingPage from "@/app/loading";
 
 export interface AuthContextType {
   user: User | null;
@@ -46,6 +47,10 @@ export default function AuthProvider({
     });
     return () => unsubscribe();
   }, []);
+
+  if (loading) {
+    return <LoadingPage />;
+  }
 
   return (
     <AuthContext.Provider value={{ user, token, loading, error }}>
