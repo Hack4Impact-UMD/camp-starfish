@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, JSX } from "react";
 import cross from "../assets/cross.svg";
 
-function ConfirmationModal({ text, onConfirm, cannotUndo }: { text: string; onConfirm: () => void; cannotUndo: boolean }) {
+function ConfirmationModal({ text, onConfirm, cannotUndo, callingObject }: { text: string; onConfirm: () => void; cannotUndo: boolean, callingObject: JSX.Element }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const handleConfirm = () => {
@@ -18,13 +18,8 @@ function ConfirmationModal({ text, onConfirm, cannotUndo }: { text: string; onCo
     return (
         <>
             {/* Open Button */}
-            <div className="flex items-center justify-center min-h-screen">
-                <button
-                    onClick={() => setIsModalOpen(true)}
-                    className="bg-camp-tert-green px-24 py-3 font-lato font-bold rounded-full text-white hover:bg-camp-tert-blue transition duration-300"
-                >
-                    OPEN CONFIRMATION MODAL
-                </button>
+            <div className="flex items-center justify-center min-h-screen" onClick = {() => setIsModalOpen(true)}>
+                {callingObject}
             </div>
 
             {/* Modal Overlay */}
@@ -49,8 +44,6 @@ function ConfirmationModal({ text, onConfirm, cannotUndo }: { text: string; onCo
                                 </p>
                             )
                         }
-                        
-
                         {/* Buttons */}
                         <div className="flex justify-center gap-4">
                             <button
