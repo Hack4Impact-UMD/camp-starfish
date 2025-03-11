@@ -25,6 +25,9 @@ const AlbumsPage: React.FC = () => {
                 </h1>
                 <div className="flex items-center gap-4 ml-auto">
                     <img className="w-[72px] h-[72px] flex-none cursor-pointer" src={filterIcon.src} alt="Filter" />
+                    <button className="border-2 border-camp-primary text-lg py-2 px-4 rounded-3xl w-[252px] h-[48px] font-lato font-bold text-camp-text-modalTitle">
+                        Select All 
+                    </button>
                     <img className="w-[72px] h-[72px] flex-none cursor-pointer" src={plusIcon.src} alt="Plus" />
                 </div>
             </div>
