@@ -22,7 +22,6 @@ export default {
           },
           white: "#FFFFFF",
 
-          // Newly added colors, grouped by usage
           text: {
             modalTitle: "#333333",
             modalSecondaryTitle: "#4A4A4A",
