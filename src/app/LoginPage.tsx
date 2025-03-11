@@ -7,9 +7,9 @@ import BackgroundPattern from "@/components/BackgroundPattern";
 
 export default function LoginPage() {
   return (
-    <div className="relative min-h-full flex items-center justify-center bg-camp-primary">
-      <div className="absolute inset-0 w-full h-full">
-        <BackgroundPattern fill="#FFFFFF" opacity={0.1} />
+    <div className="relative min-h-full w-full flex items-center justify-center bg-camp-primary overflow-hidden">
+      <div className="absolute inset-0 h-full">
+        <BackgroundPattern fill="#FFFFFF" opacity={0.07} />
       </div>
 
       <div className="bg-[#F1F1F1] m-5 py-8 px-5 rounded-2xl w-5/6 max-w-[424px] min-h-[300px] flex flex-col items-center text-center shadow-lg relative">
