@@ -27,7 +27,7 @@ function ConfirmationModal({ text, onConfirm, cannotUndo, callingObject }: { tex
             {/* Modal Overlay */}
             {isModalOpen && (
                 <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center">
-                    <div className="relative bg-[#F1F1F1] p-[48px_56px] rounded-lg shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] w-[576px] h-fit text-center gap-[36px]">
+                    <div className="relative bg-camp-background-modal p-[48px_56px] rounded-lg shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] w-[576px] h-fit text-center gap-[36px]">
                         {/* Close Button */}
                         <button
                             onClick={handleCancel}
@@ -37,11 +37,11 @@ function ConfirmationModal({ text, onConfirm, cannotUndo, callingObject }: { tex
                         </button>
 
                         {/* Confirmation Text */}
-                        <h2 className="text-[29px] font-lato font-bold text-[#333] text-center mb-2 p-[8px] gap-[8px]">
+                        <h2 className="text-[29px] font-lato font-bold text-camp-text-modalTitle text-center mb-2 p-[8px] gap-[8px]">
                             {text}
                         </h2>
                         { cannotUndo && (
-                                <p className="flex flex-col justify-center items-center text-[20px] text-[#4A4A4A] font-lato font-normal mb-6 gap-[36px]">
+                                <p className="flex flex-col justify-center items-center text-[20px] text-camp-text-modalSecondaryTitle font-lato font-normal mb-6 gap-[36px]">
                                     WARNING: This action cannot be undone
                                 </p>
                             )
@@ -50,13 +50,13 @@ function ConfirmationModal({ text, onConfirm, cannotUndo, callingObject }: { tex
                         <div className="flex justify-center gap-4">
                             <button
                                 onClick={handleCancel}
-                                className="bg-[#BDC3C7] text-black font-lato text-[20px] fold-bold leading-normal rounded-[40px] px-[56px] py-[16px] w-[196px] flex justify-center items-center flex-shrink-0 hover:bg-gray-500 hover:text-white transition duration-300"
+                                className="bg-camp-buttons-neutral text-black font-lato text-[20px] fold-bold leading-normal rounded-[40px] px-[56px] py-[16px] w-[196px] flex justify-center items-center flex-shrink-0 hover:bg-gray-500 hover:text-white transition duration-300"
                             >
                                 CANCEL
                             </button>
                             <button
                                 onClick={handleConfirm}
-                                className="bg-[#D32F2F] text-white font-lato text-[20px] fold-bold leading-normal rounded-[40px] px-[56px] py-[16px] w-[196px] flex justify-center items-center flex-shrink-0 hover:bg-red-800 transition duration-300"
+                                className="bg-camp-text-error text-white font-lato text-[20px] fold-bold leading-normal rounded-[40px] px-[56px] py-[16px] w-[196px] flex justify-center items-center flex-shrink-0 hover:bg-red-800 transition duration-300"
                             >
                                 CONFIRM
                             </button>
