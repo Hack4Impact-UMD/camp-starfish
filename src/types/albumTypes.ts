@@ -9,10 +9,12 @@ export interface Album {
 }
 
 export interface ImageMetadata {
-  name: string;
   takenDate: string; // ISO-8601
-  approvedTags: string[]; // camperIds
-  inReviewTags: string[]; // camperIds
+  inReview: boolean;
+  tags: {
+    approved: number[]; // camperIds
+    inReview: number[]; // camperIds
+  }
 }
 
 // Permissions for sharing photos with a given child in them
