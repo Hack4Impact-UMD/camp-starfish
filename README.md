@@ -1,6 +1,6 @@
 <img src="src/assets/logos/darkBgLogo.png" alt="Camp Starfish logo" title="Camp Starfish" align="right" height="65" />
 
-# Camp Starfish
+# ⭐️ Camp Starfish ⭐️
 
 Welcome to the official repository for the **Camp Starfish Photo & Scheduling App**, developed by **Hack4Impact-UMD**! 🎉
 
