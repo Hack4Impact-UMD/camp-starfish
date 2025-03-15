@@ -1,4 +1,4 @@
-<img src="src/assets/logos/darkBgLogo.png" alt="Camp Starfish logo" title="Camp Starfish" align="right" height="45" />
+<img src="src/assets/logos/darkBgLogo.png" alt="Camp Starfish logo" title="Camp Starfish" align="right" height="65" />
 
 # 🌟 Camp Starfish 🌟
 
