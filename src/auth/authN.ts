@@ -1,17 +1,13 @@
-import { GoogleAuthProvider, getRedirectResult, signInWithPopup } from "firebase/auth";
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { auth } from "@/config/firebase";
 
 export async function signInWithGooglePopup() {
-  return signInWithPopup(auth, new GoogleAuthProvider());
-}
-
-export async function getGoogleRedirectResult() {
   try {
-    const result = await getRedirectResult(auth);
-    return result;
-  } catch (error) {
-    console.error("Error getting redirect result:", error);
-    throw error;
+    return signInWithPopup(auth, new GoogleAuthProvider());
+  } catch (error: any) {
+    if (error.message !== "auth/popup-closed-by-user") {
+      throw Error(error.message);
+    }
   }
 }
 

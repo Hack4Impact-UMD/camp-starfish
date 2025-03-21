@@ -8,9 +8,11 @@
  */
 
 import { HttpsError, onCall } from "firebase-functions/v2/https";
-import { initializeApp } from "firebase-admin";
+import { initializeApp } from "firebase-admin/app";
+import { auth } from "firebase-admin";
 
-const admin = initializeApp();
+initializeApp();
+const adminAuth = auth();
 
 export const checkWhitelist = onCall(async (req, res) => {
   return new Promise(async (resolve, reject) => {
@@ -21,7 +23,7 @@ export const checkWhitelist = onCall(async (req, res) => {
       throw new HttpsError("failed-precondition", "Unauthenticated");
     }
 
-    await admin.auth().setCustomUserClaims(uid, { role: "ADMIN" });
+    await adminAuth.setCustomUserClaims(uid, { role: "ADMIN" });
     resolve(`User with uid ${uid} has been given ADMIN role`);
   });
 });
