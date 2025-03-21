@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import GoogleIcon from "@/assets/icons/Google.svg";
 import ErrorIcon from "@/assets/icons/errorIcon.svg";
 import BackgroundPattern from "@/components/BackgroundPattern";
@@ -8,7 +8,19 @@ import { useAuth } from "@/auth/useAuth";
 import { signInWithGooglePopup } from "@/auth/authN";
 
 export default function LoginPage() {
+  const [error, setError] = useState<string>("");
+
   const auth = useAuth();
+
+  const errorDisplay = error ? error : auth.error;
+
+  const signIn = async () => {
+    try {
+      await signInWithGooglePopup();
+    } catch (error: any) {
+      setError("An error occurred while trying to sign in. Please try again.");
+    }
+  }
 
   return (
     <div className="relative min-h-full w-full flex items-center justify-center bg-camp-primary overflow-hidden">
@@ -25,7 +37,8 @@ export default function LoginPage() {
         </p>
 
         {/* Google Sign-in Button */}
-        <button onClick={signInWithGooglePopup}
+        <button
+          onClick={signIn}
           className="flex flex-row justify-around items-center w-5/6 max-w-[344px] bg-white 
                     py-4 px-12 rounded-full shadow-[0_4px_4px_-1px_rgba(0,0,0,0.2)] font-lato text-xl text-gray-600"
         >
@@ -34,12 +47,14 @@ export default function LoginPage() {
         </button>
 
         {/* Error Message */}
-        {auth.error && <div className="flex flex-row w-5/6 mt-[14px]">
-          <img src={ErrorIcon.src} alt="Error Icon" />
-          <p className="text-[#D32F2F] text-sm font-lato text-left pl-2">
-            {auth.error}
-          </p>
-        </div>}
+        {errorDisplay && (
+          <div className="flex flex-row w-5/6 mt-[14px]">
+            <img src={ErrorIcon.src} alt="Error Icon" />
+            <p className="text-[#D32F2F] text-sm font-lato text-left pl-2">
+              {errorDisplay}
+            </p>
+          </div>
+        )}
 
         {/* Signup Link */}
         <p className="text-gray-500 text-sm mt-[43px] font-lato ">
