@@ -1,7 +1,7 @@
 "use client";
 
 import GalleryCardOne from "../components/GalleryCardOne";
-export default function StaffHome() {
+export default function EmployeeHomePage() {
   return (
     <div className="p-10 lg:p-20 font-lato text-[20px] font-normal leading-normal text-camp-primary bg-white">
       {/* Welcome Section */}

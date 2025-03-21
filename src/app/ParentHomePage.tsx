@@ -4,7 +4,7 @@ import StaticImageCard from "../assets/StaticImageCard.png";
 import pattern from "../assets/patterns/trailPattern3.svg";
 import { redirect } from "next/navigation";
 
-export default function ParentHome() {
+export default function ParentHomePage() {
     return (
         <div className="relative flex flex-col lg:flex-row text-[20px] items-center justify-center flex-1 min-h-screen text-black bg-white px-6 lg:gap-x-8 overflow-hidden w-full">
             {/* Left Half */}
