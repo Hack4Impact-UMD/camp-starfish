@@ -1,11 +1,12 @@
 "use client";
 
-import ParentHome from "./ParentHome"
-import StaffHome from "./StaffHome"
-export default function Home() {
+import RequireAuth from "@/auth/RequireAuth";
+import LoginPage from "./LoginPage"
+
+export default function HomePage() {
   return (
-    <>
-      <StaffHome />
-    </>
-  )
+    <RequireAuth allowedRoles={["ADMIN", "PARENT", "PHOTOGRAPHER", "STAFF"]} allowUnauthenticated>
+      <LoginPage />
+    </RequireAuth>
+  );
 }
