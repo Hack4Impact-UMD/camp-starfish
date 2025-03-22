@@ -2,7 +2,6 @@
 
 import { useAuth } from "@/auth/useAuth";
 import GalleryCardOne from "../components/GalleryCardOne";
-import { permissions } from "@/auth/permissions";
 
 export default function EmployeeHomePage() {
   const auth = useAuth();

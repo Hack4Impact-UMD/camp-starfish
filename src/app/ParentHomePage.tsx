@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuth } from "@/auth/useAuth";
-import StaticImageCard from "../assets/StaticImageCard.png";
+import PolaroidPhotos1 from "../assets/images/PolaroidPhotos1.png";
 import pattern from "../assets/patterns/trailPattern3.svg";
 import { redirect } from "next/navigation";
 
@@ -32,7 +32,7 @@ export default function ParentHomePage() {
             {/* Right Half */}
             <div className="flex flex-col items-center justify-center w-full lg:w-1/2 h-full lg:mr-[20px] mt-[-40px] z-10">
                 <div className="text-center p-4 w-full">
-                    <img src={StaticImageCard.src} alt="Album Photos Component" />
+                    <img src={PolaroidPhotos1.src} alt="Album Photos Component" />
                 </div>
             </div>
         </div>

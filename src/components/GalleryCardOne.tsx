@@ -1,6 +1,6 @@
 "use client";
-import StaticImageCard from "../assets/StaticImageCard.png";
-import albumIcon from "@/assets/solar_album-bold.svg";
+import PolaroidPhotos1 from "../assets/images/PolaroidPhotos1.png";
+import albumIcon from "@/assets/icons/albumIcon.svg";
 
 
 type GalleryCardProps = {
@@ -16,7 +16,7 @@ export default function GalleryCardOne({ title, description }: GalleryCardProps)
           <img src={albumIcon.src}></img>
         </span>
         <p className="text-center text-[20px] font-[400] text-modalSecondaryTitle">{description}</p>
-        <img className="mt-[20px] mb-[20px]" src={StaticImageCard.src}></img>
+        <img className="mt-[20px] mb-[20px]" src={PolaroidPhotos1.src}></img>
         <button className="rounded-[40px] w-full py-[16px] text-[20px] text-white font-[700] bg-camp-tert-green">VIEW {title}</button>      
       </div>
     )
