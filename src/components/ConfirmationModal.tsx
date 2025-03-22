@@ -3,7 +3,14 @@
 import React, { useState, JSX } from "react";
 import cross from "../assets/icon/crossIcon.svg";
 
-function ConfirmationModal({ text, onConfirm, cannotUndo, callingObject }: { text: string; onConfirm: () => void; cannotUndo: boolean, callingObject: JSX.Element }) {
+interface ConfirmationModalProps {
+    text: string;
+    onConfirm: () => void;
+    cannotUndo: boolean;
+    trigger: JSX.Element
+}
+
+function ConfirmationModal({ text, onConfirm, cannotUndo, trigger }: ConfirmationModalProps) {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const handleConfirm = () => {
@@ -19,7 +26,7 @@ function ConfirmationModal({ text, onConfirm, cannotUndo, callingObject }: { tex
         <>
             {/* Open Button */}
             <div className="flex items-center justify-center min-h-screen">
-                {React.cloneElement(callingObject, {
+                {React.cloneElement(trigger, {
                     onClick: () => setIsModalOpen(true),
                 })}
             </div>
