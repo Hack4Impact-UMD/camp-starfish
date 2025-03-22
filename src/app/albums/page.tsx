@@ -1,6 +1,11 @@
 "use client";
+import RequireAuth from "@/auth/RequireAuth";
 import AlbumsPage from "./AlbumsPage";
 
 export default function Page() {
-  return <AlbumsPage/>
+  return (
+    <RequireAuth allowedRoles={["ADMIN", "PARENT", "PHOTOGRAPHER", "STAFF"]}>
+      <AlbumsPage />
+    </RequireAuth>
+  );
 }
