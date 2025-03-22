@@ -27,23 +27,17 @@ export const createCamper = async (transaction: Transaction, camper: Camper): Pr
 };
 
 export const updateCamper = async (transaction: Transaction, campminderId: number, updates: Partial<Camper>): Promise<void> => {
-  const camperRef = doc(db, CAMPERS_COLLECTION, String(campminderId));
-  const camperDoc = await transaction.get(camperRef);
-
-  if (!camperDoc.exists()) {
-    throw new Error("Camper not found.");
+  try {
+    const camperRef = doc(db, CAMPERS_COLLECTION, String(campminderId));
+    transaction.update(camperRef, updates);
+  } catch (error: any) {
+    if (error.code === "not-found") {
+      throw new Error("Camper not found.");
+    }
   }
-
-  transaction.update(camperRef, updates);
 };
 
 export const deleteCamper = async (transaction: Transaction, campminderId: number): Promise<void> => {
   const camperRef = doc(db, CAMPERS_COLLECTION, String(campminderId));
-  const camperDoc = await transaction.get(camperRef);
-
-  if (!camperDoc.exists()) {
-    throw new Error("Camper not found.");
-  }
-
   transaction.delete(camperRef);
 };
