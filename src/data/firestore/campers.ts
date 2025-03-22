@@ -1,43 +1,39 @@
 import { db } from "@/config/firebase";
 import { Camper } from "@/types/personTypes";
-import { doc, Transaction } from "firebase/firestore";
+import { doc, getDoc, setDoc, updateDoc, deleteDoc } from "firebase/firestore";
 
 const CAMPERS_COLLECTION = "campers";
 
-export const getCamperById = async (transaction: Transaction, campminderId: number): Promise<Camper> => {
+export const getCamperById = async (campminderId: number): Promise<Camper> => {
   const camperRef = doc(db, CAMPERS_COLLECTION, String(campminderId));
-  const camperDoc = await transaction.get(camperRef);
-
+  const camperDoc = await getDoc(camperRef);
   if (!camperDoc.exists()) {
-    throw new Error("Camper not found.");
+    throw new Error("Camper not found");
   }
-
   return camperDoc.data() as Camper;
 };
 
-export const createCamper = async (transaction: Transaction, camper: Camper): Promise<void> => {
+export const createCamper = async (camper: Camper): Promise<void> => {
   const camperRef = doc(db, CAMPERS_COLLECTION, String(camper.campminderId));
-  const camperDoc = await transaction.get(camperRef);
-
-  if (camperDoc.exists()) {
-    throw new Error("Camper already exists.");
+  try {
+    await setDoc(camperRef, camper);
+  } catch (error: any) {
+    throw Error("Camper already exists")
   }
-
-  transaction.set(camperRef, camper);
 };
 
-export const updateCamper = async (transaction: Transaction, campminderId: number, updates: Partial<Camper>): Promise<void> => {
+export const updateCamper = async (campminderId: number, updates: Partial<Camper>): Promise<void> => {
   try {
     const camperRef = doc(db, CAMPERS_COLLECTION, String(campminderId));
-    transaction.update(camperRef, updates);
+    await updateDoc(camperRef, updates);
   } catch (error: any) {
     if (error.code === "not-found") {
-      throw new Error("Camper not found.");
+      throw new Error("Camper not found");
     }
   }
 };
 
-export const deleteCamper = async (transaction: Transaction, campminderId: number): Promise<void> => {
+export const deleteCamper = async (campminderId: number): Promise<void> => {
   const camperRef = doc(db, CAMPERS_COLLECTION, String(campminderId));
-  transaction.delete(camperRef);
+  await deleteDoc(camperRef);
 };
