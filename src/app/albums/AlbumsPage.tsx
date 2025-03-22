@@ -8,7 +8,7 @@ import testPicture from "@/assets/pictures/test-picture.png";
 
 const AlbumsPage: React.FC = () => {
   // Sample data for albums, get data from Firebase
-  const albums = Array(8).fill({
+  const albums = Array(100).fill({
     title: "Program 1",
     date: "June 2024",
     photoCount: 156,
@@ -17,7 +17,7 @@ const AlbumsPage: React.FC = () => {
   });
 
   return (
-    <div className="h-full w-full bg-gray-100">
+    <div className="w-full min-h-full bg-gray-100">
         <div className="container mx-auto px-4 py-6">
             <div className="flex items-center justify-between">
                 <h1 className="text-5xl font-newSpirit font-bold text-camp-primary">

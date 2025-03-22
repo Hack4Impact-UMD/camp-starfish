@@ -57,12 +57,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${lato.variable} ${newSpirit.variable} ${besteam.variable} antialiased w-screen h-screen`}
+        className={`${lato.variable} ${newSpirit.variable} ${besteam.variable} antialiased w-full h-screen`}
       >
         <AuthProvider>
           <>
-            <Navbar />
-            {children}
+            <div className="w-full h-[10%]">
+              <Navbar />
+            </div>
+            <div className="w-full h-[90%]">{children}</div>
           </>
         </AuthProvider>
       </body>
