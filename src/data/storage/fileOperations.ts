@@ -6,7 +6,7 @@ export async function uploadImage(img: File, path: string) {
   await uploadBytes(uploadRef, img);
 }
 
-export async function downloadImage(path: string) {
+export async function getImageURL(path: string) {
   let downloadRef = ref(storage, path);
   return await getDownloadURL(downloadRef);
 }
@@ -22,7 +22,7 @@ export async function uploadImages(imgs: File[], paths: string[]) {
   await Promise.all(uploadPromises);
 }
 
-export async function downloadImages(paths: string[]) {
-  let downloadPromises = paths.map((path) => downloadImage(path));
+export async function getImageURLs(paths: string[]) {
+  let downloadPromises = paths.map((path) => getImageURL(path));
   return await Promise.all(downloadPromises);
 }
