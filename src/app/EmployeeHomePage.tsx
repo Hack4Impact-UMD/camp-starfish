@@ -16,11 +16,11 @@ export default function EmployeeHomePage() {
       {/* Content Section */}
       <div className="flex flex-wrap justify-center items-center gap-[84px]">
         {/* Albums */}
-        <GalleryCardOne title="ALBUMS" description="Manage photos from past and ongoing programs"/>
+        <GalleryCardOne title="ALBUMS" href="/albums" description="Manage photos from past and ongoing programs"/>
         {/* Programs */}
-        <GalleryCardOne title="PROGRAMS" description="Use the activity scheduler to organize campers and staff"/>
+        <GalleryCardOne title="PROGRAMS" href="/programs" description="Use the activity scheduler to organize campers and staff"/>
         { /* Campers */}
-        <GalleryCardOne title="CAMPERS" description="Access the cohort list and each camper’s details"/>
+        <GalleryCardOne title="CAMPERS" href="/campers" description="Access the cohort list and each camper’s details"/>
       </div>
     </div>
   )
