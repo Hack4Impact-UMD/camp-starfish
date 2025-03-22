@@ -8,100 +8,99 @@ import {
   collection,
   Transaction,
   or,
+  setDoc,
+  updateDoc,
+  deleteDoc,
 } from "firebase/firestore";
+import { getCamperById } from "./campers";
 
 const PARENTS_COLLECTION = "parents";
 const CAMPERS_COLLECTION = "campers";
 
 // Get a parent by campminderId or uid
-export const getParentById = async (
-  transaction: Transaction,
-  id: string | number
-): Promise<Parent> => {
+export const getParentById = async (id: string | number): Promise<Parent> => {
   const parentsCollection = collection(db, PARENTS_COLLECTION);
 
   // Using Firestore's `or()` to query for either condition
   const q = query(
     parentsCollection,
-    or(where("ids.uid", "==", id), where("ids.campminderId", "==", id))
+    or(where("uid", "==", id), where("campminderId", "==", id))
   );
 
   const querySnapshot = await getDocs(q);
   if (querySnapshot.empty) {
-    throw new Error("Parent not found.");
+    throw new Error("Parent not found");
   }
 
   return querySnapshot.docs[0].data() as Parent;
 };
 
 // Create a new parent
-export const createParent = async (
-  transaction: Transaction,
-  parent: Parent
-): Promise<void> => {
-  const parentId = parent.ids.campminderId;
+export const createParent = async (parent: Parent): Promise<void> => {
+  const parentId = parent.campminderId;
   const parentRef = doc(db, PARENTS_COLLECTION, String(parentId));
-  const parentDoc = await transaction.get(parentRef);
-
-  if (parentDoc.exists()) {
-    throw new Error("Parent already exists.");
-  }
 
   // Ensure all referenced camperIds exist
   for (const camperId of parent.camperIds) {
-    const camperRef = doc(db, CAMPERS_COLLECTION, String(camperId));
-    const camperDoc = await transaction.get(camperRef);
-    if (!camperDoc.exists()) {
-      throw new Error(`Camper with ID ${camperId} does not exist.`);
+    try {
+      await getCamperById(camperId);
+    } catch (error: any) {
+      throw new Error("Parent has invalid camperIds")
     }
   }
 
-  transaction.set(parentRef, parent);
+  try {
+    await setDoc(parentRef, parent);
+  } catch (error: any) {
+    throw Error("Parent already exists");
+  }
 };
 
-// Update a parent
-export const updateParent = async (
-  transaction: Transaction,
-  id: string | number,
-  updates: Partial<Parent>
-): Promise<void> => {
-  const parentDoc = await getParentById(transaction, id);
-
+// Update a parent by campminderId
+export const updateParent = async (id: number, updates: Partial<Parent>): Promise<void> => {
   // If updating camperIds, ensure the new camperIds exist
   if (updates.camperIds) {
     for (const camperId of updates.camperIds) {
-      const camperRef = doc(db, CAMPERS_COLLECTION, String(camperId));
-      const camperDoc = await transaction.get(camperRef);
-      if (!camperDoc.exists()) {
-        throw new Error(`Camper with ID ${camperId} does not exist.`);
+      try {
+        await getCamperById(camperId);
+      } catch (error: any) {
+        throw new Error("Parent has invalid camperIds")
       }
     }
   }
 
-  transaction.update(doc(db, PARENTS_COLLECTION, String(id)), updates);
+  const parentRef = doc(db, PARENTS_COLLECTION, String(id));
+  try {
+    await updateDoc(parentRef, updates);
+  } catch (error: any) {
+    if (error.code === "not-found") {
+      throw new Error("Parent not found");
+    }
+  }
 };
 
 // Delete a parent and remove the parent from all associated campers
-export const deleteParent = async (
-  transaction: Transaction,
-  id: string | number
-): Promise<void> => {
-  const parentDoc = await getParentById(transaction, id);
-  const parentData = parentDoc as Parent;
-
-  // Remove this parent from all referenced Campers
-  for (const camperId of parentData.camperIds) {
-    const camperRef = doc(db, CAMPERS_COLLECTION, String(camperId));
-    const camperDoc = await transaction.get(camperRef);
-
-    if (camperDoc.exists()) {
-      const camperData = camperDoc.data() as Camper;
-      const updatedParentIds = camperData.parentIds.filter(
-        (p) => p.campminderId !== parentData.ids.campminderId
-      );
-      transaction.update(camperRef, { parentIds: updatedParentIds });
-    }
-  }
-
-  transaction.delete(doc(db, PARENTS_COLLECTION, String(id)));
+export const deleteParent = async (id: number): Promise<void> => {
+  const parentRef = doc(db, PARENTS_COLLECTION, String(id));
+  await deleteDoc(parentRef);
+  
+  // TODO: Remove parent from all referenced campers in cloud function
+  //const parentDoc = await getParentById(transaction, id);
+  //const parentData = parentDoc as Parent;
+//
+  //// Remove this parent from all referenced Campers
+  //for (const camperId of parentData.camperIds) {
+  //  const camperRef = doc(db, CAMPERS_COLLECTION, String(camperId));
+  //  const camperDoc = await transaction.get(camperRef);
+//
+  //  if (camperDoc.exists()) {
+  //    const camperData = camperDoc.data() as Camper;
+  //    const updatedParentIds = camperData.parentIds.filter(
+  //      (p) => p.campminderId !== parentData.ids.campminderId
+  //    );
+  //    transaction.update(camperRef, { parentIds: updatedParentIds });
+  //  }
+  //}
+//
+  //transaction.delete(doc(db, PARENTS_COLLECTION, String(id)));
 };
