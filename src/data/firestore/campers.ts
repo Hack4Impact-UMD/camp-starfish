@@ -1,5 +1,5 @@
-import { db } from "../../config/firebase";
-import { Camper } from "../../types/personTypes";
+import { db } from "@/config/firebase";
+import { Camper } from "@/types/personTypes";
 import { doc, Transaction } from "firebase/firestore";
 
 const CAMPERS_COLLECTION = "campers";
