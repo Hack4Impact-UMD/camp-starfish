@@ -1,16 +1,27 @@
 "use client";
 import ConfirmationModal from "../components/ConfirmationModal";
 
-export default function Home() {
+import RequireAuth from "@/auth/RequireAuth";
+import LoginPage from "./LoginPage"
+import RoleBasedPage from "@/auth/RoleBasedPage";
+import EmployeeHomePage from "./EmployeeHomePage";
+import ParentHomePage from "./ParentHomePage";
+
+export default function HomePage() {
   return (
-    <ConfirmationModal
-      text="Are you sure you want to proceed with this action?"
-      onConfirm={() => console.log("Confirmed!")}
-      cannotUndo = {true}
-      trigger = {<button className="bg-camp-tert-green px-24 py-3 font-lato font-bold rounded-full text-white hover:bg-camp-tert-blue transition duration-300">
-            OPEN CONFIRMATION MODAL
-        </button>
-      }
-    />
-  )
+    <RequireAuth
+      allowedRoles={["ADMIN", "PARENT", "PHOTOGRAPHER", "STAFF"]}
+      allowUnauthenticated
+    >
+      <RoleBasedPage
+        rolePages={{
+          ADMIN: <EmployeeHomePage />,
+          PARENT: <ParentHomePage />,
+          PHOTOGRAPHER: <EmployeeHomePage />,
+          STAFF: <EmployeeHomePage />,
+        }}
+        unauthenticatedPage={<LoginPage />}
+      />
+    </RequireAuth>
+  );
 }

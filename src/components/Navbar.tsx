@@ -26,7 +26,7 @@ const Navbar: React.FC = () => {
   const role: Role = auth.token?.claims.role as Role;
 
   return (
-    <nav className="w-full h-[112px] bg-camp-primary px-32 flex items-center justify-between gap-20">
+    <nav className="w-full h-full bg-camp-primary px-32 flex items-center justify-between gap-20">
       {/* Logo on the left */}
       <div className="flex-none">
         <Link href="/">
