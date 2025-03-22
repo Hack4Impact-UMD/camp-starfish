@@ -4,7 +4,7 @@ import React from "react";
 import AlbumCard from "../../components/AlbumCard";
 import plusIcon from "@/assets/icons/plusIcon.svg";
 import filterIcon from "@/assets/icons/filterIcon.svg";
-import testPicture from "@/assets/pictures/test-picture.png";
+import testPicture from "@/assets/images/PolaroidPhotos1.png";
 
 const AlbumsPage: React.FC = () => {
   // Sample data for albums, get data from Firebase
