@@ -1,12 +1,17 @@
 "use client";
 
+import { useAuth } from "@/auth/useAuth";
 import GalleryCardOne from "../components/GalleryCardOne";
+import { permissions } from "@/auth/permissions";
+
 export default function EmployeeHomePage() {
+  const auth = useAuth();
+
   return (
     <div className="p-10 lg:p-20 font-lato text-[20px] font-normal leading-normal text-camp-primary bg-white">
       {/* Welcome Section */}
       <div className="mb-[100px]">
-        <h1 className="text-[65px] lg:text-[80px] font-semibold font-newSpirit">Welcome, staffName!</h1>
+        <h1 className="text-[65px] lg:text-[80px] font-semibold font-newSpirit">Welcome, {auth.user?.displayName}!</h1>
       </div>
 
       {/* Content Section */}
