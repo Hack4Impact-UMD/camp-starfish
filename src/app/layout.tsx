@@ -144,7 +144,7 @@ export default function RootLayout({
             <Navbar />
             {children}
             {/* Always show modal on page load */}
-            <CreateAlbumModal />
+            <CreateAlbumModal trigger={<button>Open Modal</button>} />
           </>
         </AuthProvider>
       </body>
