@@ -5,7 +5,7 @@ import XIcon from "@/assets/icons/xIcon.svg";
 import CheckIcon from "@/assets/icons/checkIcon.svg";
 
 interface ImageViewBottomSectionProps {
-  userRole: "parent" | "staff" | "photographer" | "admin";
+  userRole: "ADMIN" | "PARENT" | "PHOTOGRAPHER" | "STAFF";
 }
 
 const approvedTags = Array.from(
@@ -21,9 +21,9 @@ export default function ImageViewBottomSection({
   userRole,
 }: ImageViewBottomSectionProps) {
   const showApprovedTags =
-    userRole === "staff" || userRole === "photographer" || userRole === "admin";
-  const showInReviewTags = userRole === "photographer" || userRole === "admin";
-  const showReportSection = userRole === "parent" || !showApprovedTags;
+    userRole === "STAFF" || userRole === "PHOTOGRAPHER" || userRole === "ADMIN";
+  const showInReviewTags = userRole === "PHOTOGRAPHER" || userRole === "ADMIN";
+  const showReportSection = userRole === "PARENT" || !showApprovedTags;
 
   return (
     <div className="w-full">

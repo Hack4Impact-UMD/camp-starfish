@@ -13,7 +13,7 @@ interface ImageViewProps {
   image: File;
   onLeftClick: () => void;
   onRightClick: () => void;
-  userRole: "parent" | "staff" | "photographer" | "admin";
+  userRole: "ADMIN" | "PARENT" | "PHOTOGRAPHER" | "STAFF";
 }
 
 export default function ImageView({
@@ -42,7 +42,7 @@ export default function ImageView({
         </div>
 
         <div className="flex flex-row justify-between items-center space-x-4">
-          {userRole === "parent" ? (
+          {userRole === "PARENT" ? (
             <button className="bg-camp-tert-green flex flex-row justify-center space-x-4 p-2 rounded-3xl w-64">
               <p className="text-lg font-lato">SHARE</p>
               <Image
