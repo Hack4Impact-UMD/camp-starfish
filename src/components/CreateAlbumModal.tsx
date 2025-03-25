@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import uploadThumbnail from "@/assets/logos/upload_album.png";
-import type { JSX } from "react";
 
 interface CreateAlbumModalProps {
   trigger: React.ReactNode;
@@ -26,10 +25,10 @@ const CreateAlbumModal: React.FC<CreateAlbumModalProps> = ({ trigger }) => {
       <div onClick={() => setIsOpen(true)}>{trigger}</div>
 
       {isOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white rounded-lg overflow-hidden w-[450px] text-center shadow-lg">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-white rounded-lg overflow-hidden w-full max-w-md mx-4 text-center shadow-lg">
             {/* Header */}
-            <div className="bg-[#002D45] py-4 pl-6 text-left">
+            <div className="bg-[#002D45] py-4 px-6 text-left">
               <h2 className="text-white text-lg font-semibold">CREATE ALBUM</h2>
             </div>
 
@@ -42,7 +41,7 @@ const CreateAlbumModal: React.FC<CreateAlbumModalProps> = ({ trigger }) => {
                 <img
                   src={selectedImage}
                   alt="Uploaded"
-                  className="w-[120px] h-[120px] object-cover rounded-md"
+                  className="w-28 h-28 object-cover rounded-md"
                 />
               ) : (
                 <>
@@ -51,7 +50,9 @@ const CreateAlbumModal: React.FC<CreateAlbumModalProps> = ({ trigger }) => {
                     alt="Upload"
                     className="w-10 h-10"
                   />
-                  <p className="text-[#4A4A4A] mt-2">Upload album thumbnail</p>
+                  <p className="text-[#4A4A4A] mt-2 text-sm text-center">
+                    Upload album thumbnail
+                  </p>
                 </>
               )}
 
@@ -71,7 +72,7 @@ const CreateAlbumModal: React.FC<CreateAlbumModalProps> = ({ trigger }) => {
                 value={albumName}
                 placeholder="Album title"
                 onChange={(e) => setAlbumName(e.target.value)}
-                className="w-full text-center text-[#C0C6C9] border-none outline-none text-lg py-2"
+                className="w-full text-center text-[#C0C6C9] border-none outline-none text-lg py-2 placeholder:text-[#C0C6C9]"
               />
             </div>
 
