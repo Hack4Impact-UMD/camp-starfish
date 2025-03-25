@@ -28,7 +28,7 @@ const CreateAlbumModal: React.FC<CreateAlbumModalProps> = ({ trigger }) => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="bg-white rounded-lg overflow-hidden w-full max-w-md mx-4 text-center shadow-lg">
             {/* Header */}
-            <div className="bg-[#002D45] py-4 px-6 text-left">
+            <div className="bg-camp-primary py-4 px-6 text-left">
               <h2 className="text-white text-lg font-semibold">CREATE ALBUM</h2>
             </div>
 
@@ -50,7 +50,7 @@ const CreateAlbumModal: React.FC<CreateAlbumModalProps> = ({ trigger }) => {
                     alt="Upload"
                     className="w-10 h-10"
                   />
-                  <p className="text-[#4A4A4A] mt-2 text-sm text-center">
+                  <p className="text-camp-text-modalSecondaryTitle mt-2 text-sm text-center">
                     Upload album thumbnail
                   </p>
                 </>
@@ -72,7 +72,7 @@ const CreateAlbumModal: React.FC<CreateAlbumModalProps> = ({ trigger }) => {
                 value={albumName}
                 placeholder="Album title"
                 onChange={(e) => setAlbumName(e.target.value)}
-                className="w-full text-center text-[#C0C6C9] border-none outline-none text-lg py-2 placeholder:text-[#C0C6C9]"
+                className="w-full text-center text-bg-camp-buttons-neutral border-none outline-none text-lg py-2 placeholder:text-bg-camp-buttons-neutral"
               />
             </div>
 
@@ -80,7 +80,7 @@ const CreateAlbumModal: React.FC<CreateAlbumModalProps> = ({ trigger }) => {
             <div className="flex justify-center gap-4 px-6 py-6">
               <button
                 onClick={() => setIsOpen(false)}
-                className="bg-[#C0C6C9] text-black px-6 py-2 rounded-full font-semibold"
+                className="bg-camp-buttons-neutral text-black px-6 py-2 rounded-full font-semibold"
               >
                 CLOSE
               </button>
@@ -89,7 +89,7 @@ const CreateAlbumModal: React.FC<CreateAlbumModalProps> = ({ trigger }) => {
                   // handle create logic here
                   setIsOpen(false);
                 }}
-                className="bg-[#07B862] text-white px-6 py-2 rounded-full font-semibold"
+                className="bg-camp-tert-green text-white px-6 py-2 rounded-full font-semibold"
               >
                 CREATE
               </button>
