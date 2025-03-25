@@ -8,6 +8,7 @@ interface ImageViewBottomSectionProps {
   userRole: "ADMIN" | "PARENT" | "PHOTOGRAPHER" | "STAFF";
 }
 
+// sample list of approved and in-review tags for testing
 const approvedTags = Array.from(
   { length: 20 },
   (_, i) => `studentName${i + 1}`
@@ -52,19 +53,19 @@ export default function ImageViewBottomSection({
               <p className="text-black text-lg font-lato font-semibold m-2 whitespace-nowrap">
                 APPROVED TAGS:
               </p>
-              <div className="overflow-x-auto whitespace-nowrap flex gap-2 p-2 ">
+              <div className="overflow-x-auto whitespace-nowrap flex gap-2 p-2">
                 {approvedTags.map((tag, index) => (
                   <div
                     key={index}
-                    className="bg-white px-4 py-2 rounded-3xl flex items-center"
+                    className="bg-white px-4 py-2 rounded-3xl flex items-center justify-center gap-2"
                   >
-                    <p className="text-black mr-2">{tag}</p>
-                    <button className="p-2">
+                    <p className="text-black">{tag}</p>
+                    <button className="inline-flex items-center justify-center min-w-[22px] min-h-[22px]">
                       <Image
                         src={XIcon.src}
                         alt="Remove Icon"
-                        width={10}
-                        height={10}
+                        width={18}
+                        height={18}
                       />
                     </button>
                   </div>
@@ -86,23 +87,23 @@ export default function ImageViewBottomSection({
                     {inReviewTags.map((tag, index) => (
                       <div
                         key={index}
-                        className="bg-white px-4 py-2 rounded-3xl flex flex-row items-center"
+                        className="bg-white px-4 py-2 rounded-3xl flex flex-row items-center justify-center gap-2"
                       >
-                        <p className="text-black mr-2">{tag}</p>
-                        <button className="p-2">
+                        <p className="text-black ">{tag}</p>
+                        <button className="inline-flex items-center justify-center min-w-[22px] min-h-[22px]">
                           <Image
                             src={XIcon.src}
-                            alt="Disapprove Icon"
-                            width={10}
-                            height={10}
-                          />
-                        </button>
-                        <button className="p-2">
-                          <Image
-                            src={CheckIcon.src}
-                            alt="Approve Icon"
+                            alt="Remove Icon"
                             width={18}
                             height={18}
+                          />
+                        </button>
+                        <button className="inline-flex items-center justify-center min-w-[22px] min-h-[22px]">
+                          <Image
+                            src={CheckIcon.src}
+                            alt="Remove Icon"
+                            width={19}
+                            height={19}
                           />
                         </button>
                       </div>

@@ -87,7 +87,7 @@ export default function ImageView({
         </button>
         <Image
           src={URL.createObjectURL(image)}
-          alt="Selected"
+          alt="Selected Image"
           width={500}
           height={500}
         />
