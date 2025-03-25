@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import Image from "next/image";
-import XIcon from "@/assets/icons/xIcon.svg";
+import CloseIcon from "@/assets/icons/closeIcon.svg";
 import EditIcon from "@/assets/icons/editIcon.svg";
 import DownloadIcon from "@/assets/icons/downloadIcon.svg";
 import FolderMoveIcon from "@/assets/icons/folderMoveIcon.svg";
@@ -32,9 +32,9 @@ export default function ImageView({
   return (
     <div className="fixed w-full h-full inset-0 bg-black bg-opacity-90 flex flex-col items-center justify-between">
       {/* Top Controls */}
-      <div className="w-full flex flex-row justify-between items-center px-10 pt-8 text-white">
+      <div className="w-full flex flex-row justify-between items-center px-10 pt-8 pb-4 text-white">
         <div className="flex flex-row items-center space-x-10">
-          <Image src={XIcon.src} alt="X Icon" width={32} height={32} />
+          <Image src={CloseIcon.src} alt="X Icon" width={32} height={32} />
           <div className="flex flex-row space-x-4">
             <p className="text-xl font-lato">Photo Title</p>
             <Image src={EditIcon.src} alt="Edit Icon" width={25} height={25} />
@@ -76,7 +76,7 @@ export default function ImageView({
       </div>
 
       {/* Image Display */}
-      <div className="relative flex items-center justify-center w-full max-w-5xl">
+      <div className="relative flex flex-grow items-center justify-center w-full max-w-5xl">
         <button onClick={onLeftClick} className="absolute left-0">
           <Image
             src={LeftArrowIcon.src}
@@ -88,9 +88,8 @@ export default function ImageView({
         <Image
           src={URL.createObjectURL(image)}
           alt="Selected"
-          width={600}
-          height={400}
-          className="rounded-lg"
+          width={500}
+          height={500}
         />
         <button onClick={onRightClick} className="absolute right-0">
           <Image
