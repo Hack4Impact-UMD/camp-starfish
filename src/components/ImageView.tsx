@@ -30,13 +30,13 @@ export default function ImageView({
   }, []);
 
   return (
-    <div className="fixed w-full h-full inset-0 bg-black bg-opacity-90 flex flex-col items-center justify-start space-y-8 p-10">
+    <div className="fixed w-full h-full inset-0 bg-black bg-opacity-90 flex flex-col items-center justify-between">
       {/* Top Controls */}
-      <div className="w-full flex flex-row justify-between items-center p-4 text-white">
+      <div className="w-full flex flex-row justify-between items-center px-10 pt-8 text-white">
         <div className="flex flex-row items-center space-x-10">
           <Image src={XIcon.src} alt="X Icon" width={32} height={32} />
           <div className="flex flex-row space-x-4">
-            <p className="text-xl">Photo Title</p>
+            <p className="text-xl font-lato">Photo Title</p>
             <Image src={EditIcon.src} alt="Edit Icon" width={25} height={25} />
           </div>
         </div>
@@ -44,7 +44,7 @@ export default function ImageView({
         <div className="flex flex-row justify-between items-center space-x-4">
           {userRole === "parent" ? (
             <button className="bg-camp-tert-green flex flex-row justify-center space-x-4 p-2 rounded-3xl w-64">
-              <p className="text-xl">SHARE</p>
+              <p className="text-lg font-lato">SHARE</p>
               <Image
                 src={ShareIcon.src}
                 alt="Share Icon"
@@ -54,7 +54,7 @@ export default function ImageView({
             </button>
           ) : (
             <button className="bg-camp-tert-green flex flex-row justify-center space-x-4 p-2 rounded-3xl w-64">
-              <p className="text-xl">MOVE TO</p>
+              <p className="text-lg font-lato">MOVE TO</p>
               <Image
                 src={FolderMoveIcon.src}
                 alt="Folder Move Icon"
@@ -64,7 +64,7 @@ export default function ImageView({
             </button>
           )}
           <button className="bg-camp-tert-blue flex flex-row justify-center space-x-4 p-2 rounded-3xl w-64">
-            <p className="text-xl">DOWNLOAD</p>
+            <p className="text-lg font-lato">DOWNLOAD</p>
             <Image
               src={DownloadIcon.src}
               alt="Download Icon"
@@ -78,7 +78,12 @@ export default function ImageView({
       {/* Image Display */}
       <div className="relative flex items-center justify-center w-full max-w-5xl">
         <button onClick={onLeftClick} className="absolute left-0">
-            <Image src={LeftArrowIcon.src} alt="Left Arrow Icon" width={50} height={50} />
+          <Image
+            src={LeftArrowIcon.src}
+            alt="Left Arrow Icon"
+            width={50}
+            height={50}
+          />
         </button>
         <Image
           src={URL.createObjectURL(image)}
@@ -88,11 +93,17 @@ export default function ImageView({
           className="rounded-lg"
         />
         <button onClick={onRightClick} className="absolute right-0">
-            <Image src={RightArrowIcon.src} alt="Right Arrow Icon" width={50} height={50} />
+          <Image
+            src={RightArrowIcon.src}
+            alt="Right Arrow Icon"
+            width={50}
+            height={50}
+          />
         </button>
       </div>
 
-      
+      {/* Bottom Section */}
+      <ImageViewBottomSection userRole={userRole} />
     </div>
   );
 }
