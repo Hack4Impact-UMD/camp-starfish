@@ -34,19 +34,23 @@ export default function ImageView({
       {/* Top Controls */}
       <div className="w-full flex flex-row justify-between items-center px-10 pt-8 pb-4 text-white">
         <div className="flex flex-row items-center space-x-10">
-          <Image src={CloseIcon.src} alt="X Icon" width={32} height={32} />
+          <button>
+            <Image src={CloseIcon.src} alt="X Icon" width={32} height={32} />
+          </button>
 
-          {userRole !== "PARENT" && (
-            <div className="flex flex-row space-x-4">
-              <p className="text-xl font-lato">Photo Title</p>
-              <Image
-                src={EditIcon.src}
-                alt="Edit Icon"
-                width={25}
-                height={25}
-              />
-            </div>
-          )}
+          <div className="flex flex-row space-x-4">
+            <p className="text-xl font-lato">Photo Title</p>
+            {userRole !== "PARENT" && (
+              <button>
+                <Image
+                  src={EditIcon.src}
+                  alt="Edit Icon"
+                  width={25}
+                  height={25}
+                />
+              </button>
+            )}
+          </div>
         </div>
 
         <div className="flex flex-row justify-between items-center space-x-4">
