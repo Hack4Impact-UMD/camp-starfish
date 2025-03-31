@@ -18,6 +18,10 @@ type ImageUploadModalProps = {
 };
 
 export default function ImageUploadModal({ children }: ImageUploadModalProps) {
+
+  // TODO: use onDrop which takes in accepted files on each new drop
+  // TODO; also use onRejectedDrop or something that gets the new rejected files on each drop
+
   let { acceptedFiles, getRootProps, getInputProps } = useDropzone({
     accept: {
       "image/png": [],
@@ -44,10 +48,10 @@ export default function ImageUploadModal({ children }: ImageUploadModalProps) {
             <div {...getRootProps({ className: "dropzone" })}>
               <input {...getInputProps()} />
               {acceptedFiles.length > 0 ? (
-                <div>
+                <div className="h-[20rem] overflow-scroll">
                   {acceptedFiles.map((file) => (
-                    <div className="block" key={file.name}>
-                      {file.name}
+                    <div className="block w-[35rem] my-1 py-3 px-3 bg-camp-background-formField text-camp-text-headingBody rounded-md" key={file.name}>
+                      <span className="text-camp-text-headingBody text-sm ">{file.name}</span>
                     </div>
                   ))}
                 </div>
@@ -71,7 +75,9 @@ export default function ImageUploadModal({ children }: ImageUploadModalProps) {
                   </span>
                 </div>
               )}
-              <div>
+              
+            </div>
+            <div>
                 <button className="bg-camp-buttons-neutral text-bold font-lato text-camp-buttons-buttonTextLight mt-4 px-8 py-2 rounded-full">
                   Cancel
                 </button>
@@ -81,7 +87,6 @@ export default function ImageUploadModal({ children }: ImageUploadModalProps) {
                   </button>
                 ) : null}
               </div>
-            </div>
           </div>
         </DialogContent>
       </DialogPortal>

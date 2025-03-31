@@ -40,6 +40,7 @@ export default {
             default: "#F8FAFC",
             modal: "#F1F1F1",
             standardComponent: "#F7F7F7",
+            formField: "#E6EAEC",
           },
         },
 
