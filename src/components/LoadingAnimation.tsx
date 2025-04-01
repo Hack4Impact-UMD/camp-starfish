@@ -12,7 +12,7 @@ import loadingAnimation100 from "@/assets/loading/loadingAnimation100.svg";
  * Looping animation using 4 SVG images. Cycles through each image 
  * every 500ms. Uses Framer Motion for smooth transitions.
  */
-function LoadingAnimation() {
+export default function LoadingAnimation() {
     // Array of SVG files
     const svgFiles = [
         loadingAnimation25,
@@ -50,5 +50,3 @@ function LoadingAnimation() {
         </div>
     );
 }
-
-export default LoadingAnimation;

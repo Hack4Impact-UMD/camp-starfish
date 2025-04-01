@@ -10,7 +10,7 @@ interface ConfirmationModalProps {
     trigger: JSX.Element
 }
 
-function ConfirmationModal({ text, onConfirm, cannotUndo, trigger }: ConfirmationModalProps) {
+export default function ConfirmationModal({ text, onConfirm, cannotUndo, trigger }: ConfirmationModalProps) {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const handleConfirm = () => {
@@ -74,5 +74,3 @@ function ConfirmationModal({ text, onConfirm, cannotUndo, trigger }: Confirmatio
         </>
     );
 }
-
-export default ConfirmationModal;
