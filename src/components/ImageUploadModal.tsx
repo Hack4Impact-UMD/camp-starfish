@@ -9,6 +9,7 @@ import {
 } from "@radix-ui/react-dialog";
 import submitIconUrl from "@/assets/icons/submitIcon.svg";
 import { useDropzone } from "react-dropzone";
+import { useState } from "react";
 
 const MAX_FILE_SIZE = 5*1024*1024; // 5 MB
 
@@ -27,7 +28,16 @@ export default function ImageUploadModal({ children }: ImageUploadModalProps) {
       "image/png": [],
       "image/jpeg": [],
     },
+    maxSize: MAX_FILE_SIZE,
+    onDrop: (accepted, rejected) => {
+      console.log(accepted);
+      console.log(rejected);
+      setStagedFiles(last => last.concat(accepted));
+    }
   });
+
+  let [stagedFiles, setStagedFiles] = useState<File[]>([]);
+  let [failedFiles, setFailedFiles] = useState<File[]>([]);
 
   return (
     <Dialog>
@@ -47,9 +57,9 @@ export default function ImageUploadModal({ children }: ImageUploadModalProps) {
           <div className="bg-white p-5">
             <div {...getRootProps({ className: "dropzone" })}>
               <input {...getInputProps()} />
-              {acceptedFiles.length > 0 ? (
+              {stagedFiles.length > 0 ? (
                 <div className="h-[20rem] overflow-scroll">
-                  {acceptedFiles.map((file) => (
+                  {stagedFiles.map((file) => (
                     <div className="block w-[35rem] my-1 py-3 px-3 bg-camp-background-formField text-camp-text-headingBody rounded-md" key={file.name}>
                       <span className="text-camp-text-headingBody text-sm ">{file.name}</span>
                     </div>
@@ -81,9 +91,9 @@ export default function ImageUploadModal({ children }: ImageUploadModalProps) {
                 <button className="bg-camp-buttons-neutral text-bold font-lato text-camp-buttons-buttonTextLight mt-4 px-8 py-2 rounded-full">
                   Cancel
                 </button>
-                {acceptedFiles.length > 0 ? (
+                {stagedFiles.length > 0 ? (
                   <button className="bg-camp-tert-green text-bold font-lato text-camp-buttons-buttonTextDark ml-2 mt-4 px-8 py-2 rounded-full">
-                    Upload {acceptedFiles.length} Photos
+                    Upload {stagedFiles.length} Photo{(stagedFiles.length > 1 ? 's' : '')}
                   </button>
                 ) : null}
               </div>
