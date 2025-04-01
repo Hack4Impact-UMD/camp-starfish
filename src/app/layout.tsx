@@ -114,7 +114,7 @@ const newSpirit = localFont({
       style: "italic",
     },
   ],
-  variable: "--font-new-spirit",
+  variable: "--font-newSpirit"
 });
 
 const besteam = localFont({
@@ -137,13 +137,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${lato.variable} ${newSpirit.variable} ${besteam.variable} antialiased w-screen h-screen`}
+        className={`${lato.variable} ${newSpirit.variable} ${besteam.variable} antialiased w-full h-screen`}
       >
         <AuthProvider>
           <>
-            <Navbar />
-            {children}
-            {/* Always show modal on page load */}
+            <div className="w-full h-[10%]">
+              <Navbar />
+            </div>
+            <div className="w-full h-[90%]">{children}</div>
             <CreateAlbumModal trigger={<button>Open Modal</button>} />
           </>
         </AuthProvider>
