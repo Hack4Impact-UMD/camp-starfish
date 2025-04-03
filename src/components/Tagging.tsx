@@ -61,55 +61,55 @@ export default function Tagging<T>({
         <div className="relative w-full max-w-lg mx-auto">
             <DropdownMenu.Root open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
                 {/* Search Bar */}
-                <div className="flex items-center px-4 py-2 border-2 border-black rounded-full bg-white min-h-12 w-full">
+                <div className="flex items-center px-4 py-2 border-2 border-black rounded-[8px] bg-white min-h-12 w-full">
                     {/* Fixed Search Icon */}
                     <MagnifyingGlassIcon className="h-5 w-5 text-black flex-shrink-0 mr-2" />
 
-                    {/* Input and Tags */}
-                    <div className="flex items-center flex-1 gap-2 overflow-x-hidden">
+                    {/* Combined input and tags container */}
+                    <div className="flex flex-1 items-center gap-2 overflow-x-hidden">
                         {/* Tags Container */}
-                        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar flex-shrink-0">
-                            {selectedItems.map((item) => (
-                                <div
-                                    key={displayFunc(item)}
-                                    className="inline-flex items-center gap-1 px-3 py-1 text-sm bg-gray-100 rounded-full border border-gray-300 flex-shrink-0"
-                                >
-                                    {displayFunc(item)}
-                                    <button
-                                        type="button"
-                                        onClick={(e) => handleRemoveTag(item, e)}
-                                        onMouseDown={(e) => e.preventDefault()}
-                                        className="text-gray-500 hover:text-gray-700 focus:outline-none"
-                                        aria-label={`Remove ${displayFunc(item)}`}
+                        {selectedItems.length > 0 && (
+                            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar flex-shrink-0">
+                                {selectedItems.map((item) => (
+                                    <div
+                                        key={displayFunc(item)}
+                                        className="inline-flex items-center gap-1 px-3 py-1 text-sm bg-gray-100 rounded-full border border-gray-300 flex-shrink-0"
                                     >
-                                        <Cross2Icon className="w-3 h-3" />
-                                    </button>
-                                </div>
-                            ))}
-                        </div>
-
-                        {/* Dropdown Trigger */}
-                        <DropdownMenu.Trigger asChild>
-                            <div className="flex-1 min-w-[120px]">
-                                <input
-                                    ref={inputRef}
-                                    type="text"
-                                    value={searchText}
-                                    onChange={(e) => {
-                                        setSearchText(e.target.value);
-                                        setIsDropdownOpen(true);
-                                    }}
-                                    onKeyDown={handleKeyDown}
-                                    onFocus={() => setIsDropdownOpen(true)}
-                                    placeholder={selectedItems.length === 0 ? placeholder : ''}
-                                    className="w-full bg-transparent outline-none text-black placeholder-gray-400 text-[16px]"
-                                />
+                                        {displayFunc(item)}
+                                        <button
+                                            type="button"
+                                            onClick={(e) => handleRemoveTag(item, e)}
+                                            onMouseDown={(e) => e.preventDefault()}
+                                            className="text-gray-500 hover:text-gray-700 focus:outline-none"
+                                            aria-label={`Remove ${displayFunc(item)}`}
+                                        >
+                                            <Cross2Icon className="w-3 h-3" />
+                                        </button>
+                                    </div>
+                                ))}
                             </div>
+                        )}
+
+                        {/* Input field */}
+                        <DropdownMenu.Trigger asChild>
+                            <input
+                                ref={inputRef}
+                                type="text"
+                                value={searchText}
+                                onChange={(e) => {
+                                    setSearchText(e.target.value);
+                                    setIsDropdownOpen(true);
+                                }}
+                                onKeyDown={handleKeyDown}
+                                onFocus={() => setIsDropdownOpen(true)}
+                                placeholder={selectedItems.length === 0 ? placeholder : ''}
+                                className="flex-1 min-w-[120px] bg-transparent outline-none text-black placeholder-gray-400 text-[16px]"
+                            />
                         </DropdownMenu.Trigger>
                     </div>
                 </div>
 
-                {/* Dropdown Menu */}
+                {/* Dropdown Menu (keep this part the same) */}
                 <DropdownMenu.Portal>
                     <DropdownMenu.Content
                         align="start"
