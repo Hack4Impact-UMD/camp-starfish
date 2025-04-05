@@ -1,20 +1,22 @@
 export interface Album {
-  name: string; // same as Program name if a corresponding Program exists
-  programId: string | null;
-
+  name: string; // same as Session name if a corresponding Session exists
+  sessionId: string | null;
   numPhotos: number;
-  nextPhotoId: number;
   startDate: string; // ISO-8601
   endDate: string; // ISO-8601
 }
 
-export interface ImageMetadata {
-  takenDate: string; // ISO-8601
+export interface Image {
+  name: string;
+  dateTaken: string; // ISO-8601
   inReview: boolean;
-  tags: {
-    approved: number[]; // camperIds
-    inReview: number[]; // camperIds
-  }
+  tags: ImageTags;
+}
+
+// 'ALL' indicates an image should be available to everyone associated with that session (ex. group photos)
+export type ImageTags = 'ALL' | {
+  approved: number[]; // camperIds
+  inReview: number[]; // camperIds
 }
 
 // Permissions for sharing photos with a given child in them
