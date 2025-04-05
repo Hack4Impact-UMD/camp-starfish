@@ -16,24 +16,23 @@ export interface CommonSection {
 export type SchedulingSectionType = "BUNDLE" | "BUNK-JAMBO" | "NON-BUNK-JAMBO";
 export interface SchedulingSection extends CommonSection {
   type: SchedulingSectionType;
-  blocks: { [blockName: string]: Block };
+  freeplays: { [freeplayName: string]: Freeplay };
+  blocks: { [blockName: string]: ActivityBlock };
 }
-
-export type Block = ActivityBlock | FreeplayBlock;
 
 export interface ActivityBlock {
 
 }
 
-export interface FreeplayBlock {
-
+export interface Freeplay {
+  
 }
 
 export type ActivityCategory = "Arts & Crafts" | "Athletics" | "Learning Center" | "Activate" | "Discovery" | "Martial Arts" | "Boating" | "Drama" // get full list from Lydia
 
 export interface Bunk {
   bunkId: number;
-  staffId: number;
+  staffIds: number[];
   camperIds: number[];
 }
 

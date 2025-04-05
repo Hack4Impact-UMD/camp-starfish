@@ -1,18 +1,19 @@
 export interface Album {
   name: string; // same as Program name if a corresponding Program exists
-  programId: string | null;
-
+  sessionId: string | null;
   numPhotos: number;
-  nextPhotoId: number;
   startDate: string; // ISO-8601
   endDate: string; // ISO-8601
 }
 
 export interface ImageMetadata {
   name: string;
-  takenDate: string; // ISO-8601
-  approvedTags: string[]; // camperIds
-  inReviewTags: string[]; // camperIds
+  dateTaken: string; // ISO-8601
+  inReview: boolean;
+  tags: {
+    approved: number[]; // camperIds
+    inReview: number[]; // camperIds
+  }
 }
 
 // Permissions for sharing photos with a given child in them
