@@ -1,6 +1,7 @@
 import { PhotoPermissions } from "./albumTypes";
 
 export interface Person {
+  campminderId: number;
   name: {
     firstName: string;
     middleName?: string;
@@ -9,20 +10,14 @@ export interface Person {
 }
 
 export interface Camper extends Person {
-  campminderId: number;
   dateOfBirth: string; // ISO-8601
   photoPermissions: PhotoPermissions;
-  parentIds: UserIds[];
-  programIds: string[];
-}
-
-export interface UserIds {
-  campminderId: number;
-  uid: string | null;
+  parentIds: number[]; // camperminderIds
+  nonoList: number[]; // camperminderIds
 }
 
 export interface User extends Person {
-  ids: UserIds;
+  uid: string;
   email: string;
   role: Role;
 }
@@ -35,6 +30,7 @@ export interface Parent extends User {
 export interface Employee extends User {
   role: EmployeeRole;
   programIds: string[];
+  nonoList: number[];
 }
 
 export type Role = "PARENT" | EmployeeRole;
