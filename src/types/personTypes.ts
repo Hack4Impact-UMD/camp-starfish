@@ -6,7 +6,8 @@ export interface Person {
     firstName: string;
     middleName?: string;
     lastName: string;
-  }
+  };
+  gender: "M" | "F" | "Other";
 }
 
 export interface Camper extends Person {
