@@ -145,7 +145,6 @@ export default function RootLayout({
               <Navbar />
             </div>
             <div className="w-full h-[90%]">{children}</div>
-            <CreateAlbumModal trigger={<button>Open Modal</button>} />
           </>
         </AuthProvider>
       </body>

@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
-import uploadThumbnail from "@/assets/logos/upload_album.png";
+import React, { useState, useRef } from "react";
+import uploadThumbnail from "@/assets/icons/upload_album.png";
 
 interface CreateAlbumModalProps {
   trigger: React.ReactNode;
@@ -11,6 +11,8 @@ const CreateAlbumModal: React.FC<CreateAlbumModalProps> = ({ trigger }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [albumName, setAlbumName] = useState("");
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
@@ -34,8 +36,8 @@ const CreateAlbumModal: React.FC<CreateAlbumModalProps> = ({ trigger }) => {
 
             {/* Upload Box */}
             <div
-              className="flex flex-col items-center justify-center py-6 px-4 cursor-pointer"
-              onClick={() => document.getElementById("fileInput")?.click()}
+              className="w-1/2 mx-auto mt-4 flex flex-col items-center justify-center py-6 px-4 cursor-pointer bg-[#E6EAEC] rounded-md"
+              onClick={() => fileInputRef.current?.click()}
             >
               {selectedImage ? (
                 <img
@@ -50,37 +52,38 @@ const CreateAlbumModal: React.FC<CreateAlbumModalProps> = ({ trigger }) => {
                     alt="Upload"
                     className="w-10 h-10"
                   />
-                  <p className="text-camp-text-modalSecondaryTitle mt-2 text-sm text-center">
-                    Upload album thumbnail
-                  </p>
                 </>
               )}
 
               <input
-                id="fileInput"
+                ref={fileInputRef}
                 type="file"
                 accept="image/*"
                 className="hidden"
                 onChange={handleFileChange}
               />
             </div>
+            <p className="text-camp-text-subheading mt-2 mb-4 text-sm text-center">
+              Upload album thumbnail
+            </p>
 
-            {/* Album Title Input */}
-            <div className="px-6">
-              <input
-                type="text"
-                value={albumName}
-                placeholder="Album title"
-                onChange={(e) => setAlbumName(e.target.value)}
-                className="w-full text-center text-bg-camp-buttons-neutral border-none outline-none text-lg py-2 placeholder:text-bg-camp-buttons-neutral"
-              />
+            <div className="px-6 flex justify-center">
+              <div className="w-[70%]">
+                <input
+                  type="text"
+                  value={albumName}
+                  placeholder="Album title"
+                  onChange={(e) => setAlbumName(e.target.value)}
+                  className="w-full text-center bg-[#E6EAEC] text-bg-camp-buttons-neutral border-none outline-none text-lg py-2 placeholder:text-bg-camp-buttons-neutral rounded-md"
+                />
+              </div>
             </div>
 
             {/* Footer Buttons */}
             <div className="flex justify-center gap-4 px-6 py-6">
               <button
                 onClick={() => setIsOpen(false)}
-                className="bg-camp-buttons-neutral text-black px-6 py-2 rounded-full font-semibold"
+                className="bg-camp-buttons-neutral text-black px-6 py-2 rounded-full font-lato font-semibold"
               >
                 CLOSE
               </button>
@@ -89,7 +92,7 @@ const CreateAlbumModal: React.FC<CreateAlbumModalProps> = ({ trigger }) => {
                   // handle create logic here
                   setIsOpen(false);
                 }}
-                className="bg-camp-tert-green text-white px-6 py-2 rounded-full font-semibold"
+                className="bg-camp-tert-green text-white px-6 py-2 rounded-full font-lato font-semibold"
               >
                 CREATE
               </button>
