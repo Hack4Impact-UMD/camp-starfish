@@ -25,10 +25,10 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 type ImageUploadModalProps = {
   children: React.ReactNode;
   album: Album;
-  onUpload: () => boolean;
+  onUpload?: () => void;
 };
 
-type UploadState = "success" | "fail" | "loading" | "none";
+type UploadState = "success" | "fail" | "none";
 
 export default function ImageUploadModal({
   children,
@@ -109,50 +109,33 @@ export default function ImageUploadModal({
           <div className="bg-white p-5">
             {uploadState != "none" ? (
               <div className="mx-6 my-4">
-                {uploadState == "loading" ? (
-                  <>
-                    <img
-                      src={
-                        loadingSpinner.src
-                      }
-                      className="w-8 h-8 text-center block mx-auto m-4 animate-spin"
-                    ></img>
-                    <span className="block text-center text-camp-primary font-bold font-lato text-xl">Uploading files...</span>
-                  </>
-                ) : (
-                  <>
-                    <img
-                      src={
-                        uploadState == "success"
-                          ? uploadGreenIcon.src
-                          : alertIcon.src
-                      }
-                      className="w-6 h-6 text-center block mx-auto m-4"
-                    ></img>
-                    <span className="block text-center text-camp-primary font-bold font-lato text-xl">
-                      Upload{" "}
-                      {uploadState == "success" ? "successful" : "failed"}!
-                    </span>
-                    <span className="text-center text-camp-text-modalSecondaryTitle block m-4 text-sm">
-                      {stagedFiles.length} photos{" "}
-                      {uploadState == "success"
-                        ? "uploaded"
-                        : "failed to upload"}{" "}
-                      to {album.name}
-                    </span>
-                    <div className="text-center">
-                      <DialogClose asChild>
-                        <button className="bg-camp-buttons-neutral text-bold font-lato text-camp-buttons-buttonTextLight px-12 py-2 rounded-full">
-                          Close
-                        </button>
-                      </DialogClose>
+                <img
+                  src={
+                    uploadState == "success"
+                      ? uploadGreenIcon.src
+                      : alertIcon.src
+                  }
+                  className="w-6 h-6 text-center block mx-auto m-4"
+                ></img>
+                <span className="block text-center text-camp-primary font-bold font-lato text-xl">
+                  Upload {uploadState == "success" ? "successful" : "failed"}!
+                </span>
+                <span className="text-center text-camp-text-modalSecondaryTitle block m-4 text-sm">
+                  {stagedFiles.length} photos{" "}
+                  {uploadState == "success" ? "uploaded" : "failed to upload"}{" "}
+                  to {album.name}
+                </span>
+                <div className="text-center">
+                  <DialogClose asChild>
+                    <button className="bg-camp-buttons-neutral text-bold font-lato text-camp-buttons-buttonTextLight px-12 py-2 rounded-full">
+                      Close
+                    </button>
+                  </DialogClose>
 
-                      <button className="bg-camp-primary text-bold font-lato text-camp-buttons-buttonTextDark ml-4 px-12 py-2 rounded-full">
-                        View
-                      </button>
-                    </div>
-                  </>
-                )}
+                  <button className="bg-camp-primary text-bold font-lato text-camp-buttons-buttonTextDark ml-4 px-12 py-2 rounded-full">
+                    View
+                  </button>
+                </div>
               </div>
             ) : (
               <div {...getRootProps({ className: "dropzone" })}>
@@ -206,39 +189,37 @@ export default function ImageUploadModal({
 
               <button
                 hidden={stagedFiles.length == 0}
-                  onClick={async () => {
-                    let uploadPaths: string[] = [];
-                    stagedFiles.forEach((file) => {
-                      uploadPaths.push(
-                        `${album.programId}/${crypto.randomUUID()}-${file.name}`
-                      );
-                    });
+                onClick={async () => {
 
-                    if (!navigator.onLine) {
-                      setUploadState("fail");
-                      return;
-                    }
-                    setUploadState("loading");
-                    setTimeout(async () => {
-                      try {
-                        console.log("starting");
-                        await uploadImages(stagedFiles, uploadPaths);
-                      } catch (err: unknown) {
-                        setUploadState("fail");
-                        console.error(err);
-                        return;
-                      }
-                      console.log("here");
-                      setUploadState("success");
-                    }, 100);
-                    
+                  onUpload && onUpload();
+
+                  let uploadPaths: string[] = [];
+                  stagedFiles.forEach((file) => {
+                    uploadPaths.push(
+                      `${album.programId}/${crypto.randomUUID()}-${file.name}`
+                    );
+                  });
+
+                  if (!navigator.onLine) {
+                    setUploadState("fail");
+                    return;
+                  }
+
+                  try {
+                    await uploadImages(stagedFiles, uploadPaths);
+                    console.log("here");
+                    setUploadState("success");
+                  } catch (err: unknown) {
+                    setUploadState("fail");
+                    console.error(err);
+                    return;
+                  }
                 }}
-                  className="bg-camp-tert-green text-bold font-lato text-camp-buttons-buttonTextDark ml-2 mt-4 px-8 py-2 rounded-full"
-                >
-                  Upload {stagedFiles.length} Photo
-                  {stagedFiles.length > 1 ? "s" : ""}
-                </button>
-              
+                className="bg-camp-tert-green text-bold font-lato text-camp-buttons-buttonTextDark ml-2 mt-4 px-8 py-2 rounded-full"
+              >
+                Upload {stagedFiles.length} Photo
+                {stagedFiles.length > 1 ? "s" : ""}
+              </button>
             </div>
           </div>
         </DialogContent>
