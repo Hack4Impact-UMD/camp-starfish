@@ -1,3 +1,5 @@
+import { Camper } from "./personTypes";
+
 export interface Album {
   name: string; // same as Session name if a corresponding Session exists
   sessionId: string | null;
@@ -15,8 +17,8 @@ export interface Image {
 
 // 'ALL' indicates an image should be available to everyone associated with that session (ex. group photos)
 export type ImageTags = 'ALL' | {
-  approved: number[]; // camperIds
-  inReview: number[]; // camperIds
+  approved: Pick<Camper, 'campminderId' | 'name' | 'photoPermissions'>[];
+  inReview: Pick<Camper, 'campminderId' | 'name' | 'photoPermissions'>[];
 }
 
 // Permissions for sharing photos with a given child in them
