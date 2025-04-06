@@ -13,10 +13,25 @@ export interface Session {
   albumId?: string;
 }
 
-export type CamperSessionAttendee = Pick<Camper, 'campminderId' | 'name' | 'gender' | 'nonoList'> & {
+export type CamperSessionAttendee = Pick<
+  Camper,
+  "campminderId" | "name" | "gender" | "nonoList"
+> & {
   ageGroup: AgeGroup;
   level: number;
   bunk: number;
+  prefs: {
+    bundles: {
+      [bundleId: string]: {
+        [blockId: string]: { [activityId: string]: number };
+      };
+    };
+    nonBunkJamborees: {
+      [jamboId: string]: {
+        [blockId: string]: { [activityId: string]: number };
+      };
+    };
+  };
 };
 
 export type StaffSessionAttendee = Pick<Employee, 'campminderId' | 'name' | 'gender' | 'nonoList'> & {
@@ -28,6 +43,7 @@ export type StaffSessionAttendee = Pick<Employee, 'campminderId' | 'name' | 'gen
 export type SessionSection = CommonSection | SchedulingSection<Block>;
 
 export interface CommonSection {
+  id: string;
   name: string;
   startDate: string; // ISO-8601
   endDate: string; // ISO-8601
@@ -87,6 +103,11 @@ export interface Bunk {
   bunkNum: number;
   staffIds: number[];
   camperIds: number[];
+  bunkJamboreePrefs: {
+    [jamboId: string]: {
+      [blockId: string]: { [activityId: string]: number };
+    };
+  };
 }
 
 export interface Freeplay {
