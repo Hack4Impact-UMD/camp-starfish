@@ -5,7 +5,7 @@ export interface Session {
   schedule: SessionSection[];
 }
 
-export type SessionSection = CommonSection | SchedulingSection;
+export type SessionSection = CommonSection | SchedulingSection<Block>;
 
 export interface CommonSection {
   name: string;
@@ -14,11 +14,16 @@ export interface CommonSection {
 }
 
 export type SchedulingSectionType = "BUNDLE" | "BUNK-JAMBO" | "NON-BUNK-JAMBO";
-export interface SchedulingSection extends CommonSection {
-  type: SchedulingSectionType;
+export interface SchedulingSection<B extends Block> extends CommonSection {
+  type: B extends BundleBlock ? "BUNDLE" : B extends BunkJamboreeBlock ? "BUNK-JAMBO" : "NON-BUNK-JAMBO";
   freeplays: { [freeplayId: string]: Freeplay };
-  blocks: { [blockId: string]: Activity[] };
+  blocks: { [blockId: string]: B };
 }
+
+export type BundleBlock = (BundleActivity & { assignments: IndividualAssignments })[];
+export type BunkJamboreeBlock = (JamboreeActivity & { assignments: BunkAssignments })[];
+export type NonBunkJamboreeBlock = (JamboreeActivity & { assignments: IndividualAssignments })[];
+export type Block = BundleBlock | BunkJamboreeBlock | NonBunkJamboreeBlock;
 
 export type ActivityCategory =
   | "ACT" // Activate!
@@ -37,20 +42,25 @@ export type ActivityCategory =
   | "OCP"  // Teens
   | "WF";  // Waterfront
 
-export interface Activity {
+export interface JamboreeActivity {
   name: string;
   description: string;
-  category?: ActivityCategory; // included only in Bundle activities
-  ageGroup?: AgeGroup; // included only in Bundle activities
-  assignments: {
-    campers: number[];
-    staff: number[];
-    admin: number[];
-  }
 }
 
-export interface ActivityAssignments {
-  admin: number[];
+export interface BundleActivity extends JamboreeActivity {
+  category: ActivityCategory;
+  ageGroup: AgeGroup;
+}
+
+export interface IndividualAssignments {
+  camperIds: number[];
+  staffIds: number[];
+  adminIds: number[];
+}
+
+export interface BunkAssignments {
+  bunkNum: number;
+  adminIds: number[];
 }
 
 export interface Bunk {
