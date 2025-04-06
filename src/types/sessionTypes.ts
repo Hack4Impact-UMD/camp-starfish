@@ -1,8 +1,27 @@
+import { Camper, Employee } from "./personTypes";
+
 export interface Session {
   name: string;
   startDate: string; // ISO-8601
   endDate: string; // ISO-8601
   schedule: SessionSection[];
+  attendees: {
+    campers: CamperSessionAttendee[];
+    staff: StaffSessionAttendee[];
+    admins: (Pick<Employee, 'campminderId' | 'name' | 'gender' | 'nonoList'> & { role: "ADMIN" })[];
+  }
+}
+
+export type CamperSessionAttendee = Pick<Camper, 'campminderId' | 'name' | 'gender' | 'nonoList'> & {
+  ageGroup: AgeGroup;
+  level: number;
+  bunk: number;
+};
+
+export type StaffSessionAttendee = Pick<Employee, 'campminderId' | 'name' | 'gender' | 'nonoList'> & {
+  role: "STAFF";
+  programCounselor?: ActivityCategory;
+  bunk: number;
 }
 
 export type SessionSection = CommonSection | SchedulingSection<Block>;
@@ -59,7 +78,7 @@ export interface IndividualAssignments {
 }
 
 export interface BunkAssignments {
-  bunkNum: number;
+  bunk: number;
   adminIds: number[];
 }
 
