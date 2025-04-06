@@ -9,7 +9,8 @@ export interface Session {
     campers: CamperSessionAttendee[];
     staff: StaffSessionAttendee[];
     admins: (Pick<Employee, 'campminderId' | 'name' | 'gender' | 'nonoList'> & { role: "ADMIN" })[];
-  }
+  };
+  albumId?: string;
 }
 
 export type CamperSessionAttendee = Pick<Camper, 'campminderId' | 'name' | 'gender' | 'nonoList'> & {

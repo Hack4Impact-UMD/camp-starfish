@@ -2,7 +2,7 @@ import { Camper } from "./personTypes";
 
 export interface Album {
   name: string; // same as Session name if a corresponding Session exists
-  sessionId: string | null;
+  sessionId?: string;
   numPhotos: number;
   startDate: string; // ISO-8601
   endDate: string; // ISO-8601
