@@ -10,15 +10,10 @@ import {
 import submitIcon from "@/assets/icons/submitIcon.svg";
 import crossIcon from "@/assets/icons/xIconPrimary.svg";
 import alertIcon from "@/assets/icons/alert.svg";
-import uploadedIcon from "@/assets/icons/xIconPrimary.svg";
 import fileLoadIcon from "@/assets/icons/fileLoadSuccessIcon.svg";
 import uploadGreenIcon from "@/assets/icons/uploadGreen.svg";
-import loadingSpinner from "@/assets/icons/loadingSpinner.svg";
 import { useDropzone } from "react-dropzone";
-import { JSX, useState } from "react";
-import { uploadImages } from "@/data/storage/fileOperations";
-import { FirebaseError } from "firebase/app";
-import { Album } from "@/types/albumTypes";
+import { useState } from "react";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 
@@ -189,7 +184,7 @@ export default function ImageUploadModal({
                 onClick={async () => {
                   try {
                     onUpload(stagedFiles);
-                    setUploadState("success")
+                    setUploadState("success");
                   } catch (err: unknown) {
                     setUploadState("fail");
                     console.error(err);
