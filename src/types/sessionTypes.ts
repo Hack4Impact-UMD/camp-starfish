@@ -15,7 +15,7 @@ export interface Session {
 
 export type CamperSessionAttendee = Pick<
   Camper,
-  "campminderId" | "name" | "gender" | "nonoList"
+  "campminderId" | "name" | "gender" | "dateOfBirth" | "nonoList"
 > & {
   ageGroup: AgeGroup;
   level: number;
@@ -101,6 +101,7 @@ export interface BunkAssignments {
 
 export interface Bunk {
   bunkNum: number;
+  leadCounselor: number;
   staffIds: number[];
   camperIds: number[];
   bunkJamboreePrefs: {
