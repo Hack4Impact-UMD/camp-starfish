@@ -24,15 +24,13 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 
 type ImageUploadModalProps = {
   children: React.ReactNode;
-  album: Album;
-  onUpload?: () => void;
+  onUpload: (files: File[]) => void;
 };
 
 type UploadState = "success" | "fail" | "none";
 
 export default function ImageUploadModal({
   children,
-  album,
   onUpload,
 }: ImageUploadModalProps) {
   let { acceptedFiles, getRootProps, getInputProps } = useDropzone({
@@ -122,8 +120,7 @@ export default function ImageUploadModal({
                 </span>
                 <span className="text-center text-camp-text-modalSecondaryTitle block m-4 text-sm">
                   {stagedFiles.length} photos{" "}
-                  {uploadState == "success" ? "uploaded" : "failed to upload"}{" "}
-                  to {album.name}
+                  {uploadState == "success" ? "uploaded." : "failed to upload."}
                 </span>
                 <div className="text-center">
                   <DialogClose asChild>
@@ -190,25 +187,9 @@ export default function ImageUploadModal({
               <button
                 hidden={stagedFiles.length == 0}
                 onClick={async () => {
-
-                  onUpload && onUpload();
-
-                  let uploadPaths: string[] = [];
-                  stagedFiles.forEach((file) => {
-                    uploadPaths.push(
-                      `${album.programId}/${crypto.randomUUID()}-${file.name}`
-                    );
-                  });
-
-                  if (!navigator.onLine) {
-                    setUploadState("fail");
-                    return;
-                  }
-
                   try {
-                    await uploadImages(stagedFiles, uploadPaths);
-                    console.log("here");
-                    setUploadState("success");
+                    onUpload(stagedFiles);
+                    setUploadState("success")
                   } catch (err: unknown) {
                     setUploadState("fail");
                     console.error(err);
