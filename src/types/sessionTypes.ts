@@ -36,7 +36,7 @@ export type CamperSessionAttendee = Pick<
 
 export type StaffSessionAttendee = Pick<Employee, 'campminderId' | 'name' | 'gender' | 'nonoList'> & {
   role: "STAFF";
-  programCounselor?: ActivityCategory;
+  programCounselor?: ProgramArea;
   bunk: number;
 }
 
@@ -61,21 +61,21 @@ export type BunkJamboreeBlock = (JamboreeActivity & { assignments: BunkAssignmen
 export type NonBunkJamboreeBlock = (JamboreeActivity & { assignments: IndividualAssignments })[];
 export type Block = BundleBlock | BunkJamboreeBlock | NonBunkJamboreeBlock;
 
-export type ActivityCategory =
+export type ProgramArea =
   | "ACT" // Activate!
   | "A&C" // Arts & Crafts
   | "ATH" // Athletics
-  | "BOAT"  // Boating
-  | "CHAL"  // Challenge
-  | "DNC"  // Dance
-  | "DRA"  // Drama
-  | "DISC"  // Discovery
-  | "LC"  // Learning Center
-  | "MUS"  // Music
-  | "OUT"  // Outdoor Cooking
-  | "SMA"  // Small Animals
-  | "XPL"  // Xplore!
-  | "OCP"  // Teens
+  | "BOAT" // Boating
+  | "CHAL" // Challenge
+  | "DNC" // Dance
+  | "DRA" // Drama
+  | "DISC" // Discovery
+  | "LC" // Learning Center
+  | "MUS" // Music
+  | "OUT" // Outdoor Cooking
+  | "SMA" // Small Animals
+  | "XPL" // Xplore!
+  | "OCP" // Teens
   | "WF";  // Waterfront
 
 export interface JamboreeActivity {
@@ -84,7 +84,7 @@ export interface JamboreeActivity {
 }
 
 export interface BundleActivity extends JamboreeActivity {
-  category: ActivityCategory;
+  programArea: ProgramArea;
   ageGroup: AgeGroup;
 }
 
