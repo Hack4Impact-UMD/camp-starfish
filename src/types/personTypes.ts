@@ -30,7 +30,7 @@ export interface Parent extends User {
 
 export interface Employee extends User {
   role: EmployeeRole;
-  programIds: string[];
+  sessionIds: string[];
   nonoList: number[];
 }
 
