@@ -7,13 +7,16 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@radix-ui/react-dialog";
+import { useDropzone } from "react-dropzone";
+import { useState } from "react";
+
+// Icon Imports
 import submitIcon from "@/assets/icons/submitIcon.svg";
 import crossIcon from "@/assets/icons/xIconPrimary.svg";
 import alertIcon from "@/assets/icons/alert.svg";
 import fileLoadIcon from "@/assets/icons/fileLoadSuccessIcon.svg";
 import uploadGreenIcon from "@/assets/icons/uploadGreen.svg";
-import { useDropzone } from "react-dropzone";
-import { useState } from "react";
+
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 
