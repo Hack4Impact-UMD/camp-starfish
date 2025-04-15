@@ -7,7 +7,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@radix-ui/react-dialog";
-import { useDropzone } from "react-dropzone";
+import { Accept, useDropzone } from "react-dropzone";
 import { useState } from "react";
 import { extension } from "mime-types";
 
@@ -17,13 +17,14 @@ import crossIcon from "@/assets/icons/xIconPrimary.svg";
 import alertIcon from "@/assets/icons/alert.svg";
 import fileLoadIcon from "@/assets/icons/fileLoadSuccessIcon.svg";
 import uploadGreenIcon from "@/assets/icons/uploadGreen.svg";
+import { lookup } from "mime-types";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 
 type FileUploadModalProps = {
   children: React.ReactNode;
   onUpload: (files: File[]) => void;
-  acceptedFileTypes: string[];
+  acceptedFileExtensions: string[];
 };
 
 type UploadState = "success" | "fail" | "none";
@@ -31,25 +32,33 @@ type UploadState = "success" | "fail" | "none";
 export default function FileUploadModal({
   children,
   onUpload,
-  acceptedFileTypes,
+  acceptedFileExtensions,
 }: FileUploadModalProps) {
-  let { acceptedFiles, getRootProps, getInputProps } = useDropzone({
-    accept: acceptedFileTypes.reduce(
-      (prev: { [fileType: string]: never[] }, curr: string) => {
-        prev[curr] = [];
-        return prev;
-      },
-      {}
+  let [stagedFiles, setStagedFiles] = useState<File[]>([]);
+  let [failedFiles, setFailedFiles] = useState<File[]>([]);
+  let [uploadState, setUploadState] = useState<UploadState>("none");
+
+  const mimeTypes: string[] = [
+    ...new Set(
+      acceptedFileExtensions
+        .map((fileType: string) => lookup(fileType))
+        .filter((mimeType: string | false) => mimeType)
     ),
+  ] as string[];
+
+  const inputAccept: Accept = {};
+  mimeTypes.forEach((mimeType: string) => {
+    inputAccept[mimeType] = [];
+  });
+
+  let { acceptedFiles, getRootProps, getInputProps } = useDropzone({
+    accept: inputAccept,
     maxSize: MAX_FILE_SIZE,
     onDrop: async (accepted: File[], rejected: File[]) => {
       setStagedFiles((last) => last.concat(accepted));
       setFailedFiles((last) => last.concat(rejected.map((e) => e.file)));
     },
   });
-  let [stagedFiles, setStagedFiles] = useState<File[]>([]);
-  let [failedFiles, setFailedFiles] = useState<File[]>([]);
-  let [uploadState, setUploadState] = useState<UploadState>("none");
 
   function FileComponent({
     file,
@@ -139,10 +148,7 @@ export default function FileUploadModal({
               </div>
             ) : (
               <div {...getRootProps({ className: "dropzone" })}>
-                <input
-                  accept={acceptedFileTypes.join(", ")}
-                  {...getInputProps()}
-                />
+                <input {...getInputProps()} />
                 {stagedFiles.length + failedFiles.length > 0 ? (
                   <div className="h-[20rem] overflow-scroll">
                     {failedFiles.map((file) => (
@@ -164,8 +170,8 @@ export default function FileUploadModal({
                   <div className="border-4 border-dashed border-camp-tert-orange rounded-lg text-center px-32 py-12">
                     <span className="block font-lato text-camp-text-subheading font-bold text-lg">
                       Supported file formats:{" "}
-                      {acceptedFileTypes
-                        .map((type: string) => extension(type))
+                      {acceptedFileExtensions
+                        .map((type: string) => type)
                         .join(", ")}{" "}
                       (Max 5MB)
                     </span>

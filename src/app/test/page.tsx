@@ -32,7 +32,7 @@ export default function Page() {
           }
           console.log(files);
         }}
-        acceptedFileTypes={["image/png", 'image/jpeg']}
+        acceptedFileExtensions={[".jpg"]}
       >
         <button className="bg-camp-primary m-1 p-1">Trigger Modal</button>
       </FileUploadModal>
