@@ -2,7 +2,8 @@ import React from "react";
 import TestPicture from "@/assets/images/TestPicture.png";
 import filterIcon from "@/assets/icons/filterIcon.svg";
 import uploadIcon from "@/assets/icons/uploadIcon.svg";
-import SelectablePhoto from "@/components/SelectablePhoto"; // make sure the path is correct
+import SelectablePhoto from "@/components/SelectablePhoto";
+import backIcon from "@/assets/icons/backIcon.svg";
 
 const PendingPage: React.FC = () => {
     const dates: string[] = ["Mon, June 17"];
@@ -10,9 +11,15 @@ const PendingPage: React.FC = () => {
     return (
         <div className="w-full min-h-full bg-gray-100">
             <div className="container mx-auto px-4 py-6">
-                {/* Header */}
                 <div className="flex items-center justify-between">
-                    <h1 className="text-4xl font-lato font-bold text-camp-primary">Pending</h1>
+                    <div className="flex items-center gap-4">
+                        <img
+                            src={backIcon.src}
+                            alt="Back"
+                            className="w-8 h-8 cursor-pointer"
+                        />
+                        <h1 className="text-4xl font-lato font-bold text-camp-primary">Pending</h1>
+                    </div>
                     <div className="flex items-center gap-4">
                         <button className="border-2 border-camp-primary text-lg py-2 px-4 rounded-3xl w-[180px] h-[48px] font-lato font-bold text-camp-text-modalTitle">
                             APPROVE ALL
@@ -28,12 +35,10 @@ const PendingPage: React.FC = () => {
                     </div>
                 </div>
 
-                {/* Content */}
                 {dates.length > 0 ? (
                     <div className="mt-6 space-y-8">
                         {dates.map((date) => (
                             <div key={date}>
-                                {/* Checkbox & Date */}
                                 <div className="flex items-center gap-8 mb-4">
                                     <h2 className="text-xl font-lato text-camp-primary">{date}</h2>
                                     <input
@@ -42,7 +47,6 @@ const PendingPage: React.FC = () => {
                                     />
                                 </div>
 
-                                {/* Thumbnails */}
                                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                                     {Array(8).fill(TestPicture.src).map((src, index) => (
                                         <SelectablePhoto key={index} src={src} alt={`Thumbnail ${index + 1}`} />
