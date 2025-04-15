@@ -9,6 +9,7 @@ import {
 } from "@radix-ui/react-dialog";
 import { useDropzone } from "react-dropzone";
 import { useState } from "react";
+import { extension } from "mime-types";
 
 // Icon Imports
 import submitIcon from "@/assets/icons/submitIcon.svg";
@@ -22,6 +23,7 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 type FileUploadModalProps = {
   children: React.ReactNode;
   onUpload: (files: File[]) => void;
+  acceptedFileTypes: string[];
 };
 
 type UploadState = "success" | "fail" | "none";
@@ -29,12 +31,16 @@ type UploadState = "success" | "fail" | "none";
 export default function FileUploadModal({
   children,
   onUpload,
+  acceptedFileTypes,
 }: FileUploadModalProps) {
   let { acceptedFiles, getRootProps, getInputProps } = useDropzone({
-    accept: {
-      "image/png": [],
-      "image/jpeg": [],
-    },
+    accept: acceptedFileTypes.reduce(
+      (prev: { [fileType: string]: never[] }, curr: string) => {
+        prev[curr] = [];
+        return prev;
+      },
+      {}
+    ),
     maxSize: MAX_FILE_SIZE,
     onDrop: async (accepted, rejected) => {
       setStagedFiles((last) => last.concat(accepted));
@@ -97,7 +103,7 @@ export default function FileUploadModal({
             }`}
           >
             <DialogTitle className="text-2xl font-semibold text-camp-white font-lato">
-              Upload Photos
+              Upload Files
             </DialogTitle>
           </div>
 
@@ -116,7 +122,7 @@ export default function FileUploadModal({
                   Upload {uploadState == "success" ? "successful" : "failed"}!
                 </span>
                 <span className="text-center text-camp-text-modalSecondaryTitle block m-4 text-sm">
-                  {stagedFiles.length} photos{" "}
+                  {stagedFiles.length} files{" "}
                   {uploadState == "success" ? "uploaded." : "failed to upload."}
                 </span>
                 <div className="text-center">
@@ -133,7 +139,10 @@ export default function FileUploadModal({
               </div>
             ) : (
               <div {...getRootProps({ className: "dropzone" })}>
-                <input {...getInputProps()} />
+                <input
+                  accept={acceptedFileTypes.join(", ")}
+                  {...getInputProps()}
+                />
                 {stagedFiles.length + failedFiles.length > 0 ? (
                   <div className="h-[20rem] overflow-scroll">
                     {failedFiles.map((file) => (
@@ -154,14 +163,18 @@ export default function FileUploadModal({
                 ) : (
                   <div className="border-4 border-dashed border-camp-tert-orange rounded-lg text-center px-32 py-12">
                     <span className="block font-lato text-camp-text-subheading font-bold text-lg">
-                      Supported photo formats: JPG, PNG, (Max 5MB)
+                      Supported file formats:{" "}
+                      {acceptedFileTypes
+                        .map((type: string) => extension(type))
+                        .join(", ")}{" "}
+                      (Max 5MB)
                     </span>
                     <img
                       src={submitIcon.src}
                       className="w-12 h-12 text-center block mx-auto m-4"
                     ></img>
                     <span className="block font-lato text-camp-text-subheading font-bold text-lg m-2">
-                      Drag and drop photos
+                      Drag and drop files
                     </span>
                     <span className="block font-lato text-camp-text-subheading font-bold text-lg m-2">
                       OR
@@ -195,7 +208,7 @@ export default function FileUploadModal({
                 }}
                 className="bg-camp-tert-green text-bold font-lato text-camp-buttons-buttonTextDark ml-2 mt-4 px-8 py-2 rounded-full"
               >
-                Upload {stagedFiles.length} Photo
+                Upload {stagedFiles.length} File
                 {stagedFiles.length > 1 ? "s" : ""}
               </button>
             </div>
