@@ -7,18 +7,18 @@ export interface Person {
     middleName?: string;
     lastName: string;
   };
-  gender: "M" | "F" | "Other";
+  gender?: "M" | "F" | "Other";
 }
 
 export interface Camper extends Person {
-  dateOfBirth: string; // ISO-8601
-  photoPermissions: PhotoPermissions;
+  dateOfBirth?: string; // ISO-8601
+  photoPermissions?: PhotoPermissions;
   parentIds: number[]; // camperminderIds
   nonoList: number[]; // camperminderIds
 }
 
 export interface User extends Person {
-  uid: string;
+  uid?: string;
   email: string;
   role: Role;
 }
