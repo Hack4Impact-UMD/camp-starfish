@@ -4,6 +4,7 @@ import filterIcon from "@/assets/icons/filterIcon.svg";
 import uploadIcon from "@/assets/icons/uploadIcon.svg";
 import SelectablePhoto from "@/components/SelectablePhoto";
 import backIcon from "@/assets/icons/backIcon.svg";
+import Link from "next/link";
 
 const PendingPage: React.FC = () => {
     const dates: string[] = ["Mon, June 17"];
@@ -13,11 +14,13 @@ const PendingPage: React.FC = () => {
             <div className="container mx-auto px-4 py-6">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                        <img
-                            src={backIcon.src}
-                            alt="Back"
-                            className="w-8 h-8 cursor-pointer"
-                        />
+                        <Link href="/albums">
+                            <img
+                                src={backIcon.src}
+                                alt="Back"
+                                className="w-8 h-8 cursor-pointer"
+                            />
+                        </Link>
                         <h1 className="text-4xl font-lato font-bold text-camp-primary">Pending</h1>
                     </div>
                     <div className="flex items-center gap-4">
