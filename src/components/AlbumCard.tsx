@@ -19,12 +19,14 @@ const AlbumCard: React.FC<AlbumCardProps> = ({ title, date, photoCount, imageUrl
 
   return (
     <div className="relative">
-      <input
-        type="checkbox"
-        checked={isChecked}
-        onChange={handleCheckboxChange}
-        className="absolute top-3 left-3 z-10 w-6 h-6 rounded-md border-5 border-gray-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
-      />
+      <div className="absolute top-4 left-4 z-10 w-9 h-9 flex items-center justify-center bg-gray-400 bg-opacity-30 rounded-md backdrop-blur-sm">
+        <input
+          type="checkbox"
+          checked={isChecked}
+          onChange={handleCheckboxChange}
+          className="absolute top-2 left-2 z-10 w-5 h-5 rounded-md border-5 border-gray-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+        />
+      </div>
       
       <Link href={`/albums/${albumId}`}>
         <div className="bg-white rounded-2xl shadow-md hover:shadow-lg transition-shadow duration-300 p-4">
