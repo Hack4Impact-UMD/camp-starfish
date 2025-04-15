@@ -64,11 +64,11 @@ const CreateAlbumModal: React.FC<CreateAlbumModalProps> = ({ trigger }) => {
               />
             </div>
             <p className="text-camp-text-subheading mt-2 mb-4 text-sm text-center">
-              Upload album thumbnail
+              {!selectedImage && "Upload album thumbnail"}
             </p>
 
             <div className="px-6 flex justify-center">
-              <div className="w-[70%]">
+              <div className="w-[70%] text-camp-text-subheading">
                 <input
                   type="text"
                   value={albumName}
