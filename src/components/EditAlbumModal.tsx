@@ -3,11 +3,12 @@
 import React, { useState, useRef } from "react";
 import uploadThumbnail from "@/assets/icons/upload_album.png";
 
-interface CreateAlbumModalProps {
+interface EditAlbumModalProps {
   trigger: React.ReactNode;
+  mode: "CREATE" | "EDIT";
 }
 
-const CreateAlbumModal: React.FC<CreateAlbumModalProps> = ({ trigger }) => {
+const EditAlbumModal: React.FC<EditAlbumModalProps> = ({ trigger, mode }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [albumName, setAlbumName] = useState("");
@@ -31,7 +32,7 @@ const CreateAlbumModal: React.FC<CreateAlbumModalProps> = ({ trigger }) => {
           <div className="bg-white rounded-lg overflow-hidden w-full max-w-md mx-4 text-center shadow-lg">
             {/* Header */}
             <div className="bg-camp-primary py-4 px-6 text-left">
-              <h2 className="text-white text-lg font-semibold">CREATE ALBUM</h2>
+              <h2 className="text-white text-lg font-semibold">{mode} ALBUM</h2>
             </div>
 
             {/* Upload Box */}
@@ -94,7 +95,7 @@ const CreateAlbumModal: React.FC<CreateAlbumModalProps> = ({ trigger }) => {
                 }}
                 className="bg-camp-tert-green text-white px-6 py-2 rounded-full font-lato font-semibold"
               >
-                CREATE
+                {mode === 'CREATE' ? 'CREATE' : 'CONFIRM'}
               </button>
             </div>
           </div>
@@ -104,4 +105,4 @@ const CreateAlbumModal: React.FC<CreateAlbumModalProps> = ({ trigger }) => {
   );
 };
 
-export default CreateAlbumModal;
+export default EditAlbumModal;

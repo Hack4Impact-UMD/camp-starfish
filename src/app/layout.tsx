@@ -3,7 +3,6 @@ import "./globals.css";
 import localFont from "next/font/local";
 import Navbar from "../components/Navbar"; // Adjust the path as needed
 import AuthProvider from "@/auth/AuthProvider";
-import CreateAlbumModal from "@/components/CreateAlbumModal"; // Import your modal
 
 const lato = localFont({
   src: [
@@ -114,7 +113,7 @@ const newSpirit = localFont({
       style: "italic",
     },
   ],
-  variable: "--font-newSpirit"
+  variable: "--font-newSpirit",
 });
 
 const besteam = localFont({

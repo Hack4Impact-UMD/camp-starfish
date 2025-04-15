@@ -5,7 +5,7 @@ import AlbumCard from "../../components/AlbumCard";
 import plusIcon from "@/assets/icons/plusIcon.svg";
 import filterIcon from "@/assets/icons/filterIcon.svg";
 import testPicture from "@/assets/images/PolaroidPhotos1.png";
-import CreateAlbumModal from "@/components/CreateAlbumModal";
+import EditAlbumModal from "@/components/EditAlbumModal";
 
 const AlbumsPage: React.FC = () => {
   // Sample data for albums, get data from Firebase
@@ -34,7 +34,7 @@ const AlbumsPage: React.FC = () => {
               SELECT ALL
             </button>
             {/* Wrap plus icon with modal trigger */}
-            <CreateAlbumModal
+            <EditAlbumModal
               trigger={
                 <img
                   className="w-[72px] h-[72px] flex-none cursor-pointer"
@@ -42,6 +42,7 @@ const AlbumsPage: React.FC = () => {
                   alt="Plus"
                 />
               }
+              mode="CREATE"
             />
           </div>
         </div>
