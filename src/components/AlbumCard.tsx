@@ -23,7 +23,7 @@ const AlbumCard: React.FC<AlbumCardProps> = ({ title, date, photoCount, imageUrl
         type="checkbox"
         checked={isChecked}
         onChange={handleCheckboxChange}
-        className="absolute top-3 left-3 z-10 w-5 h-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+        className="absolute top-3 left-3 z-10 w-6 h-6 rounded-md border-5 border-gray-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
       />
       
       <Link href={`/albums/${albumId}`}>
