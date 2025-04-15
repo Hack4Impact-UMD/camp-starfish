@@ -7,7 +7,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@radix-ui/react-dialog";
-import { Accept, useDropzone } from "react-dropzone";
+import { Accept, FileRejection, useDropzone } from "react-dropzone";
 import { useState } from "react";
 
 // Icon Imports
@@ -26,6 +26,7 @@ type FileUploadModalProps = {
 };
 
 type UploadState = "success" | "fail" | "none";
+type FileStatus = "success" | "failure" | "pending";
 
 export default function FileUploadModal({
   children,
@@ -33,8 +34,8 @@ export default function FileUploadModal({
   acceptedFileExtensions,
   maxFileSize,
 }: FileUploadModalProps) {
-  let [stagedFiles, setStagedFiles] = useState<File[]>([]);
-  let [failedFiles, setFailedFiles] = useState<File[]>([]);
+
+  let [files, setFiles] = useState<{file: File, status: FileStatus}[]>([]);
   let [uploadState, setUploadState] = useState<UploadState>("none");
 
   const mimeTypes: string[] = [
@@ -53,7 +54,7 @@ export default function FileUploadModal({
   let { acceptedFiles, getRootProps, getInputProps } = useDropzone({
     accept: inputAccept,
     maxSize: maxFileSize * 1024 * 1024,
-    onDrop: async (accepted: File[], rejected: File[]) => {
+    onDrop: async (accepted: File[], rejected: FileRejection[]) => {
       setStagedFiles((last) => last.concat(accepted));
       setFailedFiles((last) => last.concat(rejected.map((e) => e.file)));
     },
@@ -91,12 +92,15 @@ export default function FileUploadModal({
     );
   }
 
+  function InitialUploadView() {
+    
+  }
+
   return (
     <Dialog
       onOpenChange={(isOpen: boolean) => {
         if (!isOpen) {
-          setStagedFiles([]);
-          setFailedFiles([]);
+          setFiles([]);
           setUploadState("none");
         }
       }}
@@ -148,20 +152,13 @@ export default function FileUploadModal({
             ) : (
               <div {...getRootProps({ className: "dropzone" })}>
                 <input {...getInputProps()} />
-                {stagedFiles.length + failedFiles.length > 0 ? (
+                {files.length > 0 ? (
                   <div className="h-[20rem] overflow-scroll">
-                    {failedFiles.map((file) => (
+                    {files.map((file) => (
                       <FileComponent
                         key={file.name}
                         file={file}
                         accepted={false}
-                      />
-                    ))}
-                    {stagedFiles.map((file) => (
-                      <FileComponent
-                        key={file.name}
-                        file={file}
-                        accepted={true}
                       />
                     ))}
                   </div>
