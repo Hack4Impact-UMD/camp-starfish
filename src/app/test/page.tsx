@@ -1,6 +1,6 @@
 "use client";
 
-import ImageUploadModal from "@/components/ImageUploadModal";
+import FileUploadModal from "@/components/FileUploadModal";
 import { useState } from "react";
 
 export default function Page() {
@@ -24,8 +24,8 @@ export default function Page() {
         onChange={(e) => setFail(e.target.checked)}
       />
       <span className="text-camp-primary">Make upload fail</span>
-      <br/>
-      <ImageUploadModal
+      <br />
+      <FileUploadModal
         onUpload={(files) => {
           if (fail) {
             throw TypeError();
@@ -34,7 +34,7 @@ export default function Page() {
         }}
       >
         <button className="bg-camp-primary m-1 p-1">Trigger Modal</button>
-      </ImageUploadModal>
+      </FileUploadModal>
     </div>
   );
 }

@@ -17,20 +17,19 @@ import alertIcon from "@/assets/icons/alert.svg";
 import fileLoadIcon from "@/assets/icons/fileLoadSuccessIcon.svg";
 import uploadGreenIcon from "@/assets/icons/uploadGreen.svg";
 
-
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 
-type ImageUploadModalProps = {
+type FileUploadModalProps = {
   children: React.ReactNode;
   onUpload: (files: File[]) => void;
 };
 
 type UploadState = "success" | "fail" | "none";
 
-export default function ImageUploadModal({
+export default function FileUploadModal({
   children,
   onUpload,
-}: ImageUploadModalProps) {
+}: FileUploadModalProps) {
   let { acceptedFiles, getRootProps, getInputProps } = useDropzone({
     accept: {
       "image/png": [],
