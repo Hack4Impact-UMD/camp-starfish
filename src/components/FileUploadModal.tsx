@@ -9,7 +9,6 @@ import {
 } from "@radix-ui/react-dialog";
 import { Accept, useDropzone } from "react-dropzone";
 import { useState } from "react";
-import { extension } from "mime-types";
 
 // Icon Imports
 import submitIcon from "@/assets/icons/submitIcon.svg";
@@ -19,12 +18,11 @@ import fileLoadIcon from "@/assets/icons/fileLoadSuccessIcon.svg";
 import uploadGreenIcon from "@/assets/icons/uploadGreen.svg";
 import { lookup } from "mime-types";
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
-
 type FileUploadModalProps = {
   children: React.ReactNode;
   onUpload: (files: File[]) => void;
   acceptedFileExtensions: string[];
+  maxFileSize: number; // MB
 };
 
 type UploadState = "success" | "fail" | "none";
@@ -33,6 +31,7 @@ export default function FileUploadModal({
   children,
   onUpload,
   acceptedFileExtensions,
+  maxFileSize,
 }: FileUploadModalProps) {
   let [stagedFiles, setStagedFiles] = useState<File[]>([]);
   let [failedFiles, setFailedFiles] = useState<File[]>([]);
@@ -53,7 +52,7 @@ export default function FileUploadModal({
 
   let { acceptedFiles, getRootProps, getInputProps } = useDropzone({
     accept: inputAccept,
-    maxSize: MAX_FILE_SIZE,
+    maxSize: maxFileSize * 1024 * 1024,
     onDrop: async (accepted: File[], rejected: File[]) => {
       setStagedFiles((last) => last.concat(accepted));
       setFailedFiles((last) => last.concat(rejected.map((e) => e.file)));
@@ -173,7 +172,7 @@ export default function FileUploadModal({
                       {acceptedFileExtensions
                         .map((type: string) => type)
                         .join(", ")}{" "}
-                      (Max 5MB)
+                      (Max {maxFileSize}MB)
                     </span>
                     <img
                       src={submitIcon.src}
