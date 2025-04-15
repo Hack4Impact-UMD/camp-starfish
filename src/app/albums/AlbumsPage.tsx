@@ -5,6 +5,7 @@ import AlbumCard from "../../components/AlbumCard";
 import plusIcon from "@/assets/icons/plusIcon.svg";
 import filterIcon from "@/assets/icons/filterIcon.svg";
 import testPicture from "@/assets/images/PolaroidPhotos1.png";
+import Link from "next/link";
 
 const AlbumsPage: React.FC = () => {
   // Sample data for albums, get data from Firebase
@@ -29,6 +30,11 @@ const AlbumsPage: React.FC = () => {
                         SELECT ALL
                     </button>
                     <img className="w-[72px] h-[72px] flex-none cursor-pointer" src={plusIcon.src} alt="Plus" />
+                    <Link href={`/albums/pending`}>
+                        <button className="px-4 py-2 text-sm font-semibold text-white bg-camp-primary rounded-full shadow-md hover:bg-camp-primary-dark focus:outline-none focus:ring-2 focus:ring-camp-primary">
+                            Pending
+                        </button>
+                    </Link>
                 </div>
             </div>
 

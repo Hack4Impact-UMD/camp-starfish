@@ -50,7 +50,7 @@ const AlbumPage: React.FC = () => {
                         />
                         <img className="w-[72px] h-[72px] flex-none cursor-pointer" src={filterIcon.src} alt="Filter" />
                         <img className="w-[72px] h-[72px] flex-none cursor-pointer" src={plusIcon.src} alt="Plus" />
-                        <Link href={`/albums/${albumId}/pending`}>
+                        <Link href={`/albums/pending`}>
                             <button className="px-4 py-2 text-sm font-semibold text-white bg-camp-primary rounded-full shadow-md hover:bg-camp-primary-dark focus:outline-none focus:ring-2 focus:ring-camp-primary">
                                 Pending
                             </button>
