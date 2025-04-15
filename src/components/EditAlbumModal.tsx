@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef } from "react";
-import uploadThumbnail from "@/assets/icons/upload_album.png";
+import imageIcon from "@/assets/icons/imageIcon.png";
 
 interface EditAlbumModalProps {
   trigger: React.ReactNode;
@@ -49,7 +49,7 @@ const EditAlbumModal: React.FC<EditAlbumModalProps> = ({ trigger, mode }) => {
               ) : (
                 <>
                   <img
-                    src={uploadThumbnail.src}
+                    src={imageIcon.src}
                     alt="Upload"
                     className="w-10 h-10"
                   />

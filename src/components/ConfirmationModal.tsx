@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, JSX } from "react";
-import cross from "../assets/icon/crossIcon.svg";
+import cross from "../assets/icons/crossIcon.svg";
 
 interface ConfirmationModalProps {
     text: string;
