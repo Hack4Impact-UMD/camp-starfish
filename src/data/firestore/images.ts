@@ -14,7 +14,17 @@ export const getImage = async (albumId: string, imageId: string): Promise<Image>
 }
 
 export const createImage = async (albumID: string, image: Image): Promise<void> => {
-    const imageRef = doc(db, ALBUMS_COLLECTION, albumID, "images", image.name);
+    function generateRandomString(length: number = 20): string {
+        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        let result = '';
+        for (let i = 0; i < length; i++) {
+            result += characters.charAt(Math.floor(Math.random() * characters.length));
+        }
+        return result;
+    }
+
+    const imageId = generateRandomString(20);
+    const imageRef = doc(db, ALBUMS_COLLECTION, albumID, "images", imageId);
     try {
         await setDoc(imageRef, image);
     } catch (error: any) {
