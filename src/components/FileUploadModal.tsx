@@ -42,7 +42,7 @@ export default function FileUploadModal({
       {}
     ),
     maxSize: MAX_FILE_SIZE,
-    onDrop: async (accepted, rejected) => {
+    onDrop: async (accepted: File[], rejected: File[]) => {
       setStagedFiles((last) => last.concat(accepted));
       setFailedFiles((last) => last.concat(rejected.map((e) => e.file)));
     },
@@ -85,7 +85,7 @@ export default function FileUploadModal({
 
   return (
     <Dialog
-      onOpenChange={(isOpen) => {
+      onOpenChange={(isOpen: boolean) => {
         if (!isOpen) {
           setStagedFiles([]);
           setFailedFiles([]);
