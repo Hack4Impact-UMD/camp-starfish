@@ -4,23 +4,23 @@ import filterIcon from "@/assets/icons/filterIcon.svg";
 import uploadIcon from "@/assets/icons/uploadIcon.svg";
 import SelectablePhoto from "@/components/SelectablePhoto";
 import backIcon from "@/assets/icons/backIcon.svg";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const PendingPage: React.FC = () => {
     const dates: string[] = ["Mon, June 17"];
+    const router = useRouter();
 
     return (
         <div className="w-full min-h-full bg-gray-100">
             <div className="container mx-auto px-4 py-6">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                        <Link href="/albums">
-                            <img
-                                src={backIcon.src}
-                                alt="Back"
-                                className="w-8 h-8 cursor-pointer"
-                            />
-                        </Link>
+                        <img
+                            src={backIcon.src}
+                            alt="Back"
+                            className="w-8 h-8 cursor-pointer"
+                            onClick={() => router.back()}
+                        />
                         <h1 className="text-4xl font-lato font-bold text-camp-primary">Pending</h1>
                     </div>
                     <div className="flex items-center gap-4">
@@ -44,10 +44,6 @@ const PendingPage: React.FC = () => {
                             <div key={date}>
                                 <div className="flex items-center gap-8 mb-4">
                                     <h2 className="text-xl font-lato text-camp-primary">{date}</h2>
-                                    <input
-                                        type="checkbox"
-                                        className="w-4 h-4 border-gray-300 rounded focus:ring-camp-primary"
-                                    />
                                 </div>
 
                                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
