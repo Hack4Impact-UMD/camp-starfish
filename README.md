@@ -44,8 +44,18 @@ Open [http://localhost:3000](http://localhost:3000) to see your running applicat
 ### 🔥 Firebase Local Emulator
 
 To simulate Firebase locally:
+1. Install Firebase CLI
 ```bash
 npm install -g firebase-tools
+firebase login
+```
+2. Install dependencies
+```bash
+cd functions
+npm install
+```
+3. Run Emulator
+```bash
 firebase emulators:start
 ```
 
@@ -79,6 +89,9 @@ camp-starfish/
 │── firestore.rules
 │── next.config.ts
 │── package.json
+│── tailwind.config.ts
+│── tsconfig.json
+│── vite.config.ts
 │── README.md
 ```
 
