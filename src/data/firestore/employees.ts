@@ -1,3 +1,8 @@
+import { Employee } from "@/types/personTypes";
+import { Firestore, Transaction } from "firebase/firestore";
+
+const EMPLOYEES_COLLECTION = "employees";
+
 export async function getEmployeeById(
     transaction: Transaction,
     db: Firestore,

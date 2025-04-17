@@ -1,3 +1,8 @@
+import { Album } from "@/types/albumTypes";
+import { Firestore, Transaction } from "firebase/firestore";
+
+const ALBUMS_COLLECTION = "albums"
+
 export async function getAlbumById(
     transaction: Transaction,
     db: Firestore,
