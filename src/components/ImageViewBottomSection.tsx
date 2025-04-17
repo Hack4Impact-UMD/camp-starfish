@@ -72,7 +72,7 @@ export default function ImageViewBottomSection({
               </p>
             </div>
           ) : (
-            <div className="p-2 m-2 mb-2 whitespace-nowrap">
+            <div className="m-2 mb-2 sm:mb-0 whitespace-nowrap">
               <p className="text-black text-base sm:text-lg font-lato font-semibold">
                 APPROVED TAGS
               </p>
@@ -81,19 +81,36 @@ export default function ImageViewBottomSection({
 
           {/* Tags List */}
           <div className="overflow-x-auto whitespace-nowrap flex gap-2 w-full">
-            {tagsToShow.map((tag, index) => (
-              <div
-                key={index}
-                className="bg-[#E6EAEC] px-4 py-2 rounded-3xl flex items-center gap-2"
-              >
-                <p className="text-black text-sm sm:text-base">
-                  {tag.name.firstName}{" "}
-                  {tag.name.middleName ? `${tag.name.middleName} ` : ""}
-                  {tag.name.lastName}
-                </p>
+            {/* Staff View: Only approved tags without moderation ability */}
+            {!canModerateTags && canViewTags ? (
+              <>
+                {tags.approved.map((tag, index) => (
+                  <div
+                    key={index}
+                    className="bg-[#E6EAEC] px-4 py-2 rounded-3xl flex items-center gap-2"
+                  >
+                    <p className="text-black text-sm sm:text-base">
+                      {tag.name.firstName}{" "}
+                      {tag.name.middleName ? `${tag.name.middleName} ` : ""}
+                      {tag.name.lastName}
+                    </p>
+                  </div>
+                ))}
+              </>
+            ) : (
+              // Photographer and Admin View: Can toggle between Approved and Pending tags with ability to moderate
+              <>
+                {tagsToShow.map((tag, index) => (
+                  <div
+                    key={index}
+                    className="bg-[#E6EAEC] px-4 py-2 rounded-3xl flex items-center gap-2"
+                  >
+                    <p className="text-black text-sm sm:text-base">
+                      {tag.name.firstName}{" "}
+                      {tag.name.middleName ? `${tag.name.middleName} ` : ""}
+                      {tag.name.lastName}
+                    </p>
 
-                {canModerateTags && activeTab === "PENDING" && (
-                  <>
                     <button className="inline-flex items-center justify-center min-w-[22px] min-h-[22px]">
                       <Image
                         src={XIcon.src}
@@ -102,21 +119,26 @@ export default function ImageViewBottomSection({
                         height={18}
                       />
                     </button>
-                    <button className="inline-flex items-center justify-center min-w-[22px] min-h-[22px]">
-                      <Image
-                        src={CheckIcon.src}
-                        alt="Approve Icon"
-                        width={19}
-                        height={19}
-                      />
-                    </button>
-                  </>
-                )}
-              </div>
-            ))}
+                    {activeTab === "PENDING" && (
+                      <>
+                        <button className="inline-flex items-center justify-center min-w-[22px] min-h-[22px]">
+                          <Image
+                            src={CheckIcon.src}
+                            alt="Approve Icon"
+                            width={19}
+                            height={19}
+                          />
+                        </button>
+                      </>
+                    )}
+                  </div>
+                ))}
+              </>
+            )}
           </div>
 
-          {activeTab === "PENDING" && (
+          {/* Add Tag button */}
+          {activeTab === "PENDING" && canModerateTags && (
             <div className="bg-white flex justify-end">
               <button className="bg-camp-primary flex flex-row justify-center space-x-2 p-2 px-4 sm:px-6 rounded-3xl shrink-0">
                 <p className="text-base sm:text-lg font-lato">ADD TAG</p>
