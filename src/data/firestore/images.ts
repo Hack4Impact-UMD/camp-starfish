@@ -27,7 +27,7 @@ export const createImage = async (albumID: string, image: Image): Promise<void> 
     const imageRef = doc(db, ALBUMS_COLLECTION, albumID, "images", imageId);
     try {
         await setDoc(imageRef, image);
-    } catch (error: any) {
+    } catch {
         throw Error("Image document could not be created")
     }
 }
@@ -36,8 +36,8 @@ export const updateImage = async (albumId: string, imageId: string, updates: Par
     const imageRef = doc(db, ALBUMS_COLLECTION, albumId, "images", imageId);
     try {
         updateDoc(imageRef, updates);
-    } catch (error: any) {
-        if (error.code === "not-found") {
+    } catch (error) {
+        if (error instanceof Error && (error as any).code === "not-found") {
             throw new Error("Image not found");
         }
     }
