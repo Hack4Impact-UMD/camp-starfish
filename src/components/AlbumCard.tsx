@@ -16,6 +16,7 @@ interface AlbumCardProps {
 const AlbumCard: React.FC<AlbumCardProps> = ({ title, date, photoCount, imageUrl, albumId, imagePaths }) => {
 
   const [isChecked, setIsChecked] = React.useState(false);
+  const [isHovered, setIsHovered] = React.useState(false);
 
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.stopPropagation();
@@ -42,9 +43,9 @@ const AlbumCard: React.FC<AlbumCardProps> = ({ title, date, photoCount, imageUrl
   }
 
   return (
-    <div className="relative">
+    <div className="relative" onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
       {/* Checkbox */}
-      <div className="absolute top-4 left-4 z-10 w-9 h-9 flex items-center justify-center bg-gray-400 bg-opacity-30 rounded-md backdrop-blur-sm">
+      <div className={`absolute top-4 left-4 z-10 w-9 h-9 flex items-center justify-center bg-gray-400 bg-opacity-30 rounded-md backdrop-blur-sm transition-opacity duration-200 ${isHovered ? "opacity-100" : "opacity-0"}`}>
         <input
           type="checkbox"
           checked={isChecked}
@@ -55,7 +56,7 @@ const AlbumCard: React.FC<AlbumCardProps> = ({ title, date, photoCount, imageUrl
 
       {/* Download Button */}
       <div
-        className="absolute top-4 right-3 z-10 w-10 h-10 flex items-center justify-center cursor-pointer"
+        className={`absolute top-4 right-3 z-10 w-10 h-10 flex items-center justify-center cursor-pointer transition-opacity duration-200 ${isHovered ? 'opacity-100' : 'opacity-0'}`}
         onClick={handleDownload}
       >
         <Image
