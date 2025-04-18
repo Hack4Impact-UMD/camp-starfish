@@ -15,7 +15,6 @@ interface ImageViewProps {
   onLeftClick: () => void;
   onRightClick: () => void;
   metadata: ImageMetadata;
-  userRole: "ADMIN" | "PARENT" | "PHOTOGRAPHER" | "STAFF";
 }
 
 export default function ImageView({
@@ -23,11 +22,10 @@ export default function ImageView({
   onLeftClick,
   onRightClick,
   metadata,
-  userRole,
 }: ImageViewProps) {
 
   const auth = useAuth();
-  // const userRole: Role = auth.token?.claims.role as Role;
+  const userRole: Role = auth.token?.claims.role as Role;
 
   return (
     <div className="fixed w-full h-full inset-0 bg-black bg-opacity-90 flex flex-col items-center justify-between">
@@ -92,7 +90,7 @@ export default function ImageView({
       </div>
 
       {/* Bottom Section */}
-      <ImageViewBottomSection userRole={userRole} tags={metadata.tags}/>
+      <ImageViewBottomSection tags={metadata.tags}/>
     </div>
   );
 }

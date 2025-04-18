@@ -11,19 +11,17 @@ import { ImageTags } from "@/types/albumTypes";
 
 interface ImageViewBottomSectionProps {
   tags: ImageTags;
-  userRole: "ADMIN" | "PARENT" | "PHOTOGRAPHER" | "STAFF";
 }
 
 export default function ImageViewBottomSection({
   tags,
-  userRole,
 }: ImageViewBottomSectionProps) {
   const [activeTab, setActiveTab] = useState<"APPROVED" | "PENDING">(
     "APPROVED"
   );
 
   const auth = useAuth();
-  // const userRole: Role = auth.token?.claims.role as Role;
+  const userRole: Role = auth.token?.claims.role as Role;
 
   const canModerateTags = userRole === "ADMIN" || userRole === "PHOTOGRAPHER";
   const canViewTags = canModerateTags || userRole === "STAFF";
