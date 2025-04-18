@@ -8,7 +8,7 @@ export interface Album {
   endDate: string; // ISO-8601
 }
 
-export interface Image {
+export interface ImageMetadata {
   name: string;
   dateTaken: string; // ISO-8601
   inReview: boolean;
