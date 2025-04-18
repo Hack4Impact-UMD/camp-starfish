@@ -32,7 +32,7 @@ export default function ImageView({
   return (
     <div className="fixed w-full h-full inset-0 bg-black bg-opacity-90 flex flex-col items-center justify-between">
       {/* Top Controls */}
-      <div className="w-full flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0 px-6 sm:px-10 pt-6 sm:pt-8 pb-4 text-white">
+      <div className="w-full flex flex-row justify-between items-start sm:items-center gap-4 sm:gap-0 px-6 sm:px-10 pt-6 sm:pt-8 pb-4 text-white">
         <div className="flex flex-row items-center space-x-4 sm:space-x-10">
           <button>
             <Image src={CloseIcon.src} alt="X Icon" width={32} height={32} />
@@ -43,8 +43,8 @@ export default function ImageView({
 
         <div className="flex flex-row items-stretch sm:items-center gap-2 sm:gap-4">
           {userRole !== "PARENT" && (
-            <button className="bg-camp-primary flex flex-row justify-center space-x-4 p-2 rounded-3xl w-full sm:w-64 border border-camp-buttons-neutral">
-              <p className="text-base sm:text-lg font-lato">MOVE TO</p>
+            <button className="bg-camp-primary flex flex-row justify-center gap-4 p-2 rounded-3xl w-12 md:w-64 border border-camp-buttons-neutral">
+              <p className="hidden md:inline text-sm md:text-lg font-lato">MOVE TO</p>
               <Image
                 src={FolderMoveIcon.src}
                 alt="Folder Move Icon"
@@ -53,8 +53,8 @@ export default function ImageView({
               />
             </button>
           )}
-          <button className="bg-camp-tert-blue flex flex-row justify-center space-x-4 p-2 rounded-3xl w-full sm:w-64">
-            <p className="text-base sm:text-lg font-lato">DOWNLOAD</p>
+          <button className="bg-camp-tert-blue flex flex-row justify-center gap-4 p-2 rounded-3xl w-12 md:w-64">
+            <p className="hidden md:inline text-sm md:text-lg font-lato">DOWNLOAD</p>
             <Image
               src={DownloadIcon.src}
               alt="Download Icon"
