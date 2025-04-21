@@ -13,8 +13,7 @@ import {
   deleteDoc,
   WriteBatch,
 } from "firebase/firestore";
-
-const PARENTS_COLLECTION = "parents";
+import { Collection } from "./utils";
 
 // Get a parent by campminderId or uid
 export const getParentById = async (id: string | number, transaction?: Transaction): Promise<Parent> => {
@@ -22,7 +21,7 @@ export const getParentById = async (id: string | number, transaction?: Transacti
     if (typeof id === "string") {
       throw new Error("When using Transaction, id must be campminderId, not uid");
     }
-    const parentRef = doc(db, PARENTS_COLLECTION, String(id));
+    const parentRef = doc(db, Collection.PARENTS, String(id));
     let parentDoc;
     try {
       parentDoc = await transaction.get(parentRef);
@@ -35,7 +34,7 @@ export const getParentById = async (id: string | number, transaction?: Transacti
     return parentDoc.data() as Parent;
   }
 
-  const parentsCollection = collection(db, PARENTS_COLLECTION);
+  const parentsCollection = collection(db, Collection.PARENTS);
   const q = query(
     parentsCollection,
     or(where("uid", "==", id), where("campminderId", "==", id))
@@ -55,7 +54,7 @@ export const getParentById = async (id: string | number, transaction?: Transacti
 // Create a new parent
 export const createParent = async (parent: Parent, instance?: Transaction | WriteBatch): Promise<void> => {
   try {
-    const parentRef = doc(db, PARENTS_COLLECTION, String(parent.campminderId));
+    const parentRef = doc(db, Collection.PARENTS, String(parent.campminderId));
     // @ts-ignore
     await (instance ? instance.set(parentRef, parent) : setDoc(parentRef, parent));
   } catch (error: any) {
@@ -66,7 +65,7 @@ export const createParent = async (parent: Parent, instance?: Transaction | Writ
 // Update a parent by campminderId
 export const updateParent = async (id: number, updates: Partial<Parent>, instance?: Transaction | WriteBatch): Promise<void> => {
   try {
-    const parentRef = doc(db, PARENTS_COLLECTION, String(id));
+    const parentRef = doc(db, Collection.PARENTS, String(id));
     // @ts-ignore
     await (instance ? instance.update(parentRef, updates) : updateDoc(parentRef, updates));
   } catch (error: any) {
@@ -80,7 +79,7 @@ export const updateParent = async (id: number, updates: Partial<Parent>, instanc
 // Delete a parent and remove the parent from all associated campers
 export const deleteParent = async (id: number, instance?: Transaction | WriteBatch): Promise<void> => {
   try {
-    const parentRef = doc(db, PARENTS_COLLECTION, String(id));
+    const parentRef = doc(db, Collection.PARENTS, String(id));
     await (instance ? instance.delete(parentRef) : deleteDoc(parentRef));
   } catch (error: any) {
     throw new Error(`Failed to delete parent: ${error.code}`);

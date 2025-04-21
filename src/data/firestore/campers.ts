@@ -1,11 +1,10 @@
 import { db } from "@/config/firebase";
 import { Camper } from "@/types/personTypes";
 import { doc, getDoc, setDoc, updateDoc, deleteDoc, Transaction, WriteBatch } from "firebase/firestore";
-
-const CAMPERS_COLLECTION = "campers";
+import { Collection } from "./utils";
 
 export const getCamperById = async (campminderId: number, transaction?: Transaction): Promise<Camper> => {
-  const camperRef = doc(db, CAMPERS_COLLECTION, String(campminderId));
+  const camperRef = doc(db, Collection.CAMPERS, String(campminderId));
   let camperDoc;
   try {
     camperDoc = await (transaction ? transaction.get(camperRef) : getDoc(camperRef));
@@ -20,7 +19,7 @@ export const getCamperById = async (campminderId: number, transaction?: Transact
 
 export const createCamper = async (camper: Camper, instance?: Transaction | WriteBatch): Promise<void> => {
   try {
-    const camperRef = doc(db, CAMPERS_COLLECTION, String(camper.campminderId));
+    const camperRef = doc(db, Collection.CAMPERS, String(camper.campminderId));
     // @ts-ignore
     await (instance ? instance.set(camperRef, camper) : setDoc(camperRef, camper));  
   } catch (error: any) {
@@ -30,7 +29,7 @@ export const createCamper = async (camper: Camper, instance?: Transaction | Writ
 
 export const updateCamper = async (campminderId: number, updates: Partial<Camper>, instance?: Transaction | WriteBatch): Promise<void> => {
   try {
-    const camperRef = doc(db, CAMPERS_COLLECTION, String(campminderId));
+    const camperRef = doc(db, Collection.CAMPERS, String(campminderId));
     // @ts-ignore
     await (instance ? instance.update(camperRef, updates) : updateDoc(camperRef, updates));
   } catch (error: any) {
@@ -43,7 +42,7 @@ export const updateCamper = async (campminderId: number, updates: Partial<Camper
 
 export const deleteCamper = async (campminderId: number, instance?: Transaction | WriteBatch): Promise<void> => {
   try {
-    const camperRef = doc(db, CAMPERS_COLLECTION, String(campminderId));
+    const camperRef = doc(db, Collection.CAMPERS, String(campminderId));
     await (instance ? instance.delete(camperRef) : deleteDoc(camperRef));  
   } catch (error: any) {
     throw new Error(`Failed to delete camper: ${error.code}`);
