@@ -3,6 +3,6 @@ export enum Collection {
   PARENTS = "parents",
   EMPLOYEES = "employees",
   ALBUMS = "albums",
-  FILES = "files",
+  IMAGES = "images",
   SESSIONS = "sessions",
 }
