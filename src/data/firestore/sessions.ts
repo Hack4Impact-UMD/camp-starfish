@@ -1,5 +1,6 @@
-import { db } from "@/config/firebase"; 
+import { db } from "@/config/firebase";
 import { Session } from "@/types/sessionTypes";
+import { randomUUID } from "crypto";
 import {
     doc,
     collection,
@@ -7,45 +8,54 @@ import {
     addDoc,
     updateDoc,
     deleteDoc,
+    Transaction,
+    WriteBatch,
 } from "firebase/firestore";
 
 const SESSIONS_COLLECTION = "sessions";
 
-export async function getSessionById(id: string): Promise<Session> {
+export async function getSessionById(id: string, transaction?: Transaction): Promise<Session> {
+    const sessionRef = doc(db, SESSIONS_COLLECTION, id);
+    let sessionDoc;
     try {
-        const sessionRef = doc(db, SESSIONS_COLLECTION, id);
-        const sessionDoc = await getDoc(sessionRef);
-        if (!sessionDoc.exists()) {
-            throw new Error("Session not found");
-        }
-        return sessionDoc.data() as Session;
+        sessionDoc = await (transaction ? transaction.get(sessionRef) : getDoc(sessionRef));
     } catch (error: any) {
         throw new Error(`Failed to get session: ${error.code}`);
     }
+    if (!sessionDoc.exists()) {
+        throw new Error("Session not found");
+    }
+    return sessionDoc.data() as Session;
+
 }
 
-export async function createSession(session: Session): Promise<string> {
+export async function createSession(session: Session, instance?: Transaction | WriteBatch): Promise<string> {
     try {
-        const sessionRef = await addDoc(collection(db, SESSIONS_COLLECTION), session);
+        // @ts-ignore
+        const sessionRef = await (instance ? instance.set(doc(db, SESSIONS_COLLECTION, randomUUID()), session) : addDoc(collection(db, SESSIONS_COLLECTION), session));
         return sessionRef.id;
     } catch (error: any) {
         throw new Error(`Failed to create session: ${error.code}`);
     }
 }
 
-export async function updateSession(id: string, updates: Partial<Session>): Promise<void> {
+export async function updateSession(id: string, updates: Partial<Session>, instance?: Transaction | WriteBatch): Promise<void> {
     try {
         const sessionRef = doc(db, SESSIONS_COLLECTION, id);
-        await updateDoc(sessionRef, updates);
+        // @ts-ignore
+        await (instance ? Transaction.set(sessionRef, updates) : updateDoc(sessionRef, updates));
     } catch (error: any) {
+        if (error.code === "not-found") {
+            throw new Error("Session not found");
+        }
         throw new Error(`Failed to update session: ${error.code}`);
     }
 }
 
-export async function deleteSession(id: string): Promise<void> {
+export async function deleteSession(id: string, instance?: Transaction | WriteBatch): Promise<void> {
     try {
         const sessionRef = doc(db, SESSIONS_COLLECTION, id);
-        await deleteDoc(sessionRef);
+        await (instance ? instance.delete(sessionRef) : deleteDoc(sessionRef));
     } catch (error: any) {
         throw new Error(`Failed to delete session: ${error.code}`);
     }
