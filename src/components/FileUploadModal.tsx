@@ -35,7 +35,7 @@ export default function FileUploadModal({
   maxFileSize,
 }: FileUploadModalProps) {
 
-  let [files, setFiles] = useState<{file: File, status: FileStatus}[]>([]);
+  let [files, setFiles] = useState<{file: File, state: FileStatus}[]>([]);
   let [uploadState, setUploadState] = useState<UploadState>("none");
 
   const mimeTypes: string[] = [
@@ -55,8 +55,11 @@ export default function FileUploadModal({
     accept: inputAccept,
     maxSize: maxFileSize * 1024 * 1024,
     onDrop: async (accepted: File[], rejected: FileRejection[]) => {
-      setStagedFiles((last) => last.concat(accepted));
-      setFailedFiles((last) => last.concat(rejected.map((e) => e.file)));
+      setFiles((last) => last.concat(
+        accepted.map((f) => ({file: f, state: "success"}))
+      ).concat(
+        rejected.map((f) => ({file: f.file, state: "failure"}))
+      ));
     },
   });
 
@@ -81,9 +84,7 @@ export default function FileUploadModal({
           <img
             src={crossIcon.src}
             onClickCapture={() =>
-              accepted
-                ? setStagedFiles((last) => last.filter((e) => e != file))
-                : setFailedFiles((last) => last.filter((e) => e != file))
+              setFiles((last) => last.filter((e) => e.file != file))
             }
             className="w-5 h-5 inline-block cursor-pointer p-1 ml-4"
           ></img>
@@ -134,7 +135,7 @@ export default function FileUploadModal({
                   Upload {uploadState == "success" ? "successful" : "failed"}!
                 </span>
                 <span className="text-center text-camp-text-modalSecondaryTitle block m-4 text-sm">
-                  {stagedFiles.length} files{" "}
+                  {files.filter(e => e.state == "success").length} files{" "}
                   {uploadState == "success" ? "uploaded." : "failed to upload."}
                 </span>
                 <div className="text-center">
@@ -152,13 +153,13 @@ export default function FileUploadModal({
             ) : (
               <div {...getRootProps({ className: "dropzone" })}>
                 <input {...getInputProps()} />
-                {files.length > 0 ? (
+                {files.filter(e => e.state == "success").length > 0 ? (
                   <div className="h-[20rem] overflow-scroll">
-                    {files.map((file) => (
+                    {files.filter(e => e.state == "success").map((fileState) => (
                       <FileComponent
-                        key={file.name}
-                        file={file}
-                        accepted={false}
+                        key={fileState.file.name}
+                        file={fileState.file}
+                        accepted={true}
                       />
                     ))}
                   </div>
@@ -197,10 +198,10 @@ export default function FileUploadModal({
               </DialogClose>
 
               <button
-                hidden={stagedFiles.length == 0}
+                hidden={files.filter(e => e.state == "success").length == 0}
                 onClick={async () => {
                   try {
-                    onUpload(stagedFiles);
+                    onUpload(files.filter(e => e.state == "success").map(x => x.file));
                     setUploadState("success");
                   } catch (err: unknown) {
                     setUploadState("fail");
@@ -210,8 +211,8 @@ export default function FileUploadModal({
                 }}
                 className="bg-camp-tert-green text-bold font-lato text-camp-buttons-buttonTextDark ml-2 mt-4 px-8 py-2 rounded-full"
               >
-                Upload {stagedFiles.length} File
-                {stagedFiles.length > 1 ? "s" : ""}
+                Upload {files.filter(e => e.state == "success").length} File
+                {files.filter(e => e.state == "success").length > 1 ? "s" : ""}
               </button>
             </div>
           </div>
