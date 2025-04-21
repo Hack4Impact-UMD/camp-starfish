@@ -11,11 +11,10 @@ import {
     Transaction,
     WriteBatch,
 } from "firebase/firestore";
-
-const SESSIONS_COLLECTION = "sessions";
+import { Collection } from "./utils";
 
 export async function getSessionById(id: string, transaction?: Transaction): Promise<Session> {
-    const sessionRef = doc(db, SESSIONS_COLLECTION, id);
+    const sessionRef = doc(db, Collection.SESSIONS, id);
     let sessionDoc;
     try {
         sessionDoc = await (transaction ? transaction.get(sessionRef) : getDoc(sessionRef));
@@ -26,13 +25,12 @@ export async function getSessionById(id: string, transaction?: Transaction): Pro
         throw new Error("Session not found");
     }
     return sessionDoc.data() as Session;
-
 }
 
 export async function createSession(session: Session, instance?: Transaction | WriteBatch): Promise<string> {
     try {
         // @ts-ignore
-        const sessionRef = await (instance ? instance.set(doc(db, SESSIONS_COLLECTION, randomUUID()), session) : addDoc(collection(db, SESSIONS_COLLECTION), session));
+        const sessionRef = await (instance ? instance.set(doc(db, Collection.SESSIONS, randomUUID()), session) : addDoc(collection(db, Collection.SESSIONS), session));
         return sessionRef.id;
     } catch (error: any) {
         throw new Error(`Failed to create session: ${error.code}`);
@@ -41,7 +39,7 @@ export async function createSession(session: Session, instance?: Transaction | W
 
 export async function updateSession(id: string, updates: Partial<Session>, instance?: Transaction | WriteBatch): Promise<void> {
     try {
-        const sessionRef = doc(db, SESSIONS_COLLECTION, id);
+        const sessionRef = doc(db, Collection.SESSIONS, id);
         // @ts-ignore
         await (instance ? Transaction.set(sessionRef, updates) : updateDoc(sessionRef, updates));
     } catch (error: any) {
@@ -54,7 +52,7 @@ export async function updateSession(id: string, updates: Partial<Session>, insta
 
 export async function deleteSession(id: string, instance?: Transaction | WriteBatch): Promise<void> {
     try {
-        const sessionRef = doc(db, SESSIONS_COLLECTION, id);
+        const sessionRef = doc(db, Collection.SESSIONS, id);
         await (instance ? instance.delete(sessionRef) : deleteDoc(sessionRef));
     } catch (error: any) {
         throw new Error(`Failed to delete session: ${error.code}`);
