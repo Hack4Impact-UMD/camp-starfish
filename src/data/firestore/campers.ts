@@ -5,16 +5,17 @@ import { doc, getDoc, setDoc, updateDoc, deleteDoc, Transaction, WriteBatch } fr
 const CAMPERS_COLLECTION = "campers";
 
 export const getCamperById = async (campminderId: number, transaction?: Transaction): Promise<Camper> => {
+  const camperRef = doc(db, CAMPERS_COLLECTION, String(campminderId));
+  let camperDoc;
   try {
-    const camperRef = doc(db, CAMPERS_COLLECTION, String(campminderId));
-    const camperDoc = await (transaction ? transaction.get(camperRef) : getDoc(camperRef));
-    if (!camperDoc.exists()) {
-      throw new Error("Camper not found");
-    }
-    return camperDoc.data() as Camper;  
+    camperDoc = await (transaction ? transaction.get(camperRef) : getDoc(camperRef));
   } catch (error: any) {
     throw new Error(`Failed to get camper: ${error.code}`);
   }
+  if (!camperDoc.exists()) {
+    throw new Error("Camper not found");
+  }
+  return camperDoc.data() as Camper;  
 };
 
 export const createCamper = async (camper: Camper, instance?: Transaction | WriteBatch): Promise<void> => {
