@@ -1,0 +1,193 @@
+import {
+  Firestore,
+  Transaction,
+  collection,
+  doc,
+  query,
+  where,
+  or,
+  QuerySnapshot,
+  DocumentSnapshot,
+  getDocs
+ } from 'firebase/firestore';
+ 
+ export interface Employee {
+  uid?: string;
+  campminderId?: number;
+  email: string;
+ }
+ 
+ export interface Album {
+  id?: string;
+  title: string;
+ }
+ 
+ const EMPLOYEES_COLLECTION = 'employees';
+ const ALBUMS_COLLECTION = 'albums';
+ 
+ export async function getEmployeeById(
+  transaction: Transaction,
+  db: Firestore,
+  id: string | number
+ ): Promise<Employee> {
+  try {
+    const col = collection(db, EMPLOYEES_COLLECTION);
+    const q = query(
+      col,
+      or(
+        where('campminderId', '==', id),
+        where('uid', '==', id)
+      )
+    );
+    
+    const snap = await transaction.get(q);
+    if (snap.empty) throw new Error(`No employee found with id "${id}"`);
+    
+    return snap.docs[0].data() as Employee;
+  } catch (e) {
+    if (e instanceof Error && e.message.includes('No employee found with')) {
+      throw e;
+    }
+    const errorMessage = e instanceof Error ? e.message : String(e);
+    throw new Error(`getEmployeeById failed: ${errorMessage}`);
+  }
+ }
+ 
+ export async function getEmployeeByEmail(
+  transaction: Transaction,
+  db: Firestore,
+  email: string
+ ): Promise<Employee> {
+  try {
+    const col = collection(db, EMPLOYEES_COLLECTION);
+    const q = query(col, where('email', '==', email));
+    
+    const snap = await transaction.get(q);
+    if (snap.empty) throw new Error(`No employee found with email "${email}"`);
+    
+    return snap.docs[0].data() as Employee;
+  } catch (e) {
+    if (e instanceof Error && e.message.includes('No employee found with')) {
+      throw e;
+    }
+    const errorMessage = e instanceof Error ? e.message : String(e);
+    throw new Error(`getEmployeeByEmail failed: ${errorMessage}`);
+  }
+ }
+ 
+ export async function createEmployee(
+  transaction: Transaction,
+  db: Firestore,
+  employee: Employee
+ ): Promise<void> {
+  try {
+    const col = collection(db, EMPLOYEES_COLLECTION);
+    const id = employee.campminderId?.toString();
+    const ref = id ? doc(col, id) : doc(col);
+    
+    transaction.set(ref, employee);
+  } catch (e) {
+    const errorMessage = e instanceof Error ? e.message : String(e);
+    throw new Error(`createEmployee failed: ${errorMessage}`);
+  }
+ }
+ 
+ export async function updateEmployee(
+  transaction: Transaction,
+  db: Firestore,
+  campminderId: number,
+  updates: Partial<Employee>
+ ): Promise<void> {
+  try {
+    const ref = doc(collection(db, EMPLOYEES_COLLECTION), campminderId.toString());
+    transaction.update(ref, updates);
+  } catch (e) {
+    const errorMessage = e instanceof Error ? e.message : String(e);
+    throw new Error(`updateEmployee failed: ${errorMessage}`);
+  }
+ }
+ 
+ export async function deleteEmployee(
+  transaction: Transaction,
+  db: Firestore,
+  campminderId: number
+ ): Promise<void> {
+  try {
+    const ref = doc(collection(db, EMPLOYEES_COLLECTION), campminderId.toString());
+    transaction.delete(ref);
+  } catch (e) {
+    const errorMessage = e instanceof Error ? e.message : String(e);
+    throw new Error(`deleteEmployee failed: ${errorMessage}`);
+  }
+ }
+ 
+ export async function getAlbumById(
+  transaction: Transaction,
+  db: Firestore,
+  id: string
+ ): Promise<Album> {
+  try {
+    const ref = doc(collection(db, ALBUMS_COLLECTION), id);
+    const snap = await transaction.get(ref);
+    
+    if (!snap.exists()) throw new Error(`No album found with id "${id}"`);
+    
+    return { id: snap.id, ...(snap.data() as Omit<Album, 'id'>) };
+  } catch (e) {
+    if (e instanceof Error && e.message.includes('No album found with')) {
+      throw e;
+    }
+    const errorMessage = e instanceof Error ? e.message : String(e);
+    throw new Error(`getAlbumById failed: ${errorMessage}`);
+  }
+ }
+ 
+ export async function createAlbum(
+  transaction: Transaction,
+  db: Firestore,
+  album: Album
+ ): Promise<void> {
+  try {
+    const col = collection(db, ALBUMS_COLLECTION);
+    const ref = album.id ? doc(col, album.id) : doc(col);
+    
+    const { id, ...albumWithoutId } = album;
+    
+    transaction.set(ref, albumWithoutId);
+  } catch (e) {
+    const errorMessage = e instanceof Error ? e.message : String(e);
+    throw new Error(`createAlbum failed: ${errorMessage}`);
+  }
+ }
+ 
+ export async function updateAlbum(
+  transaction: Transaction,
+  db: Firestore,
+  id: string,
+  updates: Partial<Album>
+ ): Promise<void> {
+  try {
+    const ref = doc(collection(db, ALBUMS_COLLECTION), id);
+    
+    const { id: _, ...updatesWithoutId } = updates;
+    
+    transaction.update(ref, updatesWithoutId);
+  } catch (e) {
+    const errorMessage = e instanceof Error ? e.message : String(e);
+    throw new Error(`updateAlbum failed: ${errorMessage}`);
+  }
+ }
+ 
+ export async function deleteAlbum(
+  transaction: Transaction,
+  db: Firestore,
+  id: string
+ ): Promise<void> {
+  try {
+    const ref = doc(collection(db, ALBUMS_COLLECTION), id);
+    transaction.delete(ref);
+  } catch (e) {
+    const errorMessage = e instanceof Error ? e.message : String(e);
+    throw new Error(`deleteAlbum failed: ${errorMessage}`);
+  }
+ }
