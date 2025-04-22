@@ -40,12 +40,14 @@ const AlbumCard: React.FC<AlbumCardProps> = ({ title, date, photoCount, imageUrl
     } catch (error) {
       console.error("Error downloading album images:", error);
     }
-  }
+  };
+
+  const showControls = isHovered || isChecked;
 
   return (
     <div className="relative" onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
       {/* Checkbox */}
-      <div className={`absolute top-4 left-4 z-10 w-9 h-9 flex items-center justify-center bg-gray-400 bg-opacity-30 rounded-md backdrop-blur-sm transition-opacity duration-200 ${isHovered ? "opacity-100" : "opacity-0"}`}>
+      <div className={`absolute top-4 left-4 z-10 w-9 h-9 flex items-center justify-center bg-gray-400 bg-opacity-30 rounded-md backdrop-blur-sm transition-opacity duration-200 ${showControls ? "opacity-100" : "opacity-0"}`}>
         <input
           type="checkbox"
           checked={isChecked}
@@ -56,7 +58,7 @@ const AlbumCard: React.FC<AlbumCardProps> = ({ title, date, photoCount, imageUrl
 
       {/* Download Button */}
       <div
-        className={`absolute top-4 right-3 z-10 w-10 h-10 flex items-center justify-center cursor-pointer transition-opacity duration-200 ${isHovered ? 'opacity-100' : 'opacity-0'}`}
+        className={`absolute top-4 right-3 z-10 w-10 h-10 flex items-center justify-center cursor-pointer transition-opacity duration-200 ${showControls ? 'opacity-100' : 'opacity-0'}`}
         onClick={handleDownload}
       >
         <Image
