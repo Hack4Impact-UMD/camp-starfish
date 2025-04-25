@@ -11,10 +11,16 @@ import { ImageTags } from "@/types/albumTypes";
 
 interface ImageViewBottomSectionProps {
   tags: ImageTags;
+  onApproveTag?: (campminderId: number) => void;
+  onRejectTag?: (campminderId: number) => void;
+  onAddTag?: () => void;
 }
 
 export default function ImageViewBottomSection({
   tags,
+  onApproveTag,
+  onRejectTag,
+  onAddTag,
 }: ImageViewBottomSectionProps) {
   const [activeTab, setActiveTab] = useState<"APPROVED" | "PENDING">(
     "APPROVED"
@@ -109,7 +115,11 @@ export default function ImageViewBottomSection({
                       {tag.name.lastName}
                     </p>
 
-                    <button className="inline-flex items-center justify-center min-w-[22px] min-h-[22px]">
+                    <button
+                      onClick={() => onRejectTag?.(tag.campminderId)}
+                      aria-label="Reject Tag"
+                      className="inline-flex items-center justify-center min-w-[22px] min-h-[22px]"
+                    >
                       <Image
                         src={XIcon.src}
                         alt="Remove Icon"
@@ -119,7 +129,11 @@ export default function ImageViewBottomSection({
                     </button>
                     {activeTab === "PENDING" && (
                       <>
-                        <button className="inline-flex items-center justify-center min-w-[22px] min-h-[22px]">
+                        <button
+                          onClick={() => onApproveTag?.(tag.campminderId)}
+                          aria-label="Approve Tag"
+                          className="inline-flex items-center justify-center min-w-[22px] min-h-[22px]"
+                        >
                           <Image
                             src={CheckIcon.src}
                             alt="Approve Icon"
@@ -138,7 +152,11 @@ export default function ImageViewBottomSection({
           {/* Add Tag button */}
           {activeTab === "PENDING" && canModerateTags && (
             <div className="bg-white flex justify-end">
-              <button className="bg-camp-primary flex flex-row justify-center space-x-2 p-2 px-4 sm:px-6 rounded-3xl shrink-0">
+              <button
+                onClick={onAddTag}
+                aria-label="Add Tag"
+                className="bg-camp-primary flex flex-row justify-center space-x-2 p-2 px-4 sm:px-6 rounded-3xl shrink-0"
+              >
                 <p className="text-base sm:text-lg font-lato">ADD TAG</p>
                 <Image
                   src={AddIcon.src}

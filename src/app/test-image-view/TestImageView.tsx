@@ -38,69 +38,19 @@ export default function TestImageView() {
         campminderId: 12345,
         name: {
           firstName: "Student",
-          lastName: "One",
+          lastName: "1",
         },
         photoPermissions: 'PUBLIC',
       },
     ],
-    inReview: [
-      {
-        campminderId: 67890,
-        name: {
-          firstName: "Student",
-          lastName: "Two",
-        },
-        photoPermissions: 'PUBLIC',
+    inReview: new Array(7).fill(null).map((_, i) => ({
+      campminderId: 67890 + i,
+      name: {
+        firstName: "Student",
+        lastName: `${i + 1}`,
       },
-      {
-        campminderId: 67890,
-        name: {
-          firstName: "Student",
-          lastName: "Two",
-        },
-        photoPermissions: 'PUBLIC',
-      },
-      {
-        campminderId: 67890,
-        name: {
-          firstName: "Student",
-          lastName: "Two",
-        },
-        photoPermissions: 'PUBLIC',
-      },
-      {
-        campminderId: 67890,
-        name: {
-          firstName: "Student",
-          lastName: "Two",
-        },
-        photoPermissions: 'PUBLIC',
-      },
-      {
-        campminderId: 67890,
-        name: {
-          firstName: "Student",
-          lastName: "Two",
-        },
-        photoPermissions: 'PUBLIC',
-      },
-      {
-        campminderId: 67890,
-        name: {
-          firstName: "Student",
-          lastName: "Two",
-        },
-        photoPermissions: 'PUBLIC',
-      },
-      {
-        campminderId: 67890,
-        name: {
-          firstName: "Student",
-          lastName: "Two",
-        },
-        photoPermissions: 'PUBLIC',
-      },
-    ],
+      photoPermissions: "PUBLIC",
+    })),
   };
   const metadata : ImageMetadata = {
     name: "picture one",
@@ -113,9 +63,14 @@ export default function TestImageView() {
       {image && (
         <ImageView
           image={image}
+          metadata={metadata}
           onLeftClick={() => alert("Left Click")}
           onRightClick={() => alert("Right Click")}
-          metadata={metadata}
+          onClose={() => alert("Close Clicked")}
+          onMoveToClick={() => alert("Move To Clicked")}
+          onApproveTag={(id) => alert(`Approve Tag ${id}`)}
+          onRejectTag={(id) => alert(`Reject Tag ${id}`)}
+          onAddTag={() => alert("Add Tag Clicked")}
         />
       )}
     </div>
