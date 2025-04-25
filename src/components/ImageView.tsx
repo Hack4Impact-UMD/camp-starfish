@@ -23,6 +23,12 @@ export default function ImageView({
   onRightClick,
   metadata,
 }: ImageViewProps) {
+  useEffect(() => {
+    document.body.classList.add("overflow-hidden");
+    return () => {
+      document.body.classList.remove("overflow-hidden");
+    };
+  }, []);
 
   const auth = useAuth();
   const userRole: Role = auth.token?.claims.role as Role;
