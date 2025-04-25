@@ -6,6 +6,7 @@ import plusIcon from "@/assets/icons/plusIcon.svg";
 import filterIcon from "@/assets/icons/filterIcon.svg";
 import testPicture from "@/assets/images/PolaroidPhotos1.png";
 import EditAlbumModal from "@/components/EditAlbumModal";
+import CardGallery from "@/components/CardGallery";
 
 const AlbumsPage: React.FC = () => {
   // Sample data for albums, get data from Firebase
@@ -46,12 +47,10 @@ const AlbumsPage: React.FC = () => {
             />
           </div>
         </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-6">
-          {albums.map((album, index) => (
-            <AlbumCard className="cursor-pointer" key={index} {...album} />
-          ))}
-        </div>
+        <CardGallery
+          items={albums}
+          renderItem={(album) => <AlbumCard {...album} />}
+        />
       </div>
     </div>
   );
