@@ -19,7 +19,6 @@ export default function CardGallery<T extends { id: string }>(
 ) {
   const { items, renderItem, groups } = props;
   const [selectedItemIds, setSelectedItemIds] = useState<string[]>([]);
-  console.log(selectedItemIds);
 
   const toggleItem = (itemId: string) => {
     setSelectedItemIds((prev: string[]) => {
