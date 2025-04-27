@@ -7,6 +7,7 @@ export interface Album {
   numPhotos: number;
   startDate: string; // ISO-8601
   endDate: string; // ISO-8601
+  hasThumbnail: boolean;
 }
 export interface AlbumID extends Album, ID { };
 
