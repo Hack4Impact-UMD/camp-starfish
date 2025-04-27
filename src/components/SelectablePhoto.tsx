@@ -36,7 +36,7 @@ const SelectablePhoto: React.FC<Props> = ({ src, alt = "Pending Photo" }) => {
                 <button
                     onClick={handleApprove}
                     className={`w-6 h-6 rounded-full flex items-center justify-center ${
-                        status === "approved" ? "bg-camp-tert-green" : "bg-white"
+                        status === "approved" ? "bg-camp-buttons-success" : "bg-white"
                     }`}
                 >
                     <img src={checkIcon.src} alt="Approve" className="w-3 h-3" />
@@ -44,7 +44,7 @@ const SelectablePhoto: React.FC<Props> = ({ src, alt = "Pending Photo" }) => {
                 <button
                     onClick={handleReject}
                     className={`w-6 h-6 rounded-full flex items-center justify-center ${
-                        status === "rejected" ? "bg-blue-900" : "bg-white"
+                        status === "rejected" ? "bg-camp-primaryScale-p300" : "bg-white"
                     }`}
                 >
                     <img src={crossIcon.src} alt="Reject" className="w-3 h-3" />
