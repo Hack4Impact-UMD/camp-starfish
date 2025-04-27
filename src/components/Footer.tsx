@@ -5,6 +5,7 @@ import linkedinIcon from "../assets/icons/linkedinIcon.png";
 import youtubeIcon from "../assets/icons/youtubeIcon.png";  
 import h4ILogo from "../assets/icons/h4ILogo.png";
 import BGPatternDark from "../assets/patterns/BGPatternDark.svg";
+import Link from "next/link";
 
 export default function Footer() {
   return(
@@ -13,10 +14,10 @@ export default function Footer() {
         <div className = "flex flex-col w-[208px] gap-[24px]">
           <img src = {darkBgLogo.src} className = "h-[148px]"></img>
           <div className = "flex flex-row gap-[12px]">
-            <img src = {facebookIcon.src} className = "h-[32px]"></img>
-            <img src = {instagramIcon.src} className = "h-[32px]"></img>
-            <img src = {linkedinIcon.src} className = "h-[32px]"></img>
-            <img src = {youtubeIcon.src} className = "h-[32px]"></img>
+            <Link href = "https://www.facebook.com/campstarfish/"><img src = {facebookIcon.src} className = "h-[32px]"></img></Link>
+            <Link href = "https://www.instagram.com/campstarfishrindge"><img src = {instagramIcon.src} className = "h-[32px]"></img></Link>
+            <Link href = "https://www.linkedin.com/company/camp-starfish/"><img src = {linkedinIcon.src} className = "h-[32px]"></img></Link>
+            <Link href = "https://www.youtube.com/@CampStarfish"><img src = {youtubeIcon.src} className = "h-[32px]"></img></Link>
           </div>
         </div>
         <div className = "flex flex-col w-[208px]">
@@ -34,11 +35,9 @@ export default function Footer() {
           <p><span className="font-bold">Email: </span>info@campstarfish.org</p>
         </div>
         <div className = "flex flex-row justify-center items-end gap-[12px]">
-          <p>Built By<br></br>Hack4Impact-UMD</p>
-          <img src = {h4ILogo.src} className = "h-[32px]"></img>
+          <Link href = "https://hack4impact.org/" target="_blank"><p>Built By<br></br>Hack4Impact-UMD</p></Link>
+          <Link href = "https://hack4impact.org/" target="_blank">  <img src = {h4ILogo.src} className = "h-[32px]"></img></Link>
         </div>
-
-
       </div>
       <img src = {BGPatternDark.src} className = "w-full absolute"></img>
     </div>
