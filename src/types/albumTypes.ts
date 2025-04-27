@@ -14,6 +14,9 @@ export interface ImageMetadata {
   inReview: boolean;
   tags: ImageTags;
 }
+export interface Image extends ImageMetadata {
+  src: string;
+}
 
 // 'ALL' indicates an image should be available to everyone associated with that session (ex. group photos)
 export type ImageTags = 'ALL' | {

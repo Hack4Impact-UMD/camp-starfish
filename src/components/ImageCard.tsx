@@ -1,26 +1,24 @@
 "use client";
 
-import { ImageMetadata } from "@/types/albumTypes";
-import TestPicture from "@/assets/images/TestPicture.png";
+import { Image } from "@/types/albumTypes";
 
 interface ImageCardProps {
-  image: string;
-  metadata: ImageMetadata;
+  image: Image;
   isSelected: boolean;
 }
 
 export default function ImageCard(props: ImageCardProps) {
-  const { image, metadata, isSelected } = props;
+  const { image, isSelected } = props;
   return (
     <div
-      key={metadata.name}
+      key={image.name}
       className={`relative group w-full h-auto rounded-lg overflow-hidden shadow-md border-4 transition duration-300 cursor-pointer ${
         isSelected ? "border-blue-500" : "border-transparent"
       }`}
     >
       <img
-        src={TestPicture.src}
-        alt={`${metadata.name}`}
+        src={image.src}
+        alt={`${image.name}`}
         className="w-full h-auto object-cover"
       />
 
