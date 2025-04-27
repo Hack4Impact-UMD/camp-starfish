@@ -162,38 +162,6 @@ export default function FileUploadModal({
     );
   }
 
-  function BottomButtonsComponent() {
-    return (
-      <>
-        <DialogClose asChild>
-          <button className="bg-camp-buttons-neutral text-bold font-lato text-camp-buttons-buttonTextLight mt-4 px-8 py-2 rounded-full">
-            Cancel
-          </button>
-        </DialogClose>
-
-        <button
-          hidden={files.filter((e) => e.state == "success").length == 0}
-          onClick={async () => {
-            try {
-              onUpload(
-                files.filter((e) => e.state == "success").map((x) => x.file)
-              );
-              setUploadState("success");
-            } catch (err: unknown) {
-              setUploadState("fail");
-              console.error(err);
-              return;
-            }
-          }}
-          className="bg-camp-tert-green text-bold font-lato text-camp-buttons-buttonTextDark ml-2 mt-4 px-8 py-2 rounded-full"
-        >
-          Upload {files.filter((e) => e.state == "success").length} File
-          {files.filter((e) => e.state == "success").length > 1 ? "s" : ""}
-        </button>
-      </>
-    );
-  }
-
   return (
     <Dialog
       onOpenChange={(isOpen: boolean) => {
@@ -221,21 +189,50 @@ export default function FileUploadModal({
             {uploadState != "none" ? (
               <FinishedUploadView />
             ) : (
-              <div {...getRootProps({ className: "dropzone" })}>
-                <input {...getInputProps()} />
-                {files.filter((e) => e.state == "success").length > 0 ? (
-                  <>
+              <>
+                <div {...getRootProps({ className: "dropzone" })}>
+                  <input {...getInputProps()} />
+                  {files.filter((e) => e.state == "success").length > 0 ? (
                     <UploadedFilesView />
-                    <BottomButtonsComponent />
-                  </>
-                ) : (
-                  <>
+                  ) : (
                     <InitialUploadView />
-                    <BottomButtonsComponent />
-                  </>
-                )}
-              </div>
+                  )}
+                </div>
+              </>
             )}
+
+            <div hidden={uploadState != "none"}>
+              <DialogClose asChild>
+                <button className="bg-camp-buttons-neutral text-bold font-lato text-camp-buttons-buttonTextLight mt-4 px-8 py-2 rounded-full">
+                  Cancel
+                </button>
+              </DialogClose>
+
+              <button
+                hidden={files.filter((e) => e.state == "success").length == 0}
+                onClick={async () => {
+                  console.log("here");
+                  try {
+                    onUpload(
+                      files
+                        .filter((e) => e.state == "success")
+                        .map((x) => x.file)
+                    );
+                    setUploadState("success");
+                  } catch (err: unknown) {
+                    setUploadState("fail");
+                    console.error(err);
+                    return;
+                  }
+                }}
+                className="bg-camp-tert-green text-bold font-lato text-camp-buttons-buttonTextDark ml-2 mt-4 px-8 py-2 rounded-full"
+              >
+                Upload {files.filter((e) => e.state == "success").length} File
+                {files.filter((e) => e.state == "success").length > 1
+                  ? "s"
+                  : ""}
+              </button>
+            </div>
           </div>
         </DialogContent>
       </DialogPortal>
