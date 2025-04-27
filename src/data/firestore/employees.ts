@@ -1,102 +1,85 @@
+import { db } from "@/config/firebase";
 import { Employee } from "@/types/personTypes";
-import { Firestore, Transaction } from "firebase/firestore";
+import { collection, doc, Firestore, getDocs, or, query, Transaction, where } from "firebase/firestore";
 
 const EMPLOYEES_COLLECTION = "employees";
 
-export async function getEmployeeById(
-    transaction: Transaction,
-    db: Firestore,
-    id: string | number
-): Promise<Employee> {
+export async function getEmployeeById(id: string | number, transaction?: Transaction): Promise<Employee> {
     try {
-        const ref = db.collection(EMPLOYEES_COLLECTION);
-        if (typeof id === 'string') {
-            const doc = ref.doc(id);
-            const snap = await transaction.get(doc);
-            if (!snap.exists) throw new Error(`No employee found with uid "${id}"`);
-            return snap.data() as Employee;
-        } else {
-            const snap = await transaction.get(ref.where('campminderId', '==', id));
-            if (snap.empty) throw new Error(`No employee found with campminderId ${id}`);
-            return snap.docs[0].data() as Employee;
-        }
+      const q = query(
+        collection(db, EMPLOYEES_COLLECTION),
+        or(where('campminderId', '==', id), where('uid', '==', id))
+      );
+      const snap = await getDocs(q);
+      if (snap.empty) throw new Error(`No employee found with uid or campminderId "${id}"`);
+      return snap.docs[0].data() as Employee;
     } catch (e) {
-        throw new Error(`getEmployeeById failed: ${e}`);
+      const errorMessage = e instanceof Error ? e.message : String(e);
+      if (e instanceof Error && e.message.includes('No employee found with uid')) {
+        throw e;
+      }
+      throw new Error(`getEmployeeById failed: ${errorMessage}`);
     }
-}
-
-export async function getEmployeeByEmail(
+  }
+  
+  export async function getEmployeeByEmail(
     transaction: Transaction,
-    db: Firestore,
     email: string
-): Promise<Employee> {
+  ) {
     try {
-        const ref = db.collection(EMPLOYEES_COLLECTION);
-        const snap = await transaction.get(ref.where('email', '==', email));
-        if (snap.empty) throw new Error(`No employee found with email "${email}"`);
-        return snap.docs[0].data() as Employee;
+      const q = query(collection(db, EMPLOYEES_COLLECTION), where('email', '==', email));
+      const snap = await getDocs(q);
+      if (snap.empty) throw new Error(`No employee found with email "${email}"`);
+      return snap.docs[0].data();
     } catch (e) {
-        throw new Error(`getEmployeeByEmail failed: ${e}`);
+      const errorMessage = e instanceof Error ? e.message : String(e);
+      if (e instanceof Error && e.message.includes('No employee found with email')) {
+        throw e;
+      }
+      throw new Error(`getEmployeeByEmail failed: ${errorMessage}`);
     }
-}
-
-export async function createEmployee(
+  }
+  
+  export async function createEmployee(
     transaction: Transaction,
-    db: Firestore,
-    employee: Employee
-): Promise<void> {
+    employee: {
+      campminderId?: number;
+      email: string;
+      uid?: string;
+    }
+  ) {
     try {
-        const ref = db.collection(EMPLOYEES_COLLECTION);
-        const doc = employee.uid ? ref.doc(employee.uid) : ref.doc();
-        transaction.set(doc, employee);
+      const ref = doc(collection(db, EMPLOYEES_COLLECTION), employee.campminderId?.toString());
+      transaction.set(ref, employee);
     } catch (e) {
-        throw new Error(`createEmployee failed: ${e}`);
+      const errorMessage = e instanceof Error ? e.message : String(e);
+      throw new Error(`createEmployee failed: ${errorMessage}`);
     }
-}
-
-export async function updateEmployee(
+  }
+  
+  export async function updateEmployee(
     transaction: Transaction,
-    db: Firestore,
     id: string | number,
-    updates: Partial<Employee>
-): Promise<void> {
+    updates: Partial<{ campminderId?: number; email: string; uid?: string }>
+  ) {
     try {
-        const ref = db.collection(EMPLOYEES_COLLECTION);
-        if (typeof id === 'string') {
-            const doc = ref.doc(id);
-            const snap = await transaction.get(doc);
-            if (!snap.exists) throw new Error(`No employee found with uid "${id}"`);
-            transaction.update(doc, updates);
-        } else {
-            const snap = await transaction.get(ref.where('campminderId', '==', id));
-            if (snap.empty) throw new Error(`No employee found with campminderId ${id}`);
-            const doc = ref.doc(snap.docs[0].id);
-            transaction.update(doc, updates);
-        }
+      const ref = doc(db, EMPLOYEES_COLLECTION, id.toString());
+      transaction.update(ref, updates);
     } catch (e) {
-        throw new Error(`updateEmployee failed: ${e}`);
+      const errorMessage = e instanceof Error ? e.message : String(e);
+      throw new Error(`updateEmployee failed: ${errorMessage}`);
     }
-}
-
-export async function deleteEmployee(
+  }
+  
+  export async function deleteEmployee(
     transaction: Transaction,
-    db: Firestore,
     id: string | number
-): Promise<void> {
+  ) {
     try {
-        const ref = db.collection(EMPLOYEES_COLLECTION);
-        if (typeof id === 'string') {
-            const doc = ref.doc(id);
-            const snap = await transaction.get(doc);
-            if (!snap.exists) throw new Error(`No employee found with uid "${id}"`);
-            transaction.delete(doc);
-        } else {
-            const snap = await transaction.get(ref.where('campminderId', '==', id));
-            if (snap.empty) throw new Error(`No employee found with campminderId ${id}`);
-            const doc = ref.doc(snap.docs[0].id);
-            transaction.delete(doc);
-        }
+      const ref = doc(db, EMPLOYEES_COLLECTION, id.toString());
+      transaction.delete(ref);
     } catch (e) {
-        throw new Error(`deleteEmployee failed: ${e}`);
+      const errorMessage = e instanceof Error ? e.message : String(e);
+      throw new Error(`deleteEmployee failed: ${errorMessage}`);
     }
-}
+  }
