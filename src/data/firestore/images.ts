@@ -1,10 +1,10 @@
 import { db } from "@/config/firebase";
-import { ImageMetadata } from "@/types/albumTypes";
+import { ImageMetadata, ImageMetadataID } from "@/types/albumTypes";
 import { WriteBatch } from "@google-cloud/firestore";
 import { doc, getDoc, setDoc, updateDoc, deleteDoc, Transaction } from "firebase/firestore";
 import { Collection } from "./utils";
 
-export const getImage = async (albumId: string, imageId: string, transaction?: Transaction): Promise<ImageMetadata> => {
+export const getImage = async (albumId: string, imageId: string, transaction?: Transaction): Promise<ImageMetadataID> => {
     const imageRef = doc(db, Collection.ALBUMS, albumId, Collection.IMAGES, imageId);
     let imageDoc;
     try {
@@ -15,7 +15,11 @@ export const getImage = async (albumId: string, imageId: string, transaction?: T
     if (!imageDoc.exists()) {
         throw new Error("Image not found");
     }
-    return imageDoc.data() as ImageMetadata;
+    return {
+        id: imageDoc.id,
+        albumId: imageDoc.ref.parent.parent!.id,
+        ...imageDoc.data()
+    } as ImageMetadataID;
 }
 
 export const createImage = async (albumId: string, imageId: string, image: ImageMetadata, instance?: Transaction | WriteBatch): Promise<void> => {
