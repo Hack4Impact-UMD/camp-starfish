@@ -10,7 +10,7 @@ export interface GroupOptions<T> {
 
 interface CardGalleryProps<T> {
   items: T[];
-  renderItem: (item: T, isSelected?: boolean) => JSX.Element;
+  renderItem: (item: T, isSelected: boolean) => JSX.Element;
   groups?: GroupOptions<T>;
 }
 

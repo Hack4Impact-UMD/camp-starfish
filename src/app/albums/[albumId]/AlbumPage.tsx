@@ -1,29 +1,14 @@
 import React, { useState } from "react";
 import plusIcon from "@/assets/icons/plusIcon.svg";
 import filterIcon from "@/assets/icons/filterIcon.svg";
-import TestPicture from "@/assets/images/TestPicture.png"; // Replace with actual image URL
+import TestPicture from "@/assets/images/PolaroidPhotos1.png"; // Replace with actual image URL
 import Link from "next/link";
 import ImageCard from "@/components/ImageCard";
+import CardGallery from "@/components/CardGallery";
+import { ImageID } from "@/types/albumTypes";
 
 const AlbumPage: React.FC = () => {
-    const [selectedDates, setSelectedDates] = useState<string[]>([]);
-    const [selectedPhotos, setSelectedPhotos] = useState<string[]>([]);
 
-    const handleCheckboxChange = (date: string) => {
-        setSelectedDates((prev) =>
-            prev.includes(date) ? prev.filter((d) => d !== date) : [...prev, date]
-        );
-    };
-
-    const togglePhotoSelection = (photoId: string) => {
-        setSelectedPhotos((prev) =>
-            prev.includes(photoId)
-                ? prev.filter((id) => id !== photoId)
-                : [...prev, photoId]
-        );
-    };
-
-    const albumId = "album-1";
     const dates = [
         "Mon, June 17",
         "Tues, June 18",
@@ -31,6 +16,22 @@ const AlbumPage: React.FC = () => {
         "Thurs, June 20",
         "Fri, June 21",
     ];
+
+    const images: ImageID[] = []
+    for (let i = 0; i < 10; i++) {
+        images.push({
+            src: TestPicture.src,
+            name: "Image " + i,
+            tags: 'ALL',                              
+            dateTaken: dates[i % 5],
+            inReview: false,
+            id: i.toString(),
+            albumId: "iug"
+        })
+    }
+
+    const albumId = "album-1";
+
 
     const title = "Unknown Album";
     const session = "No Session";
@@ -60,25 +61,14 @@ const AlbumPage: React.FC = () => {
                 </div>
 
                 {/* Content */}
-                <div className="mt-6 space-y-8">
-                    {dates.map((date, dateIndex) => (
-                        <div key={date}>
-                            {/* Date + Checkbox */}
-                            <div className="flex items-center gap-8 mb-4">
-                                <h2 className="text-xl font-lato text-camp-primary">{date}</h2>
-                                <input
-                                    type="checkbox"
-                                    checked={selectedDates.includes(date)}
-                                    onChange={() => handleCheckboxChange(date)}
-                                    className="w-5 h-5 text-camp-primary rounded border-gray-300 focus:ring-2 focus:ring-camp-primary"
-                                />
-                            </div>
-
-                            {/* Photo Grid */}
-                            <ImageCard image={TestPicture.src} metadata={{ name: "Test Picture", tags: 'ALL', dateTaken: "wieugf", inReview: false }} isSelected={true} />
-                        </div>
-                    ))}
-                </div>
+                <CardGallery<ImageID> items={images}
+                                      renderItem={(image: ImageID, isSelected: boolean) => <ImageCard image={image} isSelected={isSelected} />}
+                                      groups={{
+                                        groupLabels: dates,
+                                        defaultGroupLabel: "Date Unknown",
+                                        groupFunc: (image: ImageID) => image.dateTaken
+                                      }} />
+                
             </div>
         </div>
     );

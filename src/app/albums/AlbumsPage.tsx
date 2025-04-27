@@ -50,7 +50,7 @@ const AlbumsPage: React.FC = () => {
         </div>
         <CardGallery<AlbumID>
           items={albums}
-          renderItem={(album) => <AlbumCard album={album} />}
+          renderItem={(album: AlbumID) => <AlbumCard album={album} />}
         />
       </div>
     </div>
