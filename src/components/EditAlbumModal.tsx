@@ -44,6 +44,8 @@ const EditAlbumModal: React.FC<EditAlbumModalProps> = ({ trigger, mode, onSucces
         hasThumbnail: selectedImage ? true : false,
       };
 
+      console.log("Creating album with data:", albumData);
+
       const albumId = await createAlbum(albumData);
       console.log("Album created with ID:", albumId);
 
