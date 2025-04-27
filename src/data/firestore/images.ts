@@ -1,10 +1,10 @@
 import { db } from "@/config/firebase";
-import { Image } from "@/types/albumTypes";
+import { ImageMetadata } from "@/types/albumTypes";
 import { WriteBatch } from "@google-cloud/firestore";
-import { doc, getDoc, setDoc, updateDoc, deleteDoc, Transaction, collection } from "firebase/firestore";
+import { doc, getDoc, setDoc, updateDoc, deleteDoc, Transaction } from "firebase/firestore";
 import { Collection } from "./utils";
 
-export const getImage = async (albumId: string, imageId: string, transaction?: Transaction): Promise<Image> => {
+export const getImage = async (albumId: string, imageId: string, transaction?: Transaction): Promise<ImageMetadata> => {
     const imageRef = doc(db, Collection.ALBUMS, albumId, Collection.IMAGES, imageId);
     let imageDoc;
     try {
@@ -15,10 +15,10 @@ export const getImage = async (albumId: string, imageId: string, transaction?: T
     if (!imageDoc.exists()) {
         throw new Error("Image not found");
     }
-    return imageDoc.data() as Image;
+    return imageDoc.data() as ImageMetadata;
 }
 
-export const createImage = async (albumId: string, imageId: string, image: Image, instance?: Transaction | WriteBatch): Promise<void> => {
+export const createImage = async (albumId: string, imageId: string, image: ImageMetadata, instance?: Transaction | WriteBatch): Promise<void> => {
     try {
         const imageRef = doc(db, Collection.ALBUMS, albumId, Collection.IMAGES, imageId);
         // @ts-ignore
@@ -28,7 +28,7 @@ export const createImage = async (albumId: string, imageId: string, image: Image
     }
 }
 
-export const updateImage = async (albumId: string, imageId: string, updates: Partial<Image>, instance?: Transaction | WriteBatch): Promise<void> => {
+export const updateImage = async (albumId: string, imageId: string, updates: Partial<ImageMetadata>, instance?: Transaction | WriteBatch): Promise<void> => {
     try {
         const imageRef = doc(db, Collection.ALBUMS, albumId, Collection.IMAGES, imageId);
         // @ts-ignore
