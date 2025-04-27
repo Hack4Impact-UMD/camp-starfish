@@ -1,5 +1,5 @@
 import { db } from "@/config/firebase";
-import { Session } from "@/types/sessionTypes";
+import { Session, SessionID } from "@/types/sessionTypes";
 import { randomUUID } from "crypto";
 import {
     doc,
@@ -13,7 +13,7 @@ import {
 } from "firebase/firestore";
 import { Collection } from "./utils";
 
-export async function getSessionById(id: string, transaction?: Transaction): Promise<Session> {
+export async function getSessionById(id: string, transaction?: Transaction): Promise<SessionID> {
     const sessionRef = doc(db, Collection.SESSIONS, id);
     let sessionDoc;
     try {
@@ -24,7 +24,7 @@ export async function getSessionById(id: string, transaction?: Transaction): Pro
     if (!sessionDoc.exists()) {
         throw new Error("Session not found");
     }
-    return sessionDoc.data() as Session;
+    return { id: sessionDoc.id, ...sessionDoc.data() } as SessionID;
 }
 
 export async function createSession(session: Session, instance?: Transaction | WriteBatch): Promise<string> {

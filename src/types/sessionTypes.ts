@@ -1,4 +1,5 @@
 import { Camper, Employee } from "./personTypes";
+import { ID } from "./utils";
 
 export interface Session {
   name: string;
@@ -12,6 +13,7 @@ export interface Session {
   };
   albumId?: string;
 }
+export interface SessionID extends Session, ID { };
 
 export type CamperSessionAttendee = Pick<
   Camper,

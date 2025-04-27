@@ -1,10 +1,10 @@
 import { db } from "@/config/firebase";
-import { Album } from "@/types/albumTypes";
+import { Album, AlbumID } from "@/types/albumTypes";
 import { randomUUID } from "crypto";
-import { doc, collection, Transaction, getDoc, WriteBatch, addDoc, updateDoc, deleteDoc } from "firebase/firestore";
+import { doc, collection, Transaction, getDoc, WriteBatch, updateDoc, deleteDoc, setDoc } from "firebase/firestore";
 import { Collection } from "./utils";
 
-export async function getAlbumById(id: string, transaction?: Transaction) {
+export async function getAlbumById(id: string, transaction?: Transaction): Promise<AlbumID> {
   const albumRef = doc(db, Collection.ALBUMS, id);
   let albumDoc;
   try {
@@ -15,16 +15,18 @@ export async function getAlbumById(id: string, transaction?: Transaction) {
   if (!albumDoc.exists()) {
     throw new Error("Album not found");
   }
-  return albumDoc.data() as Album;
+  return { id: albumDoc.id, ...albumDoc.data() } as AlbumID;
 }
 
-export async function createAlbum(album: Album, instance?: Transaction | WriteBatch) {
+export async function createAlbum(album: Album, instance?: Transaction | WriteBatch): Promise<string> {
   try {
-    const albumsCollection = collection(db, Collection.ALBUMS);
+    const id = randomUUID();
+    const albumRef = doc(db, Collection.ALBUMS, id);
     // @ts-ignore
-    const albumRef = await (instance ? instance.set(randomUUID(), album) : addDoc(albumsCollection, album));
+    await (instance ? instance.set(id, album) : setDoc(albumRef, album));
+    return id;
   } catch (error: any) {
-    throw new Error(`Failed to create camper: ${error.code}`);
+    throw new Error(`Failed to create album: ${error.code}`);
   }
 }
 
