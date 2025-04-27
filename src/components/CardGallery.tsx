@@ -2,31 +2,30 @@
 
 import { JSX, useState } from "react";
 
-export interface GroupOptions {
+export interface GroupOptions<T> {
   groupLabels: string[];
   defaultGroupLabel: string;
-  groupFunc: (item: any) => string;
+  groupFunc: (item: T) => string;
 }
 
 interface CardGalleryProps<T> {
   items: T[];
-  renderItem: (item: T, isSelected?: boolean) => JSX.Element;
-  groups?: GroupOptions;
+  renderItem: (item: T, isSelected: boolean) => JSX.Element;
+  groups?: GroupOptions<T>;
 }
 
-export default function CardGallery<T extends { id: any }>(
+export default function CardGallery<T extends { id: string }>(
   props: CardGalleryProps<T>
 ) {
   const { items, renderItem, groups } = props;
-  const [selectedItemIds, setSelectedItemIds] = useState<any[]>([]);
-  console.log(selectedItemIds);
+  const [selectedItemIds, setSelectedItemIds] = useState<string[]>([]);
 
-  const toggleItem = (itemId: any) => {
-    setSelectedItemIds((prev: any[]) => {
+  const toggleItem = (itemId: string) => {
+    setSelectedItemIds((prev: string[]) => {
       if (prev.indexOf(itemId) === -1) {
         return [...prev, itemId];
       }
-      return prev.filter((i: T) => i !== itemId);
+      return prev.filter((id: string) => id !== itemId);
     });
   };
 

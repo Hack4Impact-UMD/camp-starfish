@@ -59,6 +59,19 @@ npm install
 firebase emulators:start
 ```
 
+4. Start the Local Development Server
+Open a new terminal and run the following:
+```bash
+npm run dev
+```
+
+5. Compile Cloud Functions
+To compile Cloud Functions locally, open a new terminal and run the following:
+```bash
+cd functions
+npm run build
+```
+
 ⚠️ **Use the Firebase Emulator for local testing only.**
 
 ---
