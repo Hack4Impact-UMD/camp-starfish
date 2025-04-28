@@ -19,6 +19,11 @@ const AlbumsPage: React.FC = () => {
     id: "album-1",
   });
 
+  const handleAlbumCreated = () => {
+    console.log("Album created successfully! 🎉");
+    // TODO: Refresh your albums list from Firebase here!
+  };
+
   return (
     <div className="w-full min-h-full bg-gray-100">
       <div className="container mx-auto px-4 py-6">
@@ -45,6 +50,7 @@ const AlbumsPage: React.FC = () => {
                 />
               }
               mode="CREATE"
+              onSuccess={handleAlbumCreated}
             />
           </div>
         </div>

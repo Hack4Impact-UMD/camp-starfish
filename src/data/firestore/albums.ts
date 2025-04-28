@@ -1,6 +1,6 @@
 import { db } from "@/config/firebase";
 import { Album, AlbumID } from "@/types/albumTypes";
-import { randomUUID } from "crypto";
+import { v4 as uuidv4 } from "uuid";
 import { doc, collection, Transaction, getDoc, WriteBatch, updateDoc, deleteDoc, setDoc } from "firebase/firestore";
 import { Collection } from "./utils";
 
@@ -20,7 +20,7 @@ export async function getAlbumById(id: string, transaction?: Transaction): Promi
 
 export async function createAlbum(album: Album, instance?: Transaction | WriteBatch): Promise<string> {
   try {
-    const id = randomUUID();
+    const id = uuidv4();
     const albumRef = doc(db, Collection.ALBUMS, id);
     // @ts-ignore
     await (instance ? instance.set(id, album) : setDoc(albumRef, album));

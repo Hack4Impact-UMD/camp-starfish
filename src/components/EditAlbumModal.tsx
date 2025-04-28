@@ -2,16 +2,21 @@
 
 import React, { useState, useRef } from "react";
 import imageIcon from "@/assets/icons/imageIcon.png";
+import errorIcon from "@/assets/icons/Error.png";
+import { createAlbum } from "@/data/firestore/albums";
+import { Album } from "@/types/albumTypes";
 
 interface EditAlbumModalProps {
   trigger: React.ReactNode;
   mode: "CREATE" | "EDIT";
+  onSuccess?: () => void;
 }
 
-const EditAlbumModal: React.FC<EditAlbumModalProps> = ({ trigger, mode }) => {
+const EditAlbumModal: React.FC<EditAlbumModalProps> = ({ trigger, mode, onSuccess }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [albumName, setAlbumName] = useState("");
+  const [createError, setCreateError] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -20,6 +25,40 @@ const EditAlbumModal: React.FC<EditAlbumModalProps> = ({ trigger, mode }) => {
       const file = event.target.files[0];
       const imageUrl = URL.createObjectURL(file);
       setSelectedImage(imageUrl);
+    }
+  };
+
+  const handleCreateAlbum = async () => {
+    try {
+      if (!albumName.trim()) {
+        alert("Please enter an album name.");
+        return;
+      }
+
+      const albumData: Album = {
+        name: albumName,
+        numPhotos: 0,
+        startDate: new Date().toISOString(),
+        endDate: new Date().toISOString(),
+        hasThumbnail: selectedImage ? true : false,
+      };
+
+      console.log("Creating album with data:", albumData);
+
+      const albumId = await createAlbum(albumData);
+      console.log("Album created with ID:", albumId);
+
+      if (onSuccess) {
+        onSuccess();
+      }
+
+      setIsOpen(false);
+      setAlbumName("");
+      setSelectedImage(null);
+      setCreateError(false);
+    } catch (error) {
+      console.error("Error creating album:", error);
+      setCreateError(true);
     }
   };
 
@@ -48,11 +87,7 @@ const EditAlbumModal: React.FC<EditAlbumModalProps> = ({ trigger, mode }) => {
                 />
               ) : (
                 <>
-                  <img
-                    src={imageIcon.src}
-                    alt="Upload"
-                    className="w-10 h-10"
-                  />
+                  <img src={imageIcon.src} alt="Upload" className="w-10 h-10" />
                 </>
               )}
 
@@ -80,6 +115,16 @@ const EditAlbumModal: React.FC<EditAlbumModalProps> = ({ trigger, mode }) => {
               </div>
             </div>
 
+            {createError && (
+              <div className="mt-4 flex flex-col items-center justify-center">
+                <img src={errorIcon.src} alt="Error" className="w-6 h-6 mb-2" />
+                <p className="text-camp-text-error text-sm text-center">
+                  Failed to upload album thumbnail. Add necessary error text
+                  here.
+                </p>
+              </div>
+            )}
+
             {/* Footer Buttons */}
             <div className="flex justify-center gap-4 px-6 py-6">
               <button
@@ -89,13 +134,10 @@ const EditAlbumModal: React.FC<EditAlbumModalProps> = ({ trigger, mode }) => {
                 CLOSE
               </button>
               <button
-                onClick={() => {
-                  // handle create logic here
-                  setIsOpen(false);
-                }}
+                onClick={handleCreateAlbum}
                 className="bg-camp-tert-green text-white px-6 py-2 rounded-full font-lato font-semibold"
               >
-                {mode === 'CREATE' ? 'CREATE' : 'CONFIRM'}
+                {mode === "CREATE" ? "CREATE" : "CONFIRM"}
               </button>
             </div>
           </div>
