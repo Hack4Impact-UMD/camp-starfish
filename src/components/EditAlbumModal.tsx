@@ -37,7 +37,7 @@ const EditAlbumModal: React.FC<EditAlbumModalProps> = ({ trigger, mode, onSucces
 
       const albumData: Album = {
         name: albumName,
-        sessionId: undefined,
+        sessionId: '0',
         numPhotos: 0,
         startDate: new Date().toISOString(),
         endDate: new Date().toISOString(),
