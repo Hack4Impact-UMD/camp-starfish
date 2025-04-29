@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import UploadIcon from "@/assets/icons/Upload.svg";
 import filterIcon from "@/assets/icons/filterIcon.svg";
 import PendingIcon from "@/assets/icons/Pending.svg";
@@ -51,11 +51,13 @@ const AlbumPage: React.FC = () => {
     const [selectedTags, setSelectedTags] = useState<typeof allTags[0][]>([]);
     const [sortOrder, setSortOrder] = useState<"oldest-newest" | "newest-oldest">("oldest-newest");
     const [showSortDropdown, setShowSortDropdown] = useState(false);
+    const [filteredImages, setFilteredImages] = useState<ImageID[]>([]);
 
-    const images: ImageID[] = [];
+    // Initial images (for testing purposes, replace with actual data)
+    const initialImages: ImageID[] = [];
     for (let i = 0; i < 10; i++) {
         const dateIndex = i % 5;
-        images.push({
+        initialImages.push({
             src: TestPicture.src,
             name: "Image " + i,
             tags: [],
@@ -68,22 +70,30 @@ const AlbumPage: React.FC = () => {
     }
 
     // Manual tags (randomized, for testing purposes)
-    images[0].tags = ['1', '2'];
-    images[1].tags = ['3', '4']; 
-    images[2].tags = ['5', '6', '7'];
-    images[3].tags = ['1', '8'];
-    images[4].tags = ['9', '10', '11'];
-    images[5].tags = ['12', '13'];
-    images[6].tags = ['14', '15'];
-    images[7].tags = ['1', '2', '3'];
-    images[8].tags = ['4', '5', '6'];
-    images[9].tags = ['7', '8', '9'];
+    initialImages[0].tags = ['1', '2'];
+    initialImages[1].tags = ['3', '4'];
+    initialImages[2].tags = ['5', '6', '7'];
+    initialImages[3].tags = ['1', '8'];
+    initialImages[4].tags = ['9', '10', '11'];
+    initialImages[5].tags = ['12', '13'];
+    initialImages[6].tags = ['14', '15'];
+    initialImages[7].tags = ['1', '2', '3'];
+    initialImages[8].tags = ['4', '5', '6'];
+    initialImages[9].tags = ['7', '8', '9'];
 
-    const filteredImages = selectedTags.length > 0
-        ? images.filter(image => {
-            return selectedTags.some(tag => image.tags.includes(tag.id));
-        })
-        : images;
+    const [images] = useState<ImageID[]>(initialImages);
+
+    // Update filtered images whenever selected tags or images change
+    useEffect(() => {
+        if (selectedTags.length > 0) {
+            const filtered = images.filter(image => {
+                return selectedTags.some(tag => image.tags.includes(tag.id));
+            });
+            setFilteredImages(filtered);
+        } else {
+            setFilteredImages(images);
+        }
+    }, [selectedTags, images]);
 
     // Sort images based on selected sort order
     const sortedImages = [...filteredImages].sort((a, b) => {
@@ -106,10 +116,7 @@ const AlbumPage: React.FC = () => {
         }
     });
 
-    if (sortOrder === "newest-oldest") {
-        sortedDates.reverse();
-    }
-
+    // Download images as zip file
     const handleDownloadAll = async () => {
         try {
             // Create zip file containing all images
@@ -138,6 +145,11 @@ const AlbumPage: React.FC = () => {
         } catch (error) {
             console.error("Error downloading images:", error);
         }
+    };
+
+    // Handle tag selection changes
+    const handleTagSelectionChange = (newSelectedTags: typeof allTags[0][]) => {
+        setSelectedTags(newSelectedTags);
     };
 
     const albumId = "album-1";
@@ -238,7 +250,6 @@ const AlbumPage: React.FC = () => {
                         defaultGroupLabel: "Date Unknown",
                         groupFunc: (image: ImageID) => image.dateTaken
                     }} />
-
             </div>
         </div>
     );
