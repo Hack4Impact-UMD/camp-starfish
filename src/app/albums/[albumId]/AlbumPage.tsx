@@ -11,7 +11,6 @@ import { ImageID } from "@/types/albumTypes";
 import Tagging from "@/components/Tagging";
 import FileUploadModal from "@/components/FileUploadModal";
 import JSZip from "jszip";
-import { saveAs } from "file-saver";
 
 const AlbumPage: React.FC = () => {
 
@@ -53,22 +52,41 @@ const AlbumPage: React.FC = () => {
     const [sortOrder, setSortOrder] = useState<"oldest-newest" | "newest-oldest">("oldest-newest");
     const [showSortDropdown, setShowSortDropdown] = useState(false);
 
-    const images: ImageID[] = []
+    const images: ImageID[] = [];
     for (let i = 0; i < 10; i++) {
         const dateIndex = i % 5;
         images.push({
             src: TestPicture.src,
             name: "Image " + i,
-            tags: 'ALL',
+            tags: [],
             dateTaken: dates[i % 5],
             dateObject: dateObjects[dateIndex],
             inReview: false,
             id: i.toString(),
             albumId: "iug"
-        })
+        });
     }
 
-    const sortedImages = [...images].sort((a, b) => {
+    // Manual tags (randomized, for testing purposes)
+    images[0].tags = ['1', '2'];
+    images[1].tags = ['3', '4']; 
+    images[2].tags = ['5', '6', '7'];
+    images[3].tags = ['1', '8'];
+    images[4].tags = ['9', '10', '11'];
+    images[5].tags = ['12', '13'];
+    images[6].tags = ['14', '15'];
+    images[7].tags = ['1', '2', '3'];
+    images[8].tags = ['4', '5', '6'];
+    images[9].tags = ['7', '8', '9'];
+
+    const filteredImages = selectedTags.length > 0
+        ? images.filter(image => {
+            return selectedTags.some(tag => image.tags.includes(tag.id));
+        })
+        : images;
+
+    // Sort images based on selected sort order
+    const sortedImages = [...filteredImages].sort((a, b) => {
         if (sortOrder === "oldest-newest") {
             return a.dateObject.getTime() - b.dateObject.getTime();
         } else {
@@ -76,7 +94,18 @@ const AlbumPage: React.FC = () => {
         }
     });
 
-    const sortedDates = [...dates];
+    // Get unique dates from filtered images for grouping
+    const filteredDates = [...new Set(filteredImages.map(image => image.dateTaken))];
+    const sortedDates = [...filteredDates].sort((a, b) => {
+        const dateA = dateObjects[dates.indexOf(a)];
+        const dateB = dateObjects[dates.indexOf(b)];
+        if (sortOrder === "oldest-newest") {
+            return dateA.getTime() - dateB.getTime();
+        } else {
+            return dateB.getTime() - dateA.getTime();
+        }
+    });
+
     if (sortOrder === "newest-oldest") {
         sortedDates.reverse();
     }
@@ -194,7 +223,7 @@ const AlbumPage: React.FC = () => {
                                 alt="Upload"
                             />
                         </FileUploadModal> */}
-                        
+
                         {/* Download */}
                         <img className="w-[48px] h-[48px] flex-none cursor-pointer" src={DownloadIcon.src} alt="Download" onClick={handleDownloadAll} />
                     </div>
