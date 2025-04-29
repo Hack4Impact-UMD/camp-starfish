@@ -8,23 +8,25 @@ import CheckIcon from "@/assets/icons/checkIcon.svg";
 import { Switch } from "./Switch";
 import { Role } from "@/types/personTypes";
 import { ImageTags } from "@/types/albumTypes";
+import { ImageID } from "@/types/albumTypes";
 
 interface ImageViewBottomSectionProps {
-  tags: ImageTags;
-  onApproveTag?: (campminderId: number) => void;
-  onRejectTag?: (campminderId: number) => void;
-  onAddTag?: () => void;
+  image: ImageID;
+}
+
+function isImageTags(
+  tags: ImageTags
+): tags is { approved: any[]; inReview: any[] } {
+  return typeof tags !== "string" && "approved" in tags && "inReview" in tags;
 }
 
 export default function ImageViewBottomSection({
-  tags,
-  onApproveTag,
-  onRejectTag,
-  onAddTag,
+  image,
 }: ImageViewBottomSectionProps) {
   const [activeTab, setActiveTab] = useState<"APPROVED" | "PENDING">(
     "APPROVED"
   );
+  const [localTags, setLocalTags] = useState<ImageTags>(image.tags);
 
   const auth = useAuth();
   const userRole: Role = auth.token?.claims.role as Role;
@@ -52,9 +54,45 @@ export default function ImageViewBottomSection({
     );
   }
 
-  if (!canViewTags || tags === "ALL") return null;
+  if (!canViewTags || !isImageTags(localTags)) return null;
 
-  const tagsToShow = activeTab === "APPROVED" ? tags.approved : tags.inReview;
+  const tagsToShow =
+    activeTab === "APPROVED" ? localTags.approved : localTags.inReview;
+
+  const handleApproveTag = (campminderId: number) => {
+    if (!isImageTags(localTags)) return;
+
+    const tag = localTags.inReview.find((t) => t.campminderId === campminderId);
+    if (!tag) return;
+
+    const updatedTags: ImageTags = {
+      approved: [...localTags.approved, tag],
+      inReview: localTags.inReview.filter(
+        (t) => t.campminderId !== campminderId
+      ),
+    };
+
+    setLocalTags(updatedTags);
+  };
+
+  const handleRejectTag = (campminderId: number) => {
+    if (!isImageTags(localTags)) return;
+
+    const updatedTags: ImageTags = {
+      approved: localTags.approved.filter(
+        (t) => t.campminderId !== campminderId
+      ),
+      inReview: localTags.inReview.filter(
+        (t) => t.campminderId !== campminderId
+      ),
+    };
+
+    setLocalTags(updatedTags);
+  };
+
+  const handleAddTag = () => {
+    alert("Add Tag Clicked");
+  };
 
   return (
     <div className="w-full">
@@ -88,7 +126,7 @@ export default function ImageViewBottomSection({
             {/* Staff View: Only approved tags without moderation ability */}
             {!canModerateTags && canViewTags ? (
               <>
-                {tags.approved.map((tag, index) => (
+                {localTags.approved.map((tag, index) => (
                   <div
                     key={index}
                     className="bg-[#E6EAEC] px-4 py-2 rounded-3xl flex items-center gap-2"
@@ -116,7 +154,7 @@ export default function ImageViewBottomSection({
                     </p>
 
                     <button
-                      onClick={() => onRejectTag?.(tag.campminderId)}
+                      onClick={() => handleRejectTag(tag.campminderId)}
                       aria-label="Reject Tag"
                       className="inline-flex items-center justify-center min-w-[22px] min-h-[22px]"
                     >
@@ -130,7 +168,7 @@ export default function ImageViewBottomSection({
                     {activeTab === "PENDING" && (
                       <>
                         <button
-                          onClick={() => onApproveTag?.(tag.campminderId)}
+                          onClick={() => handleApproveTag(tag.campminderId)}
                           aria-label="Approve Tag"
                           className="inline-flex items-center justify-center min-w-[22px] min-h-[22px]"
                         >
@@ -153,7 +191,7 @@ export default function ImageViewBottomSection({
           {activeTab === "PENDING" && canModerateTags && (
             <div className="bg-white flex justify-end">
               <button
-                onClick={onAddTag}
+                onClick={handleAddTag}
                 aria-label="Add Tag"
                 className="bg-camp-primary flex flex-row justify-center space-x-2 p-2 px-4 sm:px-6 rounded-3xl shrink-0"
               >

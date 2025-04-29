@@ -8,30 +8,22 @@ import LeftArrowIcon from "@/assets/icons/leftArrow.svg";
 import RightArrowIcon from "@/assets/icons/rightArrow.svg";
 import ImageViewBottomSection from "@/components/ImageViewBottomSection";
 import { Role } from "@/types/personTypes";
-import { ImageMetadata } from "@/types/albumTypes";
+import { ImageID } from "@/types/albumTypes";
 
 interface ImageViewProps {
-  image: File;
-  metadata: ImageMetadata;
+  image: ImageID;
   onClose: () => void;
   onLeftClick: () => void;
   onRightClick: () => void;
   onMoveToClick?: () => void;
-  onApproveTag?: (campminderId: number) => void;
-  onRejectTag?: (campminderId: number) => void;
-  onAddTag?: () => void;
 }
 
 export default function ImageView({
   image,
-  metadata,
   onClose,
   onLeftClick,
   onRightClick,
   onMoveToClick,
-  onApproveTag,
-  onRejectTag,
-  onAddTag,
 }: ImageViewProps) {
   useEffect(() => {
     document.body.classList.add("overflow-hidden");
@@ -45,8 +37,8 @@ export default function ImageView({
 
   const handleDownload = () => {
     const element = document.createElement("a");
-    element.href = URL.createObjectURL(image);
-    element.download = metadata.name || "downloaded-image";
+    element.href = image.src
+    element.download = image.name || "downloaded-image";
     document.body.appendChild(element);
     element.click();
     document.body.removeChild(element);
@@ -62,7 +54,7 @@ export default function ImageView({
           <button onClick={onClose} aria-label="Close">
             <Image src={CloseIcon.src} alt="X Icon" width={32} height={32} />
           </button>
-          <p className="text-xl font-lato"> {metadata.name} </p>
+          <p className="text-xl font-lato"> {image.name} </p>
         </div>
 
         <div className="flex flex-row items-stretch sm:items-center gap-2 sm:gap-4">
@@ -116,7 +108,7 @@ export default function ImageView({
           />
         </button>
         <Image
-          src={URL.createObjectURL(image)}
+          src={image.src}
           alt="Selected Image"
           width={500}
           height={500}
@@ -137,10 +129,7 @@ export default function ImageView({
 
       {/* Bottom Section */}
       <ImageViewBottomSection
-        tags={metadata.tags}
-        onApproveTag={onApproveTag}
-        onRejectTag={onRejectTag}
-        onAddTag={onAddTag}
+        image={image}
       />
     </div>
   );
