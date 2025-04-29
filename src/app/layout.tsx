@@ -3,6 +3,8 @@ import "./globals.css";
 import localFont from "next/font/local";
 import Navbar from "../components/Navbar"; // Adjust the path as needed
 import AuthProvider from "@/auth/AuthProvider";
+import Footer from "../components/Footer";
+
 
 const lato = localFont({
   src: [
@@ -143,7 +145,12 @@ export default function RootLayout({
             <div className="w-full h-[10%]">
               <Navbar />
             </div>
-            <div className="w-full h-[90%]">{children}</div>
+            <div className="flex-grow w-full h-[90%]">
+              {children}
+            </div>
+            <div className="w-full">
+              <Footer />
+            </div>
           </>
         </AuthProvider>
       </body>
