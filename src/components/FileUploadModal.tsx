@@ -211,7 +211,6 @@ export default function FileUploadModal({
               <button
                 hidden={files.filter((e) => e.state == "success").length == 0}
                 onClick={async () => {
-                  console.log("here");
                   try {
                     onUpload(
                       files
@@ -221,7 +220,6 @@ export default function FileUploadModal({
                     setUploadState("success");
                   } catch (err: unknown) {
                     setUploadState("fail");
-                    console.error(err);
                     return;
                   }
                 }}
