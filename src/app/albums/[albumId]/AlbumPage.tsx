@@ -48,8 +48,13 @@ const AlbumPage: React.FC = () => {
                         <input
                             type="text"
                             placeholder="Search Tags..."
-                            className="px-10 py-2 text-sm border text-black border-gray-500 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-camp-primary"
+                            className="px-3 py-2 text-sm border text-black border-gray-500 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-camp-primary"
                         />
+                        <Link href={'/albums/pending'}>
+                            <button className="border-2 border-camp-primary text-lg py-2 px-4 rounded-3xl w-[180px] h-[48px] font-lato font-bold text-camp-text-modalTitle">
+                                Pending
+                            </button>
+                        </Link>
                         <img className="w-[72px] h-[72px] flex-none cursor-pointer" src={filterIcon.src} alt="Filter" />
                         <img className="w-[72px] h-[72px] flex-none cursor-pointer" src={plusIcon.src} alt="Plus" />
                     </div>
