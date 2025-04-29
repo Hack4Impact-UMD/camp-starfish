@@ -25,7 +25,7 @@ function ConfirmationModal({ text, onConfirm, cannotUndo, trigger }: Confirmatio
     return (
         <>
             {/* Open Button */}
-            <div className="flex items-center justify-center min-h-screen">
+            <div className="flex items-center justify-center">
                 {React.cloneElement(trigger, {
                     onClick: () => setIsModalOpen(true),
                 })}
@@ -33,7 +33,7 @@ function ConfirmationModal({ text, onConfirm, cannotUndo, trigger }: Confirmatio
 
             {/* Modal Overlay */}
             {isModalOpen && (
-                <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center">
+                <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
                     <div className="relative bg-camp-background-modal p-[48px_56px] rounded-lg shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] w-[576px] h-fit text-center gap-[36px]">
                         {/* Close Button */}
                         <button
