@@ -138,20 +138,20 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${lato.variable} ${newSpirit.variable} ${besteam.variable} antialiased flex flex-col min-h-screen`}
+        className={`${lato.variable} ${newSpirit.variable} ${besteam.variable} antialiased w-full min-h-screen flex flex-col`}
       >
         <AuthProvider>
-          <div className="flex flex-col min-h-screen">
+          <>
             <div className="w-full">
               <Navbar />
             </div>
-            <main className="flex-grow w-full">
+            <div className="flex-grow w-full">
               {children}
-            </main>
-            <footer className="w-full mt-auto">
+            </div>
+            <div className="w-full">
               <Footer />
-            </footer>
-          </div>
+            </div>
+          </>
         </AuthProvider>
       </body>
     </html>
