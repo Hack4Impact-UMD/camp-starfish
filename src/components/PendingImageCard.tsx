@@ -4,20 +4,25 @@ import crossIcon from "@/assets/icons/crossIcon.svg";
 
 type PhotoStatus = "approved" | "rejected" | "none";
 
-interface Props {
+interface PendingImageCardProps {
     src: string;
     alt?: string;
+    status: PhotoStatus;
+    onApprove: () => void;
+    onReject: () => void;
 }
 
-const SelectablePhoto: React.FC<Props> = ({ src, alt = "Pending Photo" }) => {
+const PendingImageCard: React.FC<PendingImageCardProps> = ({ src, alt = "Pending Photo" }) => {
     const [status, setStatus] = useState<PhotoStatus>("none");
 
     const handleApprove = () => {
         setStatus((prev) => (prev === "approved" ? "none" : "approved"));
+        // onApprove(); will do something
     };
 
     const handleReject = () => {
         setStatus((prev) => (prev === "rejected" ? "none" : "rejected"));
+        // onReject(); will do something
     };
 
     return (
@@ -30,7 +35,7 @@ const SelectablePhoto: React.FC<Props> = ({ src, alt = "Pending Photo" }) => {
 
             <div
                 className={`absolute top-4 right-4 flex gap-2 px-3 py-1 rounded bg-white/80 transition-opacity ${
-                    status === "none" ? "opacity-0 group-hover:opacity-100" : "opacity-100"
+                    status === "none" ? "opacity-50 group-hover:opacity-100" : "opacity-100"
                 }`}
             >
                 <button
@@ -54,4 +59,4 @@ const SelectablePhoto: React.FC<Props> = ({ src, alt = "Pending Photo" }) => {
     );
 };
 
-export default SelectablePhoto;
+export default PendingImageCard;
