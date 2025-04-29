@@ -119,12 +119,18 @@ const AlbumPage: React.FC = () => {
     // Download images as zip file
     const handleDownloadAll = async () => {
         try {
+            // Ensure it's downloading images in filtered list (only selected tags)
+            if (filteredImages.length === 0) {
+                alert("No images to download");
+                return;
+            }
+
             // Create zip file containing all images
             const zip = new JSZip();
             const imgFolder = zip.folder("album_images");
 
             // Add each image to zip file
-            await Promise.all(images.map(async (image, index) => {
+            await Promise.all(filteredImages.map(async (image, index) => {
                 const response = await fetch(image.src);
                 const blob = await response.blob();
                 imgFolder?.file(`image_${index + 1}.jpg`, blob);
@@ -145,11 +151,6 @@ const AlbumPage: React.FC = () => {
         } catch (error) {
             console.error("Error downloading images:", error);
         }
-    };
-
-    // Handle tag selection changes
-    const handleTagSelectionChange = (newSelectedTags: typeof allTags[0][]) => {
-        setSelectedTags(newSelectedTags);
     };
 
     const albumId = "album-1";
