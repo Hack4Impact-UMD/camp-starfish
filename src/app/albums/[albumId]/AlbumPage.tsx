@@ -2,12 +2,16 @@ import React, { useState } from "react";
 import UploadIcon from "@/assets/icons/Upload.svg";
 import filterIcon from "@/assets/icons/filterIcon.svg";
 import PendingIcon from "@/assets/icons/Pending.svg";
+import DownloadIcon from "@/assets/icons/Download.svg";
 import TestPicture from "@/assets/images/PolaroidPhotos1.png"; // Replace with actual image URL
 import Link from "next/link";
 import ImageCard from "@/components/ImageCard";
 import CardGallery from "@/components/CardGallery";
 import { ImageID } from "@/types/albumTypes";
 import Tagging from "@/components/Tagging";
+import FileUploadModal from "@/components/FileUploadModal";
+import JSZip from "jszip";
+import { saveAs } from "file-saver";
 
 const AlbumPage: React.FC = () => {
 
@@ -76,20 +80,51 @@ const AlbumPage: React.FC = () => {
     if (sortOrder === "newest-oldest") {
         sortedDates.reverse();
     }
-        
+
+    const handleDownloadAll = async () => {
+        try {
+            // Create zip file containing all images
+            const zip = new JSZip();
+            const imgFolder = zip.folder("album_images");
+
+            // Add each image to zip file
+            await Promise.all(images.map(async (image, index) => {
+                const response = await fetch(image.src);
+                const blob = await response.blob();
+                imgFolder?.file(`image_${index + 1}.jpg`, blob);
+            }));
+
+            // Generate zip file
+            const content = await zip.generateAsync({ type: "blob" });
+
+            // Create download link
+            const url = URL.createObjectURL(content);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `${title}_images.zip`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error("Error downloading images:", error);
+        }
+    };
+
     const albumId = "album-1";
     const title = "Unknown Album";
     const session = "No Session";
 
     return (
         <div className="w-full min-h-full bg-gray-100">
-            <div className="container mx-auto px-4 py-6">
+            <div className="container mx-auto px-4 py-6 w-full">
                 {/* Header */}
                 <div className="flex items-center justify-between">
                     <h1 className="text-4xl font-lato font-bold text-camp-primary">
                         ALBUMS {">>"} {title} {">>"} {session}
                     </h1>
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-4 shrink-0">
+                        {/* Tagging */}
                         <Tagging
                             items={allTags}
                             selectedItems={selectedTags}
@@ -97,12 +132,14 @@ const AlbumPage: React.FC = () => {
                             getOptionLabel={(tag) => tag.name}
                             getOptionValue={(tag) => tag.id}
                             placeholder="Search Tags..."
-                            className="w-64"
+                            className="w-64 cursor-pointer"
+
                         />
+
                         {/* Filter Dropdown */}
                         <div className="relative">
                             <img
-                                className="w-[64px] h-[64px] flex-none cursor-pointer"
+                                className="w-[80px] h-[48px] flex-none cursor-pointer"
                                 src={filterIcon.src}
                                 alt="Filter"
                                 onClick={() => setShowSortDropdown(!showSortDropdown)}
@@ -132,8 +169,34 @@ const AlbumPage: React.FC = () => {
                                 </div>
                             )}
                         </div>
-                        <img className="w-[64px] h-[64px] flex-none cursor-pointer" src={PendingIcon.src} alt="Pending" />
-                        <img className="w-[64px] h-[64px] flex-none cursor-pointer" src={UploadIcon.src} alt="Upload" />
+
+                        {/* Pending */}
+                        <Link href="/albums/pending">
+                            <img
+                                className="w-[90px] h-[48px] flex-none cursor-pointer"
+                                src={PendingIcon.src}
+                                alt="Pending"
+                            />
+                        </Link>
+
+                        {/* Upload */}
+                        <img className="w-[48px] h-[48px] flex-none cursor-pointer" src={UploadIcon.src} alt="Upload" />
+                        {/* <FileUploadModal
+                            onUpload={(files) => {
+                                console.log("Uploaded files:", files);
+                            }}
+                            acceptedFileExtensions={['.jpg', '.jpeg', '.png', '.gif']}
+                            maxFileSize={10}
+                        >
+                            <img
+                                className="w-[56px] h-[56px] flex-none cursor-pointer"
+                                src={UploadIcon.src}
+                                alt="Upload"
+                            />
+                        </FileUploadModal> */}
+                        
+                        {/* Download */}
+                        <img className="w-[48px] h-[48px] flex-none cursor-pointer" src={DownloadIcon.src} alt="Download" onClick={handleDownloadAll} />
                     </div>
                 </div>
 
