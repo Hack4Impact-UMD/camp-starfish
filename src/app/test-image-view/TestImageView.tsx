@@ -70,7 +70,6 @@ export default function TestImageView() {
           onLeftClick={() => alert("Left Click")}
           onRightClick={() => alert("Right Click")}
           onClose={() => alert("Close Clicked")}
-          onMoveToClick={() => alert("Move To Clicked")}
         />
       )}
     </div>

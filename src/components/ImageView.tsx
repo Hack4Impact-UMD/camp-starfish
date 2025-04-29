@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { useAuth } from "@/auth/useAuth";
 import Image from "next/image";
 import CloseIcon from "@/assets/icons/closeIcon.svg";
@@ -9,13 +9,14 @@ import RightArrowIcon from "@/assets/icons/rightArrow.svg";
 import ImageViewBottomSection from "@/components/ImageViewBottomSection";
 import { Role } from "@/types/personTypes";
 import { ImageID } from "@/types/albumTypes";
+import { downloadImage } from "@/data/storage/fileOperations";
+
 
 interface ImageViewProps {
   image: ImageID;
   onClose: () => void;
   onLeftClick: () => void;
   onRightClick: () => void;
-  onMoveToClick?: () => void;
 }
 
 export default function ImageView({
@@ -23,26 +24,30 @@ export default function ImageView({
   onClose,
   onLeftClick,
   onRightClick,
-  onMoveToClick,
 }: ImageViewProps) {
-  useEffect(() => {
-    document.body.classList.add("overflow-hidden");
-    return () => {
-      document.body.classList.remove("overflow-hidden");
-    };
-  }, []);
-
   const auth = useAuth();
   const userRole: Role = auth.token?.claims.role as Role;
 
-  const handleDownload = () => {
-    const element = document.createElement("a");
-    element.href = image.src
-    element.download = image.name || "downloaded-image";
-    document.body.appendChild(element);
-    element.click();
-    document.body.removeChild(element);
-    URL.revokeObjectURL(element.href);
+  // const handleDownload = () => {
+  //   const element = document.createElement("a");
+  //   element.href = image.src
+  //   element.download = image.name || "downloaded-image";
+  //   document.body.appendChild(element);
+  //   element.click();
+  //   document.body.removeChild(element);
+  //   URL.revokeObjectURL(element.href);
+  // };
+
+  const handleDownload = async () => {
+    try {
+      await downloadImage(image.src, image.name || "downloaded-image");
+    } catch (error) {
+      console.error("Failed to download image:", error);
+    }
+  };
+
+  const handleMoveTo = () => {
+    alert("Move To Clicked")
   };
  
 
@@ -60,7 +65,7 @@ export default function ImageView({
         <div className="flex flex-row items-stretch sm:items-center gap-2 sm:gap-4">
           {userRole !== "PARENT" && (
             <button
-              onClick={onMoveToClick}
+              onClick={handleMoveTo}
               className="bg-camp-primary flex flex-row justify-center gap-4 p-2 rounded-3xl w-12 md:w-64 border border-camp-buttons-neutral"
               aria-label="Move Image"
             >
