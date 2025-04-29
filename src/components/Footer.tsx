@@ -58,17 +58,14 @@ export default function Footer() {
             <span className="font-bold">Email: </span>info@campstarfish.org
           </p>
         </div>
-        <div className="flex flex-row justify-center items-end gap-[12px]">
-          <Link href="https://hack4impact.org/" target="_blank">
+        <Link href="https://umd.hack4impact.org/ourwork/camp-starfish" target="_blank">
+          <div className="flex flex-row justify-center items-end gap-[12px]">
             <p>
               Built By<br></br>Hack4Impact-UMD
-            </p>
-          </Link>
-          <Link href="https://hack4impact.org/" target="_blank">
-            {" "}
+            </p>{" "}
             <img src={h4ILogo.src} className="h-[32px]"></img>
-          </Link>
-        </div>
+          </div>
+        </Link>
       </div>
       <img src={BGPatternDark.src} className="w-full absolute"></img>
     </div>
