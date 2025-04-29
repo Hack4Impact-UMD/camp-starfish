@@ -46,6 +46,7 @@ export default {
             default: "#F8FAFC",
             modal: "#FFFFFF",
             standardComponent: "#F7F7F7",
+            formField: "#E6EAEC",
             main: "#FAFAFB",
           },
           icons: {
