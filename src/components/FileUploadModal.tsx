@@ -211,9 +211,8 @@ export default function FileUploadModal({
               <button
                 hidden={files.filter((e) => e.state == "success").length == 0}
                 onClick={async () => {
-                  console.log("here");
                   try {
-                    onUpload(
+                    await onUpload(
                       files
                         .filter((e) => e.state == "success")
                         .map((x) => x.file)

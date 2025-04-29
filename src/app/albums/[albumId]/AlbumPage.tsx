@@ -7,6 +7,7 @@ import ImageCard from "@/components/ImageCard";
 import CardGallery from "@/components/CardGallery";
 import { ImageID } from "@/types/albumTypes";
 import FileUploadModal from "@/components/FileUploadModal";
+import { uploadImages } from "@/data/storage/fileOperations";
 
 const AlbumPage: React.FC = () => {
   const dates = [
@@ -35,6 +36,11 @@ const AlbumPage: React.FC = () => {
   const title = "Unknown Album";
   const session = "No Session";
 
+  async function onUpload(images: File[]) {
+    let paths = images.map(img => `${albumId}/${crypto.randomUUID()}-${img.name}`)
+    await uploadImages(images, paths);
+  }
+
   return (
     <div className="w-full min-h-full bg-gray-100">
       <div className="container mx-auto px-4 py-6">
@@ -55,9 +61,7 @@ const AlbumPage: React.FC = () => {
               alt="Filter"
             />
             <FileUploadModal
-              onUpload={(files) => {
-                console.log(files);
-              }}
+              onUpload={onUpload}
               acceptedFileExtensions={[".jpg", ".png"]}
               maxFileSize={5}
             >
