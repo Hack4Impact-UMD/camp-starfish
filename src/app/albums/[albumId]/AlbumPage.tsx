@@ -7,6 +7,7 @@ import Link from "next/link";
 import ImageCard from "@/components/ImageCard";
 import CardGallery from "@/components/CardGallery";
 import { ImageID } from "@/types/albumTypes";
+import Tagging from "@/components/Tagging";
 
 const AlbumPage: React.FC = () => {
 
@@ -17,6 +18,26 @@ const AlbumPage: React.FC = () => {
         "Thurs, June 20",
         "Fri, June 21",
     ];
+
+    const allTags = [
+        { id: "1", name: "Claire C."},
+        { id: "2", name: "Nitin K."},        
+        { id: "3", name: "Ben E."},
+        { id: "4", name: "Maia J."},
+        { id: "5", name: "Harshitha J."},
+        { id: "6", name: "Tej S."},
+        { id: "7", name: "Advik D."},
+        { id: "8", name: "Christine N."},
+        { id: "9", name: "Esha V."},
+        { id: "10", name: "Gelila K."},
+        { id: "11", name: "Joel C."},
+        { id: "12", name: "Nishtha D."},
+        { id: "13", name: "Rivan P."},
+        { id: "14", name: "Riya M."},
+        { id: "15", name: "Saharsh M."},
+    ]
+
+    const [selectedTags, setSelectedTags] = useState<typeof allTags[0][]>([]);
 
     const images: ImageID[] = []
     for (let i = 0; i < 10; i++) {
@@ -32,8 +53,6 @@ const AlbumPage: React.FC = () => {
     }
 
     const albumId = "album-1";
-
-
     const title = "Unknown Album";
     const session = "No Session";
 
@@ -46,10 +65,14 @@ const AlbumPage: React.FC = () => {
                         ALBUMS {">>"} {title} {">>"} {session}
                     </h1>
                     <div className="flex items-center gap-4">
-                        <input
-                            type="text"
+                        <Tagging
+                            items={allTags}
+                            selectedItems={selectedTags}
+                            onSelectionChange={setSelectedTags}
+                            getOptionLabel={(tag) => tag.name}
+                            getOptionValue={(tag) => tag.id}
                             placeholder="Search Tags..."
-                            className="px-10 py-2 text-sm border text-black border-gray-500 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-camp-primary"
+                            className="w-64"
                         />
                         <img className="w-[64px] h-[64px] flex-none cursor-pointer" src={filterIcon.src} alt="Filter" />
                         <img className="w-[64px] h-[64px] flex-none cursor-pointer" src={PendingIcon.src} alt="Pending" />
