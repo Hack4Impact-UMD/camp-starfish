@@ -40,7 +40,13 @@ export default function Footer() {
             <span className="font-bold">Fax: </span>978-849-5004
           </p>
           <p>
-            <span className="font-bold">Email: </span>info@campstarfish.org
+            <span className="font-bold">Email: </span>
+            <a
+              href={`mailto:${"info@campstarfish.org"}`}
+              className="hover:underline"
+            >
+              info@campstarfish.org
+            </a>
           </p>
         </div>
         <div className="flex flex-col w-[208px]">
@@ -55,7 +61,13 @@ export default function Footer() {
             <span className="font-bold">Fax: </span>978-849-5004
           </p>
           <p>
-            <span className="font-bold">Email: </span>info@campstarfish.org
+            <span className="font-bold">Email: </span>
+            <a
+              href={`mailto:${"info@campstarfish.org"}`}
+              className="hover:underline"
+            >
+              info@campstarfish.org
+            </a>
           </p>
         </div>
         <Link href="https://umd.hack4impact.org/ourwork/camp-starfish" target="_blank">
