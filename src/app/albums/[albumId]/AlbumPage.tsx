@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import plusIcon from "@/assets/icons/plusIcon.svg";
+import UploadIcon from "@/assets/icons/Upload.svg";
 import filterIcon from "@/assets/icons/filterIcon.svg";
+import PendingIcon from "@/assets/icons/Pending.svg";
 import TestPicture from "@/assets/images/PolaroidPhotos1.png"; // Replace with actual image URL
 import Link from "next/link";
 import ImageCard from "@/components/ImageCard";
@@ -50,8 +51,9 @@ const AlbumPage: React.FC = () => {
                             placeholder="Search Tags..."
                             className="px-10 py-2 text-sm border text-black border-gray-500 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-camp-primary"
                         />
-                        <img className="w-[72px] h-[72px] flex-none cursor-pointer" src={filterIcon.src} alt="Filter" />
-                        <img className="w-[72px] h-[72px] flex-none cursor-pointer" src={plusIcon.src} alt="Plus" />
+                        <img className="w-[64px] h-[64px] flex-none cursor-pointer" src={filterIcon.src} alt="Filter" />
+                        <img className="w-[64px] h-[64px] flex-none cursor-pointer" src={PendingIcon.src} alt="Pending" />
+                        <img className="w-[64px] h-[64px] flex-none cursor-pointer" src={UploadIcon.src} alt="Upload" />
                     </div>
                 </div>
 
