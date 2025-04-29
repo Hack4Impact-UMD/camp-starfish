@@ -67,7 +67,6 @@ export default function Footer() {
           </div>
         </Link>
       </div>
-      <img src={BGPatternDark.src} className="w-full absolute"></img>
     </div>
   );
 }
