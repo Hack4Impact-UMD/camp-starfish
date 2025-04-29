@@ -7,7 +7,7 @@ export interface Person {
     middleName?: string;
     lastName: string;
   };
-  gender: "M" | "F" | "Other";
+  gender: "Male" | "Female" | "Other";
 }
 
 export interface Camper extends Person {
