@@ -11,6 +11,14 @@ import Tagging from "@/components/Tagging";
 
 const AlbumPage: React.FC = () => {
 
+    const dateObjects = [
+        new Date(2023, 5, 17), // June 17
+        new Date(2023, 5, 18), // June 18
+        new Date(2023, 5, 19), // June 19
+        new Date(2023, 5, 20), // June 20
+        new Date(2023, 5, 21), // June 21
+    ]
+
     const dates = [
         "Mon, June 17",
         "Tues, June 18",
@@ -20,38 +28,55 @@ const AlbumPage: React.FC = () => {
     ];
 
     const allTags = [
-        { id: "1", name: "Claire C."},
-        { id: "2", name: "Nitin K."},        
-        { id: "3", name: "Ben E."},
-        { id: "4", name: "Maia J."},
-        { id: "5", name: "Harshitha J."},
-        { id: "6", name: "Tej S."},
-        { id: "7", name: "Advik D."},
-        { id: "8", name: "Christine N."},
-        { id: "9", name: "Esha V."},
-        { id: "10", name: "Gelila K."},
-        { id: "11", name: "Joel C."},
-        { id: "12", name: "Nishtha D."},
-        { id: "13", name: "Rivan P."},
-        { id: "14", name: "Riya M."},
-        { id: "15", name: "Saharsh M."},
+        { id: "1", name: "Claire C." },
+        { id: "2", name: "Nitin K." },
+        { id: "3", name: "Ben E." },
+        { id: "4", name: "Maia J." },
+        { id: "5", name: "Harshitha J." },
+        { id: "6", name: "Tej S." },
+        { id: "7", name: "Advik D." },
+        { id: "8", name: "Christine N." },
+        { id: "9", name: "Esha V." },
+        { id: "10", name: "Gelila K." },
+        { id: "11", name: "Joel C." },
+        { id: "12", name: "Nishtha D." },
+        { id: "13", name: "Rivan P." },
+        { id: "14", name: "Riya M." },
+        { id: "15", name: "Saharsh M." },
     ]
 
     const [selectedTags, setSelectedTags] = useState<typeof allTags[0][]>([]);
+    const [sortOrder, setSortOrder] = useState<"oldest-newest" | "newest-oldest">("oldest-newest");
+    const [showSortDropdown, setShowSortDropdown] = useState(false);
 
     const images: ImageID[] = []
     for (let i = 0; i < 10; i++) {
+        const dateIndex = i % 5;
         images.push({
             src: TestPicture.src,
             name: "Image " + i,
-            tags: 'ALL',                              
+            tags: 'ALL',
             dateTaken: dates[i % 5],
+            dateObject: dateObjects[dateIndex],
             inReview: false,
             id: i.toString(),
             albumId: "iug"
         })
     }
 
+    const sortedImages = [...images].sort((a, b) => {
+        if (sortOrder === "oldest-newest") {
+            return a.dateObject.getTime() - b.dateObject.getTime();
+        } else {
+            return b.dateObject.getTime() - a.dateObject.getTime();
+        }
+    });
+
+    const sortedDates = [...dates];
+    if (sortOrder === "newest-oldest") {
+        sortedDates.reverse();
+    }
+        
     const albumId = "album-1";
     const title = "Unknown Album";
     const session = "No Session";
@@ -74,21 +99,54 @@ const AlbumPage: React.FC = () => {
                             placeholder="Search Tags..."
                             className="w-64"
                         />
-                        <img className="w-[64px] h-[64px] flex-none cursor-pointer" src={filterIcon.src} alt="Filter" />
+                        {/* Filter Dropdown */}
+                        <div className="relative">
+                            <img
+                                className="w-[64px] h-[64px] flex-none cursor-pointer"
+                                src={filterIcon.src}
+                                alt="Filter"
+                                onClick={() => setShowSortDropdown(!showSortDropdown)}
+                            />
+                            {showSortDropdown && (
+                                <div className="absolute right-0 mt-2 w-60 bg-white rounded-md shadow-lg z-10 border border-gray-200">
+                                    <div
+                                        className={`px-4 py-2 hover:bg-gray-300 text-black cursor-pointer ${sortOrder === "oldest-newest" ? "bg-gray-300 font-medium" : ""}`}
+                                        onClick={() => {
+                                            setSortOrder("oldest-newest");
+                                            setShowSortDropdown(false);
+                                        }}
+                                    >
+                                        Oldest → Newest
+                                        {sortOrder === "oldest-newest" && <span className="ml-2 text-camp-primary">✓</span>}
+                                    </div>
+                                    <div
+                                        className={`px-4 py-2 hover:bg-gray-300 text-black cursor-pointer ${sortOrder === "newest-oldest" ? "bg-gray-300 font-medium" : ""}`}
+                                        onClick={() => {
+                                            setSortOrder("newest-oldest");
+                                            setShowSortDropdown(false);
+                                        }}
+                                    >
+                                        Newest → Oldest
+                                        {sortOrder === "newest-oldest" && <span className="ml-2 text-camp-primary">✓</span>}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
                         <img className="w-[64px] h-[64px] flex-none cursor-pointer" src={PendingIcon.src} alt="Pending" />
                         <img className="w-[64px] h-[64px] flex-none cursor-pointer" src={UploadIcon.src} alt="Upload" />
                     </div>
                 </div>
 
                 {/* Content */}
-                <CardGallery<ImageID> items={images}
-                                      renderItem={(image: ImageID, isSelected: boolean) => <ImageCard image={image} isSelected={isSelected} />}
-                                      groups={{
-                                        groupLabels: dates,
-                                        defaultGroupLabel: "Date Unknown",
-                                        groupFunc: (image: ImageID) => image.dateTaken
-                                      }} />
-                
+                <CardGallery<ImageID>
+                    items={sortedImages}
+                    renderItem={(image: ImageID, isSelected: boolean) => <ImageCard image={image} isSelected={isSelected} />}
+                    groups={{
+                        groupLabels: sortedDates,
+                        defaultGroupLabel: "Date Unknown",
+                        groupFunc: (image: ImageID) => image.dateTaken
+                    }} />
+
             </div>
         </div>
     );
