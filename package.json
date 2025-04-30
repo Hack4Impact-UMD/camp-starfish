@@ -11,17 +11,21 @@
   "dependencies": {
     "@radix-ui/react-switch": "^1.1.4",
     "clsx": "^2.1.1",
+    "@radix-ui/react-dialog": "^1.1.6",
     "firebase": "^11.3.1",
     "framer-motion": "^12.4.7",
+    "mime-types": "^3.0.1",
     "lucide-react": "^0.482.0",
     "moment": "^2.30.1",
     "next": "^15.2.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "tailwind-merge": "^3.2.0"
+    "tailwind-merge": "^3.2.0",
+    "react-dropzone": "^14.3.8"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@types/mime-types": "^2.1.4",
     "@types/node": "^20",
     "@types/react": "^19.0.12",
     "@types/react-dom": "^19",

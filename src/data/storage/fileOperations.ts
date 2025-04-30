@@ -31,7 +31,7 @@ export async function uploadImages(imgs: File[], paths: string[]) {
     throw new Error("Number of images must be equal to the number of paths");
   }
   let uploadPromises = imgs.map((img, i) => {
-    uploadImage(img, paths[i]);
+    return uploadImage(img, paths[i]);
   });
 
   await Promise.all(uploadPromises);
