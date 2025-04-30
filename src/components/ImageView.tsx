@@ -38,6 +38,9 @@ export default function ImageView({
   //   URL.revokeObjectURL(element.href);
   // };
 
+  /**
+   * Downloads the current image using Firebase Storage
+   */
   const handleDownload = async () => {
     try {
       await downloadImage(image.src, image.name || "downloaded-image");
@@ -46,14 +49,16 @@ export default function ImageView({
     }
   };
 
+  /**
+   * Placeholder for future implementation of the "Move To" feature
+   */
   const handleMoveTo = () => {
     alert("Move To Clicked")
   };
  
-
   return (
     <div className="fixed w-full h-full inset-0 bg-black bg-opacity-90 flex flex-col items-center justify-between">
-      {/* Top Controls */}
+      {/* Header Section: Close button, image name, and action buttons */}
       <div className="w-full flex flex-row justify-between items-start sm:items-center gap-4 sm:gap-0 px-6 sm:px-10 pt-6 sm:pt-8 pb-4 text-white">
         <div className="flex flex-row items-center space-x-4 sm:space-x-10">
           <button onClick={onClose} aria-label="Close">
@@ -98,7 +103,7 @@ export default function ImageView({
         </div>
       </div>
 
-      {/* Image Display */}
+      {/* Main Image Display Area with navigation arrows */}
       <div className="relative flex flex-grow items-center justify-center w-full px-4 max-w-full sm:max-w-5xl">
         <button
           onClick={onLeftClick}
@@ -132,7 +137,7 @@ export default function ImageView({
         </button>
       </div>
 
-      {/* Bottom Section */}
+      {/* Bottom Section: Displays tags and moderation controls if applicable */}
       <ImageViewBottomSection
         image={image}
       />
