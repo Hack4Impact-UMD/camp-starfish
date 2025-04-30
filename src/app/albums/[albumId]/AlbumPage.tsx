@@ -8,6 +8,7 @@ import CardGallery from "@/components/CardGallery";
 import { ImageID } from "@/types/albumTypes";
 import FileUploadModal from "@/components/FileUploadModal";
 import { uploadImages } from "@/data/storage/fileOperations";
+import { v4 as uuidv4 } from 'uuid';
 
 const AlbumPage: React.FC = () => {
   const dates = [
@@ -37,7 +38,7 @@ const AlbumPage: React.FC = () => {
   const session = "No Session";
 
   async function onUpload(images: File[]) {
-    let paths = images.map(img => `${albumId}/${crypto.randomUUID()}-${img.name}`)
+    let paths = images.map(img => `${albumId}/${uuidv4()}-${img.name}`)
     await uploadImages(images, paths);
   }
 
