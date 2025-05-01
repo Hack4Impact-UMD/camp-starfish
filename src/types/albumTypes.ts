@@ -26,9 +26,11 @@ export interface ImageID extends Image, ID { albumId: string };
 
 // 'ALL' indicates an image should be available to everyone associated with that session (ex. group photos)
 export type ImageTags = 'ALL' | {
-  approved: Pick<Camper, 'campminderId' | 'name' | 'photoPermissions'>[];
-  inReview: Pick<Camper, 'campminderId' | 'name' | 'photoPermissions'>[];
+  approved: Tag[];
+  inReview: Tag[];
 }
+
+export type Tag = Pick<Camper, 'campminderId' | 'name' | 'photoPermissions'>;
 
 // Permissions for sharing photos with a given child in them
 // PUBLIC: photo can be used online in promotional materials
