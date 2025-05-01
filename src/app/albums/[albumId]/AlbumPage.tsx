@@ -8,7 +8,7 @@ import TestPicture from "@/assets/images/PolaroidPhotos1.png"; // Replace with a
 import Link from "next/link";
 import ImageCard from "@/components/ImageCard";
 import CardGallery from "@/components/CardGallery";
-import { AlbumID, ImageID, Tag } from "@/types/albumTypes";
+import { AlbumID, ImageID, ImageTags, Tag } from "@/types/albumTypes";
 import FileUploadModal from "@/components/FileUploadModal";
 import { getFileURL, uploadFiles } from "@/data/storage/fileOperations";
 import { v4 as uuidv4 } from "uuid";
@@ -19,6 +19,28 @@ import LoadingPage from "@/app/loading";
 import Tagging from "@/components/Tagging";
 import JSZip from "jszip";
 import SortDropdown from "@/components/SortDropdown";
+import { allTags, getTags } from "@/data/allTags";
+import { useAuth } from "@/auth/useAuth";
+import { Role } from "@/types/personTypes";
+
+const imageTagData: { [imageId: string]: ImageTags } = {
+  "67fde13c-16f3-4080-847e-f8e935a76aa0": {
+    approved: getTags([1, 3, 4]),
+    inReview: getTags([2]),
+  },
+  "c01ecc3c-e313-4541-9af7-014a67e78ca4": {
+    approved: getTags([2, 3, 4]),
+    inReview: getTags([10, 11]),
+  },
+  "f5080e37-746d-4d74-9ecb-09b20276365b": {
+    approved: getTags([1, 4, 9]),
+    inReview: getTags([]),
+  },
+  "fefe3fbb-0724-4d5d-ab49-af961be8b842": {
+    approved: getTags([]),
+    inReview: getTags([1, 2, 3, 4, 9, 10, 11]),
+  },
+};
 
 interface AlbumPageProps {
   albumId: string;
@@ -31,13 +53,6 @@ export default function AlbumPage(props: AlbumPageProps) {
   const [images, setImages] = useState<ImageID[]>([]);
   const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
   const [showSortDropdown, setShowSortDropdown] = useState(false);
-
-  const displayImages = images.filter((image) => {
-    return (
-      image.tags === "ALL" ||
-      image.tags.approved.some((tag) => selectedTags.includes(tag))
-    );
-  });
 
   useEffect(() => {
     async function fetchAlbum() {
@@ -70,88 +85,24 @@ export default function AlbumPage(props: AlbumPageProps) {
     Promise.all([fetchAlbum(), fetchImages()]).then(() => setIsLoading(false));
   }, []);
 
+  const auth = useAuth();
+  const role: Role = auth.token?.claims.role as Role;
+  const campminderId = auth.token?.claims.campminderId;
+
+  const displayImages = images.filter((image) => {
+    return (
+      role === "ADMIN" ||
+      imageTagData[image.id] === "ALL" ||
+      imageTagData[image.id].approved.some(
+        (tag: Tag) => tag.campminderId === campminderId
+      )
+    );
+  });
+
   async function uploadImages(images: File[]) {
     let paths = images.map((img: File) => `albums/${albumId}/${uuidv4()}`);
     await uploadFiles(images, paths);
   }
-
-  const allTags: Tag[] = [
-    {
-      campminderId: 1,
-      name: { firstName: "", lastName: "" },
-      photoPermissions: "INTERNAL",
-    },
-    {
-      campminderId: 2,
-      name: { firstName: "", lastName: "" },
-      photoPermissions: "INTERNAL",
-    },
-    {
-      campminderId: 3,
-      name: { firstName: "", lastName: "" },
-      photoPermissions: "INTERNAL",
-    },
-    {
-      campminderId: 4,
-      name: { firstName: "", lastName: "" },
-      photoPermissions: "INTERNAL",
-    },
-    {
-      campminderId: 5,
-      name: { firstName: "", lastName: "" },
-      photoPermissions: "INTERNAL",
-    },
-    {
-      campminderId: 6,
-      name: { firstName: "", lastName: "" },
-      photoPermissions: "INTERNAL",
-    },
-    {
-      campminderId: 7,
-      name: { firstName: "", lastName: "" },
-      photoPermissions: "INTERNAL",
-    },
-    {
-      campminderId: 8,
-      name: { firstName: "", lastName: "" },
-      photoPermissions: "INTERNAL",
-    },
-    {
-      campminderId: 9,
-      name: { firstName: "", lastName: "" },
-      photoPermissions: "INTERNAL",
-    },
-    {
-      campminderId: 10,
-      name: { firstName: "", lastName: "" },
-      photoPermissions: "INTERNAL",
-    },
-    {
-      campminderId: 11,
-      name: { firstName: "", lastName: "" },
-      photoPermissions: "INTERNAL",
-    },
-    {
-      campminderId: 12,
-      name: { firstName: "", lastName: "" },
-      photoPermissions: "INTERNAL",
-    },
-    {
-      campminderId: 13,
-      name: { firstName: "", lastName: "" },
-      photoPermissions: "INTERNAL",
-    },
-    {
-      campminderId: 14,
-      name: { firstName: "", lastName: "" },
-      photoPermissions: "INTERNAL",
-    },
-    {
-      campminderId: 15,
-      name: { firstName: "", lastName: "" },
-      photoPermissions: "INTERNAL",
-    },
-  ];
 
   // Download images as zip file
   const handleDownloadAll = async () => {
