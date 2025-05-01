@@ -128,8 +128,10 @@ export default function AlbumPage(props: AlbumPageProps) {
   const displayImages = images
     .filter((image) => {
       return (
+
         role === "ADMIN" ||
         imageTagData[image.id] === "ALL" ||
+        imageTagData[image.id] === undefined ||
         imageTagData[image.id].approved.some(
           (tag: Tag) => tag.campminderId === campminderId
         )
@@ -202,7 +204,7 @@ export default function AlbumPage(props: AlbumPageProps) {
           </h1>
           <div className="flex items-center gap-4 shrink-0">
             {/* Tagging */}
-            <Tagging
+            {role == "PARENT" && <Tagging
               items={allTags}
               selectedItems={selectedTags}
               onSelectionChange={setSelectedTags}
@@ -212,7 +214,7 @@ export default function AlbumPage(props: AlbumPageProps) {
               getOptionValue={(tag) => tag.campminderId.toString()}
               placeholder="Search Tags..."
               className="w-64 cursor-pointer"
-            />
+            />}
 
             {/* Sort Dropdown */}
             <div className="relative">
