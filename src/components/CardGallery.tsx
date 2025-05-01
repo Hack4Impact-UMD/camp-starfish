@@ -33,7 +33,7 @@ export default function CardGallery<T extends { id: string }>(
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-6">
         {items.map((item: T) => (
-          <div onClick={() => toggleItem(item.id)}>
+          <div onClick={() => toggleItem(item.id)} key={item.id}>
             {renderItem(item, selectedItemIds.indexOf(item.id) !== -1)}
           </div>
         ))}
@@ -84,7 +84,7 @@ export default function CardGallery<T extends { id: string }>(
               </div>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {itemGroups[label].map((item: T) => (
-                  <div onClick={() => toggleItem(item.id)}>
+                  <div onClick={() => toggleItem(item.id)} key={item.id}>
                     {renderItem(item, selectedItemIds.indexOf(item.id) !== -1)}
                   </div>
                 ))}
