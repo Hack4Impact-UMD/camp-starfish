@@ -6,6 +6,7 @@ import darkBgLogo from "../assets/logos/darkBgLogo.png";
 import profile from "../assets/logos/Profile.png";
 import { useAuth } from "@/auth/useAuth";
 import { Role } from "@/types/personTypes";
+import { signOut } from "@/auth/authN";
 
 const navbarLinks: { name: string; href: string; roles: Role[] }[] = [
   { name: "Programs", href: "/programs", roles: ["STAFF", "ADMIN"] },
@@ -54,15 +55,15 @@ const Navbar: React.FC = () => {
       )}
 
       {/* Profile Icon on the right */}
-      {auth.token && <div className="flex-none">
-        <Link href="/profile">
+      {auth.token && (
+        <div className="flex-none" onClick={() => signOut()}>
           <img
             className="w-[62px] h-[62px] flex-none cursor-pointer"
             src={profile.src}
             alt="Profile"
           />
-        </Link>
-      </div>}
+        </div>
+      )}
     </nav>
   );
 };
