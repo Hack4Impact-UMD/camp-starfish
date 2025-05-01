@@ -1,23 +1,38 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import AlbumCard from "../../components/AlbumCard";
 import plusIcon from "@/assets/icons/plusIcon.svg";
 import filterIcon from "@/assets/icons/filterIcon.svg";
-import testPicture from "@/assets/images/PolaroidPhotos1.png";
 import EditAlbumModal from "@/components/EditAlbumModal";
 import CardGallery from "@/components/CardGallery";
 import { AlbumID } from "@/types/albumTypes";
+import { getAllAlbums } from "@/data/firestore/albums";
+import { getFileURL } from "@/data/storage/fileOperations";
 
 const AlbumsPage: React.FC = () => {
-  // Sample data for albums, get data from Firebase
-  const albums: AlbumID[] = Array(100).fill({
-    title: "Program 1",
-    date: "June 2024",
-    photoCount: 156,
-    imageUrl: testPicture.src, // Replace with actual image URL
-    id: "album-1",
-  });
+  const [albums, setAlbums] = useState<AlbumID[]>([]);
+  const [thumbnails, setThumbnails] = useState<{ [albumId: string]: string }>(
+    {}
+  );
+
+  const fetchAlbums = async () => {
+    const albums = await getAllAlbums();
+    const albumsWithThumbnails = albums.filter((album: AlbumID) => album.hasThumbnail);
+    const thumbnails = await Promise.all(
+      albumsWithThumbnails.map((album: AlbumID) => getFileURL(`/albums/${album.id}/thumbnail.png`))
+    );
+    setAlbums(albums);
+    const thumbnailLookup: { [albumId: string]: string } = {};
+    albumsWithThumbnails.forEach((album: AlbumID, i: number) => {
+      thumbnailLookup[album.id] = thumbnails[i];
+    })
+    setThumbnails(thumbnailLookup);
+  };
+
+  useEffect(() => {
+    fetchAlbums();
+  }, []);
 
   return (
     <div className="w-full min-h-full bg-gray-100">
@@ -50,7 +65,7 @@ const AlbumsPage: React.FC = () => {
         </div>
         <CardGallery<AlbumID>
           items={albums}
-          renderItem={(album: AlbumID) => <AlbumCard album={album} />}
+          renderItem={(album: AlbumID) => <AlbumCard album={album} thumbnail={thumbnails[album.id]} />}
         />
       </div>
     </div>

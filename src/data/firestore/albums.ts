@@ -1,7 +1,7 @@
 import { db } from "@/config/firebase";
 import { Album, AlbumID } from "@/types/albumTypes";
 import { randomUUID } from "crypto";
-import { doc, collection, Transaction, getDoc, WriteBatch, updateDoc, deleteDoc, setDoc } from "firebase/firestore";
+import { doc, collection, Transaction, getDoc, WriteBatch, updateDoc, deleteDoc, setDoc, getDocs, query } from "firebase/firestore";
 import { Collection } from "./utils";
 
 export async function getAlbumById(id: string, transaction?: Transaction): Promise<AlbumID> {
@@ -16,6 +16,18 @@ export async function getAlbumById(id: string, transaction?: Transaction): Promi
     throw new Error("Album not found");
   }
   return { id: albumDoc.id, ...albumDoc.data() } as AlbumID;
+}
+
+export async function getAllAlbums() {
+  const albumsRef = collection(db, Collection.ALBUMS);
+  let snapshot;
+  try {
+    snapshot = await getDocs(query(albumsRef));
+  } catch (error: any) {
+    throw new Error(`Failed to get albums: ${error.code}`);
+  }
+  const albums = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+  return albums as AlbumID[];
 }
 
 export async function createAlbum(album: Album, instance?: Transaction | WriteBatch): Promise<string> {
