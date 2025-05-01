@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { ImageID } from "@/types/albumTypes";
 
-interface ImageCardProps {
+interface ImageCardProps extends React.HTMLAttributes<HTMLDivElement> {
   image: ImageID;
   isSelected: boolean;
 }
@@ -16,6 +16,7 @@ export default function ImageCard(props: ImageCardProps) {
       className={`relative group w-full h-auto rounded-lg overflow-hidden shadow-md border-4 transition duration-300 cursor-pointer ${
         isSelected ? "border-blue-500" : "border-transparent"
       }`}
+      {...props}
     >
       <Image
         src={image.src}

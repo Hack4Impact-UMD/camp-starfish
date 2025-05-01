@@ -19,7 +19,7 @@ interface ImageViewBottomSectionProps {
 function isImageTags(
   tags: ImageTags
 ): tags is { approved: any[]; inReview: any[] } {
-  return typeof tags !== "string" && "approved" in tags && "inReview" in tags;
+  return tags !== "ALL";
 }
 
 export default function ImageViewBottomSection({
@@ -28,7 +28,8 @@ export default function ImageViewBottomSection({
   const [activeTab, setActiveTab] = useState<"APPROVED" | "PENDING">(
     "APPROVED"
   );
-  const [localTags, setLocalTags] = useState<ImageTags>(image.tags);
+
+  console.log('image', image);  
 
   const auth = useAuth();
   const userRole: Role = auth.token?.claims.role as Role;
@@ -58,11 +59,11 @@ export default function ImageViewBottomSection({
   }
 
   // --- Guard clause for users without tag access or 'ALL' tag type. Will not display anything ---
-  if (!canViewTags || !isImageTags(localTags)) return null;
+  if (!canViewTags || image.tags === "ALL") return null;
 
+  const tags = image.tags;
   // --- Tag display logic based on tab ---
-  const tagsToShow =
-    activeTab === "APPROVED" ? localTags.approved : localTags.inReview;
+  const tagsToShow = activeTab === "APPROVED" ? tags.approved : tags.inReview;
 
   /**
    * Renders an individual tag with optional moderation controls
@@ -106,41 +107,31 @@ export default function ImageViewBottomSection({
     </div>
   );
 
- /**
+  /**
    * Approve a tag by moving it from 'inReview' to 'approved'
    */
   const handleApproveTag = (campminderId: number) => {
-    if (!isImageTags(localTags)) return;
-
-    const tag = localTags.inReview.find((t) => t.campminderId === campminderId);
+    const tag = tags.inReview.find((t) => t.campminderId === campminderId);
     if (!tag) return;
 
     const updatedTags: ImageTags = {
-      approved: [...localTags.approved, tag],
-      inReview: localTags.inReview.filter(
-        (t) => t.campminderId !== campminderId
-      ),
+      approved: [...tags.approved, tag],
+      inReview: tags.inReview.filter((t) => t.campminderId !== campminderId),
     };
 
-    setLocalTags(updatedTags);
+    image.tags = updatedTags;
   };
 
   /**
    * Reject a tag by removing it from both 'approved' and 'inReview'
    */
   const handleRejectTag = (campminderId: number) => {
-    if (!isImageTags(localTags)) return;
-
     const updatedTags: ImageTags = {
-      approved: localTags.approved.filter(
-        (t) => t.campminderId !== campminderId
-      ),
-      inReview: localTags.inReview.filter(
-        (t) => t.campminderId !== campminderId
-      ),
+      approved: tags.approved.filter((t) => t.campminderId !== campminderId),
+      inReview: tags.inReview.filter((t) => t.campminderId !== campminderId),
     };
 
-    setLocalTags(updatedTags);
+    image.tags = updatedTags;
   };
 
   /**
@@ -162,7 +153,7 @@ export default function ImageViewBottomSection({
               </p>
               <Switch
                 checked={activeTab === "PENDING"}
-                onCheckedChange={(checked) =>
+                onCheckedChange={(checked: boolean) =>
                   setActiveTab(checked ? "PENDING" : "APPROVED")
                 }
               />
@@ -182,13 +173,13 @@ export default function ImageViewBottomSection({
           <div className="overflow-x-auto whitespace-nowrap flex gap-2 w-full">
             {/* Staff View: Only approved tags without moderation ability */}
             {!canModerateTags && canViewTags ? (
-              <> 
-                {localTags.approved.map((tag) => renderTag(tag, false))} 
-              </>
+              <>{tags.approved.map((tag) => renderTag(tag, false))}</>
             ) : (
               // Photographer and Admin View: Can toggle between Approved and Pending tags with ability to moderate
               <>
-                {tagsToShow.map((tag) => renderTag(tag, activeTab === "PENDING"))}
+                {tagsToShow.map((tag) =>
+                  renderTag(tag, activeTab === "PENDING")
+                )}
               </>
             )}
           </div>

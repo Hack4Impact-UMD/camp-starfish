@@ -22,6 +22,8 @@ import SortDropdown from "@/components/SortDropdown";
 import { allTags, getTags } from "@/data/allTags";
 import { useAuth } from "@/auth/useAuth";
 import { Role } from "@/types/personTypes";
+import { useRouter } from "next/navigation";
+import ImageView from "@/components/ImageView";
 
 const imageTagData: { [imageId: string]: ImageTags } = {
   "67fde13c-16f3-4080-847e-f8e935a76aa0": {
@@ -86,6 +88,7 @@ export default function AlbumPage(props: AlbumPageProps) {
   const [images, setImages] = useState<ImageID[]>([]);
   const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
   const [showSortDropdown, setShowSortDropdown] = useState(false);
+  const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
 
   useEffect(() => {
     async function fetchAlbum() {
@@ -287,7 +290,11 @@ export default function AlbumPage(props: AlbumPageProps) {
         <CardGallery<ImageID>
           items={displayImages}
           renderItem={(image: ImageID, isSelected: boolean) => (
-            <ImageCard image={image} isSelected={isSelected} />
+            <ImageCard
+              image={image}
+              isSelected={isSelected}
+              onDoubleClick={() => setSelectedImageIndex(displayImages.indexOf(image))}
+            />
           )}
           groups={{
             groupLabels: [
@@ -299,6 +306,12 @@ export default function AlbumPage(props: AlbumPageProps) {
             groupFunc: (image: ImageID) => image.dateTaken,
           }}
         />
+        {selectedImageIndex !== null && <ImageView 
+          image={{...displayImages[selectedImageIndex], tags: imageTagData[displayImages[selectedImageIndex].id]}}
+          onClose={() => setSelectedImageIndex(null)}
+          onLeftClick={() => setSelectedImageIndex((prev) => prev === null ? null : (prev + displayImages.length - 1) % displayImages.length)}
+          onRightClick={() => setSelectedImageIndex((prev) => prev === null ? null : (prev + 1) % displayImages.length)}
+        />}
       </div>
     </div>
   );
