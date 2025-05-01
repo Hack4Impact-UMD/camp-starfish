@@ -43,7 +43,6 @@ export default function AlbumPage(props: AlbumPageProps) {
     async function fetchAlbum() {
       const album = await getAlbumById(albumId);
       setAlbum(album);
-      console.log('album set')
     }
 
     async function fetchImages() {
@@ -66,7 +65,6 @@ export default function AlbumPage(props: AlbumPageProps) {
         };
       });
       setImages(imageMetadatas as ImageID[]);
-      console.log('images set')
     }
 
     Promise.all([fetchAlbum(), fetchImages()]).then(() => setIsLoading(false));
