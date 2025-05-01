@@ -211,30 +211,34 @@ export default function AlbumPage(props: AlbumPageProps) {
                 onClick={() => setShowSortDropdown(!showSortDropdown)}
               />
               {showSortDropdown && (
-                <SortDropdown
-                  options={[
-                    {
-                      label: "Oldest → Newest",
-                      onSelect: () => {
-                        setImages((prev: ImageID[]) =>
-                          prev.sort((a: ImageID, b: ImageID) =>
-                            a.dateTaken.localeCompare(b.dateTaken)
-                          )
-                        );
+                <div className="absolute right-0 mt-2 w-60 bg-white rounded-md shadow-lg z-10 border border-gray-200">
+                  <SortDropdown
+                    options={[
+                      {
+                        label: "Oldest → Newest",
+                        onSelect: () => {
+                          setImages((prev: ImageID[]) =>
+                            prev.sort((a: ImageID, b: ImageID) =>
+                              a.dateTaken.localeCompare(b.dateTaken)
+                            )
+                          );
+                          setShowSortDropdown((prev) => !prev);
+                        },
                       },
-                    },
-                    {
-                      label: "Newest → Oldest",
-                      onSelect: () => {
-                        setImages((prev: ImageID[]) =>
-                          prev.sort((a: ImageID, b: ImageID) =>
-                            b.dateTaken.localeCompare(a.dateTaken)
-                          )
-                        );
+                      {
+                        label: "Newest → Oldest",
+                        onSelect: () => {
+                          setImages((prev: ImageID[]) =>
+                            prev.sort((a: ImageID, b: ImageID) =>
+                              b.dateTaken.localeCompare(a.dateTaken)
+                            )
+                          );
+                          setShowSortDropdown((prev) => !prev);
+                        },
                       },
-                    },
-                  ]}
-                />
+                    ]}
+                  />
+                </div>
               )}
             </div>
 
