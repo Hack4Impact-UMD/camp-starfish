@@ -1,0 +1,19 @@
+{
+  "name": "albums/album2/1b6c6805-d553-4161-b5f0-7d7f077859fb",
+  "bucket": "camp-starfish.firebasestorage.app",
+  "metageneration": 1,
+  "generation": 1746076364571,
+  "contentType": "image/jpeg",
+  "storageClass": "STANDARD",
+  "contentDisposition": "inline",
+  "downloadTokens": [
+    "ca460360-0cfc-45fb-8c6b-64fd88f9f97b"
+  ],
+  "etag": "wradBA52TNH/38zzaJU4BMfPeJQ",
+  "customMetadata": {},
+  "timeCreated": "2025-05-01T05:12:44.571Z",
+  "updated": "2025-05-01T05:12:44.571Z",
+  "size": 862406,
+  "md5Hash": "d9VXJ2S/Jq4qblujHcvEFA==",
+  "crc32c": "3364628331"
+}
