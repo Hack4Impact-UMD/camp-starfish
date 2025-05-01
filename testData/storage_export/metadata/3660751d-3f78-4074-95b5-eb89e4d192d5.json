@@ -1,0 +1,15 @@
+{
+  "name": "albums/album3/",
+  "bucket": "camp-starfish.firebasestorage.app",
+  "metageneration": 1,
+  "generation": 1746079639342,
+  "contentType": "application/octet-stream",
+  "storageClass": "STANDARD",
+  "downloadTokens": [],
+  "etag": "PJs9AwMq7yXlh1tArKeORtEnpfo",
+  "timeCreated": "2025-05-01T06:07:19.342Z",
+  "updated": "2025-05-01T06:07:19.342Z",
+  "size": 130,
+  "md5Hash": "iUpceipDkyQhwwUflucD5w==",
+  "crc32c": "3108464614"
+}
