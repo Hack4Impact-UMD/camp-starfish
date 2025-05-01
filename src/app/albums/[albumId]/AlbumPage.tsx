@@ -7,8 +7,8 @@ import ImageCard from "@/components/ImageCard";
 import CardGallery from "@/components/CardGallery";
 import { ImageID } from "@/types/albumTypes";
 import FileUploadModal from "@/components/FileUploadModal";
-import { uploadImages } from "@/data/storage/fileOperations";
-import { v4 as uuidv4 } from 'uuid';
+import { uploadFiles } from "@/data/storage/fileOperations";
+import { v4 as uuidv4 } from "uuid";
 
 const AlbumPage: React.FC = () => {
   const dates = [
@@ -37,9 +37,9 @@ const AlbumPage: React.FC = () => {
   const title = "Unknown Album";
   const session = "No Session";
 
-  async function onUpload(images: File[]) {
-    let paths = images.map(img => `${albumId}/${uuidv4()}-${img.name}`)
-    await uploadImages(images, paths);
+  async function uploadImages(images: File[]) {
+    let paths = images.map((img: File) => `albums/${albumId}/${uuidv4()}`);
+    await uploadFiles(images, paths);
   }
 
   return (
@@ -62,7 +62,7 @@ const AlbumPage: React.FC = () => {
               alt="Filter"
             />
             <FileUploadModal
-              onUpload={onUpload}
+              onUpload={uploadImages}
               acceptedFileExtensions={[".jpg", ".png"]}
               maxFileSize={5}
             >
