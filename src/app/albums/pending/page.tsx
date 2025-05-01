@@ -4,7 +4,7 @@ import PendingPage from "./PendingPage";
 
 export default function Page() {
   return (
-    <RequireAuth allowedRoles={["ADMIN", "PARENT", "PHOTOGRAPHER", "STAFF"]}>
+    <RequireAuth allowedRoles={["ADMIN", "PHOTOGRAPHER", "STAFF"]}>
       <PendingPage />
     </RequireAuth>
   );
