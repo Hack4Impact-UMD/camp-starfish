@@ -197,7 +197,7 @@ export default function AlbumPage(props: AlbumPageProps) {
   }
 
   return (
-    <div className="w-full min-h-full bg-gray-100">
+    <div className="w-full min-h-screen bg-gray-100">
       <div className="container mx-auto px-4 py-6 w-full">
         {/* Header */}
         <div className="flex items-center justify-between">
