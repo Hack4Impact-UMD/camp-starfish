@@ -35,7 +35,7 @@ const AlbumsPage: React.FC = () => {
   }, []);
 
   return (
-    <div className="w-full min-h-full bg-gray-100">
+    <div className="w-full min-h-screen bg-gray-100">
       <div className="container mx-auto px-4 py-6">
         <div className="flex items-center justify-between">
           <h1 className="text-5xl font-newSpirit font-bold text-camp-primary">

@@ -41,14 +41,14 @@ export default function AlbumPage(props: AlbumPageProps) {
         Promise.all(allImages.map((item) => getFileURL(item.fullPath))),
         Promise.all(allImages.map((item) => getMetadata(item))),
       ]);
-      
+
       const imageMetadatas = metadatas.map((metadata, i) => {
         return {
           ...metadata.customMetadata,
           id: allImages[i].name,
           albumId: albumId,
-          src: imageURLs[i]
-        }
+          src: imageURLs[i],
+        };
       });
       setImages(imageMetadatas as ImageID[]);
     }
@@ -66,7 +66,7 @@ export default function AlbumPage(props: AlbumPageProps) {
   }
 
   return (
-    <div className="w-full min-h-full bg-gray-100">
+    <div className="w-full min-h-screen bg-gray-100">
       <div className="container mx-auto px-4 py-6">
         {/* Header */}
         <div className="flex items-center justify-between">
