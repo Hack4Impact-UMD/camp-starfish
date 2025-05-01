@@ -1,45 +1,68 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import plusIcon from "@/assets/icons/plusIcon.svg";
 import filterIcon from "@/assets/icons/filterIcon.svg";
 import TestPicture from "@/assets/images/PolaroidPhotos1.png"; // Replace with actual image URL
 import Link from "next/link";
 import ImageCard from "@/components/ImageCard";
 import CardGallery from "@/components/CardGallery";
-import { ImageID } from "@/types/albumTypes";
+import { AlbumID, ImageID } from "@/types/albumTypes";
 import FileUploadModal from "@/components/FileUploadModal";
-import { uploadFiles } from "@/data/storage/fileOperations";
+import { getFileURL, uploadFiles } from "@/data/storage/fileOperations";
 import { v4 as uuidv4 } from "uuid";
+import { getAlbumById } from "@/data/firestore/albums";
+import { getMetadata, listAll, ref } from "firebase/storage";
+import { storage } from "@/config/firebase";
+import LoadingAnimation from "@/components/LoadingAnimation";
+import LoadingPage from "@/app/loading";
 
-const AlbumPage: React.FC = () => {
-  const dates = [
-    "Mon, June 17",
-    "Tues, June 18",
-    "Wed, June 19",
-    "Thurs, June 20",
-    "Fri, June 21",
-  ];
+interface AlbumPageProps {
+  albumId: string;
+}
 
-  const images: ImageID[] = [];
-  for (let i = 0; i < 10; i++) {
-    images.push({
-      src: TestPicture.src,
-      name: "Image " + i,
-      tags: "ALL",
-      dateTaken: dates[i % 5],
-      inReview: false,
-      id: i.toString(),
-      albumId: "iug",
-    });
-  }
+export default function AlbumPage(props: AlbumPageProps) {
+  const { albumId } = props;
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [album, setAlbum] = useState<AlbumID>();
+  const [images, setImages] = useState<ImageID[]>([]);
 
-  const albumId = "album-1";
+  useEffect(() => {
+    async function fetchAlbum() {
+      const album = await getAlbumById(albumId);
+      setAlbum(album);
+    }
 
-  const title = "Unknown Album";
-  const session = "No Session";
+    async function fetchImages() {
+      const storageAlbum = ref(storage, `/albums/${albumId}`);
+      const allImages = (await listAll(storageAlbum)).items.filter(
+        (item) => item.name !== "thumbnail.png"
+      );
+
+      const [imageURLs, metadatas] = await Promise.all([
+        Promise.all(allImages.map((item) => getFileURL(item.fullPath))),
+        Promise.all(allImages.map((item) => getMetadata(item))),
+      ]);
+      
+      const imageMetadatas = metadatas.map((metadata, i) => {
+        return {
+          ...metadata.customMetadata,
+          id: allImages[i].name,
+          albumId: albumId,
+          src: imageURLs[i]
+        }
+      });
+      setImages(imageMetadatas as ImageID[]);
+    }
+
+    Promise.all([fetchAlbum(), fetchImages()]).then(() => setIsLoading(false));
+  }, []);
 
   async function uploadImages(images: File[]) {
     let paths = images.map((img: File) => `albums/${albumId}/${uuidv4()}`);
     await uploadFiles(images, paths);
+  }
+
+  if (isLoading) {
+    return <LoadingPage />;
   }
 
   return (
@@ -48,7 +71,7 @@ const AlbumPage: React.FC = () => {
         {/* Header */}
         <div className="flex items-center justify-between">
           <h1 className="text-4xl font-lato font-bold text-camp-primary">
-            ALBUMS {">>"} {title} {">>"} {session}
+            {album!.name}
           </h1>
           <div className="flex items-center gap-4">
             <input
@@ -81,15 +104,8 @@ const AlbumPage: React.FC = () => {
           renderItem={(image: ImageID, isSelected: boolean) => (
             <ImageCard image={image} isSelected={isSelected} />
           )}
-          groups={{
-            groupLabels: dates,
-            defaultGroupLabel: "Date Unknown",
-            groupFunc: (image: ImageID) => image.dateTaken,
-          }}
         />
       </div>
     </div>
   );
-};
-
-export default AlbumPage;
+}
