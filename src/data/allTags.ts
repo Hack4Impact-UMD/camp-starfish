@@ -58,24 +58,34 @@ export const allTags: Tag[] = [
   },
   {
     campminderId: 12,
-    name: { firstName: "", lastName: "" },
+    name: { firstName: "Claire", lastName: "Chen" },
     photoPermissions: "INTERNAL",
   },
   {
     campminderId: 13,
-    name: { firstName: "", lastName: "" },
+    name: { firstName: "Advik", lastName: "Duvvuri" },
     photoPermissions: "INTERNAL",
   },
   {
     campminderId: 14,
-    name: { firstName: "", lastName: "" },
+    name: { firstName: "Rivan", lastName: "Parikh" },
     photoPermissions: "INTERNAL",
   },
   {
     campminderId: 15,
-    name: { firstName: "", lastName: "" },
+    name: { firstName: "Riya", lastName: "Makwana" },
     photoPermissions: "INTERNAL",
   },
+  {
+    campminderId: 16,
+    name: { firstName: "Steven", lastName: "Ha" },
+    photoPermissions: "INTERNAL",
+  },
+  {
+    campminderId: 17,
+    name: { firstName: "Harshitha", lastName: "Jeyakumar" },
+    photoPermissions: "INTERNAL",
+  }
 ];
 
 export function getTags(ids: number[]): Tag[] {

@@ -40,6 +40,39 @@ const imageTagData: { [imageId: string]: ImageTags } = {
     approved: getTags([]),
     inReview: getTags([1, 2, 3, 4, 9, 10, 11]),
   },
+  "1b6c6805-d553-4161-b5f0-7d7f077859fb": {
+    approved: getTags([1, 3, 12]),
+    inReview: getTags([]),
+  },
+  "2c131228-c003-427a-ba00-37d8bbf9974e": {
+    approved: getTags([5, 6]),
+    inReview: getTags([]),
+  },
+  "364434d2-fff6-42e1-8294-61834204269e": "ALL",
+  "43d138a8-e1a3-4129-9bc6-dfc7680a90f5": {
+    approved: getTags([2, 10]),
+    inReview: getTags([]),
+  },
+  "68054e81-25d7-4996-829c-2e650575b0c7": {
+    approved: getTags([11, 13, 14]),
+    inReview: getTags([]),
+  },
+  "72b8f2f5-67ff-4971-8506-39b4dc78bc71": {
+    approved: getTags([2, 7, 15, 16]),
+    inReview: getTags([])
+  },
+  "8360b5fd-1503-4c07-960e-fb6101eb5207": {
+    approved: getTags([6, 17]),
+    inReview: getTags([])
+  },
+  "c09fd119-d1ac-45bc-8d90-92d63c3c79b0": {
+    approved: getTags([1, 12]),
+    inReview: getTags([])
+  },
+  "c123b817-a83a-4061-ac9f-74a68eee0f5f": {
+    approved: getTags([2, 5, 7, 11]),
+    inReview: getTags([])
+  }
 };
 
 interface AlbumPageProps {
