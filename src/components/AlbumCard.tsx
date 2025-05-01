@@ -17,7 +17,7 @@ const AlbumCard: React.FC<AlbumCardProps> = ({
         <img
           src={thumbnail}
           alt={name}
-          className="w-full h-48 object-cover rounded-lg"
+          className="w-full h-48 object-cover rounded-lg text-black"
         />
         <div className="mt-2">
           <h3 className="text-lg font-bold font-lato text-camp-text-headingBody">
