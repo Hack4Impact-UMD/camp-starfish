@@ -59,20 +59,20 @@ const imageTagData: { [imageId: string]: ImageTags } = {
   },
   "72b8f2f5-67ff-4971-8506-39b4dc78bc71": {
     approved: getTags([2, 7, 15, 16]),
-    inReview: getTags([])
+    inReview: getTags([]),
   },
   "8360b5fd-1503-4c07-960e-fb6101eb5207": {
     approved: getTags([6, 17]),
-    inReview: getTags([])
+    inReview: getTags([]),
   },
   "c09fd119-d1ac-45bc-8d90-92d63c3c79b0": {
     approved: getTags([1, 12]),
-    inReview: getTags([])
+    inReview: getTags([]),
   },
   "c123b817-a83a-4061-ac9f-74a68eee0f5f": {
     approved: getTags([2, 5, 7, 11]),
-    inReview: getTags([])
-  }
+    inReview: getTags([]),
+  },
 };
 
 interface AlbumPageProps {
@@ -122,15 +122,24 @@ export default function AlbumPage(props: AlbumPageProps) {
   const role: Role = auth.token?.claims.role as Role;
   const campminderId = auth.token?.claims.campminderId;
 
-  const displayImages = images.filter((image) => {
-    return (
-      role === "ADMIN" ||
-      imageTagData[image.id] === "ALL" ||
-      imageTagData[image.id].approved.some(
-        (tag: Tag) => tag.campminderId === campminderId
-      )
+  const displayImages = images
+    .filter((image) => {
+      return (
+        role === "ADMIN" ||
+        imageTagData[image.id] === "ALL" ||
+        imageTagData[image.id].approved.some(
+          (tag: Tag) => tag.campminderId === campminderId
+        )
+      );
+    })
+    .filter(
+      (image) =>
+        selectedTags.length === 0 ||
+        imageTagData[image.id] === "ALL" ||
+        selectedTags.every((tag) =>
+          imageTagData[image.id].approved.includes(tag)
+        )
     );
-  });
 
   async function uploadImages(images: File[]) {
     let paths = images.map((img: File) => `albums/${albumId}/${uuidv4()}`);
