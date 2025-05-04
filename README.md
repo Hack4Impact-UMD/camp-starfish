@@ -54,9 +54,9 @@ firebase login
 cd functions
 npm install
 ```
-3. Run Emulator
+3. Run Emulators with Test Data
 ```bash
-firebase emulators:start
+firebase emulators:start ./testData
 ```
 
 4. Start the Local Development Server
@@ -72,7 +72,7 @@ cd functions
 npm run build
 ```
 
-⚠️ **Use the Firebase Emulator for local testing only.**
+⚠️ **Use the Firebase Emulators for local testing only.**
 
 ---
 
@@ -87,25 +87,30 @@ camp-starfish/
 │── node_modules/
 │── public/
 │── src/
-│   ├── app/                # Main app logic and pages
+│   ├── app/                # Next.js App Router
 │   ├── assets/             # Images and static files
 │   ├── auth/               # Authentication modules
 │   ├── components/         # UI components
 │   ├── config/             # App configurations
 │   ├── data/               # Data operations
+|   ├── features/           # Individual app features
 │   ├── types/              # Type definitions
 │
 │── .env
 │── .firebaserc
 │── .gitignore
+│── eslint.config.mjs
 │── firebase.json
+│── firestore.indexes.json
 │── firestore.rules
 │── next.config.ts
+│── package-lock.json
 │── package.json
+│── postcss.config.mjs
+│── README.md
+│── storage.rules
 │── tailwind.config.ts
 │── tsconfig.json
-│── vite.config.ts
-│── README.md
 ```
 
 ---
