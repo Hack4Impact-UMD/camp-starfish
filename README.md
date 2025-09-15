@@ -119,7 +119,7 @@ camp-starfish/
 | Name                 | Role                | Contact                          |
 |----------------------|---------------------|----------------------------------|
 | **Nitin Kanchinadam**| Tech Lead           | nitin.kanchinadam@gmail.com      |
-| **Benjamin Enwesi**  | Tech Lead           | benwesi@terpmail.umd.edu         |
+| **Esha Vigneswaran** | Tech Lead           | eshav@terpmail.umd.edu           |
 
 
 ---
