@@ -8,9 +8,11 @@ export interface Person {
     lastName: string;
   };
   gender: "Male" | "Female" | "Other";
+  role: Role;
 }
 
 export interface Camper extends Person {
+  role: "CAMPER";
   dateOfBirth: string; // ISO-8601
   photoPermissions: PhotoPermissions;
   parentIds: number[]; // camperminderIds
@@ -20,7 +22,7 @@ export interface Camper extends Person {
 export interface User extends Person {
   uid: string;
   email: string;
-  role: Role;
+  role: UserRole;
 }
 
 export interface Parent extends User {
@@ -34,5 +36,6 @@ export interface Employee extends User {
   nonoList: number[];
 }
 
-export type Role = "PARENT" | EmployeeRole;
+export type Role = "CAMPER" | UserRole;
+export type UserRole = "PARENT" | EmployeeRole;
 export type EmployeeRole = "STAFF" | "PHOTOGRAPHER" | "ADMIN";
