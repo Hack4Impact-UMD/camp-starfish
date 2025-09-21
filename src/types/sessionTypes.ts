@@ -104,20 +104,12 @@ export interface Bunk {
 }
 
 export interface Freeplay {
-  posts: Record<Post, number[]> // Admin & Staff only
+  posts: { post: Post, assignments: number[] } // Admin & Staff only
   buddies: Record<number, number[]>; // Staff assigned to 1-2 campers each
 }
 
-export type Post =
-  | "Wishy Washy"
-  | "Lily Pads"
-  | "Book Nook"
-  | "Camp Store"
-  | "Blacktop"
-  | "Waterfront"
-  | "Fort Starfish"
-  | "Teens Lounge"
-  | "Truckstop"
-  | "Field";
+export interface Post {
+  name: string;
+}
 
 export type AgeGroup = 'NAV' | 'OCP';
