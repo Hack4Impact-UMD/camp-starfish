@@ -5,13 +5,7 @@ export interface Session {
   name: string;
   startDate: string; // ISO-8601
   endDate: string; // ISO-8601
-  schedule: SessionSection[];
   config: SessionConfig;
-  attendees: {
-    campers: CamperSessionAttendee[];
-    staff: StaffSessionAttendee[];
-    admins: (Pick<Employee, 'campminderId' | 'name' | 'gender' | 'nonoList'> & { role: "ADMIN" })[];
-  };
   albumId?: string;
 }
 export interface SessionID extends Session, ID { };
