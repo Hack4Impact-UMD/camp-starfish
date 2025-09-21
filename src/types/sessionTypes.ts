@@ -1,10 +1,10 @@
-import { CamperID, EmployeeID } from "./personTypes";
+import { Camper, CamperID, Employee, EmployeeID } from "./personTypes";
 import { ID } from "./utils";
 
 export interface Session {
   name: string;
   startDate: string; // ISO-8601
-  endDate: string; // ISO-8601
+  endDate: string; // ISO-8601, exclusive
   config: SessionConfig;
   albumId?: string;
 }
@@ -16,29 +16,37 @@ export interface SessionConfig {
   numJamborees: number;
 }
 
-export type CamperSessionAttendee = Pick<
-  CamperID,
-  "id" | "name" | "gender" | "dateOfBirth" | "nonoList"
+export type CamperAttendee = Pick<
+  Camper,
+  "name" | "gender" | "dateOfBirth" | "nonoList"
 > & {
   ageGroup: AgeGroup;
   level: number;
   bunk: number;
 };
+export interface CamperAttendeeID extends CamperAttendee, ID { };
 
-export type StaffSessionAttendee = Pick<EmployeeID, 'id' | 'name' | 'gender' | 'nonoList'> & {
+export type StaffAttendee = Pick<Employee, 'name' | 'gender' | 'nonoList'> & {
   role: "STAFF";
   programCounselor?: ProgramArea;
   bunk: number;
+  leadBunkCounselor: boolean;
+}
+export interface StaffAttendeeID extends StaffAttendee, ID { };
+
+export type AdminAttendee = Pick<Employee, 'name' | 'gender' | 'nonoList'> & {
+  role: "ADMIN",
 }
 
 export type SessionSection = CommonSection | SchedulingSection<Block>;
+export type SessionSectionID = CommonSectionID | SchedulingSectionID<Block>;
 
 export interface CommonSection {
-  id: string;
   name: string;
   startDate: string; // ISO-8601
-  endDate: string; // ISO-8601
+  endDate: string; // ISO-8601, exclusive
 }
+export interface CommonSectionID extends CommonSection, ID { };
 
 export type SchedulingSectionType = "BUNDLE" | "BUNK-JAMBO" | "NON-BUNK-JAMBO";
 export interface SchedulingSection<B extends Block> extends CommonSection {
@@ -46,6 +54,7 @@ export interface SchedulingSection<B extends Block> extends CommonSection {
   freeplays: { [freeplayId: string]: Freeplay };
   blocks: { [blockId: string]: B };
 }
+export interface SchedulingSectionID<B extends Block> extends SchedulingSection<B>, ID { };
 
 export type BundleBlock = (BundleActivity & { assignments: IndividualAssignments })[];
 export type BunkJamboreeBlock = (JamboreeActivity & { assignments: BunkAssignments })[];
@@ -91,16 +100,17 @@ export interface BunkAssignments {
 }
 
 export interface Bunk {
-  bunkNum: number;
   leadCounselor: number;
   staffIds: number[];
   camperIds: number[];
 }
+export interface BunkID extends Bunk, ID { };
 
 export interface Freeplay {
   posts: { post: Post, assignments: number[] } // Admin & Staff only
   buddies: Record<number, number[]>; // Staff assigned to 1-2 campers each
 }
+export interface FreeplayID extends Freeplay, ID { };
 
 export interface Post {
   name: string;

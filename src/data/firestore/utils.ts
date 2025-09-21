@@ -5,8 +5,8 @@ export enum Collection {
 
   ALBUMS = "albums", // id: uuid
   SESSIONS = "sessions", // id: uuid
-  PROGRAM_AREAS = "program_areas", // one doc, id: "program_areas"
-  POSTS = "posts", // one doc, id: "posts"
+  PROGRAM_AREAS = "program_areas", // one doc, id same as collection
+  POSTS = "posts", // one doc, id same as collection
 }
 
 export enum AlbumsSubcollection {
@@ -15,7 +15,7 @@ export enum AlbumsSubcollection {
 
 export enum SessionsSubcollection {
   ATTENDEES = "attendees", // id: campminderId
-  MASTER_SCHEDULES = "master_schedules", // one doc, id: "master_schedules"
+  MASTER_SCHEDULES = "master_schedules", // one doc, id same as collection
   BUNKS = "bunks", // id: bunk number
 }
 
