@@ -38,7 +38,7 @@ export async function getEmployeeByEmail(email: string): Promise<Employee> {
 
 export async function createEmployee(employee: Employee, instance?: Transaction | WriteBatch): Promise<void> {
   try {
-    const employeeRef = doc(db, Collection.EMPLOYEES, String(employee.campminderId));
+    const employeeRef = doc(db, Collection.EMPLOYEES, String(employee.id));
     // @ts-ignore
     await (instance ? instance.set(employeeRef, employee) : setDoc(employeeRef, employee));
   } catch (error: any) {

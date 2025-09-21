@@ -1,4 +1,4 @@
-import { Camper, Employee } from "./personTypes";
+import { CamperID, EmployeeID } from "./personTypes";
 import { ID } from "./utils";
 
 export interface Session {
@@ -17,15 +17,15 @@ export interface SessionConfig {
 }
 
 export type CamperSessionAttendee = Pick<
-  Camper,
-  "campminderId" | "name" | "gender" | "dateOfBirth" | "nonoList"
+  CamperID,
+  "id" | "name" | "gender" | "dateOfBirth" | "nonoList"
 > & {
   ageGroup: AgeGroup;
   level: number;
   bunk: number;
 };
 
-export type StaffSessionAttendee = Pick<Employee, 'campminderId' | 'name' | 'gender' | 'nonoList'> & {
+export type StaffSessionAttendee = Pick<EmployeeID, 'id' | 'name' | 'gender' | 'nonoList'> & {
   role: "STAFF";
   programCounselor?: ProgramArea;
   bunk: number;
