@@ -6,6 +6,7 @@ export interface Session {
   startDate: string; // ISO-8601
   endDate: string; // ISO-8601
   schedule: SessionSection[];
+  config: SessionConfig;
   attendees: {
     campers: CamperSessionAttendee[];
     staff: StaffSessionAttendee[];
@@ -14,6 +15,12 @@ export interface Session {
   albumId?: string;
 }
 export interface SessionID extends Session, ID { };
+
+export interface SessionConfig {
+  numBlocks: number;
+  numBundles: number;
+  numJamborees: number;
+}
 
 export type CamperSessionAttendee = Pick<
   Camper,
