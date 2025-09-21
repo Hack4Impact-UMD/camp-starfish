@@ -14,7 +14,7 @@ export default function GalleryCardOne({ title, href, description }: GalleryCard
     return (
       <div className="flex flex-col justify-center items-center px-[36px] py-[40px] w-[370px] gap-[8px] rounded-[8px] shadow-[0px_0px_16px_-2px_rgba(0,0,0,0.30)]" onClick={() => redirect(href)}>
         <span className="flex flex-row gap-[8px]">
-          <h3 className="font-lato text-[32px] font-black text-camp-primary">{title}</h3>
+          <h3 className="font-lato text-[32px] font-black text-primary-300">{title}</h3>
           <img src={albumIcon.src}></img>
         </span>
         <p className="text-center text-[20px] font-[400] text-modalSecondaryTitle">{description}</p>

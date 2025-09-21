@@ -7,7 +7,7 @@ export default function EmployeeHomePage() {
   const auth = useAuth();
 
   return (
-    <div className="p-10 lg:p-20 font-lato text-[20px] font-normal leading-normal text-camp-primary bg-white">
+    <div className="p-10 lg:p-20 font-lato text-[20px] font-normal leading-normal text-primary-p300 bg-white">
       {/* Welcome Section */}
       <div className="mb-[100px]">
         <h1 className="text-[65px] lg:text-[80px] font-semibold font-newSpirit">Welcome, {auth.user?.displayName}!</h1>

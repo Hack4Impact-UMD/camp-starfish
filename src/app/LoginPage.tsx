@@ -23,7 +23,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="relative min-h-full w-full flex items-center justify-center bg-camp-primary overflow-hidden">
+    <div className="relative min-h-full w-full flex items-center justify-center bg-primary-300 overflow-hidden">
       <div className="absolute inset-0 h-full">
         <BackgroundPattern fill="#FFFFFF" opacity={0.07} />
       </div>
