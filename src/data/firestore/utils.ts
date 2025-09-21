@@ -20,6 +20,7 @@ export enum SessionsSubcollection {
 }
 
 export enum MasterSchedulesSubcollection {
+  SECTIONS = "sections", // id: uuid
   BUNDLES = "bundles", // id: bundle number
   JAMBOREES = "jamborees", // id: jamboree number
   FREEPLAYS = "freeplays", // id: freeplay date
