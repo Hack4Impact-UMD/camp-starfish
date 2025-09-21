@@ -29,18 +29,6 @@ export type CamperSessionAttendee = Pick<
   ageGroup: AgeGroup;
   level: number;
   bunk: number;
-  prefs: {
-    bundles: {
-      [bundleId: string]: {
-        [blockId: string]: { [activityId: string]: number };
-      };
-    };
-    nonBunkJamborees: {
-      [jamboId: string]: {
-        [blockId: string]: { [activityId: string]: number };
-      };
-    };
-  };
 };
 
 export type StaffSessionAttendee = Pick<Employee, 'campminderId' | 'name' | 'gender' | 'nonoList'> & {
@@ -113,11 +101,6 @@ export interface Bunk {
   leadCounselor: number;
   staffIds: number[];
   camperIds: number[];
-  bunkJamboreePrefs: {
-    [jamboId: string]: {
-      [blockId: string]: { [activityId: string]: number };
-    };
-  };
 }
 
 export interface Freeplay {
