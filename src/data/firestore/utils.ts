@@ -24,4 +24,5 @@ export enum MasterSchedulesSubcollection {
   BUNDLES = "bundles", // id: bundle number
   JAMBOREES = "jamborees", // id: jamboree number
   FREEPLAYS = "freeplays", // id: freeplay date
+  NIGHT_SHIFTS = "night_shifts", // id: night shift date
 }

@@ -44,6 +44,14 @@ export interface AdminAttendeeID extends AdminAttendee, ID { };
 export type SessionSection = CommonSection | SchedulingSection<SchedulingSectionType>;
 export type SessionSectionID = CommonSectionID | SchedulingSectionID<SchedulingSectionType>;
 
+export interface NightShift {
+  [bunkId: number]: {
+    sleepInBunk: number[];
+    sleepOutside: number[];
+  }
+}
+export interface NightShiftID extends NightShift, ID { };
+
 export interface CommonSection {
   name: string;
   startDate: string; // ISO-8601
