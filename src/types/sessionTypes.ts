@@ -56,6 +56,7 @@ export interface SchedulingSection<T extends SchedulingSectionType> extends Comm
   type: T;
   freeplays: { [freeplayId: string]: Freeplay };
   blocks: { [blockId: string]: Block<T> };
+  alternatePeriodsOff: { [period: string]: number[] }
 }
 export interface SchedulingSectionID<T extends SchedulingSectionType> extends SchedulingSection<T>, ID { };
 
