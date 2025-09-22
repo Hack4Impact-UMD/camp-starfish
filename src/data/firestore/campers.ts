@@ -1,5 +1,5 @@
 import { db } from "@/config/firebase";
-import { Camper } from "@/types/personTypes";
+import { Camper, CamperID } from "@/types/personTypes";
 import { doc, getDoc, setDoc, updateDoc, deleteDoc, Transaction, WriteBatch } from "firebase/firestore";
 import { Collection } from "./utils";
 
@@ -14,14 +14,14 @@ export const getCamperById = async (campminderId: number, transaction?: Transact
   if (!camperDoc.exists()) {
     throw new Error("Camper not found");
   }
-  return camperDoc.data() as Camper;  
+  return camperDoc.data() as Camper;
 };
 
-export const createCamper = async (camper: Camper, instance?: Transaction | WriteBatch): Promise<void> => {
+export const createCamper = async (camper: CamperID, instance?: Transaction | WriteBatch): Promise<void> => {
   try {
-    const camperRef = doc(db, Collection.CAMPERS, String(camper.campminderId));
+    const camperRef = doc(db, Collection.CAMPERS, String(camper.id));
     // @ts-ignore
-    await (instance ? instance.set(camperRef, camper) : setDoc(camperRef, camper));  
+    await (instance ? instance.set(camperRef, camper) : setDoc(camperRef, camper));
   } catch (error: any) {
     throw new Error(`Failed to create camper: ${error.code}`);
   }
@@ -43,7 +43,7 @@ export const updateCamper = async (campminderId: number, updates: Partial<Camper
 export const deleteCamper = async (campminderId: number, instance?: Transaction | WriteBatch): Promise<void> => {
   try {
     const camperRef = doc(db, Collection.CAMPERS, String(campminderId));
-    await (instance ? instance.delete(camperRef) : deleteDoc(camperRef));  
+    await (instance ? instance.delete(camperRef) : deleteDoc(camperRef));
   } catch (error: any) {
     throw new Error(`Failed to delete camper: ${error.code}`);
   }
