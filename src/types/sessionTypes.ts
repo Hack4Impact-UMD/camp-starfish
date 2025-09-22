@@ -1,4 +1,4 @@
-import { Camper, CamperID, Employee, EmployeeID } from "./personTypes";
+import { Camper, Employee } from "./personTypes";
 import { ID } from "./utils";
 
 export interface Session {
