@@ -4,7 +4,7 @@ import React from "react";
 import Link from "next/link";
 import darkBgLogo from "../assets/logos/darkBgLogo.png";
 import profile from "../assets/logos/Profile.png";
-import { useAuth } from "@/auth/useAuth";
+import { useAuth } from "@/components/auth/useAuth";
 import { Role } from "@/types/personTypes";
 
 const navbarLinks: { name: string; href: string; roles: Role[] }[] = [

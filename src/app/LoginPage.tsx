@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import GoogleIcon from "@/assets/icons/Google.svg";
 import ErrorIcon from "@/assets/icons/errorIcon.svg";
 import BackgroundPattern from "@/components/BackgroundPattern";
-import { useAuth } from "@/auth/useAuth";
+import { useAuth } from "@/components/auth/useAuth";
 import { signInWithGooglePopup } from "@/auth/authN";
 
 export default function LoginPage() {
