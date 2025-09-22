@@ -120,3 +120,7 @@ export interface Post {
 }
 
 export type AgeGroup = 'NAV' | 'OCP';
+
+export interface Preferences {
+  [attendeeId: number]: { [activityId: string]: number };
+}
