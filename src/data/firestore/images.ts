@@ -2,10 +2,10 @@ import { db } from "@/config/firebase";
 import { ImageMetadata, ImageMetadataID } from "@/types/albumTypes";
 import { WriteBatch } from "@google-cloud/firestore";
 import { doc, getDoc, setDoc, updateDoc, deleteDoc, Transaction } from "firebase/firestore";
-import { Collection } from "./utils";
+import { AlbumsSubcollection, Collection } from "./utils";
 
 export const getImage = async (albumId: string, imageId: string, transaction?: Transaction): Promise<ImageMetadataID> => {
-    const imageRef = doc(db, Collection.ALBUMS, albumId, Collection.IMAGES, imageId);
+    const imageRef = doc(db, Collection.ALBUMS, albumId, AlbumsSubcollection.IMAGES, imageId);
     let imageDoc;
     try {
         imageDoc = await (transaction ? transaction.get(imageRef) : getDoc(imageRef));
@@ -24,7 +24,7 @@ export const getImage = async (albumId: string, imageId: string, transaction?: T
 
 export const createImage = async (albumId: string, imageId: string, image: ImageMetadata, instance?: Transaction | WriteBatch): Promise<void> => {
     try {
-        const imageRef = doc(db, Collection.ALBUMS, albumId, Collection.IMAGES, imageId);
+        const imageRef = doc(db, Collection.ALBUMS, albumId, AlbumsSubcollection.IMAGES, imageId);
         // @ts-ignore
         await (instance ? instance.set(imageRef, image) : setDoc(imageRef, image));
     } catch (error: any) {
@@ -34,7 +34,7 @@ export const createImage = async (albumId: string, imageId: string, image: Image
 
 export const updateImage = async (albumId: string, imageId: string, updates: Partial<ImageMetadata>, instance?: Transaction | WriteBatch): Promise<void> => {
     try {
-        const imageRef = doc(db, Collection.ALBUMS, albumId, Collection.IMAGES, imageId);
+        const imageRef = doc(db, Collection.ALBUMS, albumId, AlbumsSubcollection.IMAGES, imageId);
         // @ts-ignore
         await (instance ? instance.update(imageRef, updates) : updateDoc(imageRef, updates));
     } catch (error: any) {
@@ -47,7 +47,7 @@ export const updateImage = async (albumId: string, imageId: string, updates: Par
 
 export const deleteImage = async (albumId: string, imageId: string, instance?: Transaction | WriteBatch): Promise<void> => {
     try {
-        const imageRef = doc(db, Collection.ALBUMS, albumId, Collection.IMAGES, imageId);
+        const imageRef = doc(db, Collection.ALBUMS, albumId, AlbumsSubcollection.IMAGES, imageId);
         // @ts-ignore
         await (instance ? instance.delete(imageRef) : deleteDoc(imageRef));
     } catch (error: any) {

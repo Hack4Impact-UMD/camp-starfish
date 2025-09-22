@@ -1,5 +1,5 @@
 import { db } from "@/config/firebase";
-import { Employee } from "@/types/personTypes";
+import { Employee, EmployeeID } from "@/types/personTypes";
 import { collection, deleteDoc, doc, getDocs, or, query, Transaction, where, WriteBatch } from "firebase/firestore";
 import { Collection } from "./utils";
 
@@ -36,7 +36,7 @@ export async function getEmployeeByEmail(email: string): Promise<Employee> {
   }
 }
 
-export async function createEmployee(employee: Employee, instance?: Transaction | WriteBatch): Promise<void> {
+export async function createEmployee(employee: EmployeeID, instance?: Transaction | WriteBatch): Promise<void> {
   try {
     const employeeRef = doc(db, Collection.EMPLOYEES, String(employee.id));
     // @ts-ignore

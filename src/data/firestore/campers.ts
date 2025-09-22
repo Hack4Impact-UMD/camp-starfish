@@ -1,5 +1,5 @@
 import { db } from "@/config/firebase";
-import { Camper } from "@/types/personTypes";
+import { Camper, CamperID } from "@/types/personTypes";
 import { doc, getDoc, setDoc, updateDoc, deleteDoc, Transaction, WriteBatch } from "firebase/firestore";
 import { Collection } from "./utils";
 
@@ -17,7 +17,7 @@ export const getCamperById = async (campminderId: number, transaction?: Transact
   return camperDoc.data() as Camper;
 };
 
-export const createCamper = async (camper: Camper, instance?: Transaction | WriteBatch): Promise<void> => {
+export const createCamper = async (camper: CamperID, instance?: Transaction | WriteBatch): Promise<void> => {
   try {
     const camperRef = doc(db, Collection.CAMPERS, String(camper.id));
     // @ts-ignore

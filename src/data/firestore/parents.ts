@@ -1,5 +1,5 @@
 import { db } from "@/config/firebase";
-import { Parent } from "@/types/personTypes";
+import { Parent, ParentID } from "@/types/personTypes";
 import {
   doc,
   query,
@@ -52,7 +52,7 @@ export const getParentById = async (id: string | number, transaction?: Transacti
 };
 
 // Create a new parent
-export const createParent = async (parent: Parent, instance?: Transaction | WriteBatch): Promise<void> => {
+export const createParent = async (parent: ParentID, instance?: Transaction | WriteBatch): Promise<void> => {
   try {
     const parentRef = doc(db, Collection.PARENTS, String(parent.id));
     // @ts-ignore
