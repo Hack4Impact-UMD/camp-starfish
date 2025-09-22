@@ -15,14 +15,13 @@ export enum AlbumsSubcollection {
 
 export enum SessionsSubcollection {
   ATTENDEES = "attendees", // id: campminderId
-  MASTER_SCHEDULES = "master_schedules", // one doc, id same as collection
+  SECTIONS = "sections", // id: uuid
   BUNKS = "bunks", // id: bunk number
+  NIGHT_SHIFTS = "night_shifts", // id: night shift date
 }
 
-export enum MasterSchedulesSubcollection {
-  SECTIONS = "sections", // id: uuid
+export enum SectionsSubcollection {
   BUNDLES = "bundles", // id: bundle number
   JAMBOREES = "jamborees", // id: jamboree number
   FREEPLAYS = "freeplays", // id: freeplay date
-  NIGHT_SHIFTS = "night_shifts", // id: night shift date
 }

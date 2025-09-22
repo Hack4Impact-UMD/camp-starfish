@@ -41,9 +41,6 @@ export type AdminAttendee = Pick<Employee, 'name' | 'gender' | 'nonoList'> & {
 }
 export interface AdminAttendeeID extends AdminAttendee, ID { };
 
-export type SessionSection = CommonSection | SchedulingSection<SchedulingSectionType>;
-export type SessionSectionID = CommonSectionID | SchedulingSectionID<SchedulingSectionType>;
-
 export interface NightShift {
   [bunkId: number]: {
     sleepInBunk: number[];
@@ -51,6 +48,9 @@ export interface NightShift {
   }
 }
 export interface NightShiftID extends NightShift, ID { };
+
+export type Section = CommonSection | SchedulingSection<SchedulingSectionType>;
+export type SectionID = CommonSectionID | SchedulingSectionID<SchedulingSectionType>;
 
 export interface CommonSection {
   name: string;
