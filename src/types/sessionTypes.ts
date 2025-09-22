@@ -62,21 +62,10 @@ export type NonBunkJamboreeBlock = (JamboreeActivity & { assignments: Individual
 export type Block = BundleBlock | BunkJamboreeBlock | NonBunkJamboreeBlock;
 
 export type ProgramArea =
-  | "ACT" // Activate!
-  | "A&C" // Arts & Crafts
-  | "ATH" // Athletics
-  | "BOAT" // Boating
-  | "CHAL" // Challenge
-  | "DNC" // Dance
-  | "DRA" // Drama
-  | "DISC" // Discovery
-  | "LC" // Learning Center
-  | "MUS" // Music
-  | "OUT" // Outdoor Cooking
-  | "SMA" // Small Animals
-  | "XPL" // Xplore!
-  | "OCP" // Teens
-  | "WF";  // Waterfront
+{
+  name: string;
+  code: string;
+}
 
 export interface JamboreeActivity {
   name: string;
