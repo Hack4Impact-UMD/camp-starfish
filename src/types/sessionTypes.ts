@@ -76,8 +76,7 @@ export type Block<T> = {
   periodsOff: number[];
 }
 
-export type ProgramArea =
-{
+export interface ProgramArea {
   name: string;
   code: string;
 }
