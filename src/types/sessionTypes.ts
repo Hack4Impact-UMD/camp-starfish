@@ -16,6 +16,9 @@ export interface SessionConfig {
   numJamborees: number;
 }
 
+export type Attendee = CamperAttendee | StaffAttendee | AdminAttendee;
+export type AttendeeID = CamperAttendeeID | StaffAttendeeID | AdminAttendeeID;
+
 export type CamperAttendee = Pick<
   Camper,
   "name" | "gender" | "dateOfBirth" | "nonoList"
@@ -24,7 +27,7 @@ export type CamperAttendee = Pick<
   level: number;
   bunk: number;
 };
-export interface CamperAttendeeID extends CamperAttendee, ID { };
+export interface CamperAttendeeID extends CamperAttendee, ID { sessionId: string; };
 
 export type StaffAttendee = Pick<Employee, 'name' | 'gender' | 'nonoList'> & {
   role: "STAFF";
@@ -33,13 +36,13 @@ export type StaffAttendee = Pick<Employee, 'name' | 'gender' | 'nonoList'> & {
   leadBunkCounselor: boolean;
   daysOff: string[] // ISO-8601
 }
-export interface StaffAttendeeID extends StaffAttendee, ID { };
+export interface StaffAttendeeID extends StaffAttendee, ID { sessionId: string; };
 
 export type AdminAttendee = Pick<Employee, 'name' | 'gender' | 'nonoList'> & {
   role: "ADMIN";
   daysOff: string[]; // ISO-8601
 }
-export interface AdminAttendeeID extends AdminAttendee, ID { };
+export interface AdminAttendeeID extends AdminAttendee, ID { sessionId: string; };
 
 export interface NightShift {
   [bunkId: number]: {
@@ -47,33 +50,40 @@ export interface NightShift {
     sleepOutside: number[];
   }
 }
-export interface NightShiftID extends NightShift, ID { };
+export interface NightShiftID extends NightShift, ID { sessionId: string; };
 
-export type Section = CommonSection | SchedulingSection<SchedulingSectionType>;
-export type SectionID = CommonSectionID | SchedulingSectionID<SchedulingSectionType>;
+export type SectionType = 'COMMON' | SchedulingSectionType;
+export type SchedulingSectionType = "BUNDLE" | "BUNK-JAMBO" | "NON-BUNK-JAMBO";
 
-export interface CommonSection {
+export interface Section {
   name: string;
+  type: SectionType;
   startDate: string; // ISO-8601
   endDate: string; // ISO-8601, exclusive
 }
-export interface CommonSectionID extends CommonSection, ID { };
+export interface SectionID extends Section, ID { sessionId: string; };
 
-export type SchedulingSectionType = "BUNDLE" | "BUNK-JAMBO" | "NON-BUNK-JAMBO";
-export interface SchedulingSection<T extends SchedulingSectionType> extends CommonSection {
-  type: T;
+export interface SectionSchedule<T extends SchedulingSectionType> {
   blocks: { [blockId: string]: Block<T> };
   alternatePeriodsOff: { [period: string]: number[] }
 }
-export interface SchedulingSectionID<T extends SchedulingSectionType> extends SchedulingSection<T>, ID { };
+export interface SectionScheduleID<T extends SchedulingSectionType> extends SectionSchedule<T>, ID { sessionId: string; sectionId: string; };
 
-export type BundleBlockActivities = (BundleActivity & { assignments: IndividualAssignments })[];
-export type BunkJamboreeBlockActivities = (JamboreeActivity & { assignments: BunkAssignments })[];
-export type NonBunkJamboreeBlockActivities = (JamboreeActivity & { assignments: IndividualAssignments })[];
+export type Bundle = SectionSchedule<'BUNDLE'>;
+export type BundleID = SectionScheduleID<'BUNDLE'>;
+export type BunkJamboree = SectionSchedule<'BUNK-JAMBO'>;
+export type BunkJamboreeID = SectionScheduleID<'BUNK-JAMBO'>;
+export type NonBunkJamboree = SectionSchedule<'NON-BUNK-JAMBO'>;
+export type NonBunkJamboreeID = SectionScheduleID<'NON-BUNK-JAMBO'>;
+
 export type Block<T> = {
   activities: T extends 'BUNDLE' ? BundleBlockActivities : T extends 'BUNK-JAMBO' ? BunkJamboreeBlockActivities : NonBunkJamboreeBlockActivities;
   periodsOff: number[];
 }
+
+export type BundleBlockActivities = (BundleActivity & { assignments: IndividualAssignments })[];
+export type BunkJamboreeBlockActivities = (JamboreeActivity & { assignments: BunkAssignments })[];
+export type NonBunkJamboreeBlockActivities = (JamboreeActivity & { assignments: IndividualAssignments })[];
 
 export interface ProgramArea {
   name: string;
@@ -106,13 +116,13 @@ export interface Bunk {
   staffIds: number[];
   camperIds: number[];
 }
-export interface BunkID extends Bunk, ID { };
+export interface BunkID extends Bunk, ID { sessionId: string; };
 
 export interface Freeplay {
   posts: { post: Post, assignments: number[] } // Admin & Staff only
   buddies: Record<number, number[]>; // Staff assigned to 1-2 campers each
 }
-export interface FreeplayID extends Freeplay, ID { };
+export interface FreeplayID extends Freeplay, ID { sessionId: string; };
 
 export interface Post {
   name: string;
