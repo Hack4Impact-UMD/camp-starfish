@@ -31,15 +31,18 @@ export type StaffAttendee = Pick<Employee, 'name' | 'gender' | 'nonoList'> & {
   programCounselor?: ProgramArea;
   bunk: number;
   leadBunkCounselor: boolean;
+  daysOff: string[] // ISO-8601
 }
 export interface StaffAttendeeID extends StaffAttendee, ID { };
 
 export type AdminAttendee = Pick<Employee, 'name' | 'gender' | 'nonoList'> & {
-  role: "ADMIN",
+  role: "ADMIN";
+  daysOff: string[]; // ISO-8601
 }
+export interface AdminAttendeeID extends AdminAttendee, ID { };
 
-export type SessionSection = CommonSection | SchedulingSection<Block>;
-export type SessionSectionID = CommonSectionID | SchedulingSectionID<Block>;
+export type SessionSection = CommonSection | SchedulingSection<SchedulingSectionType>;
+export type SessionSectionID = CommonSectionID | SchedulingSectionID<SchedulingSectionType>;
 
 export interface CommonSection {
   name: string;
@@ -49,17 +52,20 @@ export interface CommonSection {
 export interface CommonSectionID extends CommonSection, ID { };
 
 export type SchedulingSectionType = "BUNDLE" | "BUNK-JAMBO" | "NON-BUNK-JAMBO";
-export interface SchedulingSection<B extends Block> extends CommonSection {
-  type: B extends BundleBlock ? "BUNDLE" : B extends BunkJamboreeBlock ? "BUNK-JAMBO" : "NON-BUNK-JAMBO";
+export interface SchedulingSection<T extends SchedulingSectionType> extends CommonSection {
+  type: T;
   freeplays: { [freeplayId: string]: Freeplay };
-  blocks: { [blockId: string]: B };
+  blocks: { [blockId: string]: Block<T> };
 }
-export interface SchedulingSectionID<B extends Block> extends SchedulingSection<B>, ID { };
+export interface SchedulingSectionID<T extends SchedulingSectionType> extends SchedulingSection<T>, ID { };
 
-export type BundleBlock = (BundleActivity & { assignments: IndividualAssignments })[];
-export type BunkJamboreeBlock = (JamboreeActivity & { assignments: BunkAssignments })[];
-export type NonBunkJamboreeBlock = (JamboreeActivity & { assignments: IndividualAssignments })[];
-export type Block = BundleBlock | BunkJamboreeBlock | NonBunkJamboreeBlock;
+export type BundleBlockActivities = (BundleActivity & { assignments: IndividualAssignments })[];
+export type BunkJamboreeBlockActivities = (JamboreeActivity & { assignments: BunkAssignments })[];
+export type NonBunkJamboreeBlockActivities = (JamboreeActivity & { assignments: IndividualAssignments })[];
+export type Block<T> = {
+  activities: T extends 'BUNDLE' ? BundleBlockActivities : T extends 'BUNK-JAMBO' ? BunkJamboreeBlockActivities : NonBunkJamboreeBlockActivities;
+  periodsOff: number[];
+}
 
 export type ProgramArea =
   | "ACT" // Activate!
