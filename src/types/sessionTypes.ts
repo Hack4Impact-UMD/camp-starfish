@@ -62,7 +62,6 @@ export interface CommonSectionID extends CommonSection, ID { };
 export type SchedulingSectionType = "BUNDLE" | "BUNK-JAMBO" | "NON-BUNK-JAMBO";
 export interface SchedulingSection<T extends SchedulingSectionType> extends CommonSection {
   type: T;
-  freeplays: { [freeplayId: string]: Freeplay };
   blocks: { [blockId: string]: Block<T> };
   alternatePeriodsOff: { [period: string]: number[] }
 }
