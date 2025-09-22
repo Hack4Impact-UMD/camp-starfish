@@ -10,7 +10,7 @@ export enum Collection {
 }
 
 export enum AlbumsSubcollection {
-  IMAGES = "images", // id: uuid
+  IMAGE_METADATAS = "image_metadatas", // id: uuid
 }
 
 export enum SessionsSubcollection {

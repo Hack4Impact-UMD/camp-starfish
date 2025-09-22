@@ -17,12 +17,12 @@ export interface ImageMetadata {
   inReview: boolean;
   tags: ImageTags;
 }
-export interface ImageMetadataID extends ImageMetadata, ID { albumId: string };
+export interface ImageMetadataID extends ImageMetadata, ID { albumId: string; };
 
 export interface Image extends ImageMetadata {
   src: string;
 }
-export interface ImageID extends Image, ID { albumId: string };
+export interface ImageID extends Image, ID { albumId: string; };
 
 // 'ALL' indicates an image should be available to everyone associated with that session (ex. group photos)
 export type ImageTags = 'ALL' | {
