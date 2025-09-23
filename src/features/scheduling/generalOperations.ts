@@ -9,3 +9,4 @@ export function assignDaysOff(daysOff: string[], attendeeID: StaffAttendeeID | A
 
 export function assignPeriodsOff<T>(block: Block<T>, attendeeId: StaffAttendeeID | AdminAttendeeID): void {
 }
+
