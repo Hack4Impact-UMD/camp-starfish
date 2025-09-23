@@ -10,7 +10,7 @@ export enum Collection {
 }
 
 export enum AlbumsSubcollection {
-  IMAGES = "images", // id: uuid
+  IMAGE_METADATAS = "image_metadatas", // id: uuid
 }
 
 export enum SessionsSubcollection {
@@ -18,10 +18,9 @@ export enum SessionsSubcollection {
   SECTIONS = "sections", // id: uuid
   BUNKS = "bunks", // id: bunk number
   NIGHT_SHIFTS = "night_shifts", // id: night shift date
+  FREEPLAYS = "freeplays", // id: freeplay date
 }
 
 export enum SectionsSubcollection {
-  BUNDLES = "bundles", // id: bundle number
-  JAMBOREES = "jamborees", // id: jamboree number
-  FREEPLAYS = "freeplays", // id: freeplay date
+  SCHEDULE = "schedule", // id: one doc, id same as collection
 }
