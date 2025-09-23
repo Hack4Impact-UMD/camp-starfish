@@ -32,6 +32,7 @@ export interface Employee extends User {
   role: EmployeeRole;
   sessionIds: string[];
   nonoList: number[];
+  daysOff: string[]; //array of string ISO-8601 dates
 }
 
 export type Role = "PARENT" | EmployeeRole;
