@@ -2,30 +2,47 @@ import { StaffAttendeeID, CamperAttendeeID, ProgramArea, Block, BundleBlockActiv
 
 class BundleScheduler {
 
-  // Blocks Field: Maps a unique block ID (letter) to its Block<'BUNDLE'> object
+  /** 
+   * Maps a unique block ID (e.g. "A", "B", "C") to its corresponding Block<'BUNDLE'> object.
+   * This field will be updated whenever new blocks or activities are added.
+   */
   blocks: { [blockId: string]: Block<'BUNDLE'> } = {};
 
-  constructor(numBlocks: number) {
-    /*
-      Problem: We don’t know exactly how many blocks will be in each bundle ahead of time. 
-      We’ll figure it out by checking the spreadsheet and use that number when creating the bundle.
-    
-      What this does: Initializes the `blocks` field with `numBlocks` empty blocks.
-      Each block is given a letter ID (A, B, C, etc.) for easy reference.
-      
-      For each Block: 
-      `activities` should be set to and empty list of type BundleBlockActivities
-      `periodsOff` should be set to an empty list of type number
-    */
+  alternatePeriodsOff: { [period: string]: number[] } = {};
+
+  /**
+   * Creates a new BundleScheduler. Takes in an initial set of blocks to populate the scheduler.
+   * May later be updated as additional blocks or activities are added.
+   */
+  constructor(blocks: { [blockId: string]: Block<'BUNDLE'> }) {
+    this.blocks = blocks;
   }
 
-  // Add `activity` to `activitiesField` in block given by `blockId`
-  addActivity (blockId: string, activity: BundleActivity): void {} 
+  /*
+    Adds a new block to the blocks map with the blockID as the key. 
+    The block's `activities` field should be set to empty BundleBlockActivities[] array
+  */
+  addBlock(blockID: string, block: Block<'BUNDLE'>): void {}
 
-/*
-  Each `programArea` needs a staff member (`StaffAttendeeID`) to be in charge.
-  This function assigns the given programArea to the corresponding staff member.
-*/
+  // Removes the block with the given blockID from the blocks map
+  removeBlock(blockID: string): void {}
+
+  // Updates the block with the given blockID in the blocks map
+  updateBlock(blockID: string, block: Block<'BUNDLE'>): void {}
+
+  // Adds a new activity to the block with the given blockID
+  addActivity(blockID: string, activity: BundleActivity): void {}
+
+  // Removes the activity from the block with the given blockID
+  removeActivity(blockID: string, activity: BundleActivity): void {}
+
+  // Updates the activity in the block with the given blockID
+  updateActivity(blockID: string, activity: BundleActivity): void {}
+
+  /*
+    Each `programArea` needs a staff member (`StaffAttendeeID`) to be in charge.
+    This function assigns the given programArea to the corresponding staff member.
+  */
   assignProgramAreaCounselor(programArea: ProgramArea, staffID: StaffAttendeeID): void {}
 
   /*
@@ -38,21 +55,16 @@ class BundleScheduler {
   /*
     Assign a camper (CamperAttendeeID) to the "Waterfront" activity in the given block. 
     Also update the block's `IndividualAssignments` in the 'activities` field for the
-    given block. Refer back to the scheduling data to see where each camper should be placed*/
+    given block. Refer back to the scheduling data to see where each camper should be placed
+  */
   assignSwimmingBlock<T extends 'BUNDLE'>(camperID: CamperAttendeeID): void {}
 
-  assignCamper<T extends 'BUNDLE'>(blockID: string, camperID: CamperAttendeeID, bundleActivity: BundleActivity): void {
-    // Add camper to camperIds array in IndiviualAssignments for the given activtiy
+  // Add camper to camperIds array in IndiviualAssignments for the given activtiy
+  assignCamper<T extends 'BUNDLE'>(blockID: string, camperID: CamperAttendeeID, bundleActivity: BundleActivity): void {}
 
-  }
+  // Add staff to staffIDs array in IndiviualAssignments for the given activtiy
+  assignStaff<T extends 'BUNDLE'>(blockID: string, staffID: StaffAttendeeID, bundleActivity: BundleActivity): void {}
 
-  assignStaff<T extends 'BUNDLE'>(blockID: string, staffID: StaffAttendeeID, bundleActivity: BundleActivity): void {
-    // Add staff to staffIds array in IndiviualAssignments for the given activtiy
-  }
-
-  assignAdmin<T extends 'BUNDLE'>(blockID: string, adminID: StaffAttendeeID, bundleActivity: BundleActivity): void {
-    // Add admin to adminIds array in IndiviualAssignments for the given activtiy
-  }
-
-
+  // Add admin to adminIds array in IndiviualAssignments for the given activtiy
+  assignAdmin<T extends 'BUNDLE'>(blockID: string, adminID: StaffAttendeeID, bundleActivity: BundleActivity): void {}
 }
