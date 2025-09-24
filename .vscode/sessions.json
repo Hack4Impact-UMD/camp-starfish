@@ -43,6 +43,15 @@
         "commands": [
           "cd functions && npm run build"
         ]
+      },
+      {
+        "name": "apps-script",
+        "icon": "arrow-swap",
+        "color": "terminal.ansiBrightBlue",
+        "autoExecuteCommands": true,
+        "commands": [
+          "cd apps-script && npm run deploy"
+        ]
       }
     ]
   }
