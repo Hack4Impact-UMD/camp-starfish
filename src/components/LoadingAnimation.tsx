@@ -30,7 +30,7 @@ function LoadingAnimation() {
             setAnimationIdx((prev) => (prev < svgFiles.length - 1 ? prev + 1 : 0));
         }, 500);
         return () => clearTimeout(timeout);
-    }, [animationIdx]);
+    }, [animationIdx, svgFiles.length]);
 
     return (
         <div className="flex flex-col items-center justify-center h-screen bg-white">

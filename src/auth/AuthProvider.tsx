@@ -33,7 +33,7 @@ export default function AuthProvider({
           try {
             await httpsCallable(functions, "checkWhitelist")();
             newToken = await newUser.getIdTokenResult(true);
-          } catch (error) {
+          } catch {
             setError("An error occurred while trying to authenticate.");
           }
         }

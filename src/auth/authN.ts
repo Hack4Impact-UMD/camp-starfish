@@ -4,10 +4,14 @@ import { auth } from "@/config/firebase";
 export async function signInWithGooglePopup() {
   try {
     return signInWithPopup(auth, new GoogleAuthProvider());
-  } catch (error: any) {
-    if (error.message !== "auth/popup-closed-by-user") {
-      throw Error(error.message);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      if (error.message !== "auth/popup-closed-by-user") {
+        throw Error(error.message);
+      }
+      return;
     }
+    throw Error("An unexpected error occurred");
   }
 }
 

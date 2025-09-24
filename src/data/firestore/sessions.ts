@@ -12,14 +12,18 @@ import {
     WriteBatch,
 } from "firebase/firestore";
 import { Collection } from "./utils";
+import { FirestoreError } from "firebase/firestore";
 
 export async function getSessionById(id: string, transaction?: Transaction): Promise<SessionID> {
     const sessionRef = doc(db, Collection.SESSIONS, id);
     let sessionDoc;
     try {
         sessionDoc = await (transaction ? transaction.get(sessionRef) : getDoc(sessionRef));
-    } catch (error: any) {
-        throw new Error(`Failed to get session: ${error.code}`);
+    } catch (error: unknown) {
+        if (error instanceof FirestoreError && error.code === 'not-found') {
+            throw new Error("Session doesn't exist");
+        }
+        throw new Error(`Failed to get session`);
     }
     if (!sessionDoc.exists()) {
         throw new Error("Session not found");
@@ -29,24 +33,27 @@ export async function getSessionById(id: string, transaction?: Transaction): Pro
 
 export async function createSession(session: Session, instance?: Transaction | WriteBatch): Promise<string> {
     try {
-        // @ts-ignore
+        // @ts-expect-error - instance.set on both Transaction and WriteBatch have the same signature
         const sessionRef = await (instance ? instance.set(doc(db, Collection.SESSIONS, randomUUID()), session) : addDoc(collection(db, Collection.SESSIONS), session));
         return sessionRef.id;
-    } catch (error: any) {
-        throw new Error(`Failed to create session: ${error.code}`);
+    } catch (error: unknown) {
+        if (error instanceof FirestoreError && error.code === "already-exists") {
+            throw new Error("Session already exists");
+        }
+        throw new Error(`Failed to create session`);
     }
 }
 
 export async function updateSession(id: string, updates: Partial<Session>, instance?: Transaction | WriteBatch): Promise<void> {
     try {
         const sessionRef = doc(db, Collection.SESSIONS, id);
-        // @ts-ignore
-        await (instance ? Transaction.set(sessionRef, updates) : updateDoc(sessionRef, updates));
-    } catch (error: any) {
-        if (error.code === "not-found") {
+        // @ts-expect-error - instance.set on both Transaction and WriteBatch have the same signature
+        await (instance ? instance.set(sessionRef, updates) : updateDoc(sessionRef, updates));
+    } catch (error: unknown) {
+        if (error instanceof FirestoreError && error.code === "not-found") {
             throw new Error("Session not found");
         }
-        throw new Error(`Failed to update session: ${error.code}`);
+        throw new Error(`Failed to update session`);
     }
 }
 
@@ -54,7 +61,7 @@ export async function deleteSession(id: string, instance?: Transaction | WriteBa
     try {
         const sessionRef = doc(db, Collection.SESSIONS, id);
         await (instance ? instance.delete(sessionRef) : deleteDoc(sessionRef));
-    } catch (error: any) {
-        throw new Error(`Failed to delete session: ${error.code}`);
+    } catch {
+        throw new Error(`Failed to delete session`);
     }
 }

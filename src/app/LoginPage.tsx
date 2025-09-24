@@ -6,6 +6,7 @@ import ErrorIcon from "@/assets/icons/errorIcon.svg";
 import BackgroundPattern from "@/components/BackgroundPattern";
 import { useAuth } from "@/auth/useAuth";
 import { signInWithGooglePopup } from "@/auth/authN";
+import Image from "next/image";
 
 export default function LoginPage() {
   const [error, setError] = useState<string>("");
@@ -17,7 +18,7 @@ export default function LoginPage() {
   const signIn = async () => {
     try {
       await signInWithGooglePopup();
-    } catch (error: any) {
+    } catch {
       setError("An error occurred while trying to sign in. Please try again.");
     }
   }
@@ -42,14 +43,14 @@ export default function LoginPage() {
           className="flex flex-row justify-around items-center w-5/6 max-w-[344px] bg-white 
                     py-4 px-12 rounded-full shadow-[0_4px_4px_-1px_rgba(0,0,0,0.2)] font-lato text-xl text-gray-600"
         >
-          <img src={GoogleIcon.src} alt="Google" />
+          <Image src={GoogleIcon.src} alt="Google" />
           Sign in with Google
         </button>
 
         {/* Error Message */}
         {errorDisplay && (
           <div className="flex flex-row w-5/6 mt-[14px]">
-            <img src={ErrorIcon.src} alt="Error Icon" />
+            <Image src={ErrorIcon.src} alt="Error Icon" />
             <p className="text-[#D32F2F] text-sm font-lato text-left pl-2">
               {errorDisplay}
             </p>

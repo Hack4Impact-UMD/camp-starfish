@@ -6,6 +6,7 @@ import darkBgLogo from "../assets/logos/darkBgLogo.png";
 import profile from "../assets/logos/Profile.png";
 import { useAuth } from "@/auth/useAuth";
 import { Role } from "@/types/personTypes";
+import Image from "next/image";
 
 const navbarLinks: { name: string; href: string; roles: Role[] }[] = [
   { name: "Programs", href: "/programs", roles: ["STAFF", "ADMIN"] },
@@ -30,7 +31,7 @@ const Navbar: React.FC = () => {
       {/* Logo on the left */}
       <div className="flex-none">
         <Link href="/">
-          <img
+          <Image
             className="w-[100.94px] h-[72px] flex-none cursor-pointer"
             src={darkBgLogo.src}
             alt="Camp Starfish Logo"
@@ -54,15 +55,17 @@ const Navbar: React.FC = () => {
       )}
 
       {/* Profile Icon on the right */}
-      {auth.token && <div className="flex-none">
-        <Link href="/profile">
-          <img
-            className="w-[62px] h-[62px] flex-none cursor-pointer"
-            src={profile.src}
-            alt="Profile"
-          />
-        </Link>
-      </div>}
+      {auth.token && (
+        <div className="flex-none">
+          <Link href="/profile">
+            <Image
+              className="w-[62px] h-[62px] flex-none cursor-pointer"
+              src={profile.src}
+              alt="Profile"
+            />
+          </Link>
+        </div>
+      )}
     </nav>
   );
 };

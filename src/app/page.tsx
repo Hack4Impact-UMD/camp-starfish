@@ -1,5 +1,4 @@
 "use client";
-import ConfirmationModal from "../components/ConfirmationModal";
 
 import RequireAuth from "@/auth/RequireAuth";
 import LoginPage from "./LoginPage";
