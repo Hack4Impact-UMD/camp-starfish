@@ -12,19 +12,19 @@ export default function Footer() {
     <div className="w-full h-[280px] bg-camp-primary">
       <div className="flex pb-[34px] justify-around items-end h-full flex-wrap font-lato">
         <div className="flex flex-col w-[208px] gap-[24px]">
-          <Image src={darkBgLogo.src} className="h-[148px]" alt="Logo"/>
+          <Image src={darkBgLogo.src} className="h-[148px]" alt="Logo" width={222} height={214.37} />
           <div className="flex flex-row gap-[12px]">
             <Link href="https://www.facebook.com/campstarfish/">
-              <Image src={facebookIcon.src} className="h-[32px]" alt="Facebook" />
+              <Image src={facebookIcon.src} className="h-[32px]" alt="Facebook" width={32} height={32} />
             </Link>
             <Link href="https://www.instagram.com/campstarfishrindge">
-              <Image src={instagramIcon.src} className="h-[32px]" alt="Instagram" />
+              <Image src={instagramIcon.src} className="h-[32px]" alt="Instagram" width={32} height={32} />
             </Link>
             <Link href="https://www.linkedin.com/company/camp-starfish/">
-              <Image src={linkedinIcon.src} className="h-[32px]" alt="LinkedIn" />
+              <Image src={linkedinIcon.src} className="h-[32px]" alt="LinkedIn" width={32} height={32} />
             </Link>
             <Link href="https://www.youtube.com/@CampStarfish">
-              <Image src={youtubeIcon.src} className="h-[32px]" alt="YouTube"/>
+              <Image src={youtubeIcon.src} className="h-[32px]" alt="YouTube" width={32} height={32} />
             </Link>
           </div>
         </div>
@@ -75,7 +75,7 @@ export default function Footer() {
             <p>
               Built By<br></br>Hack4Impact-UMD
             </p>{" "}
-            <Image src={h4ILogo.src} alt="Hack4Impact-UMD Logo" className="h-[32px]" />
+            <Image src={h4ILogo.src} alt="Hack4Impact-UMD Logo" width={40} height={40} />
           </div>
         </Link>
       </div>

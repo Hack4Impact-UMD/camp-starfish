@@ -30,11 +30,13 @@ const Navbar: React.FC = () => {
     <nav className="w-full h-full bg-camp-primary px-32 flex items-center justify-between gap-20">
       {/* Logo on the left */}
       <div className="flex-none">
-        <Link href="/">
+        <Link href="/" className="min-h-[50px]">
           <Image
-            className="w-[100.94px] h-[72px] flex-none cursor-pointer"
+            className="flex-none cursor-pointer"
             src={darkBgLogo.src}
             alt="Camp Starfish Logo"
+            width={100.94}
+            height={72}
           />
         </Link>
       </div>
@@ -62,6 +64,7 @@ const Navbar: React.FC = () => {
               className="w-[62px] h-[62px] flex-none cursor-pointer"
               src={profile.src}
               alt="Profile"
+              width={50} height={50}
             />
           </Link>
         </div>

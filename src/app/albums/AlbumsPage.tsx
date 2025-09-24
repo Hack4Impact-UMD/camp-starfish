@@ -32,6 +32,8 @@ const AlbumsPage: React.FC = () => {
               className="w-[72px] h-[72px] flex-none cursor-pointer"
               src={filterIcon.src}
               alt="Filter"
+              width={48}
+              height={48}
             />
             <button className="border-2 border-camp-primary text-lg py-2 px-4 rounded-3xl w-[252px] h-[48px] font-lato font-bold text-camp-text-modalTitle">
               SELECT ALL
@@ -43,6 +45,8 @@ const AlbumsPage: React.FC = () => {
                   className="w-[72px] h-[72px] flex-none cursor-pointer"
                   src={plusIcon.src}
                   alt="Plus"
+                  width={48}
+                  height={48}
                 />
               }
               mode="CREATE"

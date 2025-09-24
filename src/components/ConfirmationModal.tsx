@@ -41,7 +41,7 @@ function ConfirmationModal({ text, onConfirm, cannotUndo, trigger }: Confirmatio
                             onClick={handleCancel}
                             className="absolute top-6 right-6 flex-shrink-0"
                         >
-                            <Image src={cross.src} alt="close" className="w-[29px] h-[29px] aspect-[29/29]" />
+                            <Image src={cross.src} alt="close" className="w-[29px] h-[29px] aspect-[29/29]" width={29} height={29} />
                         </button>
 
                         {/* Confirmation Text */}

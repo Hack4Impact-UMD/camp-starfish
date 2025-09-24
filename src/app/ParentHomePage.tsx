@@ -31,13 +31,15 @@ export default function ParentHomePage() {
           src={pattern.src}
           alt="Pattern Image"
           className="w-[90%] object-cover"
+          width={1280}
+          height={296}
         />
       </div>
 
       {/* Right Half */}
       <div className="flex flex-col items-center justify-center w-full lg:w-1/2 h-full lg:mr-[20px] mt-[-40px] z-10">
         <div className="text-center p-4 w-full">
-          <Image src={PolaroidPhotos1.src} alt="Album Photos Component" />
+          <Image src={PolaroidPhotos1.src} alt="Album Photos Component" width={463.17} height={328.52}/>
         </div>
       </div>
     </div>

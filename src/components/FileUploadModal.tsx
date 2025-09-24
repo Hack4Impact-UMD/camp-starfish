@@ -56,6 +56,8 @@ function FileComponent({
           src={accepted ? fileLoadIcon.src : alertIcon.src}
           alt="File status icon"
           className="w-6 h-6 inline-block"
+          width={24}
+          height={24}
         />
         <Image
           src={crossIcon.src}
@@ -64,6 +66,8 @@ function FileComponent({
             setFiles((last) => last.filter((e) => e.file != file))
           }
           className="w-5 h-5 inline-block cursor-pointer p-1 ml-4"
+          width={20}
+          height={20}
         />
       </div>
     </div>
@@ -88,6 +92,8 @@ function InitialUploadView({
         src={submitIcon.src}
         alt="Submit"
         className="w-12 h-12 text-center block mx-auto m-4"
+        width={48}
+        height={48}
       />
       <span className="block font-lato text-camp-text-subheading font-bold text-lg m-2">
         Drag and drop files
@@ -115,6 +121,8 @@ function FinishedUploadView({
         src={uploadState == "success" ? uploadGreenIcon.src : alertIcon.src}
         alt={uploadState === "success" ? "Success" : "Error"}
         className="w-6 h-6 text-center block mx-auto m-4"
+        width={24}
+        height={24}
       />
       <span className="block text-center text-camp-primary font-bold font-lato text-xl">
         Upload {uploadState == "success" ? "successful" : "failed"}!

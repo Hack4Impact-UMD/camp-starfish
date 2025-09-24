@@ -60,6 +60,8 @@ const AlbumPage: React.FC = () => {
               className="w-[72px] h-[72px] flex-none cursor-pointer"
               src={filterIcon.src}
               alt="Filter"
+              width={48}
+              height={48}
             />
             <FileUploadModal
               onUpload={uploadImages}
@@ -70,6 +72,8 @@ const AlbumPage: React.FC = () => {
                 className="w-[72px] h-[72px] flex-none cursor-pointer"
                 src={plusIcon.src}
                 alt="Plus"
+                width={48}
+                height={48}
               />
             </FileUploadModal>
           </div>
