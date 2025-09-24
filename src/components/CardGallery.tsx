@@ -53,14 +53,14 @@ export default function CardGallery<T extends { id: string }>(
   });
 
   const toggleGroup = (label: string, checked: boolean) => {
-    setSelectedItemIds((prev: any[]) => {
+    setSelectedItemIds((prev: string[]) => {
       if (checked) {
         return Array.from(
           new Set([...prev, ...itemGroups[label].map((item: T) => item.id)])
         );
       }
       return prev.filter(
-        (id: any) => !itemGroups[label].some((item: T) => item.id === id)
+        (id: string) => !itemGroups[label].some((item: T) => item.id === id)
       );
     });
   };

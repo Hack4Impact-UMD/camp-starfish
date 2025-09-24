@@ -1,9 +1,10 @@
 import { AlbumID } from "@/types/albumTypes";
 import Link from "next/link";
+import Image from "next/image";
 
 interface AlbumCardProps {
   album: AlbumID;
-  thumbnail?: string;
+  thumbnail: string;
 }
 
 const AlbumCard: React.FC<AlbumCardProps> = ({
@@ -14,7 +15,7 @@ const AlbumCard: React.FC<AlbumCardProps> = ({
   return (
     <Link href={`/albums/${id}`}>
       <div className="bg-white shadow-md hover:shadow-lg transition-shadow duration-300 p-4">
-        <img
+        <Image
           src={thumbnail}
           alt={name}
           className="w-full h-48 object-cover rounded-lg"

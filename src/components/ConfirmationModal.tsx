@@ -2,6 +2,7 @@
 
 import React, { useState, JSX } from "react";
 import cross from "../assets/icons/crossIcon.svg";
+import Image from "next/image";
 
 interface ConfirmationModalProps {
     text: string;
@@ -40,7 +41,7 @@ function ConfirmationModal({ text, onConfirm, cannotUndo, trigger }: Confirmatio
                             onClick={handleCancel}
                             className="absolute top-6 right-6 flex-shrink-0"
                         >
-                            <img src={cross.src} alt="close" className="w-[29px] h-[29px] aspect-[29/29]" />
+                            <Image src={cross.src} alt="close" className="w-[29px] h-[29px] aspect-[29/29]" />
                         </button>
 
                         {/* Confirmation Text */}

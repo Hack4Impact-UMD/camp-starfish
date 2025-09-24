@@ -8,6 +8,7 @@ import testPicture from "@/assets/images/PolaroidPhotos1.png";
 import EditAlbumModal from "@/components/EditAlbumModal";
 import CardGallery from "@/components/CardGallery";
 import { AlbumID } from "@/types/albumTypes";
+import Image from "next/image";
 
 const AlbumsPage: React.FC = () => {
   // Sample data for albums, get data from Firebase
@@ -27,7 +28,7 @@ const AlbumsPage: React.FC = () => {
             Albums
           </h1>
           <div className="flex items-center gap-4 ml-auto">
-            <img
+            <Image
               className="w-[72px] h-[72px] flex-none cursor-pointer"
               src={filterIcon.src}
               alt="Filter"
@@ -38,7 +39,7 @@ const AlbumsPage: React.FC = () => {
             {/* Wrap plus icon with modal trigger */}
             <EditAlbumModal
               trigger={
-                <img
+                <Image
                   className="w-[72px] h-[72px] flex-none cursor-pointer"
                   src={plusIcon.src}
                   alt="Plus"
@@ -50,7 +51,7 @@ const AlbumsPage: React.FC = () => {
         </div>
         <CardGallery<AlbumID>
           items={albums}
-          renderItem={(album: AlbumID) => <AlbumCard album={album} />}
+          renderItem={(album: AlbumID) => <AlbumCard album={album} thumbnail="" />}
         />
       </div>
     </div>
