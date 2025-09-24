@@ -9,10 +9,12 @@
     "sourceMap": true,
     "strict": true,
     "target": "es2017",
-    "types": ["google-apps-script"]
+    "types": ["google-apps-script"],
+    "paths": {
+      "@/*": ["../src/*"]
+    },
+    "skipLibCheck": true
   },
   "compileOnSave": true,
-  "include": [
-    "src"
-  ]
+  "include": ["src"]
 }
