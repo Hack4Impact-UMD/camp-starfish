@@ -1,4 +1,4 @@
-import { StaffAttendeeID, CamperAttendeeID, ProgramArea, Block, BundleBlockActivities, BundleActivity } from "@/types/sessionTypes";
+import { StaffAttendeeID, CamperAttendeeID, ProgramArea, Block, AdminAttendeeID, BundleActivity } from "@/types/sessionTypes";
 
 class BundleScheduler {
 
@@ -17,27 +17,6 @@ class BundleScheduler {
   constructor(blocks: { [blockId: string]: Block<'BUNDLE'> }) {
     this.blocks = blocks;
   }
-
-  /*
-    Adds a new block to the blocks map with the blockID as the key. 
-    The block's `activities` field should be set to empty BundleBlockActivities[] array
-  */
-  addBlock(blockID: string, block: Block<'BUNDLE'>): void {}
-
-  // Removes the block with the given blockID from the blocks map
-  removeBlock(blockID: string): void {}
-
-  // Updates the block with the given blockID in the blocks map
-  updateBlock(blockID: string, block: Block<'BUNDLE'>): void {}
-
-  // Adds a new activity to the block with the given blockID
-  addActivity(blockID: string, activity: BundleActivity): void {}
-
-  // Removes the activity from the block with the given blockID
-  removeActivity(blockID: string, activity: BundleActivity): void {}
-
-  // Updates the activity in the block with the given blockID
-  updateActivity(blockID: string, activity: BundleActivity): void {}
 
   /*
     Each `programArea` needs a staff member (`StaffAttendeeID`) to be in charge.
@@ -59,12 +38,25 @@ class BundleScheduler {
   */
   assignSwimmingBlock<T extends 'BUNDLE'>(camperID: CamperAttendeeID): void {}
 
-  // Add camper to camperIds array in IndiviualAssignments for the given activtiy
-  assignCamper<T extends 'BUNDLE'>(blockID: string, camperID: CamperAttendeeID, bundleActivity: BundleActivity): void {}
+  /*
+    Assigns campers to their preferred Bundle  activities for the given block.
+    Camper preferences are provided as a mapping of camper ID -> BundleActivtiy.
+    Between 4-9 campers for each activtiy, but ideally, it should be 5-8 campers per activity and preference is given to older campers
+    Make sure to check for camper-camper conflict in each activity. If there is, give preference to older camper.
+  */
+  assignCamper<T extends 'BUNDLE'>(blockID: string, camperAttendees: { [camper: string]: BundleActivity }): void {}
 
-  // Add staff to staffIDs array in IndiviualAssignments for the given activtiy
-  assignStaff<T extends 'BUNDLE'>(blockID: string, staffID: StaffAttendeeID, bundleActivity: BundleActivity): void {}
+  /*
+    Assigns staff randomly to each activity in the given block.
+    Staff should ideally be in a 1:1 ratio with the number of campers in each activity
+    Make sure staff are not scheduled during their period off and make sure to check for staff-staff conflicts.
+    Account for the fact that there's staff members that are the program area counselors, so they have to be placed in that activity
+  */
+  assignStaff<T extends 'BUNDLE'>(staffAttendees: StaffAttendeeID[]): void {}
 
-  // Add admin to adminIds array in IndiviualAssignments for the given activtiy
-  assignAdmin<T extends 'BUNDLE'>(blockID: string, adminID: StaffAttendeeID, bundleActivity: BundleActivity): void {}
+  /*
+    Add admin to adminIds array in IndiviualAssignments for the given activtiy.
+    There should be at least 1 admin present at each activity
+  */
+  assignAdmin<T extends 'BUNDLE'>(blockID: string, adminID: AdminAttendeeID, bundleActivity: BundleActivity): void {}
 }
