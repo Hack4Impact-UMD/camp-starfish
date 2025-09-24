@@ -25,18 +25,19 @@ class BundleScheduler {
   assignProgramAreaCounselor(programArea: ProgramArea, staffID: StaffAttendeeID): void {}
 
   /*
-    Assign a camper (CamperAttendeeID) to the "Teen Chat" activity in the given block.
+    Assign campers (CamperAttendeeID[]) to the "Teen Chat" activity in the given block.
+    Make sure the campers are part of the OCP program to be placed into this. 
     Also update the block's`IndividualAssignments` in the 'activities` field for the
     given block. Refer back to the scheduling data to see where each camper should be placed
   */
-  assignOCPChats<T extends 'BUNDLE'>(camperID: CamperAttendeeID): void {}
+  assignOCPChats<T extends 'BUNDLE'>(camperAttendees: CamperAttendeeID[]): void {}
 
   /*
-    Assign a camper (CamperAttendeeID) to the "Waterfront" activity in the given block. 
+    Assign campers (CamperAttendeeID[]) to the "Waterfront" activity in the given block. 
     Also update the block's `IndividualAssignments` in the 'activities` field for the
     given block. Refer back to the scheduling data to see where each camper should be placed
   */
-  assignSwimmingBlock<T extends 'BUNDLE'>(camperID: CamperAttendeeID): void {}
+  assignSwimmingBlock<T extends 'BUNDLE'>(camperAttendees: CamperAttendeeID[]): void {}
 
   /*
     Assigns campers to their preferred Bundle  activities for the given block.
@@ -55,8 +56,9 @@ class BundleScheduler {
   assignStaff<T extends 'BUNDLE'>(staffAttendees: StaffAttendeeID[]): void {}
 
   /*
-    Add admin to adminIds array in IndiviualAssignments for the given activtiy.
+    Assigns staff randomly to each activity in the given block.
     There should be at least 1 admin present at each activity
+    Make sure staff are not scheduled during their period off and make sure to check for staff-staff conflicts.
   */
-  assignAdmin<T extends 'BUNDLE'>(blockID: string, adminID: AdminAttendeeID, bundleActivity: BundleActivity): void {}
+  assignAdmin<T extends 'BUNDLE'>(blockID: string, adminAttendees: AdminAttendeeID[]): void {}
 }
