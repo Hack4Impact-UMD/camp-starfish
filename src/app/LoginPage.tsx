@@ -43,14 +43,14 @@ export default function LoginPage() {
           className="flex flex-row justify-around items-center w-5/6 max-w-[344px] bg-white 
                     py-4 px-12 rounded-full shadow-[0_4px_4px_-1px_rgba(0,0,0,0.2)] font-lato text-xl text-gray-600"
         >
-          <Image src={GoogleIcon.src} alt="Google" />
+          <Image src={GoogleIcon.src} alt="Google" width={32} height={32} />
           Sign in with Google
         </button>
 
         {/* Error Message */}
         {errorDisplay && (
           <div className="flex flex-row w-5/6 mt-[14px]">
-            <Image src={ErrorIcon.src} alt="Error Icon" />
+            <Image src={ErrorIcon.src} alt="Error Icon" width={32} height={32} />
             <p className="text-[#D32F2F] text-sm font-lato text-left pl-2">
               {errorDisplay}
             </p>

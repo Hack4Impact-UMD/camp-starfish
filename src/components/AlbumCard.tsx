@@ -19,6 +19,8 @@ const AlbumCard: React.FC<AlbumCardProps> = ({
           src={thumbnail}
           alt={name}
           className="w-full h-48 object-cover rounded-lg"
+          width={200}
+          height={48}
         />
         <div className="mt-2">
           <h3 className="text-lg font-bold font-lato text-camp-text-headingBody">

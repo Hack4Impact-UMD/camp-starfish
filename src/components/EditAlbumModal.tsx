@@ -46,6 +46,8 @@ const EditAlbumModal: React.FC<EditAlbumModalProps> = ({ trigger, mode }) => {
                   src={selectedImage}
                   alt="Uploaded"
                   className="w-28 h-28 object-cover rounded-md"
+                  width={112}
+                  height={112}
                 />
               ) : (
                 <>
@@ -53,6 +55,8 @@ const EditAlbumModal: React.FC<EditAlbumModalProps> = ({ trigger, mode }) => {
                     src={imageIcon.src}
                     alt="Upload"
                     className="w-10 h-10"
+                    width={40}
+                    height={40}
                   />
                 </>
               )}
