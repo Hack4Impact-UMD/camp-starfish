@@ -6,7 +6,7 @@ import { adminAuth } from "../config/firebaseAdminConfig";
 import moment from "moment";
 import { getFunctionsURL } from "@/utils/firebaseUtils";
 
-export const startOAuthFlow = onRequest(async (req, res) => {
+export const startOAuth2Flow = onRequest(async (req, res) => {
   if (req.method !== 'GET') {
     res.status(405).send('Method Not Allowed');
     return;
