@@ -1,6 +1,6 @@
 "use client";
 
-import { useAuth } from "@/components/auth/useAuth";
+import { useAuth } from "@/auth/useAuth";
 import PolaroidPhotos1 from "../assets/images/PolaroidPhotos1.png";
 import pattern from "../assets/patterns/trailPattern3.svg";
 import { redirect } from "next/navigation";

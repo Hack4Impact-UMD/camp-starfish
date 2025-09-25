@@ -1,6 +1,6 @@
 "use client";
 
-import { useAuth } from "@/components/auth/useAuth";
+import { useAuth } from "@/auth/useAuth";
 import GalleryCardOne from "../components/GalleryCardOne";
 
 export default function EmployeeHomePage() {
