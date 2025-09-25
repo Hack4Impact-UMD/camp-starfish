@@ -22,6 +22,10 @@ export const startOAuth2Flow = onRequest(async (req, res) => {
 
   const redirectUri = encodeURIComponent(getFunctionsURL("handleOAuth2Code"));
   const scopes: string = encodeURIComponent([].join(' '));
+  if (!scopes) {
+    res.status(400).redirect(`${process.env.NEXT_PUBLIC_DOMAIN}`)
+    return;
+  }
 
   const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${process.env.GOOGLE_CLIENT_ID}&redirect_uri=${redirectUri}&response_type=code&scope=${scopes}&login_hint=${decodedToken.email}&access_type=offline&prompt=consent&state=${idToken}`;
   res.status(303).redirect(authUrl);
