@@ -14,7 +14,7 @@ export async function isIdTokenValid(idToken: string | undefined | null): Promis
   let decodedToken: DecodedIdTokenWithCustomClaims | false;
   try {
     decodedToken = await adminAuth.verifyIdToken(idToken);
-  } catch (error) {
+  } catch {
     return false;
   }
   return decodedToken;

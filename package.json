@@ -23,6 +23,7 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-dropzone": "^14.3.8",
+    "tsc-alias": "^1.8.16",
     "uuid": "^11.1.0"
   },
   "devDependencies": {

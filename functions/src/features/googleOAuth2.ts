@@ -94,7 +94,7 @@ export const refreshAccessToken = onCall(async (req) => {
   let tokenData: GoogleTokens;
   try {
     tokenData = await fetchAccessToken(refreshToken);
-  } catch (error) {
+  } catch {
     throw new Error("Failed to refresh access token");
   }
 
