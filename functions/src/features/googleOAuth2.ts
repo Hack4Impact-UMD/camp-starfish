@@ -134,7 +134,7 @@ async function fetchAccessToken(refreshToken: string): Promise<GoogleTokens> {
     token_type: string;
   };
   return {
-    refreshToken: tokenData.refresh_token,
+    refreshToken,
     accessToken: tokenData.access_token,
     expirationTime: moment().add(tokenData.expires_in, 'seconds').toISOString()
   }
