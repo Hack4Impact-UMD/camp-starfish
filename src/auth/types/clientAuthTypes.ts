@@ -12,4 +12,4 @@ export interface CustomClaims {
   role?: UserRole;
 }
 
-export type DecodedIdTokenWithCustomClaims = ParsedToken & CustomClaims;
+export type ParsedTokenWithCustomClaims = ParsedToken & CustomClaims;

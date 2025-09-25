@@ -1,8 +1,8 @@
-import { DecodedIdTokenWithCustomClaims } from "@/auth/types/authTypes";
+import { ParsedTokenWithCustomClaims } from "@/auth/types/clientAuthTypes";
 import { auth } from "@/config/firebase";
 
 async function callAppsScript(functionName: string, parameters?: any[]): Promise<any> {
-  const claims = ((await auth.currentUser?.getIdTokenResult())?.claims as DecodedIdTokenWithCustomClaims);
+  const claims = ((await auth.currentUser?.getIdTokenResult())?.claims as ParsedTokenWithCustomClaims);
   if (!auth.currentUser) {
     throw new Error("You must be logged in to access this feature.");
   } else if (!claims.role || claims.role !== 'ADMIN') {
