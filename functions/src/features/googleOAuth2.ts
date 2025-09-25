@@ -21,13 +21,13 @@ export const startOAuth2Flow = onRequest(async (req, res) => {
   }
 
   const redirectUri = encodeURIComponent(getFunctionsURL("handleOAuth2Code"));
-  const scopes: string = encodeURIComponent(['https://www.googleapis.com/auth/userinfo.email'].join(' '));
-  if (!scopes) {
+  const scope = url.searchParams.get('scope');
+  if (!scope?.trim()) {
     res.status(400).redirect(`${process.env.NEXT_PUBLIC_DOMAIN}`)
     return;
   }
 
-  const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${process.env.GOOGLE_CLIENT_ID}&redirect_uri=${redirectUri}&response_type=code&scope=${scopes}&login_hint=${decodedToken.email}&access_type=offline&prompt=consent&state=${idToken}`;
+  const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${process.env.GOOGLE_CLIENT_ID}&redirect_uri=${redirectUri}&response_type=code&scope=${scope}&login_hint=${decodedToken.email}&access_type=offline&prompt=consent&state=${idToken}&include_granted_scopes=true`;
   res.status(303).redirect(authUrl);
 });
 
@@ -74,6 +74,7 @@ export const handleOAuth2Code = onRequest(async (req, res) => {
       refreshToken: tokens.refresh_token,
       accessToken: tokens.access_token,
       expirationTime: moment().add(tokens.expires_in, 'seconds').toISOString(),
+      scopes: tokens.scope.split(' ')
     }
   }
   await adminAuth.setCustomUserClaims(decodedToken.uid, customClaims);
@@ -126,6 +127,7 @@ async function fetchAccessToken(refreshToken: string): Promise<GoogleTokens> {
   return {
     refreshToken,
     accessToken: tokenData.access_token,
-    expirationTime: moment().add(tokenData.expires_in, 'seconds').toISOString()
+    expirationTime: moment().add(tokenData.expires_in, 'seconds').toISOString(),
+    scopes: tokenData.scope.split(' ')
   }
 }

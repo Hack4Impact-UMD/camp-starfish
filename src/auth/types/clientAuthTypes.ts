@@ -5,6 +5,7 @@ export interface GoogleTokens {
   refreshToken: string;
   accessToken: string;
   expirationTime: string;
+  scopes: string[];
 }
 
 export interface CustomClaims {
