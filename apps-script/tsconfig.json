@@ -9,6 +9,5 @@
       "@/*": ["../src/*"]
     }
   },
-  "include": ["src"],
-  "references": [{ "path": ".." }]
+  "include": ["src"]
 }
