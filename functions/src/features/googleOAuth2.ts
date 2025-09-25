@@ -1,6 +1,6 @@
 import { onCall, onRequest } from "firebase-functions/https";
 import { getUrlFromRequest, isIdTokenValid } from "../serverUtils";
-import { DecodedIdTokenWithCustomClaims } from "../types/serverAuthTypes";
+import { DecodedIdTokenWithCustomClaims, GoogleOAuth2CodeResponse, GoogleOAuth2RefreshResponse } from "../types/serverAuthTypes";
 import { CustomClaims, GoogleTokens } from "@/auth/types/clientAuthTypes";
 import { adminAuth } from "../config/firebaseAdminConfig";
 import moment from "moment";
@@ -21,7 +21,7 @@ export const startOAuth2Flow = onRequest(async (req, res) => {
   }
 
   const redirectUri = encodeURIComponent(getFunctionsURL("handleOAuth2Code"));
-  const scopes: string = encodeURIComponent([].join(' '));
+  const scopes: string = encodeURIComponent(['https://www.googleapis.com/auth/userinfo.email'].join(' '));
   if (!scopes) {
     res.status(400).redirect(`${process.env.NEXT_PUBLIC_DOMAIN}`)
     return;
@@ -66,12 +66,7 @@ export const handleOAuth2Code = onRequest(async (req, res) => {
     res.status(500).send('Internal Server Error');
     return;
   }
-  const tokens = await response.json() as {
-    refresh_token: string;
-    access_token: string;
-    expires_in: number;
-    token_type: string;
-  };
+  const tokens = await response.json() as GoogleOAuth2CodeResponse;
 
   const customClaims: CustomClaims = {
     role: decodedToken.role,
@@ -127,12 +122,7 @@ async function fetchAccessToken(refreshToken: string): Promise<GoogleTokens> {
   if (!response.ok) {
     throw new Error('Failed to refresh access token');
   }
-  const tokenData = await response.json() as {
-    refresh_token: string;
-    access_token: string;
-    expires_in: number;
-    token_type: string;
-  };
+  const tokenData = await response.json() as GoogleOAuth2RefreshResponse;
   return {
     refreshToken,
     accessToken: tokenData.access_token,
