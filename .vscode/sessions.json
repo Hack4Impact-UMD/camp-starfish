@@ -50,7 +50,7 @@
         "color": "terminal.ansiBrightBlue",
         "autoExecuteCommands": true,
         "commands": [
-          "cd apps-script && npm run deploy"
+          "cd apps-script"
         ]
       }
     ]
