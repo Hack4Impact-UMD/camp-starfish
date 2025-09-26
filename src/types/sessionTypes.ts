@@ -89,8 +89,9 @@ export type NonBunkJamboreeBlockActivities = (JamboreeActivity & { assignments: 
 
 export interface ProgramArea {
   name: string;
-  code: string;
+  isDeleted: boolean;
 }
+export interface ProgramAreaID extends ProgramArea, ID { };
 
 export interface JamboreeActivity {
   name: string;
