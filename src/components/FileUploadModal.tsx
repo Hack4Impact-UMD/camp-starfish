@@ -17,6 +17,7 @@ import alertIcon from "@/assets/icons/alert.svg";
 import fileLoadIcon from "@/assets/icons/fileLoadSuccessIcon.svg";
 import uploadGreenIcon from "@/assets/icons/uploadGreen.svg";
 import { lookup } from "mime-types";
+import Image from "next/image";
 
 type FileUploadModalProps = {
   children: React.ReactNode;
@@ -51,17 +52,23 @@ function FileComponent({
     >
       <span className="text-camp-text-headingBody text-sm">{file.name}</span>
       <div className="mr-1">
-        <img
+        <Image
           src={accepted ? fileLoadIcon.src : alertIcon.src}
+          alt="File status icon"
           className="w-6 h-6 inline-block"
-        ></img>
-        <img
+          width={24}
+          height={24}
+        />
+        <Image
           src={crossIcon.src}
+          alt="Delete file icon"
           onClickCapture={() =>
             setFiles((last) => last.filter((e) => e.file != file))
           }
           className="w-5 h-5 inline-block cursor-pointer p-1 ml-4"
-        ></img>
+          width={20}
+          height={20}
+        />
       </div>
     </div>
   );
@@ -81,10 +88,13 @@ function InitialUploadView({
         {acceptedFileExtensions.map((type: string) => type).join(", ")} (Max{" "}
         {maxFileSize}MB)
       </span>
-      <img
+      <Image
         src={submitIcon.src}
+        alt="Submit"
         className="w-12 h-12 text-center block mx-auto m-4"
-      ></img>
+        width={48}
+        height={48}
+      />
       <span className="block font-lato text-camp-text-subheading font-bold text-lg m-2">
         Drag and drop files
       </span>
@@ -107,10 +117,13 @@ function FinishedUploadView({
 }) {
   return (
     <div className="mx-6 my-4">
-      <img
+      <Image
         src={uploadState == "success" ? uploadGreenIcon.src : alertIcon.src}
+        alt={uploadState === "success" ? "Success" : "Error"}
         className="w-6 h-6 text-center block mx-auto m-4"
-      ></img>
+        width={24}
+        height={24}
+      />
       <span className="block text-center text-camp-primary font-bold font-lato text-xl">
         Upload {uploadState == "success" ? "successful" : "failed"}!
       </span>
@@ -149,18 +162,18 @@ function UploadedFilesView({
 }) {
   return (
     <>
-    <div className="h-[20rem] overflow-y-scroll">
-      {files
-        .filter((e) => e.state == "success")
-        .map((fileState) => (
-          <FileComponent
-            key={fileState.file.name}
-            file={fileState.file}
-            accepted={true}
-            setFiles={setFiles}
-          />
-        ))}
-    </div>
+      <div className="h-[20rem] overflow-y-scroll">
+        {files
+          .filter((e) => e.state == "success")
+          .map((fileState) => (
+            <FileComponent
+              key={fileState.file.name}
+              file={fileState.file}
+              accepted={true}
+              setFiles={setFiles}
+            />
+          ))}
+      </div>
     </>
   );
 }
@@ -171,8 +184,8 @@ export default function FileUploadModal({
   acceptedFileExtensions,
   maxFileSize,
 }: FileUploadModalProps) {
-  let [files, setFiles] = useState<{ file: File; state: FileStatus }[]>([]);
-  let [uploadState, setUploadState] = useState<UploadState>("none");
+  const [files, setFiles] = useState<{ file: File; state: FileStatus }[]>([]);
+  const [uploadState, setUploadState] = useState<UploadState>("none");
 
   const mimeTypes: string[] = [
     ...new Set(
@@ -187,7 +200,7 @@ export default function FileUploadModal({
     inputAccept[mimeType] = [];
   });
 
-  let { acceptedFiles, getRootProps, getInputProps } = useDropzone({
+  const { getRootProps, getInputProps } = useDropzone({
     accept: inputAccept,
     maxSize: maxFileSize * 1024 * 1024,
     onDrop: async (accepted: File[], rejected: FileRejection[]) => {
@@ -224,15 +237,18 @@ export default function FileUploadModal({
 
           <div className="bg-white p-5">
             {uploadState == "success" ? (
-              <FinishedUploadView uploadState={uploadState} files={files}/>
+              <FinishedUploadView uploadState={uploadState} files={files} />
             ) : (
               <>
                 <div {...getRootProps({ className: "dropzone" })}>
                   <input {...getInputProps()} />
                   {files.filter((e) => e.state == "success").length > 0 ? (
-                    <UploadedFilesView files={files} setFiles={setFiles}/>
+                    <UploadedFilesView files={files} setFiles={setFiles} />
                   ) : (
-                    <InitialUploadView acceptedFileExtensions={acceptedFileExtensions} maxFileSize={maxFileSize}/>
+                    <InitialUploadView
+                      acceptedFileExtensions={acceptedFileExtensions}
+                      maxFileSize={maxFileSize}
+                    />
                   )}
                 </div>
               </>
@@ -255,7 +271,7 @@ export default function FileUploadModal({
                         .map((x) => x.file)
                     );
                     setUploadState("success");
-                  } catch (err: unknown) {
+                  } catch {
                     setUploadState("fail");
                     return;
                   }
@@ -267,10 +283,19 @@ export default function FileUploadModal({
                   ? "s"
                   : ""}
               </button>
-              <span className="ml-4 text-camp-text-error" hidden={uploadState != "fail" || files.filter((e) => e.state == "success").length < 1}>Couldn't upload {files.filter((e) => e.state == "success").length} file
+              <span
+                className="ml-4 text-camp-text-error"
+                hidden={
+                  uploadState != "fail" ||
+                  files.filter((e) => e.state == "success").length < 1
+                }
+              >
+                {"Couldn't upload "}
+                {files.filter((e) => e.state == "success").length} file
                 {files.filter((e) => e.state == "success").length > 1
                   ? "s"
-                  : ""}</span>
+                  : ""}
+              </span>
             </div>
           </div>
         </DialogContent>

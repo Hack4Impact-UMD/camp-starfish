@@ -1,14 +1,14 @@
-import React, { useState } from "react";
+import React from "react";
 import plusIcon from "@/assets/icons/plusIcon.svg";
 import filterIcon from "@/assets/icons/filterIcon.svg";
 import TestPicture from "@/assets/images/PolaroidPhotos1.png"; // Replace with actual image URL
-import Link from "next/link";
 import ImageCard from "@/components/ImageCard";
 import CardGallery from "@/components/CardGallery";
 import { ImageID } from "@/types/albumTypes";
 import FileUploadModal from "@/components/FileUploadModal";
 import { uploadFiles } from "@/data/storage/fileOperations";
 import { v4 as uuidv4 } from "uuid";
+import Image from "next/image";
 
 const AlbumPage: React.FC = () => {
   const dates = [
@@ -38,7 +38,7 @@ const AlbumPage: React.FC = () => {
   const session = "No Session";
 
   async function uploadImages(images: File[]) {
-    let paths = images.map((img: File) => `albums/${albumId}/${uuidv4()}`);
+    const paths = images.map(() => `albums/${albumId}/${uuidv4()}`);
     await uploadFiles(images, paths);
   }
 
@@ -56,20 +56,24 @@ const AlbumPage: React.FC = () => {
               placeholder="Search Tags..."
               className="px-10 py-2 text-sm border text-black border-gray-500 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-camp-primary"
             />
-            <img
+            <Image
               className="w-[72px] h-[72px] flex-none cursor-pointer"
               src={filterIcon.src}
               alt="Filter"
+              width={48}
+              height={48}
             />
             <FileUploadModal
               onUpload={uploadImages}
               acceptedFileExtensions={[".jpg", ".png"]}
               maxFileSize={5}
             >
-              <img
+              <Image
                 className="w-[72px] h-[72px] flex-none cursor-pointer"
                 src={plusIcon.src}
                 alt="Plus"
+                width={48}
+                height={48}
               />
             </FileUploadModal>
           </div>

@@ -1,6 +1,6 @@
 import { db } from "@/config/firebase";
 import { Camper, CamperID } from "@/types/personTypes";
-import { doc, getDoc, setDoc, updateDoc, deleteDoc, Transaction, WriteBatch } from "firebase/firestore";
+import { doc, getDoc, setDoc, updateDoc, deleteDoc, Transaction, WriteBatch, FirestoreError } from "firebase/firestore";
 import { Collection } from "./utils";
 
 export const getCamperById = async (campminderId: number, transaction?: Transaction): Promise<Camper> => {
@@ -8,8 +8,8 @@ export const getCamperById = async (campminderId: number, transaction?: Transact
   let camperDoc;
   try {
     camperDoc = await (transaction ? transaction.get(camperRef) : getDoc(camperRef));
-  } catch (error: any) {
-    throw new Error(`Failed to get camper: ${error.code}`);
+  } catch {
+    throw new Error(`Failed to get camper`);
   }
   if (!camperDoc.exists()) {
     throw new Error("Camper not found");
@@ -20,23 +20,26 @@ export const getCamperById = async (campminderId: number, transaction?: Transact
 export const createCamper = async (camper: CamperID, instance?: Transaction | WriteBatch): Promise<void> => {
   try {
     const camperRef = doc(db, Collection.CAMPERS, String(camper.id));
-    // @ts-ignore
+    // @ts-expect-error - instance.set on both Transaction and WriteBatch have the same signature
     await (instance ? instance.set(camperRef, camper) : setDoc(camperRef, camper));
-  } catch (error: any) {
-    throw new Error(`Failed to create camper: ${error.code}`);
+  } catch (error: unknown) {
+    if (error instanceof FirestoreError && error.code === "already-exists") {
+      throw new Error("Camper already exists");
+    }
+    throw new Error(`Failed to create camper`);
   }
 };
 
 export const updateCamper = async (campminderId: number, updates: Partial<Camper>, instance?: Transaction | WriteBatch): Promise<void> => {
   try {
     const camperRef = doc(db, Collection.CAMPERS, String(campminderId));
-    // @ts-ignore
+    // @ts-expect-error - instance.update on both Transaction and WriteBatch have the same signature
     await (instance ? instance.update(camperRef, updates) : updateDoc(camperRef, updates));
-  } catch (error: any) {
-    if (error.code === "not-found") {
+  } catch (error: unknown) {
+    if (error instanceof FirestoreError && error.code === "not-found") {
       throw new Error("Camper not found");
     }
-    throw new Error(`Failed to update camper: ${error.code}`);
+    throw new Error(`Failed to update camper`);
   }
 };
 
@@ -44,7 +47,7 @@ export const deleteCamper = async (campminderId: number, instance?: Transaction 
   try {
     const camperRef = doc(db, Collection.CAMPERS, String(campminderId));
     await (instance ? instance.delete(camperRef) : deleteDoc(camperRef));
-  } catch (error: any) {
-    throw new Error(`Failed to delete camper: ${error.code}`);
+  } catch {
+    throw new Error(`Failed to delete camper`);
   }
 };

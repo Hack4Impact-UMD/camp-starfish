@@ -4,27 +4,27 @@ import instagramIcon from "../assets/icons/instagramIcon.png";
 import linkedinIcon from "../assets/icons/linkedinIcon.png";
 import youtubeIcon from "../assets/icons/youtubeIcon.png";
 import h4ILogo from "../assets/icons/h4ILogo.png";
-import BGPatternDark from "../assets/patterns/BGPatternDark.svg";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function Footer() {
   return (
     <div className="w-full h-[280px] bg-camp-primary">
       <div className="flex pb-[34px] justify-around items-end h-full flex-wrap font-lato">
         <div className="flex flex-col w-[208px] gap-[24px]">
-          <img src={darkBgLogo.src} className="h-[148px]"></img>
+          <Image src={darkBgLogo.src} className="h-[148px]" alt="Logo" width={222} height={214.37} />
           <div className="flex flex-row gap-[12px]">
             <Link href="https://www.facebook.com/campstarfish/">
-              <img src={facebookIcon.src} className="h-[32px]"></img>
+              <Image src={facebookIcon.src} className="h-[32px]" alt="Facebook" width={32} height={32} />
             </Link>
             <Link href="https://www.instagram.com/campstarfishrindge">
-              <img src={instagramIcon.src} className="h-[32px]"></img>
+              <Image src={instagramIcon.src} className="h-[32px]" alt="Instagram" width={32} height={32} />
             </Link>
             <Link href="https://www.linkedin.com/company/camp-starfish/">
-              <img src={linkedinIcon.src} className="h-[32px]"></img>
+              <Image src={linkedinIcon.src} className="h-[32px]" alt="LinkedIn" width={32} height={32} />
             </Link>
             <Link href="https://www.youtube.com/@CampStarfish">
-              <img src={youtubeIcon.src} className="h-[32px]"></img>
+              <Image src={youtubeIcon.src} className="h-[32px]" alt="YouTube" width={32} height={32} />
             </Link>
           </div>
         </div>
@@ -75,7 +75,7 @@ export default function Footer() {
             <p>
               Built By<br></br>Hack4Impact-UMD
             </p>{" "}
-            <img src={h4ILogo.src} className="h-[32px]"></img>
+            <Image src={h4ILogo.src} alt="Hack4Impact-UMD Logo" width={40} height={40} />
           </div>
         </Link>
       </div>
