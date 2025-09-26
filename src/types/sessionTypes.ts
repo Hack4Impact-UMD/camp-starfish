@@ -16,6 +16,7 @@ export type CamperAttendee = Pick<
   Camper,
   "name" | "gender" | "dateOfBirth" | "nonoList"
 > & {
+  role: "CAMPER";
   ageGroup: AgeGroup;
   level: number;
   bunk: number;
