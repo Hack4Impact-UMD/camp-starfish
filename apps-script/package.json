@@ -1,0 +1,12 @@
+{
+  "name": "apps-script",
+  "scripts": {
+    "build": "rm -rf dist && esbuild src/*.ts --bundle --outdir=dist --format=esm --global-name=globalThis --target=es6 && cp src/appsscript.json dist/appsscript.json",
+    "deploy": "npm run build && clasp push --force"
+  },
+  "devDependencies": {
+    "@types/google-apps-script": "^2.0.0",
+    "esbuild": "^0.25.6",
+    "typescript": "^5.0.0"
+  }
+}
