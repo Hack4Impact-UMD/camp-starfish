@@ -5,16 +5,9 @@ export interface Session {
   name: string;
   startDate: string; // ISO-8601
   endDate: string; // ISO-8601, exclusive
-  config: SessionConfig;
   albumId?: string;
 }
 export interface SessionID extends Session, ID { };
-
-export interface SessionConfig {
-  numBlocks: number;
-  numBundles: number;
-  numJamborees: number;
-}
 
 export type Attendee = CamperAttendee | StaffAttendee | AdminAttendee;
 export type AttendeeID = CamperAttendeeID | StaffAttendeeID | AdminAttendeeID;
@@ -55,13 +48,22 @@ export interface NightShiftID extends NightShift, ID { sessionId: string; };
 export type SectionType = 'COMMON' | SchedulingSectionType;
 export type SchedulingSectionType = "BUNDLE" | "BUNK-JAMBO" | "NON-BUNK-JAMBO";
 
-export interface Section {
+export type Section = CommonSection | SchedulingSection;
+export type SectionID = CommonSectionID | SchedulingSectionID;
+
+export interface CommonSection {
   name: string;
-  type: SectionType;
+  type: 'COMMON';
   startDate: string; // ISO-8601
   endDate: string; // ISO-8601, exclusive
 }
-export interface SectionID extends Section, ID { sessionId: string; };
+export interface CommonSectionID extends CommonSection, ID { sessionId: string; };
+
+export type SchedulingSection = Omit<CommonSection, 'type'> & {
+  type: SchedulingSectionType;
+  numBlocks: number;
+}
+export interface SchedulingSectionID extends SchedulingSection, ID { sessionId: string; };
 
 export interface SectionSchedule<T extends SchedulingSectionType> {
   blocks: { [blockId: string]: Block<T> };
