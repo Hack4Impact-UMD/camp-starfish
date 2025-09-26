@@ -1,4 +1,4 @@
-import { Camper, Employee } from "./personTypes";
+import { Admin, Camper, Staff } from "./personTypes";
 import { ID } from "./utils";
 
 export interface Session {
@@ -29,7 +29,7 @@ export type CamperAttendee = Pick<
 };
 export interface CamperAttendeeID extends CamperAttendee, ID { sessionId: string; };
 
-export type StaffAttendee = Pick<Employee, 'name' | 'gender' | 'nonoList'> & {
+export type StaffAttendee = Pick<Staff, 'name' | 'gender' | 'nonoList'> & {
   role: "STAFF";
   programCounselor?: ProgramArea;
   bunk: number;
@@ -38,7 +38,7 @@ export type StaffAttendee = Pick<Employee, 'name' | 'gender' | 'nonoList'> & {
 }
 export interface StaffAttendeeID extends StaffAttendee, ID { sessionId: string; };
 
-export type AdminAttendee = Pick<Employee, 'name' | 'gender' | 'nonoList'> & {
+export type AdminAttendee = Pick<Admin, 'name' | 'gender' | 'nonoList'> & {
   role: "ADMIN";
   daysOff: string[]; // ISO-8601
 }
