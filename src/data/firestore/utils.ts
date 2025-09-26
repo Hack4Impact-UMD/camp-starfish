@@ -1,7 +1,9 @@
 export enum Collection {
   CAMPERS = "campers", // id: campminderId
   PARENTS = "parents", // id: campminderId
-  EMPLOYEES = "employees", // id: campminderId
+  PHOTOGRAPHERS = "photographers", // id: campminderId
+  STAFF = "staff", // id: campminderId
+  ADMINS = "admins", // id: campminderId
 
   ALBUMS = "albums", // id: uuid
   SESSIONS = "sessions", // id: uuid
