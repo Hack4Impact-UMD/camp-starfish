@@ -7,7 +7,7 @@ export interface Session {
   endDate: string; // ISO-8601, exclusive
   albumId?: string;
 }
-export interface SessionID extends Session, ID { };
+export interface SessionID extends Session, ID<string> { };
 
 export type Attendee = CamperAttendee | StaffAttendee | AdminAttendee;
 export type AttendeeID = CamperAttendeeID | StaffAttendeeID | AdminAttendeeID;
@@ -21,7 +21,7 @@ export type CamperAttendee = Pick<
   level: number;
   bunk: number;
 };
-export interface CamperAttendeeID extends CamperAttendee, ID { sessionId: string; };
+export interface CamperAttendeeID extends CamperAttendee, ID<number> { sessionId: string; };
 
 export type StaffAttendee = Pick<Staff, 'name' | 'gender' | 'nonoList' | 'yesyesList'> & {
   role: "STAFF";
@@ -30,13 +30,13 @@ export type StaffAttendee = Pick<Staff, 'name' | 'gender' | 'nonoList' | 'yesyes
   leadBunkCounselor: boolean;
   daysOff: string[] // ISO-8601
 }
-export interface StaffAttendeeID extends StaffAttendee, ID { sessionId: string; };
+export interface StaffAttendeeID extends StaffAttendee, ID<number> { sessionId: string; };
 
 export type AdminAttendee = Pick<Admin, 'name' | 'gender' | 'nonoList' | 'yesyesList'> & {
   role: "ADMIN";
   daysOff: string[]; // ISO-8601
 }
-export interface AdminAttendeeID extends AdminAttendee, ID { sessionId: string; };
+export interface AdminAttendeeID extends AdminAttendee, ID<number> { sessionId: string; };
 
 export interface NightShift {
   [bunkId: number]: {
@@ -44,7 +44,7 @@ export interface NightShift {
     nightBunkDuty: number[];
   }
 }
-export interface NightShiftID extends NightShift, ID { sessionId: string; };
+export interface NightShiftID extends NightShift, ID<string> { sessionId: string; };
 
 export type SectionType = 'COMMON' | SchedulingSectionType;
 export type SchedulingSectionType = "BUNDLE" | "BUNK-JAMBO" | "NON-BUNK-JAMBO";
@@ -58,19 +58,19 @@ export interface CommonSection {
   startDate: string; // ISO-8601
   endDate: string; // ISO-8601, exclusive
 }
-export interface CommonSectionID extends CommonSection, ID { sessionId: string; };
+export interface CommonSectionID extends CommonSection, ID<string> { sessionId: string; };
 
 export type SchedulingSection = Omit<CommonSection, 'type'> & {
   type: SchedulingSectionType;
   numBlocks: number;
 }
-export interface SchedulingSectionID extends SchedulingSection, ID { sessionId: string; };
+export interface SchedulingSectionID extends SchedulingSection, ID<string> { sessionId: string; };
 
 export interface SectionSchedule<T extends SchedulingSectionType> {
   blocks: { [blockId: string]: Block<T> };
   alternatePeriodsOff: { [period: string]: number[] }
 }
-export interface SectionScheduleID<T extends SchedulingSectionType> extends SectionSchedule<T>, ID { sessionId: string; sectionId: string; };
+export interface SectionScheduleID<T extends SchedulingSectionType> extends SectionSchedule<T>, ID<string> { sessionId: string; sectionId: string; };
 
 export type Bundle = SectionSchedule<'BUNDLE'>;
 export type BundleID = SectionScheduleID<'BUNDLE'>;
@@ -92,7 +92,7 @@ export interface ProgramArea {
   name: string;
   isDeleted: boolean;
 }
-export interface ProgramAreaID extends ProgramArea, ID { };
+export interface ProgramAreaID extends ProgramArea, ID<string> { };
 
 export interface JamboreeActivity {
   name: string;
@@ -120,19 +120,19 @@ export interface Bunk {
   staffIds: number[];
   camperIds: number[];
 }
-export interface BunkID extends Bunk, ID { sessionId: string; };
+export interface BunkID extends Bunk, ID<number> { sessionId: string; };
 
 export interface Freeplay {
   posts: { [postId: string]: number[] } // Admin & Staff only
   buddies: Record<number, number[]>; // Staff assigned to 1-2 campers each
 }
-export interface FreeplayID extends Freeplay, ID { sessionId: string; };
+export interface FreeplayID extends Freeplay, ID<string> { sessionId: string; };
 
 export interface Post {
   name: string;
   requiresAdmin: boolean;
 }
-export interface PostID extends Post, ID { }
+export interface PostID extends Post, ID<string> { }
 
 export type AgeGroup = 'NAV' | 'OCP';
 

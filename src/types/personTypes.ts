@@ -24,7 +24,7 @@ export interface Camper extends Person {
   parentIds: number[]; // camperminderIds
   nonoList: number[]; // camperminderIds
 }
-export interface CamperID extends Camper, ID, RoleField { role: "CAMPER" };
+export interface CamperID extends Camper, ID<number>, RoleField { role: "CAMPER" };
 
 interface User extends Person {
   uid: string;
@@ -34,12 +34,12 @@ interface User extends Person {
 export interface Parent extends User {
   camperIds: number[];
 }
-export interface ParentID extends Parent, ID, RoleField { role: "PARENT" };
+export interface ParentID extends Parent, ID<number>, RoleField { role: "PARENT" };
 
 export interface Photographer extends User {
   sessionIds: string[];
 }
-export interface PhotographerID extends Photographer, ID, RoleField { role: "PHOTOGRAPHER" };
+export interface PhotographerID extends Photographer, ID<number>, RoleField { role: "PHOTOGRAPHER" };
 
 interface Counselor extends User {
   sessionIds: string[];
@@ -47,6 +47,6 @@ interface Counselor extends User {
   yesyesList: number[];
 }
 export type Staff = Counselor;
-export interface StaffID extends Staff, ID, RoleField { role: "STAFF" };
+export interface StaffID extends Staff, ID<number>, RoleField { role: "STAFF" };
 export type Admin = Counselor;
-export interface AdminID extends Admin, ID, RoleField { role: "ADMIN" };
+export interface AdminID extends Admin, ID<number>, RoleField { role: "ADMIN" };
