@@ -9,8 +9,8 @@ export class FreeplayScheduler {
   staff: StaffAttendeeID[] = [];
   admins: AdminAttendeeID[] = [];
 
-  /* The previous freeplay buddies from earlier in this session */
-  previousFreeplayBuddies: Freeplay[] = [];
+  /* The freeplay buddies from other freeplays in this session */
+  otherFreeplayBuddies: { [attendeeId: number]: number[] } = [];
 
   constructor() { return this; }
 
@@ -22,8 +22,8 @@ export class FreeplayScheduler {
 
   withAdmins(admins: AdminAttendeeID[]): FreeplayScheduler { this.admins = admins; return this; }
 
-  // withPreviousFreeplays should build the previousFreeplayBuddies object
-  withPreviousFreeplays(previousFreeplays: Freeplay[]): FreeplayScheduler { return this; }
+  // withOtherFreeplays should build the previousFreeplayBuddies object
+  withOtherFreeplays(otherFreeplays: Freeplay[]): FreeplayScheduler { return this; }
 
   /* Assigns ADMINs to all posts that require ADMINs and either STAFF or ADMINs to all other posts */
   assignPosts() { return this; }
