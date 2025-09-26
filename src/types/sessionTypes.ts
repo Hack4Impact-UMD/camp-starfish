@@ -122,14 +122,16 @@ export interface Bunk {
 export interface BunkID extends Bunk, ID { sessionId: string; };
 
 export interface Freeplay {
-  posts: { post: Post, assignments: number[] } // Admin & Staff only
+  posts: { [postId: string]: number[] } // Admin & Staff only
   buddies: Record<number, number[]>; // Staff assigned to 1-2 campers each
 }
 export interface FreeplayID extends Freeplay, ID { sessionId: string; };
 
 export interface Post {
   name: string;
+  requiresAdmin: boolean;
 }
+export interface PostID extends Post, ID { }
 
 export type AgeGroup = 'NAV' | 'OCP';
 
