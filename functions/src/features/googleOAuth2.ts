@@ -6,31 +6,6 @@ import { adminAuth } from "../config/firebaseAdminConfig";
 import moment from "moment";
 import { getFunctionsURL } from "@/utils/firebaseUtils";
 
-export const startOAuth2Flow = onRequest(async (req, res) => {
-  if (req.method !== 'GET') {
-    res.status(405).send('Method Not Allowed');
-    return;
-  }
-
-  const url = getUrlFromRequest(req);
-  const idToken = url.searchParams.get('idToken');
-  let decodedToken: DecodedIdTokenWithCustomClaims | false;
-  if (!(decodedToken = await isIdTokenValid(idToken))) {
-    res.status(401).send('Unauthorized');
-    return;
-  }
-
-  const redirectUri = encodeURIComponent(getFunctionsURL("handleOAuth2Code"));
-  const scope = url.searchParams.get('scope');
-  if (!scope?.trim()) {
-    res.status(400).redirect(`${process.env.NEXT_PUBLIC_DOMAIN}`)
-    return;
-  }
-
-  const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${process.env.GOOGLE_CLIENT_ID}&redirect_uri=${redirectUri}&response_type=code&scope=${scope}&login_hint=${decodedToken.email}&access_type=offline&prompt=consent&state=${idToken}&include_granted_scopes=true`;
-  res.status(303).redirect(authUrl);
-});
-
 export const handleOAuth2Code = onRequest(async (req, res) => {
   if (req.method !== 'GET') {
     res.status(405).send('Method Not Allowed');
@@ -56,7 +31,7 @@ export const handleOAuth2Code = onRequest(async (req, res) => {
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: new URLSearchParams({
       code: code || "",
-      client_id: process.env.GOOGLE_CLIENT_ID || "",
+      client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "",
       client_secret: process.env.GOOGLE_CLIENT_SECRET || "",
       redirect_uri: getFunctionsURL('handleOAuth2Code'),
       grant_type: 'authorization_code',
@@ -115,7 +90,7 @@ async function fetchAccessToken(refreshToken: string): Promise<GoogleTokens> {
     },
     body: new URLSearchParams({
       refresh_token: refreshToken,
-      client_id: process.env.GOOGLE_CLIENT_ID || "",
+      client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "",
       client_secret: process.env.GOOGLE_CLIENT_SECRET || "",
       grant_type: 'refresh_token',
     }),
