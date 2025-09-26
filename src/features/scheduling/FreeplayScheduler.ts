@@ -10,9 +10,9 @@ export class FreeplayScheduler {
   admins: AdminAttendeeID[] = [];
 
   /* The freeplay buddies from other freeplays in this session */
-  otherFreeplayBuddies: { [attendeeId: number]: number[] } = [];
+  otherFreeplayBuddies: { [attendeeId: number]: number[] } = {};
 
-  constructor() { return this; }
+  constructor() { }
 
   withSchedule(schedule: Freeplay): FreeplayScheduler { this.schedule = schedule; return this; }
 

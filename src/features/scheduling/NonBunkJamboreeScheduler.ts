@@ -2,7 +2,6 @@ import {
   AdminAttendeeID,
   StaffAttendeeID,
   CamperAttendeeID,
-  JamboreeActivity,
   SectionSchedule,
   Preferences,
 } from "@/types/sessionTypes";
@@ -18,7 +17,7 @@ export class NonBunkJamboreeScheduler {
 
   blocksToAssign: string[] = [];
 
-  constructor() { return this; }
+  constructor() { }
 
   withSchedule(schedule: SectionSchedule<"NON-BUNK-JAMBO">): NonBunkJamboreeScheduler { this.schedule = schedule; return this; }
 

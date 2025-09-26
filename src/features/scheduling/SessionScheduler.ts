@@ -1,4 +1,4 @@
-import { StaffAttendeeID, AdminAttendeeID, CamperAttendeeID, NightShiftID, SessionID, SectionID } from "@/types/sessionTypes";
+import { StaffAttendeeID, AdminAttendeeID, NightShiftID, SessionID, SectionID } from "@/types/sessionTypes";
 
 export class SessionScheduler {
   session: SessionID | undefined;

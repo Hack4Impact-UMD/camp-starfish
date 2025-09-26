@@ -1,4 +1,4 @@
-import {StaffAttendeeID, CamperAttendeeID, ProgramArea, Block, AdminAttendeeID, JamboreeActivity, SectionSchedule, Preferences, Bunk} from "@/types/sessionTypes";
+import { AdminAttendeeID, SectionSchedule, Preferences, Bunk} from "@/types/sessionTypes";
 
 export class BunkJamboreeScheduler {
   schedule: SectionSchedule<"BUNK-JAMBO"> = { blocks: {}, alternatePeriodsOff: {} };
@@ -10,7 +10,7 @@ export class BunkJamboreeScheduler {
 
   blocksToAssign: string[] = [];
 
-  constructor() { return this; }
+  constructor() { }
 
   withSchedule(schedule: SectionSchedule<"BUNK-JAMBO">): BunkJamboreeScheduler { this.schedule = schedule; return this; }
 

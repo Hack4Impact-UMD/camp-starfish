@@ -1,4 +1,4 @@
-import { StaffAttendeeID, CamperAttendeeID, ProgramArea, Block, AdminAttendeeID, BundleActivity, SectionSchedule, Bundle, Preferences } from "@/types/sessionTypes";
+import { StaffAttendeeID, CamperAttendeeID, AdminAttendeeID, SectionSchedule, Preferences } from "@/types/sessionTypes";
 
 export class BundleScheduler {
   bundleNum: number = -1;
@@ -12,7 +12,7 @@ export class BundleScheduler {
 
   blocksToAssign: string[] = [];
 
-  constructor() { return this; }
+  constructor() { }
 
   withBundleNum(bundleNum: number): BundleScheduler { this.bundleNum = bundleNum; return this; }
 
