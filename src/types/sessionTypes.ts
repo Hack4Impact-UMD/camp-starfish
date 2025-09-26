@@ -22,7 +22,7 @@ export type CamperAttendee = Pick<
 };
 export interface CamperAttendeeID extends CamperAttendee, ID { sessionId: string; };
 
-export type StaffAttendee = Pick<Staff, 'name' | 'gender' | 'nonoList'> & {
+export type StaffAttendee = Pick<Staff, 'name' | 'gender' | 'nonoList' | 'yesyesList'> & {
   role: "STAFF";
   programCounselor?: ProgramArea;
   bunk: number;
@@ -31,7 +31,7 @@ export type StaffAttendee = Pick<Staff, 'name' | 'gender' | 'nonoList'> & {
 }
 export interface StaffAttendeeID extends StaffAttendee, ID { sessionId: string; };
 
-export type AdminAttendee = Pick<Admin, 'name' | 'gender' | 'nonoList'> & {
+export type AdminAttendee = Pick<Admin, 'name' | 'gender' | 'nonoList' | 'yesyesList'> & {
   role: "ADMIN";
   daysOff: string[]; // ISO-8601
 }
