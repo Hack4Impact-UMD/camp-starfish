@@ -46,8 +46,8 @@ export interface AdminAttendeeID extends AdminAttendee, ID { sessionId: string; 
 
 export interface NightShift {
   [bunkId: number]: {
-    sleepInBunk: number[];
-    sleepOutside: number[];
+    counselorsOnDuty: number[];
+    nightBunkDuty: number[];
   }
 }
 export interface NightShiftID extends NightShift, ID { sessionId: string; };
