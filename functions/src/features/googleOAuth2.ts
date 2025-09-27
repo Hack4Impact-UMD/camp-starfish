@@ -1,28 +1,21 @@
 import { onCall, onRequest } from "firebase-functions/https";
-import { getUrlFromRequest, isIdTokenValid } from "../serverUtils";
-import { DecodedIdTokenWithCustomClaims, GoogleOAuth2CodeResponse, GoogleOAuth2RefreshResponse } from "../types/serverAuthTypes";
+import { GoogleOAuth2CodeResponse, GoogleOAuth2RefreshResponse } from "../types/serverAuthTypes";
 import { CustomClaims, GoogleTokens } from "@/auth/types/clientAuthTypes";
-import { adminAuth } from "../config/firebaseAdminConfig";
+import { adminAuth, adminDb } from "../config/firebaseAdminConfig";
 import moment from "moment";
 import { getFunctionsURL } from "@/utils/firebaseUtils";
+import { TokenPayload } from "google-auth-library";
+import { Collection } from "../types/serverAuthTypes";
 
 export const handleOAuth2Code = onRequest(async (req, res) => {
   if (req.method !== 'GET') {
-    res.status(405).send('Method Not Allowed');
+    res.status(303).redirect(`${process.env.NEXT_PUBLIC_DOMAIN}`);
     return;
   }
 
-  const url = getUrlFromRequest(req);
-  const idToken = url.searchParams.get('state');
-  let decodedToken: DecodedIdTokenWithCustomClaims | false;
-  if (!(decodedToken = await isIdTokenValid(idToken))) {
-    res.status(401).send('Unauthorized');
-    return;
-  }
-
-  const code = url.searchParams.get('code');
+  const code = req.query.code as string;
   if (!code) {
-    res.status(400).send('Bad Request');
+    res.status(303).send(`${process.env.NEXT_PUBLIC_DOMAIN}`);
     return;
   }
 
@@ -43,17 +36,31 @@ export const handleOAuth2Code = onRequest(async (req, res) => {
   }
   const tokens = await response.json() as GoogleOAuth2CodeResponse;
 
-  const customClaims: CustomClaims = {
-    role: decodedToken.role,
-    googleTokens: {
-      refreshToken: tokens.refresh_token,
-      accessToken: tokens.access_token,
-      expirationTime: moment().add(tokens.expires_in, 'seconds').toISOString(),
-      scopes: tokens.scope.split(' ')
-    }
+  let decodedIdToken: TokenPayload;
+  if (!tokens.id_token || !(decodedIdToken = JSON.parse(atob(tokens.id_token.split('.')[1])) as TokenPayload).email || !decodedIdToken.email_verified) {
+    res.status(303).redirect(`${process.env.NEXT_PUBLIC_DOMAIN}?error=true`);
+    return;
   }
-  await adminAuth.setCustomUserClaims(decodedToken.uid, customClaims);
-  res.status(303).redirect(`${process.env.NEXT_PUBLIC_DOMAIN}?refreshIdToken=true`);
+  console.log(decodedIdToken)
+
+  const email = decodedIdToken.email;
+  let user;
+  try {
+    user = await adminAuth.getUserByEmail(email);
+  } catch {
+    res.status(303).redirect(`${process.env.NEXT_PUBLIC_DOMAIN}?error=true`);
+    return;
+  }
+
+  const uid = user.uid;
+  await adminDb.collection(Collection.GOOGLE_OAUTH2_TOKENS).doc(uid).set({
+    refreshToken: tokens.refresh_token,
+    accessToken: tokens.access_token,
+    expirationTime: moment().add(tokens.expires_in, 'seconds').toISOString(),
+    scopes: tokens.scope.split(' '),
+  } satisfies GoogleTokens);
+
+  res.status(303).redirect(`${process.env.NEXT_PUBLIC_DOMAIN}?success=true`);
 });
 
 export const refreshAccessToken = onCall(async (req) => {
