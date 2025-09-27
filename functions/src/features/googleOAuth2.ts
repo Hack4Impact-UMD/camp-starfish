@@ -1,6 +1,6 @@
-import { onCall, onRequest } from "firebase-functions/https";
+import { onRequest } from "firebase-functions/https";
 import { GoogleOAuth2CodeResponse, GoogleOAuth2RefreshResponse } from "../types/serverAuthTypes";
-import { CustomClaims, GoogleTokens } from "@/auth/types/clientAuthTypes";
+import { GoogleTokens } from "@/auth/types/clientAuthTypes";
 import { adminAuth, adminDb } from "../config/firebaseAdminConfig";
 import moment from "moment";
 import { getFunctionsURL } from "@/utils/firebaseUtils";
@@ -41,7 +41,6 @@ export const handleOAuth2Code = onRequest(async (req, res) => {
     res.status(303).redirect(`${process.env.NEXT_PUBLIC_DOMAIN}?error=true`);
     return;
   }
-  console.log(decodedIdToken)
 
   const email = decodedIdToken.email;
   let user;
@@ -63,32 +62,7 @@ export const handleOAuth2Code = onRequest(async (req, res) => {
   res.status(303).redirect(`${process.env.NEXT_PUBLIC_DOMAIN}?success=true`);
 });
 
-export const refreshAccessToken = onCall(async (req) => {
-  if (!req.auth) {
-    throw new Error("Unauthorized");
-  }
-
-  const refreshToken = req.auth.token.googleTokens?.refreshToken;
-  if (!refreshToken) {
-    throw new Error("No refresh token found");
-  }
-
-  let tokenData: GoogleTokens;
-  try {
-    tokenData = await fetchAccessToken(refreshToken);
-  } catch {
-    throw new Error("Failed to refresh access token");
-  }
-
-  const customClaims: CustomClaims = {
-    role: req.auth.token.role,
-    googleTokens: tokenData
-  }
-  await adminAuth.setCustomUserClaims(req.auth.uid, customClaims);
-  return tokenData.accessToken;
-});
-
-async function fetchAccessToken(refreshToken: string): Promise<GoogleTokens> {
+export async function refreshAccessToken(refreshToken: string, uid: string): Promise<GoogleTokens> {
   const response = await fetch('https://oauth2.googleapis.com/token', {
     method: 'POST',
     headers: {
@@ -106,6 +80,13 @@ async function fetchAccessToken(refreshToken: string): Promise<GoogleTokens> {
     throw new Error('Failed to refresh access token');
   }
   const tokenData = await response.json() as GoogleOAuth2RefreshResponse;
+
+  await adminDb.collection(Collection.GOOGLE_OAUTH2_TOKENS).doc(uid).update({
+    accessToken: tokenData.access_token,
+    expirationTime: moment().add(tokenData.expires_in, 'seconds').toISOString(),
+    scopes: tokenData.scope.split(' '),
+  } satisfies Omit<GoogleTokens, 'refreshToken'>);
+
   return {
     refreshToken,
     accessToken: tokenData.access_token,
