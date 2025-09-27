@@ -1,4 +1,4 @@
-import { StaffAttendeeID, CamperAttendeeID, AdminAttendeeID, SectionSchedule, Preferences } from "@/types/sessionTypes";
+import { StaffAttendeeID, CamperAttendeeID, AdminAttendeeID, SectionSchedule, Preferences, ProgramArea } from "@/types/sessionTypes";
 
 export class BundleScheduler {
   bundleNum: number = -1;
@@ -29,25 +29,77 @@ export class BundleScheduler {
   forBlocks(blockIds: string[]): BundleScheduler { this.blocksToAssign = blockIds; return this; }
 
   /*
-    Each `programArea` needs a specialized staff member (`StaffAttendeeID`) to be in charge.
-    This function assigns all program counselors to all the activities that they need to be present at.
+    Each `programArea` needs a staff member (`StaffAttendeeID`) to be in charge.
+    This function assigns the given programArea to the corresponding staff member.
   */
-  assignProgramCounselors() { return this; }
+  assignProgramAreaCounselor(programArea: ProgramArea, staffID: StaffAttendeeID): void {
+    staffID.programCounselor = programArea;
+  }
 
   /* Each staff member and admin needs to have 1 period off per day */
   assignPeriodsOff() { return this; }
 
-  /* All OCP campers need to be assigned to 1 OCP chat some time during the bundle */
-  assignOcpChats() { return this; }
+  /*
+    Assign a camper (CamperAttendeeID) to the "Teen Chat" activity in the given block.
+    Also update the block's`IndividualAssignments` in the 'activities` field for the
+    given block. Refer back to the scheduling data to see where each camper should be placed
+  */
+  assignOCPChats<T extends 'BUNDLE'>(camperID: CamperAttendeeID): void {
+    if (camperID.ageGroup !== 'OCP') return;
+
+    const prefs = this.camperPrefs[camperID.id];
+    let blockId: string | undefined;
+
+    if (prefs) {
+      blockId = Object.keys(prefs).find(bId =>
+        this.schedule.blocks[bId]?.activities.some(act => act.name === 'Teen Chat')
+      );
+    }
+
+    if (!blockId) {
+      blockId = this.blocksToAssign.find(bId =>
+        this.schedule.blocks[bId].activities.some(act => act.name === 'Teen Chat')
+      );
+    }
+
+    if (blockId) {
+      const block = this.schedule.blocks[blockId];
+      const teenChatActivity = block.activities.find(act => act.name === 'Teen Chat');
+      teenChatActivity?.assignments.camperIds.push(camperID.id);
+    }
+  }
+
 
   /*
-    Campers must be assigned to a swim block if any 1 of the following conditions are met:
-    - It is the first bundle of the session
-    - They are a navigator (NAV) camper
-    - They are an OCP camper that has a level < 4 (out of 5)
-    - They are an OCP camper that has a level >= 4, but they have opted into having a Swim block
+    Assign campers (CamperAttendeeID[]) to the "Waterfront" activity in the given block. 
+    Also update the block's `IndividualAssignments` in the 'activities` field for the
+    given block. Refer back to the scheduling data to see where each camper should be placed
   */
-  assignSwimBlocks() { return this; }
+  assignSwimmingBlock<T extends 'BUNDLE'>(camperAttendees: CamperAttendeeID[]): void {
+    camperAttendees.forEach(camper => {
+      const prefs = this.camperPrefs[camper.id];
+      let blockId: string | undefined;
+
+      if (prefs) {
+        blockId = Object.keys(prefs).find(bId =>
+          this.schedule.blocks[bId]?.activities.some(act => act.name === 'Waterfront')
+        );
+      }
+
+      if (!blockId) {
+        blockId = this.blocksToAssign.find(bId =>
+          this.schedule.blocks[bId].activities.some(act => act.name === 'Waterfront')
+        );
+      }
+
+      if (blockId) {
+        const block = this.schedule.blocks[blockId];
+        const waterfrontActivity = block.activities.find(act => act.name === 'Waterfront');
+        waterfrontActivity?.assignments.camperIds.push(camper.id);
+      }
+    });
+  }
+
 
   assignCampers() { return this; }
 
