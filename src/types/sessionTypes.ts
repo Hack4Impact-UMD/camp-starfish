@@ -40,6 +40,8 @@ export type StaffSessionAttendee = Pick<Employee, 'campminderId' | 'name' | 'gen
   role: "STAFF";
   programCounselor?: ProgramArea;
   bunk: number;
+  daysOff: string[]; //array of string ISO-8601 dates
+  nightShifts: string[] //array of string ISO-8601 dates
 }
 
 export type SessionSection = CommonSection | SchedulingSection<Block>;
