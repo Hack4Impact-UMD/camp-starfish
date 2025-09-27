@@ -2,10 +2,12 @@ import { ParsedTokenWithCustomClaims } from "@/auth/types/clientAuthTypes";
 import { auth } from "@/config/firebase";
 
 async function callAppsScript(functionName: string, parameters?: any[]): Promise<any> {
-  const claims = ((await auth.currentUser?.getIdTokenResult())?.claims as ParsedTokenWithCustomClaims);
-  if (!auth.currentUser) {
+  const user = auth.currentUser;
+  if (!user) {
     throw new Error("You must be logged in to access this feature.");
-  } else if (!claims.role || claims.role !== 'ADMIN') {
+  }
+  const claims = ((await user.getIdTokenResult()).claims as ParsedTokenWithCustomClaims);
+  if (!claims.role || claims.role !== 'ADMIN') {
     throw new Error("You do not have permission to access this feature.");
   } else if (!claims.googleTokens?.accessToken) {
     // TODO: Redirect to OAuth flow
