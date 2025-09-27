@@ -44,30 +44,32 @@ export class BundleScheduler {
     Also update the block's`IndividualAssignments` in the 'activities` field for the
     given block. Refer back to the scheduling data to see where each camper should be placed
   */
-  assignOCPChats<T extends 'BUNDLE'>(camperID: CamperAttendeeID): void {
-    if (camperID.ageGroup !== 'OCP') return;
+  assignOCPChats<T extends 'BUNDLE'>(camperAttendees: CamperAttendeeID[]): void {
+    camperAttendees
+      .filter(camper => camper.ageGroup === 'OCP')
+      .forEach(camper => {
+        const candidateBlocks = this.blocksToAssign.filter(bId =>
+          ['C', 'D', 'E'].includes(bId) &&
+          this.schedule.blocks[bId]?.activities.some(act => act.name === 'Teen Chat')
+        );
 
-    const prefs = this.camperPrefs[camperID.id];
-    let blockId: string | undefined;
+        if (candidateBlocks.length === 0) return;
 
-    if (prefs) {
-      blockId = Object.keys(prefs).find(bId =>
-        this.schedule.blocks[bId]?.activities.some(act => act.name === 'Teen Chat')
-      );
-    }
+        const blockId = candidateBlocks[Math.floor(Math.random() * candidateBlocks.length)];
+        const block = this.schedule.blocks[blockId];
+        const teenChatActivity = block.activities.find(act => act.name === 'Teen Chat');
 
-    if (!blockId) {
-      blockId = this.blocksToAssign.find(bId =>
-        this.schedule.blocks[bId].activities.some(act => act.name === 'Teen Chat')
-      );
-    }
+        if (!teenChatActivity) return;
 
-    if (blockId) {
-      const block = this.schedule.blocks[blockId];
-      const teenChatActivity = block.activities.find(act => act.name === 'Teen Chat');
-      teenChatActivity?.assignments.camperIds.push(camperID.id);
-    }
+        block.activities.forEach(activity => {
+          activity.assignments.camperIds = activity.assignments.camperIds.filter(id => id !== camper.id);
+        });
+
+        teenChatActivity.assignments.camperIds.push(camper.id);
+      });
   }
+
+
 
 
   /*
@@ -77,28 +79,32 @@ export class BundleScheduler {
   */
   assignSwimmingBlock<T extends 'BUNDLE'>(camperAttendees: CamperAttendeeID[]): void {
     camperAttendees.forEach(camper => {
-      const prefs = this.camperPrefs[camper.id];
-      let blockId: string | undefined;
+      let requiredBlocks: string[] = [];
 
-      if (prefs) {
-        blockId = Object.keys(prefs).find(bId =>
-          this.schedule.blocks[bId]?.activities.some(act => act.name === 'Waterfront')
-        );
+      if (camper.ageGroup === 'NAV') {
+        requiredBlocks = this.blocksToAssign.filter(bId => ['C', 'D', 'E'].includes(bId));
+      } else if (camper.ageGroup === 'OCP') {
+        requiredBlocks = this.blocksToAssign.filter(bId => ['A', 'B'].includes(bId));
+
+        if (camper.level <= 3) {
+          requiredBlocks.push(...this.blocksToAssign.filter(bId => ['C', 'D', 'E'].includes(bId)));
+        } else {
+          // Levels 4–5 → optional swimming
+
+        }
       }
 
-      if (!blockId) {
-        blockId = this.blocksToAssign.find(bId =>
-          this.schedule.blocks[bId].activities.some(act => act.name === 'Waterfront')
-        );
-      }
-
-      if (blockId) {
+      requiredBlocks.forEach(blockId => {
         const block = this.schedule.blocks[blockId];
+        if (!block) return;
+
         const waterfrontActivity = block.activities.find(act => act.name === 'Waterfront');
         waterfrontActivity?.assignments.camperIds.push(camper.id);
-      }
+      });
     });
   }
+
+
 
 
   assignCampers() { return this; }
