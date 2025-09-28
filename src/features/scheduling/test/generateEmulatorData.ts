@@ -35,6 +35,11 @@ function generateCampers(totalCampers: number, numberBunks: number): CamperAtten
 
     const bunk = Math.floor(i / numberBunks) + 1; 
 
+    let swimOptOut = false;
+    if(ageGroup === "OCP" && level > 4) {
+      swimOptOut = Math.random() < 0.5 ? true : false;
+    }
+
     campers.push({
       id: id,
       name: name,
@@ -45,6 +50,7 @@ function generateCampers(totalCampers: number, numberBunks: number): CamperAtten
       ageGroup: ageGroup,
       level: level,
       bunk: bunk,
+      swimOptOut: swimOptOut,
       sessionId: "session1",
     });
   }
