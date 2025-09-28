@@ -1,10 +1,8 @@
 import { db, storage } from "@/config/firebase"; // your config file
 import { doc, setDoc } from "firebase/firestore";
 import { BundleScheduler } from "../BundleScheduler";
-import { CamperAttendeeID, StaffAttendeeID, AdminAttendeeID, AgeGroup, SectionSchedule, BundleBlockActivities, ProgramArea, Preferences } from "@/types/sessionTypes";
+import { CamperAttendeeID, StaffAttendeeID, AdminAttendeeID, AgeGroup, SectionSchedule, BundleBlockActivities, ProgramArea, SectionPreferences, BlockPreferences, Section } from "@/types/sessionTypes";
 import { Camper } from "@/types/personTypes";
-
-
 
 function generateCampers(totalCampers: number, numberBunks: number): CamperAttendeeID[] {
   const campers: CamperAttendeeID[] = [];
@@ -198,38 +196,33 @@ function generateActivities(totalActivities: number) {
   
 }
 
-function generateCamperPrefs(campers: CamperAttendeeID[], schedule: SectionSchedule<'BUNDLE'>): Preferences {
-  const camperPrefs: Preferences = {};
+function generateCamperPrefs(campers: CamperAttendeeID[], schedule: SectionSchedule<'BUNDLE'>): SectionPreferences {
+  const sectionPrefs: SectionPreferences = {};
 
-  campers.forEach(camper => {
-    const blockPrefs: Record<string, { [activityId: string]: number }> = {};
+  for (const blockId in schedule.blocks) {
+    sectionPrefs[blockId] = {};
 
-    for (const blockId in schedule.blocks) {
-      const block = schedule.blocks[blockId];
-      const activities = block.activities;
+    const block = schedule.blocks[blockId];
+    const activities = block.activities;
 
-      const chosen = activities.sort(() => Math.random() - 0.5).slice(0, Math.floor(Math.random() * 5) + 1);
+    campers.forEach(camper => {
+
+      // Randomly choose 5 activities
+      const chosen = activities.sort(() => Math.random() - 0.5).slice(0, 5);
 
       const activityRankings: { [activityId: string]: number } = {};
-
       chosen.forEach((a, index) => {
         activityRankings[a.name] = index + 1;
       });
 
-      blockPrefs[blockId] = activityRankings;
-    }
+      sectionPrefs[blockId][camper.id] = activityRankings;
+    });
+  }
 
-    // Store this camper's preferences
-    camperPrefs[camper.id] = blockPrefs;
-  });
-
-  return camperPrefs;
+  return sectionPrefs;
 }
 
-
-
-async function main()
-{
+function generateBundleSchedule() {
   const campers: CamperAttendeeID[] = generateCampers(20, 5);
   const staff: StaffAttendeeID[] = generateStaff(20, 5);
   const admins: AdminAttendeeID[] = generateAdmins(10);
@@ -237,5 +230,21 @@ async function main()
   const blocksToAssign: string[] = generateBlockIDs(5);
   const activitiesToAssign: BundleBlockActivities = generateActivities(7);
   const schedule: SectionSchedule<'BUNDLE'> = generateBlockSchedule(blocksToAssign);
-  const camperPrefs: Preferences = generateCamperPrefs(20, schedule);
+  const camperPrefs: SectionPreferences = generateCamperPrefs(campers, schedule);
+
+  const scheduler = new BundleScheduler()
+  .withBundleNum(bundleNum)
+  .withSchedule(schedule)
+  .withCampers(campers)
+  .withStaff(staff)
+  .withAdmins(admins)
+  .withCampersPrefs(camperPrefs)
+  .forBlocks(blocksToAssign);
+
+  return scheduler;
+}
+
+async function main()
+{
+  const bundleSchedule = generateBundleSchedule();
 }
