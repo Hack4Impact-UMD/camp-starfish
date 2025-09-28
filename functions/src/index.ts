@@ -1,9 +1,9 @@
-import * as accountManagementFunctions from "./features/accountManagement";
-import * as googleOAuth2Functions from "./features/googleOAuth2";
-import * as googleAppsScriptFunctions from "./features/googleAppsScript";
+import { accountManagementCloudFunctions } from "./features/accountManagement";
+import { googleOAuth2CloudFunctions } from "./features/googleOAuth2";
+import { googleAppsScriptCloudFunctions } from "./features/googleAppsScript";
 
 module.exports = {
-  ...accountManagementFunctions,
-  ...googleOAuth2Functions,
-  ...googleAppsScriptFunctions
+  ...accountManagementCloudFunctions,
+  ...googleOAuth2CloudFunctions,
+  ...googleAppsScriptCloudFunctions
 }

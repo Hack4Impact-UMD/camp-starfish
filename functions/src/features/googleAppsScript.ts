@@ -7,7 +7,7 @@ import { getFunctionsURL } from "@/utils/firebaseUtils";
 import { refreshAccessToken } from "./googleOAuth2";
 import { GoogleApis } from "googleapis";
 
-export const appsScriptEndpoint = onCall(async (req) => {
+const appsScriptEndpoint = onCall(async (req) => {
   const uid = req.auth?.uid;
   if (!uid) {
     throw new Error("You must be logged in to access this feature.");
@@ -43,3 +43,7 @@ export const appsScriptEndpoint = onCall(async (req) => {
   }
   return data.response?.result;
 });
+
+export const googleAppsScriptCloudFunctions = {
+  appsScriptEndpoint
+}

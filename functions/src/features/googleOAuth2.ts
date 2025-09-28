@@ -4,7 +4,7 @@ import { getFunctionsURL } from "@/utils/firebaseUtils";
 import { Credentials, OAuth2Client, TokenPayload } from "google-auth-library";
 import { Collection } from "../types/serverAuthTypes";
 
-export const handleOAuth2Code = onRequest(async (req, res) => {
+const handleOAuth2Code = onRequest(async (req, res) => {
   if (req.method !== 'GET') {
     res.status(303).redirect(`${process.env.NEXT_PUBLIC_DOMAIN}`);
     return;
@@ -63,4 +63,8 @@ export async function refreshAccessToken(oauth2Client: OAuth2Client, uid: string
   }
   oauth2Client.setCredentials(tokens);
   await adminDb.collection(Collection.GOOGLE_OAUTH2_TOKENS).doc(uid).set(tokens);
+}
+
+export const googleOAuth2CloudFunctions = {
+  handleOAuth2Code
 }

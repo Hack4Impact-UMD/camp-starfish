@@ -1,7 +1,7 @@
 import { HttpsError, onCall } from "firebase-functions/https";
 import { adminAuth } from "../config/firebaseAdminConfig";
 
-export const checkWhitelist = onCall(async (req) => {
+const checkWhitelist = onCall(async (req) => {
   return new Promise(async (resolve, reject) => {
     // TODO: Check if user email is somewhere in database, delete account if not
     const uid = await req.auth?.uid;
@@ -15,3 +15,6 @@ export const checkWhitelist = onCall(async (req) => {
   });
 });
 
+export const accountManagementCloudFunctions = {
+  checkWhitelist
+}
