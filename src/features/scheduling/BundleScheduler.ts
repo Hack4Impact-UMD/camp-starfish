@@ -1,4 +1,4 @@
-import { StaffAttendeeID, CamperAttendeeID, AdminAttendeeID, SectionSchedule, BlockPreferences } from "@/types/sessionTypes";
+import { StaffAttendeeID, CamperAttendeeID, AdminAttendeeID, SectionSchedule, SectionPreferences } from "@/types/sessionTypes";
 
 export class BundleScheduler {
   bundleNum: number = -1;
@@ -8,7 +8,7 @@ export class BundleScheduler {
   staff: StaffAttendeeID[] = [];
   admins: AdminAttendeeID[] = [];
 
-  camperPrefs: BlockPreferences = {};
+  camperPrefs: SectionPreferences = {};
 
   blocksToAssign: string[] = [];
 
@@ -24,7 +24,7 @@ export class BundleScheduler {
 
   withAdmins(admins: AdminAttendeeID[]): BundleScheduler { this.admins = admins; return this; }
 
-  withCampersPrefs(campersPrefs: BlockPreferences): BundleScheduler { this.camperPrefs = campersPrefs; return this; }
+  withCampersPrefs(campersPrefs: SectionPreferences): BundleScheduler { this.camperPrefs = campersPrefs; return this; }
 
   forBlocks(blockIds: string[]): BundleScheduler { this.blocksToAssign = blockIds; return this; }
 

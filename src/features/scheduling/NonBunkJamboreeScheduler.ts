@@ -3,7 +3,7 @@ import {
   StaffAttendeeID,
   CamperAttendeeID,
   SectionSchedule,
-  BlockPreferences,
+  SectionPreferences,
 } from "@/types/sessionTypes";
 
 export class NonBunkJamboreeScheduler {
@@ -13,7 +13,7 @@ export class NonBunkJamboreeScheduler {
   staff: StaffAttendeeID[] = [];
   admins: AdminAttendeeID[] = [];
 
-  camperPrefs: BlockPreferences = {};
+  camperPrefs: SectionPreferences = {};
 
   blocksToAssign: string[] = [];
 
@@ -27,7 +27,7 @@ export class NonBunkJamboreeScheduler {
 
   withAdmins(admins: AdminAttendeeID[]): NonBunkJamboreeScheduler { this.admins = admins; return this; }
 
-  withCamperPrefs(camperPrefs: BlockPreferences): NonBunkJamboreeScheduler { this.camperPrefs = camperPrefs; return this; }
+  withCamperPrefs(camperPrefs: SectionPreferences): NonBunkJamboreeScheduler { this.camperPrefs = camperPrefs; return this; }
 
   forBlocks(blockIds: string[]): NonBunkJamboreeScheduler { this.blocksToAssign = blockIds; return this; }
 
