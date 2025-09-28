@@ -1,12 +1,4 @@
-import { StaffAttendeeID, AdminAttendeeID, CamperAttendeeID, Freeplay } from "../../types/sessionTypes";
-
-/*
-  export interface Freeplay {
-    posts: { [postId: string]: number[] } // Admin & Staff only
-    buddies: Record<number, number[]>; // Staff assigned to 1-2 campers each
-  }
-  export interface FreeplayID extends Freeplay, ID<string> { sessionId: string; };
-*/
+import { StaffAttendeeID, AdminAttendeeID, CamperAttendeeID, Freeplay, PostID } from "../../types/sessionTypes";
 
 export class FreeplayScheduler {
   /* The current freeplay schedule */
@@ -21,14 +13,20 @@ export class FreeplayScheduler {
   assignedStaff: StaffAttendeeID[] = [];
   assignedAdmin: AdminAttendeeID[] = [];
 
+  posts: PostID[] = [];
+
   /* The freeplay buddies from other freeplays in this session */
   otherFreeplayBuddies: { [attendeeId: number]: number[] } = {};
 
-  constructor(schedule: Freeplay, campers: CamperAttendeeID[], staff: StaffAttendeeID[], admins: AdminAttendeeID[]) {
+  // postInfo includes a list of all posts with PostID information (necessary for requiresAdmin flag) --> schedule only includes string of IDs
+  constructor(schedule: Freeplay, postInfo: PostID[], campers: CamperAttendeeID[], staff: StaffAttendeeID[], admins: AdminAttendeeID[]) {
     this.withSchedule(schedule);
     this.withCampers(campers);
     this.withStaff(staff);
     this.withAdmins(admins);
+
+    // NECESSARY FOR POST ASSIGNMENT
+    this.posts = postInfo;
   }
 
   withSchedule(schedule: Freeplay): FreeplayScheduler { this.schedule = schedule; return this; }
@@ -40,6 +38,8 @@ export class FreeplayScheduler {
   withAdmins(admins: AdminAttendeeID[]): FreeplayScheduler { this.admins = admins; return this; }
 
   getCamperById = (id: number) => this.campers.find(c => c.id === id);
+
+  getPostByID = (id: string) => this.posts.find(p => p.name === id);
 
   // withOtherFreeplays should build the previousFreeplayBuddies object
   withOtherFreeplays(otherFreeplays: Freeplay[]): FreeplayScheduler {
@@ -73,20 +73,18 @@ export class FreeplayScheduler {
     const availableStaff = [...this.staff];
 
     // assign all ADMIN-only roles first
+    for (const postID in this.schedule.posts) {
+      const assigned = this.schedule.posts[postID];
+      const post = this.getPostByID(postID);
+      if (assigned.length == 0 && post?.requiresAdmin) {
+        if (availableAdmins.length > 0) {
+          const adminID: AdminAttendeeID = availableAdmins.shift()!;
+          this.schedule.posts[postID] = [adminID.id];
+        }
+      }
+    }
 
-    // for (const postID in this.schedule.posts) {
-    //   const assigned = this.schedule.posts[postID];
-    //   if (assigned.length == 0 && postID requires ADMIN) {
-    //     if (availableAdmins.length > 0) {
-    //       const adminID: AdminAttendeeID = availableAdmins.shift()!;
-    //       this.schedule.posts[postID] = [adminID.id];
-    //     } else if (availableStaff.length > 0) {
-    //       const staffID: StaffAttendeeID = availableStaff.shift()!;
-    //       this.schedule.posts[postID] = [staffID.id];
-    //     }
-    //   }
-    // }
-
+    // assigns all other roles (not Admin-specific) to admins first, then staff
     for (const postID in this.schedule.posts) {
       const assigned = this.schedule.posts[postID];
       if (assigned.length == 0) {
@@ -208,10 +206,8 @@ export class FreeplayScheduler {
       for (const camper of maleCampers) {
         let assigned = false;
 
-        // Loop through female staffers/admins first
+        // Loop through staffers/admins and assign to one that has no campers
         for (const staffer of allAssignedStaffers) {
-
-          if (staffer.gender !== "Male") continue;
 
           const alreadyAssigned = this.schedule.buddies[staffer.id] || [];
           const prevBuddies = this.otherFreeplayBuddies[staffer.id] || [];
@@ -232,10 +228,9 @@ export class FreeplayScheduler {
           }
         }
       
-        // Fallback: assign to any female staffer with < 2 campers
+        // Fallback: assign to any staffer with < 2 campers
         if (!assigned) {
           for (const staffer of allAssignedStaffers) {
-            if (staffer.gender !== "Male") continue;
       
             const alreadyAssigned = this.schedule.buddies[staffer.id] || [];
             if (alreadyAssigned.length < 2) {
@@ -265,7 +260,6 @@ export class FreeplayScheduler {
 
         // if (!assigned) {
         //   for (const staffer of allAssignedStaffers) {
-        //     if (staffer.gender !== "Male") continue;
 
         //     const alreadyAssigned = this.schedule.buddies[staffer.id] || [];
         //     if (alreadyAssigned.length < 2) {
@@ -282,11 +276,6 @@ export class FreeplayScheduler {
 
       return this;
     }
-
-    // Questions:
-      // suppose that campers still haven't been assigned. Can male campers ever be assigned to female staffers and vice versa?
-      // would there ever be a situation where a bunker can only be assigned to someone not in the same bunk as them?
-      // which freeplay activities are considered ADMIN-only
 
   getSchedule() { return this.schedule; }
 }
