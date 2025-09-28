@@ -1,37 +1,14 @@
-import { ParsedTokenWithCustomClaims } from "@/auth/types/clientAuthTypes";
-import { auth } from "@/config/firebase";
+import { auth, functions } from "@/config/firebase";
+import { httpsCallable } from "firebase/functions";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any @typescript-esline/no-unused-vars
 async function callAppsScript(functionName: string, parameters?: any[]): Promise<any> {
   const user = auth.currentUser;
   if (!user) {
     throw new Error("You must be logged in to access this feature.");
   }
-  const claims = ((await user.getIdTokenResult()).claims as ParsedTokenWithCustomClaims);
-  if (!claims.role || claims.role !== 'ADMIN') {
-    throw new Error("You do not have permission to access this feature.");
-  } else if (!claims.googleTokens?.accessToken) {
-    // TODO: Redirect to OAuth flow
-    throw new Error("Invalid access token. Please authorize Google to access this feature.")
-  }
-
-  const response = await fetch(
-    `https://script.googleapis.com/v1/scripts/${process.env.NEXT_PUBLIC_GOOGLE_APPS_SCRIPT_DEPLOYMENT_ID}:run`,
-    {
-      method: "POST",
-      body: JSON.stringify({
-        function: functionName,
-        parameters,
-      }),
-      headers: {
-        Authorization: `Bearer ${claims.googleTokens.accessToken}`,
-        "Content-Type": "application/json",
-        "Cache-Control": "no-cache",
-      },
-    }
-  );
-  const data = await response.json();
-  if (data.error) {
-    throw new Error("An unexpected error occurred. Please try again later.");
-  }
-  return data.response.result;
+  return (await httpsCallable(functions, 'appsScriptEndpoint')({
+    functionName,
+    parameters
+  })).data;
 }
