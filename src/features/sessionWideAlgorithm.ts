@@ -1,8 +1,7 @@
 import { Session, StaffSessionAttendee } from "@/types/sessionTypes";
 import { Employee } from "@/types/personTypes";
 
-const MAX_STAFF_OFF_PER_DAY = 2;
-const DAYS_OFF_PER_EMPLOYEE = 2;
+
 
 // // mock data
 
@@ -51,82 +50,6 @@ const DAYS_OFF_PER_EMPLOYEE = 2;
 
 
 export function assignDaysOff(session: Session, employees: StaffSessionAttendee[]) {
-    const numEmployees = employees.length;
-
-    const employeeChoices = new Set(employees);
-
-    const startDate = new Date(session.startDate);
-    const endDate = new Date(session.endDate);
-
-    const numDays =
-        Math.floor((endDate.getTime() - startDate.getTime()) / 86400000) + 1;
-
-    const currentDate = new Date(startDate);
-
-    for (let dayIndex = 1; dayIndex <= numDays; dayIndex++) {
-        const dateStr = currentDate.toISOString().split("T")[0];
-
-        // Skip restricted days (first, 13th, and 14th)
-        if (dayIndex === 1 || dayIndex === 13 || dayIndex === 14) {
-            currentDate.setDate(currentDate.getDate() + 1);
-            continue;
-        }
-
-        let numEmployeesOffOnDay = 0;
-
-        // Keep track of attempts to avoid infinite loops
-        let attempts = 0;
-        const maxAttempts = numEmployees * 2;
-
-        while (
-            numEmployeesOffOnDay < MAX_STAFF_OFF_PER_DAY &&
-            employeeChoices.size > 0 &&
-            attempts < maxAttempts
-        ) {
-            attempts++;
-
-            const randomEmployee =
-                employees[Math.floor(Math.random() * numEmployees)];
-
-            // Skip if employee has already been chosen
-            if (!employeeChoices.has(randomEmployee)) continue;
-
-            // Skip if employee already has this date off
-            if (randomEmployee.daysOff.includes(dateStr)) continue;
-
-            // Checks if employee has a day off in the first half of schedule
-            const firstHalf = dayIndex <= Math.floor(numDays / 2);
-            const halfPointDate = new Date(startDate);
-            halfPointDate.setDate(startDate.getDate() + Math.floor(numDays / 2));
-
-            const hasDayOffInFirstHalf = randomEmployee.daysOff.some(
-                (d) => new Date(d).getTime() <= halfPointDate.getTime()
-            );
-
-            const hasDayOffInSecondHalf = randomEmployee.daysOff.some(
-                (d) => new Date(d).getTime() > halfPointDate.getTime()
-            );
-
-            if (
-                (firstHalf && hasDayOffInFirstHalf) ||
-                (!firstHalf && hasDayOffInSecondHalf)
-            ) {
-                continue;
-            }
-
-            // Assign day off
-            randomEmployee.daysOff.push(dateStr);
-            numEmployeesOffOnDay++;
-
-            // Remove from choices if at max day-off limit
-            if (randomEmployee.daysOff.length >= DAYS_OFF_PER_EMPLOYEE) {
-                employeeChoices.delete(randomEmployee);
-            }
-        }
-
-        // Move to next day
-        currentDate.setDate(currentDate.getDate() + 1);
-    }
 }
 
 export function assignNightShifts(session: Session, employees: StaffSessionAttendee[]) {
@@ -139,40 +62,66 @@ export function assignNightShifts(session: Session, employees: StaffSessionAtten
         bunks.add(employees[i].bunk)
     }
 
-    for (let bunkIndex = 0; bunkIndex < bunks.size; bunkIndex++) {
-        const employeeChoices = new Set(employees.filter((e) => e.bunk == bunkIndex));
-        const numEmployees = employeeChoices.size
+    for (const bunkNumber of bunks) {
+        const employeesInBunk = employees.filter((e) => e.bunk === bunkNumber);
+        if (employeesInBunk.length === 0) continue;
+        const employeeChoices = new Set(employeesInBunk);
+        const numEmployees = employeesInBunk.length;
         const numDays =
             Math.floor((endDate.getTime() - startDate.getTime()) / 86400000) + 1;
-
-        for (let i = 0; i < 4; i++) {
-            const randomEmployee: StaffSessionAttendee =
+            // Sample from the filtered bunk-specific pool instead of the full employees array:
+            const choices = Array.from(employeeChoices);
+            if (choices.length === 0) {
+                break;
+            }
+            const randomEmployee =
+                choices[Math.floor(Math.random() * choices.length)];
                 employees[Math.floor(Math.random() * numEmployees)];
 
 
 
             // If random employee is a program counselor
             if (randomEmployee.programCounselor) {
-                let randomDayIndex = Math.floor(Math.random() * numDays)
-                let randomDate = new Date(startDate.getDate() + randomDayIndex);
-                while (randomEmployee.nightShifts.includes(randomDate.toISOString()) ||
-                    randomEmployee.daysOff.includes(new Date(randomDate.getDate() + 1).toISOString()) ||
-                    randomEmployee.daysOff.includes(new Date(randomDate.getDate() - 1).toISOString())
-                ) {
-                    randomDayIndex = Math.floor(Math.random() * numDays)
-                    randomDate = new Date(startDate.getDate() + randomDayIndex);
+                const toISODate = (date: Date) => date.toISOString().split("T")[0];
+                let dateISO: string;
+                while (true) {
+                    const randomDayIndex = Math.floor(Math.random() * numDays);
+                    const randomDate = new Date(startDate);
+                    randomDate.setDate(startDate.getDate() + randomDayIndex);
+                    dateISO = toISODate(randomDate);
+                    const nextDayISO = (() => {
+                        const copy = new Date(randomDate);
+                        copy.setDate(copy.getDate() + 1);
+                        return toISODate(copy);
+                    })();
+                    const prevDayISO = (() => {
+                        const copy = new Date(randomDate);
+                        copy.setDate(copy.getDate() - 1);
+                        return toISODate(copy);
+                    })();
+                    if (
+                        randomEmployee.nightShifts.includes(dateISO) ||
+                        randomEmployee.daysOff.includes(nextDayISO) ||
+                        randomEmployee.daysOff.includes(prevDayISO)
+                    ) {
+                        continue;
+                    }
+                    break;
                 }
+                randomEmployee.nightShifts.push(dateISO);
             }
             // Random employee is not a program counselor
             else {
-                let randomDayIndex = Math.floor(Math.random() * numDays)
-                let randomDate = new Date(startDate.getDate() + randomDayIndex);
-                while (randomEmployee.nightShifts.includes(randomDate.toISOString())) {
-                    randomDayIndex = Math.floor(Math.random() * numDays)
-                    randomDate = new Date(startDate.getDate() + randomDayIndex);
-                }
-                randomEmployee.nightShifts.push(randomDate.toISOString());
-            }
+                const toISODate = (date: Date) => date.toISOString().split("T")[0];
+                let dateISO: string;
+                do {
+                    const randomDayIndex = Math.floor(Math.random() * numDays);
+                    const randomDate = new Date(startDate);
+                    randomDate.setDate(startDate.getDate() + randomDayIndex);
+                    dateISO = toISODate(randomDate);
+                } while (randomEmployee.nightShifts.includes(dateISO));
+                randomEmployee.nightShifts.push(dateISO);
+                randomEmployee.nightShifts.push(dateISO);
 
         }
 
