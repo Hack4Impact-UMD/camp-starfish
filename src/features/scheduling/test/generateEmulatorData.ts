@@ -4,6 +4,12 @@ import { BundleScheduler } from "../BundleScheduler";
 import { CamperAttendeeID, StaffAttendeeID, AdminAttendeeID, AgeGroup, SectionSchedule, BundleBlockActivities, ProgramArea, SectionPreferences, BlockPreferences, Section } from "@/types/sessionTypes";
 import { Camper } from "@/types/personTypes";
 
+/* TODO:
+  - Fix generateActivities() so it takes into account mandatory OCP Chats and swimming blocks
+
+*/
+
+
 function generateCampers(totalCampers: number, numberBunks: number): CamperAttendeeID[] {
   const campers: CamperAttendeeID[] = [];
 
@@ -132,7 +138,7 @@ function generateBlockSchedule(blockIDs: string[]) {
 
   for(let i = 0; i < blockIDs.length; i++)
   {
-    const activities: BundleBlockActivities = generateActivities(7);
+    const activities: BundleBlockActivities = generateActivities(7, blockIDs[i]);
     const periodsOff: number[] = [];
     schedule.blocks[blockIDs[i]] = { activities: activities, periodsOff: periodsOff };
   }
@@ -155,7 +161,9 @@ function generateBlockIDs(totalBlocks: number): string[] {
   return blockIDs;
 
 }
-function generateActivities(totalActivities: number) {
+
+
+function generateActivities(totalActivities: number, blockID: string): BundleBlockActivities {
   const activities: BundleBlockActivities = [];
 
   const possibleProgramAreas: ProgramArea[] = [
@@ -174,11 +182,12 @@ function generateActivities(totalActivities: number) {
     { name: "Small Animals", isDeleted: false },
     { name: "Xplore!", isDeleted: false },
     { name: "Teens", isDeleted: false },
-    { name: "Waterfront", isDeleted: false }
+    { name: "Waterfront", isDeleted: false },
   ];
 
   for(let i = 0; i < totalActivities; i++)
   {
+    if(blockID === "C") continue;
     const name: string = Math.random().toString(36).slice(2);
     const description: string = Math.random().toString(36).slice(2);
     const programArea: ProgramArea = possibleProgramAreas[Math.floor(Math.random()*possibleProgramAreas.length)];
@@ -234,7 +243,6 @@ function generateBundleSchedule() {
   const admins: AdminAttendeeID[] = generateAdmins(10);
   const bundleNum: number = 3;
   const blocksToAssign: string[] = generateBlockIDs(5);
-  const activitiesToAssign: BundleBlockActivities = generateActivities(7);
   const schedule: SectionSchedule<'BUNDLE'> = generateBlockSchedule(blocksToAssign);
   const camperPrefs: SectionPreferences = generateCamperPrefs(campers, schedule);
 
