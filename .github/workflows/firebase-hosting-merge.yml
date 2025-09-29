@@ -34,7 +34,7 @@ jobs:
         run: echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT_CAMP_STARFISH }}' > ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
 
       - name: Deploy to Firebase Hosting
-        run: firebase deploy
+        run: firebase deploy --token ${{ secrets.FIREBASE_TOKEN }}
 
   deploy_apps_script:
     name: Deploy to Apps Script
