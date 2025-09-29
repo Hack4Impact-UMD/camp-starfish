@@ -12,8 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: npm install --include=optional sharp
-      - run: npm run lint
-      - run: npm run build
+      - run: npm run lint && npm run build
   lint_build_cloud_functions:
     name: "Lint and Build Cloud Functions"
     if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
@@ -21,9 +20,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: npm install --include=optional sharp
-      - run: cd functions
-      - run: npm run lint
-      - run: npm run build
+      - run: cd functions && npm run lint && npm run build
   lint_build_apps_script:
     name: "Lint and Build Apps Script"
     if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
@@ -31,6 +28,4 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: npm install --include=optional sharp
-      - run: cd apps-script
-      - run: npm run lint
-      - run: npm run build
+      - run: cd apps-script && npm run lint && npm run build
