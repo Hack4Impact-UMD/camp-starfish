@@ -24,10 +24,7 @@ jobs:
           node-version: 20
           cache: "npm"
 
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Rebuild sharp for Linux
+      - name: Install dependencies (sharp needs to be rebuilt for Linux)
         run: npm install --include=optional sharp
 
       - name: Install Firebase CLI
