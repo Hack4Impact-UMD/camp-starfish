@@ -12,7 +12,7 @@ const handleOAuth2Code = onRequest(async (req, res) => {
 
   const code = req.query.code as string;
   if (!code) {
-    res.status(303).send(`${process.env.NEXT_PUBLIC_DOMAIN}`);
+    res.status(303).redirect(`${process.env.NEXT_PUBLIC_DOMAIN}`);
     return;
   }
 
