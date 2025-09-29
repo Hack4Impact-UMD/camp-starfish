@@ -56,6 +56,8 @@ export class BundleScheduler {
     if (!this.schedule.blocks[blockID]) throw new Error("Invalid block");
 
     const activities = this.schedule.blocks[blockID].activities;
+    if (!activities || activities.length === 0) throw new Error("Block has no activities");
+
     const unassignedCampers: string[] = [];
     const camperIdStrToCamper : { [camperID: string]: CamperAttendeeID } = {};
     const dob : { [camperID: string]: number } = {};
@@ -83,7 +85,7 @@ export class BundleScheduler {
       // Flag camper as unassigned if the activity doesn't exist, doesn't have space, or there is a camper-camper conflict
       if (!activity || activity.assignments.camperIds.length >= 9 || doesConflictExist(camper, activity.assignments.camperIds)) {
         unassignedCampers.push(camperIdStr);
-        return;
+        continue;
       }
 
       activity.assignments.camperIds.push(camper.id);
@@ -104,14 +106,15 @@ export class BundleScheduler {
       for (const activityIndex of actIndicesByCamperCount) {
 
         const activity = activities[activityIndex];
-
+        
+        if (activity.ageGroup !== camper.ageGroup) continue;
         if (doesConflictExist(camper, activity.assignments.camperIds)) continue;
           
         activity.assignments.camperIds.push(camper.id);
-        activities[activityIndex].assignments.camperIds.length++;
+        activity.assignments.camperIds.length++;
         actIndicesByCamperCount.sort((a, b) => activities[a].assignments.camperIds.length - activities[b].assignments.camperIds.length);
         // Move to the next unassigned camper
-        break; 
+        break;
       }
     }
   }
@@ -122,6 +125,7 @@ export class BundleScheduler {
     if (!this.schedule.blocks[blockID]) throw new Error("Invalid block");
     
     const activities = this.schedule.blocks[blockID].activities;
+    if (!activities || activities.length === 0) throw new Error("Block has no activities");
 
     // Assign program area counselors to their activities first and builds array of available staff
     const availableStaff: StaffAttendeeID[] = [];
@@ -187,6 +191,7 @@ export class BundleScheduler {
     if (!this.schedule.blocks[blockID]) throw new Error("Invalid block");
 
     const activities = this.schedule.blocks[blockID].activities;
+    if (!activities || activities.length === 0) throw new Error("Block has no activities");
 
     // Build array of available admins
     const availableAdmins: AdminAttendeeID[] = [];
