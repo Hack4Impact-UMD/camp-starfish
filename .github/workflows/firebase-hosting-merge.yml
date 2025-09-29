@@ -2,7 +2,7 @@ name: Redeploy Site on Push to Main
 on:
   push:
     branches:
-      - ci/workflows
+      - main
 jobs:
   deploy_firebase:
     name: Deploy Next.js App to Firebase
