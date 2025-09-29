@@ -28,7 +28,7 @@ jobs:
         run: npm ci
 
       - name: Rebuild sharp for Linux
-        run: npm rebuild sharp --platform=linux --arch=x64
+        run: npm install --include=optional sharp
 
       - name: Install Firebase CLI
         run: npm install -g firebase-tools
