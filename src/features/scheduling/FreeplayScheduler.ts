@@ -9,7 +9,6 @@ export class FreeplayScheduler {
   staff: StaffAttendeeID[] = [];
   admins: AdminAttendeeID[] = [];
 
-  assignedCampers: CamperAttendeeID[] = [];
   assignedStaff: StaffAttendeeID[] = [];
   assignedAdmin: AdminAttendeeID[] = [];
 
@@ -19,15 +18,7 @@ export class FreeplayScheduler {
   otherFreeplayBuddies: { [attendeeId: number]: number[] } = {};
 
   // postInfo includes a list of all posts with PostID information (necessary for requiresAdmin flag) --> schedule only includes string of IDs
-  constructor(schedule: Freeplay, postInfo: PostID[], campers: CamperAttendeeID[], staff: StaffAttendeeID[], admins: AdminAttendeeID[]) {
-    this.withSchedule(schedule);
-    this.withCampers(campers);
-    this.withStaff(staff);
-    this.withAdmins(admins);
-
-    // NECESSARY FOR POST ASSIGNMENT
-    this.posts = postInfo;
-  }
+  constructor() { }
 
   withSchedule(schedule: Freeplay): FreeplayScheduler { this.schedule = schedule; return this; }
 
@@ -36,6 +27,8 @@ export class FreeplayScheduler {
   withStaff(staff: StaffAttendeeID[]): FreeplayScheduler { this.staff = staff; return this; }
 
   withAdmins(admins: AdminAttendeeID[]): FreeplayScheduler { this.admins = admins; return this; }
+
+  withPosts(posts: PostID[]): FreeplayScheduler { this.posts = posts; return this; }
 
   getCamperById = (id: number) => this.campers.find(c => c.id === id);
 
@@ -69,8 +62,12 @@ export class FreeplayScheduler {
   assignPosts() {
 
     // Keep track of available staff/admins
-    const availableAdmins = [...this.admins];
-    const availableStaff = [...this.staff];
+    const availableAdmins = this.admins.filter(admin =>
+      !this.assignedAdmin.some(assigned => assigned.id === admin.id)
+    );
+    const availableStaff = this.staff.filter(staff =>
+      !this.assignedStaff.some(assigned => assigned.id === staff.id)
+    )
 
     // assign all ADMIN-only roles first
     for (const postID in this.schedule.posts) {
@@ -80,6 +77,7 @@ export class FreeplayScheduler {
         if (availableAdmins.length > 0) {
           const adminID: AdminAttendeeID = availableAdmins.shift()!;
           this.schedule.posts[postID] = [adminID.id];
+          this.assignedAdmin.push(adminID);
         }
       }
     }
@@ -100,9 +98,6 @@ export class FreeplayScheduler {
       }
     }
 
-    this.admins = [...availableAdmins];
-    this.staff = [...availableStaff]
-
     return this;
   }
 
@@ -118,15 +113,14 @@ export class FreeplayScheduler {
     - Prioritize avoiding assigning the same "freeplay buddy" (previous buddy) if possible.
  */
     assignCampers() {
-      // 1. Assign Admins to posts (use staff if not enough admins)
-      this.assignPosts();
-      const allAssignedStaffers = [...this.assignedAdmin, ...this.assignedStaff];
+      const allAssignedStaffers = [...this.assignedStaff, ...this.assignedAdmin];
+      // const allAssignedStaffers = [...this.assignedStaff];
 
-      // 2. Split campers by gender
+      // 1. Split campers by gender
       const femaleCampers = this.campers.filter(c => c.gender === "Female");
       const maleCampers = this.campers.filter(c => c.gender === "Male");
 
-      // 3. Assign female campers
+      // 2. Assign female campers
       for (const camper of femaleCampers) {
         let assigned = false;
 
@@ -144,65 +138,39 @@ export class FreeplayScheduler {
           if (!hasConflict && alreadyAssigned.length == 0) {
             if (staffer.role === "STAFF") {
               if (staffer.bunk !== camper.bunk) {
-                assigned = true;
-                this.schedule.buddies[staffer.id] = [camper.id];
-              }
-            } else {
-              assigned = true;
-              this.schedule.buddies[staffer.id] = [camper.id];
-            }
-          }
-        }
-      
-        // Fallback: assign to any female staffer with < 2 campers
-        if (!assigned) {
-          for (const staffer of allAssignedStaffers) {
-            if (staffer.gender !== "Female") continue;
-      
-            const alreadyAssigned = this.schedule.buddies[staffer.id] || [];
-            if (alreadyAssigned.length < 2) {
-              if (alreadyAssigned.length == 0) {
-
-                // edge case:
-                  // if the camper hasn't been assigned already, there is a chance that it could be assigned...
-                  // ... to an admin/staffer they have been with, or have the same bunk with here
-
                 this.schedule.buddies[staffer.id] = [camper.id];
                 assigned = true;
                 break;
-
-              } else {
-                const otherCamper = this.getCamperById(alreadyAssigned[0]) || camper;
-                if (otherCamper.bunk == camper.bunk) {
-                  this.schedule.buddies[staffer.id].push(camper.id);
-                  assigned = true;
-                  break;
-                }
               }
+            } else {
+              this.schedule.buddies[staffer.id] = [camper.id];
+              assigned = true;
+              break;
             }
           }
         }
 
-        // WORST CASE SCENARIO --> STILL HASN'T BEEN ASSIGNED (FIND SOMEONE WITH SAME BUNK)
+        // Fallback: assign to any female staffer with another camper of the same bunk
+        if (!assigned) {
+          for (const staffer of allAssignedStaffers) {
+            if (staffer.gender !== "Female") continue;
 
-        // if (!assigned) {
-        //   for (const staffer of allAssignedStaffers) {
-        //     if (staffer.gender !== "Female") continue;
+            const alreadyAssigned = this.schedule.buddies[staffer.id] || [];
+            if (alreadyAssigned.length == 1) {
 
-        //     const alreadyAssigned = this.schedule.buddies[staffer.id] || [];
-        //     if (alreadyAssigned.length < 2) {
-        //       const otherCamper = this.getCamperById(alreadyAssigned[0]) || camper;
-        //       if (otherCamper.bunk == camper.bunk) {
-        //         this.schedule.buddies[staffer.id].push(camper.id);
-        //         assigned = true;
-        //         break;
-        //       }
-        //     }
-        //   }
-        // }
+              const otherCamper = this.getCamperById(alreadyAssigned[0]) || camper;
+              if (otherCamper.bunk == camper.bunk && otherCamper.id !== camper.id) {
+                this.schedule.buddies[staffer.id].push(camper.id);
+                assigned = true;
+                break;
+              }
+
+            }
+          }
+        }
       }
     
-      // 4. Assign male campers (same idea but with male staffers)
+      // 3. Assign male campers
       for (const camper of maleCampers) {
         let assigned = false;
 
@@ -228,50 +196,23 @@ export class FreeplayScheduler {
           }
         }
       
-        // Fallback: assign to any staffer with < 2 campers
+        // Fallback: assign to any staffer with another camper of the same bunk
         if (!assigned) {
           for (const staffer of allAssignedStaffers) {
-      
+
             const alreadyAssigned = this.schedule.buddies[staffer.id] || [];
-            if (alreadyAssigned.length < 2) {
-              if (alreadyAssigned.length == 0) {
+            if (alreadyAssigned.length == 1) {
 
-                // edge case:
-                  // if the camper hasn't been assigned already, there is a chance that it could be assigned...
-                  // ... to an admin/staffer they have been with, or have the same bunk with here
-
-                this.schedule.buddies[staffer.id] = [camper.id];
+              const otherCamper = this.getCamperById(alreadyAssigned[0]) || camper;
+              if (otherCamper.bunk == camper.bunk && otherCamper.id !== camper.id) {
+                this.schedule.buddies[staffer.id].push(camper.id);
                 assigned = true;
                 break;
-
-              } else {
-                const otherCamper = this.getCamperById(alreadyAssigned[0]) || camper;
-                if (otherCamper.bunk == camper.bunk) {
-                  this.schedule.buddies[staffer.id].push(camper.id);
-                  assigned = true;
-                  break;
-                }
               }
+
             }
           }
         }
-
-        // WORST CASE SCENARIO --> STILL HASN'T BEEN ASSIGNED
-
-        // if (!assigned) {
-        //   for (const staffer of allAssignedStaffers) {
-
-        //     const alreadyAssigned = this.schedule.buddies[staffer.id] || [];
-        //     if (alreadyAssigned.length < 2) {
-        //       const otherCamper = this.getCamperById(alreadyAssigned[0]) || camper;
-        //       if (otherCamper.bunk == camper.bunk) {
-        //         this.schedule.buddies[staffer.id].push(camper.id);
-        //         assigned = true;
-        //         break;
-        //       }
-        //     }
-        //   }
-        // }
       }
 
       return this;
