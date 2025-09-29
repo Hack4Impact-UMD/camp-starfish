@@ -8,6 +8,7 @@ import testPicture from "@/assets/images/PolaroidPhotos1.png";
 import EditAlbumModal from "@/components/EditAlbumModal";
 import CardGallery from "@/components/CardGallery";
 import { AlbumID } from "@/types/albumTypes";
+import Image from "next/image";
 
 const AlbumsPage: React.FC = () => {
   // Sample data for albums, get data from Firebase
@@ -27,10 +28,12 @@ const AlbumsPage: React.FC = () => {
             Albums
           </h1>
           <div className="flex items-center gap-4 ml-auto">
-            <img
+            <Image
               className="w-[72px] h-[72px] flex-none cursor-pointer"
               src={filterIcon.src}
               alt="Filter"
+              width={48}
+              height={48}
             />
             <button className="border-2 border-camp-primary text-lg py-2 px-4 rounded-3xl w-[252px] h-[48px] font-lato font-bold text-camp-text-modalTitle">
               SELECT ALL
@@ -38,10 +41,12 @@ const AlbumsPage: React.FC = () => {
             {/* Wrap plus icon with modal trigger */}
             <EditAlbumModal
               trigger={
-                <img
+                <Image
                   className="w-[72px] h-[72px] flex-none cursor-pointer"
                   src={plusIcon.src}
                   alt="Plus"
+                  width={48}
+                  height={48}
                 />
               }
               mode="CREATE"
@@ -50,7 +55,7 @@ const AlbumsPage: React.FC = () => {
         </div>
         <CardGallery<AlbumID>
           items={albums}
-          renderItem={(album: AlbumID) => <AlbumCard album={album} />}
+          renderItem={(album: AlbumID) => <AlbumCard album={album} thumbnail="" />}
         />
       </div>
     </div>

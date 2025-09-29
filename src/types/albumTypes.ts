@@ -1,4 +1,4 @@
-import { Camper } from "./personTypes";
+import { CamperID } from "./personTypes";
 import { ID } from "./utils";
 
 export interface Album {
@@ -9,7 +9,7 @@ export interface Album {
   endDate: string; // ISO-8601
   hasThumbnail: boolean;
 }
-export interface AlbumID extends Album, ID { };
+export interface AlbumID extends Album, ID<string> { };
 
 export interface ImageMetadata {
   name: string;
@@ -17,17 +17,17 @@ export interface ImageMetadata {
   inReview: boolean;
   tags: ImageTags;
 }
-export interface ImageMetadataID extends ImageMetadata, ID { albumId: string };
+export interface ImageMetadataID extends ImageMetadata, ID<string> { albumId: string; };
 
 export interface Image extends ImageMetadata {
   src: string;
 }
-export interface ImageID extends Image, ID { albumId: string };
+export interface ImageID extends Image, ID<string> { albumId: string; };
 
 // 'ALL' indicates an image should be available to everyone associated with that session (ex. group photos)
 export type ImageTags = 'ALL' | {
-  approved: Pick<Camper, 'campminderId' | 'name' | 'photoPermissions'>[];
-  inReview: Pick<Camper, 'campminderId' | 'name' | 'photoPermissions'>[];
+  approved: Pick<CamperID, 'id' | 'name' | 'photoPermissions'>[];
+  inReview: Pick<CamperID, 'id' | 'name' | 'photoPermissions'>[];
 }
 
 // Permissions for sharing photos with a given child in them
