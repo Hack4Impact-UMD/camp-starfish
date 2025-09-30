@@ -9,7 +9,7 @@ export interface Album {
   endDate: string; // ISO-8601
   hasThumbnail: boolean;
 }
-export interface AlbumID extends Album, ID { };
+export interface AlbumID extends Album, ID<string> { };
 
 export interface ImageMetadata {
   name: string;
@@ -17,12 +17,12 @@ export interface ImageMetadata {
   inReview: boolean;
   tags: ImageTags;
 }
-export interface ImageMetadataID extends ImageMetadata, ID { albumId: string; };
+export interface ImageMetadataID extends ImageMetadata, ID<string> { albumId: string; };
 
 export interface Image extends ImageMetadata {
   src: string;
 }
-export interface ImageID extends Image, ID { albumId: string; };
+export interface ImageID extends Image, ID<string> { albumId: string; };
 
 // 'ALL' indicates an image should be available to everyone associated with that session (ex. group photos)
 export type ImageTags = 'ALL' | {
