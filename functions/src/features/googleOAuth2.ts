@@ -12,7 +12,7 @@ const handleOAuth2Code = onRequest(async (req, res) => {
 
   const code = req.query.code as string;
   if (!code) {
-    res.status(303).send(`${process.env.NEXT_PUBLIC_DOMAIN}`);
+    res.status(303).redirect(`${process.env.NEXT_PUBLIC_DOMAIN}`);
     return;
   }
 
@@ -30,8 +30,20 @@ const handleOAuth2Code = onRequest(async (req, res) => {
     return;
   }
 
-  let decodedIdToken: TokenPayload;
-  if (!tokens.id_token || !(decodedIdToken = JSON.parse(atob(tokens.id_token.split('.')[1])) as TokenPayload).email || !decodedIdToken.email_verified) {
+  if (!tokens.id_token) {
+    res.status(303).redirect(`${process.env.NEXT_PUBLIC_DOMAIN}?error=true`);
+    return;
+  }
+
+  let decodedIdToken: TokenPayload | undefined;
+  try {
+    decodedIdToken = (await oAuth2Client.verifyIdToken({ idToken: tokens.id_token })).getPayload();
+    if (!decodedIdToken || !decodedIdToken.email || !decodedIdToken.email_verified) {
+      res.status(303).redirect(`${process.env.NEXT_PUBLIC_DOMAIN}?error=true`);
+      return;
+    }
+  } catch {
+
     res.status(303).redirect(`${process.env.NEXT_PUBLIC_DOMAIN}?error=true`);
     return;
   }
