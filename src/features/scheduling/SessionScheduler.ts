@@ -1,5 +1,12 @@
 import { StaffAttendeeID, AdminAttendeeID, NightShiftID, SessionID, SectionID } from "@/types/sessionTypes";
 
+function shuffleArray<T>(arr: T[]): T[] {
+  return arr
+    .map(value => ({ value, sort: Math.random() }))
+    .sort((a, b) => a.sort - b.sort)
+    .map(({ value }) => value);
+}
+
 export class SessionScheduler {
   session: SessionID | undefined;
   sections: SectionID[] = [];
@@ -53,8 +60,9 @@ export class SessionScheduler {
       ) {
         attempts++;
 
+        const choices = Array.from(employeeChoices);
         const randomEmployee =
-          employees[Math.floor(Math.random() * numEmployees)];
+          choices[Math.floor(Math.random() * choices.length)];
 
         // Skip if employee has already been chosen
         if (!employeeChoices.has(randomEmployee)) continue;
@@ -98,11 +106,11 @@ export class SessionScheduler {
     return this;
   }
 
+
+
   assignNightShifts(session: SessionID, employees: StaffAttendeeID[]): SessionScheduler {
     const bunks = new Set<number>();
-    const startDate = new Date(session.startDate);
     const endDate = new Date(session.endDate);
-    const numDays = Math.floor((endDate.getTime() - startDate.getTime()) / 86400000) + 1;
 
     // Collect unique bunks
     for (let i = 0; i < employees.length; i++) {
@@ -111,13 +119,10 @@ export class SessionScheduler {
 
     const toISODate = (date: Date) => date.toISOString().split("T")[0];
 
-    for (const bunkNumber of bunks) {
-      const employeesInBunk = employees.filter((e) => e.bunk === bunkNumber);
-      if (employeesInBunk.length === 0) continue;
 
-      const employeeChoices = new Set(employeesInBunk);
-      const choices = Array.from(employeeChoices);
-      if (choices.length === 0) continue;
+    // looping through all unique bunks that the employees have
+    for (const bunkNumber of bunks) {
+
 
       // Create NightShift object for this bunk
       const shift: NightShiftID = {
@@ -129,32 +134,36 @@ export class SessionScheduler {
         },
       };
 
-      // Pick a random employee
-      const randomEmployee = choices[Math.floor(Math.random() * choices.length)];
+      // choosing 4 employees
+      const employeesInBunk = employees.filter((e) => e.bunk === bunkNumber);
+      if (employeesInBunk.length === 0) continue;
+      const shuffled = shuffleArray(employeesInBunk);
+      const selected = shuffled.slice(0, 4);
+      
+      for (const employee of selected) {
+        // employee is a program counselor, check if they have day off before or after
+        if (employee.programCounselor) {
+          const eligible = !employee.daysOff.some((day) => {
+            const dayDate = new Date(day);
+            const prev = new Date(dayDate);
+            prev.setDate(prev.getDate() - 1);
+            const next = new Date(dayDate);
+            next.setDate(next.getDate() + 1);
+            return prev <= endDate && employee.daysOff.includes(toISODate(prev)) ||
+              next <= endDate && employee.daysOff.includes(toISODate(next));
+          });
 
-      // employee is a progrma counselor, check if they have day off before or after
-      if (randomEmployee.programCounselor) {
-        const eligible = !randomEmployee.daysOff.some((day) => {
-          const dayDate = new Date(day);
-          const prev = new Date(dayDate);
-          prev.setDate(prev.getDate() - 1);
-          const next = new Date(dayDate);
-          next.setDate(next.getDate() + 1);
-          return prev <= endDate && randomEmployee.daysOff.includes(toISODate(prev)) ||
-            next <= endDate && randomEmployee.daysOff.includes(toISODate(next));
-        });
-
-        if (eligible) {
-          shift[bunkNumber].counselorsOnDuty.push(randomEmployee.id);
+          if (eligible) {
+            shift[bunkNumber].counselorsOnDuty.push(employee.id);
+          }
+        } else { // not a program counselor, chosen employee gets night shift
+          shift[bunkNumber].nightBunkDuty.push(employee.id);
         }
-      } else { // not a program counsoler, choosen employee gets night shift
-        shift[bunkNumber].nightBunkDuty.push(randomEmployee.id);
-      }
 
+      }
       // Save the shift object
       this.nightShifts.push(shift);
     }
-
     return this;
   }
 
