@@ -59,6 +59,7 @@ export interface CommonSection {
   type: 'COMMON';
   startDate: string; // ISO-8601
   endDate: string; // ISO-8601, exclusive
+  hasDaysOff: boolean;
 }
 export interface CommonSectionID extends CommonSection, ID<string> { sessionId: string; };
 
