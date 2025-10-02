@@ -1,4 +1,4 @@
-import { StaffAttendeeID, CamperAttendeeID, AdminAttendeeID, SectionSchedule, Preferences, ProgramArea } from "@/types/sessionTypes";
+import { StaffAttendeeID, CamperAttendeeID, AdminAttendeeID, SectionSchedule, Preferences, ProgramAreaID } from "@/types/sessionTypes";
 
 export class BundleScheduler {
   bundleNum: number = -1;
@@ -32,7 +32,7 @@ export class BundleScheduler {
     Each `programArea` needs a staff member (`StaffAttendeeID`) to be in charge.
     This function assigns the given programArea to the corresponding staff member.
   */
-  assignProgramAreaCounselor(programArea: ProgramArea, staffID: StaffAttendeeID): void {
+  assignProgramAreaCounselor(programArea: ProgramAreaID, staffID: StaffAttendeeID): void {
     staffID.programCounselor = programArea;
   }
 
