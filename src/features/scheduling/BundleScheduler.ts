@@ -1,4 +1,4 @@
-import { StaffAttendeeID, CamperAttendeeID, AdminAttendeeID, SectionSchedule, SectionPreferences } from "@/types/sessionTypes";
+import { StaffAttendeeID, CamperAttendeeID, AdminAttendeeID, SectionSchedule, SectionPreferences, ProgramAreaID } from "@/types/sessionTypes";
 
 export class BundleScheduler {
   bundleNum: number = -1;
@@ -29,25 +29,83 @@ export class BundleScheduler {
   forBlocks(blockIds: string[]): BundleScheduler { this.blocksToAssign = blockIds; return this; }
 
   /*
-    Each `programArea` needs a specialized staff member (`StaffAttendeeID`) to be in charge.
-    This function assigns all program counselors to all the activities that they need to be present at.
+    Each `programArea` needs a staff member (`StaffAttendeeID`) to be in charge.
+    This function assigns the given programArea to the corresponding staff member.
   */
-  assignProgramCounselors() { return this; }
+  assignProgramAreaCounselor(programArea: ProgramAreaID, staffID: StaffAttendeeID): void {
+    staffID.programCounselor = programArea;
+  }
 
   /* Each staff member and admin needs to have 1 period off per day */
   assignPeriodsOff() { return this; }
 
-  /* All OCP campers need to be assigned to 1 OCP chat some time during the bundle */
-  assignOcpChats() { return this; }
+  /*
+    Assign a camper (CamperAttendeeID) to the "Teen Chat" activity in the given block.
+    Also update the block's`IndividualAssignments` in the 'activities` field for the
+    given block. Refer back to the scheduling data to see where each camper should be placed
+  */
+  assignOCPChats<T extends 'BUNDLE'>(camperAttendees: CamperAttendeeID[]): void {
+    camperAttendees
+      .filter(camper => camper.ageGroup === 'OCP')
+      .forEach(camper => {
+        const candidateBlocks = this.blocksToAssign.filter(bId =>
+          ['C', 'D', 'E'].includes(bId) &&
+          this.schedule.blocks[bId]?.activities.some(act => act.name === 'Teen Chat')
+        );
+
+        if (candidateBlocks.length === 0) return;
+
+        const blockId = candidateBlocks[Math.floor(Math.random() * candidateBlocks.length)];
+        const block = this.schedule.blocks[blockId];
+        const teenChatActivity = block.activities.find(act => act.name === 'Teen Chat');
+
+        if (!teenChatActivity) return;
+
+        block.activities.forEach(activity => {
+          activity.assignments.camperIds = activity.assignments.camperIds.filter(id => id !== camper.id);
+        });
+
+        teenChatActivity.assignments.camperIds.push(camper.id);
+      });
+  }
+
+
+
 
   /*
-    Campers must be assigned to a swim block if any 1 of the following conditions are met:
-    - It is the first bundle of the session
-    - They are a navigator (NAV) camper
-    - They are an OCP camper that has a level < 4 (out of 5)
-    - They are an OCP camper that has a level >= 4, but they have opted into having a Swim block
+    Assign campers (CamperAttendeeID[]) to the "Waterfront" activity in the given block. 
+    Also update the block's `IndividualAssignments` in the 'activities` field for the
+    given block. Refer back to the scheduling data to see where each camper should be placed
   */
-  assignSwimBlocks() { return this; }
+  assignSwimmingBlock<T extends 'BUNDLE'>(camperAttendees: CamperAttendeeID[]): void {
+    camperAttendees.forEach(camper => {
+      let requiredBlocks: string[] = [];
+
+      if (camper.ageGroup === 'NAV') {
+        requiredBlocks = this.blocksToAssign.filter(bId => ['C', 'D', 'E'].includes(bId));
+      } else if (camper.ageGroup === 'OCP') {
+        requiredBlocks = this.blocksToAssign.filter(bId => ['A', 'B'].includes(bId));
+
+        if (camper.level <= 3) {
+          requiredBlocks.push(...this.blocksToAssign.filter(bId => ['C', 'D', 'E'].includes(bId)));
+        } else {
+          // Levels 4–5 → optional swimming
+
+        }
+      }
+
+      requiredBlocks.forEach(blockId => {
+        const block = this.schedule.blocks[blockId];
+        if (!block) return;
+
+        const waterfrontActivity = block.activities.find(act => act.name === 'Waterfront');
+        waterfrontActivity?.assignments.camperIds.push(camper.id);
+      });
+    });
+  }
+
+
+
 
   assignCampers() { return this; }
 
