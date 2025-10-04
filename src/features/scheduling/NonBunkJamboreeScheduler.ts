@@ -5,7 +5,10 @@ import {
   CamperAttendeeID,
   SectionSchedule,
   Preferences,
+  JamboreeActivity,
+  IndividualAssignments,
 } from "@/types/sessionTypes";
+import { doesConflictExist } from "./schedulingUtils";
 
 export class NonBunkJamboreeScheduler {
   schedule: SectionSchedule<"NON-BUNK-JAMBO"> = { 
@@ -20,6 +23,9 @@ export class NonBunkJamboreeScheduler {
   camperPrefs: Preferences = {};
 
   blocksToAssign: string[] = [];
+
+  //  relationships between staff and admin
+  relationships = this.staffAdminRelationship();
 
   constructor() { }
 
@@ -55,46 +61,45 @@ export class NonBunkJamboreeScheduler {
 
   /* Each staff member & admin must have 1 period off per day */
   assignPeriodsOff(): NonBunkJamboreeScheduler { 
-    // getting available periods 
-    const availablePeriods = this.blocksToAssign.length;
-    // tracking periods that have already been beenAssigned
-    const assignedPeriods = new Set<number>();
-    //getting possible relationships between admin/staff
-    const relationships = this.staffAdminRelationship();
-    //we need to check each relationship to assign 
-    for (const relationship of relationships) {
-      const currentPeriod = this.getRandomAvailablePeriod(availablePeriods, assignedPeriods);
-      if (currentPeriod !== null) {
-        this.schedule.alternatePeriodsOff[currentPeriod.toString()] = 
-        [ ...(this.schedule.alternatePeriodsOff[currentPeriod.toString()] || []), relationship.staffId, relationship.adminId];
-        assignedPeriods.add(currentPeriod);
-      }
+    const assignedStaff = new Set<number>();
+    const assignedAdmins = new Set<number>();
+    // going through relationships between staff/admin
+    for (const relationship of this.relationships) {
+      assignedStaff.add(relationship.staffId);
+      assignedAdmins.add(relationship.adminId);
     }
-    // assigning stff not in relationships
-    for (const staff of this.staff) {
-      if (!this.isStaffAssignedToPeriodOff(staff.id)) {
-        const currentPeriod = this.getRandomAvailablePeriod(availablePeriods, assignedPeriods);
-        if (currentPeriod !== null) {
-          this.schedule.alternatePeriodsOff[currentPeriod.toString()] =
-          [ ...(this.schedule.alternatePeriodsOff[currentPeriod.toString()] || []), staff.id];
-          assignedPeriods.add(currentPeriod);
-        }
-      }
+    // filtering through staff and admin that need an assignment
+    const unassignedStaff = this.staff.filter(s => !assignedStaff.has(s.id));
+    const unassignedAdmins = this.admins.filter(a => !assignedAdmins.has(a.id));
+    
+    // iterating through blocks of periods off
+    let blockIndex = 0;
+    
+    // assigning periods off for those in relationships
+    for (const relationship of this.relationships) {
+      const blockId = this.blocksToAssign[blockIndex % this.blocksToAssign.length];
+      this.schedule.alternatePeriodsOff[blockId] = 
+        [ ...(this.schedule.alternatePeriodsOff[blockId] || []), relationship.staffId, relationship.adminId];
+      blockIndex++;
     }
-    // assigning admins not in relationships
-    for (const admin of this.admins) {
-      if (!this.isAdminAssignedToPeriodOff(admin.id)) {
-        const currentPeriod = this.getRandomAvailablePeriod(availablePeriods, assignedPeriods);
-        if (currentPeriod !== -1) {
-          this.schedule.alternatePeriodsOff[currentPeriod.toString()] = 
-          [ ...(this.schedule.alternatePeriodsOff[currentPeriod.toString()] || []), admin.id];
-          assignedPeriods.add(currentPeriod);
-        }
-      }
+    // unassigned staff assignment
+    for (const staff of unassignedStaff) {
+      const blockId = this.blocksToAssign[blockIndex % this.blocksToAssign.length];
+      this.schedule.alternatePeriodsOff[blockId] =
+        [ ...(this.schedule.alternatePeriodsOff[blockId] || []), staff.id];
+      blockIndex++;
+    }
+    //unassigned admin assignment
+    for (const admin of unassignedAdmins) {
+      const blockId = this.blocksToAssign[blockIndex % this.blocksToAssign.length];
+      this.schedule.alternatePeriodsOff[blockId] = 
+        [ ...(this.schedule.alternatePeriodsOff[blockId] || []), admin.id];
+      blockIndex++;
     }
     return this;
    }
 
+   //assigning campters to blocks based on preferences, not by bunk
   assignCampers(): NonBunkJamboreeScheduler { 
     this.withCamperPrefs(this.camperPrefs);
     // sort the campers preferences
@@ -122,7 +127,7 @@ export class NonBunkJamboreeScheduler {
           const currentBlock = this.schedule.blocks[blockId];
           const foundActivity = currentBlock.activities.find(a => a.name === activityName);
           //if the there is an open activity we assign camper to it
-          if (this.canAssignCamperToActivity(camper, foundActivity) && foundActivity) {
+          if (foundActivity && this.canAssignCamperToActivity(camper, foundActivity)) {
             foundActivity.assignments.camperIds.push(camper.id);
             beenAssigned = true;
             break;
@@ -175,64 +180,6 @@ export class NonBunkJamboreeScheduler {
   }
 
   //HELPER FUNCTIONS
-  
-  // assigning staff to freeplay blocks
-  assignStaffToFreeplay(): NonBunkJamboreeScheduler {
-    for (const blockId of this.blocksToAssign) {
-      const currentBlock = this.schedule.blocks[blockId];
-      // trying to find freeplay activity
-      let freeplayActivity = currentBlock.activities.find(a => a.name === 'Freeplay');
-      //assigning all staff to freeplay
-      if (freeplayActivity){
-             for (const staff of this.staff) {
-        if (!this.isStaffOnPeriodOff(staff.id, blockId) && 
-            !freeplayActivity!.assignments.staffIds.includes(staff.id)) {
-          freeplayActivity!.assignments.staffIds.push(staff.id);
-          }
-        }
-     }
-    }
-    return this;
-  }
-
-  assignAdminToFreeplay(): NonBunkJamboreeScheduler {
-    //going through blocks to to assign an admin to 
-    for (const blockId of this.blocksToAssign) {
-      const currentBlock = this.schedule.blocks[blockId];
-      // Find or create freeplay activity
-      let freeplayActivity = currentBlock.activities.find(a => a.name === 'Freeplay');
-      if (freeplayActivity) {
-        currentBlock.activities.push(freeplayActivity);
-      }
-      //assigning admins to the block
-      for (const admin of this.admins) {
-        if (!this.isAdminOnPeriodOff(admin.id, blockId) && 
-            !freeplayActivity!.assignments.adminIds.includes(admin.id)) {
-          freeplayActivity!.assignments.adminIds.push(admin.id);
-        }
-      }
-    }
-    return this;
-  }
-
-  assignCamperToFreeplay(): NonBunkJamboreeScheduler {
-    // Assign campers to freeplay with different buddies each day
-    for (const blockId of this.blocksToAssign) {
-      const currentBlock = this.schedule.blocks[blockId];     
-      // Find or create freeplay activity
-      let freeplayActivity = currentBlock.activities.find(a => a.name === 'Freeplay');
-      if(freeplayActivity){
-        currentBlock.activities.push(freeplayActivity);
-      }
-       // assign all campers to freeplay that are unspecified
-      for (const camper of this.campers) {
-        if (!freeplayActivity!.assignments.camperIds.includes(camper.id)) {
-          freeplayActivity!.assignments.camperIds.push(camper.id);
-        }
-      }
-    }
-    return this;
-  }
 
   //checking if a relationship exists between staff/admin to help with scheduling blocks and returns an array contianing the relationships
   private staffAdminRelationship(): Array<{staffId: number, adminId: number}> {
@@ -249,34 +196,19 @@ export class NonBunkJamboreeScheduler {
   }
 
   //getting random periods (so we can assign these to staff/admin)
-  private getRandomAvailablePeriod(maxPeriods: number, assignedPeriods: Set<number>): number {
-    const availablePeriods = [];
-    for (let i = 1; i <= maxPeriods; i++) {
-      if (!assignedPeriods.has(i)) {
-        availablePeriods.push(i);
-      }
-    }
+  private getRandomAvailablePeriod(assignedPeriods: Set<string>): string | null {
+    const availablePeriods = this.blocksToAssign.filter(blockId => !assignedPeriods.has(blockId));
     if (availablePeriods.length === 0) {
-      return -1;
+      return null;
     }
     const randomIndex = Math.floor(Math.random() * availablePeriods.length);
     return availablePeriods[randomIndex];
   }
 
-//checking if statff is already assigned to a period off
-  private isStaffAssignedToPeriodOff(staffId: number): boolean {
+//checking if staff or admin is already assigned to a period off
+  private isAssignedToPeriodOff(attendeeId: number): boolean {
     for (const period in this.schedule.alternatePeriodsOff) {
-      if (this.schedule.alternatePeriodsOff[period].includes(staffId)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  //checking if admin is already assigned a period off
-  private isAdminAssignedToPeriodOff(adminId: number): boolean {
-    for (const period in this.schedule.alternatePeriodsOff) {
-      if (this.schedule.alternatePeriodsOff[period].includes(adminId)) {
+      if (this.schedule.alternatePeriodsOff[period].includes(attendeeId)) {
         return true;
       }
     }
@@ -285,40 +217,26 @@ export class NonBunkJamboreeScheduler {
 
   //checking nono conflicts amonng staff
   private checkStaffNonoConflicts(staff: StaffAttendeeID, assignedStaffIds: number[]): boolean {
-    if (!staff.nonoList) 
-      return false;
-  else 
     return assignedStaffIds.some(assignedId => staff.nonoList.includes(assignedId));
   }
 
   //checking if a camper can participate in an foundActivity 
   /* INCLUCDES:
-  checking if camper can be placed in a certain foundActivity based on age restrictions
   checking camper nono list to make sure they are not asssigned in the same current block
   checking staff nono list to make sure they are not assigned i the same current block */ 
-  private canAssignCamperToActivity(camper: CamperAttendeeID, foundActivity: any): boolean {
-    // making sure age group restrctions are met
-    if (foundActivity.ageGroup && foundActivity.ageGroup !== camper.ageGroup) {
+  private canAssignCamperToActivity(camper: CamperAttendeeID, foundActivity: JamboreeActivity & { assignments: IndividualAssignments }): boolean {
+    // check nono list conflicts with other campers
+    if (doesConflictExist(camper, foundActivity.assignments.camperIds)) {
       return false;
     }
-    // check nono list conflicts with other campers
-    if (camper.nonoList) {
-      const hasConflict = foundActivity.assignments.camperIds.some((assignedId: number) => 
-        camper.nonoList.includes(assignedId)
-      );
-      if (hasConflict) return false;
-    }
     // check nono list conflicts with staff
-    if (camper.nonoList) {
-      const hasStaffConflict = foundActivity.assignments.staffIds.some((assignedId: number) => 
-        camper.nonoList.includes(assignedId)
-      );
-      if (hasStaffConflict) return false;
+    if (doesConflictExist(camper, foundActivity.assignments.staffIds)) {
+      return false;
     }
     return true;
   }
 
-//HELPERS FOR IDENTIFYING SCEDULING CONFLICTS
+//HELPERS FOR IDENTIFYING SCEDULING CONFLICTS IN PERIODS OFF
 
   // check if staff is on a period off on specific block
   private isStaffOnPeriodOff(staffId: number, blockId: string): boolean {
@@ -334,38 +252,4 @@ export class NonBunkJamboreeScheduler {
     return periodOffList && periodOffList.includes(adminId);
   }
 
-  // assigning admin to posts, staff if not available
-  private ensureStaffFallbackForPosts(): NonBunkJamboreeScheduler {
-    //amount of post??? 
-    const requiredPosts = 3; //placeholder for now
-    for (const blockId of this.blocksToAssign) {
-      //getting blocks
-      const currentBlock = this.schedule.blocks[blockId];
-      const freeplayActivity = currentBlock.activities.find(a => a.name === 'Freeplay');
-      if (freeplayActivity) {
-        const totalAdmins = freeplayActivity.assignments.adminIds.length + freeplayActivity.assignments.staffIds.length;
-        // once we run out of supervisors we put staff onto block
-        if (totalAdmins < requiredPosts) {
-          const staffNeeded = requiredPosts - totalAdmins;
-          let assignedStaff = 0;
-          for (const staff of this.staff) {
-            if (assignedStaff >= staffNeeded) {
-              break;
-            }
-            //checking ifif staff is free, if they are then assign them to the block
-            if (!this.isStaffOnPeriodOff(staff.id, blockId) && !freeplayActivity.assignments.staffIds.includes(staff.id)) {
-              freeplayActivity.assignments.staffIds.push(staff.id);
-              assignedStaff++;
-            }
-          }
-        }
-      }
-    }
-    return this;
-  }
-
-  // assign different freeplay buddies for campers each day
-  private assignFreeplayBuddies(): NonBunkJamboreeScheduler {
-    return this;
-  }
 }
