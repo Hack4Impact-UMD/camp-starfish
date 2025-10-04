@@ -1,4 +1,4 @@
-/* Campers are beenAssigned individually instead of by Bunk*/
+/* Campers are been assigned individually instead of by bunk*/
 import {
   AdminAttendeeID,
   StaffAttendeeID,
@@ -160,22 +160,58 @@ export class NonBunkJamboreeScheduler {
 
    /*assign conselors to their bunk*/ 
   assignCounselors(): NonBunkJamboreeScheduler {
-    // assign staff
-    for (const staff of this.staff) {      
-      // random assignment, not based on bunk, find available block as long as requiremennts are met
-      for (const blockId of this.blocksToAssign) {
-        const currentBlock = this.schedule.blocks[blockId];
-        if (!currentBlock) { continue; }
-        // skip if staff has a period off in this block
+    const relationships = this.staffAdminRelationship();
+    for (const blockId of this.blocksToAssign) {
+      const currentBlock = this.schedule.blocks[blockId];
+      if (!currentBlock) { continue; }
+      // Track which staff have already been placed in this block to avoid double-assignments
+      const assignedThisBlock = new Set<number>();
+      for (const activity of currentBlock.activities) {
+        for (const sid of activity.assignments.staffIds) { assignedThisBlock.add(sid); }
+      }
+
+      // 1) Pre-place program counselors onto their matching activities ONLY if campers are present
+      for (const staff of this.staff) {
         if (this.isStaffOnPeriodOff(staff.id, blockId)) { continue; }
-        // checking for staff conflicts or nono list with camper
-        for (const foundActivity of currentBlock.activities) {
-          const hasConflict = this.checkStaffNonoConflicts(staff, foundActivity.assignments.staffIds);
-          if (!hasConflict) {
-            //assign activity assignments
-            foundActivity.assignments.staffIds.push(staff.id);
-            break; 
+        if (assignedThisBlock.has(staff.id)) { continue; }
+        if (!staff.programCounselor) { continue; }
+        const match = currentBlock.activities.find(a => a.name === staff.programCounselor!.name);
+        if (!match) { continue; }
+        if ((match.assignments.camperIds?.length || 0) === 0) { continue; }
+        const hasConflict = this.checkStaffNonoConflicts(staff, match.assignments.staffIds);
+        if (hasConflict) { continue; }
+        const relAdmin = relationships.find(r => r.staffId === staff.id)?.adminId;
+        if (relAdmin && match.assignments.adminIds.includes(relAdmin)) { continue; }
+        match.assignments.staffIds.push(staff.id);
+        assignedThisBlock.add(staff.id);
+      }
+
+      // 2) Ensure near 1:1 by filling remaining needs per activity, only on activities with campers
+      const relationshipsByStaff = new Map<number, number>();
+      for (const r of relationships) { relationshipsByStaff.set(r.staffId, r.adminId); }
+      const availableStaff = this.staff.filter(s => !this.isStaffOnPeriodOff(s.id, blockId));
+      for (const activity of currentBlock.activities) {
+        const campers = activity.assignments.camperIds.length;
+        if (campers === 0) { continue; }
+        let have = activity.assignments.staffIds.length;
+        let need = Math.max(0, campers - have);
+        while (need > 0) {
+          let placed = false;
+          for (const staff of availableStaff) {
+            if (assignedThisBlock.has(staff.id)) { continue; }
+            // avoid staff-staff nono conflicts within the activity
+            if (this.checkStaffNonoConflicts(staff, activity.assignments.staffIds)) { continue; }
+            // avoid placing with relationship admin
+            const relAdmin = relationshipsByStaff.get(staff.id);
+            if (relAdmin && activity.assignments.adminIds.includes(relAdmin)) { continue; }
+            activity.assignments.staffIds.push(staff.id);
+            assignedThisBlock.add(staff.id);
+            have++;
+            need--;
+            placed = true;
+            break;
           }
+          if (!placed) { break; }
         }
       }
     }
@@ -257,4 +293,37 @@ export class NonBunkJamboreeScheduler {
     return periodOffList && periodOffList.includes(adminId);  
   }  
 
+  assignAdmins(): NonBunkJamboreeScheduler {
+    const relationships = this.staffAdminRelationship();
+    for (const blockId of this.blocksToAssign) {
+      const currentBlock = this.schedule.blocks[blockId];
+      if (!currentBlock) { continue; }
+      const availableAdmins = this.admins.filter(a => !this.isAdminOnPeriodOff(a.id, blockId));
+      const byId = new Map<number, AdminAttendeeID>();
+      for (const a of availableAdmins) { byId.set(a.id, a); }
+      const assignedCounts = new Map<number, number>();
+      for (const activity of currentBlock.activities) {
+        if (activity.assignments.adminIds.length > 0) { continue; }
+        let chosen: number | undefined;
+        for (const admin of availableAdmins) {
+          let ok = true;
+          for (const sid of activity.assignments.staffIds) {
+            const isRel = relationships.some(r => r.staffId === sid && r.adminId === admin.id);
+            if (isRel) { ok = false; break; }
+          }
+          if (!ok) { continue; }
+          chosen = admin.id;
+          break;
+        }
+        if (chosen === undefined && availableAdmins.length > 0) {
+          chosen = availableAdmins[0].id;
+        }
+        if (chosen !== undefined) {
+          activity.assignments.adminIds.push(chosen);
+          assignedCounts.set(chosen, (assignedCounts.get(chosen) || 0) + 1);
+        }
+      }
+    }
+    return this;
+  }
 }
