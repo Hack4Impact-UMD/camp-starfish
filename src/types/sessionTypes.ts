@@ -6,6 +6,7 @@ export interface Session {
   startDate: string; // ISO-8601
   endDate: string; // ISO-8601, exclusive
   albumId?: string;
+  driveFolderId: string;
 }
 export interface SessionID extends Session, ID<string> { };
 
@@ -20,6 +21,7 @@ export type CamperAttendee = Pick<
   ageGroup: AgeGroup;
   level: number;
   bunk: number;
+  swimOptOut: boolean;
 };
 export interface CamperAttendeeID extends CamperAttendee, ID<number> { sessionId: string; };
 
@@ -136,6 +138,10 @@ export interface PostID extends Post, ID<string> { }
 
 export type AgeGroup = 'NAV' | 'OCP';
 
-export interface Preferences {
+export interface BlockPreferences {
   [attendeeId: number]: { [activityId: string]: number };
+}
+
+export interface SectionPreferences {
+  [blockId: string]: BlockPreferences;
 }
