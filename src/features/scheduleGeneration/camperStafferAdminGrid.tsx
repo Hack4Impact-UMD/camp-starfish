@@ -99,7 +99,9 @@ const renderStaff = (
               {renderStaffBlocks(schedule, staff.id)}
 
               <View style={styles.cell}>
-                <Text>-</Text>
+                <Text>
+                  {Object.values(schedule.alternatePeriodsOff).some(ids => ids.includes(staff.id)) ? "RH" : ""}
+                </Text>
               </View>
 
               {/* Freeplay assignment */}
@@ -159,7 +161,9 @@ const renderCampers = ( schedule: SectionSchedule<"BUNDLE">, freeplay: Freeplay,
             ))}
 
             <View style={styles.cell}>
-              <Text>-</Text>
+              <Text>
+                -
+              </Text>
             </View>
 
             {/* FREEPLAY */}
@@ -205,7 +209,9 @@ const renderAdmin = ( schedule: SectionSchedule<"BUNDLE">, freeplay: Freeplay, a
               {renderStaffBlocks(schedule, admin.id)}
 
               <View style={styles.cell}>
-                <Text>-</Text>
+                <Text>
+                  {Object.values(schedule.alternatePeriodsOff).some(ids => ids.includes(admin.id)) ? "RH" : ""}
+                </Text>
               </View>
 
               {/* Freeplay assignment */}
