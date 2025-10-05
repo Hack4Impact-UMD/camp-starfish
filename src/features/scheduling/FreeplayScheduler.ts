@@ -1,3 +1,4 @@
+import { Staff } from "@/types/personTypes";
 import { StaffAttendeeID, AdminAttendeeID, CamperAttendeeID, Freeplay, PostID } from "../../types/sessionTypes";
 
 export class FreeplayScheduler {
@@ -37,7 +38,8 @@ export class FreeplayScheduler {
   // withOtherFreeplays should build the previousFreeplayBuddies object
   withOtherFreeplays(otherFreeplays: Freeplay[]): FreeplayScheduler {
     for (const freeplay of otherFreeplays) {
-      for (const buddieID in freeplay.buddies) {
+      for (const buddieIDStr in freeplay.buddies) {
+        const buddieID = Number(buddieIDStr);
         if (buddieID in this.otherFreeplayBuddies) {
 
           const attendees = freeplay.buddies[buddieID];
@@ -112,111 +114,76 @@ export class FreeplayScheduler {
       to the same staff member.
     - Prioritize avoiding assigning the same "freeplay buddy" (previous buddy) if possible.
  */
-    assignCampers() {
-      const allAssignedStaffers = [...this.assignedStaff, ...this.assignedAdmin];
-      // const allAssignedStaffers = [...this.assignedStaff];
+  assignCampers() {
+    const allAssignedStaffers = [...this.assignedStaff, ...this.assignedAdmin];
+    const allAssignedFemaleStaffers = allAssignedStaffers.filter(c => c.gender == "Female");
 
-      // 1. Split campers by gender
-      const femaleCampers = this.campers.filter(c => c.gender === "Female");
-      const maleCampers = this.campers.filter(c => c.gender === "Male");
+    // 1. Split campers by gender
+    const femaleCampers = this.campers.filter(c => c.gender === "Female");
+    const maleCampers = this.campers.filter(c => c.gender !== "Female");
 
-      // 2. Assign female campers
-      for (const camper of femaleCampers) {
-        let assigned = false;
+    // 2. Assign female campers
+    for (const camper of femaleCampers) {
+      let assigned = this.assignToOpenStaffFirstStep(allAssignedFemaleStaffers, camper);
 
-        // Loop through female staffers/admins first
-        for (const staffer of allAssignedStaffers) {
-
-          if (staffer.gender !== "Female") continue;
-
-          const alreadyAssigned = this.schedule.buddies[staffer.id] || [];
-          const prevBuddies = this.otherFreeplayBuddies[staffer.id] || [];
-
-          // Check buddy conflict (camper.id appears in staffer's prevBuddies)
-          const hasConflict = prevBuddies.includes(camper.id);
-
-          if (!hasConflict && alreadyAssigned.length == 0) {
-            if (staffer.role === "STAFF") {
-              if (staffer.bunk !== camper.bunk) {
-                this.schedule.buddies[staffer.id] = [camper.id];
-                assigned = true;
-                break;
-              }
-            } else {
-              this.schedule.buddies[staffer.id] = [camper.id];
-              assigned = true;
-              break;
-            }
-          }
-        }
-
-        // Fallback: assign to any female staffer with another camper of the same bunk
-        if (!assigned) {
-          for (const staffer of allAssignedStaffers) {
-            if (staffer.gender !== "Female") continue;
-
-            const alreadyAssigned = this.schedule.buddies[staffer.id] || [];
-            if (alreadyAssigned.length == 1) {
-
-              const otherCamper = this.getCamperById(alreadyAssigned[0]) || camper;
-              if (otherCamper.bunk == camper.bunk && otherCamper.id !== camper.id) {
-                this.schedule.buddies[staffer.id].push(camper.id);
-                assigned = true;
-                break;
-              }
-
-            }
-          }
-        }
+      // Fallback: assign to any female staffer with another camper of the same bunk
+      if (!assigned) {
+        this.assignToOpenStaffSecondStep(allAssignedFemaleStaffers, camper);
       }
-    
-      // 3. Assign male campers
-      for (const camper of maleCampers) {
-        let assigned = false;
-
-        // Loop through staffers/admins and assign to one that has no campers
-        for (const staffer of allAssignedStaffers) {
-
-          const alreadyAssigned = this.schedule.buddies[staffer.id] || [];
-          const prevBuddies = this.otherFreeplayBuddies[staffer.id] || [];
-
-          // Check buddy conflict (camper.id appears in staffer's prevBuddies)
-          const hasConflict = prevBuddies.includes(camper.id);
-
-          if (!hasConflict && alreadyAssigned.length == 0) {
-            if (staffer.role === "STAFF") {
-              if (staffer.bunk !== camper.bunk) {
-                assigned = true;
-                this.schedule.buddies[staffer.id] = [camper.id];
-              }
-            } else {
-              assigned = true;
-              this.schedule.buddies[staffer.id] = [camper.id];
-            }
-          }
-        }
-      
-        // Fallback: assign to any staffer with another camper of the same bunk
-        if (!assigned) {
-          for (const staffer of allAssignedStaffers) {
-
-            const alreadyAssigned = this.schedule.buddies[staffer.id] || [];
-            if (alreadyAssigned.length == 1) {
-
-              const otherCamper = this.getCamperById(alreadyAssigned[0]) || camper;
-              if (otherCamper.bunk == camper.bunk && otherCamper.id !== camper.id) {
-                this.schedule.buddies[staffer.id].push(camper.id);
-                assigned = true;
-                break;
-              }
-
-            }
-          }
-        }
-      }
-
-      return this;
     }
+  
+    // 3. Assign male campers
+    for (const camper of maleCampers) {
+      let assigned = this.assignToOpenStaffFirstStep(allAssignedStaffers, camper);
+    
+      // Fallback: assign to any staffer with another camper of the same bunk
+      if (!assigned) {
+        this.assignToOpenStaffSecondStep(allAssignedStaffers, camper);
+      }
+    }
+
+    return this;
+  }
+
+  assignToOpenStaffFirstStep(allAssignedStaffers: (StaffAttendeeID | AdminAttendeeID)[], camper: CamperAttendeeID) {
+    let assigned = false;
+
+    // Loop through female staffers/admins first
+    for (const staffer of allAssignedStaffers) {
+
+      const alreadyAssigned = this.schedule.buddies[staffer.id] || [];
+      const prevBuddies = this.otherFreeplayBuddies[staffer.id] || [];
+
+      // Check buddy conflict (camper.id appears in staffer's prevBuddies)
+      const hasConflict = prevBuddies.includes(camper.id);
+
+      if (!hasConflict && alreadyAssigned.length == 0) {
+        if ( (staffer.role === "STAFF" && staffer.bunk !== camper.bunk) || staffer.role !== "STAFF" ) {
+          this.schedule.buddies[staffer.id] = [camper.id];
+          assigned = true;
+          break;
+        }
+      }
+    }
+
+    return assigned
+  }
+
+  assignToOpenStaffSecondStep(allAssignedStaffers: (StaffAttendeeID | AdminAttendeeID)[], camper: CamperAttendeeID) {
+    for (const staffer of allAssignedStaffers) {
+
+      const alreadyAssigned = this.schedule.buddies[staffer.id] || [];
+      if (alreadyAssigned.length == 1) {
+
+        const otherCamper = this.getCamperById(alreadyAssigned[0]) || camper;
+        if (otherCamper.bunk == camper.bunk && otherCamper.id !== camper.id) {
+          this.schedule.buddies[staffer.id].push(camper.id);
+          break;
+        }
+
+      }
+    }
+  }
 
   getSchedule() { return this.schedule; }
 }
