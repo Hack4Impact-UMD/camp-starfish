@@ -19,6 +19,8 @@ export class BunkJamboreeScheduler {
 
   withBunks(bunks: BunkID[]): BunkJamboreeScheduler { this.bunks = bunks; return this; }
 
+  withStaff(staff: StaffAttendeeID[]): BunkJamboreeScheduler { this.staff = staff; return this; }
+
   withAdmins(admins: AdminAttendeeID[]): BunkJamboreeScheduler { this.admins = admins; return this; }
 
   withCampers(campers: CamperAttendeeID[]): BunkJamboreeScheduler { this.campers = campers; return this; }
