@@ -62,7 +62,7 @@ export default function LoginPage() {
         <button
           onClick={signInWithMicrosoft}
           className="flex flex-row justify-around items-center w-5/6 max-w-[344px] bg-white 
-                    py-4 px-12 rounded-full shadow-[0_4px_4px_-1px_rgba(0,0,0,0.2)] font-lato text-xl text-gray-600"
+                    mt-5 py-4 px-12 rounded-full shadow-[0_4px_4px_-1px_rgba(0,0,0,0.2)] font-lato text-xl text-gray-600"
         >
           <Image src={MicrosoftIcon.src} alt="Microsoft" width={32} height={32} />
           Sign in with Microsoft
