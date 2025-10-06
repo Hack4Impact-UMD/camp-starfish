@@ -1,7 +1,7 @@
 import { Document, Page, Text, View, StyleSheet, PDFViewer } from "@react-pdf/renderer";
-import { 
-  StaffAttendeeID, 
-  CamperAttendeeID, 
+import {
+  StaffAttendeeID,
+  CamperAttendeeID,
   AdminAttendeeID, 
   SectionSchedule, 
   BunkID,
@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
   },
 });
 
-/* ------------------ MAIN DOCUMENT ------------------ */
+// ------------------ MAIN DOCUMENT ------------------ 
 const renderStaff = (
   schedule: SectionSchedule<"BUNDLE">,
   freeplay: Freeplay,
@@ -156,7 +156,7 @@ const renderCampers = ( schedule: SectionSchedule<"BUNDLE">, freeplay: Freeplay,
             {/* BLOCKS A–E */}
             {blocksArray.map((block, i) => (
               <View key={i} style={styles.cell}>
-                <Text>{renderBlocks([block], camper.id)}</Text>
+                <Text>{ renderCamperBlockAssignment(block, camper.id) }</Text>
               </View>
             ))}
 
@@ -230,7 +230,7 @@ const renderAdmin = ( schedule: SectionSchedule<"BUNDLE">, freeplay: Freeplay, a
 // ----------------- HELPERS ----------------
 
 const sortBunkList = ( bunkList: BunkID[], staffList: StaffAttendeeID[]) => {
-  let sortedList: StaffAttendeeID[] = [];
+  const sortedList: StaffAttendeeID[] = [];
 
   const staffDict: Record<number, StaffAttendeeID> = staffList.reduce(
     (acc, staff) => {
@@ -241,7 +241,7 @@ const sortBunkList = ( bunkList: BunkID[], staffList: StaffAttendeeID[]) => {
   );
 
   for (const bunk of bunkList) {
-    let tempList = [];
+    const tempList = [];
     tempList.push(staffDict[bunk.leadCounselor]);
     for (const counselor of bunk.staffIds) {
       tempList.push(staffDict[counselor]);
@@ -262,30 +262,18 @@ const freeplayBuddy = ( freeplay: Freeplay, camper: CamperAttendeeID) => {
   }
 
   return (
-      <Text>
-        { savedId }
-      </Text>
+    { savedId }
   );
 };
 
-const renderBlocks = (blocks: Block<"BUNDLE">[], camperId: number) => {
-  return blocks.map((block, blockIndex) => {
-    // Find all activities where this camper is assigned
-    const camperActivities = (block.activities as BundleBlockActivities).filter(activity =>
-      activity.assignments.camperIds.includes(camperId)
-    );
+const renderCamperBlockAssignment = (block: Block<"BUNDLE">, camperId: number) => {
+  const camperActivities = (block.activities as BundleBlockActivities).filter((activity) =>
+    activity.assignments.camperIds.includes(camperId)
+  );
 
-    return (
-      <View key={blockIndex}>
-        <Text>
-          Block {blockIndex + 1}:{" "}
-          {camperActivities.length > 0
-            ? camperActivities.map(a => a.name).join(", ")
-            : "OFF"}
-        </Text>
-      </View>
-    );
-  });
+  return camperActivities.length > 0
+    ? camperActivities.map((activity) => activity.name).join(", ")
+    : "OFF";
 };
 
 const renderStaffBlocks = (schedule: SectionSchedule<"BUNDLE">, staffId: number) => {
@@ -343,15 +331,16 @@ const renderFreeplayAssignment = ( freeplay: Freeplay, staffId: number, campers:
   }
 
   // If staff is assigned to a Freeplay post
-  const post = Object.entries(freeplay.posts).find(([_, ids]) =>
+  const postEntry = Object.entries(freeplay.posts).find(([postName, ids]) =>
     ids.includes(staffId)
   );
-  if (post) {
+  if (postEntry) {
+    const [postName] = postEntry;
     return (
       <View style={styles.cell}>
-        <Text>{post[0]}</Text>
+        <Text>{ postName }</Text>
       </View>
-    );
+    )
   }
 
   return (
