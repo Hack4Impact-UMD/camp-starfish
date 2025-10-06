@@ -15,6 +15,7 @@
     "@radix-ui/react-dialog": "^1.1.6",
     "firebase": "^11.3.1",
     "framer-motion": "^12.4.7",
+    "googleapis": "^161.0.0",
     "lucide-react": "^0.482.0",
     "mime-types": "^3.0.1",
     "moment": "^2.30.1",
