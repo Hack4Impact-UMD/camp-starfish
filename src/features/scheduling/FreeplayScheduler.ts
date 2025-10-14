@@ -23,6 +23,7 @@ export class FreeplayScheduler {
   withAdmins(admins: AdminAttendeeID[]): FreeplayScheduler { this.admins = admins; return this; }
 
   // withOtherFreeplays should build the previousFreeplayBuddies object
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   withOtherFreeplays(otherFreeplays: Freeplay[]): FreeplayScheduler { return this; }
 
   /* Assigns ADMINs to all posts that require ADMINs and either STAFF or ADMINs to all other posts */
