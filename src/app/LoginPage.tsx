@@ -17,7 +17,7 @@ export default function LoginPage() {
 
   const errorDisplay = error ? error : auth.error;
 
-  const signIn = async () => {
+  const signInWithGoogle = async () => {
     try {
       await signInWithGooglePopup();
     } catch {
@@ -50,7 +50,7 @@ export default function LoginPage() {
 
         {/* Google Sign-in Button */}
         <button
-          onClick={signIn}
+          onClick={signInWithGoogle}
           className="flex flex-row justify-around items-center w-5/6 max-w-[344px] bg-white 
                     py-4 px-12 rounded-full shadow-[0_4px_4px_-1px_rgba(0,0,0,0.2)] font-lato text-xl text-gray-600"
         >
