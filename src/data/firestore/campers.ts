@@ -1,39 +1,53 @@
 import { db } from "@/config/firebase";
-import { Camper } from "@/types/personTypes";
-import { doc, getDoc, setDoc, updateDoc, deleteDoc } from "firebase/firestore";
+import { Camper, CamperID } from "@/types/personTypes";
+import { doc, getDoc, setDoc, updateDoc, deleteDoc, Transaction, WriteBatch, FirestoreError } from "firebase/firestore";
+import { Collection } from "./utils";
 
-const CAMPERS_COLLECTION = "campers";
-
-export const getCamperById = async (campminderId: number): Promise<Camper> => {
-  const camperRef = doc(db, CAMPERS_COLLECTION, String(campminderId));
-  const camperDoc = await getDoc(camperRef);
+export const getCamperById = async (campminderId: number, transaction?: Transaction): Promise<Camper> => {
+  const camperRef = doc(db, Collection.CAMPERS, String(campminderId));
+  let camperDoc;
+  try {
+    camperDoc = await (transaction ? transaction.get(camperRef) : getDoc(camperRef));
+  } catch {
+    throw new Error(`Failed to get camper`);
+  }
   if (!camperDoc.exists()) {
     throw new Error("Camper not found");
   }
   return camperDoc.data() as Camper;
 };
 
-export const createCamper = async (camper: Camper): Promise<void> => {
-  const camperRef = doc(db, CAMPERS_COLLECTION, String(camper.campminderId));
+export const createCamper = async (camper: CamperID, instance?: Transaction | WriteBatch): Promise<void> => {
   try {
-    await setDoc(camperRef, camper);
-  } catch (error: any) {
-    throw Error("Camper already exists")
+    const camperRef = doc(db, Collection.CAMPERS, String(camper.id));
+    // @ts-expect-error - instance.set on both Transaction and WriteBatch have the same signature
+    await (instance ? instance.set(camperRef, camper) : setDoc(camperRef, camper));
+  } catch (error: unknown) {
+    if (error instanceof FirestoreError && error.code === "already-exists") {
+      throw new Error("Camper already exists");
+    }
+    throw new Error(`Failed to create camper`);
   }
 };
 
-export const updateCamper = async (campminderId: number, updates: Partial<Camper>): Promise<void> => {
+export const updateCamper = async (campminderId: number, updates: Partial<Camper>, instance?: Transaction | WriteBatch): Promise<void> => {
   try {
-    const camperRef = doc(db, CAMPERS_COLLECTION, String(campminderId));
-    await updateDoc(camperRef, updates);
-  } catch (error: any) {
-    if (error.code === "not-found") {
+    const camperRef = doc(db, Collection.CAMPERS, String(campminderId));
+    // @ts-expect-error - instance.update on both Transaction and WriteBatch have the same signature
+    await (instance ? instance.update(camperRef, updates) : updateDoc(camperRef, updates));
+  } catch (error: unknown) {
+    if (error instanceof FirestoreError && error.code === "not-found") {
       throw new Error("Camper not found");
     }
+    throw new Error(`Failed to update camper`);
   }
 };
 
-export const deleteCamper = async (campminderId: number): Promise<void> => {
-  const camperRef = doc(db, CAMPERS_COLLECTION, String(campminderId));
-  await deleteDoc(camperRef);
+export const deleteCamper = async (campminderId: number, instance?: Transaction | WriteBatch): Promise<void> => {
+  try {
+    const camperRef = doc(db, Collection.CAMPERS, String(campminderId));
+    await (instance ? instance.delete(camperRef) : deleteDoc(camperRef));
+  } catch {
+    throw new Error(`Failed to delete camper`);
+  }
 };

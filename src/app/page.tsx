@@ -1,8 +1,7 @@
 "use client";
-import ConfirmationModal from "../components/ConfirmationModal";
 
 import RequireAuth from "@/auth/RequireAuth";
-import LoginPage from "./LoginPage"
+import LoginPage from "./LoginPage";
 import RoleBasedPage from "@/auth/RoleBasedPage";
 import EmployeeHomePage from "./EmployeeHomePage";
 import ParentHomePage from "./ParentHomePage";

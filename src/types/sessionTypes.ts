@@ -1,82 +1,100 @@
-import { Camper, Employee } from "./personTypes";
+import { Admin, Camper, Staff } from "./personTypes";
+import { ID } from "./utils";
 
 export interface Session {
   name: string;
   startDate: string; // ISO-8601
-  endDate: string; // ISO-8601
-  schedule: SessionSection[];
-  attendees: {
-    campers: CamperSessionAttendee[];
-    staff: StaffSessionAttendee[];
-    admins: (Pick<Employee, 'campminderId' | 'name' | 'gender' | 'nonoList'> & { role: "ADMIN" })[];
-  };
+  endDate: string; // ISO-8601, exclusive
   albumId?: string;
+  driveFolderId: string;
 }
+export interface SessionID extends Session, ID<string> { };
 
-export type CamperSessionAttendee = Pick<
+export type Attendee = CamperAttendee | StaffAttendee | AdminAttendee;
+export type AttendeeID = CamperAttendeeID | StaffAttendeeID | AdminAttendeeID;
+
+export type CamperAttendee = Pick<
   Camper,
-  "campminderId" | "name" | "gender" | "dateOfBirth" | "nonoList"
+  "name" | "gender" | "dateOfBirth" | "nonoList"
 > & {
+  role: "CAMPER";
   ageGroup: AgeGroup;
   level: number;
   bunk: number;
-  prefs: {
-    bundles: {
-      [bundleId: string]: {
-        [blockId: string]: { [activityId: string]: number };
-      };
-    };
-    nonBunkJamborees: {
-      [jamboId: string]: {
-        [blockId: string]: { [activityId: string]: number };
-      };
-    };
-  };
+  swimOptOut: boolean;
 };
+export interface CamperAttendeeID extends CamperAttendee, ID<number> { sessionId: string; };
 
-export type StaffSessionAttendee = Pick<Employee, 'campminderId' | 'name' | 'gender' | 'nonoList'> & {
+export type StaffAttendee = Pick<Staff, 'name' | 'gender' | 'nonoList' | 'yesyesList'> & {
   role: "STAFF";
   programCounselor?: ProgramArea;
   bunk: number;
+  leadBunkCounselor: boolean;
+  daysOff: string[] // ISO-8601
 }
+export interface StaffAttendeeID extends StaffAttendee, ID<number> { sessionId: string; };
 
-export type SessionSection = CommonSection | SchedulingSection<Block>;
+export type AdminAttendee = Pick<Admin, 'name' | 'gender' | 'nonoList' | 'yesyesList'> & {
+  role: "ADMIN";
+  daysOff: string[]; // ISO-8601
+}
+export interface AdminAttendeeID extends AdminAttendee, ID<number> { sessionId: string; };
+
+export interface NightShift {
+  [bunkId: number]: {
+    counselorsOnDuty: number[];
+    nightBunkDuty: number[];
+  }
+}
+export interface NightShiftID extends NightShift, ID<string> { sessionId: string; };
+
+export type SectionType = 'COMMON' | SchedulingSectionType;
+export type SchedulingSectionType = "BUNDLE" | "BUNK-JAMBO" | "NON-BUNK-JAMBO";
+
+export type Section = CommonSection | SchedulingSection;
+export type SectionID = CommonSectionID | SchedulingSectionID;
 
 export interface CommonSection {
-  id: string;
   name: string;
+  type: 'COMMON';
   startDate: string; // ISO-8601
-  endDate: string; // ISO-8601
+  endDate: string; // ISO-8601, exclusive
+}
+export interface CommonSectionID extends CommonSection, ID<string> { sessionId: string; };
+
+export type SchedulingSection = Omit<CommonSection, 'type'> & {
+  type: SchedulingSectionType;
+  numBlocks: number;
+}
+export interface SchedulingSectionID extends SchedulingSection, ID<string> { sessionId: string; };
+
+export interface SectionSchedule<T extends SchedulingSectionType> {
+  blocks: { [blockId: string]: Block<T> };
+  alternatePeriodsOff: { [period: string]: number[] }
+}
+export interface SectionScheduleID<T extends SchedulingSectionType> extends SectionSchedule<T>, ID<string> { sessionId: string; sectionId: string; };
+
+export type Bundle = SectionSchedule<'BUNDLE'>;
+export type BundleID = SectionScheduleID<'BUNDLE'>;
+export type BunkJamboree = SectionSchedule<'BUNK-JAMBO'>;
+export type BunkJamboreeID = SectionScheduleID<'BUNK-JAMBO'>;
+export type NonBunkJamboree = SectionSchedule<'NON-BUNK-JAMBO'>;
+export type NonBunkJamboreeID = SectionScheduleID<'NON-BUNK-JAMBO'>;
+
+export type Block<T> = {
+  activities: T extends 'BUNDLE' ? BundleBlockActivities : T extends 'BUNK-JAMBO' ? BunkJamboreeBlockActivities : NonBunkJamboreeBlockActivities;
+  periodsOff: number[];
 }
 
-export type SchedulingSectionType = "BUNDLE" | "BUNK-JAMBO" | "NON-BUNK-JAMBO";
-export interface SchedulingSection<B extends Block> extends CommonSection {
-  type: B extends BundleBlock ? "BUNDLE" : B extends BunkJamboreeBlock ? "BUNK-JAMBO" : "NON-BUNK-JAMBO";
-  freeplays: { [freeplayId: string]: Freeplay };
-  blocks: { [blockId: string]: B };
+export type BundleBlockActivities = (BundleActivity & { assignments: IndividualAssignments })[];
+export type BunkJamboreeBlockActivities = (JamboreeActivity & { assignments: BunkAssignments })[];
+export type NonBunkJamboreeBlockActivities = (JamboreeActivity & { assignments: IndividualAssignments })[];
+
+export interface ProgramArea {
+  name: string;
+  isDeleted: boolean;
 }
-
-export type BundleBlock = (BundleActivity & { assignments: IndividualAssignments })[];
-export type BunkJamboreeBlock = (JamboreeActivity & { assignments: BunkAssignments })[];
-export type NonBunkJamboreeBlock = (JamboreeActivity & { assignments: IndividualAssignments })[];
-export type Block = BundleBlock | BunkJamboreeBlock | NonBunkJamboreeBlock;
-
-export type ProgramArea =
-  | "ACT" // Activate!
-  | "A&C" // Arts & Crafts
-  | "ATH" // Athletics
-  | "BOAT" // Boating
-  | "CHAL" // Challenge
-  | "DNC" // Dance
-  | "DRA" // Drama
-  | "DISC" // Discovery
-  | "LC" // Learning Center
-  | "MUS" // Music
-  | "OUT" // Outdoor Cooking
-  | "SMA" // Small Animals
-  | "XPL" // Xplore!
-  | "OCP" // Teens
-  | "WF";  // Waterfront
+export interface ProgramAreaID extends ProgramArea, ID<string> { };
 
 export interface JamboreeActivity {
   name: string;
@@ -100,32 +118,30 @@ export interface BunkAssignments {
 }
 
 export interface Bunk {
-  bunkNum: number;
   leadCounselor: number;
   staffIds: number[];
   camperIds: number[];
-  bunkJamboreePrefs: {
-    [jamboId: string]: {
-      [blockId: string]: { [activityId: string]: number };
-    };
-  };
 }
+export interface BunkID extends Bunk, ID<number> { sessionId: string; };
 
 export interface Freeplay {
-  posts: Record<Post, number[]> // Admin & Staff only
+  posts: { [postId: string]: number[] } // Admin & Staff only
   buddies: Record<number, number[]>; // Staff assigned to 1-2 campers each
 }
+export interface FreeplayID extends Freeplay, ID<string> { sessionId: string; };
 
-export type Post =
-  | "Wishy Washy"
-  | "Lily Pads"
-  | "Book Nook"
-  | "Camp Store"
-  | "Blacktop"
-  | "Waterfront"
-  | "Fort Starfish"
-  | "Teens Lounge"
-  | "Truckstop"
-  | "Field";
+export interface Post {
+  name: string;
+  requiresAdmin: boolean;
+}
+export interface PostID extends Post, ID<string> { }
 
 export type AgeGroup = 'NAV' | 'OCP';
+
+export interface BlockPreferences {
+  [attendeeId: number]: { [activityId: string]: number };
+}
+
+export interface SectionPreferences {
+  [blockId: string]: BlockPreferences;
+}

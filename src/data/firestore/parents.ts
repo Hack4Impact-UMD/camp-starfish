@@ -1,5 +1,5 @@
 import { db } from "@/config/firebase";
-import { Parent, Camper } from "@/types/personTypes";
+import { Parent, ParentID } from "@/types/personTypes";
 import {
   doc,
   query,
@@ -11,96 +11,87 @@ import {
   setDoc,
   updateDoc,
   deleteDoc,
+  WriteBatch,
+  FirestoreError,
+  limit,
 } from "firebase/firestore";
-import { getCamperById } from "./campers";
-
-const PARENTS_COLLECTION = "parents";
-const CAMPERS_COLLECTION = "campers";
+import { Collection } from "./utils";
 
 // Get a parent by campminderId or uid
-export const getParentById = async (id: string | number): Promise<Parent> => {
-  const parentsCollection = collection(db, PARENTS_COLLECTION);
+export const getParentById = async (id: string | number, transaction?: Transaction): Promise<Parent> => {
+  if (transaction) {
+    if (typeof id === "string") {
+      throw new Error("When using Transaction, id must be campminderId, not uid");
+    }
+    const parentRef = doc(db, Collection.PARENTS, String(id));
 
-  // Using Firestore's `or()` to query for either condition
+    let parentDoc;
+    try {
+      parentDoc = await transaction.get(parentRef);
+    } catch (error: unknown) {
+      if (error instanceof FirestoreError && error.code === "not-found") {
+        throw new Error("Parent doesn't exist");
+      }
+      throw new Error(`Failed to get parent`);
+    }
+    if (!parentDoc.exists()) {
+      throw new Error("Parent not found");
+    }
+    return parentDoc.data() as Parent;
+  }
+
+  const parentsCollection = collection(db, Collection.PARENTS);
   const q = query(
     parentsCollection,
-    or(where("uid", "==", id), where("campminderId", "==", id))
+    or(where("uid", "==", id), where("campminderId", "==", id)),
+    limit(1)
   );
-
-  const querySnapshot = await getDocs(q);
+  let querySnapshot;
+  try {
+    querySnapshot = await getDocs(q);
+  } catch {
+    throw new Error(`Failed to get parent`);
+  }
   if (querySnapshot.empty) {
     throw new Error("Parent not found");
   }
-
   return querySnapshot.docs[0].data() as Parent;
 };
 
 // Create a new parent
-export const createParent = async (parent: Parent): Promise<void> => {
-  const parentId = parent.campminderId;
-  const parentRef = doc(db, PARENTS_COLLECTION, String(parentId));
-
-  // Ensure all referenced camperIds exist
-  for (const camperId of parent.camperIds) {
-    try {
-      await getCamperById(camperId);
-    } catch (error: any) {
-      throw new Error("Parent has invalid camperIds")
-    }
-  }
-
+export const createParent = async (parent: ParentID, instance?: Transaction | WriteBatch): Promise<void> => {
   try {
-    await setDoc(parentRef, parent);
-  } catch (error: any) {
-    throw Error("Parent already exists");
+    const parentRef = doc(db, Collection.PARENTS, String(parent.id));
+    // @ts-expect-error - instance.set on both Transaction and WriteBatch have the same signature
+    await (instance ? instance.set(parentRef, parent) : setDoc(parentRef, parent));
+  } catch (error: unknown) {
+    if (error instanceof FirestoreError && error.code === "already-exists") {
+      throw new Error("Parent already exists");
+    }
+    throw new Error(`Failed to create parent`);
   }
 };
 
 // Update a parent by campminderId
-export const updateParent = async (id: number, updates: Partial<Parent>): Promise<void> => {
-  // If updating camperIds, ensure the new camperIds exist
-  if (updates.camperIds) {
-    for (const camperId of updates.camperIds) {
-      try {
-        await getCamperById(camperId);
-      } catch (error: any) {
-        throw new Error("Parent has invalid camperIds")
-      }
-    }
-  }
-
-  const parentRef = doc(db, PARENTS_COLLECTION, String(id));
+export const updateParent = async (id: number, updates: Partial<Parent>, instance?: Transaction | WriteBatch): Promise<void> => {
   try {
-    await updateDoc(parentRef, updates);
-  } catch (error: any) {
-    if (error.code === "not-found") {
-      throw new Error("Parent not found");
+    const parentRef = doc(db, Collection.PARENTS, String(id));
+    // @ts-expect-error - instance.update on both Transaction and WriteBatch have the same signature
+    await (instance ? instance.update(parentRef, updates) : updateDoc(parentRef, updates));
+  } catch (error: unknown) {
+    if (error instanceof FirestoreError && error.code === "not-found") {
+      throw new Error("Parent doesn't exist");
     }
+    throw new Error(`Failed to update parent`);
   }
 };
 
 // Delete a parent and remove the parent from all associated campers
-export const deleteParent = async (id: number): Promise<void> => {
-  const parentRef = doc(db, PARENTS_COLLECTION, String(id));
-  await deleteDoc(parentRef);
-  
-  // TODO: Remove parent from all referenced campers in cloud function
-  //const parentDoc = await getParentById(transaction, id);
-  //const parentData = parentDoc as Parent;
-//
-  //// Remove this parent from all referenced Campers
-  //for (const camperId of parentData.camperIds) {
-  //  const camperRef = doc(db, CAMPERS_COLLECTION, String(camperId));
-  //  const camperDoc = await transaction.get(camperRef);
-//
-  //  if (camperDoc.exists()) {
-  //    const camperData = camperDoc.data() as Camper;
-  //    const updatedParentIds = camperData.parentIds.filter(
-  //      (p) => p.campminderId !== parentData.ids.campminderId
-  //    );
-  //    transaction.update(camperRef, { parentIds: updatedParentIds });
-  //  }
-  //}
-//
-  //transaction.delete(doc(db, PARENTS_COLLECTION, String(id)));
+export const deleteParent = async (id: number, instance?: Transaction | WriteBatch): Promise<void> => {
+  try {
+    const parentRef = doc(db, Collection.PARENTS, String(id));
+    await (instance ? instance.delete(parentRef) : deleteDoc(parentRef));
+  } catch {
+    throw new Error(`Failed to delete parent`);
+  }
 };

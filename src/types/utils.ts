@@ -1,0 +1,1 @@
+export interface ID<T> { id: T; }
