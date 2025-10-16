@@ -5,6 +5,8 @@ import Navbar from "../components/Navbar"; // Adjust the path as needed
 import AuthProvider from "@/auth/AuthProvider";
 import Footer from "../components/Footer";
 
+import "@mantine/core/styles.css";
+import { MantineProvider } from "@mantine/core";
 
 const lato = localFont({
   src: [
@@ -140,19 +142,19 @@ export default function RootLayout({
       <body
         className={`${lato.variable} ${newSpirit.variable} ${besteam.variable} antialiased w-full min-h-screen flex flex-col`}
       >
-        <AuthProvider>
-          <>
-            <div className="w-full">
-              <Navbar />
-            </div>
-            <div className="flex-grow w-full">
-              {children}
-            </div>
-            <div className="w-full">
-              <Footer />
-            </div>
-          </>
-        </AuthProvider>
+        <MantineProvider>
+          <AuthProvider>
+            <>
+              <div className="w-full">
+                <Navbar />
+              </div>
+              <div className="flex-grow w-full">{children}</div>
+              <div className="w-full">
+                <Footer />
+              </div>
+            </>
+          </AuthProvider>
+        </MantineProvider>
       </body>
     </html>
   );
