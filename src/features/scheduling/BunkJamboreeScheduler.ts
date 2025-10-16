@@ -1,9 +1,9 @@
-import { AdminAttendeeID, SectionSchedule, SectionPreferences, Bunk } from "@/types/sessionTypes";
+import { AdminAttendeeID, SectionSchedule, SectionPreferences, Bunk, BunkID } from "@/types/sessionTypes";
 
 export class BunkJamboreeScheduler {
   schedule: SectionSchedule<"BUNK-JAMBO"> = { blocks: {}, alternatePeriodsOff: {} };
 
-  bunks: Bunk[] = [];
+  bunks: BunkID[] = [];
   admins: AdminAttendeeID[] = [];
 
   preferences: SectionPreferences = {};
@@ -14,7 +14,7 @@ export class BunkJamboreeScheduler {
 
   withSchedule(schedule: SectionSchedule<"BUNK-JAMBO">): BunkJamboreeScheduler { this.schedule = schedule; return this; }
 
-  withBunks(bunks: Bunk[]): BunkJamboreeScheduler { this.bunks = bunks; return this; }
+  withBunks(bunks: BunkID[]): BunkJamboreeScheduler { this.bunks = bunks; return this; }
 
   withAdmins(admins: AdminAttendeeID[]): BunkJamboreeScheduler { this.admins = admins; return this; }
 
