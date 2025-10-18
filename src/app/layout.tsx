@@ -134,13 +134,13 @@ const besteam = localFont({
 const mantineTheme: MantineThemeOverride = {
   colors: {
     neutral: [
-      ...Array<string>(2).fill('#FFFFFF'),
-      '#FAFAFB',
-      '#DEE1E3',
-      '#C0C6C9',
-      '#3B4E57',
-      '#2F424C',
-      ...Array<string>(3).fill('#1D323D')
+      ...Array<string>(2).fill("#FFFFFF"),
+      "#FAFAFB",
+      "#DEE1E3",
+      "#C0C6C9",
+      "#3B4E57",
+      "#2F424C",
+      ...Array<string>(3).fill("#1D323D"),
     ] as unknown as MantineColorsTuple,
     primary: [
       ...Array<string>(4).fill("#E6EAEC"),
@@ -192,7 +192,14 @@ const mantineTheme: MantineThemeOverride = {
     link: Array<string>(10).fill('#1A80D8') as unknown as MantineColorsTuple,
   },
   primaryShade: 4,
-  primaryColor: 'primary',
+  primaryColor: "primary",
+  fontFamily: `${lato.style.fontFamily}, ${newSpirit.style.fontFamily}, ${besteam.style.fontFamily}, sans-serif`,
+  headings: {
+    fontFamily: `${lato.style.fontFamily}, sans-serif`,
+    fontWeight: '500'
+  },
+  defaultRadius: "xl",
+  cursorType: "pointer",
 };
 
 export const metadata: Metadata = {
