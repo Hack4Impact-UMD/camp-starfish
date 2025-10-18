@@ -1,5 +1,4 @@
 "use client";
-import { pushSessionToEmulator } from "@/features/scheduling/test/generateEmulatorData";
 import React, { useState } from "react";
 import GoogleIcon from "@/assets/icons/Google.svg";
 import MicrosoftIcon from "@/assets/icons/Microsoft.svg";
@@ -33,18 +32,6 @@ export default function LoginPage() {
       setError("An error occurred while trying to sign in. Please try again.");
     }
   }
-
-const generateData = async () => {
-  try {
-    console.log("Generating session and pushing to emulator...");
-    await pushSessionToEmulator();
-    console.log("Data successfully pushed!");
-    alert("Test data pushed to emulator!");
-  } catch (error) {
-    console.error("Error pushing data:", error);
-    alert("Failed to push test data. Check console.");
-  }
-};
 
   return (
     <div className="relative min-h-screen w-full flex items-center justify-center bg-camp-primary overflow-hidden">
@@ -80,14 +67,6 @@ const generateData = async () => {
           Sign in with Microsoft
         </button>
 
-        <button
-          onClick = {generateData}
-          className="flex flex-row justify-around items-center w-5/6 max-w-[344px] bg-white 
-            mt-5 py-4 px-12 rounded-full shadow-[0_4px_4px_-1px_rgba(0,0,0,0.2)] font-lato text-xl text-gray-600"
-        >
-          Generate Test Data
-
-        </button>
 
         {/* Error Message */}
         {errorDisplay && (

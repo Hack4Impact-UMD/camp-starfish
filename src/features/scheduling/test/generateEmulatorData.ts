@@ -734,7 +734,8 @@ export function generateSession() {
   };
 }
 
-
+/*
+// Push to emulator
 export async function pushSessionToEmulator() {
   const {
     sessionScheduler,
@@ -865,3 +866,4 @@ export async function pushSessionToEmulator() {
   }
 
 }
+*/
