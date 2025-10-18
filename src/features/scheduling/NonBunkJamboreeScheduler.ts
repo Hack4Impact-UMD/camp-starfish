@@ -1,4 +1,14 @@
 /* Campers are been assigned individually instead of by bunk*/
+
+/* TODO:
+-check one-to-one assignment (from same bunk, staff/admin)
+-fix style
+-checking posts assignment
+
+
+
+*/
+
 import {
   AdminAttendeeID,
   StaffAttendeeID,
