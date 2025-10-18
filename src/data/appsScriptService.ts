@@ -16,7 +16,9 @@ async function callAppsScript<T = unknown>(
   })).data as T;
 }
 
-// wrapper functions for apps script sheet creation
+// wrapper functions for apps script sheet creation, three for each type of jamboree + general
+
+//function for bundle sheet creation
 export async function createBundleSheet(
   campers: CamperAttendeeID[],
   blockActivities: { [blockId: string]: BundleBlockActivities },
@@ -26,6 +28,7 @@ export async function createBundleSheet(
   return callAppsScript<string>('createBundleSheet', [campers, blockActivities, bundleLetter, spreadsheetId]);
 }
 
+//function for bundle sheet creation based on bunk jamboree
 export async function createBunkJamboreeSheet(
   bunkNumbers: number[],
   blockActivities: { [blockId: string]: BunkJamboreeBlockActivities },
@@ -34,6 +37,7 @@ export async function createBunkJamboreeSheet(
   return callAppsScript<string>('createBunkJamboreeSheet', [bunkNumbers, blockActivities, spreadsheetId]);
 }
 
+//function for bundle sheet creation based on non bunk jamboree (by campers, not limited to bunk)
 export async function createNonBunkJamboreeSheet(
   campers: CamperAttendeeID[],
   blockActivities: { [blockId: string]: NonBunkJamboreeBlockActivities },
