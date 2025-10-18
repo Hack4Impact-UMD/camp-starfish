@@ -1,5 +1,5 @@
 // google apps script that creates preference spreadsheets for jamborees and bundles
-// importing necessary types
+// importing necessary types to use in spreadsheet
 import { CamperAttendeeID } from "../../src/types/sessionTypes";
 import { 
   BundleBlockActivities, 
@@ -12,10 +12,12 @@ non-bunk: use camper IDs
 bunk: bunk numbers 
 */
 
-type AttendeeList = CamperAttendeeID[] | number[];
+// keeps track of attendee ID, name, and bunk for the spread sheet
+//minimize amount of data passed in
+type AttendeeList = Pick<CamperAttendeeID, 'id' | 'name' | 'bunk'>[] | number[];
 
 // type for block activities - array of activities with name property
-type BlockActivities = Array<{ name: string; [key: string]: any }>;
+type BlockActivities = Array<{ name: string }>;  
 
 // type for block activities map - maps block letters to lists of activities
 type BlockActivitiesMap = {
@@ -57,6 +59,7 @@ function createPreferenceSheet(
   const totalAttendees = attendees.length;
   const isBunkList = typeof attendees[0] === 'number';
 
+  //checking if there are attendees present in input
   if (attendees.length === 0) {  
     throw new Error("Attendees array cannot be empty");  
   }  
@@ -73,7 +76,7 @@ function createPreferenceSheet(
     colIndex++;
   }
   
-  // headers for blocks and activities
+  // creating headers for blocks and activities
   for (const blockId of blockIds) {
     const activities = blockActivities[blockId];
     const startCol = colIndex;
@@ -97,17 +100,18 @@ function createPreferenceSheet(
     // applying sheet background colors to the entire block
     const endCol = colIndex - 1;
     const blockColor = BLOCK_COLORS[blockId];
-    const totalRows = totalAttendees + 2; // +2 for header rows
+    const totalRows = totalAttendees + 2; // +2 for header rows formatting
     sheet.getRange(1, startCol, totalRows, endCol - startCol + 1).setBackground(blockColor);
   }
   
   // keep track of number of current column
   const currentCol = colIndex - 1;
   
-  // fill in attendee data starting in the third row
+  // fill in attendee data
   for (let i = 0; i < attendees.length; i++) {
     const currentAttendee = attendees[i];
     const rowIndex = i + 3; // start at row 3 (after two header rows)
+
     
     // checking if the attendee is a bunk number (bunk jamboree) or campers individually (non-bunk)
     if (typeof currentAttendee === 'number') {

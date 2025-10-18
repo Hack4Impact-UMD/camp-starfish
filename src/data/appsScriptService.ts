@@ -2,8 +2,10 @@ import { auth, functions } from "@/config/firebase";
 import { httpsCallable } from "firebase/functions";
 import { CamperAttendeeID, BundleBlockActivities, BunkJamboreeBlockActivities, NonBunkJamboreeBlockActivities } from "@/types/sessionTypes";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars
-async function callAppsScript(functionName: string, parameters?: any[]): Promise<any> {
+async function callAppsScript<T = unknown>(
+  functionName: string, 
+  parameters?: unknown[]
+): Promise<T> {
   const user = auth.currentUser;
   if (!user) {
     throw new Error("You must be logged in to access this feature.");
@@ -11,28 +13,31 @@ async function callAppsScript(functionName: string, parameters?: any[]): Promise
   return (await httpsCallable(functions, 'appsScriptEndpoint')({
     functionName,
     parameters
-  })).data;
+  })).data as T;
 }
 
-// Wrapper functions for Apps Script sheet creation
+// wrapper functions for apps script sheet creation
 export async function createBundleSheet(
   campers: CamperAttendeeID[],
   blockActivities: { [blockId: string]: BundleBlockActivities },
-  bundleLetter: string
+  bundleLetter: string,
+  spreadsheetId?: string
 ): Promise<string> {
-  return callAppsScript('createBundleSheet', [campers, blockActivities, bundleLetter]);
+  return callAppsScript<string>('createBundleSheet', [campers, blockActivities, bundleLetter, spreadsheetId]);
 }
 
 export async function createBunkJamboreeSheet(
   bunkNumbers: number[],
-  blockActivities: { [blockId: string]: BunkJamboreeBlockActivities }
+  blockActivities: { [blockId: string]: BunkJamboreeBlockActivities },
+  spreadsheetId?: string
 ): Promise<string> {
-  return callAppsScript('createBunkJamboreeSheet', [bunkNumbers, blockActivities]);
+  return callAppsScript<string>('createBunkJamboreeSheet', [bunkNumbers, blockActivities, spreadsheetId]);
 }
 
 export async function createNonBunkJamboreeSheet(
   campers: CamperAttendeeID[],
-  blockActivities: { [blockId: string]: NonBunkJamboreeBlockActivities }
+  blockActivities: { [blockId: string]: NonBunkJamboreeBlockActivities },
+  spreadsheetId?: string
 ): Promise<string> {
-  return callAppsScript('createNonBunkJamboreeSheet', [campers, blockActivities]);
+  return callAppsScript<string>('createNonBunkJamboreeSheet', [campers, blockActivities, spreadsheetId]);
 }
