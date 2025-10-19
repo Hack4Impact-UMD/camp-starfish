@@ -1,5 +1,5 @@
 import { MantineColorsTuple, MantineThemeOverride } from "@mantine/core";
-import { campStarfishFonts, fontVars } from "./fonts";
+import { campStarfishFonts } from "./fonts";
 
 export const theme: MantineThemeOverride = {
   colors: {
@@ -63,9 +63,9 @@ export const theme: MantineThemeOverride = {
   },
   primaryShade: 4,
   primaryColor: "primary",
-  fontFamily: `${campStarfishFonts.map((font) => fontVars[font]).join(', ')}, sans-serif`,
+  fontFamily: `${campStarfishFonts.join(', ')}, sans-serif`,
   headings: {
-    fontFamily: `${fontVars['Lato']} sans-serif`,
+    fontFamily: `Lato, sans-serif`,
     fontWeight: '500'
   },
   defaultRadius: "xl",
