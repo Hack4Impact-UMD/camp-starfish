@@ -1,5 +1,5 @@
 import { MantineColorsTuple, MantineThemeOverride } from "@mantine/core";
-import { lato, newSpirit, besteam } from "./fonts";
+import { campStarfishFonts, fontVars } from "./fonts";
 
 export const theme: MantineThemeOverride = {
   colors: {
@@ -63,9 +63,9 @@ export const theme: MantineThemeOverride = {
   },
   primaryShade: 4,
   primaryColor: "primary",
-  fontFamily: `${lato.style.fontFamily}, ${newSpirit.style.fontFamily}, ${besteam.style.fontFamily}, sans-serif`,
+  fontFamily: `${campStarfishFonts.map((font) => fontVars[font]).join(', ')}, sans-serif`,
   headings: {
-    fontFamily: `${lato.style.fontFamily}, sans-serif`,
+    fontFamily: `${fontVars['Lato']} sans-serif`,
     fontWeight: '500'
   },
   defaultRadius: "xl",
