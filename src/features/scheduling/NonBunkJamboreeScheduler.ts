@@ -20,7 +20,7 @@ export class NonBunkJamboreeScheduler {
   staff: StaffAttendeeID[] = [];
   admins: AdminAttendeeID[] = [];
 
-  camperPrefs: Preferences = {};
+  camperPrefs: SectionPreferences = {};
 
   blocksToAssign: string[] = [];
 
