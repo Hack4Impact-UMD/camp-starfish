@@ -2,19 +2,24 @@ import { auth, functions } from "@/config/firebase";
 import { httpsCallable } from "firebase/functions";
 import { CamperAttendeeID, BundleBlockActivities, BunkJamboreeBlockActivities, NonBunkJamboreeBlockActivities } from "@/types/sessionTypes";
 
-async function callAppsScript<T = unknown>(
+/**  
+ * Calls an Apps Script function via Firebase callable.  
+ * @warning The returned data is not validated against type T at runtime.  
+ * Callers should validate the shape of returned data if necessary.  
+ */  
+async function callAppsScript<T = unknown>(  
   functionName: string, 
-  parameters?: unknown[]
-): Promise<T> {
-  const user = auth.currentUser;
-  if (!user) {
-    throw new Error("You must be logged in to access this feature.");
-  }
-  return (await httpsCallable(functions, 'appsScriptEndpoint')({
-    functionName,
-    parameters
-  })).data as T;
-}
+  parameters?: unknown[]  
+): Promise<T> {  
+  const user = auth.currentUser;  
+  if (!user) {  
+    throw new Error("You must be logged in to access this feature.");  
+  }  
+  return (await httpsCallable(functions, 'appsScriptEndpoint')({  
+    functionName,  
+    parameters  
+  })).data as T;  
+}  
 
 // wrapper functions for Apps Script sheet creation: one for each type (bundle, bunk jamboree, non-bunk jamboree)
 
