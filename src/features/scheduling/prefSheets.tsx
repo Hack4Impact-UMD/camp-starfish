@@ -43,18 +43,22 @@ export function PrefSheet<T extends SchedulingSectionType>({
           </Text>
 
           {Object.entries(schedule.blocks).map(([blockId, block]) => {
-            const activities = (block.activities as BundleActivity[]).filter(
-              (act) => !ageGroup || act.ageGroup === ageGroup
-            );
+            const isBundle = sectionType === 'BUNDLE';
+            const activities = isBundle
+              ? (block.activities as BundleActivity[]).filter(
+                  (act) => !ageGroup || act.ageGroup === ageGroup
+                )
+              : block.activities;
             if (activities.length === 0) return null;
-
             return (
               <View key={blockId} style={styles.block}>
                 <Text style={styles.blockTitle}>Block {blockId}</Text>
                 {activities.map((activity, idx) => (
                   <View key={`${blockId}-${idx}`} style={styles.activity}>
                     <Text style={styles.activityName}>
-                      {activity.programArea.name}: {activity.name}
+                      {isBundle
+                        ? `${(activity as BundleActivity).programArea.name}: ${activity.name}`
+                        : activity.name}
                     </Text>
                     {activity.description && (
                       <Text style={styles.activityDesc}>{activity.description}</Text>
