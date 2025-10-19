@@ -1,6 +1,6 @@
 import type { Config } from "tailwindcss";
 import { theme } from "./src/styles/theme";
-import { campStarfishFonts, fontVars } from "./src/styles/fonts";
+import { campStarfishFonts } from "./src/styles/fonts";
 
 export default {
   content: [
@@ -11,7 +11,7 @@ export default {
   theme: {
     extend: {
       colors: theme.colors ? Object.keys(theme.colors).reduce((prev, color) => ({ ...prev, [color]: Object.assign({}, theme.colors![color])}), {}) : undefined,
-      fontFamily: campStarfishFonts.reduce((prev, font) => ({ ...prev, [font]: `var(${fontVars[font]})`}), {}),
+      fontFamily: campStarfishFonts.reduce((prev, font) => ({ ...prev, [font]: `var(--font-${font})`}), {}),
     },
   },
   plugins: [],

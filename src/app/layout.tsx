@@ -63,7 +63,7 @@ const lato = localFont({
       style: "italic",
     },
   ],
-  variable: '--font-lato',
+  variable: '--font-Lato',
 });
 
 const newSpirit = localFont({
@@ -119,14 +119,14 @@ const newSpirit = localFont({
       style: "italic",
     },
   ],
-  variable: "--font-newSpirit",
+  variable: "--font-NewSpirit",
 });
 
 const besteam = localFont({
   src: "../../public/fonts/Besteam.ttf",
   weight: "400",
   style: "regular",
-  variable: "--font-besteam",
+  variable: "--font-Besteam",
 });
 
 const fontObjs: Record<CampStarfishFont, NextFontWithVariable> = {
