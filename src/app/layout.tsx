@@ -5,8 +5,8 @@ import AuthProvider from "@/auth/AuthProvider";
 import Footer from "../components/Footer";
 import "@mantine/core/styles.css";
 import { MantineProvider } from "@mantine/core";
-import { lato, newSpirit, besteam } from "../../styles/fonts";
-import { theme } from "../../styles/theme";
+import { lato, newSpirit, besteam } from "../styles/fonts";
+import { theme } from "../styles/theme";
 
 export const metadata: Metadata = {
   title: "Camp Starfish",
