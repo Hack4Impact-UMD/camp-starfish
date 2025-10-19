@@ -131,7 +131,7 @@ const besteam = localFont({
 
 const fontObjs: Record<CampStarfishFont, NextFontWithVariable> = {
   'Lato': lato,
-  'New Spirit': newSpirit,
+  'NewSpirit': newSpirit,
   'Besteam': besteam
 };
 
