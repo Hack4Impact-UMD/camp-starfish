@@ -12,48 +12,132 @@ import {
 export type AttendeeRole = "CAMPER" | "STAFF" | "ADMIN";
 
 /* ------------------ STYLES ------------------ */
+/* ------------------ STYLES ------------------ */
 const styles = StyleSheet.create({
   page: {
-    padding: 20,
-    fontSize: 10,
+    padding: 15, // Reduced padding
+    fontSize: 8, // Reduced font size
     fontFamily: "Helvetica"
   },
   sectionTitle: {
-    fontSize: 14,
-    marginVertical: 8,
+    fontSize: 12, // Reduced title size
+    marginVertical: 6,
     fontWeight: "bold"
   },
   row: {
     flexDirection: "row",
-    borderBottom: "1px solid #ccc",
-    paddingVertical: 2
   },
   cell: {
     flex: 1,
-    padding: 2
+    padding: 1, // Reduced padding
+    borderWidth: 1,
+    borderColor: "#000",
+    backgroundColor: "#fff",
+    justifyContent: "center",
+    alignItems: "center"
   },
   bold: {
     fontWeight: "bold"
   },
   table: {
-    marginBottom: 12
+    marginBottom: 8, // Reduced margin
+    borderWidth: 1,
+    borderColor: "#000"
   },
   headerRow: {
     flexDirection: "row",
-    backgroundColor: "#f0f0f0",
-    borderBottomWidth: 1,
-    borderBottomColor: "#000",
-    paddingVertical: 4,
+    backgroundColor: "#000",
   },
   headerCell: {
-    flex: 1,                // distribute evenly
-    textAlign: "center",    // center column titles
-    fontSize: 10,
+    flex: 1,
+    textAlign: "center",
+    fontSize: 8, // Reduced font size
     fontWeight: "bold",
-    borderRightWidth: 1,
-    borderRightColor: "#000",
-    padding: 2,
+    color: "#fff",
+    borderWidth: 1,
+    borderColor: "#000",
+    padding: 1, // Reduced padding
+    backgroundColor: "#000",
+    justifyContent: "center",
+    alignItems: "center"
   },
+  bunkCell: {
+    flex: 1,
+    padding: 1, // Reduced padding
+    borderWidth: 1,
+    borderColor: "#000",
+    backgroundColor: "#d3d3d3",
+    textAlign: "center",
+    justifyContent: "center",
+    alignItems: "center",
+    fontSize: 7 // Smaller font for bunk numbers
+  },
+  dataCell: {
+    flex: 1,
+    padding: 1, // Reduced padding
+    borderWidth: 1,
+    borderColor: "#000",
+    backgroundColor: "#fff",
+    justifyContent: "center",
+    alignItems: "center",
+    fontSize: 7 // Smaller font for data
+  },
+  // New styles for two-column layout
+  twoColumnPage: {
+    padding: 15,
+    fontSize: 8,
+    fontFamily: "Helvetica",
+    flexDirection: "row"
+  },
+  leftColumn: {
+    width: "50%",
+    paddingRight: 5
+  },
+  rightColumn: {
+    width: "50%",
+    paddingLeft: 5,
+    marginLeft: "auto" // This will push the right column to the right side
+  },
+  // Styles for smaller tables in two-column layout
+  compactTable: {
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: "#000"
+  },
+  compactHeaderCell: {
+    flex: 1,
+    textAlign: "center",
+    fontSize: 7, // Even smaller for compact layout
+    fontWeight: "bold",
+    color: "#fff",
+    borderWidth: 1,
+    borderColor: "#000",
+    padding: 1,
+    backgroundColor: "#000",
+    justifyContent: "center",
+    alignItems: "center"
+  },
+  compactDataCell: {
+    flex: 1,
+    padding: 1,
+    borderWidth: 1,
+    borderColor: "#000",
+    backgroundColor: "#fff",
+    justifyContent: "center",
+    alignItems: "center",
+    fontSize: 6 // Very small font for compact layout
+  },
+  compactBunkCell: {
+    flex: 1,
+    padding: 1,
+    borderWidth: 1,
+    borderColor: "#000",
+    backgroundColor: "#d3d3d3",
+    textAlign: "center",
+    justifyContent: "center",
+    alignItems: "center",
+    fontSize: 6 // Very small font for compact layout
+  }
 });
 
 // ------------------ MAIN DOCUMENT ------------------
@@ -71,6 +155,7 @@ const renderStaff = (
     <Text style={styles.sectionTitle}>Staff Assignments</Text>
     <View style={styles.table}>
       <View style={styles.headerRow}>
+        <Text style={styles.headerCell}>NAME</Text>
         {Object.keys(schedule.blocks).map((blockId) => (
           <Text key={blockId} style={styles.headerCell}>
             {blockId}
@@ -90,24 +175,24 @@ const renderStaff = (
 
           return (
             <View key={staff.id} style={styles.row}>
-              {/* Name column */}
-              <View style={styles.cell}>
+              {/* Name column - Use dataCell style */}
+              <View style={styles.dataCell}>
                 <Text style={isLead ? styles.bold : undefined}>
-                  {staff.name.firstName} {staff.name.lastName}
-                  {isLead && `(${staff.bunk})`}
+                  {staff.name.firstName} {staff.name.lastName[0].toUpperCase()}.
+                  {isLead && ` (${staff.bunk})`}
                 </Text>
               </View>
 
-              {/* Block assignments */}
+              {/* Block assignments - Use dataCell style */}
               {renderStaffBlocks(schedule, staff.id)}
 
-              <View style={styles.cell}>
+              <View style={styles.dataCell}>
                 <Text>
                   {Object.values(schedule.alternatePeriodsOff).some(ids => ids.includes(staff.id)) ? "RH" : ""}
                 </Text>
               </View>
 
-              {/* Freeplay assignment */}
+              {/* Freeplay assignment - Use dataCell style */}
               {renderFreeplayAssignment(freeplay, staff.id, camperList)}
             </View>
           );
@@ -119,7 +204,9 @@ const renderStaff = (
 
 const renderCampers = (
   schedule: SectionSchedule<"BUNDLE">,
-  freeplay: Freeplay, camperList: CamperAttendeeID[]
+  freeplay: Freeplay,
+  camperList: CamperAttendeeID[],
+  bunkList: BunkID[],
 ) => (
   /*
     * Used to return the camper table
@@ -127,14 +214,13 @@ const renderCampers = (
   <>
     <Text style={styles.sectionTitle}>Kid Grid</Text>
 
-
     <View style={styles.table}>
       <View style={styles.headerRow}>
         <Text style={styles.headerCell}>BUNK</Text>
         <Text style={styles.headerCell}>NAME</Text>
-        {["A", "B", "C", "D", "E"].map((block) => (
-          <Text key={block} style={styles.headerCell}>
-            {block}
+        {Object.keys(schedule.blocks).map((blockId) => (
+          <Text key={blockId} style={styles.headerCell}>
+            {blockId}
           </Text>
         ))}
         <Text style={styles.headerCell}>+</Text>
@@ -142,19 +228,19 @@ const renderCampers = (
       </View>
 
       {/* Body Rows */}
-      {camperList.map((camper) => {
+      {sortedCampers(bunkList, camperList).map((camper) => {
         const blocksArray = Object.values(schedule.blocks);
         const fpBuddy = freeplayBuddy(freeplay, camper);
 
         return (
           <View key={camper.id} style={styles.row}>
-            {/* BUNK */}
-            <View style={styles.cell}>
+            {/* BUNK - Use bunkCell style for gray background */}
+            <View style={styles.bunkCell}>
               <Text>{camper.bunk}</Text>
             </View>
 
-            {/* NAME */}
-            <View style={styles.cell}>
+            {/* NAME - Use dataCell style */}
+            <View style={styles.dataCell}>
               <Text>
                 {[camper.name.firstName, camper.name.lastName]
                   .filter(Boolean)
@@ -162,21 +248,21 @@ const renderCampers = (
               </Text>
             </View>
 
-            {/* BLOCKS A–E */}
+            {/* BLOCKS A–E - Use dataCell style */}
             {blocksArray.map((block, i) => (
-              <View key={i} style={styles.cell}>
+              <View key={i} style={styles.dataCell}>
                 <Text>{ renderCamperBlockAssignment(block, camper.id) }</Text>
               </View>
             ))}
 
-            <View style={styles.cell}>
+            <View style={styles.dataCell}>
               <Text>
                 -
               </Text>
             </View>
 
-            {/* FREEPLAY */}
-            <View style={styles.cell}>
+            {/* FREEPLAY - Use dataCell style */}
+            <View style={styles.dataCell}>
               <Text>
                 {fpBuddy ? `${fpBuddy}` : ""}
               </Text>
@@ -202,9 +288,9 @@ const renderAdmin = (
     <View style={styles.table}>
       <View style={styles.headerRow}>
         <Text style={styles.headerCell}>NAME</Text>
-        {["A", "B", "C", "D", "E"].map((block) => (
-          <Text key={block} style={styles.headerCell}>
-            {block}
+        {Object.keys(schedule.blocks).map((blockId) => (
+          <Text key={blockId} style={styles.headerCell}>
+            {blockId}
           </Text>
         ))}
         <Text style={styles.headerCell}>APO</Text>
@@ -215,24 +301,140 @@ const renderAdmin = (
         return adminList.map((admin) => {
           return (
             <View key={admin.id} style={styles.row}>
-              {/* Name column */}
-              <View style={styles.cell}>
+              {/* Name column - Use dataCell style */}
+              <View style={styles.dataCell}>
                 <Text>
                   {admin.name.firstName} {admin.name.lastName[0]}.
                 </Text>
               </View>
 
-              {/* Block assignments */}
+              {/* Block assignments - Use dataCell style */}
               {renderStaffBlocks(schedule, admin.id)}
 
-              <View style={styles.cell}>
+              <View style={styles.dataCell}>
                 <Text>
                   {Object.values(schedule.alternatePeriodsOff).some(ids => ids.includes(admin.id)) ? "RH" : ""}
                 </Text>
               </View>
 
-              {/* Freeplay assignment */}
+              {/* Freeplay assignment - Use dataCell style */}
               {renderFreeplayAssignment(freeplay, admin.id, camperList)}
+            </View>
+          );
+        });
+      })()}
+    </View>
+  </>
+);
+
+
+
+const renderCampersCompact = (
+  schedule: SectionSchedule<"BUNDLE">,
+  freeplay: Freeplay,
+  camperList: CamperAttendeeID[],
+  bunkList: BunkID[],
+) => (
+  <>
+    <Text style={styles.sectionTitle}>Kid Grid</Text>
+    <View style={styles.compactTable}>
+      <View style={styles.headerRow}>
+        <Text style={styles.compactHeaderCell}>BUNK</Text>
+        <Text style={styles.compactHeaderCell}>NAME</Text>
+        {Object.keys(schedule.blocks).map((blockId) => (
+          <Text key={blockId} style={styles.compactHeaderCell}>
+            {blockId}
+          </Text>
+        ))}
+        <Text style={styles.compactHeaderCell}>+</Text>
+        <Text style={styles.compactHeaderCell}>FP</Text>
+      </View>
+
+      {sortedCampers(bunkList, camperList).map((camper) => {
+        const blocksArray = Object.values(schedule.blocks);
+        const fpBuddy = freeplayBuddy(freeplay, camper);
+
+        return (
+          <View key={camper.id} style={styles.row}>
+            <View style={styles.compactBunkCell}>
+              <Text>{camper.bunk}</Text>
+            </View>
+
+            <View style={styles.compactDataCell}>
+              <Text>
+                {[camper.name.firstName, camper.name.lastName]
+                  .filter(Boolean)
+                  .join(" ")}
+              </Text>
+            </View>
+
+            {blocksArray.map((block, i) => (
+              <View key={i} style={styles.compactDataCell}>
+                <Text>{ renderCamperBlockAssignment(block, camper.id) }</Text>
+              </View>
+            ))}
+
+            <View style={styles.compactDataCell}>
+              <Text>-</Text>
+            </View>
+
+            <View style={styles.compactDataCell}>
+              <Text>
+                {fpBuddy ? `${fpBuddy}` : ""}
+              </Text>
+            </View>
+          </View>
+        );
+      })}
+    </View>
+  </>
+);
+
+const renderStaffCompact = (
+  schedule: SectionSchedule<"BUNDLE">,
+  freeplay: Freeplay,
+  staffList: StaffAttendeeID[],
+  camperList: CamperAttendeeID[],
+  bunkList: BunkID[],
+) => (
+  <>
+    <Text style={styles.sectionTitle}>Staff Assignments</Text>
+    <View style={styles.compactTable}>
+      <View style={styles.headerRow}>
+        <Text style={styles.compactHeaderCell}>NAME</Text>
+        {Object.keys(schedule.blocks).map((blockId) => (
+          <Text key={blockId} style={styles.compactHeaderCell}>
+            {blockId}
+          </Text>
+        ))}
+        <Text style={styles.compactHeaderCell}>APO</Text>
+        <Text style={styles.compactHeaderCell}>FP</Text>
+      </View>
+
+      {(() => {
+        let lastBunk: number | null = null;
+        return sortBunkList(bunkList, staffList).map((staff) => {
+          const isLead = staff.bunk !== lastBunk;
+          lastBunk = staff.bunk;
+
+          return (
+            <View key={staff.id} style={styles.row}>
+              <View style={styles.compactDataCell}>
+                <Text style={isLead ? styles.bold : undefined}>
+                  {staff.name.firstName} {staff.name.lastName}
+                  {isLead && `(${staff.bunk})`}
+                </Text>
+              </View>
+
+              {renderStaffBlocksCompact(schedule, staff.id)}
+
+              <View style={styles.compactDataCell}>
+                <Text>
+                  {Object.values(schedule.alternatePeriodsOff).some(ids => ids.includes(staff.id)) ? "RH" : ""}
+                </Text>
+              </View>
+
+              {renderFreeplayAssignmentCompact(freeplay, staff.id, camperList)}
             </View>
           );
         });
@@ -245,6 +447,34 @@ const renderAdmin = (
 
 
 // ----------------- HELPERS ----------------
+
+const sortedCampers = ( bunkList: BunkID[], camperList: CamperAttendeeID[] ) => {
+  const sortedList: CamperAttendeeID[] = [];
+
+  const camperDict: Record<number, CamperAttendeeID> = camperList.reduce(
+    (acc, camper) => {
+      acc[camper.id] = camper;
+      return acc;
+    },
+    {} as Record<number, CamperAttendeeID>
+  );
+
+  // uses the dictionary to create the list of campers per bunk
+  for (const bunk of bunkList) {
+    const tempList: CamperAttendeeID[] = [];
+
+    // Add the other counselors, skipping the lead if duplicated
+    for (const camperId of bunk.camperIds) {
+      const camper = camperDict[camperId];
+      if (camper) tempList.push(camper);
+    }
+
+    // aggregates the per bunk list into the main sorted list
+    sortedList.push(...tempList);
+  }
+
+  return sortedList;
+}
 
 const sortBunkList = ( bunkList: BunkID[], staffList: StaffAttendeeID[]) => {
   /*
@@ -289,6 +519,7 @@ const freeplayBuddy = ( freeplay: Freeplay, camper: CamperAttendeeID) => {
   */
 
   let savedId: string = "";
+
   for (const [staffId, camperIds] of Object.entries(freeplay.buddies)) {
     if (camperIds.includes(camper.id)) {
       savedId = staffId;
@@ -392,25 +623,125 @@ const renderFreeplayAssignment = ( freeplay: Freeplay, staffId: number, campers:
   );
 };
 
+const renderStaffBlocksCompact = (schedule: SectionSchedule<"BUNDLE">, staffId: number) => {
+  return Object.entries(schedule.blocks).map(([blockId, block]) => {
+    if (block.periodsOff.includes(staffId)) {
+      return (
+        <View key={blockId} style={styles.compactDataCell}>
+          <Text>OFF</Text>
+        </View>
+      );
+    }
+
+    const activities = block.activities.filter((a) =>
+      a.assignments.staffIds.includes(staffId)
+    );
+
+    return (
+      <View key={blockId} style={styles.compactDataCell}>
+        {activities.length > 0 ? (
+          <Text>{ activities[0].name }</Text>
+        ) : (
+          <Text>-</Text>
+        )}
+      </View>
+    );
+  });
+};
+
+const renderFreeplayAssignmentCompact = ( freeplay: Freeplay, staffId: number, campers: CamperAttendeeID[] ) => {
+  if (freeplay.buddies[staffId]) {
+    const buddyIds = freeplay.buddies[staffId];
+    const buddies = campers.filter((c) => buddyIds.includes(c.id));
+
+    if (buddies.length === 1) {
+      const b = buddies[0];
+      return (
+        <View style={styles.compactDataCell}>
+          <Text>{b.name.firstName} {b.name.lastName[0]}. ({b.bunk})</Text>
+        </View>
+      );
+    } else if (buddies.length === 2) {
+      const [b1, b2] = buddies;
+      return (
+        <View style={styles.compactDataCell}>
+          <Text>
+            {b1.name.firstName} {b1.name.lastName[0]}. + {b2.name.firstName} {b2.name.lastName[0]}. ({b1.bunk})
+          </Text>
+        </View>
+      );
+    }
+  }
+
+  const postEntry = Object.entries(freeplay.posts).find(([, ids]) =>
+    ids.includes(staffId)
+  );
+  if (postEntry) {
+    const [postName] = postEntry;
+    return (
+      <View style={styles.compactDataCell}>
+        <Text>{ postName }</Text>
+      </View>
+    )
+  }
+
+  return (
+    <View style={styles.compactDataCell}>
+      <Text>OFF</Text>
+    </View>
+  );
+};
+
 
 
 
 // ------------------ MAIN DOCUMENT ------------------
+// export const SchedulePDF: React.FC<{
+//     schedule: SectionSchedule<'BUNDLE'>,
+//     freeplay: Freeplay,
+//     staff: StaffAttendeeID[],
+//     admin: AdminAttendeeID[],
+//     campers: CamperAttendeeID[],
+//     bunkList: BunkID[] }> =
+//   ({ schedule, freeplay, staff, admin, campers, bunkList }) => (
+//   <PDFViewer style={{ width: "100%", height: "100vh" }}>
+//     <Document>
+//       <Page size="A4" style={styles.page}>
+//         {renderStaff(schedule, freeplay, staff, campers, bunkList)}
+//         {renderCampers(schedule, freeplay, campers, bunkList)}
+//         {renderAdmin(schedule, freeplay, admin, campers)}
+//       </Page>
+//     </Document>
+//   </PDFViewer>
+// );
 export const SchedulePDF: React.FC<{
-    schedule: SectionSchedule<'BUNDLE'>,
-    freeplay: Freeplay,
-    staff: StaffAttendeeID[],
-    admin: AdminAttendeeID[],
-    campers: CamperAttendeeID[],
-    bunkList: BunkID[] }> =
-  ({ schedule, freeplay, staff, admin, campers, bunkList }) => (
-  <PDFViewer style={{ width: "100%", height: "100vh" }}>
-    <Document>
-      <Page size="A4" style={styles.page}>
-        {renderStaff(schedule, freeplay, staff, campers, bunkList)}
-        {renderCampers(schedule, freeplay, campers)}
-        {renderAdmin(schedule, freeplay, admin, campers)}
-      </Page>
-    </Document>
-  </PDFViewer>
+  schedule: SectionSchedule<'BUNDLE'>,
+  freeplay: Freeplay,
+  staff: StaffAttendeeID[],
+  admin: AdminAttendeeID[],
+  campers: CamperAttendeeID[],
+  bunkList: BunkID[] }> =
+({ schedule, freeplay, staff, admin, campers, bunkList }) => (
+<PDFViewer style={{ width: "100%", height: "100vh" }}>
+  <Document>
+    {/* Page 1: Staff Table (Right half only) */}
+    <Page size="A4" style={styles.twoColumnPage}>
+      <View style={styles.rightColumn}>
+        {renderStaffCompact(schedule, freeplay, staff, campers, bunkList)}
+      </View>
+    </Page>
+
+    {/* Page 2: Camper Table (Right half only) */}
+    <Page size="A4" style={styles.twoColumnPage}>
+      <View style={styles.rightColumn}>
+        {renderCampersCompact(schedule, freeplay, campers, bunkList)}
+      </View>
+    </Page>
+
+    {/* Page 3: Admin Table (Full width) */}
+    <Page size="A4" style={styles.page}>
+      {renderAdmin(schedule, freeplay, admin, campers)}
+    </Page>
+  </Document>
+</PDFViewer>
 );
