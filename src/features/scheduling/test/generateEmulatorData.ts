@@ -10,7 +10,7 @@ import { BunkJamboreeScheduler } from "../BunkJamboreeScheduler";
 import { NonBunkJamboreeScheduler } from "../NonBunkJamboreeScheduler";
 import { FreeplayScheduler } from "../FreeplayScheduler";
 import { SessionScheduler } from "../SessionScheduler";
-import { S } from "framer-motion/dist/types.d-B50aGbjN";
+// import { S } from "framer-motion/dist/types.d-B50aGbjN";
 import moment from "moment";
 
 
