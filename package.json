@@ -13,8 +13,16 @@
     "apps-script"
   ],
   "dependencies": {
+    "@mantine/core": "^8.3.5",
+    "@mantine/dates": "^8.3.5",
+    "@mantine/dropzone": "^8.3.5",
+    "@mantine/form": "^8.3.5",
+    "@mantine/hooks": "^8.3.5",
+    "@mantine/modals": "^8.3.5",
+    "@mantine/notifications": "^8.3.5",
     "@radix-ui/react-dialog": "^1.1.6",
     "@react-pdf/renderer": "^4.3.1",
+    "dayjs": "^1.11.18",
     "firebase": "^11.3.1",
     "framer-motion": "^12.4.7",
     "lucide-react": "^0.482.0",
