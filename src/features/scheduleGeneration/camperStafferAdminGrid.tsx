@@ -373,7 +373,7 @@ const renderFreeplayAssignment = ( freeplay: Freeplay, staffId: number, campers:
   }
 
   // If staff is assigned to a Freeplay post
-  const postEntry = Object.entries(freeplay.posts).find(([postName, ids]) =>
+  const postEntry = Object.entries(freeplay.posts).find(([, ids]) =>
     ids.includes(staffId)
   );
   if (postEntry) {
