@@ -255,6 +255,28 @@ const sampleSchedule: SectionSchedule<'BUNDLE'> = {
             adminIds: [201],
           },
         },
+        {
+          name: 'Archery',
+          description: 'Target practice with bows',
+          programArea: { name: 'Sports', isDeleted: false },
+          ageGroup: 'OCP',
+          assignments: {
+            camperIds: [6, 7],
+            staffIds: [101, 104], // Jeff is program counselor for Sports
+            adminIds: [],
+          },
+        },
+        {
+          name: 'Painting',
+          description: 'Watercolor and acrylic painting',
+          programArea: { name: 'Arts', isDeleted: false },
+          ageGroup: 'NAV',
+          assignments: {
+            camperIds: [8, 9, 10],
+            staffIds: [105], // Dexter is program counselor for Arts
+            adminIds: [202],
+          },
+        },
       ],
       periodsOff: [],
     },
@@ -282,6 +304,126 @@ const sampleSchedule: SectionSchedule<'BUNDLE'> = {
             adminIds: [202],
           },
         },
+        {
+          name: 'Diving',
+          description: 'Diving board practice',
+          programArea: { name: 'Swimming', isDeleted: false },
+          ageGroup: 'NAV',
+          assignments: {
+            camperIds: [1, 2, 3],
+            staffIds: [102], // Maria is program counselor for Swimming
+            adminIds: [201],
+          },
+        },
+        {
+          name: 'Soccer',
+          description: 'Team soccer games',
+          programArea: { name: 'Sports', isDeleted: false },
+          ageGroup: 'NAV',
+          assignments: {
+            camperIds: [4, 5],
+            staffIds: [101, 104], // Jeff is program counselor for Sports
+            adminIds: [],
+          },
+        },
+      ],
+      periodsOff: [],
+    },
+    C: {
+      activities: [
+        {
+          name: 'Basketball',
+          description: 'Team basketball games',
+          programArea: { name: 'Sports', isDeleted: false },
+          ageGroup: 'NAV',
+          assignments: {
+            camperIds: [1, 3, 4],
+            staffIds: [101, 103], // Jeff is program counselor for Sports
+            adminIds: [201],
+          },
+        },
+        {
+          name: 'Pottery',
+          description: 'Clay sculpting and pottery',
+          programArea: { name: 'Arts', isDeleted: false },
+          ageGroup: 'OCP',
+          assignments: {
+            camperIds: [6, 7],
+            staffIds: [105], // Dexter is program counselor for Arts
+            adminIds: [],
+          },
+        },
+        {
+          name: 'Bird Watching',
+          description: 'Identifying local birds',
+          programArea: { name: 'Nature', isDeleted: false },
+          ageGroup: 'NAV',
+          assignments: {
+            camperIds: [2, 5],
+            staffIds: [104, 102], // Tom is program counselor for Nature
+            adminIds: [],
+          },
+        },
+        {
+          name: 'Lap Swimming',
+          description: 'Swimming laps for fitness',
+          programArea: { name: 'Swimming', isDeleted: false },
+          ageGroup: 'NAV',
+          assignments: {
+            camperIds: [8, 9, 10],
+            staffIds: [102, 103], // Maria is program counselor for Swimming
+            adminIds: [202],
+          },
+        },
+      ],
+      periodsOff: [],
+    },
+    D: {
+      activities: [
+        {
+          name: 'Kayaking',
+          description: 'Kayaking on the lake',
+          programArea: { name: 'Swimming', isDeleted: false },
+          ageGroup: 'NAV',
+          assignments: {
+            camperIds: [2, 5, 8, 9],
+            staffIds: [102, 103], // Maria is program counselor for Swimming
+            adminIds: [202],
+          },
+        },
+        {
+          name: 'Wildlife Study',
+          description: 'Observing local wildlife',
+          programArea: { name: 'Nature', isDeleted: false },
+          ageGroup: 'NAV',
+          assignments: {
+            camperIds: [1, 10],
+            staffIds: [104, 101], // Tom is program counselor for Nature
+            adminIds: [],
+          },
+        },
+        {
+          name: 'Volleyball',
+          description: 'Beach volleyball games',
+          programArea: { name: 'Sports', isDeleted: false },
+          ageGroup: 'OCP',
+          assignments: {
+            camperIds: [6, 7],
+            staffIds: [101], // Jeff is program counselor for Sports
+            adminIds: [201],
+          },
+        },
+        {
+          name: 'Music & Theater',
+          description: 'Singing and drama activities',
+          programArea: { name: 'Arts', isDeleted: false },
+          ageGroup: 'NAV',
+          assignments: {
+            camperIds: [3, 4],
+            staffIds: [105, 104], // Dexter is program counselor for Arts
+            adminIds: [],
+          },
+        },
       ],
       periodsOff: [],
     },
@@ -293,10 +435,10 @@ async function generatePDF() {
   try {
     await ReactPDF.render(
       <Document>
-        <Page size="A4">
+        <Page size="A4" orientation="landscape">
           <ScheduleGrid 
             schedule={sampleSchedule} 
-            blockOrder={['A', 'B']}
+            blockOrder={['A', 'B', 'C', 'D']}
             campers={sampleCampers}
             staff={sampleStaff}
             admins={sampleAdmins}

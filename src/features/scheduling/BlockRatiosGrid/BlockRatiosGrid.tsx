@@ -58,7 +58,6 @@ const styles = StyleSheet.create({
     borderLeft: '1pt solid black',
     borderRight: '1pt solid black',
     borderBottom: '0.25pt solid black', // Lighter border underneath activity header
-    backgroundColor: '#e8e8e8',
     padding: 5,
     textAlign: 'center',
     fontSize: 6,
@@ -196,6 +195,8 @@ const ScheduleGrid: React.FC<ScheduleGridProps> = ({
       {/* Render activities row by row across all blocks */}
       {Array.from({ length: maxActivities }).map((_, activityIndex) => {
         const maxNamesInThisRow = calculateMaxNamesForActivityRow(activityIndex);
+        const isGrayRow = activityIndex % 2 === 0; // Start with gray (index 0), then white (index 1), etc.
+        const rowBgColor = isGrayRow ? '#d9d9d9' : '#ffffff';
         
         return (
           <React.Fragment key={`activity-row-${activityIndex}`}>
@@ -210,7 +211,8 @@ const ScheduleGrid: React.FC<ScheduleGridProps> = ({
                     : activity.name
                   : '';
                 return (
-                  <View key={`header-${block.name}-${activityIndex}`} style={styles.activityHeader}>
+                  <View key={`header-${block.name}-${activityIndex}`} 
+                        style={[styles.activityHeader, { backgroundColor: rowBgColor }]}>
                     <Text>{headerText}</Text>
                   </View>
                 );
@@ -230,10 +232,10 @@ const ScheduleGrid: React.FC<ScheduleGridProps> = ({
                 
                 return (
                   <View key={`data-${block.name}-${activityIndex}`} style={{ flex: 1, flexDirection: 'row' }}>
-                    <View style={styles.campersCell}>
+                    <View style={[styles.campersCell, { backgroundColor: rowBgColor }]}>
                       <Text>{paddedCampers.join('\n')}</Text>
                     </View>
-                    <View style={styles.staffCell}>
+                    <View style={[styles.staffCell, { backgroundColor: rowBgColor }]}>
                       {paddedStaff.map((staffMember, idx) => (
                         <Text key={idx} style={staffMember.isAdmin ? { fontWeight: 'bold' } : {}}>
                           {staffMember.name}
