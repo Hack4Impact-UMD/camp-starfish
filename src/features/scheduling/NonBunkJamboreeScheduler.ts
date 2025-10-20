@@ -4,7 +4,7 @@ import {
   StaffAttendeeID,
   CamperAttendeeID,
   SectionSchedule,
-  Preferences,
+  SectionPreferences,
   JamboreeActivity,
   IndividualAssignments,
 } from "@/types/sessionTypes";
@@ -49,7 +49,7 @@ export class NonBunkJamboreeScheduler {
     return this;
    }
 
-  withCamperPrefs(camperPrefs: Preferences): NonBunkJamboreeScheduler { 
+  withCamperPrefs(camperPrefs: SectionPreferences): NonBunkJamboreeScheduler { 
     this.camperPrefs = camperPrefs; 
     return this; 
   }
