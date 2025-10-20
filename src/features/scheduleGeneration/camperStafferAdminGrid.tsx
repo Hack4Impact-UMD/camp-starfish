@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
   },
 });
 
-// ------------------ MAIN DOCUMENT ------------------ 
+// ------------------ MAIN DOCUMENT ------------------
 const renderStaff = (
   schedule: SectionSchedule<"BUNDLE">,
   freeplay: Freeplay,
@@ -64,14 +64,16 @@ const renderStaff = (
   camperList: CamperAttendeeID[],
   bunkList: BunkID[],
 ) => (
+  /*
+    * Used to render staff table in the document
+  */
   <>
     <Text style={styles.sectionTitle}>Staff Assignments</Text>
     <View style={styles.table}>
       <View style={styles.headerRow}>
-        <Text style={styles.headerCell}>NAME</Text>
-        {["A", "B", "C", "D", "E"].map((block) => (
-          <Text key={block} style={styles.headerCell}>
-            {block}
+        {Object.keys(schedule.blocks).map((blockId) => (
+          <Text key={blockId} style={styles.headerCell}>
+            {blockId}
           </Text>
         ))}
         <Text style={styles.headerCell}>APO</Text>
@@ -81,6 +83,7 @@ const renderStaff = (
       {(() => {
         let lastBunk: number | null = null;
 
+        // maps the sorted bunk list of counselors and staffers plus their assigned activities
         return sortBunkList(bunkList, staffList).map((staff) => {
           const isLead = staff.bunk !== lastBunk; // first staffer for this bunk
           lastBunk = staff.bunk; // update tracker
@@ -114,7 +117,13 @@ const renderStaff = (
   </>
 );
 
-const renderCampers = ( schedule: SectionSchedule<"BUNDLE">, freeplay: Freeplay, camperList: CamperAttendeeID[] ) => (
+const renderCampers = (
+  schedule: SectionSchedule<"BUNDLE">,
+  freeplay: Freeplay, camperList: CamperAttendeeID[]
+) => (
+  /*
+    * Used to return the camper table
+  */
   <>
     <Text style={styles.sectionTitle}>Kid Grid</Text>
 
@@ -179,7 +188,15 @@ const renderCampers = ( schedule: SectionSchedule<"BUNDLE">, freeplay: Freeplay,
   </>
 );
 
-const renderAdmin = ( schedule: SectionSchedule<"BUNDLE">, freeplay: Freeplay, adminList: AdminAttendeeID[], camperList: CamperAttendeeID[] ) => (
+const renderAdmin = (
+  schedule: SectionSchedule<"BUNDLE">,
+  freeplay: Freeplay,
+  adminList: AdminAttendeeID[],
+  camperList: CamperAttendeeID[]
+) => (
+  /*
+    * used to return the admin table
+  */
   <>
     <Text style={styles.sectionTitle}>Admin Assignments</Text>
     <View style={styles.table}>
@@ -230,8 +247,13 @@ const renderAdmin = ( schedule: SectionSchedule<"BUNDLE">, freeplay: Freeplay, a
 // ----------------- HELPERS ----------------
 
 const sortBunkList = ( bunkList: BunkID[], staffList: StaffAttendeeID[]) => {
+  /*
+    * given a list of bunks and a list of staff, returns a sorted list of staff by bunk
+    * the first person in each bunk is the lead counselor of the bunk (will be bolded)
+  */
   const sortedList: StaffAttendeeID[] = [];
 
+  // gets the staff as a dictionary mapping the ID number to their associated StaffAttendeeID object
   const staffDict: Record<number, StaffAttendeeID> = staffList.reduce(
     (acc, staff) => {
       acc[staff.id] = staff;
@@ -240,12 +262,21 @@ const sortBunkList = ( bunkList: BunkID[], staffList: StaffAttendeeID[]) => {
     {} as Record<number, StaffAttendeeID>
   );
 
+  // uses the dictionary to create the list of staff per bunk
   for (const bunk of bunkList) {
-    const tempList = [];
-    tempList.push(staffDict[bunk.leadCounselor]);
-    for (const counselor of bunk.staffIds) {
-      tempList.push(staffDict[counselor]);
+    const tempList: StaffAttendeeID[] = [];
+    const lead = staffDict[bunk.leadCounselor];
+    if (lead) tempList.push(lead);
+
+    // Add the other counselors, skipping the lead if duplicated
+    for (const counselorId of bunk.staffIds) {
+      if (counselorId !== bunk.leadCounselor) {
+        const counselor = staffDict[counselorId];
+        if (counselor) tempList.push(counselor);
+      }
     }
+
+    // aggregates the per bunk list into the main sorted list
     sortedList.push(...tempList);
   }
 
@@ -253,6 +284,10 @@ const sortBunkList = ( bunkList: BunkID[], staffList: StaffAttendeeID[]) => {
 }
 
 const freeplayBuddy = ( freeplay: Freeplay, camper: CamperAttendeeID) => {
+  /*
+    * given the freeplay object and a camper ID, finds the staff associated with them
+  */
+
   let savedId: string = "";
   for (const [staffId, camperIds] of Object.entries(freeplay.buddies)) {
     if (camperIds.includes(camper.id)) {
@@ -266,6 +301,8 @@ const freeplayBuddy = ( freeplay: Freeplay, camper: CamperAttendeeID) => {
   );
 };
 
+// Finds which activities a camper is assigned to in a given block.
+// Returns a comma-separated list of activity names, or "OFF" if none.
 const renderCamperBlockAssignment = (block: Block<"BUNDLE">, camperId: number) => {
   const camperActivities = (block.activities as BundleBlockActivities).filter((activity) =>
     activity.assignments.camperIds.includes(camperId)
@@ -276,6 +313,8 @@ const renderCamperBlockAssignment = (block: Block<"BUNDLE">, camperId: number) =
     : "OFF";
 };
 
+// Displays each staff member’s assignment across all schedule blocks.
+// Shows “OFF” if in periodsOff, the activity name if assigned, or “-” if none.
 const renderStaffBlocks = (schedule: SectionSchedule<"BUNDLE">, staffId: number) => {
   return Object.entries(schedule.blocks).map(([blockId, block]) => {
     // See if staff is OFF
@@ -295,7 +334,8 @@ const renderStaffBlocks = (schedule: SectionSchedule<"BUNDLE">, staffId: number)
     return (
       <View key={blockId} style={styles.cell}>
         {activities.length > 0 ? (
-          activities.map((a, idx) => <Text key={idx}>{a.name}</Text>)
+          // activities.map((a, idx) => <Text key={idx}>{a.name}</Text>)
+          <Text>{ activities[0].name }</Text>
         ) : (
           <Text>-</Text>
         )}
@@ -305,6 +345,8 @@ const renderStaffBlocks = (schedule: SectionSchedule<"BUNDLE">, staffId: number)
 };
 
 // Helper to render Freeplay assignment
+// Renders a staff member’s Freeplay assignment: either their buddy/buddies or post.
+// If unassigned, displays “OFF”.
 const renderFreeplayAssignment = ( freeplay: Freeplay, staffId: number, campers: CamperAttendeeID[] ) => {
   // If staff has a buddy assignment
   if (freeplay.buddies[staffId]) {
