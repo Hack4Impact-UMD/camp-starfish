@@ -13,7 +13,7 @@
           "color": "terminal.ansiBrightRed",
           "autoExecuteCommands": true,
           "commands": [
-            "firebase emulators:start"
+            "firebase emulators:start --import ./test/emulatorData"
           ]
         },
         {
@@ -42,6 +42,15 @@
         "autoExecuteCommands": true,
         "commands": [
           "cd functions && npm run build"
+        ]
+      },
+      {
+        "name": "apps-script",
+        "icon": "arrow-swap",
+        "color": "terminal.ansiBrightBlue",
+        "autoExecuteCommands": true,
+        "commands": [
+          "cd apps-script"
         ]
       }
     ]

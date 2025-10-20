@@ -1,12 +1,13 @@
 "use client";
-
 import React, { useState } from "react";
 import GoogleIcon from "@/assets/icons/Google.svg";
+import MicrosoftIcon from "@/assets/icons/Microsoft.svg";
 import ErrorIcon from "@/assets/icons/errorIcon.svg";
 import BackgroundPattern from "@/components/BackgroundPattern";
 import { useAuth } from "@/auth/useAuth";
 import { signInWithGooglePopup } from "@/auth/authN";
 import Image from "next/image";
+import { signInWithMicrosoftPopup } from "@/auth/authN";
 
 export default function LoginPage() {
   const [error, setError] = useState<string>("");
@@ -15,7 +16,7 @@ export default function LoginPage() {
 
   const errorDisplay = error ? error : auth.error;
 
-  const signIn = async () => {
+  const signInWithGoogle = async () => {
     try {
       await signInWithGooglePopup();
     } catch {
@@ -23,8 +24,17 @@ export default function LoginPage() {
     }
   }
 
+  const signInWithMicrosoft = async () => {
+    try {
+      await signInWithMicrosoftPopup();
+    }
+    catch {
+      setError("An error occurred while trying to sign in. Please try again.");
+    }
+  }
+
   return (
-    <div className="relative min-h-screen w-full flex items-center justify-center bg-camp-primary overflow-hidden">
+    <div className="relative min-h-full w-full flex items-center justify-center bg-primary-300 overflow-hidden">
       <div className="absolute inset-0 h-full">
         <BackgroundPattern fill="#FFFFFF" opacity={0.07} />
       </div>
@@ -39,13 +49,24 @@ export default function LoginPage() {
 
         {/* Google Sign-in Button */}
         <button
-          onClick={signIn}
+          onClick={signInWithGoogle}
           className="flex flex-row justify-around items-center w-5/6 max-w-[344px] bg-white 
                     py-4 px-12 rounded-full shadow-[0_4px_4px_-1px_rgba(0,0,0,0.2)] font-lato text-xl text-gray-600"
         >
           <Image src={GoogleIcon.src} alt="Google" width={32} height={32} />
           Sign in with Google
         </button>
+
+        {/* Microsoft Sign-in Button */}
+        <button
+          onClick={signInWithMicrosoft}
+          className="flex flex-row justify-around items-center w-5/6 max-w-[344px] bg-white 
+                    mt-5 py-4 px-12 rounded-full shadow-[0_4px_4px_-1px_rgba(0,0,0,0.2)] font-lato text-xl text-gray-600"
+        >
+          <Image src={MicrosoftIcon.src} alt="Microsoft" width={32} height={32} />
+          Sign in with Microsoft
+        </button>
+
 
         {/* Error Message */}
         {errorDisplay && (
