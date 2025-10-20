@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from '@react-pdf/renderer';
-import { StaffAttendeeID, CamperAttendeeID, AdminAttendeeID, SectionSchedule } from "@/types/sessionTypes";
+import { StaffAttendeeID, CamperAttendeeID, AdminAttendeeID, SectionSchedule, SchedulingSectionType } from "@/types/sessionTypes";
 
 // Helper function to map attendee IDs to names
 function idToName(
@@ -20,8 +20,8 @@ function idToName(
   return nameStr;
 }
 
-interface ScheduleGridProps {
-  schedule: SectionSchedule<any>;
+interface ScheduleGridProps<T extends SchedulingSectionType = SchedulingSectionType> {
+  schedule: SectionSchedule<T>;
   blockOrder?: string[];
   campers?: CamperAttendeeID[];
   staff?: StaffAttendeeID[];
@@ -105,20 +105,22 @@ const ScheduleGrid: React.FC<ScheduleGridProps> = ({
       return { name: blockId, activities: [] };
     }
 
-    const activities: any[] = (block as any).activities || [];
+    const activities = block.activities || [];
     const actRows = activities.map((act) => {
-      const assign = act.assignments || {};
+      const assign = act.assignments;
       const campersList: string[] = [];
       const staffAdminsList: { name: string; isAdmin: boolean }[] = [];
 
-      // Add campers with bunk numbers in parentheses
-      assign.camperIds?.forEach((cid: number) => {
-        const name = idToName(cid, campers, true);
-        if (name) campersList.push(name);
-      });
+      // Add campers with bunk numbers in parentheses (IndividualAssignments)
+      if ('camperIds' in assign) {
+        assign.camperIds?.forEach((cid: number) => {
+          const name = idToName(cid, campers, true);
+          if (name) campersList.push(name);
+        });
+      }
       
       // For Bundle activities, find program counselor based on programArea match
-      const programCounselorId = act.programArea 
+      const programCounselorId = ('programArea' in act && act.programArea && 'staffIds' in assign)
         ? staff.find(s => 
             assign.staffIds?.includes(s.id) && 
             s.programCounselor?.name === act.programArea.name
@@ -132,25 +134,30 @@ const ScheduleGrid: React.FC<ScheduleGridProps> = ({
       }
       
       // Add other staff members (excluding program counselor)
-      assign.staffIds?.forEach((sid: number) => {
-        if (sid === programCounselorId) return;
-        const name = idToName(sid, staff);
-        if (name) staffAdminsList.push({ name, isAdmin: false });
-      });
+      if ('staffIds' in assign) {
+        assign.staffIds?.forEach((sid: number) => {
+          if (sid === programCounselorId) return;
+          const name = idToName(sid, staff);
+          if (name) staffAdminsList.push({ name, isAdmin: false });
+        });
+      }
       
       // Add admins at the end
-      assign.adminIds?.forEach((aid: number) => {
-        const name = idToName(aid, admins);
-        if (name) staffAdminsList.push({ name, isAdmin: true });
-      });
+      if ('adminIds' in assign) {
+        assign.adminIds?.forEach((aid: number) => {
+          const name = idToName(aid, admins);
+          if (name) staffAdminsList.push({ name, isAdmin: true });
+        });
+      }
 
-      if (assign.bunk != null) {
+      // Handle bunk assignments
+      if ('bunk' in assign && assign.bunk != null) {
         campersList.push(`Bunk ${assign.bunk}`);
       }
 
       return { 
         name: act.name || "", 
-        programArea: act.programArea?.name, // Preserve program area for bundle activities
+        programArea: 'programArea' in act ? act.programArea?.name : undefined,
         campers: campersList, 
         staff: staffAdminsList
       };
