@@ -101,53 +101,57 @@ export class NonBunkJamboreeScheduler {
 
    //assigning campters to blocks based on preferences, not by bunk
   assignCampers(): NonBunkJamboreeScheduler { 
-    this.withCamperPrefs(this.camperPrefs);
-    // sort the campers preferences
-    const campersWithPrefs = this.campers.map(camper => ({
-      camper,
-      preferences: this.camperPrefs[camper.id] || {}
-    })).sort((a, b) => {
-      const aMaxPref = Math.max(...Object.values(a.preferences), 0);
-      const bMaxPref = Math.max(...Object.values(b.preferences), 0);
-      return bMaxPref - aMaxPref;
-    }); 
-    // assigning campers based on their preferences
-    for (const { camper, preferences } of campersWithPrefs) {
-      // sorting preferences
-      const sortedPrefs = Object.entries(preferences).sort(([, a], [, b]) => b - a);
-      let beenAssigned = false; 
-      // priotize assigning to preferred foundActivity
-      for (const [activityName, priority] of sortedPrefs) {
-        //skip if already assigned
-        if (beenAssigned){
-            break;
-        }        
-        // go through blocks and activities to assign potential one
-        for (const blockId of this.blocksToAssign) {
-          const currentBlock = this.schedule.blocks[blockId];
-          const foundActivity = currentBlock.activities.find(a => a.name === activityName);
-          //if the there is an open activity we assign camper to it
-          if (foundActivity && this.canAssignCamperToActivity(camper, foundActivity)) {
+    // preferences are read from this.camperPrefs; no need to reassign here
+    // Iterate per-block, then activities, assigning campers based on that block's preferences
+    for (const blockId of this.blocksToAssign) {
+      const currentBlock = this.schedule.blocks[blockId];
+      if (!currentBlock) { continue; }
+
+      const blockPrefs = this.camperPrefs[blockId] || {};
+
+      // Order campers by their max preference in this block (descending)
+      const campersOrdered = [...this.campers].sort((a, b) => {
+        const aPrefs = blockPrefs[a.id] || {};
+        const bPrefs = blockPrefs[b.id] || {};
+        const aMax = Object.values(aPrefs).length ? Math.max(...Object.values(aPrefs)) : 0;
+        const bMax = Object.values(bPrefs).length ? Math.max(...Object.values(bPrefs)) : 0;
+        return bMax - aMax;
+      });
+
+      const assignedThisBlock = new Set<number>();
+
+      for (const camper of campersOrdered) {
+        if (assignedThisBlock.has(camper.id)) { continue; }
+
+        const camperPrefsForBlock = blockPrefs[camper.id] || {};
+        // Sort activities by this camper's preference for the block (desc)
+        const activitiesByPref = [...currentBlock.activities].sort((a, b) => {
+          const aScore = camperPrefsForBlock[a.name] ?? 0;
+          const bScore = camperPrefsForBlock[b.name] ?? 0;
+          return bScore - aScore;
+        });
+
+        let placed = false;
+
+        // Try preferred activities first
+        for (const foundActivity of activitiesByPref) {
+          if (this.canAssignCamperToActivity(camper, foundActivity)) {
             foundActivity.assignments.camperIds.push(camper.id);
-            beenAssigned = true;
+            assignedThisBlock.add(camper.id);
+            placed = true;
             break;
           }
         }
-      }
-      // if nothing has been assigned then we try to find block
-      if (!beenAssigned) {
-        for (const blockId of this.blocksToAssign) {
-          const currentBlock = this.schedule.blocks[blockId];
+
+        // Fallback: any activity without conflicts
+        if (!placed) {
           for (const foundActivity of currentBlock.activities) {
             if (this.canAssignCamperToActivity(camper, foundActivity)) {
               foundActivity.assignments.camperIds.push(camper.id);
-              beenAssigned = true;
+              assignedThisBlock.add(camper.id);
               break;
             }
           }
-          if (beenAssigned){
-            break;
-          } 
         }
       }
     }
@@ -161,6 +165,9 @@ export class NonBunkJamboreeScheduler {
       // random assignment, not based on bunk, find available block as long as requiremennts are met
       for (const blockId of this.blocksToAssign) {
         const currentBlock = this.schedule.blocks[blockId];
+        if (!currentBlock) { continue; }
+        // skip if staff has a period off in this block
+        if (this.isStaffOnPeriodOff(staff.id, blockId)) { continue; }
         // checking for staff conflicts or nono list with camper
         for (const foundActivity of currentBlock.activities) {
           const hasConflict = this.checkStaffNonoConflicts(staff, foundActivity.assignments.staffIds);
