@@ -9,7 +9,9 @@ import localFont from "next/font/local";
 import { theme } from "../styles/theme";
 import { NextFontWithVariable } from "next/dist/compiled/@next/font";
 import { CampStarfishFont, campStarfishFonts } from "@/styles/fonts";
- 
+import { QueryClientProvider } from "@tanstack/react-query";
+import { queryClient } from "@/config/query";
+
 const lato = localFont({
   src: [
     {
@@ -63,7 +65,7 @@ const lato = localFont({
       style: "italic",
     },
   ],
-  variable: '--font-Lato',
+  variable: "--font-Lato",
 });
 
 const newSpirit = localFont({
@@ -130,9 +132,9 @@ const besteam = localFont({
 });
 
 const fontObjs: Record<CampStarfishFont, NextFontWithVariable> = {
-  'Lato': lato,
-  'NewSpirit': newSpirit,
-  'Besteam': besteam
+  Lato: lato,
+  NewSpirit: newSpirit,
+  Besteam: besteam,
 };
 
 export const metadata: Metadata = {
@@ -148,21 +150,25 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${campStarfishFonts.map((font) => fontObjs[font].variable).join(' ')} antialiased w-full min-h-screen flex flex-col`}
+        className={`${campStarfishFonts
+          .map((font) => fontObjs[font].variable)
+          .join(" ")} antialiased w-full min-h-screen flex flex-col`}
       >
-        <MantineProvider theme={theme}>
-          <AuthProvider>
-            <>
-              <div className="w-full">
-                <Navbar />
-              </div>
-              <div className="flex-grow w-full">{children}</div>
-              <div className="w-full">
-                <Footer />
-              </div>
-            </>
-          </AuthProvider>
-        </MantineProvider>
+        <QueryClientProvider client={queryClient}>
+          <MantineProvider theme={theme}>
+            <AuthProvider>
+              <>
+                <div className="w-full">
+                  <Navbar />
+                </div>
+                <div className="flex-grow w-full">{children}</div>
+                <div className="w-full">
+                  <Footer />
+                </div>
+              </>
+            </AuthProvider>
+          </MantineProvider>
+        </QueryClientProvider>
       </body>
     </html>
   );
