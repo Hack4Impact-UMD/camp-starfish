@@ -24,9 +24,8 @@ export class NonBunkJamboreeScheduler {
 
   blocksToAssign: string[] = [];
 
-  //  relationships between staff and admin
-  relationships = this.staffAdminRelationship();
-
+  // relationships are derived when needed from the current rosters
+  
   constructor() { }
 
   withSchedule(schedule: SectionSchedule<"NON-BUNK-JAMBO">): NonBunkJamboreeScheduler { 
@@ -61,10 +60,11 @@ export class NonBunkJamboreeScheduler {
 
   /* Each staff member & admin must have 1 period off per day */
   assignPeriodsOff(): NonBunkJamboreeScheduler { 
+    const relationships = this.staffAdminRelationship();
     const assignedStaff = new Set<number>();
     const assignedAdmins = new Set<number>();
     // going through relationships between staff/admin
-    for (const relationship of this.relationships) {
+    for (const relationship of relationships) {
       assignedStaff.add(relationship.staffId);
       assignedAdmins.add(relationship.adminId);
     }
@@ -76,7 +76,7 @@ export class NonBunkJamboreeScheduler {
     let blockIndex = 0;
     
     // assigning periods off for those in relationships
-    for (const relationship of this.relationships) {
+    for (const relationship of relationships) {
       const blockId = this.blocksToAssign[blockIndex % this.blocksToAssign.length];
       this.schedule.alternatePeriodsOff[blockId] = 
         [ ...(this.schedule.alternatePeriodsOff[blockId] || []), relationship.staffId, relationship.adminId];
@@ -238,18 +238,16 @@ export class NonBunkJamboreeScheduler {
 
 //HELPERS FOR IDENTIFYING SCEDULING CONFLICTS IN PERIODS OFF
 
-  // check if staff is on a period off on specific block
-  private isStaffOnPeriodOff(staffId: number, blockId: string): boolean {
-    const blockIndex = this.blocksToAssign.indexOf(blockId) + 1; 
-    const periodOffList = this.schedule.alternatePeriodsOff[blockIndex.toString()];
-    return periodOffList && periodOffList.includes(staffId);
-  }
+  // check if staff is on a period off on specific block  
+  private isStaffOnPeriodOff(staffId: number, blockId: string): boolean {  
+    const periodOffList = this.schedule.alternatePeriodsOff[blockId];  
+    return periodOffList && periodOffList.includes(staffId);  
+  }  
 
-  // check if admin is on period off for a specific block so we can assign them later
-  private isAdminOnPeriodOff(adminId: number, blockId: string): boolean {
-    const blockIndex = this.blocksToAssign.indexOf(blockId) + 1; 
-    const periodOffList = this.schedule.alternatePeriodsOff[blockIndex.toString()];
-    return periodOffList && periodOffList.includes(adminId);
-  }
+  // check if admin is on period off for a specific block so we can assign them later  
+  private isAdminOnPeriodOff(adminId: number, blockId: string): boolean {  
+    const periodOffList = this.schedule.alternatePeriodsOff[blockId];  
+    return periodOffList && periodOffList.includes(adminId);  
+  }  
 
 }
