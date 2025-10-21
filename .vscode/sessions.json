@@ -13,7 +13,7 @@
           "color": "terminal.ansiBrightRed",
           "autoExecuteCommands": true,
           "commands": [
-            "firebase emulators:start"
+            "firebase emulators:start --import ./test/emulatorData"
           ]
         },
         {

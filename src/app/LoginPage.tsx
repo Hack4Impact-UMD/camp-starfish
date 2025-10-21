@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useState } from "react";
 import GoogleIcon from "@/assets/icons/Google.svg";
 import MicrosoftIcon from "@/assets/icons/Microsoft.svg";
@@ -67,6 +66,7 @@ export default function LoginPage() {
           <Image src={MicrosoftIcon.src} alt="Microsoft" width={32} height={32} />
           Sign in with Microsoft
         </button>
+
 
         {/* Error Message */}
         {errorDisplay && (
