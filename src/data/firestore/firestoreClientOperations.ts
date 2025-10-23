@@ -38,8 +38,7 @@ export async function updateDoc<T>(ref: DocumentReference, data: Partial<WithFie
 
 export async function deleteDoc(ref: DocumentReference, instance?: Transaction | WriteBatch): Promise<void> {
   try {
-    // @ts-expect-error
-    await (instance ? instance.delete(ref, data) : deleteFirestore(ref, data));
+    await (instance ? instance.delete(ref) : deleteFirestore(ref));
   } catch {
     throw Error("Failed to delete document");
   }}
