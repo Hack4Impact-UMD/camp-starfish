@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { ToastContainer, toast } from 'react-toastify';
 import { useToaster } from 'react-hot-toast/headless';
 
 
@@ -16,12 +17,40 @@ export interface ToastProps {
   onClose?: (id: string) => void;
 }
 
+//toast container
+<ToastContainer
+position="top-center"
+autoClose={false}
+newestOnTop={false}
+closeOnClick
+rtl={false}
+pauseOnFocusLoss={false}
+draggable={false}
+theme="light"
+/>
+
+//toast emitter
+toast('messagge', {
+position: "top-center",
+autoClose: false,
+hideProgressBar: true,
+closeOnClick: true,
+pauseOnHover: true,
+draggable: false,
+progress: undefined,
+theme: "light",
+});
+
+
+//implement varying values
+
 const variantStyles: Record<ToastVariant, string> = {
   success:
     "text-green-600",
   error:
     "text-red-700",
 };
+
 
 export function Toast({ id, title, message, variant = "success", onClose }: ToastProps) {
   return (
