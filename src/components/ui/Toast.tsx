@@ -2,7 +2,6 @@
 
 import React from "react";
 import { ToastContainer, toast } from 'react-toastify';
-import { useToaster } from 'react-hot-toast/headless';
 
 
 export type ToastVariant = "success" | "error";
