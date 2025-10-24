@@ -9,6 +9,7 @@ import localFont from "next/font/local";
 import { theme } from "../styles/theme";
 import { NextFontWithVariable } from "next/dist/compiled/@next/font";
 import { CampStarfishFont, campStarfishFonts } from "@/styles/fonts";
+import { NotificationsProvider } from "@/features/notifications";
  
 const lato = localFont({
   src: [
@@ -152,15 +153,17 @@ export default function RootLayout({
       >
         <MantineProvider theme={theme}>
           <AuthProvider>
-            <>
-              <div className="w-full">
-                <Navbar />
-              </div>
-              <div className="flex-grow w-full">{children}</div>
-              <div className="w-full">
-                <Footer />
-              </div>
-            </>
+            <NotificationsProvider>
+              <>
+                <div className="w-full">
+                  <Navbar />
+                </div>
+                <div className="flex-grow w-full">{children}</div>
+                <div className="w-full">
+                  <Footer />
+                </div>
+              </>
+            </NotificationsProvider>
           </AuthProvider>
         </MantineProvider>
       </body>
