@@ -1,68 +1,74 @@
 import { Moment } from "moment";
 import React from "react";
-import { Text } from "@mantine/core";
-import { Box } from "@mantine/core";
-import { SimpleGrid } from "@mantine/core";
+import { SimpleGrid, Text, Box } from "@mantine/core";
+
 interface CalanderViewProps {
   sessionStartDate: Moment;
   sessionEndDate: Moment;
 }
 
-interface CalanderProps {}
-
 export const CalanderView: React.FC<CalanderViewProps> = ({
   sessionStartDate,
   sessionEndDate,
 }) => {
-  const daysToDisplay: Moment[] = [];
+  const start = sessionStartDate.clone().startOf("week");
+  const end = sessionEndDate.clone().endOf("week");
 
-  const currDate = sessionStartDate.clone();
-  while (
-    currDate.isBefore(sessionEndDate) ||
-    currDate.isSame(sessionEndDate, "day")
-  ) {
-    daysToDisplay.push(currDate);
-    currDate.add(1, "day");
+  const days: Moment[] = [];
+  let curr = start.clone();
+  while (curr.isBefore(end) || curr.isSame(end, "day")) {
+    days.push(curr.clone());
+    curr.add(1, "day");
   }
 
   const weeks: Moment[][] = [];
-  for (let i = 0; i < daysToDisplay.length; i += 7) {
-    weeks.push(daysToDisplay.slice(i, i + 7));
+  for (let i = 0; i < days.length; i += 7) {
+    weeks.push(days.slice(i, i + 7));
   }
 
-  const isSameMonth =
-    sessionStartDate.month() === sessionEndDate.month() &&
-    sessionStartDate.year() === sessionEndDate.year();
+  const daysOfWeek: string[] = [
+    "SUN",
+    "MON",
+    "TUE",
+    "WED",
+    "THU",
+    "FRI",
+    "SAT",
+  ];
+
   return (
     <div>
-      <Text size="sm" fw={"md"}>Session Title</Text>
-      <Text size="sm">
-        {sessionStartDate.format("MMM D")} –{" "}
-        {sessionEndDate.format("MMM D, YYYY")}
-      </Text>
-
+      <SimpleGrid cols={7} spacing={0}>
+        {daysOfWeek.map((day) => (
+          <Box key={day} p="xs" bg="#f5f5f5" bd="1px solid #ccc">
+            <Text fs="sm" ta="center" fw="bold" fz={"sm"}>
+              {day}
+            </Text>
+          </Box>
+        ))}
+      </SimpleGrid>
       {weeks.map((week, idx) => (
         <SimpleGrid key={idx} cols={7} spacing={0}>
-          {week.map((day) => (
-            <Box
-              key={day.toString()}
-              p="xs"
-              style={{
-                backgroundColor:
-                  day.isBefore(sessionStartDate, "day") ||
-                  day.isAfter(sessionEndDate, "day")
-                    ? "#e0e0e0"
-                    : "#fff",
-                border: "1px solid #ccc",
-                height: 50,
-              }}
-              onMouseDown={() => console.log("Drag start:", day.format())}
-              onMouseMove={() => console.log("Dragging:", day.format())}
-              onMouseUp={() => console.log("Drag end:", day.format())}
-            >
-              <Text size="sm" fw={"md"} ta={"center"}>{day.date()}</Text>
-            </Box>
-          ))}
+          {week.map((day) => {
+            const inRange =
+              day.isSameOrAfter(sessionStartDate, "day") &&
+              day.isSameOrBefore(sessionEndDate, "day");
+
+            return (
+              <Box
+                key={day.toString()}
+                p="xs"
+                bg={inRange ? "#fff" : "#e0e0e0"}
+                bd="1px solid #ccc"
+                display="flex"
+                h={200}
+              >
+                <Text size="sm" fw={inRange ? "bold" : "normal"}>
+                  {day.date()}
+                </Text>
+              </Box>
+            );
+          })}
         </SimpleGrid>
       ))}
     </div>
