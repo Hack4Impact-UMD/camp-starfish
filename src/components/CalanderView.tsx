@@ -1,6 +1,7 @@
 import { Moment } from "moment";
 import React from "react";
 import { SimpleGrid, Text, Box } from "@mantine/core";
+import { CalanderViewDay } from "./CalanderViewDay";
 
 interface CalanderViewProps {
   sessionStartDate: Moment;
@@ -49,26 +50,16 @@ export const CalanderView: React.FC<CalanderViewProps> = ({
       </SimpleGrid>
       {weeks.map((week, idx) => (
         <SimpleGrid key={idx} cols={7} spacing={0}>
-          {week.map((day) => {
-            const inRange =
-              day.isSameOrAfter(sessionStartDate, "day") &&
-              day.isSameOrBefore(sessionEndDate, "day");
-
-            return (
-              <Box
-                key={day.toString()}
-                p="xs"
-                bg={inRange ? "#fff" : "#e0e0e0"}
-                bd="1px solid #ccc"
-                display="flex"
-                h={200}
-              >
-                <Text size="sm" fw={inRange ? "bold" : "normal"}>
-                  {day.date()}
-                </Text>
-              </Box>
-            );
-          })}
+          {week.map((day) => (
+            <CalanderViewDay
+              key={day.toString()}
+              inRange={
+                day.isSameOrAfter(sessionStartDate, "day") &&
+                day.isSameOrBefore(sessionEndDate, "day")
+              }
+              day={day}
+            />
+          ))}
         </SimpleGrid>
       ))}
     </div>
