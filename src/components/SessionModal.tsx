@@ -1,84 +1,66 @@
-// CreateSession.tsx
-"use client";
+import React, { useState } from 'react';
+import { DatePicker, DatesRangeValue } from '@mantine/dates';
+import { Button, TextInput, Stack, Group, Text } from '@mantine/core';
+import '@mantine/core/styles.css';
+import '@mantine/dates/styles.css';
 
-import React, { useState } from "react";
-import {
-  Box,
-  Button,
-  Group,
-  Stack,
-  Text,
-  TextInput,
-  Title,
-  Paper,
-} from "@mantine/core";
-import { DatePicker, DatesRangeValue } from "@mantine/dates";
-
-interface CreateSessionProps {
-  onSubmit: (sessionName: string, dateRange: [Date | null, Date | null]) => void;
+interface DateRangeGeneratorProps {
+  onSubmit: (sessionName: string, startDate: Date | null, endDate: Date | null) => void;
+  onCancel?: () => void;
 }
 
-export const CreateSession: React.FC<CreateSessionProps> = ({ onSubmit }) => {
-  const [sessionName, setSessionName] = useState("");
+export default function DateRangeGenerator({ onSubmit, onCancel }: DateRangeGeneratorProps) {
+  const [sessionName, setSessionName] = useState('');
   const [dateRange, setDateRange] = useState<DatesRangeValue>([null, null]);
 
-  const handleSubmit = () => {
-    if (!sessionName.trim()) {
-      alert("Please enter a session name.");
-      return;
-    }
-    if (!dateRange[0] || !dateRange[1]) {
-      alert("Please select a start and end date.");
-      return;
-    }
-
-    const startDate = dateRange[0] instanceof Date ? dateRange[0] : new Date(dateRange[0]);
-    const endDate = dateRange[1] instanceof Date ? dateRange[1] : new Date(dateRange[1]);
-
-    console.log("Session Name:", sessionName);
-    console.log("Start Date:", startDate);
-    console.log("End Date:", endDate);
-    console.log("Date Range Type:", typeof dateRange[0], typeof dateRange[1]);
-  
-    onSubmit(sessionName, [startDate, endDate]);
+  const handleGenerate = () => {
+    const startDate = dateRange[0] ? new Date(dateRange[0]) : null;
+    const endDate = dateRange[1] ? new Date(dateRange[1]) : null;
+    onSubmit(sessionName, startDate, endDate);
   };
 
+  const handleCancel = () => {
+    if (onCancel) {
+      onCancel();
+    }
+  };
+
+  const formatDateRangeText = () => {
+    if (dateRange[0] && dateRange[1]) {
+      const options: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric' };
+      const start = dateRange[0].toLocaleString('en-US', options);
+      const end = dateRange[1].toLocaleString('en-US', options);
+      return `Selecting ${start} - ${end}`;
+    }
+    return '';
+  };
 
   return (
-    <Box
-      style={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        minHeight: "100vh",
-        backgroundColor: "#3A3A3A",
-      }}
-    >
-      <Paper
-        radius="md"
-        shadow="lg"
-        p="xl"
-        style={{
-          width: 600,
-          backgroundColor: "#fff",
-        }}
-      >
-        <Title
-          order={3}
-          style={{
-            backgroundColor: "#003366",
-            color: "white",
-            padding: "0.75rem 1rem",
-            borderRadius: "6px 6px 0 0",
-            margin: "-1rem -1rem 1rem -1rem",
-          }}
-        >
+    <div style={{ 
+      backgroundColor: '#fff',
+      borderRadius: '8px',
+      overflow: 'hidden',
+      maxWidth: '600px',
+      margin: '40px auto',
+      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+    }}>
+      {/* Header */}
+      <div style={{
+        backgroundColor: '#0c4a6e',
+        padding: '20px 40px',
+        color: '#fff',
+      }}>
+        <Text size="xl" fw={700} style={{ letterSpacing: '0.5px' }}>
           CREATE SESSION
-        </Title>
+        </Text>
+      </div>
 
-        <Stack gap="md">
-          <Box>
-            <Text fw={600} mb={4}>
+      {/* Content */}
+      <div style={{ padding: '40px' }}>
+        <Stack gap="xl">
+          {/* Session Name Input */}
+          <div>
+            <Text size="lg" fw={700} style={{ marginBottom: '12px', color: '#000' }}>
               Enter Session Name:
             </Text>
             <TextInput
@@ -87,73 +69,125 @@ export const CreateSession: React.FC<CreateSessionProps> = ({ onSubmit }) => {
               onChange={(e) => setSessionName(e.currentTarget.value)}
               styles={{
                 input: {
-                  backgroundColor: "#f3f6f9",
-                  borderRadius: "6px",
-                },
-              }}
-            />
-          </Box>
-
-          <Box>
-            <Text fw={600} mb={4}>
-              Select Session Dates:
-            </Text>
-            <DatePicker
-              type="range"
-              value={dateRange}
-              onChange={setDateRange}
-              numberOfColumns={2}
-              styles={{
-                day: {
-                  borderRadius: "50%",
-                  "&[data-selected]": {
-                    backgroundColor: "#003366",
-                    color: "white",
+                  backgroundColor: '#f3f4f6',
+                  border: 'none',
+                  borderRadius: '4px',
+                  padding: '12px 16px',
+                  fontSize: '14px',
+                  color: '#6b7280',
+                  '&::placeholder': {
+                    color: '#9ca3af',
                   },
                 },
-                calendarHeaderLevel: { fontWeight: 600 },
               }}
             />
-          </Box>
+          </div>
 
-          {dateRange[0] && dateRange[1] && (
-            <Text size="sm" ta="right" c="dimmed">
-              Selecting{" "}
-              {dateRange[0].toLocaleString("en-US", {
-                month: "short",
-                day: "numeric",
-              })}{" "}
-              -{" "}
-              {dateRange[1].toLocaleString("en-US", {
-                month: "short",
-                day: "numeric",
-              })}
+          {/* Date Range Picker */}
+          <div>
+            <Text size="lg" fw={700} style={{ marginBottom: '12px', color: '#000' }}>
+              Select Session Dates:
+            </Text>
+            <div style={{ display: 'flex', justifyContent: 'center' }}>
+              <div style={{ maxWidth: '350px' }}>
+                <DatePicker
+                  type="range"
+                  value={dateRange}
+                  onChange={setDateRange}
+                  numberOfColumns={1}
+                  size="md"
+                  styles={{
+                    calendarHeader: {
+                      maxWidth: 'none',
+                    },
+                    calendarHeaderControl: {
+                      color: '#000',
+                    },
+                    monthCell: {
+                      color: '#000',
+                    },
+                    day: {
+                      color: '#000',
+                      fontSize: '16px',
+                      height: '40px',
+                      '&[data-selected]': {
+                        backgroundColor: '#0c4a6e',
+                        color: '#fff',
+                      },
+                      '&[data-in-range]': {
+                        backgroundColor: '#e0f2fe',
+                        color: '#000',
+                      },
+                    },
+                    month: {
+                      width: '100%',
+                    },
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Selected Range Text */}
+          {formatDateRangeText() && (
+            <Text size="sm" style={{ color: '#6b7280', fontStyle: 'italic', textAlign: 'center', marginTop: '-12px' }}>
+              {formatDateRangeText()}
             </Text>
           )}
 
-          <Group justify="flex-end" mt="md">
+          {/* Action Buttons */}
+          <Group justify="flex-end" gap="md" style={{ marginTop: '20px' }}>
             <Button
-              variant="outline"
-              color="gray"
-              radius="xl"
-              style={{ paddingInline: "1.5rem" }}
-            >
-              Cancel
-            </Button>
-            <Button
-              color="teal"
-              radius="xl"
-              onClick={handleSubmit}
-              style={{
-                backgroundColor: "#00A86B",
-                paddingInline: "1.5rem",
+              onClick={handleCancel}
+              variant="default"
+              styles={{
+                root: {
+                  backgroundColor: '#d1d5db',
+                  color: '#000',
+                  border: 'none',
+                  borderRadius: '20px',
+                  padding: '10px 32px',
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px',
+                  '&:hover': {
+                    backgroundColor: '#9ca3af',
+                  },
+                },
               }}
             >
-              Generate
+              CANCEL
+            </Button>
+            <Button
+              onClick={handleGenerate}
+              disabled={!sessionName || !dateRange[0] || !dateRange[1]}
+              styles={{
+                root: {
+                  backgroundColor: '#10b981',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '20px',
+                  padding: '10px 32px',
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px',
+                  '&:hover': {
+                    backgroundColor: '#059669',
+                  },
+                  '&:disabled': {
+                    backgroundColor: '#d1d5db',
+                    color: '#9ca3af',
+                  },
+                },
+              }}
+            >
+              GENERATE
             </Button>
           </Group>
         </Stack>
-      </Paper>
-    </Box>
+      </div>
+    </div>
   );
-};
+}
