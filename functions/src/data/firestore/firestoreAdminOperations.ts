@@ -1,5 +1,5 @@
 import { DocumentData, DocumentReference, DocumentSnapshot, FirestoreDataConverter, GrpcStatus, Query, Transaction, UpdateData, WithFieldValue, WriteBatch } from "firebase-admin/firestore";
-import { isFirebaseError } from "../types/error";
+import { isFirebaseError } from "../../types/error";
 
 export async function getDoc<AppModelType, DbModelType extends DocumentData>(ref: DocumentReference<AppModelType, DbModelType>, converter: FirestoreDataConverter<AppModelType, DbModelType>, transaction?: Transaction): Promise<AppModelType> {
   let doc: DocumentSnapshot<AppModelType, DbModelType>;
