@@ -1,9 +1,10 @@
 import { FirebaseError } from "firebase/app";
-import { DocumentReference, Query, Transaction, WriteBatch, DocumentSnapshot, getDoc as getFirestore, setDoc as setFirestore, updateDoc as updateFirestore, deleteDoc as deleteFirestore, getDocs as queryFirestore, WithFieldValue, DocumentData, QueryDocumentSnapshot, UpdateData } from "firebase/firestore";
+import { DocumentReference, Query, Transaction, WriteBatch, DocumentSnapshot, getDoc as getFirestore, setDoc as setFirestore, updateDoc as updateFirestore, deleteDoc as deleteFirestore, getDocs as queryFirestore, WithFieldValue, DocumentData, QueryDocumentSnapshot, UpdateData, FirestoreDataConverter } from "firebase/firestore";
 
-export async function getDoc<AppModelType, DbModelType extends DocumentData>(ref: DocumentReference<AppModelType, DbModelType>, transaction?: Transaction): Promise<DocumentSnapshot<AppModelType, DbModelType>> {
+export async function getDoc<AppModelType, DbModelType extends DocumentData>(ref: DocumentReference<AppModelType, DbModelType>, converter: FirestoreDataConverter<AppModelType, DbModelType>, transaction?: Transaction): Promise<AppModelType> {
   let doc: DocumentSnapshot<AppModelType, DbModelType>;
   try {
+    ref = ref.withConverter(converter);
     doc = await (transaction ? transaction.get(ref) : getFirestore(ref));
   } catch {
     throw Error("Error getting document");
@@ -12,11 +13,12 @@ export async function getDoc<AppModelType, DbModelType extends DocumentData>(ref
   if (!doc.exists()) {
     throw Error("Document not found");
   }
-  return doc;
+  return doc.data();
 }
 
-export async function createDoc<AppModelType, DbModelType extends DocumentData>(ref: DocumentReference<AppModelType, DbModelType>, data: WithFieldValue<AppModelType>, instance?: Transaction | WriteBatch): Promise<void> {
+export async function createDoc<AppModelType, DbModelType extends DocumentData>(ref: DocumentReference<AppModelType, DbModelType>, data: WithFieldValue<AppModelType>, converter: FirestoreDataConverter<AppModelType, DbModelType>, instance?: Transaction | WriteBatch): Promise<void> {
   try {
+    ref = ref.withConverter(converter);
     // @ts-expect-error
     await (instance ? instance.set(ref, data) : setFirestore(ref, data));
   } catch (error) {
@@ -24,8 +26,9 @@ export async function createDoc<AppModelType, DbModelType extends DocumentData>(
   }
 }
 
-export async function updateDoc<AppModelType, DbModelType extends DocumentData>(ref: DocumentReference<AppModelType, DbModelType>, data: UpdateData<DbModelType>, instance?: Transaction | WriteBatch): Promise<void> {
+export async function updateDoc<AppModelType, DbModelType extends DocumentData>(ref: DocumentReference<AppModelType, DbModelType>, data: UpdateData<DbModelType>, converter: FirestoreDataConverter<AppModelType, DbModelType>, instance?: Transaction | WriteBatch): Promise<void> {
   try {
+    ref = ref.withConverter(converter);
     // @ts-expect-error
     await (instance ? instance.update(ref, data) : updateFirestore(ref, data));
   } catch (error) {
@@ -36,17 +39,20 @@ export async function updateDoc<AppModelType, DbModelType extends DocumentData>(
   }
 }
 
-export async function deleteDoc<AppModelType, DbModelType extends DocumentData>(ref: DocumentReference<AppModelType, DbModelType>, instance?: Transaction | WriteBatch): Promise<void> {
+export async function deleteDoc<AppModelType, DbModelType extends DocumentData>(ref: DocumentReference<AppModelType, DbModelType>, converter: FirestoreDataConverter<AppModelType, DbModelType>, instance?: Transaction | WriteBatch): Promise<void> {
   try {
+    ref = ref.withConverter(converter);
     await (instance ? instance.delete(ref) : deleteFirestore(ref));
   } catch {
     throw Error("Failed to delete document");
-  }}
+  }
+}
 
-export async function executeQuery<AppModelType, DbModelType extends DocumentData>(query: Query<AppModelType, DbModelType>): Promise<QueryDocumentSnapshot<AppModelType, DbModelType>[]> {
+export async function executeQuery<AppModelType, DbModelType extends DocumentData>(query: Query<AppModelType, DbModelType>, converter: FirestoreDataConverter<AppModelType, DbModelType>): Promise<AppModelType[]> {
   try {
+    query = query.withConverter(converter);
     const querySnapshot = await queryFirestore(query);
-    return querySnapshot.docs;
+    return querySnapshot.docs.map(doc => doc.data());
   } catch {
     throw Error("Failed to execute query");
   }
