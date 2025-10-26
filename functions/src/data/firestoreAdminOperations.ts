@@ -1,10 +1,10 @@
-import { DocumentData, DocumentReference, DocumentSnapshot, GrpcStatus, Query, QueryDocumentSnapshot, Transaction, WithFieldValue, WriteBatch } from "firebase-admin/firestore";
+import { DocumentData, DocumentReference, DocumentSnapshot, GrpcStatus, Query, QueryDocumentSnapshot, Transaction, UpdateData, WithFieldValue, WriteBatch } from "firebase-admin/firestore";
 import { isFirebaseError } from "../types/error";
 
-export async function getDoc<T>(ref: DocumentReference, transaction?: Transaction): Promise<DocumentSnapshot<T>> {
-  let doc: DocumentSnapshot<T>;
+export async function getDoc<AppModelType, DbModelType extends DocumentData>(ref: DocumentReference<AppModelType, DbModelType>, transaction?: Transaction): Promise<DocumentSnapshot<AppModelType, DbModelType>> {
+  let doc: DocumentSnapshot<AppModelType, DbModelType>;
   try {
-    doc = await (transaction ? transaction.get(ref) : ref.get()) as DocumentSnapshot<T>;
+    doc = await (transaction ? transaction.get(ref) : ref.get());
   } catch {
     throw Error("Error getting document");
   }
@@ -15,7 +15,7 @@ export async function getDoc<T>(ref: DocumentReference, transaction?: Transactio
   return doc;
 }
 
-export async function createDoc<T extends WithFieldValue<DocumentData>>(ref: DocumentReference, data: T, instance?: Transaction | WriteBatch): Promise<void> {
+export async function createDoc<AppModelType, DbModelType extends DocumentData>(ref: DocumentReference<AppModelType, DbModelType>, data: WithFieldValue<AppModelType>, instance?: Transaction | WriteBatch): Promise<void> {
   try {
     await (instance ? instance.create(ref, data) : ref.create(data));
   } catch (error: unknown) {
@@ -26,7 +26,7 @@ export async function createDoc<T extends WithFieldValue<DocumentData>>(ref: Doc
   }
 }
 
-export async function updateDoc<T>(ref: DocumentReference, data: Partial<WithFieldValue<T>>, instance?: Transaction | WriteBatch): Promise<void> {
+export async function updateDoc<AppModelType, DbModelType extends DocumentData>(ref: DocumentReference<AppModelType, DbModelType>, data: UpdateData<DbModelType>, instance?: Transaction | WriteBatch): Promise<void> {
   try {
     // @ts-expect-error
     await (instance ? instance.update(ref, data) : ref.update(data));
@@ -38,7 +38,7 @@ export async function updateDoc<T>(ref: DocumentReference, data: Partial<WithFie
   }
 }
 
-export async function deleteDoc(ref: DocumentReference, instance?: Transaction | WriteBatch): Promise<void> {
+export async function deleteDoc<AppModelType, DbModelType extends DocumentData>(ref: DocumentReference<AppModelType, DbModelType>, instance?: Transaction | WriteBatch): Promise<void> {
   try {
     await (instance ? instance.delete(ref) : ref.delete());
   } catch {
@@ -46,10 +46,10 @@ export async function deleteDoc(ref: DocumentReference, instance?: Transaction |
   }
 }
 
-export async function executeQuery<T>(query: Query, instance?: Transaction): Promise<QueryDocumentSnapshot<T>[]> {
+export async function executeQuery<AppModelType, DbModelType extends DocumentData>(query: Query<AppModelType, DbModelType>, instance?: Transaction): Promise<QueryDocumentSnapshot<AppModelType, DbModelType>[]> {
   try {
     const querySnapshot = await (instance ? instance.get(query) : query.get())
-    return querySnapshot.docs as QueryDocumentSnapshot<T>[];
+    return querySnapshot.docs;
   } catch {
     throw Error("Failed to execute query");
   }
