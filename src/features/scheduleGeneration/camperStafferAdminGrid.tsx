@@ -141,139 +141,6 @@ const styles = StyleSheet.create({
 });
 
 // ------------------ MAIN DOCUMENT ------------------
-const renderStaff = (
-  schedule: SectionSchedule<"BUNDLE">,
-  freeplay: Freeplay,
-  staffList: StaffAttendeeID[],
-  camperList: CamperAttendeeID[],
-  bunkList: BunkID[],
-) => (
-  /*
-    * Used to render staff table in the document
-  */
-  <>
-    <Text style={styles.sectionTitle}>Staff Assignments</Text>
-    <View style={styles.table}>
-      <View style={styles.headerRow}>
-        <Text style={styles.headerCell}>NAME</Text>
-        {Object.keys(schedule.blocks).map((blockId) => (
-          <Text key={blockId} style={styles.headerCell}>
-            {blockId}
-          </Text>
-        ))}
-        <Text style={styles.headerCell}>APO</Text>
-        <Text style={styles.headerCell}>AM/PM FP</Text>
-      </View>
-
-      {(() => {
-        let lastBunk: number | null = null;
-
-        // maps the sorted bunk list of counselors and staffers plus their assigned activities
-        return sortBunkList(bunkList, staffList).map((staff) => {
-          const isLead = staff.bunk !== lastBunk; // first staffer for this bunk
-          lastBunk = staff.bunk; // update tracker
-
-          return (
-            <View key={staff.id} style={styles.row}>
-              {/* Name column - Use dataCell style */}
-              <View style={styles.dataCell}>
-                <Text style={isLead ? styles.bold : undefined}>
-                  {staff.name.firstName} {staff.name.lastName[0].toUpperCase()}.
-                  {isLead && ` (${staff.bunk})`}
-                </Text>
-              </View>
-
-              {/* Block assignments - Use dataCell style */}
-              {renderStaffBlocks(schedule, staff.id)}
-
-              <View style={styles.dataCell}>
-                <Text>
-                  {Object.values(schedule.alternatePeriodsOff).some(ids => ids.includes(staff.id)) ? "RH" : ""}
-                </Text>
-              </View>
-
-              {/* Freeplay assignment - Use dataCell style */}
-              {renderFreeplayAssignment(freeplay, staff.id, camperList)}
-            </View>
-          );
-        });
-      })()}
-    </View>
-  </>
-);
-
-const renderCampers = (
-  schedule: SectionSchedule<"BUNDLE">,
-  freeplay: Freeplay,
-  camperList: CamperAttendeeID[],
-  bunkList: BunkID[],
-) => (
-  /*
-    * Used to return the camper table
-  */
-  <>
-    <Text style={styles.sectionTitle}>Kid Grid</Text>
-
-    <View style={styles.table}>
-      <View style={styles.headerRow}>
-        <Text style={styles.headerCell}>BUNK</Text>
-        <Text style={styles.headerCell}>NAME</Text>
-        {Object.keys(schedule.blocks).map((blockId) => (
-          <Text key={blockId} style={styles.headerCell}>
-            {blockId}
-          </Text>
-        ))}
-        <Text style={styles.headerCell}>+</Text>
-        <Text style={styles.headerCell}>AM/PM FP</Text>
-      </View>
-
-      {/* Body Rows */}
-      {sortedCampers(bunkList, camperList).map((camper) => {
-        const blocksArray = Object.values(schedule.blocks);
-        const fpBuddy = freeplayBuddy(freeplay, camper);
-
-        return (
-          <View key={camper.id} style={styles.row}>
-            {/* BUNK - Use bunkCell style for gray background */}
-            <View style={styles.bunkCell}>
-              <Text>{camper.bunk}</Text>
-            </View>
-
-            {/* NAME - Use dataCell style */}
-            <View style={styles.dataCell}>
-              <Text>
-                {[camper.name.firstName, camper.name.lastName]
-                  .filter(Boolean)
-                  .join(" ")}
-              </Text>
-            </View>
-
-            {/* BLOCKS A–E - Use dataCell style */}
-            {blocksArray.map((block, i) => (
-              <View key={i} style={styles.dataCell}>
-                <Text>{ renderCamperBlockAssignment(block, camper.id) }</Text>
-              </View>
-            ))}
-
-            <View style={styles.dataCell}>
-              <Text>
-                -
-              </Text>
-            </View>
-
-            {/* FREEPLAY - Use dataCell style */}
-            <View style={styles.dataCell}>
-              <Text>
-                {fpBuddy ? `${fpBuddy}` : ""}
-              </Text>
-            </View>
-          </View>
-        );
-      })}
-    </View>
-  </>
-);
-
 const renderAdmin = (
   schedule: SectionSchedule<"BUNDLE">,
   freeplay: Freeplay,
@@ -326,7 +193,6 @@ const renderAdmin = (
     </View>
   </>
 );
-
 
 
 const renderCampersCompact = (
@@ -696,24 +562,6 @@ const renderFreeplayAssignmentCompact = ( freeplay: Freeplay, staffId: number, c
 
 
 // ------------------ MAIN DOCUMENT ------------------
-// export const SchedulePDF: React.FC<{
-//     schedule: SectionSchedule<'BUNDLE'>,
-//     freeplay: Freeplay,
-//     staff: StaffAttendeeID[],
-//     admin: AdminAttendeeID[],
-//     campers: CamperAttendeeID[],
-//     bunkList: BunkID[] }> =
-//   ({ schedule, freeplay, staff, admin, campers, bunkList }) => (
-//   <PDFViewer style={{ width: "100%", height: "100vh" }}>
-//     <Document>
-//       <Page size="A4" style={styles.page}>
-//         {renderStaff(schedule, freeplay, staff, campers, bunkList)}
-//         {renderCampers(schedule, freeplay, campers, bunkList)}
-//         {renderAdmin(schedule, freeplay, admin, campers)}
-//       </Page>
-//     </Document>
-//   </PDFViewer>
-// );
 export const SchedulePDF: React.FC<{
   schedule: SectionSchedule<'BUNDLE'>,
   freeplay: Freeplay,
