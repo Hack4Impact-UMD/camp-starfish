@@ -12,7 +12,7 @@ const imageFirestoreConverter: FirestoreDataConverter<ImageMetadataID, ImageMeta
   fromFirestore: (snapshot: QueryDocumentSnapshot<ImageMetadata, ImageMetadata>): ImageMetadataID => ({ id: snapshot.ref.id, albumId: snapshot.ref.parent.parent!.id, ...snapshot.data() })
 }
 
-export async function getImage(albumId: string, imageId: string, transaction?: Transaction): Promise<ImageMetadataID> {
+export async function getImageById(albumId: string, imageId: string, transaction?: Transaction): Promise<ImageMetadataID> {
   return await getDoc<ImageMetadataID, ImageMetadata>(doc(db, Collection.ALBUMS, albumId, AlbumsSubcollection.IMAGE_METADATAS, imageId) as DocumentReference<ImageMetadataID, ImageMetadata>, imageFirestoreConverter, transaction);
 }
 
