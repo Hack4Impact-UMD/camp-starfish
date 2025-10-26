@@ -1,4 +1,4 @@
-import { MantineColorsTuple, MantineThemeOverride } from "@mantine/core";
+import { MantineColorsTuple, MantineTheme, MantineThemeOverride, Button, Image } from "@mantine/core";
 import { campStarfishFonts } from "./fonts";
 
 export const theme: MantineThemeOverride = {
@@ -70,4 +70,47 @@ export const theme: MantineThemeOverride = {
   },
   defaultRadius: "xl",
   cursorType: "pointer",
+  components: {
+  Notification: {
+    styles: (theme: MantineTheme, params: any) => {
+      const colorKey = params?.color ?? 'primary';
+      const accent = theme.colors[colorKey]?.[4] ?? theme.colors.primary[4];
+      const border = theme.colors.neutral?.[3] ?? '#DEE1E3';
+
+      return {
+        root: {
+          backgroundColor: theme.white,
+          border: `1px solid ${border}`,
+          borderRadius: theme.radius.xs,
+          boxShadow: '0 2px 6px rgba(0,0,0,0.06)',
+          padding: '12px 16px',
+          position: 'relative',
+        },
+        body: {
+          borderLeft: `6px solid ${accent}`,
+          paddingLeft: 12,
+        },
+        icon: { 
+          color: accent 
+        },
+        title: { 
+          fontWeight: 700, color: theme.colors.neutral?.[6] ?? '#2F424C' 
+        },
+        description: { 
+          color: theme.colors.neutral?.[5] ?? '#3B4E57' 
+        },
+        closeButton: {
+          color: theme.colors.neutral?.[6] ?? '#2F424C',
+          borderRadius: 5,
+        },
+      };
+    },
+    defaultProps: { withBorder: false },
+  },
+},
 };
+
+//override the themes for toast notification component here
+//use mantine styles API
+// exit button on right
+ //image on left for success (checkmark) and error (x)

@@ -1,5 +1,4 @@
 import React from "react";
-import { ToastContainer, toast } from 'react-toastify';
 interface ToastProps {
   id: number;
   message: string;
@@ -16,4 +15,3 @@ const Toast: React.FC<ToastProps> = ({ id, message, onClose }) => {
 };
 
 export default Toast;
-

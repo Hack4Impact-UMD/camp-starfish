@@ -1,12 +1,15 @@
 import { notifications } from '@mantine/notifications';
 
 //TODO: add check and X icon
+
 export const useNotifier = () => {
+
+  //we have the success and error variants for notifications
   const success = (message: string, title = 'Success') => {
     notifications.show({
       title,
       message,
-      color: 'green',
+      color: 'success',
       radius: 5,         
     });
   };
@@ -15,7 +18,7 @@ export const useNotifier = () => {
     notifications.show({
       title,
       message,
-      color: 'red',
+      color: 'error',
       radius: 5,
     });
   };

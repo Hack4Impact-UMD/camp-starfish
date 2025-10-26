@@ -1,20 +1,15 @@
-// add notifications component 
+
+//provider that allows us to create notifications throughout
 "use client";
 import React from 'react';
-import { MantineProvider } from '@mantine/core';
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import '../features/notifications/toastStyles.css';
+import { Notifications } from '@mantine/notifications';
+import '@mantine/notifications/styles.css';
 
-export function NotificationsProviderWrapper({}) {
+export function NotificationsProvider({ children }: { children: React.ReactNode }) {
   return (
-    <MantineProvider>
-      <ToastContainer
-        position="top-center"
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-      />
-    </MantineProvider>
+    <>
+      <Notifications position="top-center" zIndex={4000} />
+      {children}
+    </>
   );
 }
