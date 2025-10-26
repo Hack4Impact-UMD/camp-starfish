@@ -1,6 +1,6 @@
 import { db } from "@/config/firebase";
 import { Album, AlbumID } from "@/types/albumTypes";
-import { randomUUID } from "crypto";
+import { v4 as uuid } from "uuid";
 import { doc, Transaction, getDoc, WriteBatch, updateDoc, deleteDoc, setDoc, FirestoreError } from "firebase/firestore";
 import { Collection } from "./utils";
 
@@ -20,7 +20,7 @@ export async function getAlbumById(id: string, transaction?: Transaction): Promi
 
 export async function createAlbum(album: Album, instance?: Transaction | WriteBatch): Promise<string> {
   try {
-    const id = randomUUID();
+    const id = uuid();
     const albumRef = doc(db, Collection.ALBUMS, id);
     // @ts-expect-error - instance.set on both Transaction and WriteBatch have the same signature
     await (instance ? instance.set(id, album) : setDoc(albumRef, album));
