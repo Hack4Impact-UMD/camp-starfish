@@ -1,6 +1,6 @@
 import { db } from "@/config/firebase";
 import { Session, SessionID } from "@/types/sessionTypes";
-import { randomUUID } from "crypto";
+import { v4 as uuid } from "uuid";
 import {
     doc,
     collection,
@@ -33,9 +33,10 @@ export async function getSessionById(id: string, transaction?: Transaction): Pro
 
 export async function createSession(session: Session, instance?: Transaction | WriteBatch): Promise<string> {
     try {
+        const id = uuid();
         // @ts-expect-error - instance.set on both Transaction and WriteBatch have the same signature
-        const sessionRef = await (instance ? instance.set(doc(db, Collection.SESSIONS, randomUUID()), session) : addDoc(collection(db, Collection.SESSIONS), session));
-        return sessionRef.id;
+        await (instance ? instance.set(doc(db, Collection.SESSIONS, id), session) : addDoc(collection(db, Collection.SESSIONS), session));
+        return id;
     } catch (error: unknown) {
         if (error instanceof FirestoreError && error.code === "already-exists") {
             throw new Error("Session already exists");
