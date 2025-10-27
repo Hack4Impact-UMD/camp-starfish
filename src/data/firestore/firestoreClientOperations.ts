@@ -1,5 +1,5 @@
 import { FirebaseError } from "firebase/app";
-import { DocumentReference, Query, Transaction, WriteBatch, DocumentSnapshot, getDoc as getFirestore, setDoc as setFirestore, updateDoc as updateFirestore, deleteDoc as deleteFirestore, getDocs as queryFirestore, WithFieldValue, DocumentData, QueryDocumentSnapshot, UpdateData, FirestoreDataConverter } from "firebase/firestore";
+import { DocumentReference, Query, Transaction, WriteBatch, DocumentSnapshot, getDoc as getFirestore, setDoc as setFirestore, updateDoc as updateFirestore, deleteDoc as deleteFirestore, getDocs as queryFirestore, WithFieldValue, DocumentData, UpdateData, FirestoreDataConverter } from "firebase/firestore";
 
 export async function getDoc<AppModelType, DbModelType extends DocumentData>(ref: DocumentReference<AppModelType, DbModelType>, converter: FirestoreDataConverter<AppModelType, DbModelType>, transaction?: Transaction): Promise<AppModelType> {
   let doc: DocumentSnapshot<AppModelType, DbModelType>;
@@ -19,9 +19,9 @@ export async function getDoc<AppModelType, DbModelType extends DocumentData>(ref
 export async function setDoc<AppModelType, DbModelType extends DocumentData>(ref: DocumentReference<AppModelType, DbModelType>, data: WithFieldValue<AppModelType>, converter: FirestoreDataConverter<AppModelType, DbModelType>, instance?: Transaction | WriteBatch): Promise<void> {
   try {
     ref = ref.withConverter(converter);
-    // @ts-expect-error
+    // @ts-expect-error - both Transaction & WriteBatch have a set with the same signature, but TypeScript fails to recognize that
     await (instance ? instance.set(ref, data) : setFirestore(ref, data));
-  } catch (error) {
+  } catch {
     throw Error("Failed to create document");
   }
 }
@@ -29,7 +29,7 @@ export async function setDoc<AppModelType, DbModelType extends DocumentData>(ref
 export async function updateDoc<AppModelType, DbModelType extends DocumentData>(ref: DocumentReference<AppModelType, DbModelType>, data: UpdateData<DbModelType>, converter: FirestoreDataConverter<AppModelType, DbModelType>, instance?: Transaction | WriteBatch): Promise<void> {
   try {
     ref = ref.withConverter(converter);
-    // @ts-expect-error
+    // @ts-expect-error - both Transaction & WriteBatch have a set with the same signature, but TypeScript fails to recognize that
     await (instance ? instance.update(ref, data) : updateFirestore(ref, data));
   } catch (error) {
     if (error instanceof FirebaseError && error.code === "not-found") {

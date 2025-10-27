@@ -3,14 +3,12 @@ import { Session, SessionID } from "@/types/sessionTypes";
 import { v4 as uuid } from "uuid";
 import {
   doc,
-  collection,
   Transaction,
   WriteBatch,
   FirestoreDataConverter,
   WithFieldValue,
   QueryDocumentSnapshot,
   DocumentReference,
-  FirestoreError
 } from "firebase/firestore";
 import { Collection } from "./utils";
 import { setDoc, deleteDoc, getDoc, updateDoc } from "./firestoreClientOperations";
