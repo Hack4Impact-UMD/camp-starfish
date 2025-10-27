@@ -34,7 +34,7 @@ export async function setParent(parent: ParentID, instance?: Transaction | Write
   await setDoc<ParentID, Parent>(adminDb.collection(Collection.PARENTS).doc(String(parent.id)) as DocumentReference<ParentID, Parent>, parent, parentFirestoreConverter, instance);
 };
 
-export async function updateParent(id: number, updates: Partial<ParentID>, instance?: Transaction | WriteBatch): Promise<void> {
+export async function updateParent(id: number, updates: Partial<Parent>, instance?: Transaction | WriteBatch): Promise<void> {
   await updateDoc<ParentID, Parent>(adminDb.collection(Collection.PARENTS).doc(String(id)) as DocumentReference<ParentID, Parent>, updates, parentFirestoreConverter, instance);
 };
 
