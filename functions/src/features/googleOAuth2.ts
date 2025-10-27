@@ -43,7 +43,6 @@ const handleOAuth2Code = onRequest(async (req, res) => {
       return;
     }
   } catch {
-
     res.status(303).redirect(`${process.env.NEXT_PUBLIC_DOMAIN}?error=true`);
     return;
   }
