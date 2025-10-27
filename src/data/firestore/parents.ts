@@ -30,7 +30,9 @@ export async function getParentById(id: number, transaction?: Transaction): Prom
 }
 
 export async function getParentByUid(uid: string): Promise<ParentID> {
-  return (await executeQuery<ParentID, Parent>(query(collection(db, Collection.PARENTS), where('uid', '==', uid), limit(1)) as CollectionReference<ParentID, Parent>, parentFirestoreConverter))[0];
+  const [parent] = await executeQuery<ParentID, Parent>(query(collection(db, Collection.PARENTS), where('uid', '==', uid), limit(1)) as CollectionReference<ParentID, Parent>, parentFirestoreConverter);
+  if (!parent) throw new Error('Parent not found');
+  return parent;
 }
 
 export async function setParent(parent: ParentID, instance?: Transaction | WriteBatch): Promise<void> {
