@@ -7,7 +7,7 @@ export interface GrpcError {
   name: string;
 }
 
-export function isFirebaseError(error: any): error is GrpcError {
+export function isFirebaseError(error: unknown): error is GrpcError {
   return (typeof error === 'object' && error != null)
     && ('code' in error && typeof error.code === 'number')
     && ('details' in error && typeof error.details === 'string')
