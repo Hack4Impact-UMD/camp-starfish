@@ -1,7 +1,7 @@
 import { Album, AlbumID } from "@/types/albumTypes";
 import { v4 as uuid } from "uuid";
 import { Collection } from "./utils";
-import { createDoc, deleteDoc, getDoc, updateDoc } from "./firestoreAdminOperations";
+import { setDoc, deleteDoc, getDoc, updateDoc } from "./firestoreAdminOperations";
 import { DocumentReference, FirestoreDataConverter, QueryDocumentSnapshot, Transaction, WithFieldValue, WriteBatch } from "firebase-admin/firestore";
 import { adminDb } from "../../config/firebaseAdminConfig";
 
@@ -17,9 +17,9 @@ export async function getAlbumById(id: string, transaction?: Transaction): Promi
   return await getDoc<AlbumID, Album>(adminDb.collection(Collection.ALBUMS).doc(id) as DocumentReference<AlbumID, Album>, albumFirestoreConverter, transaction);
 }
 
-export async function createAlbum(album: Album, instance?: Transaction | WriteBatch): Promise<string> {
+export async function setAlbum(album: Album, instance?: Transaction | WriteBatch): Promise<string> {
   const albumId = uuid();
-  await createDoc<AlbumID, Album>(adminDb.collection(Collection.ALBUMS).doc(albumId) as DocumentReference<AlbumID, Album>, { id: albumId, ...album }, albumFirestoreConverter, instance);
+  await setDoc<AlbumID, Album>(adminDb.collection(Collection.ALBUMS).doc(albumId) as DocumentReference<AlbumID, Album>, { id: albumId, ...album }, albumFirestoreConverter, instance);
   return albumId;
 }
 

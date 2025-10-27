@@ -2,7 +2,7 @@ import { db } from "@/config/firebase";
 import { Album, AlbumID } from "@/types/albumTypes";
 import { v4 as uuid } from "uuid";
 import { Collection } from "./utils";
-import { createDoc, deleteDoc, getDoc, updateDoc } from "./firestoreClientOperations";
+import { setDoc, deleteDoc, getDoc, updateDoc } from "./firestoreClientOperations";
 import { doc, DocumentReference, FirestoreDataConverter, QueryDocumentSnapshot, Transaction, WithFieldValue, WriteBatch } from "firebase/firestore";
 
 const albumFirestoreConverter: FirestoreDataConverter<AlbumID, Album> = {
@@ -17,9 +17,9 @@ export async function getAlbumById(id: string, transaction?: Transaction): Promi
   return await getDoc<AlbumID, Album>(doc(db, Collection.ALBUMS, id) as DocumentReference<AlbumID, Album>, albumFirestoreConverter, transaction);
 }
 
-export async function createAlbum(album: Album, instance?: Transaction | WriteBatch): Promise<string> {
+export async function setAlbum(album: Album, instance?: Transaction | WriteBatch): Promise<string> {
   const albumId = uuid();
-  await createDoc<AlbumID, Album>(doc(db, Collection.ALBUMS, albumId) as DocumentReference<AlbumID, Album>, { id: albumId, ...album }, albumFirestoreConverter, instance);
+  await setDoc<AlbumID, Album>(doc(db, Collection.ALBUMS, albumId) as DocumentReference<AlbumID, Album>, { id: albumId, ...album }, albumFirestoreConverter, instance);
   return albumId;
 }
 

@@ -13,7 +13,7 @@ import {
   FirestoreError
 } from "firebase/firestore";
 import { Collection } from "./utils";
-import { createDoc, deleteDoc, getDoc, updateDoc } from "./firestoreClientOperations";
+import { setDoc, deleteDoc, getDoc, updateDoc } from "./firestoreClientOperations";
 
 const sessionFirestoreConverter: FirestoreDataConverter<SessionID, Session> = {
   toFirestore: (session: WithFieldValue<SessionID>): WithFieldValue<Session> => {
@@ -27,9 +27,9 @@ export async function getSessionById(id: string, transaction?: Transaction): Pro
   return await getDoc<SessionID, Session>(doc(db, Collection.SESSIONS, id) as DocumentReference<SessionID, Session>, sessionFirestoreConverter, transaction);
 }
 
-export async function createSession(session: Session, instance?: Transaction | WriteBatch): Promise<string> {
+export async function setSession(session: Session, instance?: Transaction | WriteBatch): Promise<string> {
   const sessionId = uuid();
-  await createDoc<SessionID, Session>(doc(db, Collection.SESSIONS, sessionId) as DocumentReference<SessionID, Session>, { id: sessionId, ...session }, sessionFirestoreConverter, instance);
+  await setDoc<SessionID, Session>(doc(db, Collection.SESSIONS, sessionId) as DocumentReference<SessionID, Session>, { id: sessionId, ...session }, sessionFirestoreConverter, instance);
   return sessionId;
 }
 

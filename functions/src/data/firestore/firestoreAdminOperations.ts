@@ -16,10 +16,11 @@ export async function getDoc<AppModelType, DbModelType extends DocumentData>(ref
   return doc.data()!;
 }
 
-export async function createDoc<AppModelType, DbModelType extends DocumentData>(ref: DocumentReference<AppModelType, DbModelType>, data: WithFieldValue<AppModelType>, converter: FirestoreDataConverter<AppModelType, DbModelType>, instance?: Transaction | WriteBatch): Promise<void> {
+export async function setDoc<AppModelType, DbModelType extends DocumentData>(ref: DocumentReference<AppModelType, DbModelType>, data: WithFieldValue<AppModelType>, converter: FirestoreDataConverter<AppModelType, DbModelType>, instance?: Transaction | WriteBatch): Promise<void> {
   try {
     ref = ref.withConverter(converter);
-    await (instance ? instance.create(ref, data) : ref.create(data));
+    // @ts-expect-error
+    await (instance ? instance.set(ref, data) : ref.set(data));
   } catch (error: unknown) {
     if (isFirebaseError(error) && error.code === GrpcStatus.ALREADY_EXISTS) {
       throw Error("Document already exists");
@@ -43,7 +44,7 @@ export async function updateDoc<AppModelType, DbModelType extends DocumentData>(
 
 export async function deleteDoc<AppModelType, DbModelType extends DocumentData>(ref: DocumentReference<AppModelType, DbModelType>, converter: FirestoreDataConverter<AppModelType, DbModelType>, instance?: Transaction | WriteBatch): Promise<void> {
   try {
-    ref = ref.withConverter(converter); 
+    ref = ref.withConverter(converter);
     await (instance ? instance.delete(ref) : ref.delete());
   } catch {
     throw Error("Failed to delete document");

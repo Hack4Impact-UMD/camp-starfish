@@ -7,7 +7,7 @@ import {
   DocumentReference,
 } from "firebase-admin/firestore";
 import { Collection } from "./utils";
-import { createDoc, deleteDoc, getDoc, updateDoc } from "./firestoreAdminOperations";
+import { setDoc, deleteDoc, getDoc, updateDoc } from "./firestoreAdminOperations";
 import { adminDb } from "../../config/firebaseAdminConfig";
 import { Credentials } from "google-auth-library";
 
@@ -20,8 +20,8 @@ export async function getGoogleCredentialsByUid(uid: string, transaction?: Trans
   return await getDoc<Credentials, Credentials>(adminDb.collection(Collection.GOOGLE_OAUTH2_TOKENS).doc(uid) as DocumentReference<Credentials, Credentials>, googleCredentialsFirestoreConverter, transaction);
 }
 
-export async function createGoogleCredentials(uid: string, credentials: Credentials, instance?: Transaction | WriteBatch): Promise<void> {
-  await createDoc<Credentials, Credentials>(adminDb.collection(Collection.GOOGLE_OAUTH2_TOKENS).doc(uid) as DocumentReference<Credentials, Credentials>, credentials, googleCredentialsFirestoreConverter, instance);
+export async function setGoogleCredentials(uid: string, credentials: Credentials, instance?: Transaction | WriteBatch): Promise<void> {
+  await setDoc<Credentials, Credentials>(adminDb.collection(Collection.GOOGLE_OAUTH2_TOKENS).doc(uid) as DocumentReference<Credentials, Credentials>, credentials, googleCredentialsFirestoreConverter, instance);
 }
 
 export async function updateGoogleCredentials(uid: string, updates: Partial<Credentials>, instance?: Transaction | WriteBatch): Promise<void> {

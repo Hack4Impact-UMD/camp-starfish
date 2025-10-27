@@ -9,7 +9,7 @@ import {
   CollectionReference,
 } from "firebase-admin/firestore";
 import { Collection } from "./utils";
-import { createDoc, deleteDoc, executeQuery, getDoc, updateDoc } from "./firestoreAdminOperations";
+import { setDoc, deleteDoc, executeQuery, getDoc, updateDoc } from "./firestoreAdminOperations";
 import { adminDb } from "../../config/firebaseAdminConfig";
 
 const parentFirestoreConverter: FirestoreDataConverter<ParentID, Parent> = {
@@ -28,8 +28,8 @@ export async function getParentByUid(uid: string): Promise<ParentID> {
   return (await executeQuery<ParentID, Parent>(adminDb.collection(Collection.PARENTS).where('uid', '==', uid).limit(1) as CollectionReference<ParentID, Parent>, parentFirestoreConverter))[0];
 }
 
-export async function createParent (parent: ParentID, instance?: Transaction | WriteBatch): Promise<void> {
-  await createDoc<ParentID, Parent>(adminDb.collection(Collection.PARENTS).doc(String(parent.id)) as DocumentReference<ParentID, Parent>, parent, parentFirestoreConverter, instance);
+export async function setParent(parent: ParentID, instance?: Transaction | WriteBatch): Promise<void> {
+  await setDoc<ParentID, Parent>(adminDb.collection(Collection.PARENTS).doc(String(parent.id)) as DocumentReference<ParentID, Parent>, parent, parentFirestoreConverter, instance);
 };
 
 export async function updateParent(id: number, updates: Partial<ParentID>, instance?: Transaction | WriteBatch): Promise<void> {

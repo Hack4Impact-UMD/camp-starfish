@@ -1,7 +1,7 @@
 import { adminDb } from "../../config/firebaseAdminConfig";
 import { ImageMetadata, ImageMetadataID } from "@/types/albumTypes";
 import { Transaction, WriteBatch, FirestoreDataConverter, WithFieldValue, QueryDocumentSnapshot, DocumentReference } from "firebase-admin/firestore";
-import { getDoc, createDoc, updateDoc, deleteDoc } from "./firestoreAdminOperations"
+import { getDoc, setDoc, updateDoc, deleteDoc } from "./firestoreAdminOperations"
 import { Collection } from "./utils";
 import { AlbumsSubcollection } from "@/data/firestore/utils";
 
@@ -17,8 +17,8 @@ export async function getImageById(albumId: string, imageId: string, transaction
   return await getDoc<ImageMetadataID, ImageMetadata>(adminDb.collection(Collection.ALBUMS).doc(albumId).collection(AlbumsSubcollection.IMAGE_METADATAS).doc(imageId) as DocumentReference<ImageMetadataID, ImageMetadata>, imageFirestoreConverter, transaction);
 }
 
-export async function createImage(albumId: string, imageId: string, image: ImageMetadata, instance?: Transaction | WriteBatch): Promise<void> {
-  await createDoc(adminDb.collection(Collection.ALBUMS).doc(albumId).collection(AlbumsSubcollection.IMAGE_METADATAS).doc(imageId) as DocumentReference<ImageMetadataID, ImageMetadata>, { id: imageId, albumId, ...image }, imageFirestoreConverter, instance);
+export async function setImage(albumId: string, imageId: string, image: ImageMetadata, instance?: Transaction | WriteBatch): Promise<void> {
+  await setDoc(adminDb.collection(Collection.ALBUMS).doc(albumId).collection(AlbumsSubcollection.IMAGE_METADATAS).doc(imageId) as DocumentReference<ImageMetadataID, ImageMetadata>, { id: imageId, albumId, ...image }, imageFirestoreConverter, instance);
 }
 
 export async function updateImage(albumId: string, imageId: string, updates: Partial<ImageMetadata>, instance?: Transaction | WriteBatch): Promise<void> {
