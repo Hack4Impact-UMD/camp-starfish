@@ -23,10 +23,10 @@ export async function setAlbum(album: Album, instance?: Transaction | WriteBatch
   return albumId;
 }
 
-export async function updateAlbum(id: string, updates: Partial<Album>, instance?: Transaction | WriteBatch) {
+export async function updateAlbum(id: string, updates: Partial<Album>, instance?: Transaction | WriteBatch): Promise<void> {
   await updateDoc<AlbumID, Album>(adminDb.collection(Collection.ALBUMS).doc(id) as DocumentReference<AlbumID, Album>, updates, albumFirestoreConverter, instance);
 }
 
-export async function deleteAlbum(id: string, instance?: Transaction | WriteBatch) {
+export async function deleteAlbum(id: string, instance?: Transaction | WriteBatch): Promise<void> {
   await deleteDoc<AlbumID, Album>(adminDb.collection(Collection.ALBUMS).doc(id) as DocumentReference<AlbumID, Album>, albumFirestoreConverter, instance);
 }

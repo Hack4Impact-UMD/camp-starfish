@@ -12,7 +12,7 @@ const camperFirestoreConverter: FirestoreDataConverter<CamperID, Camper> = {
   fromFirestore: (snapshot: QueryDocumentSnapshot<Camper, Camper>): CamperID => ({ id: Number(snapshot.ref.id), role: "CAMPER", ...snapshot.data() })
 };
 
-export async function getCamperById(campminderId: number, transaction?: Transaction): Promise<Camper> {
+export async function getCamperById(campminderId: number, transaction?: Transaction): Promise<CamperID> {
   return await getDoc<CamperID, Camper>(adminDb.collection(Collection.CAMPERS).doc(String(campminderId)) as DocumentReference<CamperID, Camper>, camperFirestoreConverter, transaction);
 };
 
