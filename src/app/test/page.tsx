@@ -1,6 +1,6 @@
 "use client";
 import moment, { Moment } from "moment";
-import { CalendarView } from "@/components/CalanderView";
+import { CalendarView } from "@/components/CalendarView";
 import { Box, Text, Title } from "@mantine/core";
 import { Flex } from "@mantine/core";
 import { Container } from "@mantine/core";
