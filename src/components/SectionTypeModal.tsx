@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button, Group, Radio, TextInput, Title, Stack, Box, Text, ActionIcon } from "@mantine/core";
 import { DatePickerInput } from "@mantine/dates";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import moment from "moment";
 
 interface ChooseSectionTypeProps {
@@ -13,6 +13,7 @@ interface ChooseSectionTypeProps {
     name: string;
   }) => void;
   onDelete?: () => void;
+  onClose?: () => void;
 }
 
 const CALENDAR_STYLES = {
@@ -44,7 +45,7 @@ const CALENDAR_STYLES = {
   },
 };
 
-export function ChooseSectionType({ selectedDate, onSubmit, onDelete }: ChooseSectionTypeProps) {
+export function ChooseSectionType({ selectedDate, onSubmit, onDelete, onClose }: ChooseSectionTypeProps) {
   const [currentDate, setCurrentDate] = useState<Date>(selectedDate);
   const [startDate, setStartDate] = useState<Date | null>(selectedDate);
   const [endDate, setEndDate] = useState<Date | null>(null);
@@ -92,8 +93,23 @@ export function ChooseSectionType({ selectedDate, onSubmit, onDelete }: ChooseSe
         boxShadow: "0 1px 3px rgba(0,0,0,0.12)",
         maxWidth: 400,
         margin: "auto",
+        position: "relative",
       }}
     >
+      <ActionIcon
+        variant="subtle"
+        onClick={onClose}
+        aria-label="Close"
+        style={{
+          position: "absolute",
+          top: 16,
+          left: 16,
+          color: "#1e3a5f",
+        }}
+      >
+        <X size={24} strokeWidth={3} />
+      </ActionIcon>
+      
       <Title order={2} ta="center" mb="md" style={{ color: "#1e3a5f" }}>
         Choose Section Type
       </Title>
