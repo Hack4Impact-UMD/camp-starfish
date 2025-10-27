@@ -70,4 +70,34 @@ export const theme: MantineThemeOverride = {
   },
   defaultRadius: "xl",
   cursorType: "pointer",
+  components: {
+    TextInput: {
+      defaultProps: {
+        styles: {
+          input: {
+            backgroundColor: 'hsla(206, 67%, 89%, 1.00)',
+          },
+        },
+      },
+    },
+    DatePickerInput: {
+      defaultProps: {
+        styles: {
+          input: {
+            backgroundColor: 'hsla(206, 67%, 89%, 1.00)',
+          },
+        },
+      },
+    },
+    Button: {
+      defaultProps: {
+        radius: "xl",
+      },
+    },
+    Title: {
+      defaultProps: {
+        fw: 700,
+      },
+    },
+  },
 };
