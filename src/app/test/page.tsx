@@ -1,13 +1,13 @@
 "use client";
 import moment, { Moment } from "moment";
-import { CalanderView } from "@/components/CalanderView";
+import { CalendarView } from "@/components/CalanderView";
 import { Box, Text, Title } from "@mantine/core";
 import { Flex } from "@mantine/core";
 import { Container } from "@mantine/core";
 
 export default function Page() {
-  const sessionStartDate = moment("12-1-2025");
-  const sessionEndDate = moment("12-11-2025");
+  const sessionStartDate = moment("02-15-2025");
+  const sessionEndDate = moment("02-31-2025");
 
   function isSameMonth(start: Moment, end: Moment) {
     return start.isSame(end, "month"); 
@@ -34,7 +34,7 @@ export default function Page() {
           </Flex>
         </Box>
 
-        <CalanderView
+        <CalendarView
           sessionStartDate={sessionStartDate}
           sessionEndDate={sessionEndDate}
         />

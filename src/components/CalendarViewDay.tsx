@@ -3,12 +3,12 @@ import { Moment } from "moment";
 import React from "react";
 import { Text } from "@mantine/core";
 
-interface CalanderViewDayProps {
+interface CalendarViewDayProps {
   inRange: boolean;
   day: Moment;
 }
 
-export const CalanderViewDay: React.FC<CalanderViewDayProps> = ({
+export const CalendarViewDay: React.FC<CalendarViewDayProps> = ({
   inRange,
   day,
 }) => {

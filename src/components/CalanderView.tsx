@@ -1,14 +1,14 @@
 import { Moment } from "moment";
 import React from "react";
 import { SimpleGrid, Text, Box } from "@mantine/core";
-import { CalanderViewDay } from "./CalanderViewDay";
+import { CalendarViewDay } from "./CalendarViewDay";
 
-interface CalanderViewProps {
+interface CalendarViewProps {
   sessionStartDate: Moment;
   sessionEndDate: Moment;
 }
 
-export const CalanderView: React.FC<CalanderViewProps> = ({
+export const CalendarView: React.FC<CalendarViewProps> = ({
   sessionStartDate,
   sessionEndDate,
 }) => {
@@ -51,7 +51,7 @@ export const CalanderView: React.FC<CalanderViewProps> = ({
       {weeks.map((week, idx) => (
         <SimpleGrid key={idx} cols={7} spacing={0}>
           {week.map((day) => (
-            <CalanderViewDay
+            <CalendarViewDay
               key={day.toString()}
               inRange={
                 day.isSameOrAfter(sessionStartDate, "day") &&
