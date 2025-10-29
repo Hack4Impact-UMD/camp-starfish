@@ -31,8 +31,6 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-dropzone": "^14.3.8",
-    "react-hot-toast": "^2.6.0",
-    "react-toastify": "^11.0.5",
     "tsc-alias": "^1.8.16",
     "uuid": "^11.1.0"
   },

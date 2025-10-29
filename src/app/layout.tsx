@@ -1,15 +1,12 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Navbar from "../components/Navbar"; // Adjust the path as needed
-import AuthProvider from "@/auth/AuthProvider";
 import Footer from "../components/Footer";
 import "@mantine/core/styles.css";
-import { MantineProvider } from "@mantine/core";
 import localFont from "next/font/local";
-import { theme } from "../styles/theme";
+import Providers from "./Providers";
 import { NextFontWithVariable } from "next/dist/compiled/@next/font";
 import { CampStarfishFont, campStarfishFonts } from "@/styles/fonts";
-import { NotificationsProvider } from "@/features/notifications";
  
 const lato = localFont({
   src: [
@@ -151,21 +148,17 @@ export default function RootLayout({
       <body
         className={`${campStarfishFonts.map((font) => fontObjs[font].variable).join(' ')} antialiased w-full min-h-screen flex flex-col`}
       >
-        <MantineProvider theme={theme}>
-          <AuthProvider>
-            <NotificationsProvider>
-              <>
-                <div className="w-full">
-                  <Navbar />
-                </div>
-                <div className="flex-grow w-full">{children}</div>
-                <div className="w-full">
-                  <Footer />
-                </div>
-              </>
-            </NotificationsProvider>
-          </AuthProvider>
-        </MantineProvider>
+        <Providers>
+          <>
+            <div className="w-full">
+              <Navbar />
+            </div>
+            <div className="flex-grow w-full">{children}</div>
+            <div className="w-full">
+              <Footer />
+            </div>
+          </>
+        </Providers>
       </body>
     </html>
   );
