@@ -1,16 +1,12 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Navbar from "../components/Navbar"; // Adjust the path as needed
-import AuthProvider from "@/auth/AuthProvider";
 import Footer from "../components/Footer";
 import "@mantine/core/styles.css";
-import { MantineProvider } from "@mantine/core";
 import localFont from "next/font/local";
-import { theme } from "../styles/theme";
 import { NextFontWithVariable } from "next/dist/compiled/@next/font";
 import { CampStarfishFont, campStarfishFonts } from "@/styles/fonts";
-import { QueryClientProvider } from "@tanstack/react-query";
-import { queryClient } from "@/config/query";
+import Providers from "@/components/Providers";
 
 const lato = localFont({
   src: [
@@ -154,21 +150,17 @@ export default function RootLayout({
           .map((font) => fontObjs[font].variable)
           .join(" ")} antialiased w-full min-h-screen flex flex-col`}
       >
-        <QueryClientProvider client={queryClient}>
-          <MantineProvider theme={theme}>
-            <AuthProvider>
-              <>
-                <div className="w-full">
-                  <Navbar />
-                </div>
-                <div className="flex-grow w-full">{children}</div>
-                <div className="w-full">
-                  <Footer />
-                </div>
-              </>
-            </AuthProvider>
-          </MantineProvider>
-        </QueryClientProvider>
+        <Providers>
+          <>
+            <div className="w-full">
+              <Navbar />
+            </div>
+            <div className="flex-grow w-full">{children}</div>
+            <div className="w-full">
+              <Footer />
+            </div>
+          </>
+        </Providers>
       </body>
     </html>
   );
