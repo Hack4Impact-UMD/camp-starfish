@@ -63,6 +63,7 @@ export const Notification: React.FC<Props> = ({
       color={color}
       title={title}
       icon={icon ?? <DefaultIcon variant={variant} />}
+      closeButtonProps={{ size: 'xl', iconSize: 30 }}
       {...rest}
     >
       {message}
