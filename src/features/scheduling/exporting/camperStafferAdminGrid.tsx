@@ -141,7 +141,7 @@ const styles = StyleSheet.create({
 });
 
 // ------------------ MAIN DOCUMENT ------------------
-const renderAdmin = (
+const generateAdminGrid = (
   schedule: SectionSchedule<"BUNDLE">,
   freeplay: Freeplay,
   adminList: AdminAttendeeID[],
@@ -195,7 +195,7 @@ const renderAdmin = (
 );
 
 
-const renderCampersCompact = (
+const generateKidGrid = (
   schedule: SectionSchedule<"BUNDLE">,
   freeplay: Freeplay,
   camperList: CamperAttendeeID[],
@@ -256,7 +256,7 @@ const renderCampersCompact = (
   </>
 );
 
-const renderStaffCompact = (
+const generateStaffGrid = (
   schedule: SectionSchedule<"BUNDLE">,
   freeplay: Freeplay,
   staffList: StaffAttendeeID[],
@@ -444,7 +444,7 @@ const renderStaffBlocks = (schedule: SectionSchedule<"BUNDLE">, staffId: number)
 // Helper to render Freeplay assignment
 // Renders a staff member’s Freeplay assignment: either their buddy/buddies or post.
 // If unassigned, displays “OFF”.
-const renderFreeplayAssignment = ( freeplay: Freeplay, staffId: number, campers: CamperAttendeeID[] ) => {
+const renderFreeplayAssignment = (freeplay: Freeplay, staffId: number, campers: CamperAttendeeID[] ) => {
   // If staff has a buddy assignment
   if (freeplay.buddies[staffId]) {
     const buddyIds = freeplay.buddies[staffId];
@@ -575,20 +575,20 @@ export const SchedulePDF: React.FC<{
     {/* Page 1: Staff Table (Right half only) */}
     <Page size="A4" style={styles.twoColumnPage}>
       <View style={styles.rightColumn}>
-        {renderStaffCompact(schedule, freeplay, staff, campers, bunkList)}
+        {generateStaffGrid(schedule, freeplay, staff, campers, bunkList)}
       </View>
     </Page>
 
     {/* Page 2: Camper Table (Right half only) */}
     <Page size="A4" style={styles.twoColumnPage}>
       <View style={styles.rightColumn}>
-        {renderCampersCompact(schedule, freeplay, campers, bunkList)}
+        {generateKidGrid(schedule, freeplay, campers, bunkList)}
       </View>
     </Page>
 
     {/* Page 3: Admin Table (Full width) */}
     <Page size="A4" style={styles.page}>
-      {renderAdmin(schedule, freeplay, admin, campers)}
+      {generateAdminGrid(schedule, freeplay, admin, campers)}
     </Page>
   </Document>
 </PDFViewer>
