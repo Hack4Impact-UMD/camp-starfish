@@ -17,6 +17,7 @@ import {
   Freeplay,
   SchedulingSectionType,
 } from "@/types/sessionTypes";
+import { s } from "framer-motion/dist/types.d-DDSxwf0n";
 
 export type AttendeeRole = "CAMPER" | "STAFF" | "ADMIN";
 
@@ -150,8 +151,8 @@ const styles = StyleSheet.create({
 });
 
 // ------------------ MAIN DOCUMENT ------------------
-const generateAdminGrid = (
-  schedule: SectionSchedule<"BUNDLE">,
+const generateAdminGrid = <T extends SchedulingSectionType>(
+  schedule: SectionSchedule<T>,
   freeplay: Freeplay,
   adminList: AdminAttendeeID[],
   camperList: CamperAttendeeID[]
@@ -185,7 +186,7 @@ const generateAdminGrid = (
               </View>
 
               {/* Block assignments - Use dataCell style */}
-              {renderStaffBlocks(schedule, admin.id)}
+              {renderStaffBlocks(schedule, admin)}
 
               <View style={styles.dataCell}>
                 <Text>
@@ -207,8 +208,8 @@ const generateAdminGrid = (
   </>
 );
 
-const generateKidGrid = (
-  schedule: SectionSchedule<"BUNDLE">,
+const generateKidGrid = <T extends SchedulingSectionType>(
+  schedule: SectionSchedule<T>,
   freeplay: Freeplay,
   camperList: CamperAttendeeID[],
   bunkList: BunkID[],
@@ -273,8 +274,8 @@ const generateKidGrid = (
   </>
 );
 
-const generateStaffGrid = (
-  schedule: SectionSchedule<"BUNDLE">,
+const generateStaffGrid = <T extends SchedulingSectionType>(
+  schedule: SectionSchedule<T>,
   freeplay: Freeplay,
   staffList: StaffAttendeeID[],
   camperList: CamperAttendeeID[],
@@ -309,7 +310,7 @@ const generateStaffGrid = (
                 </Text>
               </View>
 
-              {renderStaffBlocksCompact(schedule, staff.id)}
+              {renderStaffBlocksCompact(schedule, staff)}
 
               <View style={styles.compactDataCell}>
                 <Text>
@@ -416,8 +417,8 @@ const freeplayBuddy = (freeplay: Freeplay, camper: CamperAttendeeID) => {
 
 // Finds which activities a camper is assigned to in a given block.
 // Returns a comma-separated list of activity names, or "OFF" if none.
-const renderCamperBlockAssignment = (
-  block: Block<"BUNDLE">,
+const renderCamperBlockAssignment = <T extends SchedulingSectionType>(
+  block: Block<T>,
   camperId: number
 ) => {
   const camperActivities = (block.activities as BundleBlockActivities).filter(
@@ -431,13 +432,13 @@ const renderCamperBlockAssignment = (
 
 // Displays each staff member’s assignment across all schedule blocks.
 // Shows “OFF” if in periodsOff, the activity name if assigned, or “-” if none.
-const renderStaffBlocks = (
-  schedule: SectionSchedule<"BUNDLE">,
-  staffId: number
+const renderStaffBlocks = <T extends SchedulingSectionType>(
+  schedule: SectionSchedule<T>,
+  staff: StaffAttendeeID | AdminAttendeeID
 ) => {
   return Object.entries(schedule.blocks).map(([blockId, block]) => {
     // See if staff is OFF
-    if (block.periodsOff.includes(staffId)) {
+    if (block.periodsOff.includes(staff.id)) {
       return (
         <View key={blockId} style={styles.cell}>
           <Text>OFF</Text>
@@ -446,9 +447,12 @@ const renderStaffBlocks = (
     }
 
     // Find activities staff is assigned to
-    const activities = block.activities.filter((a) =>
-      a.assignments.staffIds.includes(staffId)
-    );
+    const activities = block.activities.filter((a) => {
+      if (staff.role === "STAFF") {
+        return 'staffIds' in a.assignments ? a.assignments.staffIds.includes(staff.id) : a.assignments.bunkNums.includes(staff.bunk)
+      }
+      return a.assignments.adminIds.includes(staff.id);
+    });
 
     return (
       <View key={blockId} style={styles.cell}>
@@ -518,12 +522,12 @@ const renderFreeplayAssignment = (
   );
 };
 
-const renderStaffBlocksCompact = (
-  schedule: SectionSchedule<"BUNDLE">,
-  staffId: number
+const renderStaffBlocksCompact = <T extends SchedulingSectionType>(
+  schedule: SectionSchedule<T>,
+  staff: StaffAttendeeID
 ) => {
   return Object.entries(schedule.blocks).map(([blockId, block]) => {
-    if (block.periodsOff.includes(staffId)) {
+    if (block.periodsOff.includes(staff.id)) {
       return (
         <View key={blockId} style={styles.compactDataCell}>
           <Text>OFF</Text>
@@ -532,7 +536,7 @@ const renderStaffBlocksCompact = (
     }
 
     const activities = block.activities.filter((a) =>
-      a.assignments.staffIds.includes(staffId)
+      'staffIds' in a.assignments ? a.assignments.staffIds.includes(staff.id) : a.assignments.bunkNums.includes(staff.bunk)
     );
 
     return (
