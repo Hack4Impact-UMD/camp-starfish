@@ -596,36 +596,3 @@ const renderFreeplayAssignmentCompact = (
     </View>
   );
 };
-
-// ------------------ MAIN DOCUMENT ------------------
-export const SchedulePDF: React.FC<{
-  schedule: SectionSchedule<"BUNDLE">;
-  freeplay: Freeplay;
-  staff: StaffAttendeeID[];
-  admin: AdminAttendeeID[];
-  campers: CamperAttendeeID[];
-  bunkList: BunkID[];
-}> = ({ schedule, freeplay, staff, admin, campers, bunkList }) => (
-  <PDFViewer style={{ width: "100%", height: "100vh" }}>
-    <Document>
-      {/* Page 1: Staff Table (Right half only) */}
-      <Page size="A4" style={styles.twoColumnPage}>
-        <View style={styles.rightColumn}>
-          {generateStaffGrid(schedule, freeplay, staff, campers, bunkList)}
-        </View>
-      </Page>
-
-      {/* Page 2: Camper Table (Right half only) */}
-      <Page size="A4" style={styles.twoColumnPage}>
-        <View style={styles.rightColumn}>
-          {generateKidGrid(schedule, freeplay, campers, bunkList, staff)}
-        </View>
-      </Page>
-
-      {/* Page 3: Admin Table (Full width) */}
-      <Page size="A4" style={styles.page}>
-        {generateAdminGrid(schedule, freeplay, admin, campers)}
-      </Page>
-    </Document>
-  </PDFViewer>
-);
