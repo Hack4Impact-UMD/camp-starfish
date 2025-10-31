@@ -7,7 +7,8 @@ import {
   BunkID,
   Block, 
   BundleBlockActivities, 
-  Freeplay } from "@/types/sessionTypes";
+  Freeplay, 
+  SchedulingSectionType} from "@/types/sessionTypes";
 
 export type AttendeeRole = "CAMPER" | "STAFF" | "ADMIN";
 
