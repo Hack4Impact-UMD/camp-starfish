@@ -1,14 +1,22 @@
-import { Document, Page, Text, View, StyleSheet, PDFViewer } from "@react-pdf/renderer";
+import {
+  Document,
+  Page,
+  Text,
+  View,
+  StyleSheet,
+  PDFViewer,
+} from "@react-pdf/renderer";
 import {
   StaffAttendeeID,
   CamperAttendeeID,
-  AdminAttendeeID, 
-  SectionSchedule, 
+  AdminAttendeeID,
+  SectionSchedule,
   BunkID,
-  Block, 
-  BundleBlockActivities, 
-  Freeplay, 
-  SchedulingSectionType} from "@/types/sessionTypes";
+  Block,
+  BundleBlockActivities,
+  Freeplay,
+  SchedulingSectionType,
+} from "@/types/sessionTypes";
 
 export type AttendeeRole = "CAMPER" | "STAFF" | "ADMIN";
 
@@ -18,12 +26,12 @@ const styles = StyleSheet.create({
   page: {
     padding: 15, // Reduced padding
     fontSize: 8, // Reduced font size
-    fontFamily: "Helvetica"
+    fontFamily: "Helvetica",
   },
   sectionTitle: {
     fontSize: 12, // Reduced title size
     marginVertical: 6,
-    fontWeight: "bold"
+    fontWeight: "bold",
   },
   row: {
     flexDirection: "row",
@@ -35,15 +43,15 @@ const styles = StyleSheet.create({
     borderColor: "#000",
     backgroundColor: "#fff",
     justifyContent: "center",
-    alignItems: "center"
+    alignItems: "center",
   },
   bold: {
-    fontWeight: "bold"
+    fontWeight: "bold",
   },
   table: {
     marginBottom: 8, // Reduced margin
     borderWidth: 1,
-    borderColor: "#000"
+    borderColor: "#000",
   },
   headerRow: {
     flexDirection: "row",
@@ -60,7 +68,7 @@ const styles = StyleSheet.create({
     padding: 1, // Reduced padding
     backgroundColor: "#000",
     justifyContent: "center",
-    alignItems: "center"
+    alignItems: "center",
   },
   bunkCell: {
     flex: 1,
@@ -71,7 +79,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     justifyContent: "center",
     alignItems: "center",
-    fontSize: 7 // Smaller font for bunk numbers
+    fontSize: 7, // Smaller font for bunk numbers
   },
   dataCell: {
     flex: 1,
@@ -81,29 +89,29 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     justifyContent: "center",
     alignItems: "center",
-    fontSize: 7 // Smaller font for data
+    fontSize: 7, // Smaller font for data
   },
   // New styles for two-column layout
   twoColumnPage: {
     padding: 15,
     fontSize: 8,
     fontFamily: "Helvetica",
-    flexDirection: "row"
+    flexDirection: "row",
   },
   leftColumn: {
     width: "50%",
-    paddingRight: 5
+    paddingRight: 5,
   },
   rightColumn: {
     width: "50%",
     paddingLeft: 5,
-    marginLeft: "auto" // This will push the right column to the right side
+    marginLeft: "auto", // This will push the right column to the right side
   },
   // Styles for smaller tables in two-column layout
   compactTable: {
     marginBottom: 8,
     borderWidth: 1,
-    borderColor: "#000"
+    borderColor: "#000",
   },
   compactHeaderCell: {
     flex: 1,
@@ -116,7 +124,7 @@ const styles = StyleSheet.create({
     padding: 1,
     backgroundColor: "#000",
     justifyContent: "center",
-    alignItems: "center"
+    alignItems: "center",
   },
   compactDataCell: {
     flex: 1,
@@ -126,7 +134,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     justifyContent: "center",
     alignItems: "center",
-    fontSize: 6 // Very small font for compact layout
+    fontSize: 6, // Very small font for compact layout
   },
   compactBunkCell: {
     flex: 1,
@@ -137,8 +145,8 @@ const styles = StyleSheet.create({
     textAlign: "center",
     justifyContent: "center",
     alignItems: "center",
-    fontSize: 6 // Very small font for compact layout
-  }
+    fontSize: 6, // Very small font for compact layout
+  },
 });
 
 // ------------------ MAIN DOCUMENT ------------------
@@ -149,8 +157,8 @@ const generateAdminGrid = (
   camperList: CamperAttendeeID[]
 ) => (
   /*
-    * used to return the admin table
-  */
+   * used to return the admin table
+   */
   <>
     <Text style={styles.sectionTitle}>Admin Assignments</Text>
     <View style={styles.table}>
@@ -181,7 +189,11 @@ const generateAdminGrid = (
 
               <View style={styles.dataCell}>
                 <Text>
-                  {Object.values(schedule.alternatePeriodsOff).some(ids => ids.includes(admin.id)) ? "RH" : ""}
+                  {Object.values(schedule.alternatePeriodsOff).some((ids) =>
+                    ids.includes(admin.id)
+                  )
+                    ? "RH"
+                    : ""}
                 </Text>
               </View>
 
@@ -195,12 +207,12 @@ const generateAdminGrid = (
   </>
 );
 
-
 const generateKidGrid = (
   schedule: SectionSchedule<"BUNDLE">,
   freeplay: Freeplay,
   camperList: CamperAttendeeID[],
   bunkList: BunkID[],
+  staffList: StaffAttendeeID[]
 ) => (
   <>
     <Text style={styles.sectionTitle}>Kid Grid</Text>
@@ -220,6 +232,12 @@ const generateKidGrid = (
       {sortedCampers(bunkList, camperList).map((camper) => {
         const blocksArray = Object.values(schedule.blocks);
         const fpBuddy = freeplayBuddy(freeplay, camper);
+        const fpBuddyObj = staffList.find((staff) => staff.id === fpBuddy);
+        const fpBuddyName = fpBuddyObj
+          ? `${fpBuddyObj.name.firstName}${
+              fpBuddyObj.name.middleName ? ` ${fpBuddyObj.name.middleName}` : ""
+            } ${fpBuddyObj.name.lastName}`
+          : "N/A";
 
         return (
           <View key={camper.id} style={styles.row}>
@@ -237,7 +255,7 @@ const generateKidGrid = (
 
             {blocksArray.map((block, i) => (
               <View key={i} style={styles.compactDataCell}>
-                <Text>{ renderCamperBlockAssignment(block, camper.id) }</Text>
+                <Text>{renderCamperBlockAssignment(block, camper.id)}</Text>
               </View>
             ))}
 
@@ -246,9 +264,7 @@ const generateKidGrid = (
             </View>
 
             <View style={styles.compactDataCell}>
-              <Text>
-                {fpBuddy ? `${fpBuddy}` : ""}
-              </Text>
+              <Text>{fpBuddyName}</Text>
             </View>
           </View>
         );
@@ -262,7 +278,7 @@ const generateStaffGrid = (
   freeplay: Freeplay,
   staffList: StaffAttendeeID[],
   camperList: CamperAttendeeID[],
-  bunkList: BunkID[],
+  bunkList: BunkID[]
 ) => (
   <>
     <Text style={styles.sectionTitle}>Staff Assignments</Text>
@@ -297,7 +313,11 @@ const generateStaffGrid = (
 
               <View style={styles.compactDataCell}>
                 <Text>
-                  {Object.values(schedule.alternatePeriodsOff).some(ids => ids.includes(staff.id)) ? "RH" : ""}
+                  {Object.values(schedule.alternatePeriodsOff).some((ids) =>
+                    ids.includes(staff.id)
+                  )
+                    ? "RH"
+                    : ""}
                 </Text>
               </View>
 
@@ -310,12 +330,9 @@ const generateStaffGrid = (
   </>
 );
 
-
-
-
 // ----------------- HELPERS ----------------
 
-const sortedCampers = ( bunkList: BunkID[], camperList: CamperAttendeeID[] ) => {
+const sortedCampers = (bunkList: BunkID[], camperList: CamperAttendeeID[]) => {
   const sortedList: CamperAttendeeID[] = [];
 
   const camperDict: Record<number, CamperAttendeeID> = camperList.reduce(
@@ -341,13 +358,13 @@ const sortedCampers = ( bunkList: BunkID[], camperList: CamperAttendeeID[] ) => 
   }
 
   return sortedList;
-}
+};
 
-const sortBunkList = ( bunkList: BunkID[], staffList: StaffAttendeeID[]) => {
+const sortBunkList = (bunkList: BunkID[], staffList: StaffAttendeeID[]) => {
   /*
-    * given a list of bunks and a list of staff, returns a sorted list of staff by bunk
-    * the first person in each bunk is the lead counselor of the bunk (will be bolded)
-  */
+   * given a list of bunks and a list of staff, returns a sorted list of staff by bunk
+   * the first person in each bunk is the lead counselor of the bunk (will be bolded)
+   */
   const sortedList: StaffAttendeeID[] = [];
 
   // gets the staff as a dictionary mapping the ID number to their associated StaffAttendeeID object
@@ -378,32 +395,33 @@ const sortBunkList = ( bunkList: BunkID[], staffList: StaffAttendeeID[]) => {
   }
 
   return sortedList;
-}
+};
 
-const freeplayBuddy = ( freeplay: Freeplay, camper: CamperAttendeeID) => {
+const freeplayBuddy = (freeplay: Freeplay, camper: CamperAttendeeID) => {
   /*
-    * given the freeplay object and a camper ID, finds the staff associated with them
-  */
+   * given the freeplay object and a camper ID, finds the staff associated with them
+   */
 
-  let savedId: string = "";
+  let savedId: number = -1;
 
   for (const [staffId, camperIds] of Object.entries(freeplay.buddies)) {
     if (camperIds.includes(camper.id)) {
-      savedId = staffId;
+      savedId = Number(staffId);
       break;
     }
   }
 
-  return (
-    { savedId }
-  );
+  return savedId;
 };
 
 // Finds which activities a camper is assigned to in a given block.
 // Returns a comma-separated list of activity names, or "OFF" if none.
-const renderCamperBlockAssignment = (block: Block<"BUNDLE">, camperId: number) => {
-  const camperActivities = (block.activities as BundleBlockActivities).filter((activity) =>
-    activity.assignments.camperIds.includes(camperId)
+const renderCamperBlockAssignment = (
+  block: Block<"BUNDLE">,
+  camperId: number
+) => {
+  const camperActivities = (block.activities as BundleBlockActivities).filter(
+    (activity) => activity.assignments.camperIds.includes(camperId)
   );
 
   return camperActivities.length > 0
@@ -413,7 +431,10 @@ const renderCamperBlockAssignment = (block: Block<"BUNDLE">, camperId: number) =
 
 // Displays each staff member’s assignment across all schedule blocks.
 // Shows “OFF” if in periodsOff, the activity name if assigned, or “-” if none.
-const renderStaffBlocks = (schedule: SectionSchedule<"BUNDLE">, staffId: number) => {
+const renderStaffBlocks = (
+  schedule: SectionSchedule<"BUNDLE">,
+  staffId: number
+) => {
   return Object.entries(schedule.blocks).map(([blockId, block]) => {
     // See if staff is OFF
     if (block.periodsOff.includes(staffId)) {
@@ -433,7 +454,7 @@ const renderStaffBlocks = (schedule: SectionSchedule<"BUNDLE">, staffId: number)
       <View key={blockId} style={styles.cell}>
         {activities.length > 0 ? (
           // activities.map((a, idx) => <Text key={idx}>{a.name}</Text>)
-          <Text>{ activities[0].name }</Text>
+          <Text>{activities[0].name}</Text>
         ) : (
           <Text>-</Text>
         )}
@@ -445,7 +466,11 @@ const renderStaffBlocks = (schedule: SectionSchedule<"BUNDLE">, staffId: number)
 // Helper to render Freeplay assignment
 // Renders a staff member’s Freeplay assignment: either their buddy/buddies or post.
 // If unassigned, displays “OFF”.
-const renderFreeplayAssignment = (freeplay: Freeplay, staffId: number, campers: CamperAttendeeID[] ) => {
+const renderFreeplayAssignment = (
+  freeplay: Freeplay,
+  staffId: number,
+  campers: CamperAttendeeID[]
+) => {
   // If staff has a buddy assignment
   if (freeplay.buddies[staffId]) {
     const buddyIds = freeplay.buddies[staffId];
@@ -455,7 +480,9 @@ const renderFreeplayAssignment = (freeplay: Freeplay, staffId: number, campers: 
       const b = buddies[0];
       return (
         <View style={styles.cell}>
-          <Text>{b.name.firstName} {b.name.lastName[0]}. ({b.bunk})</Text>
+          <Text>
+            {b.name.firstName} {b.name.lastName[0]}. ({b.bunk})
+          </Text>
         </View>
       );
     } else if (buddies.length === 2) {
@@ -463,7 +490,8 @@ const renderFreeplayAssignment = (freeplay: Freeplay, staffId: number, campers: 
       return (
         <View style={styles.cell}>
           <Text>
-            {b1.name.firstName} {b1.name.lastName[0]}. + {b2.name.firstName} {b2.name.lastName[0]}. ({b1.bunk})
+            {b1.name.firstName} {b1.name.lastName[0]}. + {b2.name.firstName}{" "}
+            {b2.name.lastName[0]}. ({b1.bunk})
           </Text>
         </View>
       );
@@ -478,9 +506,9 @@ const renderFreeplayAssignment = (freeplay: Freeplay, staffId: number, campers: 
     const [postName] = postEntry;
     return (
       <View style={styles.cell}>
-        <Text>{ postName }</Text>
+        <Text>{postName}</Text>
       </View>
-    )
+    );
   }
 
   return (
@@ -490,7 +518,10 @@ const renderFreeplayAssignment = (freeplay: Freeplay, staffId: number, campers: 
   );
 };
 
-const renderStaffBlocksCompact = (schedule: SectionSchedule<"BUNDLE">, staffId: number) => {
+const renderStaffBlocksCompact = (
+  schedule: SectionSchedule<"BUNDLE">,
+  staffId: number
+) => {
   return Object.entries(schedule.blocks).map(([blockId, block]) => {
     if (block.periodsOff.includes(staffId)) {
       return (
@@ -507,7 +538,7 @@ const renderStaffBlocksCompact = (schedule: SectionSchedule<"BUNDLE">, staffId: 
     return (
       <View key={blockId} style={styles.compactDataCell}>
         {activities.length > 0 ? (
-          <Text>{ activities[0].name }</Text>
+          <Text>{activities[0].name}</Text>
         ) : (
           <Text>-</Text>
         )}
@@ -516,7 +547,11 @@ const renderStaffBlocksCompact = (schedule: SectionSchedule<"BUNDLE">, staffId: 
   });
 };
 
-const renderFreeplayAssignmentCompact = ( freeplay: Freeplay, staffId: number, campers: CamperAttendeeID[] ) => {
+const renderFreeplayAssignmentCompact = (
+  freeplay: Freeplay,
+  staffId: number,
+  campers: CamperAttendeeID[]
+) => {
   if (freeplay.buddies[staffId]) {
     const buddyIds = freeplay.buddies[staffId];
     const buddies = campers.filter((c) => buddyIds.includes(c.id));
@@ -525,7 +560,9 @@ const renderFreeplayAssignmentCompact = ( freeplay: Freeplay, staffId: number, c
       const b = buddies[0];
       return (
         <View style={styles.compactDataCell}>
-          <Text>{b.name.firstName} {b.name.lastName[0]}. ({b.bunk})</Text>
+          <Text>
+            {b.name.firstName} {b.name.lastName[0]}. ({b.bunk})
+          </Text>
         </View>
       );
     } else if (buddies.length === 2) {
@@ -533,7 +570,8 @@ const renderFreeplayAssignmentCompact = ( freeplay: Freeplay, staffId: number, c
       return (
         <View style={styles.compactDataCell}>
           <Text>
-            {b1.name.firstName} {b1.name.lastName[0]}. + {b2.name.firstName} {b2.name.lastName[0]}. ({b1.bunk})
+            {b1.name.firstName} {b1.name.lastName[0]}. + {b2.name.firstName}{" "}
+            {b2.name.lastName[0]}. ({b1.bunk})
           </Text>
         </View>
       );
@@ -547,9 +585,9 @@ const renderFreeplayAssignmentCompact = ( freeplay: Freeplay, staffId: number, c
     const [postName] = postEntry;
     return (
       <View style={styles.compactDataCell}>
-        <Text>{ postName }</Text>
+        <Text>{postName}</Text>
       </View>
-    )
+    );
   }
 
   return (
@@ -559,38 +597,35 @@ const renderFreeplayAssignmentCompact = ( freeplay: Freeplay, staffId: number, c
   );
 };
 
-
-
-
 // ------------------ MAIN DOCUMENT ------------------
 export const SchedulePDF: React.FC<{
-  schedule: SectionSchedule<'BUNDLE'>,
-  freeplay: Freeplay,
-  staff: StaffAttendeeID[],
-  admin: AdminAttendeeID[],
-  campers: CamperAttendeeID[],
-  bunkList: BunkID[] }> =
-({ schedule, freeplay, staff, admin, campers, bunkList }) => (
-<PDFViewer style={{ width: "100%", height: "100vh" }}>
-  <Document>
-    {/* Page 1: Staff Table (Right half only) */}
-    <Page size="A4" style={styles.twoColumnPage}>
-      <View style={styles.rightColumn}>
-        {generateStaffGrid(schedule, freeplay, staff, campers, bunkList)}
-      </View>
-    </Page>
+  schedule: SectionSchedule<"BUNDLE">;
+  freeplay: Freeplay;
+  staff: StaffAttendeeID[];
+  admin: AdminAttendeeID[];
+  campers: CamperAttendeeID[];
+  bunkList: BunkID[];
+}> = ({ schedule, freeplay, staff, admin, campers, bunkList }) => (
+  <PDFViewer style={{ width: "100%", height: "100vh" }}>
+    <Document>
+      {/* Page 1: Staff Table (Right half only) */}
+      <Page size="A4" style={styles.twoColumnPage}>
+        <View style={styles.rightColumn}>
+          {generateStaffGrid(schedule, freeplay, staff, campers, bunkList)}
+        </View>
+      </Page>
 
-    {/* Page 2: Camper Table (Right half only) */}
-    <Page size="A4" style={styles.twoColumnPage}>
-      <View style={styles.rightColumn}>
-        {generateKidGrid(schedule, freeplay, campers, bunkList)}
-      </View>
-    </Page>
+      {/* Page 2: Camper Table (Right half only) */}
+      <Page size="A4" style={styles.twoColumnPage}>
+        <View style={styles.rightColumn}>
+          {generateKidGrid(schedule, freeplay, campers, bunkList, staff)}
+        </View>
+      </Page>
 
-    {/* Page 3: Admin Table (Full width) */}
-    <Page size="A4" style={styles.page}>
-      {generateAdminGrid(schedule, freeplay, admin, campers)}
-    </Page>
-  </Document>
-</PDFViewer>
+      {/* Page 3: Admin Table (Full width) */}
+      <Page size="A4" style={styles.page}>
+        {generateAdminGrid(schedule, freeplay, admin, campers)}
+      </Page>
+    </Document>
+  </PDFViewer>
 );
