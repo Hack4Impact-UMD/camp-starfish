@@ -113,7 +113,7 @@ export interface IndividualAssignments {
 }
 
 export interface BunkAssignments {
-  bunk: number;
+  bunkNums: number[];
   adminIds: number[];
 }
 
