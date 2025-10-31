@@ -1,4 +1,4 @@
-import { StaffAttendeeID, AdminAttendeeID, CamperAttendeeID, Freeplay } from "../../types/sessionTypes";
+import { StaffAttendeeID, AdminAttendeeID, CamperAttendeeID, Freeplay } from "../../../types/sessionTypes";
 
 export class FreeplayScheduler {
   /* The current freeplay schedule */
