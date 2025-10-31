@@ -44,6 +44,9 @@ export const theme: MantineThemeOverride = {
       "#007F90",
       ...Array<string>(4).fill("#006F7E"),
     ] as unknown as MantineColorsTuple,
+    "light-grey": [
+
+    ] as unknown as MantineColorsTuple,
     success: [
       ...Array<string>(5).fill("#1E8E3E"),
       "#15632B",
