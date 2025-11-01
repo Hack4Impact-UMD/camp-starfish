@@ -31,6 +31,15 @@ const BLOCK_COLORS: { [key: string]: string } = {
 /* both NAV and OCP sheets should have the same dimensions and format
 */
 
+function createPreferencesSpreadsheet(sessionName: string): string {
+  const spreadsheet = SpreadsheetApp.create(sessionName);
+  const sheet = spreadsheet.getSheets()[0];
+  sheet.deleteRows(1, sheet.getMaxRows() - 1);
+  sheet.deleteColumns(1, sheet.getMaxColumns() - 1);
+  sheet.getRange('A1').setValue("No sections yet!\nAdd campers and scheduling sections at https://camp-starfish.web.app")
+  return spreadsheet.getId();
+}
+
 
 /**  
  * Creates a preference sheet for jamborees or bundles.  
