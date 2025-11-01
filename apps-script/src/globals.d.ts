@@ -4,6 +4,11 @@ declare global {
 
   // after the function implementation in a separate file, add the following line
   // globalThis.functionName = functionName;
+  var onEdit: (e: GoogleAppsScript.Events.SheetsOnEdit) => void;
+  var getPreferenceChangeFlags: () => { bundle: boolean; jamboree: boolean };
+  var getPreferenceChangeFlagsWrapper: () => { bundle: boolean; jamboree: boolean };
+  var createOnEditTrigger: (spreadsheetId: string) => void;
+  var getPreferenceChangeFlagMaps: () => { bundle: Record<string, boolean>; jamboree: Record<string, boolean> };
 }
 
 export { };
