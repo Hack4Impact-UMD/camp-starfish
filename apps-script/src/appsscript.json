@@ -14,5 +14,7 @@
   "executionApi": {
     "access": "ANYONE"
   },
-  "oauthScopes": []
+  "oauthScopes": [
+    "https://www.googleapis.com/auth/spreadsheets"
+  ]
 }
