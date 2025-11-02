@@ -31,16 +31,42 @@ export async function getSessionById(id: string, transaction?: Transaction): Pro
     return { id: sessionDoc.id, ...sessionDoc.data() } as SessionID;
 }
 
+// export async function createSession(session: Session, instance?: Transaction | WriteBatch): Promise<string> {
+//     try {
+//         // @ts-expect-error - instance.set on both Transaction and WriteBatch have the same signature
+//         const sessionRef = await (instance ? instance.set(doc(db, Collection.SESSIONS, randomUUID()), session) : addDoc(collection(db, Collection.SESSIONS), session));
+//         return sessionRef.id;
+//     } catch (error: unknown) {
+//         if (error instanceof FirestoreError && error.code === "already-exists") {
+//             throw new Error("Session already exists");
+//         }
+//         throw new Error(`Failed to create session`);
+//     }
+// }
+
 export async function createSession(session: Session, instance?: Transaction | WriteBatch): Promise<string> {
     try {
-        // @ts-expect-error - instance.set on both Transaction and WriteBatch have the same signature
-        const sessionRef = await (instance ? instance.set(doc(db, Collection.SESSIONS, randomUUID()), session) : addDoc(collection(db, Collection.SESSIONS), session));
-        return sessionRef.id;
-    } catch (error: unknown) {
-        if (error instanceof FirestoreError && error.code === "already-exists") {
-            throw new Error("Session already exists");
+        if (instance) {
+            // When using Transaction or WriteBatch, we need to create the doc ref first
+            const newDocRef = doc(collection(db, Collection.SESSIONS));
+            // @ts-expect-error - instance.set on both Transaction and WriteBatch have the same signature
+            instance.set(newDocRef, session);
+            return newDocRef.id;
+        } else {
+            // When using addDoc, it returns a DocumentReference
+            const sessionRef = await addDoc(collection(db, Collection.SESSIONS), session);
+            return sessionRef.id;
         }
-        throw new Error(`Failed to create session`);
+    } catch (error: unknown) {
+        console.error('Error in createSession:', error);
+        if (error instanceof FirestoreError) {
+            console.error('FirestoreError code:', error.code);
+            console.error('FirestoreError message:', error.message);
+            if (error.code === "already-exists") {
+                throw new Error("Session already exists");
+            }
+        }
+        throw new Error(`Failed to create session: ${error instanceof Error ? error.message : String(error)}`);
     }
 }
 

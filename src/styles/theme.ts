@@ -70,4 +70,56 @@ export const theme: MantineThemeOverride = {
   },
   defaultRadius: "xl",
   cursorType: "pointer",
+  
+  components: {
+    TextInput: {
+      defaultProps: {
+        styles: {
+          input: {
+            backgroundColor: 'var(--mantine-color-neutral-2)',
+            borderRadius: 'var(--mantine-radius-md)',
+            border: 'none',
+            padding: '12px 16px',
+            fontSize: '14px',
+            color: 'var(--mantine-color-neutral-4)',
+          },
+        },
+      },
+    },
+    DatePicker: {
+      defaultProps: {
+        styles: {
+          calendarHeader: {
+            maxWidth: 'none',
+          },
+          calendarHeaderControl: {
+            color: 'var(--mantine-color-neutral-9)',
+          },
+          monthCell: {
+            color: 'var(--mantine-color-neutral-9)',
+          },
+          day: {
+            color: 'var(--mantine-color-neutral-9)',
+            fontSize: '16px',
+            height: '40px',
+          },
+          month: {
+            width: '100%',
+          },
+        },
+      },
+    },
+  },
 };
+
+// Global styles for DatePicker data attributes (must be in CSS, not inline styles)
+export const datePickerGlobalStyles = `
+  .mantine-DatePicker-day[data-selected] {
+    background-color: var(--mantine-color-primary-5) !important;
+    color: white !important;
+  }
+  .mantine-DatePicker-day[data-in-range] {
+    background-color: var(--mantine-color-accent-blue-0) !important;
+    color: var(--mantine-color-neutral-9) !important;
+  }
+`;
