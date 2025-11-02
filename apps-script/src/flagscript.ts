@@ -42,16 +42,15 @@ function getPreferenceChangeFlagsImpl() {
   };
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function getPreferenceChangeFlagsWrapperImpl() {
   return getPreferenceChangeFlagsImpl();
 }
 
-(globalThis as any).onEdit = onEditImpl;
-(globalThis as any).getPreferenceChangeFlags = getPreferenceChangeFlagsImpl;
-(globalThis as any).getPreferenceChangeFlagsWrapper =
-  getPreferenceChangeFlagsWrapperImpl;
+onEdit = onEditImpl;  
+getPreferenceChangeFlags = getPreferenceChangeFlagsImpl;  
+getPreferenceChangeFlagsWrapper = getPreferenceChangeFlagsWrapperImpl;
 
+//edit trigger functions
 function createOnEditTriggerImpl(spreadsheetId: string): void {
   const exists = ScriptApp.getProjectTriggers().some(
     (t) =>
@@ -68,12 +67,11 @@ function createOnEditTriggerImpl(spreadsheetId: string): void {
   }
 }
 
-(globalThis as any).createOnEditTrigger = createOnEditTriggerImpl;
-
+createOnEditTrigger = createOnEditTriggerImpl; 
 function createOnEditTriggerForActiveSpreadsheetImpl(): void {
   const ss = SpreadsheetApp.getActive();
   if (!ss) return;
   createOnEditTriggerImpl(ss.getId());
 }
 
-(globalThis as any).createOnEditTriggerForActiveSpreadsheet = createOnEditTriggerForActiveSpreadsheetImpl;
+createOnEditTriggerForActiveSpreadsheet = createOnEditTriggerForActiveSpreadsheetImpl;
