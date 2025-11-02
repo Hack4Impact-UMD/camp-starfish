@@ -28,8 +28,26 @@ const BLOCK_COLORS: { [key: string]: string } = {
   'D': '#b6d7a8',
 };
 
-/* both NAV and OCP sheets should have the same dimensions and format
-*/
+interface PreferencesSpreadsheetProperties {
+  sections: Omit<SchedulingSectionID, 'sessionId'>[];
+}
+
+function setScriptProperty<T>(key: string, value: T) {
+  PropertiesService.getScriptProperties().setProperty(key, JSON.stringify(value));
+}
+
+function getScriptProperty<T>(key: string): T | null {
+  const value = PropertiesService.getScriptProperties().getProperty(key);
+  return value ? JSON.parse(value) : null;
+}
+
+function getPreferencesSpreadsheetProperties(spreadsheetId: string): PreferencesSpreadsheetProperties | null {
+  return getScriptProperty<PreferencesSpreadsheetProperties>(spreadsheetId);
+}
+
+function setPreferencesSpreadsheetProperties(spreadsheetId: string, properties: PreferencesSpreadsheetProperties) {
+  setScriptProperty<PreferencesSpreadsheetProperties>(spreadsheetId, properties);
+}
 
 function createPreferencesSpreadsheet(sessionName: string): string {
   const spreadsheet = SpreadsheetApp.create(sessionName);
@@ -37,6 +55,7 @@ function createPreferencesSpreadsheet(sessionName: string): string {
   sheet.deleteRows(1, sheet.getMaxRows() - 1);
   sheet.deleteColumns(1, sheet.getMaxColumns() - 1);
   sheet.getRange('A1').setValue("No sections yet!\nAdd campers and scheduling sections at https://camp-starfish.web.app")
+  setPreferencesSpreadsheetProperties(spreadsheet.getId(), { sections: [] })
   return spreadsheet.getId();
 }
 
