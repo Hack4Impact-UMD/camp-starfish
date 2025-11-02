@@ -1,52 +1,49 @@
 "use client";
 
-import SessionsPage from "@/components/SessionPage";
+import { useEffect, useState } from "react";
+import SessionsPage from "@/components/SessionsPage";
 import { Session } from "@/types/sessionTypes";
-
-const mockSessions: Session[] = [
-  // Current session (active now)
-  {
-    name: "Session C - Current",
-    startDate: "2025-10-20",
-    endDate: "2025-10-30",
-    driveFolderId: "3",
-  },
-  // Future sessions
-  {
-    name: "Session D - Winter",
-    startDate: "2025-11-10",
-    endDate: "2025-11-23",
-    driveFolderId: "4",
-  },
-  {
-    name: "Session E - Holiday",
-    startDate: "2025-12-15",
-    endDate: "2025-12-28",
-    driveFolderId: "5",
-  },
-  // Past sessions
-  {
-    name: "Session A - Summer",
-    startDate: "2025-08-10",
-    endDate: "2025-08-23",
-    driveFolderId: "1",
-  },
-  {
-    name: "Session B - Fall",
-    startDate: "2025-09-01",
-    endDate: "2025-09-14",
-    driveFolderId: "2",
-  },
-];
+import { db } from "@/config/firebase";
+import { collection, getDocs } from "firebase/firestore";
+import moment from "moment";
 
 export default function Page() {
-  return (
-    <SessionsPage
-      sessions={mockSessions}
-      onCreateSession={() => console.log("Create Session clicked")}
-      onEditSession={(session) =>
-        console.log("Editing session:", session.name)
+  const [sessions, setSessions] = useState<Session[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchSessions = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, "sessions"));
+        const fetchedSessions: Session[] = querySnapshot.docs.map((doc) => {
+          const data = doc.data();
+          return {
+            name: data.name,
+            startDate: moment(data.startDate).format("YYYY-MM-DD"),
+            endDate: moment(data.endDate).format("YYYY-MM-DD"),
+            driveFolderId: data.driveFolderId,
+          };
+        });
+
+        fetchedSessions.sort(
+          (a, b) =>
+            moment(b.startDate).valueOf() - moment(a.startDate).valueOf()
+        );
+
+        setSessions(fetchedSessions);
+      } catch (error) {
+        console.error("Error fetching sessions:", error);
+      } finally {
+        setLoading(false);
       }
-    />
-  );
+    };
+
+    fetchSessions();
+  }, []);
+
+  if (loading) {
+    return <p>Loading sessions...</p>;
+  }
+
+  return <SessionsPage sessions={sessions} />;
 }
