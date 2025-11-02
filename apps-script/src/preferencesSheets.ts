@@ -1,6 +1,6 @@
 // google apps script that creates preference spreadsheets for jamborees and bundles
 // importing necessary types to use in spreadsheet
-import { CamperAttendeeID, SchedulingSection } from "../../src/types/sessionTypes";
+import { CamperAttendeeID, SchedulingSection, SchedulingSectionID, SectionID } from "../../src/types/sessionTypes";
 import { BundleBlockActivities, BunkJamboreeBlockActivities, NonBunkJamboreeBlockActivities } from "../../src/types/sessionTypes";
 
 /* attendee types type
@@ -58,21 +58,30 @@ function createPreferencesSpreadsheet(sessionName: string): string {
   setPreferencesSpreadsheetProperties(spreadsheet.getId(), { sections: [] })
   return spreadsheet.getId();
 }
+globalThis.createPreferencesSpreadsheet = createPreferencesSpreadsheet;
 
+function addSectionPreferencesSheet(spreadsheetId: string, section: SchedulingSectionID): void {
+  const spreadsheet = SpreadsheetApp.openById(spreadsheetId);
+  let spreadsheetProperties = getPreferencesSpreadsheetProperties(spreadsheetId);
+  if (!spreadsheetProperties) {
+    spreadsheetProperties = { sections: [] };
+    setPreferencesSpreadsheetProperties(spreadsheetId, spreadsheetProperties);
+  }
 
-/**  
- * Creates a preference sheet for jamborees or bundles.  
- * @param {AttendeeList} attendees - List of attendees (camper objects or bunk numbers)  
- * @param {BlockActivitiesMap} blockActivities - Activities organized by block ID  
- * @param {string} sheetName - Name for the created spreadsheet  
- * @returns {string} The ID of the created spreadsheet  
- */
+  const { sections } = spreadsheetProperties;
+  let sheet: GoogleAppsScript.Spreadsheet.Sheet;
+  if (sections.length === 0) {
+    sheet = spreadsheet.getSheets()[0];
+  } else {
+    let sheetIndex = sections.findIndex(s => moment(section.startDate).isBefore(s.startDate));
+    if (sheetIndex === -1) { sheetIndex = sections.length; }
+    sheet = spreadsheet.insertSheet(sheetIndex);
+  }
+  sheet.setName(section.name);
+}
+globalThis.addSectionPreferencesSheet = addSectionPreferencesSheet;
 
-// creating actual sheet
-function createPreferenceSheet(attendees: AttendeeList, blockActivities: BlockActivitiesMap, blocksheetName: string): string {
-  const spreadsheet = SpreadsheetApp.create(sheetName);
-  const sheet = spreadsheet.getActiveSheet();
-
+function populatePreferencesSheet(attendees: AttendeeList, blockActivities: BlockActivitiesMap, sheet: GoogleAppsScript.Spreadsheet.Sheet) {
   // starting index for columns
   let colIndex = 1;
   const blockIds = Object.keys(blockActivities).sort();
