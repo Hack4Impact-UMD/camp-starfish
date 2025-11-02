@@ -3,6 +3,12 @@ import React, { useState, useEffect } from "react";
 import { SimpleGrid, Text, Box } from "@mantine/core";
 import { CalendarViewDay } from "./CalendarViewDay";
 
+import {
+  QueryClient,
+  QueryClientProvider,
+  useQuery,
+} from "@tanstack/react-query";
+
 interface CalendarViewProps {
   sessionStartDate: Moment;
   sessionEndDate: Moment;
@@ -41,6 +47,22 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
     "SAT",
   ];
 
+  //API calls
+
+  const queryClient = new QueryClient();
+
+  const { isPending, error, data } = useQuery({
+    queryKey: ["repoData"],
+    queryFn: () =>
+      fetch("https://api.github.com/repos/TanStack/query").then((res) =>
+        res.json()
+      ),
+  });
+
+  if (isPending) return "Loading...";
+
+  if (error) return "An error has occurred: " + error.message;
+
   const handleMouseDown = (index: number) => {
     setIsDragging(true);
     setStartIndex(index);
@@ -58,7 +80,8 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
     }
   };
 
-  const handleMouseUp = () => { //when mouse is lifted
+  const handleMouseUp = () => {
+    //when mouse is lifted
     if (isDragging && selectedDays.length > 1) {
       const start = days[selectedDays[0]];
       const end = days[selectedDays[selectedDays.length - 1]];
@@ -74,42 +97,44 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
     setIsDragging(false);
     setStartIndex(null);
   };
-
-  return ( // need the userselect none to make dragging possible
-    <div style={{ userSelect: "none" }}> 
-      <SimpleGrid cols={7} spacing={0}>
-        {daysOfWeek.map((day) => (
-          <Box key={day} p="xs" bg="#f5f5f5" bd="1px solid neutral.5">
-            <Text fs="sm" ta="center" fw="bold" fz={"sm"}>
-              {day}
-            </Text>
-          </Box>
-        ))}
-      </SimpleGrid>
-      {weeks.map((week, weekIdx) => (
-        <SimpleGrid key={weekIdx} cols={7} spacing={0}>
-          {week.map((day, dayIdx) => {
-            const flatIndex = weekIdx * 7 + dayIdx;
-            return (
-              <Box
-                key={day.format("YYYY-MM-DD")}
-                onMouseDown={() => handleMouseDown(flatIndex)}
-                onMouseEnter={() => handleMouseEnter(flatIndex)}
-                onMouseUp={handleMouseUp}
-              >
-                <CalendarViewDay
-                  inRange={
-                    day.isSameOrAfter(sessionStartDate, "day") &&
-                    day.isSameOrBefore(sessionEndDate, "day")
-                  }
-                  isSelected={selectedDays.includes(flatIndex)}
-                  day={day}
-                />
-              </Box>
-            );
-          })}
+  return (
+    // need the userselect none to make dragging possible
+    <QueryClientProvider client={queryClient}>
+      <div style={{ userSelect: "none" }}>
+        <SimpleGrid cols={7} spacing={0}>
+          {daysOfWeek.map((day) => (
+            <Box key={day} p="xs" bg="#f5f5f5" bd="1px solid neutral.5">
+              <Text fs="sm" ta="center" fw="bold" fz={"sm"}>
+                {day}
+              </Text>
+            </Box>
+          ))}
         </SimpleGrid>
-      ))}
-    </div>
+        {weeks.map((week, weekIdx) => (
+          <SimpleGrid key={weekIdx} cols={7} spacing={0}>
+            {week.map((day, dayIdx) => {
+              const flatIndex = weekIdx * 7 + dayIdx;
+              return (
+                <Box
+                  key={day.format("YYYY-MM-DD")}
+                  onMouseDown={() => handleMouseDown(flatIndex)}
+                  onMouseEnter={() => handleMouseEnter(flatIndex)}
+                  onMouseUp={handleMouseUp}
+                >
+                  <CalendarViewDay
+                    inRange={
+                      day.isSameOrAfter(sessionStartDate, "day") &&
+                      day.isSameOrBefore(sessionEndDate, "day")
+                    }
+                    isSelected={selectedDays.includes(flatIndex)}
+                    day={day}
+                  />
+                </Box>
+              );
+            })}
+          </SimpleGrid>
+        ))}
+      </div>
+    </QueryClientProvider>
   );
 };

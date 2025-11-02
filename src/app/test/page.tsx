@@ -5,10 +5,21 @@ import { Box, Text, Title } from "@mantine/core";
 import { Flex } from "@mantine/core";
 import { Container } from "@mantine/core";
 import Underline from "@/assets/underline.svg";
+import useCreateSession from "@/components/useCreateSession";
 
 export default function Page() {
-  const sessionStartDate = moment("08-15-2025");
-  const sessionEndDate = moment("08-31-2025");
+  const { startDate, endDate, isLoading, error } = useCreateSession();
+
+  if (isLoading) {
+    return <p>Loading session data...</p>;
+  }
+
+  if (error) {
+    return <p>Error loading session data</p>;
+  }
+
+  const sessionStartDate = moment(startDate);
+  const sessionEndDate = moment(endDate);
 
   function isSameMonth(start: Moment, end: Moment) {
     return start.isSame(end, "month");
