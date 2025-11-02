@@ -1,7 +1,8 @@
 // google apps script that creates preference spreadsheets for jamborees and bundles
 // importing necessary types to use in spreadsheet
-import { BlockActivities, BundleActivity, CamperAttendeeID, JamboreeActivity, SchedulingSection, SchedulingSectionID, SchedulingSectionType, SectionID } from "../../src/types/sessionTypes";
+import { BlockActivities, BundleActivity, CamperAttendee, CamperAttendeeID, JamboreeActivity, SchedulingSection, SchedulingSectionID, SchedulingSectionType, SectionID } from "../../src/types/sessionTypes";
 import { BundleBlockActivities, BunkJamboreeBlockActivities, NonBunkJamboreeBlockActivities } from "../../src/types/sessionTypes";
+import { getFullName } from "@/utils/personUtils";
 
 // color blocks to use for different blocks on the sheet for design
 const BLOCK_COLORS: { [key: string]: string } = {
@@ -65,22 +66,55 @@ function addSectionPreferencesSheet(spreadsheetId: string, section: SchedulingSe
 }
 globalThis.addSectionPreferencesSheet = addSectionPreferencesSheet;
 
+function populateCamperAttendeeColumns_(sheet: GoogleAppsScript.Spreadsheet.Sheet, attendees: CamperAttendeeID[]) {
+  sheet.getRange("A1").setValue("Bunk");
+  sheet.getRange("B1").setValue("Camper");
+
+  const campersByBunk: { [bunkNum: number]: CamperAttendeeID[] } = {};
+  for (const attendee of attendees) {
+    if (!campersByBunk[attendee.bunk]) {
+      campersByBunk[attendee.bunk] = [];
+    }
+    campersByBunk[attendee.bunk].push(attendee);
+  }
+
+  let row = 3;
+  for (const bunkNum of Object.keys(campersByBunk).map(bunkNum => Number(bunkNum)).sort()) {
+    const bunkCampers = campersByBunk[bunkNum].sort((a, b) => {
+      const compareNameResult = getFullName(a).localeCompare(getFullName(b));
+      if (compareNameResult === 0) {
+        return a.id - b.id;
+      }
+      return compareNameResult;
+    });
+    sheet.getRange(row, 1, row + bunkCampers.length - 1, 1).setValue(`Bunk ${bunkNum}`)
+    bunkCampers.forEach((camper, i) => {
+      sheet.getRange(`A${row + i}`).setValue(`${getFullName(camper)} (ID: ${camper.id})`);
+    })
+    row += bunkCampers.length;
+  }
+}
+globalThis.populateCamperAttendeeColumns_ = populateCamperAttendeeColumns_;
+
+function populateBunkAttendeeColumns_(sheet: GoogleAppsScript.Spreadsheet.Sheet, bunks: number[]) {
+  sheet.getRange("A1").setValue("Bunk");
+  sheet.getRange("B1").setValue("Camper");
+  bunks.sort().forEach((bunkNum, i) => {
+    sheet.getRange(`A${i + 3}`).setValue(`Bunk ${bunkNum}`);
+  })
+}
+globalThis.populateBunkAttendeeColumns_ = populateBunkAttendeeColumns_;
+
 function populateBundlePreferencesSheet(campers: CamperAttendeeID[], blockActivities: BlockActivities<'BUNDLE'>, spreadsheetId: string, sheetId: number) {
   const sheet = SpreadsheetApp.openById(spreadsheetId).getSheetById(sheetId);
   if (!sheet) {
     throw Error("Specified sheet doesn't exist");
   }
 
-  let colIndex = 1;
+  populateCamperAttendeeColumns_(sheet, campers);
+
+  let colIndex = 3;
   const blockIds = Object.keys(blockActivities).sort();
-  const totalAttendees = campers.length;
-
-  // camper info columns
-  sheet.getRange(1, colIndex).setValue("Bunk");
-  colIndex++;
-  sheet.getRange(1, colIndex).setValue("Camper");
-  colIndex++;
-
   for (const blockId of blockIds) {
     const activities = blockActivities[blockId];
     const startCol = colIndex;
@@ -101,7 +135,7 @@ function populateBundlePreferencesSheet(campers: CamperAttendeeID[], blockActivi
     // applying sheet background colors to the entire block
     const endCol = colIndex - 1;
     const blockColor = BLOCK_COLORS[blockId];
-    const totalRows = totalAttendees + 2; // +2 for header rows formatting
+    const totalRows = campers.length + 2; // +2 for header rows formatting
     sheet.getRange(1, startCol, totalRows, endCol - startCol + 1).setBackground(blockColor);
   }
 
@@ -116,13 +150,11 @@ function populateBunkJamboreePreferencesSheet(bunks: number[], blockActivities: 
     throw Error("Specified sheet doesn't exist");
   }
 
-  let colIndex = 1;
+  populateBunkAttendeeColumns_(sheet, bunks);
+
+  let colIndex = 2;
   const blockIds = Object.keys(blockActivities).sort();
   const totalAttendees = bunks.length;
-
-  // camper info columns
-  sheet.getRange(1, colIndex).setValue("Bunk");
-  colIndex++;
 
   for (const blockId of blockIds) {
     const activities = blockActivities[blockId];
@@ -159,15 +191,11 @@ function populateNonBunkJamboreePreferencesSheet(campers: CamperAttendeeID[], bl
     throw Error("Specified sheet doesn't exist");
   }
 
-  let colIndex = 1;
+  populateCamperAttendeeColumns_(sheet, campers);
+
+  let colIndex = 3;
   const blockIds = Object.keys(blockActivities).sort();
   const totalAttendees = campers.length;
-
-  // camper info columns
-  sheet.getRange(1, colIndex).setValue("Bunk");
-  colIndex++;
-  sheet.getRange(1, colIndex).setValue("Camper");
-  colIndex++;
 
   for (const blockId of blockIds) {
     const activities = blockActivities[blockId];
