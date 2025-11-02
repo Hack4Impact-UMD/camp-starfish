@@ -75,3 +75,18 @@ function createOnEditTriggerForActiveSpreadsheetImpl(): void {
 }
 
 createOnEditTriggerForActiveSpreadsheet = createOnEditTriggerForActiveSpreadsheetImpl;
+
+function resetPreferenceChangeFlagImpl(section: 'bundle' | 'jamboree'): void {
+  const props = PropertiesService.getDocumentProperties();
+  const key = 'PREF_CHANGED_' + section.toUpperCase();
+  props.setProperty(key, 'false');
+}
+
+function resetAllPreferenceChangeFlagsImpl(): void {
+  const props = PropertiesService.getDocumentProperties();
+  props.setProperty('PREF_CHANGED_BUNDLE', 'false');
+  props.setProperty('PREF_CHANGED_JAMBOREE', 'false');
+}
+
+resetPreferenceChangeFlag = resetPreferenceChangeFlagImpl;
+resetAllPreferenceChangeFlags = resetAllPreferenceChangeFlagsImpl;

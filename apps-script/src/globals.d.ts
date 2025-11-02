@@ -10,5 +10,7 @@ declare global {
   var createOnEditTrigger: (spreadsheetId: string) => void;
   var getPreferenceChangeFlagMaps: () => { bundle: Record<string, boolean>; jamboree: Record<string, boolean> };
   var createOnEditTriggerForActiveSpreadsheet: () => void;
+  var resetPreferenceChangeFlag: (section: 'bundle' | 'jamboree') => void;
+  var resetAllPreferenceChangeFlags: () => void;
 }
 export {};
