@@ -125,11 +125,12 @@ export const theme: MantineThemeOverride = {
     Button: {
       defaultProps: {
         radius: "xl",
-        size: "sm",
+        size: "md",
         styles: {
           root: {
             textTransform: "uppercase" as const,
-            fontWeight: 600,
+            fontWeight: 500,
+            fontSize: "14px",
           },
         },
       },
@@ -137,6 +138,11 @@ export const theme: MantineThemeOverride = {
     Title: {
       defaultProps: {
         fw: 700,
+      },
+    },
+    Text: {
+      defaultProps: {
+        fw: 500,
       },
     },
     Radio: {

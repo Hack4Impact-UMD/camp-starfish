@@ -4,10 +4,6 @@ import { DatePickerInput } from "@mantine/dates";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import moment from "moment";
 
-/**
- * Props for the ChooseSectionType modal component
- * Handles section configuration including dates, type, and name
- */
 interface ChooseSectionTypeProps {
   selectedDate: Date;
   onSubmit: (data: {
@@ -80,7 +76,7 @@ export function ChooseSectionType({ selectedDate, onSubmit, onDelete, onClose }:
 
       {/* Current Date */}
       <Group justify="center" mb="lg" gap="md">
-        <Text ta="center" fw={500}>
+        <Text ta="center">
           {formatDate(currentDate)}
         </Text>
       </Group>
@@ -88,7 +84,7 @@ export function ChooseSectionType({ selectedDate, onSubmit, onDelete, onClose }:
       <Stack gap="md">
         {/* Date range selection (start date to end date) */}
         <Box>
-          <Text fw={500} mb={4}>
+          <Text mb="xs">
             Date(s)
           </Text>
           <Group>
@@ -102,7 +98,7 @@ export function ChooseSectionType({ selectedDate, onSubmit, onDelete, onClose }:
               size="sm"
               w={140}
             />
-            <Text fw={500}>to</Text>
+            <Text>to</Text>
             {/* End date (user selectable via calendar) */}
             <DatePickerInput
               placeholder="End date"
@@ -118,7 +114,7 @@ export function ChooseSectionType({ selectedDate, onSubmit, onDelete, onClose }:
 
         {/* Schedule type radio selection */}
         <Box>
-          <Text fw={500} mb={6}>
+          <Text mb="xs" mt="sm">
             Schedule Type
           </Text>
           <Radio.Group value={scheduleType} onChange={setScheduleType}>
@@ -145,23 +141,23 @@ export function ChooseSectionType({ selectedDate, onSubmit, onDelete, onClose }:
 
         {/* Name input field for section identifier */}
         <Box>
-          <Text fw={500} mb={6}>
+          <Text mb="xs" mt="sm">
             Name
           </Text>
           <TextInput
             placeholder="e.g. Bundle 1"
             value={name}
-            w={290}
+            w={250}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.currentTarget.value)}
           />
         </Box>
 
         {/* Action buttons: Delete and Done */}
-        <Group justify="space-between" gap="md" mt="md">
+        <Group justify="center" gap="sm" mt="md">
           <Button
             onClick={onDelete}
             bg="#dc2626"
-            style={{ flex: .45 }}
+            style={{ flex: .375 }}
           >
             Delete
           </Button>
@@ -169,7 +165,7 @@ export function ChooseSectionType({ selectedDate, onSubmit, onDelete, onClose }:
             onClick={handleSubmit}
             disabled={!name || !startDate} // Disabled until name and startDate are provided
             bg="#1e3a5f"
-              style={{ flex: .45 }}
+              style={{ flex: .375 }}
           >
             Done
           </Button>
