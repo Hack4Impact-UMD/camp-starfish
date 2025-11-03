@@ -70,7 +70,7 @@ export function ChooseSectionType({ selectedDate, onSubmit, onDelete, onClose }:
       </ActionIcon>
       
       {/* Modal title */}
-      <Title order={2} ta="center" mb="md" c="primary.5">
+      <Title order={2} ta="center" mb="md" mt="sm" c="primary.5">
         Choose Section Type
       </Title>
 
