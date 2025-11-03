@@ -9,6 +9,8 @@ import {
   WithFieldValue,
   QueryDocumentSnapshot,
   DocumentReference,
+  collection,
+  getDocs
 } from "firebase/firestore";
 import { Collection } from "./utils";
 import { setDoc, deleteDoc, getDoc, updateDoc } from "./firestoreClientOperations";
@@ -37,4 +39,11 @@ export async function updateSession(id: string, updates: Partial<Session>, insta
 
 export async function deleteSession(id: string, instance?: Transaction | WriteBatch): Promise<void> {
   await deleteDoc<SessionID, Session>(doc(db, Collection.SESSIONS, id) as DocumentReference<SessionID, Session>, sessionFirestoreConverter, instance);
+}
+
+export async function getAllSessions(): Promise<SessionID[]> {
+  const sessionsRef = collection(db, Collection.SESSIONS).withConverter(sessionFirestoreConverter);
+  const snapshot = await getDocs(sessionsRef);
+  const sessions: SessionID[] = snapshot.docs.map((doc) => doc.data());
+  return sessions;
 }
