@@ -38,6 +38,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@types/google-apps-script": "^2.0.5",
     "@types/mime-types": "^2.1.4",
     "@types/node": "^20",
     "@types/react": "^19.1.13",
