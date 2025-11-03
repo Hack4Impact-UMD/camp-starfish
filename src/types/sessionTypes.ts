@@ -106,6 +106,10 @@ export interface BundleActivity extends JamboreeActivity {
   ageGroup: AgeGroup;
 }
 
+export type BlockActivities<T extends SchedulingSectionType> = {
+  [blockId: string]: T extends 'BUNDLE' ? BundleActivity[] : JamboreeActivity[];
+};
+
 export interface IndividualAssignments {
   camperIds: number[];
   staffIds: number[];
