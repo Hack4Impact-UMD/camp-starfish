@@ -105,9 +105,9 @@ function populateCamperAttendeeColumns_(sheet: GoogleAppsScript.Spreadsheet.Shee
       }
       return compareNameResult;
     });
-    sheet.getRange(row, 1, row + bunkCampers.length - 1, 1).setValue(`Bunk ${bunkNum}`)
+    sheet.getRange(row, 1, bunkCampers.length, 1).merge().setValue(`Bunk ${bunkNum}`)
     bunkCampers.forEach((camper, i) => {
-      sheet.getRange(`A${row + i}`).setValue(`${getFullName(camper)} (ID: ${camper.id})`);
+      sheet.getRange(`B${row + i}`).setValue(`${getFullName(camper)} (ID: ${camper.id})`);
     })
     row += bunkCampers.length;
   }
