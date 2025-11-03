@@ -1,7 +1,6 @@
 // google apps script that creates preference spreadsheets for jamborees and bundles
 // importing necessary types to use in spreadsheet
-import { BlockActivities, BundleActivity, CamperAttendee, CamperAttendeeID, JamboreeActivity, SchedulingSection, SchedulingSectionID, SchedulingSectionType, SectionID } from "../../src/types/sessionTypes";
-import { BundleBlockActivities, BunkJamboreeBlockActivities, NonBunkJamboreeBlockActivities } from "../../src/types/sessionTypes";
+import { AgeGroup, BlockActivities, BundleID, BunkJamboree, BunkJamboreeID, CamperAttendeeID, NonBunkJamboreeID, SchedulingSectionID } from "../../src/types/sessionTypes";
 import { getFullName } from "@/utils/personUtils";
 
 // color blocks to use for different blocks on the sheet for design
@@ -48,21 +47,19 @@ globalThis.createPreferencesSpreadsheet = createPreferencesSpreadsheet;
 function addSectionPreferencesSheet(spreadsheetId: string, section: SchedulingSectionID): void {
   const spreadsheet = SpreadsheetApp.openById(spreadsheetId);
   let spreadsheetProperties = getPreferencesSpreadsheetProperties(spreadsheetId);
-  if (!spreadsheetProperties) {
-    spreadsheetProperties = { sections: [] };
-    setPreferencesSpreadsheetProperties(spreadsheetId, spreadsheetProperties);
-  }
 
-  const { sections } = spreadsheetProperties;
+  let sections = spreadsheetProperties ? spreadsheetProperties.sections : [];
   let sheet: GoogleAppsScript.Spreadsheet.Sheet;
   if (sections.length === 0) {
     sheet = spreadsheet.getSheets()[0];
+    sections.push(section);
   } else {
     let sheetIndex = sections.findIndex(s => moment(section.startDate).isBefore(s.startDate));
     if (sheetIndex === -1) { sheetIndex = sections.length; }
     sheet = spreadsheet.insertSheet(sheetIndex);
   }
   sheet.setName(section.name);
+  setPreferencesSpreadsheetProperties(spreadsheetId, { sections });
 }
 globalThis.addSectionPreferencesSheet = addSectionPreferencesSheet;
 
