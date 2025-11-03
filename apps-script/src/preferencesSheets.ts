@@ -12,7 +12,7 @@ const BLOCK_COLORS: { [key: string]: string } = {
 };
 
 interface PreferencesSpreadsheetProperties {
-  sections: Omit<SchedulingSectionID, 'sessionId'>[];
+  sections: SchedulingSectionID[];
 }
 
 function setScriptProperty<T>(key: string, value: T) {
@@ -44,21 +44,42 @@ function createPreferencesSpreadsheet(sessionName: string): string {
 }
 globalThis.createPreferencesSpreadsheet = createPreferencesSpreadsheet;
 
+function getSheetIndexFromSectionIndex(sections: SchedulingSectionID[], sectionIndex: number) {
+  let index = 0;
+  for (let i = 0; i < sectionIndex; i++) {
+    index += sections[i].type === "BUNDLE" ? 2 : 1;
+  }
+  return index;
+}
+
 function addSectionPreferencesSheet(spreadsheetId: string, section: SchedulingSectionID): void {
+  if (section.type !== 'BUNDLE' && section.type !== 'BUNK-JAMBO' && section.type !== 'NON-BUNK-JAMBO') { throw Error("Invalid section type"); }
+
   const spreadsheet = SpreadsheetApp.openById(spreadsheetId);
   let spreadsheetProperties = getPreferencesSpreadsheetProperties(spreadsheetId);
 
   let sections = spreadsheetProperties ? spreadsheetProperties.sections : [];
+  let sheetIndex: number;
   let sheet: GoogleAppsScript.Spreadsheet.Sheet;
   if (sections.length === 0) {
     sheet = spreadsheet.getSheets()[0];
+    sheetIndex = 0;
     sections.push(section);
   } else {
-    let sheetIndex = sections.findIndex(s => moment(section.startDate).isBefore(s.startDate));
-    if (sheetIndex === -1) { sheetIndex = sections.length; }
+    let sectionIndex = sections.findIndex(s => moment(section.startDate).isBefore(s.startDate));
+    if (sectionIndex === -1) { sectionIndex = sections.length; }
+    sections = [...sections.slice(0, sectionIndex), section, ...sections.slice(sectionIndex)];
+    sheetIndex = getSheetIndexFromSectionIndex(sections, sectionIndex);
     sheet = spreadsheet.insertSheet(sheetIndex);
   }
-  sheet.setName(section.name);
+
+  if (section.type === 'BUNDLE') {
+    sheet.setName(`${section.name} - NAV`);
+    spreadsheet.insertSheet(sheetIndex + 1).setName(`${section.name} - OCP`)
+  } else {
+    sheet.setName(section.name);
+  }
+
   setPreferencesSpreadsheetProperties(spreadsheetId, { sections });
 }
 globalThis.addSectionPreferencesSheet = addSectionPreferencesSheet;
