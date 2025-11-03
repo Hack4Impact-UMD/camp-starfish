@@ -1,4 +1,5 @@
-import { StaffAttendeeID, AdminAttendeeID, CamperAttendeeID, Freeplay } from "../../types/sessionTypes";
+import { Staff } from "@/types/personTypes";
+import { StaffAttendeeID, AdminAttendeeID, CamperAttendeeID, Freeplay, PostID } from "../../types/sessionTypes";
 
 export class FreeplayScheduler {
   /* The current freeplay schedule */
@@ -9,9 +10,15 @@ export class FreeplayScheduler {
   staff: StaffAttendeeID[] = [];
   admins: AdminAttendeeID[] = [];
 
+  assignedStaff: StaffAttendeeID[] = [];
+  assignedAdmin: AdminAttendeeID[] = [];
+
+  posts: PostID[] = [];
+
   /* The freeplay buddies from other freeplays in this session */
   otherFreeplayBuddies: { [attendeeId: number]: number[] } = {};
 
+  // postInfo includes a list of all posts with PostID information (necessary for requiresAdmin flag) --> schedule only includes string of IDs
   constructor() { }
 
   withSchedule(schedule: Freeplay): FreeplayScheduler { this.schedule = schedule; return this; }
@@ -22,12 +29,85 @@ export class FreeplayScheduler {
 
   withAdmins(admins: AdminAttendeeID[]): FreeplayScheduler { this.admins = admins; return this; }
 
+  withPosts(posts: PostID[]): FreeplayScheduler { this.posts = posts; return this; }
+
+  getCamperById = (id: number) => this.campers.find(c => c.id === id);
+
+  getPostByID = (id: string) => this.posts.find(p => p.name === id);
+
   // withOtherFreeplays should build the previousFreeplayBuddies object
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  withOtherFreeplays(otherFreeplays: Freeplay[]): FreeplayScheduler { return this; }
+  withOtherFreeplays(otherFreeplays: Freeplay[]): FreeplayScheduler {
+    for (const freeplay of otherFreeplays) {
+      for (const buddieIDStr in freeplay.buddies) {
+        const buddieID = Number(buddieIDStr);
+        if (buddieID in this.otherFreeplayBuddies) {
+
+          const attendees = freeplay.buddies[buddieID];
+
+          // add all attendees that don't already exist
+          for (const att of attendees) {
+            if (!this.otherFreeplayBuddies[buddieID].includes(att)) {
+              this.otherFreeplayBuddies[buddieID].push(att);
+            }
+          }
+        } else {
+          const attendees = freeplay.buddies[buddieID];
+          this.otherFreeplayBuddies[buddieID] = attendees;
+        }
+      }
+    }
+
+    return this;
+  }
 
   /* Assigns ADMINs to all posts that require ADMINs and either STAFF or ADMINs to all other posts */
-  assignPosts() { return this; }
+  assignPosts() {
+    // assign all ADMIN-only roles first
+    for (const postID in this.schedule.posts) {
+      const assigned = this.schedule.posts[postID];
+      const post = this.getPostByID(postID);
+      if (assigned.length == 0 && post?.requiresAdmin) {
+        // Find an available admin
+        const availableAdmin = this.admins.find(admin =>
+          !this.assignedAdmin.some(assigned => assigned.id === admin.id)
+        );
+        
+        if (availableAdmin) {
+          this.schedule.posts[postID] = [availableAdmin.id];
+          this.assignedAdmin.push(availableAdmin);
+        }
+      }
+    }
+
+    // assigns all other roles (not Admin-specific) to admins first, then staff
+    for (const postID in this.schedule.posts) {
+      const assigned = this.schedule.posts[postID];
+      if (assigned.length == 0) {
+        // Try to find an available admin first
+        const availableAdmin = this.admins.find(admin =>
+          !this.assignedAdmin.some(assigned => assigned.id === admin.id)
+        );
+        
+        if (availableAdmin) {
+          this.schedule.posts[postID] = [availableAdmin.id];
+          this.assignedAdmin.push(availableAdmin);
+        } else {
+          // If no admin available, try staff
+          const availableStaff = this.staff.find(staff =>
+            !this.assignedStaff.some(assigned => assigned.id === staff.id)
+          );
+          
+          if (availableStaff) {
+            this.schedule.posts[postID] = [availableStaff.id];
+            this.assignedStaff.push(availableStaff);
+          }
+        }
+      }
+    }
+
+    return this;
+  }
+
 
   /*
     Assigns campers to remaining ADMIN & STAFF members for freeplay according to the following rules:
@@ -39,7 +119,79 @@ export class FreeplayScheduler {
       to the same staff member.
     - Prioritize avoiding assigning the same "freeplay buddy" (previous buddy) if possible.
  */
-  assignCampers() { return this; }
+  assignCampers() {
+    // Get staff who are NOT at posts (available for camper buddies)
+    const availableStaff = this.staff.filter(s => 
+      !this.assignedStaff.some(assigned => assigned.id === s.id)
+    );
+    const availableFemaleStaff = availableStaff.filter(s => s.gender === "Female");
+
+    // 1. Split campers by gender
+    const femaleCampers = this.campers.filter(c => c.gender === "Female");
+    const maleCampers = this.campers.filter(c => c.gender !== "Female");
+
+    // 2. Assign female campers to female staff
+    for (const camper of femaleCampers) {
+      let assigned = this.assignToOpenStaffFirstStep(availableFemaleStaff, camper);
+
+      // Fallback: assign to any female staffer with another camper of the same bunk
+      if (!assigned) {
+        this.assignToOpenStaffSecondStep(availableFemaleStaff, camper);
+      }
+    }
+  
+    // 3. Assign male campers to any available staff
+    for (const camper of maleCampers) {
+      let assigned = this.assignToOpenStaffFirstStep(availableStaff, camper);
+    
+      // Fallback: assign to any staffer with another camper of the same bunk
+      if (!assigned) {
+        this.assignToOpenStaffSecondStep(availableStaff, camper);
+      }
+    }
+
+    return this;
+  }
+
+  assignToOpenStaffFirstStep(allAssignedStaffers: (StaffAttendeeID | AdminAttendeeID)[], camper: CamperAttendeeID) {
+    let assigned = false;
+
+    // Loop through female staffers/admins first
+    for (const staffer of allAssignedStaffers) {
+
+      const alreadyAssigned = this.schedule.buddies[staffer.id] || [];
+      const prevBuddies = this.otherFreeplayBuddies[staffer.id] || [];
+
+      // Check buddy conflict (camper.id appears in staffer's prevBuddies)
+      const hasConflict = prevBuddies.includes(camper.id);
+
+      if (!hasConflict && alreadyAssigned.length == 0) {
+        if ( (staffer.role === "STAFF" && staffer.bunk !== camper.bunk) || staffer.role !== "STAFF" ) {
+          this.schedule.buddies[staffer.id] = [camper.id];
+          assigned = true;
+          break;
+        }
+      }
+    }
+
+    return assigned
+  }
+
+  assignToOpenStaffSecondStep(allAssignedStaffers: (StaffAttendeeID | AdminAttendeeID)[], camper: CamperAttendeeID) {
+    for (const staffer of allAssignedStaffers) {
+
+      const alreadyAssigned = this.schedule.buddies[staffer.id] || [];
+      if (alreadyAssigned.length == 1) {
+
+        const otherCamper = this.getCamperById(alreadyAssigned[0]) || camper;
+        if (otherCamper.bunk == camper.bunk && otherCamper.id !== camper.id) {
+          this.schedule.buddies[staffer.id].push(camper.id);
+          break;
+        }
+
+      }
+    }
+  }
 
   getSchedule() { return this.schedule; }
 }
