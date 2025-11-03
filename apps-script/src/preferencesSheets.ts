@@ -116,7 +116,6 @@ globalThis.populateCamperAttendeeColumns_ = populateCamperAttendeeColumns_;
 
 function populateBunkAttendeeColumns_(sheet: GoogleAppsScript.Spreadsheet.Sheet, bunks: number[]) {
   sheet.getRange("A1").setValue("Bunk");
-  sheet.getRange("B1").setValue("Camper");
   bunks.sort().forEach((bunkNum, i) => {
     sheet.getRange(`A${i + 3}`).setValue(`Bunk ${bunkNum}`);
   })
