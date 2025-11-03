@@ -224,7 +224,7 @@ export class NonBunkJamboreeScheduler {
         } else if (count > 9) {
           console.error(`Activity "${activity.name}" in block ${blockId} has ${count} campers (maximum allowed: 9)`);
         } else if (count < 5 || count > 8) {
-          console.log(`ℹ Activity "${activity.name}" in block ${blockId} has ${count} campers (ideal: 5-8)`);
+          console.log(`Activity "${activity.name}" in block ${blockId} has ${count} campers (ideal: 5-8)`);
         }
       }
     }
