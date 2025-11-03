@@ -4,6 +4,10 @@ import { DatePickerInput } from "@mantine/dates";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import moment from "moment";
 
+/**
+ * Props for the ChooseSectionType modal component
+ * Handles section configuration including dates, type, and name
+ */
 interface ChooseSectionTypeProps {
   selectedDate: Date;
   onSubmit: (data: {
@@ -16,68 +20,28 @@ interface ChooseSectionTypeProps {
   onClose?: () => void;
 }
 
-const CALENDAR_STYLES = {
-  calendarHeaderControl: {
-    width: 28,
-    height: 28,
-    fontSize: 14,
-  },
-  calendarHeader: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingLeft: 8,
-  },
-  calendarHeaderLevel: {
-    fontWeight: 600,
-    fontSize: "15px",
-    textAlign: "center" as const,
-    flex: 1,
-  },
-  day: {
-    fontVariantNumeric: "tabular-nums",
-    fontFeatureSettings: "'tnum' 1",
-    fontFamily: "Inter, sans-serif",
-    width: 32,
-    height: 32,
-    lineHeight: "32px",
-    textAlign: "center" as const,
-  },
-};
-
 export function ChooseSectionType({ selectedDate, onSubmit, onDelete, onClose }: ChooseSectionTypeProps) {
-  const [currentDate, setCurrentDate] = useState<Date>(selectedDate);
+  const [currentDate, setCurrentDate] = useState<Date>(selectedDate); // Header date
   const [startDate, setStartDate] = useState<Date | null>(selectedDate);
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [scheduleType, setScheduleType] = useState("Bundle");
   const [name, setName] = useState("");
 
-  // Format date as "Day of the week, Month Day, Year"
+  // Current date format - "Wednesday, October 29, 2025"
   const formatDate = (date: Date) => {
     return moment(date).format('dddd, MMMM D, YYYY');
   };
 
-  // Format date as "Day, Mon DD" (e.g., "Mon, Aug 11")
-  const formatStartDate = (date: Date) => {
-    return moment(date).format('ddd, MMM D');
-  };
-
-  const decrementDate = () => {
-    const newDate = new Date(currentDate);
-    newDate.setDate(newDate.getDate() - 1);
-    setCurrentDate(newDate);
+  const handleStartDateChange = (value: string | null) => {
+    const newDate = value ? new Date(value) : null;
     setStartDate(newDate);
-  };
-
-  const incrementDate = () => {
-    const newDate = new Date(currentDate);
-    newDate.setDate(newDate.getDate() + 1);
-    setCurrentDate(newDate);
-    setStartDate(newDate);
+    if (newDate) {
+      setCurrentDate(newDate); // Updates header date
+    }
   };
 
   const handleEndDateChange = (value: string | null) => {
-  setEndDate(value ? new Date(value) : null);
+    setEndDate(value ? new Date(value) : null);
   };
 
   const handleSubmit = () => {
@@ -88,98 +52,71 @@ export function ChooseSectionType({ selectedDate, onSubmit, onDelete, onClose }:
     <Box
       p="lg"
       bg="white"
+      bd="2px solid #002D45"
       style={{
         borderRadius: 8,
-        boxShadow: "0 1px 3px rgba(0,0,0,0.12)",
         maxWidth: 400,
         margin: "auto",
         position: "relative",
       }}
     >
+      {/* Close button (X) in top left corner */}
       <ActionIcon
         variant="subtle"
         onClick={onClose}
         aria-label="Close"
-        style={{
-          position: "absolute",
-          top: 16,
-          left: 16,
-          color: "#1e3a5f",
-        }}
+        c="primary.5"
+        pos="absolute"
+        top={16}
+        left={16}
       >
         <X size={24} strokeWidth={3} />
       </ActionIcon>
       
-      <Title order={2} ta="center" mb="md" style={{ color: "#1e3a5f" }}>
+      {/* Modal title */}
+      <Title order={2} ta="center" mb="md" c="primary.5">
         Choose Section Type
       </Title>
 
+      {/* Current Date */}
       <Group justify="center" mb="lg" gap="md">
-        <ActionIcon
-          variant="subtle"
-          color="dark"
-          onClick={decrementDate}
-          aria-label="Previous day"
-        >
-          <ChevronLeft size={28} strokeWidth={3} />
-        </ActionIcon>
         <Text ta="center" fw={500}>
           {formatDate(currentDate)}
         </Text>
-        <ActionIcon
-          variant="subtle"
-          color="dark"
-          onClick={incrementDate}
-          aria-label="Next day"
-        >
-          <ChevronRight size={28} strokeWidth={3} />
-        </ActionIcon>
       </Group>
 
       <Stack gap="md">
-        {/* Date fields */}
+        {/* Date range selection (start date to end date) */}
         <Box>
           <Text fw={500} mb={4}>
             Date(s)
           </Text>
           <Group>
-            <TextInput
-              value={startDate ? formatStartDate(startDate) : ''}
-              readOnly
+            {/* Start date (user selectable via calendar) */}
+            <DatePickerInput
+              placeholder="Start date"
+              value={startDate}
+              onChange={handleStartDateChange}
+              valueFormat="ddd, MMM D"
               radius="md"
               size="sm"
               w={140}
-              styles={{ // TODO remove override
-                input: {
-                  backgroundColor: 'hsla(206, 67%, 89%, 1.00)',
-                  cursor: 'default',
-                  border: 'none',
-                }
-              }}
             />
             <Text fw={500}>to</Text>
+            {/* End date (user selectable via calendar) */}
             <DatePickerInput
               placeholder="End date"
-              value={endDate ? new Date(endDate.getTime() + 86400000) : null}
+              value={endDate} //  ? new Date(endDate.getTime() + 86400000) : null
               onChange={handleEndDateChange}
               valueFormat="ddd, MMM D"
               radius="md"
               size="sm"
               w={140}
-              previousIcon={<ChevronLeft size={16} />}
-              nextIcon={<ChevronRight size={16} />}
-              styles={{
-                input: { // TODO remove override
-                  backgroundColor: 'hsla(206, 67%, 89%, 1.00)',
-                  border: 'none',
-                },
-                ...CALENDAR_STYLES,
-              }}
             />
         </Group>
         </Box>
 
-        {/* Schedule type */}
+        {/* Schedule type radio selection */}
         <Box>
           <Text fw={500} mb={6}>
             Schedule Type
@@ -189,72 +126,24 @@ export function ChooseSectionType({ selectedDate, onSubmit, onDelete, onClose }:
               <Radio 
                 value="Bunk Jamboree" 
                 label="Bunk Jamboree"
-                styles={{
-                  radio: {
-                    width: 16,
-                    height: 16,
-                    marginTop: 2,
-                    '&:checked': {
-                      backgroundColor: 'var(--mantine-color-blue-filled)',
-                      borderColor: 'var(--mantine-color-blue-filled)',
-                    }
-                  },
-                  icon: { display: 'none' }
-                }}
               />
               <Radio 
                 value="Non-Bunk Jamboree" 
                 label="Non-Bunk Jamboree"
-                styles={{
-                  radio: {
-                    width: 16,
-                    height: 16,
-                    marginTop: 2,
-                    '&:checked': {
-                      backgroundColor: 'var(--mantine-color-blue-filled)',
-                      borderColor: 'var(--mantine-color-blue-filled)',
-                    }
-                  },
-                  icon: { display: 'none' }
-                }}
               />
               <Radio 
                 value="Bundle" 
                 label="Bundle"
-                styles={{
-                  radio: {
-                    width: 16,
-                    height: 16,
-                    marginTop: 2,
-                    '&:checked': {
-                      backgroundColor: 'var(--mantine-color-blue-filled)',
-                      borderColor: 'var(--mantine-color-blue-filled)',
-                    }
-                  },
-                  icon: { display: 'none' }
-                }}
               />
               <Radio 
                 value="Non-Scheduling" 
                 label="Non-Scheduling"
-                styles={{
-                  radio: {
-                    width: 16,
-                    height: 16,
-                    marginTop: 2,
-                    '&:checked': {
-                      backgroundColor: 'var(--mantine-color-blue-filled)',
-                      borderColor: 'var(--mantine-color-blue-filled)',
-                    }
-                  },
-                  icon: { display: 'none' }
-                }}
               />
             </Stack>
           </Radio.Group>
         </Box>
 
-        {/* Name field */}
+        {/* Name input field for section identifier */}
         <Box>
           <Text fw={500} mb={6}>
             Name
@@ -262,45 +151,25 @@ export function ChooseSectionType({ selectedDate, onSubmit, onDelete, onClose }:
           <TextInput
             placeholder="e.g. Bundle 1"
             value={name}
-            radius="md"
-            size="sm"
             w={290}
-            styles={{
-              input: {
-                backgroundColor: 'hsla(206, 67%, 89%, 1.00)',
-                border: 'none',
-              }
-            }}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.currentTarget.value)}
           />
         </Box>
 
+        {/* Action buttons: Delete and Done */}
         <Group justify="space-between" gap="md" mt="md">
           <Button
             onClick={onDelete}
-            radius="xl"
-            size="sm"
-            style={{
-              flex: 1,
-              backgroundColor: "#dc2626",
-              textTransform: "uppercase",
-              fontWeight: 600,
-            }}
+            bg="#dc2626"
+            style={{ flex: .45 }}
           >
             Delete
           </Button>
           <Button
             onClick={handleSubmit}
-            disabled={!name || !startDate}
-            radius="xl"
-            size="sm"
-            style={{
-              flex: 1,
-              backgroundColor: "#1e3a5f",
-              color: "white",
-              textTransform: "uppercase",
-              fontWeight: 600,
-            }}
+            disabled={!name || !startDate} // Disabled until name and startDate are provided
+            bg="#1e3a5f"
+              style={{ flex: .45 }}
           >
             Done
           </Button>
