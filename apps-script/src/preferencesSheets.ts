@@ -1,6 +1,6 @@
 // google apps script that creates preference spreadsheets for jamborees and bundles
 // importing necessary types to use in spreadsheet
-import { AgeGroup, BlockActivities, BundleID, BunkJamboree, BunkJamboreeID, CamperAttendeeID, NonBunkJamboreeID, SchedulingSectionID } from "../../src/types/sessionTypes";
+import { BlockActivities, CamperAttendeeID, SchedulingSectionID } from "../../src/types/sessionTypes";
 import { getFullName } from "@/utils/personUtils";
 
 // color blocks to use for different blocks on the sheet for design
@@ -56,7 +56,7 @@ function addSectionPreferencesSheet(spreadsheetId: string, section: SchedulingSe
   if (section.type !== 'BUNDLE' && section.type !== 'BUNK-JAMBO' && section.type !== 'NON-BUNK-JAMBO') { throw Error("Invalid section type"); }
 
   const spreadsheet = SpreadsheetApp.openById(spreadsheetId);
-  let spreadsheetProperties = getPreferencesSpreadsheetProperties(spreadsheetId);
+  const spreadsheetProperties = getPreferencesSpreadsheetProperties(spreadsheetId);
 
   let sections = spreadsheetProperties ? spreadsheetProperties.sections : [];
   let sheetIndex: number;
