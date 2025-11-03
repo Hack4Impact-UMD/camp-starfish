@@ -199,7 +199,7 @@ function populateBunkJamboreePreferencesSheet(bunks: number[], blockActivities: 
   }
 
   sheet.setFrozenRows(2); // freeze both header rows
-  sheet.setFrozenColumns(2); // freeze bunk column(s)
+  sheet.setFrozenColumns(1); // freeze bunk column
 }
 globalThis.populateBunkJamboreePreferencesSheet = populateBunkJamboreePreferencesSheet;
 
