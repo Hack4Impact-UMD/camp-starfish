@@ -1,4 +1,4 @@
-import React from "react";
+import React, { JSX } from "react";
 import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
 import {
   SectionSchedule,
@@ -21,7 +21,8 @@ const styles = StyleSheet.create({
   },
   block: { marginTop: 12 },
   blockTitle: { fontSize: 14, fontWeight: "bold", marginBottom: 4 },
-  activity: { marginLeft: 10, marginBottom: 6 },
+  activity: { marginLeft: 10, marginBottom: 6, display: 'flex', flexDirection: 'row', justifyContent: 'space-between' },
+  activityInfo: {},
   activityName: { fontWeight: "bold" },
   activityDesc: { fontSize: 11 },
 });
@@ -72,18 +73,21 @@ export function PrefSheet<T extends SchedulingSectionType>({
                 <Text style={styles.blockTitle}>Block {blockId}</Text>
                 {activities.map((activity, idx) => (
                   <View key={`${blockId}-${idx}`} style={styles.activity}>
-                    <Text style={styles.activityName}>
-                      {isBundle
-                        ? `${(activity as BundleActivity).programArea.name}: ${
-                            activity.name
-                          }`
-                        : activity.name}
-                    </Text>
-                    {activity.description && (
-                      <Text style={styles.activityDesc}>
-                        {activity.description}
+                    <View style={styles.activityInfo}>
+                      <Text style={styles.activityName}>
+                        {isBundle
+                          ? `${
+                              (activity as BundleActivity).programArea.name
+                            }: ${activity.name}`
+                          : activity.name}
                       </Text>
-                    )}
+                      {activity.description && (
+                        <Text style={styles.activityDesc}>
+                          {activity.description}
+                        </Text>
+                      )}
+                    </View>
+                    <View><Text>__________</Text></View>
                   </View>
                 ))}
               </View>
