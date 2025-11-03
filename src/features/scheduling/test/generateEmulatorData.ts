@@ -734,7 +734,10 @@ export function generateSession() {
     .withSession(session)
     .withSections(sections)
     .withCounselors(counselors)
-    .withNightShifts(nightShifts);
+    sessionScheduler.withNightShifts(nightShifts);
+
+  sessionScheduler.assignDaysOff(session, counselors);
+  sessionScheduler.assignNightShifts(session, staff);
 
   const bundleScheduler1 = generateBundleSchedule(5, 1, campers, staff, admins);
   const bundleScheduler2 = generateBundleSchedule(5, 2, campers, staff, admins);
@@ -744,8 +747,7 @@ export function generateSession() {
   const freeplayScheduler = generateFreeplaySchedule(campers, staff, admins);
 
   return {
-    freeplayScheduler
- 
+    sessionScheduler 
 
   };
 }
