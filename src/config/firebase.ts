@@ -22,7 +22,7 @@ export const functions = getFunctions(app, 'us-central1');
 
 if (process.env.NODE_ENV !== "production") {
   connectAuthEmulator(auth, 'http://localhost:9099');
-  connectFirestoreEmulator(db, 'localhost', 8080);
+  connectFirestoreEmulator(db, 'localhost', 8081);  // Changed from 8080
   connectFunctionsEmulator(functions, "localhost", 5001);
   connectStorageEmulator(storage, "localhost", 9199);
 }
