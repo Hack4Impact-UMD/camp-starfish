@@ -131,7 +131,7 @@ export class NonBunkJamboreeScheduler {
     return this;
   }
 
-  //assigning campters to blocks based on preferences, not by bunk
+  //assigning campers to blocks based on preferences, not by bunk
   assignCampers(): NonBunkJamboreeScheduler {
     if (!this.guardBlocks()) {
       return this; // nothing to assign
@@ -177,8 +177,13 @@ export class NonBunkJamboreeScheduler {
 
         let placed = false;
 
-        // try preferred activities first for campers
+        // try preferred activities first for campers  
         for (const foundActivity of activitiesByPref) {
+          // prefer activities with room for more campers (target 5-8, max 9)
+          const currentCount = foundActivity.assignments.camperIds.length;
+          if (currentCount >= 9) {
+            continue;
+          }
           if (this.canAssignCamperToActivity(camper, foundActivity)) {
             foundActivity.assignments.camperIds.push(camper.id);
             assignedThisBlock.add(camper.id);
@@ -187,9 +192,13 @@ export class NonBunkJamboreeScheduler {
           }
         }
 
-        // else any activity without conflicts
+        // else any activity without conflicts  
         if (!placed) {
           for (const foundActivity of currentBlock.activities) {
+            const currentCount = foundActivity.assignments.camperIds.length;
+            if (currentCount >= 9) {
+              continue;
+            }
             if (this.canAssignCamperToActivity(camper, foundActivity)) {
               foundActivity.assignments.camperIds.push(camper.id);
               assignedThisBlock.add(camper.id);
@@ -202,7 +211,26 @@ export class NonBunkJamboreeScheduler {
     return this;
   }
 
-  /*assign conselors to their bunk*/
+  /**
+   * Validates that all activities have between 4-9 campers (ideally 5-8)
+   * Logs warnings for any activities outside the ideal range
+   */
+  private validateActivitySizes(): void {
+    for (const [blockId, block] of Object.entries(this.schedule.blocks)) {
+      for (const activity of block.activities) {
+        const count = activity.assignments.camperIds.length;
+        if (count < 4) {
+          console.warn(` Activity "${activity.name}" in block ${blockId} has only ${count} campers (minimum recommended: 4)`);
+        } else if (count > 9) {
+          console.error(`Activity "${activity.name}" in block ${blockId} has ${count} campers (maximum allowed: 9)`);
+        } else if (count < 5 || count > 8) {
+          console.log(`ℹ Activity "${activity.name}" in block ${blockId} has ${count} campers (ideal: 5-8)`);
+        }
+      }
+    }
+  }
+
+  /*assign counselors to their bunk*/
   assignCounselors(): NonBunkJamboreeScheduler {
     if (!this.guardBlocks()) {
       return this; // nothing to assign
@@ -224,7 +252,7 @@ export class NonBunkJamboreeScheduler {
         }
       }
 
-      // esure near 1:1 by filling remaining needs per activity, only on activities with campers
+      // ensure near 1:1 by filling remaining needs per activity, only on activities with campers
       const relationshipsByStaff = new Map<number, number>();
       for (const r of this.relationships) {
         relationshipsByStaff.set(r.staffId, r.adminId);
@@ -356,7 +384,7 @@ export class NonBunkJamboreeScheduler {
     return true;
   }
 
-  //HELPERS FOR IDENTIFYING SCEDULING CONFLICTS IN PERIODS OFF
+  //HELPERS FOR IDENTIFYING SCHEDULING CONFLICTS IN PERIODS OFF
 
   // check if staff is on a period off on specific block
   private isStaffOnPeriodOff(staffId: number, blockId: string): boolean {
@@ -370,7 +398,7 @@ export class NonBunkJamboreeScheduler {
     return !!periodOffList && periodOffList.includes(adminId);
   }
 
-  //asigning admins to activity blocks
+  //assigning admins to activity blocks
   assignAdmins(): NonBunkJamboreeScheduler {
     if (!this.guardBlocks()) {
       return this; // nothing to assign
