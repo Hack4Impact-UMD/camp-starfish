@@ -7,6 +7,9 @@ declare global {
   }
   var moment: typeof momentType
 
+  // testPreferencesSheet.ts
+  function testPreferencesAndFlags(): { spreadsheetUrl: string; flags: any };
+
   // preferencesSheets.ts
   var createPreferencesSpreadsheet: (sessionName: string) => string;
   var addSectionPreferencesSheet: (spreadsheetId: string, section: SchedulingSectionID) => void;

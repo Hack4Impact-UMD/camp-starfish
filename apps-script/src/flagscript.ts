@@ -2,56 +2,111 @@
 /**
  * The event handler triggered when editing the spreadsheet.
  * @param {GoogleAppsScript.Events.SheetsOnEdit} e The onEdit event.
- * @see https://developers.google.com/apps-script/guides/triggers#onedite
+ * @see https://developers.google.com/apps-script/guides/triggers#onedit
  */
-function onEditImpl(e: GoogleAppsScript.Events.SheetsOnEdit) {
-  // set a comment on the edited cell to indicate when it was changed to help with potential tracking
-  const range = e.range;
-  range.setNote("Last modified: " + new Date());
+function onEdit(e: GoogleAppsScript.Events.SheetsOnEdit) {
+  try {
+    // basic validation
+    if (!e || !e.range) {
+      console.warn('Invalid edit event received:', e);
+      return;
+    }
 
-  //setting boolean flags based on bundle or jamboree
-  const sheetName = range.getSheet().getName().toLowerCase();
-  let section = "";
-  const value = String(range.getValue()).toLowerCase();
-  if (sheetName.indexOf("bundle") !== -1 || value === "bundle") {
-    section = "bundle";
-  } else if (sheetName.indexOf("jamboree") !== -1 || value === "jamboree") {
-    section = "jamboree";
-  } else {
-    return;
-  }
+    const range = e.range;
+    
+    // safely get sheet name with null checks
+    let sheetName = '';
+    try {
+      const sheet = range.getSheet();
+      if (!sheet) {
+        console.warn('Could not get sheet from range');
+        return;
+      }
+      sheetName = sheet.getName().toLowerCase();
+    } catch (error) {
+      console.error('Error accessing sheet:', error);
+      return;
+    }
 
-  //accessing document properties to set the flag
-  const props = PropertiesService.getDocumentProperties();
-  const key = "PREF_CHANGED_" + section.toUpperCase(); //if this value is null there are no avaiable document properties
-  if (props === null) {
-    throw new Error("Document properties are not available.");
-  }
-  //setting the property to true if it is not already true (that is has been changed)
-  if (props.getProperty(key) !== "true") {
-    props.setProperty(key, "true");
+    // safely get cell value
+    let value = '';
+    try {
+      const cellValue = range.getValue();
+      value = String(cellValue || '').toLowerCase().trim();
+    } catch (error) {
+      console.error('Error reading cell value:', error);
+      return;
+    }
+
+    // determine section
+    let section = '';
+    if (sheetName.includes('bundle') || value === 'bundle') {
+      section = 'bundle';
+    } else if (sheetName.includes('jamboree') || value === 'jamboree') {
+      section = 'jamboree';
+    } else {
+      return; 
+    }
+
+    // update last modified note
+    try {
+      range.setNote('Last modified: ' + new Date().toISOString());
+    } catch (error) {
+      console.warn('Could not update cell note:', error);
+      // continue execution even if note can't be set
+    }
+
+    // update document properties
+    const props = PropertiesService.getDocumentProperties();
+    if (!props) {
+      console.error('Document properties service is not available');
+      return;
+    }
+
+    const key = `PREF_CHANGED_${section.toUpperCase()}`;
+    
+    try {
+      if (props.getProperty(key) !== 'true') {
+        props.setProperty(key, 'true');
+      }
+    } catch (error) {
+      console.error(`Failed to update property ${key}:`, error);
+    }
+  } catch (error) {
+    console.error('Unexpected error in onEdit:', error);
+    // don't rethrow to prevent Google Apps Script from showing error to users
   }
 }
 
 //returning the preference change flags as an object
-function getPreferenceChangeFlagsImpl() {
+function getPreferenceChangeFlags() {
   const props = PropertiesService.getDocumentProperties();
   return {
-    bundle: props.getProperty("PREF_CHANGED_BUNDLE") === "true",
-    jamboree: props.getProperty("PREF_CHANGED_JAMBOREE") === "true",
+    bundle: props.getProperty('PREF_CHANGED_BUNDLE') === 'true',
+    jamboree: props.getProperty('PREF_CHANGED_JAMBOREE') === 'true',
   };
 }
 
-function getPreferenceChangeFlagsWrapperImpl() {
-  return getPreferenceChangeFlagsImpl();
+function getPreferenceChangeFlagsWrapper() {
+  return JSON.stringify(getPreferenceChangeFlags());
 }
 
-onEdit = onEditImpl;
-getPreferenceChangeFlags = getPreferenceChangeFlagsImpl;
-getPreferenceChangeFlagsWrapper = getPreferenceChangeFlagsWrapperImpl;
+// resets preference change flags for a specific section
+export function resetPreferenceChangeFlag(section: "bundle" | "jamboree"): void {
+  const props = PropertiesService.getDocumentProperties();
+  const key = "PREF_CHANGED_" + section.toUpperCase();
+  props.setProperty(key, "false");
+}
 
-//edit trigger functions
-function createOnEditTriggerImpl(spreadsheetId: string): void {
+// resets all preference change flags
+export function resetAllPreferenceChangeFlags(): void {
+  const props = PropertiesService.getDocumentProperties();
+  props.setProperty("PREF_CHANGED_BUNDLE", "false");
+  props.setProperty("PREF_CHANGED_JAMBOREE", "false");
+}
+
+// creates an onEdit trigger for a specific spreadsheet
+function createOnEditTrigger(spreadsheetId: string): void {
   const exists = ScriptApp.getProjectTriggers().some(
     (t) =>
       t.getHandlerFunction() === "onEdit" &&
@@ -59,6 +114,7 @@ function createOnEditTriggerImpl(spreadsheetId: string): void {
       t.getEventType() === ScriptApp.EventType.ON_EDIT &&
       t.getTriggerSourceId() === spreadsheetId
   );
+  
   if (!exists) {
     ScriptApp.newTrigger("onEdit")
       .forSpreadsheet(spreadsheetId)
@@ -67,28 +123,19 @@ function createOnEditTriggerImpl(spreadsheetId: string): void {
   }
 }
 
-createOnEditTrigger = createOnEditTriggerImpl;
-function createOnEditTriggerForActiveSpreadsheetImpl(): void {
+// creates an onEdit trigger for the active spreadsheet
+export function createOnEditTriggerForActiveSpreadsheet(): void {
   const ss = SpreadsheetApp.getActive();
   if (!ss) return;
-  createOnEditTriggerImpl(ss.getId());
+  createOnEditTrigger(ss.getId());
 }
 
-createOnEditTriggerForActiveSpreadsheet =
-  createOnEditTriggerForActiveSpreadsheetImpl;
-
-//resets preference change flags functions
-function resetPreferenceChangeFlagImpl(section: "bundle" | "jamboree"): void {
-  const props = PropertiesService.getDocumentProperties();
-  const key = "PREF_CHANGED_" + section.toUpperCase();
-  props.setProperty(key, "false");
-}
-
-function resetAllPreferenceChangeFlagsImpl(): void {
-  const props = PropertiesService.getDocumentProperties();
-  props.setProperty("PREF_CHANGED_BUNDLE", "false");
-  props.setProperty("PREF_CHANGED_JAMBOREE", "false");
-}
-
-resetPreferenceChangeFlag = resetPreferenceChangeFlagImpl;
-resetAllPreferenceChangeFlags = resetAllPreferenceChangeFlagsImpl;
+// global exports for Google Apps Script
+declare const global: any;
+global.onEdit = onEdit;
+global.getPreferenceChangeFlags = getPreferenceChangeFlags;
+global.getPreferenceChangeFlagsWrapper = getPreferenceChangeFlagsWrapper;
+global.resetPreferenceChangeFlag = resetPreferenceChangeFlag;
+global.resetAllPreferenceChangeFlags = resetAllPreferenceChangeFlags;
+global.createOnEditTrigger = createOnEditTrigger;
+global.createOnEditTriggerForActiveSpreadsheet = createOnEditTriggerForActiveSpreadsheet;
