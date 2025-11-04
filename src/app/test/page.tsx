@@ -5,10 +5,11 @@ import { Box, Text, Title } from "@mantine/core";
 import { Flex } from "@mantine/core";
 import { Container } from "@mantine/core";
 import Underline from "@/assets/underline.svg";
-import useCreateSession from "@/components/useCreateSession";
+import useCreateSession from "@/components/useSession";
+import Image from "next/image";
 
 export default function Page() {
-  const { startDate, endDate, isLoading, error } = useCreateSession();
+  const { startDate, endDate, isLoading, error } = useCreateSession("session1"); //hardcoded sessionid, need to accept one from 
 
   if (isLoading) {
     return <p>Loading session data...</p>;
@@ -29,11 +30,20 @@ export default function Page() {
       <Flex direction="column">
         <Box mb={"xl"}>
           <Flex dir="row" align={"baseline"} gap={"lg"}>
-            <Flex dir="col">
-              <Title order={1} fw={800}>
-                Session A
-              </Title>
-              {/* <Underline /> */}
+            <Flex direction="column" align="flex-start">
+              <Box style={{ display: "inline-block" }}>
+                <Title order={1} fw={800}>
+                  Session A
+                </Title>
+                <Box mt={4} style={{ width: "100%" }}>
+                  <Image
+                    src={Underline}
+                    alt="Underline"
+                    layout="responsive"
+                    width={100}
+                  />
+                </Box>
+              </Box>
             </Flex>
 
             {isSameMonth(sessionStartDate, sessionEndDate) ? (
