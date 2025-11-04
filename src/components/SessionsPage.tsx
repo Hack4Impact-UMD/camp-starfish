@@ -15,19 +15,15 @@ import Image from "next/image";
 import { Session } from "@/types/sessionTypes";
 import pencilIcon from "@/assets/icons/pencilIcon.svg";
 import SessionCard from "@/components/SessionCard";
+import { useDeleteSession } from "@/hooks/sessions/deleteSession";
 
 interface SessionsPageProps {
   sessions: Session[];
-  onCreateSession?: (type: "standard" | "customized") => void;
-  onDeleteSession?: (id: string) => void;
 }
 
-export default function SessionsPage({
-  sessions,
-  onCreateSession,
-  onDeleteSession,
-}: SessionsPageProps) {
+export default function SessionsPage({ sessions }: SessionsPageProps) {
   const [editMode, setEditMode] = useState(false);
+  const deleteSessionMutation = useDeleteSession();
   const now = moment();
 
   // --- Categorize sessions ---
@@ -53,15 +49,21 @@ export default function SessionsPage({
 
   // --- Handlers ---
   const handleCreateSession = (type: "standard" | "customized") => {
-    onCreateSession?.(type);
+    console.log("Creating session:", type);
+    // Add your session creation logic here
+    // For example: navigate to create session page or open modal
   };
 
   const handleDelete = (id: string) => {
-    onDeleteSession?.(id);
+    if (confirm("Are you sure you want to delete this session?")) {
+      deleteSessionMutation.mutate(id);
+    }
   };
 
   const handleOpenSchedule = (id: string) => {
     console.log("Open schedule for session:", id);
+    // Add navigation logic here
+    // For example: router.push(`/sessions/${id}/schedule`)
   };
 
   return (

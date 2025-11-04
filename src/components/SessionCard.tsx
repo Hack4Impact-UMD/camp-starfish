@@ -37,7 +37,7 @@ export default function SessionCard({
         <ActionIcon
           variant="transparent"
           radius="xl"
-          onClick={() => onDelete(session.name)}
+          onClick={() => onDelete(session.id)}
           className="hover:scale-110 transition-transform"
         >
           <Image src={trashIcon} alt="Delete" width={20} height={20} />
@@ -63,7 +63,7 @@ export default function SessionCard({
       mt="sm"
       color="secondary-green"
       radius="xl"
-      onClick={() => onOpenSchedule?.(session.name)}
+      onClick={() => onOpenSchedule?.(session.id)}
     >
       GO TO SCHEDULE
     </Button>
