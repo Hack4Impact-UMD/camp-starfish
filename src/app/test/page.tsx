@@ -9,7 +9,7 @@ import useCreateSession from "@/components/useSession";
 import Image from "next/image";
 
 export default function Page() {
-  const { startDate, endDate, isLoading, error } = useCreateSession("session1"); //hardcoded sessionid, need to accept one from 
+  const { session, isLoading, error } = useCreateSession("session1"); //hardcoded sessionid, need to accept one from 
 
   if (isLoading) {
     return <p>Loading session data...</p>;
@@ -19,8 +19,8 @@ export default function Page() {
     return <p>Error loading session data</p>;
   }
 
-  const sessionStartDate = moment(startDate);
-  const sessionEndDate = moment(endDate);
+  const sessionStartDate = moment(session?.startDate);
+  const sessionEndDate = moment(session?.endDate);
 
   function isSameMonth(start: Moment, end: Moment) {
     return start.isSame(end, "month");

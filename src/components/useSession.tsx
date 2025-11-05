@@ -7,7 +7,7 @@ import { getSessionDates } from "@/data/firestore/sessions";
 function useSession(id: string) {
   const sessionsRef = collection(db, "sessions");
   const {
-    data: dates,
+    data: session,
     isLoading,
     error,
   } = useQuery({
@@ -16,8 +16,7 @@ function useSession(id: string) {
   });
 
   return {
-    startDate: dates?.startDate,
-    endDate: dates?.endDate,
+    session,
     isLoading,
     error,
   };

@@ -91,5 +91,5 @@ export async function getSessionDates({ queryKey } : { queryKey: [string, string
   const sessionSnap = await getDocFirestore(sessionRef);
   if (!sessionSnap.exists()) throw new Error("Session does not exist");
   const sessionData = sessionSnap.data() as Session;
-  return { startDate: sessionData.startDate, endDate: sessionData.endDate };
+  return sessionData;
 }
