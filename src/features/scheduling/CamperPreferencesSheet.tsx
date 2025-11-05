@@ -4,6 +4,7 @@ import {
   SectionSchedule,
   BundleActivity,
   SchedulingSectionType,
+  AgeGroup,
 } from "@/types/sessionTypes";
 
 const styles = StyleSheet.create({
@@ -27,17 +28,17 @@ const styles = StyleSheet.create({
   activityDesc: { fontSize: 11 },
 });
 
-interface PrefSheetProps<T extends SchedulingSectionType> {
+interface CamperPreferencesSheetProps<T extends SchedulingSectionType> {
   schedule: SectionSchedule<T>;
   sectionType: T;
   sectionName: string;
 }
 
-export function PrefSheet<T extends SchedulingSectionType>({
+export function CamperPreferencesSheet<T extends SchedulingSectionType>({
   schedule,
   sectionType,
   sectionName,
-}: PrefSheetProps<T>) {
+}: CamperPreferencesSheetProps<T>) {
   const ageGroups =
     sectionType === "BUNDLE"
       ? (["NAV", "OCP"] as const)
