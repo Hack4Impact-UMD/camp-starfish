@@ -8,7 +8,7 @@ import { useAuth } from "@/auth/useAuth";
 import { signInWithGooglePopup } from "@/auth/authN";
 import Image from "next/image";
 import { signInWithMicrosoftPopup } from "@/auth/authN";
-import { generateSession } from "@/features/scheduling/test/generateEmulatorData";
+import { generateSession, pushSessionToEmulator } from "@/features/scheduling/test/generateEmulatorData";
 
 export default function LoginPage() {
   const [error, setError] = useState<string>("");
@@ -34,18 +34,15 @@ export default function LoginPage() {
     }
   }
 
-  const testDataGenerator = async () => {
-    try {
-      const schedule = await generateSession();
-      console.log(schedule);
-
-    }
-    catch {
-      setError("An error occurred while trying to sign in. Please try again.");
-    }
+const testDataGenerator = async () => {
+  try {
+    await pushSessionToEmulator(); // Just await it, don't assign
+    console.log("Session pushed successfully!");
   }
-
-
+  catch (error) {
+    setError("An error");
+  }
+}
 
   return (
     <div className="relative min-h-full w-full flex items-center justify-center bg-primary-300 overflow-hidden">

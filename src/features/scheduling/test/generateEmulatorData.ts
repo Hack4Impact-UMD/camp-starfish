@@ -4,7 +4,7 @@ import { BundleScheduler, } from "../BundleScheduler";
 import { CamperAttendeeID, StaffAttendeeID, AdminAttendeeID, AgeGroup, SectionSchedule, BundleBlockActivities, 
   ProgramArea, SectionPreferences, BunkID, BunkJamboreeBlockActivities,NonBunkJamboreeBlockActivities, Freeplay, 
   PostID, Bunk, SectionID, SessionID, NightShiftID, 
-  SectionScheduleID,
+  SectionScheduleID, FreeplayID,
   ProgramAreaID} from "@/types/sessionTypes";
 import { Camper } from "@/types/personTypes";
 import { BunkJamboreeScheduler } from "../BunkJamboreeScheduler";
@@ -13,13 +13,15 @@ import { FreeplayScheduler } from "../FreeplayScheduler";
 import { SessionScheduler } from "../SessionScheduler";
 import { S } from "framer-motion/dist/types.d-B50aGbjN";
 import moment from "moment";
-import { faker } from '@faker-js/faker';
+import { faker, fr } from '@faker-js/faker';
 
 
-/* TO DO:
-- ASSIGN PERIODS OFF RANDOMYL As long as staff is not program counselor
+const TOTAL_BUNKS = 10
+const TOTAL_CAMPERS = 50
+const TOTAL_STAFF = 50
+const TOTAL_ADMIN = 20
+const TOTAL_ACTIVITIES_PER_DAY = 8
 
-*/
 
 /* GENERATE ATTENDEES */ 
 function generateCampers(totalCampers: number, numberBunks: number): CamperAttendeeID[] {
@@ -297,7 +299,7 @@ function generateBundleBlockSchedule(blockIDs: string[]) {
 
   for(let i = 0; i < blockIDs.length; i++)
   {
-    const activities: BundleBlockActivities = generateBundleActivities(5, blockIDs[i]);
+    const activities: BundleBlockActivities = generateBundleActivities(TOTAL_ACTIVITIES_PER_DAY, blockIDs[i]);
     const periodsOff: number[] = [];
     schedule.blocks[blockIDs[i]] = { activities: activities, periodsOff: periodsOff };
   }
@@ -313,7 +315,7 @@ function generateBunkJamboBlockSchedule(blockIDs: string[]) {
 
   for(let i = 0; i < blockIDs.length; i++)
   {
-    const activities: BunkJamboreeBlockActivities = generateBunkJamboActivities(5, blockIDs[i]);
+    const activities: BunkJamboreeBlockActivities = generateBunkJamboActivities(TOTAL_ACTIVITIES_PER_DAY, blockIDs[i]);
     const periodsOff: number[] = [];
     schedule.blocks[blockIDs[i]] = { activities: activities, periodsOff: periodsOff };
   }
@@ -329,7 +331,7 @@ function generateNonBunkJamboBlockSchedule(blockIDs: string[]) {
 
   for(let i = 0; i < blockIDs.length; i++)
   {
-    const activities: NonBunkJamboreeBlockActivities = generateNonBunkJamboActivities(5, blockIDs[i]);
+    const activities: NonBunkJamboreeBlockActivities = generateNonBunkJamboActivities(TOTAL_ACTIVITIES_PER_DAY, blockIDs[i]);
     const periodsOff: number[] = [];
     schedule.blocks[blockIDs[i]] = { activities: activities, periodsOff: periodsOff };
   }
@@ -557,6 +559,7 @@ export function generateBundleSchedule(numBlocks: number, bundleNum: number, cam
   .withCampersPrefs(camperPrefs)
   .forBlocks(blocksToAssign);
 
+  scheduler.assignPeriodsOff()
   scheduler.assignOCPChats()
   scheduler.assignSwimmingBlock()
 
@@ -577,7 +580,7 @@ export function generateBunkJamboreeSchedule(numBlocks: number, campers: CamperA
   generateNonoLists(campers, staff, admins);
   generateYesyesLists(staff, admins);
 
-  const bunks: BunkID[] = generateBunks(5, campers, staff);
+  const bunks: BunkID[] = generateBunks(TOTAL_BUNKS, campers, staff);
   const preferences: SectionPreferences = generatePrefs(bunks, schedule);
 
 
@@ -643,9 +646,9 @@ export function generateSession() {
   const startDate = moment().startOf("month");
   const endDate = startDate.clone().add(2, "weeks");
 
-  const campers: CamperAttendeeID[] = generateCampers(40, 5);
-  const staff: StaffAttendeeID[] = generateStaff(43, 5);
-  const admins: AdminAttendeeID[] = generateAdmins(10);
+  const campers: CamperAttendeeID[] = generateCampers(TOTAL_CAMPERS, TOTAL_BUNKS);
+  const staff: StaffAttendeeID[] = generateStaff(TOTAL_STAFF, TOTAL_BUNKS);
+  const admins: AdminAttendeeID[] = generateAdmins(TOTAL_ADMIN);
 
   const session: SessionID = {
     id: "session1",
@@ -744,142 +747,182 @@ export function generateSession() {
   const bundleScheduler3 = generateBundleSchedule(5, 3, campers, staff, admins);
   const bunkJamboreeScheduler = generateBunkJamboreeSchedule(5, campers, staff, admins);
   const nonBunkJamboreeScheduler = generateNonBunkJamboreeSchedule(5, campers, staff, admins);
-  const freeplayScheduler = generateFreeplaySchedule(campers, staff, admins);
+  const freeplayScheduler1A = generateFreeplaySchedule(campers, staff, admins);
+  const freeplayScheduler1B = generateFreeplaySchedule(campers, staff, admins);
+  freeplayScheduler1B.withOtherFreeplays([freeplayScheduler1A.schedule]);
+  const freeplayScheduler2A = generateFreeplaySchedule(campers, staff, admins);
+  freeplayScheduler1B.withOtherFreeplays([freeplayScheduler1A.schedule, freeplayScheduler1B.schedule]);
+  const freeplayScheduler2B = generateFreeplaySchedule(campers, staff, admins);
+  freeplayScheduler2B.withOtherFreeplays([freeplayScheduler1A.schedule, freeplayScheduler1B.schedule, freeplayScheduler2A.schedule]);
+  const freeplayScheduler3A = generateFreeplaySchedule(campers, staff, admins);
+  freeplayScheduler3A.withOtherFreeplays([freeplayScheduler1A.schedule, freeplayScheduler1B.schedule, freeplayScheduler2A.schedule, freeplayScheduler2B.schedule]);
+  const freeplayScheduler3B = generateFreeplaySchedule(campers, staff, admins);
+  freeplayScheduler3B.withOtherFreeplays([freeplayScheduler1A.schedule, freeplayScheduler1B.schedule, freeplayScheduler2A.schedule, freeplayScheduler2B.schedule, freeplayScheduler3A.schedule]);
 
+  const allFreeplays = [freeplayScheduler1A, freeplayScheduler1B, freeplayScheduler2A, freeplayScheduler2B, freeplayScheduler3A, freeplayScheduler3B];
   return {
+    bundleScheduler1,
+    bundleScheduler2,
+    bundleScheduler3,
+    bunkJamboreeScheduler,
+    nonBunkJamboreeScheduler,
+    allFreeplays,
     sessionScheduler 
 
   };
 }
 
 
-// export async function pushSessionToEmulator() {
-//   const {
-//     sessionScheduler,
-//     bundleScheduler1,
-//     bundleScheduler2,
-//     bundleScheduler3,
-//     bunkJamboreeScheduler,
-//     nonBunkJamboreeScheduler,
-//     freeplayScheduler,
-//   } = generateSession();
+export async function pushSessionToEmulator() {
+  const {
+    sessionScheduler,
+    bundleScheduler1,
+    bundleScheduler2,
+    bundleScheduler3,
+    bunkJamboreeScheduler,
+    nonBunkJamboreeScheduler,
+    allFreeplays,
+  } = generateSession();
 
-//   const session = sessionScheduler.session;
-//   if (!session) return;
+  const session = sessionScheduler.session;
+  if (!session) return;
 
-//   // Save session doc
-//   await setDoc(doc(db, "sessions", session.id), session);
+  // Save session doc
+  await setDoc(doc(db, "sessions", session.id), session);
 
-//   const sessionRef = doc(db, "sessions", session.id);
+  const sessionRef = doc(db, "sessions", session.id);
 
-//   // Save attendees under attendees subcollection
-//   for (const camper of bundleScheduler1.campers) {
-//     await setDoc(doc(db, `sessions/${session.id}/attendees`, camper.id.toString()), camper);
-//   }
-//   for (const staff of bundleScheduler1.staff) {
-//     await setDoc(doc(db, `sessions/${session.id}/attendees`, staff.id.toString()), staff);
-//   }
-//   for (const admin of bundleScheduler1.admins) {
-//     await setDoc(doc(db, `sessions/${session.id}/attendees`, admin.id.toString()), admin);
-//   }
+  // Save attendees under attendees subcollection
+  for (const camper of bundleScheduler1.campers) {
+    await setDoc(doc(db, `sessions/${session.id}/attendees`, camper.id.toString()), camper);
+  }
+  for (const staff of bundleScheduler1.staff) {
+    await setDoc(doc(db, `sessions/${session.id}/attendees`, staff.id.toString()), staff);
+  }
+  for (const admin of bundleScheduler1.admins) {
+    await setDoc(doc(db, `sessions/${session.id}/attendees`, admin.id.toString()), admin);
+  }
 
-//   // Save sections
-//   for (const section of sessionScheduler.sections) {
-//     await setDoc(doc(db, `sessions/${session.id}/sections`, section.id), section);
+  // Save sections
+  for (const section of sessionScheduler.sections) {
+    await setDoc(doc(db, `sessions/${session.id}/sections`, section.id), section);
 
-//     // For each section, save its schedule as a subcollection
-//     const sectionRef = doc(db, `sessions/${session.id}/sections`, section.id);
+    // For each section, save its schedule as a subcollection
+    const sectionRef = doc(db, `sessions/${session.id}/sections`, section.id);
 
-//     // Example for Bundle-1
-//     if (section.id === "Bundle-1") {
-//       const bundle1: SectionScheduleID<"BUNDLE"> = {
-//         blocks: bundleScheduler1.schedule.blocks,
-//         alternatePeriodsOff: bundleScheduler1.schedule.alternatePeriodsOff,
-//         sessionId: session.id,
-//         sectionId: section.id,
-//         id: section.id + "-schedule",
-//       };
+    // Example for Bundle-1
+    if (section.id === "Bundle-1") {
+      const bundle1: SectionScheduleID<"BUNDLE"> = {
+        blocks: bundleScheduler1.schedule.blocks,
+        alternatePeriodsOff: bundleScheduler1.schedule.alternatePeriodsOff,
+        sessionId: session.id,
+        sectionId: section.id,
+        id: section.id + "-schedule",
+      };
 
-//       await setDoc(doc(db, `sessions/${session.id}/sections/${section.id}/schedule`, bundle1.id), bundle1);
-//     }
+      await setDoc(doc(db, `sessions/${session.id}/sections/${section.id}/schedule`, bundle1.id), bundle1);
+    }
 
-//     // Example for Bundle-2
-//     if (section.id === "Bundle-2") {
-//       const bundle2: SectionScheduleID<"BUNDLE"> = {
-//         blocks: bundleScheduler2.schedule.blocks,
-//         alternatePeriodsOff: bundleScheduler2.schedule.alternatePeriodsOff,
-//         sessionId: session.id,
-//         sectionId: section.id,
-//         id: section.id + "-schedule",
-//       };
+    // Example for Bundle-2
+    if (section.id === "Bundle-2") {
+      const bundle2: SectionScheduleID<"BUNDLE"> = {
+        blocks: bundleScheduler2.schedule.blocks,
+        alternatePeriodsOff: bundleScheduler2.schedule.alternatePeriodsOff,
+        sessionId: session.id,
+        sectionId: section.id,
+        id: section.id + "-schedule",
+      };
 
-//       await setDoc(doc(db, `sessions/${session.id}/sections/${section.id}/schedule`, bundle2.id), bundle2);
-//     }
+      await setDoc(doc(db, `sessions/${session.id}/sections/${section.id}/schedule`, bundle2.id), bundle2);
+    }
 
-//     // Example for Bundle-3
-//     if (section.id === "Bundle-3") {
-//       const bundle3: SectionScheduleID<"BUNDLE"> = {
-//         blocks: bundleScheduler3.schedule.blocks,
-//         alternatePeriodsOff: bundleScheduler3.schedule.alternatePeriodsOff,
-//         sessionId: session.id,
-//         sectionId: section.id,
-//         id: section.id + "-schedule",
-//       };
+    // Example for Bundle-3
+    if (section.id === "Bundle-3") {
+      const bundle3: SectionScheduleID<"BUNDLE"> = {
+        blocks: bundleScheduler3.schedule.blocks,
+        alternatePeriodsOff: bundleScheduler3.schedule.alternatePeriodsOff,
+        sessionId: session.id,
+        sectionId: section.id,
+        id: section.id + "-schedule",
+      };
 
-//       await setDoc(doc(db, `sessions/${session.id}/sections/${section.id}/schedule`, bundle3.id), bundle3);
-//     }
+      await setDoc(doc(db, `sessions/${session.id}/sections/${section.id}/schedule`, bundle3.id), bundle3);
+    }
 
-//     // Example for Jamboree-1
-//     if (section.id === "Jamboree-1") {
-//       const bunkjambo: SectionScheduleID<'BUNK-JAMBO'> = {
-//         blocks: bunkJamboreeScheduler.schedule.blocks,
-//         alternatePeriodsOff: bunkJamboreeScheduler.schedule.alternatePeriodsOff,
-//         sessionId: session.id,
-//         sectionId: section.id,
-//         id: section.id + "-schedule",
-//       };
+    // Example for Jamboree-1
+    if (section.id === "Jamboree-1") {
+      const bunkjambo: SectionScheduleID<'BUNK-JAMBO'> = {
+        blocks: bunkJamboreeScheduler.schedule.blocks,
+        alternatePeriodsOff: bunkJamboreeScheduler.schedule.alternatePeriodsOff,
+        sessionId: session.id,
+        sectionId: section.id,
+        id: section.id + "-schedule",
+      };
 
-//       await setDoc(doc(db, `sessions/${session.id}/sections/${section.id}/schedule`, bunkjambo.id), bunkjambo);
-//     }
+      await setDoc(doc(db, `sessions/${session.id}/sections/${section.id}/schedule`, bunkjambo.id), bunkjambo);
+    }
 
     
-//     // Example for Jamboree-2
-//     if (section.id === "Jamboree-2") {
-//       const nonbunkjambo: SectionScheduleID<'NON-BUNK-JAMBO'> = {
-//         blocks: nonBunkJamboreeScheduler.schedule.blocks, 
-//         alternatePeriodsOff: nonBunkJamboreeScheduler.schedule.alternatePeriodsOff,
-//         sessionId: session.id,
-//         sectionId: section.id,
-//         id: section.id + "-schedule",
-//       };
+    // Example for Jamboree-2
+    if (section.id === "Jamboree-2") {
+      const nonbunkjambo: SectionScheduleID<'NON-BUNK-JAMBO'> = {
+        blocks: nonBunkJamboreeScheduler.schedule.blocks, 
+        alternatePeriodsOff: nonBunkJamboreeScheduler.schedule.alternatePeriodsOff,
+        sessionId: session.id,
+        sectionId: section.id,
+        id: section.id + "-schedule",
+      };
 
-//       await setDoc(doc(db, `sessions/${session.id}/sections/${section.id}/schedule`, nonbunkjambo.id), nonbunkjambo);
-//     }
+      await setDoc(doc(db, `sessions/${session.id}/sections/${section.id}/schedule`, nonbunkjambo.id), nonbunkjambo);
+    }
 
-//     // Repeat similar logic for other sections (Bundle-2, Bunk Jamboree, etc.)
-//   }
+    // Repeat similar logic for other sections (Bundle-2, Bunk Jamboree, etc.)
+  }
 
-//   // Save bunks
-//   for (const bunk of bunkJamboreeScheduler.bunks) {
-//     await setDoc(doc(db, `sessions/${session.id}/bunks`, bunk.id.toString()), bunk);
-//   }
+  // Save bunks
+  for (const bunk of bunkJamboreeScheduler.bunks) {
+    await setDoc(doc(db, `sessions/${session.id}/bunks`, bunk.id.toString()), bunk);
+  }
 
-//   if (sessionScheduler.nightShifts.length === 0) {
-//     const emptyNightShift = { placeholder: true }; 
-//     await setDoc(doc(db, `sessions/${session.id}/night_shifts/placeholder`), emptyNightShift);
-//   }
+  if (sessionScheduler.nightShifts.length === 0) {
+    const emptyNightShift = { placeholder: true }; 
+    await setDoc(doc(db, `sessions/${session.id}/night_shifts/placeholder`), emptyNightShift);
+  }
 
-//   for (const nightShift of sessionScheduler.nightShifts) {
-//     await setDoc(doc(db, `sessions/${session.id}/night_shifts`, nightShift.id), nightShift);
-//   }
+  if (sessionScheduler.nightShifts && sessionScheduler.nightShifts.length > 0) {
+    for (const nightShift of sessionScheduler.nightShifts) {
+      await setDoc(
+        doc(db, `sessions/${session.id}/night_shifts`, nightShift.id), 
+        nightShift
+      );
+    }
+  } else {
+    // If no night shifts were generated, save a placeholder to avoid empty subcollection issues
+    const emptyNightShift = { placeholder: true }; 
+    await setDoc(
+      doc(db, `sessions/${session.id}/night_shifts/placeholder`), 
+      emptyNightShift
+    );
+  }
 
-//   // Save freeplays 
-//   for (const postId of Object.keys(freeplayScheduler.schedule.posts)) {
-//     const freeplay = freeplayScheduler.schedule.posts[postId];
-//     await setDoc(doc(db, `sessions/${session.id}/freeplays`, postId), {
-//       postId,
-//       buddies: freeplay
-//     });
-//   }
+const freeplayMapping = [
+  { scheduler: allFreeplays[0], id: "freeplay-1" },
+  { scheduler: allFreeplays[1], id: "freeplay-2" },
+  { scheduler: allFreeplays[2], id: "freeplay-3" },
+  { scheduler: allFreeplays[3], id: "freeplay-4" },
+  { scheduler: allFreeplays[4], id: "freeplay-5" },
+  { scheduler: allFreeplays[5], id: "freeplay-6" },
+];
 
-// }
+  for (const { scheduler, id } of freeplayMapping) {
+    const freeplayDoc: FreeplayID = {
+      id: id,
+      sessionId: session.id,
+      posts: scheduler.schedule.posts,
+      buddies: scheduler.schedule.buddies
+    };
+    
+    await setDoc(doc(db, `sessions/${session.id}/freeplays`, id), freeplayDoc);
+  }
+
+}
