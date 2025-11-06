@@ -1,4 +1,19 @@
-//onEdit() method that runs automatically when a user changes the value of any cell in a spreadsheet
+// local interfaces to match preferencesSheets.ts
+interface PreferencesSpreadsheetProperties {
+  sections: {
+    id: string;
+  }[];
+  //keeps track of when anything on sheet has been modified last
+  lastModified?: string; 
+}
+ 
+// access information about the active spreadsheet and use its id as the key
+const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+const spreadsheetId = spreadsheet.getId();
+
+// access script properties directly 
+const props = PropertiesService.getScriptProperties();
+
 /**
  * The event handler triggered when editing the spreadsheet.
  * @param {GoogleAppsScript.Events.SheetsOnEdit} e The onEdit event.
@@ -6,103 +21,91 @@
  */
 function onEdit(e: GoogleAppsScript.Events.SheetsOnEdit) {
   try {
-    // basic validation
-    if (!e || !e.range) {
+    if (!e?.range) {
       console.warn('Invalid edit event received:', e);
       return;
     }
-
+    
     const range = e.range;
+    const sheet = range.getSheet();
+    if (!sheet) {
+      console.warn('Could not get sheet from range');
+      return;
+    }
     
-    // safely get sheet name with null checks
-    let sheetName = '';
-    try {
-      const sheet = range.getSheet();
-      if (!sheet) {
-        console.warn('Could not get sheet from range');
-        return;
-      }
-      sheetName = sheet.getName().toLowerCase();
-    } catch (error) {
-      console.error('Error accessing sheet:', error);
-      return;
-    }
-
-    // safely get cell value
-    let value = '';
-    try {
-      const cellValue = range.getValue();
-      value = String(cellValue || '').toLowerCase().trim();
-    } catch (error) {
-      console.error('Error reading cell value:', error);
-      return;
-    }
-
-    // determine section
-    let section = '';
-    if (sheetName.includes('bundle') || value === 'bundle') {
-      section = 'bundle';
-    } else if (sheetName.includes('jamboree') || value === 'jamboree') {
-      section = 'jamboree';
-    } else {
-      return; 
-    }
-
-    // update last modified note
-    try {
-      range.setNote('Last modified: ' + new Date().toISOString());
-    } catch (error) {
-      console.warn('Could not update cell note:', error);
-      // continue execution even if note can't be set
-    }
-
-    // update document properties
-    const props = PropertiesService.getDocumentProperties();
-    if (!props) {
-      console.error('Document properties service is not available');
-      return;
-    }
-
-    const key = `PREF_CHANGED_${section.toUpperCase()}`;
+    const sheetId = sheet.getSheetId();
+    const lastModified = moment().toISOString();
     
     try {
-      if (props.getProperty(key) !== 'true') {
-        props.setProperty(key, 'true');
-      }
+      // get existing properties or initialize if they don't exist
+      const existingValue = props.getProperty(spreadsheetId);
+      const existingProps: PreferencesSpreadsheetProperties = existingValue 
+        ? JSON.parse(existingValue) 
+        : { sections: [] };
+      
+      // update the last modified timestamp
+      const updatedProps = {
+        ...existingProps,
+        lastModified: moment().toISOString()
+      };
+      
+      // save back to properties
+      props.setProperty(spreadsheetId, JSON.stringify(updatedProps));
+      
+      // set a flag indicating preferences have changed
+      props.setProperty(`PREF_CHANGED_${spreadsheetId}`, 'true');
+      
     } catch (error) {
-      console.error(`Failed to update property ${key}:`, error);
+      console.error('Error updating sheet properties:', error);
     }
   } catch (error) {
     console.error('Unexpected error in onEdit:', error);
-    // don't rethrow to prevent Google Apps Script from showing error to users
   }
 }
 
-//returning the preference change flags as an object
-function getPreferenceChangeFlags() {
-  const props = PropertiesService.getDocumentProperties();
+/**
+ * Get the last modified timestamp for a specific sheet
+ * @param spreadsheetId The ID of the spreadsheet
+ * @param sheetId The ID of the sheet
+ * @returns The last modified timestamp or null if not found
+ */
+function getSectionLastModified(spreadsheetId: string, sheetId: number): string | null {
+  return props.getProperty(`SHEET_${spreadsheetId}_${sheetId}_LAST_MODIFIED`);
+}
+
+/**
+ * Get the last modified timestamp for a specific sheet object
+ * @param sheet The sheet to get the last modified time for
+ * @returns The last modified timestamp or null if not found
+ */
+function getSectionLastModifiedBySheet(sheet: GoogleAppsScript.Spreadsheet.Sheet): string | null {
+  const spreadsheet = sheet.getParent();
+  return getSectionLastModified(spreadsheet.getId(), sheet.getSheetId());
+}
+
+/**
+ * Get preference change flags for a specific section
+ * @param spreadsheetId The ID of the spreadsheet
+ * @param sheetId The ID of the sheet
+ * @returns An object containing the last modified timestamp and a helper function
+ */
+function getPreferenceChangeFlags(spreadsheetId: string, sheetId: number) {
+  const propsValue = props.getProperty(spreadsheetId);
+  const propsData: PreferencesSpreadsheetProperties | null = propsValue ? JSON.parse(propsValue) : null;
   return {
-    bundle: props.getProperty('PREF_CHANGED_BUNDLE') === 'true',
-    jamboree: props.getProperty('PREF_CHANGED_JAMBOREE') === 'true',
+    lastModified: propsData?.lastModified || null,
+    getSectionLastModified: (id: number) => getSectionLastModified(spreadsheetId, id)
   };
 }
 
-function getPreferenceChangeFlagsWrapper() {
-  return JSON.stringify(getPreferenceChangeFlags());
-}
-
-// resets preference change flags for a specific section
-export function resetPreferenceChangeFlag(section: "bundle" | "jamboree"): void {
-  const props = PropertiesService.getDocumentProperties();
-  const key = "PREF_CHANGED_" + section.toUpperCase();
-  props.setProperty(key, "false");
-}
-
-// resets all preference change flags
-export function resetAllPreferenceChangeFlags(): void {
-  const props = PropertiesService.getDocumentProperties();
-  props.setProperty("PREF_CHANGED_BUNDLE", "false");
-  props.setProperty("PREF_CHANGED_JAMBOREE", "false");
+/**
+ * Wrapper function to get preference change flags as a JSON string
+ * @param spreadsheetId The ID of the spreadsheet
+ * @param sheetId The ID of the sheet
+ * @returns A JSON string of the preference change flags
+ */
+function getPreferenceChangeFlagsWrapper(spreadsheetId: string, sheetId: number): string {
+  return JSON.stringify(getPreferenceChangeFlags(spreadsheetId, sheetId));
 }
 
 // creates an onEdit trigger for a specific spreadsheet
@@ -130,12 +133,10 @@ export function createOnEditTriggerForActiveSpreadsheet(): void {
   createOnEditTrigger(ss.getId());
 }
 
-// global exports for Google Apps Script
-declare const global: any;
-global.onEdit = onEdit;
-global.getPreferenceChangeFlags = getPreferenceChangeFlags;
-global.getPreferenceChangeFlagsWrapper = getPreferenceChangeFlagsWrapper;
-global.resetPreferenceChangeFlag = resetPreferenceChangeFlag;
-global.resetAllPreferenceChangeFlags = resetAllPreferenceChangeFlags;
-global.createOnEditTrigger = createOnEditTrigger;
-global.createOnEditTriggerForActiveSpreadsheet = createOnEditTriggerForActiveSpreadsheet;
+globalThis.onEdit = onEdit;
+globalThis.getSectionLastModified = getSectionLastModified;
+globalThis.getSectionLastModifiedBySheet = getSectionLastModifiedBySheet;
+globalThis.getPreferenceChangeFlags = getPreferenceChangeFlags;
+globalThis.getPreferenceChangeFlagsWrapper = getPreferenceChangeFlagsWrapper;
+globalThis.createOnEditTrigger = createOnEditTrigger;
+globalThis.createOnEditTriggerForActiveSpreadsheet = createOnEditTriggerForActiveSpreadsheet;
