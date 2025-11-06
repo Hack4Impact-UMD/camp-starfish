@@ -6,7 +6,7 @@ import {
   SchedulingSectionType,
   AgeGroup,
 } from "@/types/sessionTypes";
-import { isBundleActivity } from "./schedulingUtils";
+import { isBundleActivity } from "../generation/schedulingUtils";
 
 const styles = StyleSheet.create({
   page: { padding: 40, fontSize: 12, fontFamily: "Helvetica" },
