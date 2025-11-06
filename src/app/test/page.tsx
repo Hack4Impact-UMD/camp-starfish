@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
 import { PDFViewer } from '@react-pdf/renderer';
-import { PrefSheet } from '@/features/scheduling/prefSheets';
+import { CamperPreferencesSheet } from '@/features/scheduling/CamperPreferencesSheet';
 import { SectionSchedule } from '@/types/sessionTypes';
 
 // --- Mock Data ---
@@ -33,10 +33,10 @@ const mockSchedule: SectionSchedule<'BUNDLE'> = {
 // ✅ Default export = React component
 export default function TestPage() {
   const doc = (
-    <PrefSheet
+    <CamperPreferencesSheet
       schedule={mockSchedule}
       sectionType="BUNDLE"
-      sectionName="Bundle 1"
+      sectionName="Bunk Jamboree"
     />
   );
 
