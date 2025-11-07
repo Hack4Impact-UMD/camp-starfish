@@ -27,23 +27,22 @@ import { EmployeeRole, UserRole } from "../types/personTypes";
 // fetch function type for getting people data to display in the directory
 type FetchPeopleFunction = () => Promise<Person[]>;
 
-export type Person = {
-  id: string | number;
-  name: string;
-  avatar?: string;
-  role: EmployeeRole | UserRole | "PARENT" | "CAMPER";
-  bunk?: number;
+export type Person = {  
+  id: string | number;  
+  name: string;  
+  avatar?: string;  
+  role: UserRole | "CAMPER";  
+  bunk?: number;  
 };
 
-type SmallDirectoryBlockProps = {
-  people?: Person[];
-  fetchPeople?: FetchPeopleFunction;
-  queryKey?: string[];
-  onExpand?: () => void;
-  viewMoreLink?: string;
-  initialVisibleCount?: number;
-  loadMoreCount?: number;
-};
+type SmallDirectoryBlockProps = {  
+  people?: Person[];  
+  fetchPeople?: FetchPeopleFunction;  
+  queryKey?: string[];  
+  onExpand?: () => void;  
+  initialVisibleCount?: number;  
+  loadMoreCount?: number;  
+};  
 
 export function SmallDirectoryBlock({
   people: propsPeople,
@@ -66,9 +65,9 @@ export function SmallDirectoryBlock({
 
   const people = fetchPeople ? queryData || [] : propsPeople || [];
   const [searchQuery, setSearchQuery] = useState("");
-  const [roleFilter, setRoleFilter] = useState<
-    EmployeeRole | UserRole | "CAMPER"
-  >("CAMPER");
+  const [roleFilter, setRoleFilter] = useState<UserRole | "CAMPER">(
+    "CAMPER"
+  );
   const [visibleCount, setVisibleCount] = useState(initialVisibleCount);
   const [showAll, setShowAll] = useState(false);
 
@@ -90,12 +89,13 @@ export function SmallDirectoryBlock({
             DIRECTORY
           </Text>
         </Group>
-        <Stack align="center" justify="center" style={{ minHeight: 200 }}>
-          \{" "}
-          <Text c="dimmed" size="sm">
-            Loading directory...
-          </Text>
-        </Stack>
+        sted change:
+
+        <Stack align="center" justify="center" style={{ minHeight: 200 }}>  
+          <Text c="dimmed" size="sm">  
+            Loading directory...  
+          </Text>  
+        </Stack>  
       </Box>
     );
   }
@@ -128,22 +128,25 @@ export function SmallDirectoryBlock({
   }
 
   //filtering the people based on role in search
-  const filteredPeople = people
-    .filter(
-      (person) =>
-        person.role === roleFilter &&
-        person.name.toLowerCase().includes(searchQuery.toLowerCase())
-    )
-    .slice(0, showAll ? people.length : visibleCount);
-
+  // Calculate filtered count before pagination
+  const filteredBeforeSlice = people.filter(
+    (person) =>
+      person.role === roleFilter &&
+      person.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+  const filteredCount = filteredBeforeSlice.length;
+  const filteredPeople = filteredBeforeSlice.slice(
+    0,
+    showAll ? undefined : visibleCount
+  );  
   // view more button that displays (all) people when clicked
   const handleViewMore = () => {
     if (showAll) {
       setShowAll(false);
       setVisibleCount(initialVisibleCount);
     } else {
-      setVisibleCount((prev) => Math.min(prev + loadMoreCount, people.length));
-      if (visibleCount + loadMoreCount >= people.length) {
+      setVisibleCount((prev) => Math.min(prev + loadMoreCount, filteredCount));
+      if (visibleCount + loadMoreCount >= filteredCount) {
         setShowAll(true);
       }
     }
@@ -189,9 +192,7 @@ export function SmallDirectoryBlock({
 
       <RadioGroup
         value={roleFilter}
-        onChange={(value) =>
-          setRoleFilter(value as EmployeeRole | UserRole | "CAMPER")
-        }
+        onChange={(value) => setRoleFilter(value as UserRole | "CAMPER")}
       >
         {/* radio options to choose */}
         <Group mt="lg">
@@ -225,7 +226,7 @@ export function SmallDirectoryBlock({
       )}
 
       {/* bottom button */}
-      {people.length > initialVisibleCount && (
+      {filteredCount > initialVisibleCount && (
         <Button
           variant="subtle"
           size="sm"
