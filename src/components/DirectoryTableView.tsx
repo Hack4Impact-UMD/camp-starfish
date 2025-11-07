@@ -1,10 +1,18 @@
 import {
   MantineReactTable,
   MRT_ColumnDef,
+  MRT_GlobalFilterTextInput,
+  MRT_ShowHideColumnsButton,
+  MRT_TableContainer,
+  MRT_TablePagination,
+  MRT_ToggleDensePaddingButton,
+  MRT_ToggleFiltersButton,
+  MRT_ToolbarAlertBanner,
   useMantineReactTable,
 } from "mantine-react-table";
 import { useMemo } from "react";
-import { Attendee, AttendeeID } from "@/types/sessionTypes";
+import { AttendeeID } from "@/types/sessionTypes";
+import { Box, Container, Flex } from "@mantine/core";
 
 const data: AttendeeID[] = [
   {
@@ -55,7 +63,7 @@ export const DirectoryTableView = () => {
       },
       {
         accessorKey: "gender",
-        header: "Gender",
+        header: "GENDER",
       },
       {
         accessorKey: "nonoList",
@@ -79,9 +87,37 @@ export const DirectoryTableView = () => {
   const table = useMantineReactTable({
     columns,
     data, //must be memoized or stable (useState, useMemo, defined outside of this component, etc.)
-    enableRowSelection: true, //enable some features
-    enableColumnOrdering: true,
-    enableGlobalFilter: false, //turn off a feature
+    enableColumnActions: false,
+    enableDensityToggle: false,
+    enableFullScreenToggle: false,
+    enableHiding: false,
+    enableSorting: false,
+    enableColumnFilters: false,
+    enableGlobalFilter: true,
   });
-  return <MantineReactTable table={table} />;
+  return (
+    <Container>
+      <Flex direction={"column"}>
+        <Box>
+          <Flex direction={"row"} gap={"md"}>
+            <MRT_GlobalFilterTextInput table={table} />
+            <MRT_ToggleFiltersButton table={table} />
+            <MRT_ShowHideColumnsButton table={table} />
+            <MRT_ToggleDensePaddingButton table={table} />
+          </Flex>
+        </Box>
+        <MRT_TableContainer table={table} />
+        <Box>
+          <Flex justify="flex-start">
+            <MRT_TablePagination table={table} />
+          </Flex>
+          <Box sx={{ display: "grid", width: "100%" }}>
+            <MRT_ToolbarAlertBanner stackAlertBanner table={table} />
+          </Box>
+        </Box>
+      </Flex>
+    </Container>
+  );
+
+  // return <MantineReactTable table={table} />;
 };
