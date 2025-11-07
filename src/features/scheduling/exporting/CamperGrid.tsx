@@ -6,7 +6,13 @@ import {
   SectionScheduleID,
   StaffAttendeeID,
 } from "@/types/sessionTypes";
-import { StyleSheet, View, Text } from "@react-pdf/renderer";
+import { getFullName } from "@/utils/personUtils";
+import { StyleSheet, View, Text, Document, Page } from "@react-pdf/renderer";
+import {
+  getFreeplayAssignmentId,
+  isBundleActivity,
+  isIndividualAssignments,
+} from "../generation/schedulingUtils";
 
 const styles = StyleSheet.create({
   page: {
@@ -147,8 +153,21 @@ export default function CamperGrid<T extends SchedulingSectionType>(
   props: CamperGridProps<T>
 ) {
   const { schedule, freeplay, campers, bunks, staff } = props;
+
+  campers.sort((a, b) => {
+    if (a.bunk === b.bunk) {
+      if (getFullName(a).localeCompare(getFullName(b)) === 0) {
+        return a.id - b.id;
+      }
+      return getFullName(a).localeCompare(getFullName(b));
+    }
+    return a.bunk - b.bunk;
+  });
+
   return (
-    <>
+
+    <Document>
+      <Page size="A4">
       <Text style={styles.sectionTitle}>Kid Grid</Text>
       <View style={styles.compactTable}>
         <View style={styles.headerRow}>
@@ -163,17 +182,11 @@ export default function CamperGrid<T extends SchedulingSectionType>(
           <Text style={styles.compactHeaderCell}>FP</Text>
         </View>
 
-        {sortedCampers(bunkList, camperList).map((camper) => {
+        {campers.map((camper) => {
           const blocksArray = Object.values(schedule.blocks);
-          const fpBuddy = freeplayBuddy(freeplay, camper);
-          const fpBuddyObj = staffList.find((staff) => staff.id === fpBuddy);
-          const fpBuddyName = fpBuddyObj
-            ? `${fpBuddyObj.name.firstName}${
-                fpBuddyObj.name.middleName
-                  ? ` ${fpBuddyObj.name.middleName}`
-                  : ""
-              } ${fpBuddyObj.name.lastName}`
-            : "N/A";
+          const fpBuddyId = getFreeplayAssignmentId(freeplay, camper.id);
+          const fpBuddyObj = staff.find((staff) => staff.id === fpBuddyId);
+          const fpBuddyName = fpBuddyObj ? getFullName(fpBuddyObj) : "N/A";
 
           return (
             <View key={camper.id} style={styles.row}>
@@ -182,18 +195,31 @@ export default function CamperGrid<T extends SchedulingSectionType>(
               </View>
 
               <View style={styles.compactDataCell}>
-                <Text>
-                  {[camper.name.firstName, camper.name.lastName]
-                    .filter(Boolean)
-                    .join(" ")}
-                </Text>
+                <Text>{getFullName(camper)}</Text>
               </View>
 
-              {blocksArray.map((block, i) => (
-                <View key={i} style={styles.compactDataCell}>
-                  <Text>{renderCamperBlockAssignment(block, camper.id)}</Text>
-                </View>
-              ))}
+              {blocksArray.map((block, i) => {
+                const activity = block.activities.find((act) =>
+                  isIndividualAssignments(act.assignments)
+                    ? act.assignments.camperIds.includes(camper.id)
+                    : act.assignments.bunkNums.includes(camper.bunk)
+                );
+
+                let activityText;
+                if (!activity) {
+                  activityText = "-";
+                } else if (isBundleActivity(activity)) {
+                  activityText = activity.programArea.id;
+                } else {
+                  activityText = activity.name;
+                }
+
+                return (
+                  <View key={i} style={styles.compactDataCell}>
+                    <Text>{activityText}</Text>
+                  </View>
+                );
+              })}
 
               <View style={styles.compactDataCell}>
                 <Text>-</Text>
@@ -206,6 +232,7 @@ export default function CamperGrid<T extends SchedulingSectionType>(
           );
         })}
       </View>
-    </>
+      </Page>
+    </Document>
   );
 }
