@@ -17,7 +17,6 @@ import {
   Freeplay,
   SchedulingSectionType,
 } from "@/types/sessionTypes";
-import { s } from "framer-motion/dist/types.d-DDSxwf0n";
 
 export type AttendeeRole = "CAMPER" | "STAFF" | "ADMIN";
 
