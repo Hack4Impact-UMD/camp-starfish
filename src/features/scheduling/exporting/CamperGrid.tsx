@@ -145,14 +145,13 @@ interface CamperGridProps<T extends SchedulingSectionType> {
   schedule: SectionScheduleID<T>;
   freeplay: Freeplay;
   campers: CamperAttendeeID[];
-  bunks: BunkID[];
   staff: StaffAttendeeID[];
 }
 
 export default function CamperGrid<T extends SchedulingSectionType>(
   props: CamperGridProps<T>
 ) {
-  const { schedule, freeplay, campers, bunks, staff } = props;
+  const { schedule, freeplay, campers, staff } = props;
 
   campers.sort((a, b) => {
     if (a.bunk === b.bunk) {

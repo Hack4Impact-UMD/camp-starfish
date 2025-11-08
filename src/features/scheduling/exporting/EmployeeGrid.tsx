@@ -13,7 +13,6 @@ import {
   isBundleActivity,
   isIndividualAssignments,
 } from "../generation/schedulingUtils";
-import { get } from "http";
 import { getFullName } from "@/utils/personUtils";
 
 const styles = StyleSheet.create({
@@ -147,14 +146,13 @@ interface EmployeeGridProps<T extends SchedulingSectionType> {
   schedule: SectionScheduleID<T>;
   freeplay: Freeplay;
   campers: CamperAttendeeID[];
-  bunks: BunkID[];
   employees: (AdminAttendeeID | StaffAttendeeID)[];
 }
 
 export default function EmployeeGrid<T extends SchedulingSectionType>(
   props: EmployeeGridProps<T>
 ) {
-  const { schedule, freeplay, campers, bunks, employees } = props;
+  const { schedule, freeplay, campers, employees } = props;
   return (
     <Document>
       <Page size="A4" style={styles.page}>
