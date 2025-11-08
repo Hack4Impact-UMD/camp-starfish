@@ -67,7 +67,6 @@ export default function LoginPage() {
           Sign in with Microsoft
         </button>
 
-
         {/* Error Message */}
         {errorDisplay && (
           <div className="flex flex-row w-5/6 mt-[14px]">
