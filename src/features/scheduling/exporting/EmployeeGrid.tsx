@@ -172,6 +172,14 @@ export default function EmployeeGrid<T extends SchedulingSectionType>(
             const fpBuddyIds = getFreeplayAssignmentId(freeplay, employee.id);
             const fpBuddies = fpBuddyIds ? (fpBuddyIds as number[]).map(id => campers.find(c => c.id === id)) : [];
 
+            let apoText: string = '-';
+            for (const period of Object.keys(schedule.alternatePeriodsOff)) {
+              if (schedule.alternatePeriodsOff[period].includes(employee.id)) {
+                apoText = period;
+                break;
+              }
+            }
+
             return (
               <View key={employee.id} style={styles.row}>
                 {/* Name column - Use dataCell style */}
@@ -217,11 +225,7 @@ export default function EmployeeGrid<T extends SchedulingSectionType>(
 
                 <View style={styles.dataCell}>
                   <Text>
-                    {Object.values(schedule.alternatePeriodsOff).some((ids) =>
-                      ids.includes(employee.id)
-                    )
-                      ? "RH"
-                      : ""}
+                    {apoText}
                   </Text>
                 </View>
 
