@@ -1,6 +1,5 @@
 import {
   AdminAttendeeID,
-  BunkID,
   CamperAttendeeID,
   Freeplay,
   SchedulingSectionType,
