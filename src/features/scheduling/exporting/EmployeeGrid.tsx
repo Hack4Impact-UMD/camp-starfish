@@ -145,7 +145,7 @@ interface EmployeeGridProps<T extends SchedulingSectionType> {
   schedule: SectionScheduleID<T>;
   freeplay: Freeplay;
   campers: CamperAttendeeID[];
-  employees: (AdminAttendeeID | StaffAttendeeID)[];
+  employees: AdminAttendeeID[] | StaffAttendeeID[]; 
 }
 
 export default function EmployeeGrid<T extends SchedulingSectionType>(
@@ -155,7 +155,7 @@ export default function EmployeeGrid<T extends SchedulingSectionType>(
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        <Text style={styles.sectionTitle}>Admin Assignments</Text>
+        <Text style={styles.sectionTitle}>{employees.length === 0 ? "Employee" : employees[0].role === "ADMIN" ? "Admin" : "Staff"} Assignments</Text>
         <View style={styles.table}>
           <View style={styles.headerRow}>
             <Text style={styles.headerCell}>NAME</Text>

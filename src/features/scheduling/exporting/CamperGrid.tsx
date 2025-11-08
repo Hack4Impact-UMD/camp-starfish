@@ -163,10 +163,9 @@ export default function CamperGrid<T extends SchedulingSectionType>(
   });
 
   return (
-
     <Document>
       <Page size="A4">
-      <Text style={styles.sectionTitle}>Kid Grid</Text>
+      <Text style={styles.sectionTitle}>Camper Grid</Text>
       <View style={styles.compactTable}>
         <View style={styles.headerRow}>
           <Text style={styles.compactHeaderCell}>BUNK</Text>
