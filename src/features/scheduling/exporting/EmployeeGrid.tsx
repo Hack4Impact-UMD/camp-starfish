@@ -1,4 +1,5 @@
 import {
+  AdminAttendeeID,
   BunkID,
   CamperAttendeeID,
   Freeplay,
@@ -6,7 +7,14 @@ import {
   SectionScheduleID,
   StaffAttendeeID,
 } from "@/types/sessionTypes";
-import { Text, View } from "@react-pdf/renderer";
+import { Document, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
+import {
+  getFreeplayAssignmentId,
+  isBundleActivity,
+  isIndividualAssignments,
+} from "../generation/schedulingUtils";
+import { get } from "http";
+import { getFullName } from "@/utils/personUtils";
 
 const styles = StyleSheet.create({
   page: {
@@ -140,44 +148,80 @@ interface EmployeeGridProps<T extends SchedulingSectionType> {
   freeplay: Freeplay;
   campers: CamperAttendeeID[];
   bunks: BunkID[];
-  staff: StaffAttendeeID[];
+  employees: (AdminAttendeeID | StaffAttendeeID)[];
 }
 
-export default function EmployeeGrid<T extends SchedulingSectionType>(props: EmployeeGridProps<T>) {
-  const { schedule, freeplay, campers, bunks, staff } = props;
+export default function EmployeeGrid<T extends SchedulingSectionType>(
+  props: EmployeeGridProps<T>
+) {
+  const { schedule, freeplay, campers, bunks, employees } = props;
   return (
-    <>
-      <Text style={styles.sectionTitle}>Admin Assignments</Text>
-      <View style={styles.table}>
-        <View style={styles.headerRow}>
-          <Text style={styles.headerCell}>NAME</Text>
-          {Object.keys(schedule.blocks).map((blockId) => (
-            <Text key={blockId} style={styles.headerCell}>
-              {blockId}
-            </Text>
-          ))}
-          <Text style={styles.headerCell}>APO</Text>
-          <Text style={styles.headerCell}>AM/PM FP</Text>
-        </View>
+    <Document>
+      <Page size="A4" style={styles.page}>
+        <Text style={styles.sectionTitle}>Admin Assignments</Text>
+        <View style={styles.table}>
+          <View style={styles.headerRow}>
+            <Text style={styles.headerCell}>NAME</Text>
+            {Object.keys(schedule.blocks).map((blockId) => (
+              <Text key={blockId} style={styles.headerCell}>
+                {blockId}
+              </Text>
+            ))}
+            <Text style={styles.headerCell}>APO</Text>
+            <Text style={styles.headerCell}>AM/PM FP</Text>
+          </View>
 
-        {(() => {
-          return adminList.map((admin) => {
+          {employees.map((employee) => {
+            const fpBuddyIds = getFreeplayAssignmentId(freeplay, employee.id);
+            const fpBuddies = fpBuddyIds ? (fpBuddyIds as number[]).map(id => campers.find(c => c.id === id)) : [];
+
             return (
-              <View key={admin.id} style={styles.row}>
+              <View key={employee.id} style={styles.row}>
                 {/* Name column - Use dataCell style */}
                 <View style={styles.dataCell}>
                   <Text>
-                    {admin.name.firstName} {admin.name.lastName[0]}.
+                    {employee.name.firstName} {employee.name.lastName[0]}.
                   </Text>
                 </View>
 
                 {/* Block assignments - Use dataCell style */}
-                {renderStaffBlocks(schedule, admin)}
+                {Object.entries(schedule.blocks).map(([blockId, block]) => {
+                  let activityText;
+                  if (block.periodsOff.includes(employee.id)) {
+                    activityText = "OFF";
+                  } else if (employee.role === "STAFF") {
+                    const activity = block.activities.find((act) =>
+                      isIndividualAssignments(act.assignments)
+                        ? act.assignments.staffIds.includes(employee.id)
+                        : act.assignments.bunkNums.includes(employee.bunk)
+                    );
+                    activityText = activity
+                      ? isBundleActivity(activity)
+                        ? activity.programArea.id
+                        : activity.name
+                      : "-";
+                  } else {
+                    const activity = block.activities.find((act) =>
+                      act.assignments.adminIds.includes(employee.id)
+                    );
+                    activityText = activity
+                      ? isBundleActivity(activity)
+                        ? activity.programArea.id
+                        : activity.name
+                      : "-";
+                  }
+
+                  return (
+                    <View key={blockId} style={styles.cell}>
+                      <Text>{activityText}</Text>
+                    </View>
+                  );
+                })}
 
                 <View style={styles.dataCell}>
                   <Text>
                     {Object.values(schedule.alternatePeriodsOff).some((ids) =>
-                      ids.includes(admin.id)
+                      ids.includes(employee.id)
                     )
                       ? "RH"
                       : ""}
@@ -185,12 +229,16 @@ export default function EmployeeGrid<T extends SchedulingSectionType>(props: Emp
                 </View>
 
                 {/* Freeplay assignment - Use dataCell style */}
-                {renderFreeplayAssignment(freeplay, admin.id, camperList)}
+                <View style={styles.dataCell}>
+                  <Text>
+                    {fpBuddies.map(fpBuddy => fpBuddy ? getFullName(fpBuddy) : "").join(", ")}
+                  </Text>
+                </View>
               </View>
             );
-          });
-        })()}
-      </View>
-    </>
+          })}
+        </View>
+      </Page>
+    </Document>
   );
 }

@@ -416,7 +416,7 @@ const freeplayBuddy = (freeplay: Freeplay, camper: CamperAttendeeID) => {
 
 // Finds which activities a camper is assigned to in a given block.
 // Returns a comma-separated list of activity names, or "OFF" if none.
-const renderCamperBlockAssignment = <T extends SchedulingSectionType>(
+export const renderCamperBlockAssignment = <T extends SchedulingSectionType>(
   block: Block<T>,
   camperId: number
 ) => {
