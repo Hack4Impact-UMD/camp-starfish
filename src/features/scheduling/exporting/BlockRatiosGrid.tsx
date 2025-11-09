@@ -124,8 +124,8 @@ export default function BlockRatiosGrid<T extends SchedulingSectionType>({ sched
                 const block = schedule.blocks[blockId];
                 const activity = block.activities[activityIndex];
                 
-                const camperOrBunkIds = [...(isIndividualAssignments(activity.assignments) ? activity.assignments.camperIds : activity.assignments.bunkNums)];
-                const employeeIds = [...(isIndividualAssignments(activity.assignments) ? [...activity.assignments.staffIds, ...activity.assignments.adminIds] : activity.assignments.adminIds)];
+                const camperOrBunkIds = isIndividualAssignments(activity.assignments) ? activity.assignments.camperIds : activity.assignments.bunkNums;
+                const employeeIds = isIndividualAssignments(activity.assignments) ? [...activity.assignments.staffIds, ...activity.assignments.adminIds] : activity.assignments.adminIds;
                 
                 return (
                   <View key={`data-${blockId}-${activityIndex}`} style={{ flex: 1, flexDirection: 'row' }}>
@@ -133,9 +133,9 @@ export default function BlockRatiosGrid<T extends SchedulingSectionType>({ sched
                       {camperOrBunkIds.map(camperOrBunkId => <Text key={camperOrBunkId}>{isIndividualAssignments(activity.assignments) ? getFullName(attendeesById[camperOrBunkId]) : `Bunk ${camperOrBunkId}`}</Text>)}
                     </View>
                     <View style={[styles.staffCell, { backgroundColor: rowBgColor }]}>
-                      {employeeIds.map((staffId, idx) => (
-                        <Text key={idx} style={attendeesById[staffId].role === "ADMIN" ? { fontWeight: 'bold' } : {}}>
-                          {getFullName(attendeesById[staffId])}
+                      {employeeIds.map((employeeId, idx) => (
+                        <Text key={idx} style={attendeesById[employeeId].role === "ADMIN" ? { fontWeight: 'bold' } : {}}>
+                          {getFullName(attendeesById[employeeId])}
                         </Text>
                       ))}
                     </View>
