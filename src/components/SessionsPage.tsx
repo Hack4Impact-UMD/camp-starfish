@@ -15,7 +15,7 @@ import Image from "next/image";
 import { Session } from "@/types/sessionTypes";
 import pencilIcon from "@/assets/icons/pencilIcon.svg";
 import SessionCard from "@/components/SessionCard";
-import { useDeleteSession } from "@/hooks/sessions/deleteSession";
+import { useDeleteSession } from "@/hooks/sessions/useDeleteSession";
 
 interface SessionsPageProps {
   sessions: Session[];
