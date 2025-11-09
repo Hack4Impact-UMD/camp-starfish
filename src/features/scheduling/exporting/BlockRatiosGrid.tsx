@@ -4,24 +4,6 @@ import { StaffAttendeeID, CamperAttendeeID, AdminAttendeeID, SectionSchedule, Sc
 import { getAttendeesById, isBundleActivity, isIndividualAssignments } from '../generation/schedulingUtils';
 import { getFullName } from '@/utils/personUtils';
 
-// Helper function to map attendee IDs to names
-function idToName(
-  id: number | undefined, 
-  attendees?: CamperAttendeeID[] | StaffAttendeeID[] | AdminAttendeeID[],
-  includeBunk: boolean = false
-) {
-  if (id == null || !attendees) return undefined;
-  const found = attendees.find(a => a.id === id);
-  if (!found) return String(id);
-  const nameStr = `${found.name.firstName} ${found.name.lastName ? found.name.lastName.charAt(0) + '.' : ''}`;
-
-  // Include bunk number for campers if requested
-  if (includeBunk && 'bunk' in found && found.bunk != null) {
-    return `${nameStr} (${found.bunk})`;
-  }
-  return nameStr;
-}
-
 interface BlockRatiosGridProps<T extends SchedulingSectionType = SchedulingSectionType> {
   schedule: SectionSchedule<T>;
   campers: CamperAttendeeID[];
@@ -148,7 +130,7 @@ export default function BlockRatiosGrid<T extends SchedulingSectionType>({ sched
                 return (
                   <View key={`data-${blockId}-${activityIndex}`} style={{ flex: 1, flexDirection: 'row' }}>
                     <View style={[styles.campersCell, { backgroundColor: rowBgColor }]}>
-                      {camperOrBunkIds.map(camperOrBunkId => <Text>{isIndividualAssignments(activity.assignments) ? getFullName(attendeesById[camperOrBunkId]) : `Bunk ${camperOrBunkId}`}</Text>)}
+                      {camperOrBunkIds.map(camperOrBunkId => <Text key={camperOrBunkId}>{isIndividualAssignments(activity.assignments) ? getFullName(attendeesById[camperOrBunkId]) : `Bunk ${camperOrBunkId}`}</Text>)}
                     </View>
                     <View style={[styles.staffCell, { backgroundColor: rowBgColor }]}>
                       {employeeIds.map((staffId, idx) => (
