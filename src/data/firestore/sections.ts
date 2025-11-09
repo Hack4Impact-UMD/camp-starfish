@@ -5,7 +5,6 @@ import {
   doc,
   collection,
   query,
-  getDocs,
   Transaction,
   WriteBatch,
   FirestoreDataConverter,
@@ -15,7 +14,7 @@ import {
   CollectionReference,
 } from "firebase/firestore";
 import { Collection, SessionsSubcollection } from "./utils";
-import { setDoc, deleteDoc, getDoc, updateDoc } from "./firestoreClientOperations";
+import { setDoc, deleteDoc, getDoc, updateDoc, executeQuery } from "./firestoreClientOperations";
 
 const sectionFirestoreConverter: FirestoreDataConverter<SectionID, Section> = {
   toFirestore: (section: WithFieldValue<SectionID>): WithFieldValue<Section> => {
@@ -39,9 +38,8 @@ export async function getSectionById(sessionId: string, sectionId: string, trans
 
 export async function getSectionsBySession(sessionId: string): Promise<SectionID[]> {
   const sectionsRef = collection(db, Collection.SESSIONS, sessionId, SessionsSubcollection.SECTIONS) as CollectionReference<SectionID, Section>;
-  const q = query(sectionsRef).withConverter(sectionFirestoreConverter);
-  const snapshot = await getDocs(q);
-  return snapshot.docs.map(doc => doc.data());
+  const q = query(sectionsRef);
+  return await executeQuery<SectionID, Section>(q, sectionFirestoreConverter);
 }
 
 export async function setSection(sessionId: string, section: Section, instance?: Transaction | WriteBatch): Promise<string> {
