@@ -1,6 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet } from '@react-pdf/renderer';
 import { StaffAttendeeID, CamperAttendeeID, AdminAttendeeID, SectionSchedule, SchedulingSectionType } from "@/types/sessionTypes";
+import { getAttendeesById, isBundleActivity, isIndividualAssignments } from '../generation/schedulingUtils';
+import { getFullName } from '@/utils/personUtils';
 
 // Helper function to map attendee IDs to names
 function idToName(
@@ -93,10 +95,13 @@ const ScheduleGrid: React.FC<ScheduleGridProps> = ({
   staff, 
   admins
 }) => {
-  // Get block IDs
   const blockIds = Object.keys(schedule.blocks).sort() 
-  // Build block data: convert schedule to { blockId, activities: { name, campers: string[], staffAdmins: {name: string, isAdmin: boolean}[] }[] }[]
-  const blocks = blockIds.map(blockId => {
+  const blocks = blockIds.map(blockId => schedule.blocks[blockId]);
+
+  const attendeesById = getAttendeesById([...campers, ...staff, ...admins]);
+
+
+  const x = blockIds.map(blockId => {
     const block = schedule.blocks[blockId];
     if (!block) {
       return { name: blockId, activities: [] };
@@ -165,34 +170,20 @@ const ScheduleGrid: React.FC<ScheduleGridProps> = ({
   
   // Find the maximum number of activities across all blocks
   const maxActivities = Math.max(...blocks.map(block => block.activities.length));
-  
-  // For each activity row, calculate the max names needed across all blocks
-  const calculateMaxNamesForActivityRow = (activityIndex: number): number => {
-    let maxNames = 0;
-    blocks.forEach(block => {
-      if (activityIndex < block.activities.length) {
-        const activity = block.activities[activityIndex];
-        const namesCount = Math.max(activity.campers.length, activity.staff.length);
-        maxNames = Math.max(maxNames, namesCount);
-      }
-    });
-    return maxNames;
-  };
 
   return (
     <View style={styles.container}>
       {/* Block Headers Row */}
       <View style={styles.row}>
-        {blocks.map((block) => (
-          <View key={block.name} style={styles.blockHeader}>
-            <Text>BLOCK {block.name}</Text>
+        {blockIds.map((blockId) => (
+          <View key={blockId} style={styles.blockHeader}>
+            <Text>BLOCK {blockId}</Text>
           </View>
         ))}
       </View>
 
       {/* Render activities row by row across all blocks */}
       {Array.from({ length: maxActivities }).map((_, activityIndex) => {
-        const maxNamesInThisRow = calculateMaxNamesForActivityRow(activityIndex);
         const isGrayRow = activityIndex % 2 === 0; // Start with gray (index 0), then white (index 1), etc.
         const rowBgColor = isGrayRow ? '#d9d9d9' : '#ffffff';
         
@@ -200,16 +191,17 @@ const ScheduleGrid: React.FC<ScheduleGridProps> = ({
           <React.Fragment key={`activity-row-${activityIndex}`}>
             {/* Activity Headers Row */}
             <View style={styles.row}>
-              {blocks.map((block) => {
+              {blockIds.map((blockId) => {
+                const block = schedule.blocks[blockId];
                 const activity = block.activities[activityIndex];
                 // Display activity name and program area if it's a bundle
                 const headerText = activity 
-                  ? activity.programArea 
-                    ? `${activity.name} - ${activity.programArea}`
+                  ? isBundleActivity(activity) 
+                    ? `${activity.programArea.id}: ${activity.name}`
                     : activity.name
                   : '';
                 return (
-                  <View key={`header-${block.name}-${activityIndex}`} 
+                  <View key={`header-${blockId}-${activityIndex}`} 
                         style={[styles.activityHeader, { backgroundColor: rowBgColor }]}>
                     <Text>{headerText}</Text>
                   </View>
@@ -219,25 +211,22 @@ const ScheduleGrid: React.FC<ScheduleGridProps> = ({
             
             {/* Data Columns Row - all aligned to same height */}
             <View style={styles.row}>
-              {blocks.map((block) => {
+              {blockIds.map((blockId) => {
+                const block = schedule.blocks[blockId];
                 const activity = block.activities[activityIndex];
                 
-                // Pad arrays to match maxNamesInThisRow
-                const paddedCampers = [...activity.campers];
-                const paddedStaff = [...activity.staff];
-                while (paddedCampers.length < maxNamesInThisRow) paddedCampers.push('');
-                while (paddedStaff.length < maxNamesInThisRow) paddedStaff.push({ name: '', isAdmin: false });
+                const camperOrBunkIds = [...(isIndividualAssignments(activity.assignments) ? activity.assignments.camperIds : activity.assignments.bunkNums)];
+                const employeeIds = [...(isIndividualAssignments(activity.assignments) ? [...activity.assignments.staffIds, ...activity.assignments.adminIds] : activity.assignments.adminIds)];
                 
                 return (
-                  <View key={`data-${block.name}-${activityIndex}`} style={{ flex: 1, flexDirection: 'row' }}>
+                  <View key={`data-${blockId}-${activityIndex}`} style={{ flex: 1, flexDirection: 'row' }}>
                     <View style={[styles.campersCell, { backgroundColor: rowBgColor }]}>
-                      <Text>{paddedCampers.join('\n')}</Text>
+                      {camperOrBunkIds.map(camperOrBunkId => <Text>{isIndividualAssignments(activity.assignments) ? getFullName(attendeesById[camperOrBunkId]) : `Bunk ${camperOrBunkId}`}</Text>)}
                     </View>
                     <View style={[styles.staffCell, { backgroundColor: rowBgColor }]}>
-                      {paddedStaff.map((staffMember, idx) => (
-                        <Text key={idx} style={staffMember.isAdmin ? { fontWeight: 'bold' } : {}}>
-                          {staffMember.name}
-                          {idx < paddedStaff.length - 1 && '\n'}
+                      {employeeIds.map((staffId, idx) => (
+                        <Text key={idx} style={attendeesById[staffId].role === "ADMIN" ? { fontWeight: 'bold' } : {}}>
+                          {getFullName(attendeesById[staffId])}
                         </Text>
                       ))}
                     </View>
