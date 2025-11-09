@@ -1,7 +1,7 @@
 import React from "react";
 import ReactPDF from "@react-pdf/renderer";
 import { Document, Page } from "@react-pdf/renderer";
-import ScheduleGrid from "./BlockRatiosGrid";
+import ScheduleGrid from "../exporting/BlockRatiosGrid";
 import { SectionSchedule } from "@/types/sessionTypes";
 
 // Sample attendees with complete type consistency
@@ -431,10 +431,8 @@ const sampleSchedule: SectionSchedule<'BUNDLE'> = {
   alternatePeriodsOff: {},
 };
 
-async function generatePDF() {
-  try {
-    await ReactPDF.render(
-      <Document>
+export function generatePDF() {
+        return <Document>
         <Page size="A4" orientation="landscape">
           <ScheduleGrid 
             schedule={sampleSchedule} 
@@ -444,13 +442,6 @@ async function generatePDF() {
             admins={sampleAdmins}
           />
         </Page>
-      </Document>,
-      "./output.pdf"
-    );
-    console.log("PDF generated successfully at ./output.pdf");
-  } catch (error) {
-    console.error("Error generating PDF:", error);
-  }
-}
+      </Document>
 
-generatePDF();
+}
