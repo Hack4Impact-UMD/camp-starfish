@@ -22,7 +22,7 @@ function idToName(
   return nameStr;
 }
 
-interface ScheduleGridProps<T extends SchedulingSectionType = SchedulingSectionType> {
+interface BlockRatiosGridProps<T extends SchedulingSectionType = SchedulingSectionType> {
   schedule: SectionSchedule<T>;
   campers: CamperAttendeeID[];
   staff: StaffAttendeeID[];
@@ -89,12 +89,7 @@ const styles = StyleSheet.create({
   },
 });
 
-const ScheduleGrid: React.FC<ScheduleGridProps> = ({ 
-  schedule, 
-  campers, 
-  staff, 
-  admins
-}) => {
+export default function BlockRatiosGrid<T extends SchedulingSectionType>({ schedule, campers, staff, admins }: BlockRatiosGridProps<T>) {
   const blockIds = Object.keys(schedule.blocks).sort() 
   const blocks = blockIds.map(blockId => schedule.blocks[blockId]);
 
@@ -240,5 +235,3 @@ const ScheduleGrid: React.FC<ScheduleGridProps> = ({
     </View>
   );
 };
-
-export default ScheduleGrid;
