@@ -2,7 +2,8 @@ import { db } from "@/config/firebase";
 import { Camper, CamperID } from "@/types/personTypes";
 import { doc, Transaction, WriteBatch, QueryDocumentSnapshot, FirestoreDataConverter, WithFieldValue, DocumentReference } from "firebase/firestore";
 import { setDoc, deleteDoc, getDoc, updateDoc } from "./firestoreClientOperations";
-import { Collection } from "./utils";
+import { Collection, SessionsSubcollection } from "./utils";
+import { Attendee, AttendeeID } from "@/types/sessionTypes";
 
 const camperFirestoreConverter: FirestoreDataConverter<CamperID, Camper> = {
   toFirestore: (camper: WithFieldValue<CamperID>): WithFieldValue<Camper> => {
