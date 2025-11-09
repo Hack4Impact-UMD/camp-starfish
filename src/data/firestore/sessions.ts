@@ -10,10 +10,10 @@ import {
   QueryDocumentSnapshot,
   DocumentReference,
   collection,
-  getDocs
+  CollectionReference
 } from "firebase/firestore";
 import { Collection } from "./utils";
-import { setDoc, deleteDoc, getDoc, updateDoc } from "./firestoreClientOperations";
+import { setDoc, deleteDoc, getDoc, updateDoc, executeQuery } from "./firestoreClientOperations";
 
 const sessionFirestoreConverter: FirestoreDataConverter<SessionID, Session> = {
   toFirestore: (session: WithFieldValue<SessionID>): WithFieldValue<Session> => {
@@ -25,6 +25,10 @@ const sessionFirestoreConverter: FirestoreDataConverter<SessionID, Session> = {
 
 export async function getSessionById(id: string, transaction?: Transaction): Promise<SessionID> {
   return await getDoc<SessionID, Session>(doc(db, Collection.SESSIONS, id) as DocumentReference<SessionID, Session>, sessionFirestoreConverter, transaction);
+}
+
+export async function getAllSessions(): Promise<SessionID[]> {
+  return await executeQuery<SessionID, Session>(collection(db, Collection.SESSIONS) as CollectionReference<SessionID, Session>, sessionFirestoreConverter);
 }
 
 export async function setSession(session: Session, instance?: Transaction | WriteBatch): Promise<string> {
@@ -39,11 +43,4 @@ export async function updateSession(id: string, updates: Partial<Session>, insta
 
 export async function deleteSession(id: string, instance?: Transaction | WriteBatch): Promise<void> {
   await deleteDoc<SessionID, Session>(doc(db, Collection.SESSIONS, id) as DocumentReference<SessionID, Session>, sessionFirestoreConverter, instance);
-}
-
-export async function getAllSessions(): Promise<SessionID[]> {
-  const sessionsRef = collection(db, Collection.SESSIONS).withConverter(sessionFirestoreConverter);
-  const snapshot = await getDocs(sessionsRef);
-  const sessions: SessionID[] = snapshot.docs.map((doc) => doc.data());
-  return sessions;
 }
