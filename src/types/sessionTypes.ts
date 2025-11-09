@@ -7,7 +7,6 @@ export interface Session {
   endDate: string; // ISO-8601, exclusive
   albumId?: string;
   driveFolderId: string;
-  id: string;
 }
 export interface SessionID extends Session, ID<string> { };
 
