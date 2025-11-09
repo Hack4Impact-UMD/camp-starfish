@@ -1,7 +1,7 @@
 "use client";
 
 import SessionsPage from "@/components/SessionsPage";
-import { useSessions } from "@/hooks/sessions/useSession";
+import { useSessions } from "@/hooks/sessions/useSessions";
 import moment from "moment";
 
 export default function Page() {
