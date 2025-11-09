@@ -12,7 +12,7 @@ export function isBundleActivity(activity: BundleActivity | JamboreeActivity): a
 }
 
 export function isJamboreeActivity(activity: BundleActivity | JamboreeActivity): activity is JamboreeActivity {
-  return !('programArea' in activity) && !('ageGroup' in activity); 
+  return !('programArea' in activity) && !('ageGroup' in activity);
 }
 
 export function getFreeplayAssignmentId(freeplay: Freeplay, id: number): number[] | number | string | null {
@@ -38,4 +38,10 @@ export function isIndividualAssignments(assignments: IndividualAssignments | Bun
 
 export function isBunkAssignments(assignments: IndividualAssignments | BunkAssignments): assignments is BunkAssignments {
   return 'bunkNums' in assignments;
+}
+
+export function getAttendeesById(attendees: AttendeeID[]): Record<number, AttendeeID> {
+  const attendeesById: Record<number, AttendeeID> = {};
+  attendees.forEach(attendee => attendeesById[attendee.id] = attendee);
+  return attendeesById;
 }
