@@ -22,10 +22,9 @@ function idToName(
 
 interface ScheduleGridProps<T extends SchedulingSectionType = SchedulingSectionType> {
   schedule: SectionSchedule<T>;
-  blockOrder?: string[];
-  campers?: CamperAttendeeID[];
-  staff?: StaffAttendeeID[];
-  admins?: AdminAttendeeID[];
+  campers: CamperAttendeeID[];
+  staff: StaffAttendeeID[];
+  admins: AdminAttendeeID[];
 }
 
 const styles = StyleSheet.create({
@@ -90,13 +89,12 @@ const styles = StyleSheet.create({
 
 const ScheduleGrid: React.FC<ScheduleGridProps> = ({ 
   schedule, 
-  blockOrder, 
-  campers = [], 
-  staff = [], 
-  admins = [] 
+  campers, 
+  staff, 
+  admins
 }) => {
   // Get block IDs
-  const blockIds = blockOrder?.length ? blockOrder : Object.keys(schedule.blocks ?? {});  
+  const blockIds = Object.keys(schedule.blocks).sort() 
   // Build block data: convert schedule to { blockId, activities: { name, campers: string[], staffAdmins: {name: string, isAdmin: boolean}[] }[] }[]
   const blocks = blockIds.map(blockId => {
     const block = schedule.blocks[blockId];
