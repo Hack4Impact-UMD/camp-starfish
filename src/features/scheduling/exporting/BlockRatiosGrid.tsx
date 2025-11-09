@@ -103,7 +103,7 @@ export default function BlockRatiosGrid<T extends SchedulingSectionType>({ sched
               {blockIds.map((blockId) => {
                 const block = schedule.blocks[blockId];
                 const activity = block.activities[activityIndex];
-                // Display activity name and program area if it's a bundle
+                if (!activity) return <View key={`header-${blockId}-${activityIndex}`} style={[styles.activityHeader, { backgroundColor: rowBgColor }]} />
                 const headerText = activity 
                   ? isBundleActivity(activity) 
                     ? `${activity.programArea.id}: ${activity.name}`
@@ -123,6 +123,7 @@ export default function BlockRatiosGrid<T extends SchedulingSectionType>({ sched
               {blockIds.map((blockId) => {
                 const block = schedule.blocks[blockId];
                 const activity = block.activities[activityIndex];
+                if (!activity) return <View key={`data-${blockId}-${activityIndex}`} style={{ flex: 1, flexDirection: 'row' }} />
                 
                 const camperOrBunkIds = isIndividualAssignments(activity.assignments) ? activity.assignments.camperIds : activity.assignments.bunkNums;
                 const employeeIds = isIndividualAssignments(activity.assignments) ? [...activity.assignments.staffIds, ...activity.assignments.adminIds] : activity.assignments.adminIds;
