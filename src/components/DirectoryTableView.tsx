@@ -13,25 +13,6 @@ import { Attendee, AttendeeID } from "@/types/sessionTypes";
 import { Box, Container, Flex, Radio, Select } from "@mantine/core";
 import useDirectoryTable from "./useDirectoryTable";
 
-// const data: AttendeeID[] = [
-//   {
-//     name: {
-//       firstName: "John",
-//       lastName: "Doe",
-//     },
-//     role: "CAMPER",
-//     sessionId: "session1",
-//     gender: "Male",
-//     dateOfBirth: "01-01-2025",
-//     nonoList: [1, 2, 3],
-//     ageGroup: "NAV",
-//     level: 1,
-//     bunk: 1,
-//     id: 1,
-//     swimOptOut: false,
-//   },
-// ];
-
 export const DirectoryTableView = () => {
   const { attendeeList, isLoading, error } = useDirectoryTable("session1");
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
@@ -166,7 +147,7 @@ export const DirectoryTableView = () => {
             <Box>
               <Select
                 value={sortNameOption}
-                onChange={() => handleNameFilterSelect(sortNameOption)}
+                onChange={handleNameFilterSelect}
                 placeholder="Sort By: "
                 data={[
                   { value: "firstNameAZ", label: "First Name (A → Z)" },
@@ -197,6 +178,4 @@ export const DirectoryTableView = () => {
       </Flex>
     </Container>
   );
-
-  // return <MantineReactTable table={table} />;
 };
