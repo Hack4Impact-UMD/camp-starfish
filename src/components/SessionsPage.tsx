@@ -133,7 +133,7 @@ export default function SessionsPage({ sessions }: SessionsPageProps) {
               />
             ))
           ) : (
-            <Text color="dimmed">No current session</Text>
+            <Text c="dimmed">No current session</Text>
           )}
         </Group>
       </Stack>
@@ -156,7 +156,7 @@ export default function SessionsPage({ sessions }: SessionsPageProps) {
                 />
               ))
             ) : (
-              <Text color="dimmed">No future sessions</Text>
+              <Text c="dimmed">No future sessions</Text>
             )}
           </Group>
         </Stack>
@@ -175,7 +175,7 @@ export default function SessionsPage({ sessions }: SessionsPageProps) {
                 />
               ))
             ) : (
-              <Text color="dimmed">No past sessions</Text>
+              <Text c="dimmed">No past sessions</Text>
             )}
           </Group>
         </Stack>
