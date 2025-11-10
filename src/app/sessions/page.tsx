@@ -2,7 +2,6 @@
 
 import SessionsPage from "@/components/SessionsPage";
 import { useSessions } from "@/hooks/sessions/useSessions";
-import moment from "moment";
 import LoadingPage from "../loading";
 
 export default function Page() {
