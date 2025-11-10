@@ -11,7 +11,6 @@ import {
   ActionIcon,
   Divider,
   RadioGroup,
-  Alert,
 } from "@mantine/core";
 import {
   IconSearch,
@@ -19,126 +18,46 @@ import {
   IconChevronUp,
   IconUserCircle,
   IconArrowsVertical,
-  IconAlertCircle,
 } from "@tabler/icons-react";
-import { useQuery } from "@tanstack/react-query";
-import { EmployeeRole, UserRole } from "../types/personTypes";
+import { UserRole, CamperID, StaffID, AdminID } from "../types/personTypes";
+import {CamperAttendee} from "../types/sessionTypes";
 
-// fetch function type for getting people data to display in the directory
-type FetchPeopleFunction = () => Promise<Person[]>;
+// types displayed in directory
+type CamperWithBunk = CamperID & { bunk?: number };
+type DirectoryPersonType = CamperWithBunk | StaffID | AdminID;
 
-export type Person = {  
-  id: string | number;  
-  name: string;  
-  avatar?: string;  
-  role: UserRole | "CAMPER";  
-  bunk?: number;  
+type SmallDirectoryBlockProps = {
+  people: DirectoryPersonType[];
+  onExpand?: () => void;
+  initialVisibleCount?: number;
+  loadMoreCount?: number;
 };
 
-type SmallDirectoryBlockProps = {  
-  people?: Person[];  
-  fetchPeople?: FetchPeopleFunction;  
-  queryKey?: string[];  
-  onExpand?: () => void;  
-  initialVisibleCount?: number;  
-  loadMoreCount?: number;  
-};  
-
 export function SmallDirectoryBlock({
-  people: propsPeople,
-  fetchPeople,
-  queryKey = ["directory-people"],
+  people,
   onExpand,
   initialVisibleCount = 4,
   loadMoreCount = 3,
 }: SmallDirectoryBlockProps) {
-  // react query if fetchPeople is provided, otherwise use props data
-  const {
-    data: queryData,
-    isLoading,
-    error,
-  } = useQuery({
-    queryKey,
-    queryFn: fetchPeople || (() => Promise.resolve([])),
-    enabled: !!fetchPeople,
-  });
-
-  const people = fetchPeople ? queryData || [] : propsPeople || [];
   const [searchQuery, setSearchQuery] = useState("");
-  const [roleFilter, setRoleFilter] = useState<UserRole | "CAMPER">(
-    "CAMPER"
-  );
+  const [roleFilter, setRoleFilter] = useState<UserRole | "CAMPER">("CAMPER");
   const [visibleCount, setVisibleCount] = useState(initialVisibleCount);
   const [showAll, setShowAll] = useState(false);
 
-  // loading state
-  if (isLoading && fetchPeople) {
-    return (
-      <Box
-        p="md"
-        style={{
-          maxWidth: 400,
-          margin: "50px",
-          border: "1.3px solid black",
-          padding: "15px",
-          backgroundColor: "#FAFAFB",
-        }}
-      >
-        <Group justify="space-between" mb="md">
-          <Text size="xlg" fw={900}>
-            DIRECTORY
-          </Text>
-        </Group>
-        sted change:
-
-        <Stack align="center" justify="center" style={{ minHeight: 200 }}>  
-          <Text c="dimmed" size="sm">  
-            Loading directory...  
-          </Text>  
-        </Stack>  
-      </Box>
-    );
-  }
-
-  // error state
-  if (error && fetchPeople) {
-    return (
-      <Box
-        p="md"
-        style={{
-          maxWidth: 400,
-          margin: "50px",
-          border: "1.3px solid black",
-          padding: "15px",
-          backgroundColor: "#FAFAFB",
-        }}
-      >
-        <Group justify="space-between" mb="md">
-          <Text size="xlg" fw={900}>
-            DIRECTORY
-          </Text>
-        </Group>
-        <Alert icon={<IconAlertCircle size={16} />} title="Error" color="red">
-          {error instanceof Error
-            ? error.message
-            : "Failed to load directory data"}
-        </Alert>
-      </Box>
-    );
-  }
-
   //filtering the people based on role in search
-  // Calculate filtered count before pagination
-  const filteredBeforeSlice = people.filter(
-    (person) =>
-      person.role === roleFilter &&
-      person.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  //calulate filtered people before slicing
+  const filteredBeforeSlice = people.filter((person) => {
+    const fullName =
+      `${person.name.firstName} ${person.name.lastName}`.toLowerCase();
+    return (
+      person.role === roleFilter && fullName.includes(searchQuery.toLowerCase())
+    );
+  });
   const filteredCount = filteredBeforeSlice.length;
   const filteredPeople = filteredBeforeSlice.slice(
     0,
     showAll ? undefined : visibleCount
-  );  
+  );
   // view more button that displays (all) people when clicked
   const handleViewMore = () => {
     if (showAll) {
@@ -153,16 +72,7 @@ export function SmallDirectoryBlock({
   };
 
   return (
-    <Box
-      p="md"
-      style={{
-        maxWidth: 400,
-        margin: "50px",
-        border: "1.3px solid black",
-        padding: "15px",
-        backgroundColor: "#FAFAFB",
-      }}
-    >
+    <Box className="max-w-[400px] m-[50px] border border-black p-4 bg-[#FAFAFB]">
       {/* header with directory and expand button */}
       <Group justify="space-between" mb="md">
         <Text size="xlg" fw={900}>
@@ -174,10 +84,7 @@ export function SmallDirectoryBlock({
           onClick={onExpand}
           aria-label="Expand directory view"
         >
-          <IconArrowsVertical
-            size={25}
-            style={{ transform: "rotate(45deg)" }}
-          />
+          <IconArrowsVertical size={25} className="rotate-45" />
         </ActionIcon>
       </Group>
 
@@ -209,8 +116,13 @@ export function SmallDirectoryBlock({
               <IconUserCircle size={32} />
               <div>
                 <Text size="sm" fw={700}>
-                  {person.name}
-                  {person.bunk !== undefined && `  (${person.bunk})`}
+                  {/* display bunk number for campers if available */}
+                  {`${person.name.firstName} ${person.name.lastName}`}
+                  {person.role === 'CAMPER' && 'bunk' in person && person.bunk !== undefined && (
+                    <Text span ml={8}>
+                      ({person.bunk})
+                    </Text>
+                  )}
                 </Text>
               </div>
             </Group>
