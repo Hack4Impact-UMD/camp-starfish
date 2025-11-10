@@ -6,11 +6,11 @@ import {
   MRT_TablePagination,
   MRT_ToolbarAlertBanner,
   useMantineReactTable,
-  MRT_SortingFn
+  MRT_SortingFn,
 } from "mantine-react-table";
 import { useMemo, useState } from "react";
 import { Attendee, AttendeeID } from "@/types/sessionTypes";
-import { Box, Container, Flex, Radio, Select } from "@mantine/core";
+import { Box, Button, Container, Flex, Radio, Select } from "@mantine/core";
 import useDirectoryTable from "./useDirectoryTable";
 
 export const DirectoryTableView = () => {
@@ -95,6 +95,11 @@ export const DirectoryTableView = () => {
         id: "dateOfBirth",
         header: "DATE OF BIRTH",
       },
+      {
+        accessorKey: "swimlevel",
+        id: "swimLevel",
+        header: "SWIM LEVEL",
+      },
     ],
     []
   );
@@ -123,6 +128,15 @@ export const DirectoryTableView = () => {
     const newValue = sortNameOption === value ? null : value;
     setSortNameOption(newValue);
   };
+
+  const handleClearFilters = () => {
+    setSelectedRole(null);
+    setSortNameOption(null);
+    table.setGlobalFilter("");
+  };
+
+  const filtersActive =
+    !!selectedRole || !!sortNameOption || !!table.getState().globalFilter;
   return (
     <Container>
       {isLoading && <>Loading Table</>}
@@ -164,6 +178,11 @@ export const DirectoryTableView = () => {
                 data={["React", "Angular", "Vue", "Svelte"]}
               />
             </Box>
+            {filtersActive && (
+              <Button color="red" variant="light" onClick={handleClearFilters}>
+                Clear Filters
+              </Button>
+            )}
           </Flex>
         </Box>
         <MRT_TableContainer table={table} />
