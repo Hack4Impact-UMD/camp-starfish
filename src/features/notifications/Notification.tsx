@@ -4,8 +4,7 @@ import {
   NotificationProps as MantineNotificationProps,
 } from "@mantine/core";
 import NotificationIcon from "./NotificationIcon";
-
-export type NotificationVariant = "success" | "error";
+import { NotificationVariant } from "./notificationTypes";
 
 interface NotificationProps extends MantineNotificationProps {
   message?: React.ReactNode;

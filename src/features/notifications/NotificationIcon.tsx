@@ -1,5 +1,5 @@
 import { ThemeIcon } from "@mantine/core";
-import { NotificationVariant } from "./Notification";
+import { NotificationVariant } from "./notificationTypes";
 import Image from "next/image";
 import successIcon from "@/assets/icons/notificationSuccess.svg";
 import errorIcon from "@/assets/icons/notificationError.svg";
