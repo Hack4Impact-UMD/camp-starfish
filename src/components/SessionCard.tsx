@@ -6,19 +6,20 @@ import moment from "moment";
 import trashIcon from "@/assets/icons/trashIcon.svg";
 import { SessionID } from "@/types/sessionTypes";
 import { useRouter } from "next/navigation";
+import { useDeleteSession } from "@/hooks/sessions/useDeleteSession";
 
 interface SessionCardProps {
   session: SessionID;
   editMode: boolean;
-  onDelete: (id: string) => void;
 }
 
 export default function SessionCard({
   session,
   editMode,
-  onDelete,
 }: SessionCardProps) {
   const router = useRouter();
+
+  const deleteSession = useDeleteSession();
 
   const formatDate = (date: string) => moment(date).format("dddd, MMMM Do");
 
@@ -37,7 +38,7 @@ export default function SessionCard({
         <ActionIcon
           variant="transparent"
           radius="xl"
-          onClick={() => onDelete(session.id)}
+          onClick={() => deleteSession.mutate(session.id)}
           className="hover:scale-110 transition-transform"
         >
           <Image src={trashIcon} alt="Delete" width={20} height={20} />

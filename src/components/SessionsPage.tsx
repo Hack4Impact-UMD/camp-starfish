@@ -14,7 +14,6 @@ import Image from "next/image";
 import { SessionID } from "@/types/sessionTypes";
 import pencilIcon from "@/assets/icons/pencilIcon.svg";
 import SessionCard from "@/components/SessionCard";
-import { useDeleteSession } from "@/hooks/sessions/useDeleteSession";
 
 interface SessionsPageProps {
   sessions: SessionID[];
@@ -22,7 +21,6 @@ interface SessionsPageProps {
 
 export default function SessionsPage({ sessions }: SessionsPageProps) {
   const [editMode, setEditMode] = useState(false);
-  const deleteSessionMutation = useDeleteSession();
 
   // --- Categorize sessions ---
   const { current, future, past } = useMemo(() => {
@@ -51,12 +49,6 @@ export default function SessionsPage({ sessions }: SessionsPageProps) {
     console.log("Creating session:", type);
     // Add your session creation logic here
     // For example: navigate to create session page or open modal
-  };
-
-  const handleDelete = (id: string) => {
-    if (confirm("Are you sure you want to delete this session?")) {
-      deleteSessionMutation.mutate(id);
-    }
   };
 
   return (
@@ -127,9 +119,7 @@ export default function SessionsPage({ sessions }: SessionsPageProps) {
               <SessionCard
                 key={session.id}
                 session={session}
-                editMode={editMode}
-                onDelete={handleDelete}
-              />
+                editMode={editMode}              />
             ))
           ) : (
             <Text c="dimmed">No current session</Text>
@@ -151,7 +141,6 @@ export default function SessionsPage({ sessions }: SessionsPageProps) {
                   key={session.name}
                   session={session}
                   editMode={editMode}
-                  onDelete={handleDelete}
                 />
               ))
             ) : (
@@ -170,7 +159,6 @@ export default function SessionsPage({ sessions }: SessionsPageProps) {
                   key={session.name}
                   session={session}
                   editMode={editMode}
-                  onDelete={handleDelete}
                 />
               ))
             ) : (
