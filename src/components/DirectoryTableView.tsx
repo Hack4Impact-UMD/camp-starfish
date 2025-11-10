@@ -6,6 +6,7 @@ import {
   MRT_TablePagination,
   MRT_ToolbarAlertBanner,
   useMantineReactTable,
+  MRT_SortingFn
 } from "mantine-react-table";
 import { useMemo, useState } from "react";
 import { Attendee, AttendeeID } from "@/types/sessionTypes";
@@ -32,9 +33,41 @@ import useDirectoryTable from "./useDirectoryTable";
 // ];
 
 export const DirectoryTableView = () => {
-  const {attendeeList, isLoading, error} = useDirectoryTable("session1");
-  const data = attendeeList ?? [];
+  const { attendeeList, isLoading, error } = useDirectoryTable("session1");
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
+  const [sortNameOption, setSortNameOption] = useState<string | null>(null);
+  const data: Attendee[] = useMemo(() => {
+    if (!attendeeList) return [];
+
+    let filteredData = selectedRole
+      ? attendeeList.filter((attendee) => attendee.role === selectedRole)
+      : [...attendeeList];
+
+    if (sortNameOption) {
+      filteredData.sort((a, b) => {
+        const aFirst = a.name.firstName.toLowerCase();
+        const bFirst = b.name.firstName.toLowerCase();
+        const aLast = a.name.lastName.toLowerCase();
+        const bLast = b.name.lastName.toLowerCase();
+
+        switch (sortNameOption) {
+          case "firstNameAZ":
+            return aFirst.localeCompare(bFirst);
+          case "firstNameZA":
+            return bFirst.localeCompare(aFirst);
+          case "lastNameAZ":
+            return aLast.localeCompare(bLast);
+          case "lastNameZA":
+            return bLast.localeCompare(aLast);
+          default:
+            return 0;
+        }
+      });
+    }
+
+    return filteredData;
+  }, [attendeeList, selectedRole, sortNameOption]);
+
   const columns = useMemo<MRT_ColumnDef<Attendee>[]>(
     () => [
       {
@@ -103,7 +136,11 @@ export const DirectoryTableView = () => {
   const handleRoleSelect = (value: string) => {
     const newValue = selectedRole === value ? null : value;
     setSelectedRole(newValue);
-    table.setGlobalFilter(newValue);
+  };
+
+  const handleNameFilterSelect = (value: string | null) => {
+    const newValue = sortNameOption === value ? null : value;
+    setSortNameOption(newValue);
   };
   return (
     <Container>
@@ -128,12 +165,14 @@ export const DirectoryTableView = () => {
             </Box>
             <Box>
               <Select
+                value={sortNameOption}
+                onChange={() => handleNameFilterSelect(sortNameOption)}
                 placeholder="Sort By: "
                 data={[
-                  "First Name (A -> Z)",
-                  "First Name (Z -> A)",
-                  "Last Name (A -> Z)",
-                  "Last Name (Z -> A)",
+                  { value: "firstNameAZ", label: "First Name (A → Z)" },
+                  { value: "firstNameZA", label: "First Name (Z → A)" },
+                  { value: "lastNameAZ", label: "Last Name (A → Z)" },
+                  { value: "lastNameZA", label: "Last Name (Z → A)" },
                 ]}
               />
             </Box>
