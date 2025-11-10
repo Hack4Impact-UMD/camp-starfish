@@ -101,8 +101,11 @@ export function useActivityData({
   return useQuery<ActivityData>({
     queryKey: ["activity", sessionId, sectionId, blockId, activityIndex],
     queryFn: async () => {
+      console.log('Fetching activity data:', { sessionId, sectionId, blockId, activityIndex });
+      
       // Fetch section data
       const section = await getSectionById(sessionId, sectionId);
+      console.log('Section fetched:', section);
       
       // Only fetch schedule if it's a scheduling section
       if (section.type === 'COMMON') {
@@ -112,6 +115,9 @@ export function useActivityData({
       const schedulingSection = section as SchedulingSectionID;
 
       // Fetch schedule from sections/schedule subcollection
+      const scheduleDocId = `${sectionId}-schedule`;
+      const schedulePath = `sessions/${sessionId}/sections/${sectionId}/schedule/${scheduleDocId}`;
+      
       const scheduleDoc = doc(
         db,
         Collection.SESSIONS,
@@ -119,13 +125,20 @@ export function useActivityData({
         SessionsSubcollection.SECTIONS,
         sectionId,
         SectionsSubcollection.SCHEDULE,
-        SectionsSubcollection.SCHEDULE // The doc ID is the same as the collection name
+        scheduleDocId
       ) as DocumentReference<SectionScheduleID<SchedulingSectionType>, SectionSchedule<SchedulingSectionType>>;
       
-      const schedule = await getDoc<SectionScheduleID<SchedulingSectionType>, SectionSchedule<SchedulingSectionType>>(
-        scheduleDoc,
-        scheduleConverter
-      );
+      let schedule;
+      try {
+        schedule = await getDoc<SectionScheduleID<SchedulingSectionType>, SectionSchedule<SchedulingSectionType>>(
+          scheduleDoc,
+          scheduleConverter
+        );
+        console.log('Schedule fetched:', schedule);
+      } catch (scheduleError) {
+        console.error('Error fetching schedule:', scheduleError);
+        throw new Error(`Failed to fetch schedule from ${schedulePath}: ${scheduleError}`);
+      }
 
       // Fetch attendees from sessions/attendees subcollection
       const attendeesRef = collection(
@@ -153,6 +166,7 @@ export function useActivityData({
           adminAttendeeConverter
         ),
       ]);
+      console.log('Attendees fetched:', { campers: campers.length, staff: staff.length, admins: admins.length });
 
       return {
         section: schedulingSection,
@@ -163,5 +177,6 @@ export function useActivityData({
       };
     },
     enabled: !!sessionId && !!sectionId && !!blockId,
+    retry: false, // Don't retry on failure for easier debugging
   });
 }

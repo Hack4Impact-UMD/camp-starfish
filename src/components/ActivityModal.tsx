@@ -12,11 +12,12 @@ import {
 } from "@/types/sessionTypes";
 
 interface ActivityModalProps {
-  trigger: React.ReactNode;
+  trigger?: React.ReactNode;
   sessionId: string;
   sectionId: string;
   blockId: string;
   activityIndex: number;
+  defaultOpen?: boolean;
 }
 
 const ActivityModal: React.FC<ActivityModalProps> = ({
@@ -25,8 +26,9 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
   sectionId,
   blockId,
   activityIndex,
+  defaultOpen = false,
 }) => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(defaultOpen);
 
   const { data, isLoading, error } = useActivityData({
     sessionId,
@@ -85,17 +87,19 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
 
   return (
     <>
-      <div onClick={() => setIsOpen(true)} className="cursor-pointer">
-        {trigger}
-      </div>
+      {trigger && (
+        <div onClick={() => setIsOpen(true)} className="cursor-pointer">
+          {trigger}
+        </div>
+      )}
 
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
-          <div className="relative bg-camp-background-modal rounded-lg shadow-lg w-full max-w-2xl mx-4 p-8">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="relative bg-camp-background-modal rounded-lg shadow-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto p-8">
             {/* Close Button */}
             <button
               onClick={() => setIsOpen(false)}
-              className="absolute top-6 right-6 flex-shrink-0 hover:opacity-70 transition"
+              className="sticky top-0 float-right flex-shrink-0 hover:opacity-70 transition z-10 bg-camp-background-modal"
             >
               <Image
                 src={cross.src}
@@ -127,146 +131,67 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
             {/* Content */}
             {data && activity && !isLoading && !error && (
               <div className="space-y-6">
-                {/* Section Type Badge */}
-                <div className="inline-block bg-camp-primary text-white px-4 py-2 rounded-full font-lato font-semibold text-sm">
-                  {data.section.type.replace(/-/g, ' ')}
-                </div>
-
-                {/* Date Range */}
-                <div className="text-camp-text-modalSecondaryTitle font-lato text-lg">
-                  {formatDateRange(data.section.startDate, data.section.endDate)}
-                </div>
-
-                {/* Activity Name & Details */}
-                <div className="border-b border-gray-300 pb-4">
-                  <h2 className="text-3xl font-lato font-bold text-camp-text-modalTitle mb-2">
-                    {activity.name}
+                {/* First Row: Section and Date */}
+                <div className="bg-camp-background rounded-lg p-6 border border-gray-200">
+                  <h2 className="text-2xl font-bold text-camp-text-modalTitle mb-2">
+                    {data.section.name}
                   </h2>
-                  
-                  {/* Bundle-specific info */}
-                  {'programArea' in activity && (activity as unknown as BundleActivity).programArea && (
-                    <div className="text-camp-text-modalSecondaryTitle font-lato text-base">
-                      <span className="font-semibold">Program Area:</span>{' '}
-                      {(activity as unknown as BundleActivity).programArea.name}
-                    </div>
-                  )}
-                  
-                  {/* Description */}
+                  <p className="text-lg text-camp-text-secondary">
+                    {formatDateRange(data.section.startDate, data.section.endDate)}
+                  </p>
+                </div>
+
+                {/* Second Row: Block and Activity */}
+                <div className="bg-camp-background rounded-lg p-6 border border-gray-200">
+                  <h3 className="text-xl font-bold text-camp-text-modalTitle">
+                    BLOCK {blockId.toUpperCase()} - "{activity.name.toUpperCase()}"
+                  </h3>
                   {activity.description && (
-                    <p className="text-camp-text-modalSecondaryTitle font-lato text-base mt-2">
+                    <p className="text-sm text-camp-text-secondary mt-2">
                       {activity.description}
                     </p>
                   )}
-                  
-                  {/* Age Group for Bundle activities */}
-                  {'ageGroup' in activity && (activity as unknown as BundleActivity).ageGroup && (
-                    <div className="text-camp-text-modalSecondaryTitle font-lato text-base mt-1">
-                      <span className="font-semibold">Age Group:</span>{' '}
-                      {(activity as unknown as BundleActivity).ageGroup}
-                    </div>
-                  )}
                 </div>
 
-                {/* Assignments Section */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Campers Column */}
-                  {'camperIds' in activity.assignments && (
-                    <div>
-                      <h3 className="text-xl font-lato font-bold text-camp-text-modalTitle mb-3">
-                        Campers
-                      </h3>
-                      <div className="space-y-2">
-                        {(activity.assignments as IndividualAssignments).camperIds?.length > 0 ? (
-                          (activity.assignments as IndividualAssignments).camperIds.map((camperId) => (
-                            <div
-                              key={camperId}
-                              className="bg-white border border-gray-300 rounded-md px-4 py-2 font-lato text-base"
-                            >
-                              {getAttendeeName(camperId, 'CAMPER')}
-                            </div>
-                          ))
-                        ) : (
-                          <p className="text-camp-text-modalSecondaryTitle font-lato italic">
-                            No campers assigned
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  )}
-                  
-                  {/* Bunk Assignments (for Bunk Jamboree) */}
-                  {'bunkNums' in activity.assignments && (
-                    <div>
-                      <h3 className="text-xl font-lato font-bold text-camp-text-modalTitle mb-3">
-                        Bunks
-                      </h3>
-                      <div className="space-y-2">
-                        {(activity.assignments as BunkAssignments).bunkNums?.length > 0 ? (
-                          (activity.assignments as BunkAssignments).bunkNums.map((bunkNum) => (
-                            <div
-                              key={bunkNum}
-                              className="bg-white border border-gray-300 rounded-md px-4 py-2 font-lato text-base"
-                            >
-                              Bunk {bunkNum}
-                            </div>
-                          ))
-                        ) : (
-                          <p className="text-camp-text-modalSecondaryTitle font-lato italic">
-                            No bunks assigned
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Staff & Admins Column */}
-                  <div>
-                    <h3 className="text-xl font-lato font-bold text-camp-text-modalTitle mb-3">
-                      Staff & Admins
-                    </h3>
-                    <div className="space-y-2">
-                      {/* Staff */}
-                      {'staffIds' in activity.assignments && 
-                        (activity.assignments as IndividualAssignments).staffIds?.map((staffId) => (
-                          <div
-                            key={staffId}
-                            className="bg-white border border-gray-300 rounded-md px-4 py-2 font-lato text-base"
-                          >
-                            {getAttendeeName(staffId, 'STAFF')}
-                          </div>
-                        ))}
-                      
-                      {/* Admins */}
-                      {activity.assignments.adminIds?.map((adminId) => (
-                        <div
-                          key={adminId}
-                          className="bg-white border border-gray-300 rounded-md px-4 py-2 font-lato text-base font-bold"
-                        >
-                          {getAttendeeName(adminId, 'ADMIN')} (Admin)
+                {/* Third Row: Staff and Campers Grid */}
+                <div className="grid grid-cols-2 gap-6 border border-gray-200 rounded-lg overflow-hidden">
+                  {/* Staff Column */}
+                  <div className="bg-camp-background p-6 border-r border-gray-200">
+                    <h4 className="text-lg font-bold text-camp-text-modalTitle mb-4 text-center">
+                      Staff
+                    </h4>
+                    <div className="space-y-3">
+                      {('staffIds' in activity.assignments) && (activity.assignments as IndividualAssignments).staffIds?.map((staffId) => (
+                        <div key={staffId} className="border border-gray-300 rounded p-3 text-center bg-white">
+                          {getAttendeeName(staffId, 'STAFF')}
                         </div>
                       ))}
-                      
-                      {/* Empty state */}
-                      {(!('staffIds' in activity.assignments) || 
-                         (activity.assignments as IndividualAssignments).staffIds?.length === 0) &&
-                       (!activity.assignments.adminIds || 
-                        activity.assignments.adminIds.length === 0) && (
-                        <p className="text-camp-text-modalSecondaryTitle font-lato italic">
-                          No staff or admins assigned
-                        </p>
-                      )}
+                      {activity.assignments.adminIds && activity.assignments.adminIds.map((adminId) => (
+                        <div key={adminId} className="border border-gray-300 rounded p-3 text-center bg-white">
+                          {getAttendeeName(adminId, 'ADMIN')}
+                        </div>
+                      ))}
                     </div>
                   </div>
-                </div>
 
-                {/* Close Button */}
-                <div className="flex justify-center pt-4">
-                  <button
-                    onClick={() => setIsOpen(false)}
-                    className="bg-camp-buttons-neutral text-black px-8 py-3 rounded-full font-lato font-semibold text-lg hover:bg-gray-400 transition"
-                  >
-                    CLOSE
-                  </button>
+                  {/* Campers Column */}
+                  <div className="bg-camp-background p-6">
+                    <h4 className="text-lg font-bold text-camp-text-modalTitle mb-4 text-center">
+                      Camper
+                    </h4>
+                    <div className="space-y-3">
+                      {('camperIds' in activity.assignments) && (activity.assignments as IndividualAssignments).camperIds?.map((camperId) => (
+                        <div key={camperId} className="border border-gray-300 rounded p-3 text-center bg-white">
+                          {getAttendeeName(camperId, 'CAMPER')}
+                        </div>
+                      ))}
+                      {('bunkNums' in activity.assignments) && (activity.assignments as BunkAssignments).bunkNums?.map((bunkNum) => (
+                        <div key={bunkNum} className="border border-gray-300 rounded p-3 text-center bg-white">
+                          Bunk {bunkNum}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
