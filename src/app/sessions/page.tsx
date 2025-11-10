@@ -3,11 +3,12 @@
 import SessionsPage from "@/components/SessionsPage";
 import { useSessions } from "@/hooks/sessions/useSessions";
 import moment from "moment";
+import LoadingPage from "../loading";
 
 export default function Page() {
   const { data: sessions, isLoading, isError } = useSessions();
 
-  if (isLoading) return <p>Loading sessions...</p>;
+  if (isLoading) return <LoadingPage />;
   if (isError) return <p>Error loading sessions.</p>;
 
   // Format session dates if needed
