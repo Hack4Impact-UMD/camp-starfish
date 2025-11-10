@@ -12,6 +12,7 @@ import { useMemo, useState } from "react";
 import { Attendee, AttendeeID } from "@/types/sessionTypes";
 import { Box, Button, Container, Flex, Radio, Select } from "@mantine/core";
 import useDirectoryTable from "./useDirectoryTable";
+import { DirectoryTableCell } from "./DirectoryTableCell";
 
 export const DirectoryTableView = () => {
   const { attendeeList, isLoading, error } = useDirectoryTable("session1");
@@ -49,56 +50,133 @@ export const DirectoryTableView = () => {
     return filteredData;
   }, [attendeeList, selectedRole, sortNameOption]);
 
+  const renderCell = (value: string) => {
+    console.log(value);
+    return value === undefined ? "N/A" : value;
+  };
+
   const columns = useMemo<MRT_ColumnDef<Attendee>[]>(
     () => [
       {
         accessorFn: (row) => `${row.name.firstName}`,
         id: "firstName",
         header: "FIRST NAME",
+        mantineTableBodyCellProps: {
+          align: "center",
+        },
+        mantineTableHeadCellProps: {
+          align: 'center',
+        },
+        Cell: ({ cell }) => <DirectoryTableCell data={renderCell(cell.getValue() as string)} />
       },
       {
         accessorFn: (row) => `${row.name.lastName}`,
         id: "lastName",
         header: "LAST NAME",
+        mantineTableBodyCellProps: {
+          align: "center",
+        },
+        mantineTableHeadCellProps: {
+          align: 'center',
+        },
+        Cell: ({ cell }) => 
+          <DirectoryTableCell data={renderCell(cell.getValue() as string)} />
+          
       },
       {
         accessorKey: "ageGroup",
         id: "ageGroup",
         header: "AGE GROUP",
+        mantineTableBodyCellProps: {
+          align: "center",
+        },
+        mantineTableHeadCellProps: {
+          align: 'center',
+        },
+        Cell: ({ cell }) => <DirectoryTableCell data={renderCell(cell.getValue() as string)} />
       },
       {
         accessorKey: "bunk",
         id: "bunk",
         header: "BUNK",
+        mantineTableBodyCellProps: {
+          align: "center",
+        },
+        mantineTableHeadCellProps: {
+          align: 'center',
+        },
+        Cell: ({ cell }) => <DirectoryTableCell data={renderCell(cell.getValue() as string)} />
       },
       {
         accessorKey: "health",
         id: "health",
         header: "HEALTH",
+        mantineTableBodyCellProps: {
+          align: "center",
+        },
+        mantineTableHeadCellProps: {
+          align: 'center',
+        },
+        Cell: ({ cell }) => <DirectoryTableCell data={renderCell(cell.getValue() as string)} />
       },
       {
         accessorKey: "gender",
         header: "GENDER",
+        mantineTableBodyCellProps: {
+          align: "center",
+        },
+        mantineTableHeadCellProps: {
+          align: 'center',
+        },
+        Cell: ({ cell }) => <DirectoryTableCell data={renderCell(cell.getValue() as string)} />
       },
       {
         accessorKey: "nonoList",
         id: "nonoList",
         header: "NO-NO LIST",
+        mantineTableBodyCellProps: {
+          align: "center",
+        },
+        mantineTableHeadCellProps: {
+          align: 'center',
+        },
+        Cell: ({ cell }) => <DirectoryTableCell data={renderCell(cell.getValue() as string)} />
       },
       {
         accessorKey: "yesyesList",
         id: "yesyesList",
         header: "YES-YES LIST",
+        mantineTableBodyCellProps: {
+          align: "center",
+        },
+        mantineTableHeadCellProps: {
+          align: 'center',
+        },
+        Cell: ({ cell }) => <DirectoryTableCell data={renderCell(cell.getValue() as string)} />
       },
       {
         accessorKey: "dateOfBirth",
         id: "dateOfBirth",
         header: "DATE OF BIRTH",
+        mantineTableBodyCellProps: {
+          align: "center",
+        },
+        mantineTableHeadCellProps: {
+          align: 'center',
+        },
+        Cell: ({ cell }) => <DirectoryTableCell data={renderCell(cell.getValue() as string)} />
       },
       {
         accessorKey: "swimlevel",
         id: "swimLevel",
         header: "SWIM LEVEL",
+        mantineTableBodyCellProps: {
+          align: "center",
+        },
+        mantineTableHeadCellProps: {
+          align: 'center',
+        },
+        Cell: ({ cell }) => <DirectoryTableCell data={renderCell(cell.getValue() as string)} />
       },
     ],
     []
