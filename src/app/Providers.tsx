@@ -1,20 +1,17 @@
 "use client";
 
-import React from "react";
+import React, { JSX } from "react";
 import "@mantine/core/styles.css";
 import { MantineProvider } from "@mantine/core";
 import { theme } from "@/styles/theme";
 import AuthProvider from "@/auth/AuthProvider";
-import { NotificationsProvider } from "@/features/notifications";
+import { Notifications } from "@mantine/notifications";
 
-export default function Providers({ children }: { children: React.ReactNode }) {
+export default function Providers({ children }: { children: JSX.Element }) {
   return (
     <MantineProvider theme={theme}>
-      <AuthProvider>
-        <NotificationsProvider>
-          {children}
-        </NotificationsProvider>
-      </AuthProvider>
+      <Notifications position="bottom-right" />
+      <AuthProvider>{children}</AuthProvider>
     </MantineProvider>
   );
 }
