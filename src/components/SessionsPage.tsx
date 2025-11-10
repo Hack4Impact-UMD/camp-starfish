@@ -78,10 +78,6 @@ export default function SessionsPage({ sessions }: SessionsPageProps) {
                 alt="Edit"
                 width={18}
                 height={18}
-                style={{
-                  filter:
-                    "invert(100%) sepia(100%) saturate(0%) hue-rotate(180deg)",
-                }}
               />
             }
             onClick={() => setEditMode((prev) => !prev)}
