@@ -145,8 +145,6 @@ export default function SessionsPage({ sessions }: SessionsPageProps) {
         </Group>
       </Stack>
 
-      <Divider />
-
       {/* Non-Current Sessions */}
       <Stack gap={12}>
         <Title order={3}>Non-Current Session</Title>
