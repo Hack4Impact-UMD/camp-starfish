@@ -27,9 +27,8 @@ export default function SessionCard({
       key={session.id}
       shadow="md"
       radius="lg"
-      withBorder
       classNames={{
-        root: "relative w-[260px] border-gray-300 bg-gray-100",
+        root: "relative w-[260px] bg-neutral-1",
       }}
     >
     {/* Trash Icon wrapper */}
