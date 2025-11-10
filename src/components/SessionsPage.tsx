@@ -24,10 +24,10 @@ interface SessionsPageProps {
 export default function SessionsPage({ sessions }: SessionsPageProps) {
   const [editMode, setEditMode] = useState(false);
   const deleteSessionMutation = useDeleteSession();
-  const now = moment();
 
   // --- Categorize sessions ---
   const { current, future, past } = useMemo(() => {
+    const now = moment();
     const current: SessionID[] = [];
     const future: SessionID[] = [];
     const past: SessionID[] = [];
@@ -45,7 +45,7 @@ export default function SessionsPage({ sessions }: SessionsPageProps) {
     past.sort((a, b) => moment(b.startDate).diff(moment(a.startDate)));
 
     return { current, future, past };
-  }, [sessions, now]);
+  }, [sessions]);
 
   // --- Handlers ---
   const handleCreateSession = (type: "standard" | "customized") => {
