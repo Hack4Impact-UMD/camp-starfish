@@ -12,13 +12,13 @@ import {
 } from "@mantine/core";
 import moment from "moment";
 import Image from "next/image";
-import { Session } from "@/types/sessionTypes";
+import { SessionID } from "@/types/sessionTypes";
 import pencilIcon from "@/assets/icons/pencilIcon.svg";
 import SessionCard from "@/components/SessionCard";
 import { useDeleteSession } from "@/hooks/sessions/useDeleteSession";
 
 interface SessionsPageProps {
-  sessions: Session[];
+  sessions: SessionID[];
 }
 
 export default function SessionsPage({ sessions }: SessionsPageProps) {
@@ -28,9 +28,9 @@ export default function SessionsPage({ sessions }: SessionsPageProps) {
 
   // --- Categorize sessions ---
   const { current, future, past } = useMemo(() => {
-    const current: Session[] = [];
-    const future: Session[] = [];
-    const past: Session[] = [];
+    const current: SessionID[] = [];
+    const future: SessionID[] = [];
+    const past: SessionID[] = [];
 
     for (const s of sessions) {
       const start = moment(s.startDate);

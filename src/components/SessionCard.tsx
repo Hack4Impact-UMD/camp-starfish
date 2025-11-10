@@ -4,10 +4,10 @@ import { Card, Stack, Title, Text, Button, ActionIcon } from "@mantine/core";
 import Image from "next/image";
 import moment from "moment";
 import trashIcon from "@/assets/icons/trashIcon.svg";
-import { Session } from "@/types/sessionTypes";
+import { SessionID } from "@/types/sessionTypes";
 
 interface SessionCardProps {
-  session: Session;
+  session: SessionID;
   editMode: boolean;
   onDelete: (id: string) => void;
   onOpenSchedule?: (id: string) => void;
