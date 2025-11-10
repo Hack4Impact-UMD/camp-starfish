@@ -21,7 +21,11 @@ export async function setDoc<AppModelType, DbModelType extends DocumentData>(ref
     ref = ref.withConverter(converter);
     // @ts-expect-error - both Transaction & WriteBatch have a set with the same signature, but TypeScript fails to recognize that
     await (instance ? instance.set(ref, data) : setFirestore(ref, data));
-  } catch {
+  } catch (error) {
+    console.error("Failed to create document. Full error:", error);
+    if (error instanceof FirebaseError) {
+      throw Error(`Failed to create document: ${error.code} - ${error.message}`);
+    }
     throw Error("Failed to create document");
   }
 }
