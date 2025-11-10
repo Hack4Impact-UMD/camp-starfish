@@ -60,12 +60,6 @@ export default function SessionsPage({ sessions }: SessionsPageProps) {
     }
   };
 
-  const handleOpenSchedule = (id: string) => {
-    console.log("Open schedule for session:", id);
-    // Add navigation logic here
-    // For example: router.push(`/sessions/${id}/schedule`)
-  };
-
   return (
     <Stack gap={36} p="md">
       {/* Top bar */}
@@ -132,11 +126,10 @@ export default function SessionsPage({ sessions }: SessionsPageProps) {
           {current.length ? (
             current.map((session) => (
               <SessionCard
-                key={session.name}
+                key={session.id}
                 session={session}
                 editMode={editMode}
                 onDelete={handleDelete}
-                onOpenSchedule={handleOpenSchedule}
               />
             ))
           ) : (
@@ -160,7 +153,6 @@ export default function SessionsPage({ sessions }: SessionsPageProps) {
                   session={session}
                   editMode={editMode}
                   onDelete={handleDelete}
-                  onOpenSchedule={handleOpenSchedule}
                 />
               ))
             ) : (
@@ -180,7 +172,6 @@ export default function SessionsPage({ sessions }: SessionsPageProps) {
                   session={session}
                   editMode={editMode}
                   onDelete={handleDelete}
-                  onOpenSchedule={handleOpenSchedule}
                 />
               ))
             ) : (

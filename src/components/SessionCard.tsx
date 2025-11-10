@@ -5,25 +5,26 @@ import Image from "next/image";
 import moment from "moment";
 import trashIcon from "@/assets/icons/trashIcon.svg";
 import { SessionID } from "@/types/sessionTypes";
+import { useRouter } from "next/navigation";
 
 interface SessionCardProps {
   session: SessionID;
   editMode: boolean;
   onDelete: (id: string) => void;
-  onOpenSchedule?: (id: string) => void;
 }
 
 export default function SessionCard({
   session,
   editMode,
   onDelete,
-  onOpenSchedule,
 }: SessionCardProps) {
+  const router = useRouter();
+
   const formatDate = (date: string) => moment(date).format("dddd, MMMM Do");
 
   return (
     <Card
-      key={session.name}
+      key={session.id}
       shadow="md"
       radius="lg"
       withBorder
@@ -63,7 +64,7 @@ export default function SessionCard({
       mt="sm"
       color="secondary-green"
       radius="xl"
-      onClick={() => onOpenSchedule?.(session.id)}
+      onClick={() => router.push(`/sessions/${session.id}`)}
     >
       GO TO SCHEDULE
     </Button>
