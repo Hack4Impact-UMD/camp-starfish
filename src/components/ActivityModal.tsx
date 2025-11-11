@@ -42,19 +42,15 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
     const start = new Date(startDate);
     const end = new Date(endDate);
     
-    const startFormatted = start.toLocaleDateString("en-US", {
-      weekday: "long",
-      month: "numeric",
-      day: "numeric",
-    });
+    const formatDate = (date: Date) => {
+      const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+      const weekday = days[date.getDay()];
+      const month = date.getMonth() + 1;
+      const day = date.getDate();
+      return `${weekday} ${month}/${day}`;
+    };
     
-    const endFormatted = end.toLocaleDateString("en-US", {
-      weekday: "long",
-      month: "numeric",
-      day: "numeric",
-    });
-    
-    return `${startFormatted} - ${endFormatted}`;
+    return `${formatDate(start)} - ${formatDate(end)}`;
   };
 
   // Helper to get attendee name by ID
