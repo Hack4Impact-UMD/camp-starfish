@@ -10,16 +10,10 @@ import {
   QueryDocumentSnapshot,
   DocumentReference,
   collection,
-  getDocs,
+  CollectionReference
 } from "firebase/firestore";
 import { Collection } from "./utils";
-import {
-  setDoc,
-  deleteDoc,
-  getDoc,
-  updateDoc,
-} from "./firestoreClientOperations";
-import { query } from "firebase/firestore";
+import { setDoc, deleteDoc, getDoc, updateDoc, executeQuery } from "./firestoreClientOperations";
 
 const sessionFirestoreConverter: FirestoreDataConverter<SessionID, Session> = {
   toFirestore: (
@@ -42,6 +36,10 @@ export async function getSessionById(
     sessionFirestoreConverter,
     transaction
   );
+}
+
+export async function getAllSessions(): Promise<SessionID[]> {
+  return await executeQuery<SessionID, Session>(collection(db, Collection.SESSIONS) as CollectionReference<SessionID, Session>, sessionFirestoreConverter);
 }
 
 export async function setSession(
