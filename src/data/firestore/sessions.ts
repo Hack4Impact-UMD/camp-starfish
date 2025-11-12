@@ -10,10 +10,17 @@ import {
   QueryDocumentSnapshot,
   DocumentReference,
   collection,
-  CollectionReference
+  CollectionReference,
+  getDocs,
 } from "firebase/firestore";
 import { Collection } from "./utils";
-import { setDoc, deleteDoc, getDoc, updateDoc, executeQuery } from "./firestoreClientOperations";
+import {
+  setDoc,
+  deleteDoc,
+  getDoc,
+  updateDoc,
+  executeQuery,
+} from "./firestoreClientOperations";
 
 const sessionFirestoreConverter: FirestoreDataConverter<SessionID, Session> = {
   toFirestore: (
@@ -39,7 +46,13 @@ export async function getSessionById(
 }
 
 export async function getAllSessions(): Promise<SessionID[]> {
-  return await executeQuery<SessionID, Session>(collection(db, Collection.SESSIONS) as CollectionReference<SessionID, Session>, sessionFirestoreConverter);
+  return await executeQuery<SessionID, Session>(
+    collection(db, Collection.SESSIONS) as CollectionReference<
+      SessionID,
+      Session
+    >,
+    sessionFirestoreConverter
+  );
 }
 
 export async function setSession(
@@ -83,10 +96,11 @@ export async function deleteSession(
   );
 }
 
-export async function getAllAttendeesBySession(
-  { queryKey }: { queryKey: [string, string] },
-  limit?: number
-) {
+export async function getAllAttendeesBySession({
+  queryKey,
+}: {
+  queryKey: [string, string];
+}) {
   const res: AttendeeID[] = [];
   const [_, sessionID] = queryKey;
   const sessionRef = doc(db, "sessions", sessionID);
