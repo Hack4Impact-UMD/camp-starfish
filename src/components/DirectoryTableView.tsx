@@ -87,7 +87,7 @@ export const DirectoryTableView = () => {
 
   const parseIDList = (idList: string[]): string => {
     console.log(idList);
-    if (!attendeeIDMap) {
+    if (!attendeeIDMap || !idList) {
       return "N/A";
     }
     let names: string[] = [];
@@ -176,7 +176,7 @@ export const DirectoryTableView = () => {
         id: "yesyesList",
         header: "YES-YES LIST",
         Cell: ({ cell }) => (
-          <DirectoryTableCell data={renderCell(cell.getValue() as string)} />
+          <DirectoryTableCell data={parseIDList(cell.getValue() as string[])} />
         ),
       },
       {
