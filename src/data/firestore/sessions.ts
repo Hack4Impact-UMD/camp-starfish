@@ -1,5 +1,5 @@
 import { db } from "@/config/firebase";
-import { Attendee, Session, SessionID } from "@/types/sessionTypes";
+import { AttendeeID, Session, SessionID } from "@/types/sessionTypes";
 import { v4 as uuid } from "uuid";
 import {
   doc,
@@ -89,14 +89,14 @@ export async function getAllAttendeesBySession(
   { queryKey }: { queryKey: [string, string] },
   limit?: number
 ) {
-  const res: Attendee[] = [];
+  const res: AttendeeID[] = [];
   const [_, sessionID] = queryKey;
   const sessionRef = doc(db, "sessions", sessionID);
   let attendeesRef = collection(sessionRef, "attendees");
 
   const querySnapshot = await getDocs(attendeesRef);
   querySnapshot.forEach((attendee) => {
-    res.push(attendee.data() as Attendee);
+    res.push(attendee.data() as AttendeeID);
   });
 
   return res;

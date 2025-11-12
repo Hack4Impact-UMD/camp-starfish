@@ -8,7 +8,7 @@ export const DirectoryTableCell : React.FC<DirectoryTableCellProps> = ({
     data,
 }) => {
     return (
-        <Box className="border border-gray-300 rounded-md px-3 py-2 text-center bg-white">
+        <Box className="border border-neutral-5 text-center py-3 px-2 bg-white">
             {data}
         </Box>
     );
