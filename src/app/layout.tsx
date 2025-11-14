@@ -4,10 +4,10 @@ import Navbar from "../components/Navbar"; // Adjust the path as needed
 import Footer from "../components/Footer";
 import "@mantine/core/styles.css";
 import localFont from "next/font/local";
-import Providers from "./Providers";
 import { NextFontWithVariable } from "next/dist/compiled/@next/font";
 import { CampStarfishFont, campStarfishFonts } from "@/styles/fonts";
- 
+import Providers from "@/components/Providers";
+
 const lato = localFont({
   src: [
     {
@@ -61,7 +61,7 @@ const lato = localFont({
       style: "italic",
     },
   ],
-  variable: '--font-Lato',
+  variable: "--font-Lato",
 });
 
 const newSpirit = localFont({
@@ -128,9 +128,9 @@ const besteam = localFont({
 });
 
 const fontObjs: Record<CampStarfishFont, NextFontWithVariable> = {
-  'Lato': lato,
-  'NewSpirit': newSpirit,
-  'Besteam': besteam
+  Lato: lato,
+  NewSpirit: newSpirit,
+  Besteam: besteam,
 };
 
 export const metadata: Metadata = {
@@ -146,7 +146,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${campStarfishFonts.map((font) => fontObjs[font].variable).join(' ')} antialiased w-full min-h-screen flex flex-col`}
+        className={`${campStarfishFonts
+          .map((font) => fontObjs[font].variable)
+          .join(" ")} antialiased w-full min-h-screen flex flex-col`}
       >
         <Providers>
           <>

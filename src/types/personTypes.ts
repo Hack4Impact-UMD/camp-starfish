@@ -1,7 +1,7 @@
 import { PhotoPermissions } from "./albumTypes";
 import { ID } from "./utils";
 
-interface Person {
+export interface Person {
   name: {
     firstName: string;
     middleName?: string;

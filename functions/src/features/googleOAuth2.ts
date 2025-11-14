@@ -1,8 +1,8 @@
 import { onRequest } from "firebase-functions/https";
-import { adminAuth, adminDb } from "../config/firebaseAdminConfig";
+import { adminAuth } from "../config/firebaseAdminConfig";
 import { getFunctionsURL } from "@/utils/firebaseUtils";
 import { Credentials, OAuth2Client, TokenPayload } from "google-auth-library";
-import { Collection } from "../types/serverAuthTypes";
+import { setGoogleCredentials, updateGoogleCredentials } from "../data/firestore/googleCredentials";
 
 const handleOAuth2Code = onRequest(async (req, res) => {
   if (req.method !== 'GET') {
@@ -57,7 +57,7 @@ const handleOAuth2Code = onRequest(async (req, res) => {
   }
 
   const uid = user.uid;
-  await adminDb.collection(Collection.GOOGLE_OAUTH2_TOKENS).doc(uid).set(tokens);
+  await setGoogleCredentials(uid, tokens);
 
   res.status(303).redirect(`${process.env.NEXT_PUBLIC_DOMAIN}?success=true`);
 });
@@ -73,7 +73,7 @@ export async function refreshAccessToken(oauth2Client: OAuth2Client, uid: string
     throw new Error("Failed to refresh access token");
   }
   oauth2Client.setCredentials(tokens);
-  await adminDb.collection(Collection.GOOGLE_OAUTH2_TOKENS).doc(uid).set(tokens);
+  await updateGoogleCredentials(uid, tokens);
 }
 
 export const googleOAuth2CloudFunctions = {
