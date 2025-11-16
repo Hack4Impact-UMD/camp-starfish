@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Box, Container, Flex } from '@mantine/core';
+import { Box, Container, Flex, Table } from '@mantine/core';
 import {
-  MantineReactTable,
-  MRT_ColumnDef,
-  useMantineReactTable,
-} from 'mantine-react-table';
+  useReactTable,
+  getCoreRowModel,
+  ColumnDef,
+  flexRender,
+} from '@tanstack/react-table';
 import { StaffAttendeeID, NightShiftID, AttendeeID } from '@/types/sessionTypes';
 import useNightScheduleTable from './useNightShiftTable';
 
@@ -27,10 +28,21 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
 
   const { nightShifts, attendeeList, isLoading, error } = useNightScheduleTable(sessionId);
 
+  // Debug logging
+  useEffect(() => {
+    console.log('=== DEBUGGING DATA ===');
+    console.log('nightShifts:', nightShifts);
+    console.log('attendeeList:', attendeeList);
+    console.log('isLoading:', isLoading);
+    console.log('error:', error);
+  }, [nightShifts, attendeeList, isLoading, error]);
+
   // Filter to only staff attendees
   const staffAttendees: StaffAttendeeID[] = useMemo(() => {
     if (!attendeeList) return [];
-    return attendeeList.filter((att: AttendeeID) => att.role === "STAFF") as StaffAttendeeID[];
+    const filtered = attendeeList.filter((att: AttendeeID) => att.role === "STAFF") as StaffAttendeeID[];
+    console.log('staffAttendees:', filtered);
+    return filtered;
   }, [attendeeList]);
 
   const [attendeeMap, setAttendeeMap] = useState<Map<number, StaffAttendeeID>>(
@@ -46,6 +58,7 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
       });
       setAttendeeMap(map);
       setIsMapReady(true);
+      console.log('attendeeMap created:', map);
     }
   }, [staffAttendees]);
 
@@ -74,12 +87,16 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
 
   // Format date for display
   const formatDate = (isoDate: string) => {
+    console.log('formatDate input:', isoDate);
     const date = new Date(isoDate);
-    return date.toLocaleDateString('en-US', {
+    console.log('parsed date:', date);
+    const formatted = date.toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
       year: 'numeric',
     });
+    console.log('formatted date:', formatted);
+    return formatted;
   };
 
   // Get staff name by ID
@@ -193,11 +210,20 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
 
   // Build table data
   const data: TableRow[] = useMemo(() => {
-    if (!isMapReady || !nightShifts) return [];
+    if (!isMapReady || !nightShifts) {
+      console.log('Data building skipped - isMapReady:', isMapReady, 'nightShifts:', nightShifts);
+      return [];
+    }
+
+    console.log('Building table data...');
+    console.log('nightShifts structure:', nightShifts);
+    console.log('bunkNumbers:', bunkNumbers);
 
     const rows: TableRow[] = [];
 
     nightShifts.forEach((nightShift: NightShiftID, dayIndex: number) => {
+      console.log(`Processing nightShift for day ${dayIndex + 1}:`, nightShift);
+      
       positions.forEach((position: Position) => {
         const row: TableRow = {
           day: `Day ${dayIndex + 1}`,
@@ -208,43 +234,29 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
 
         // Add columns for each bunk
         bunkNumbers.forEach((bunkNum: number) => {
-          row[`bunk${bunkNum}`] = getStaffForPosition(
-            nightShift,
-            bunkNum,
-            position
-          );
+          const staffValue = getStaffForPosition(nightShift, bunkNum, position);
+          row[`bunk${bunkNum}`] = staffValue;
+          if (dayIndex === 0 && position === 'NBD1') {
+            console.log(`Bunk ${bunkNum}, ${position}:`, staffValue);
+          }
         });
 
         rows.push(row);
       });
     });
 
+    console.log('Final table rows:', rows);
     return rows;
   }, [nightShifts, isMapReady, bunkNumbers]);
 
   // Define columns dynamically based on bunks
-  const columns = useMemo<MRT_ColumnDef<TableRow>[]>(() => {
-    const cols: MRT_ColumnDef<TableRow>[] = [
+  const columns = useMemo<ColumnDef<TableRow>[]>(() => {
+    const cols: ColumnDef<TableRow>[] = [
       {
         accessorKey: 'day',
         header: 'DAY',
         size: 120,
-        mantineTableHeadCellProps: {
-          className: 'text-center bg-neutral-3 py-3 px-2 border border-neutral-6',
-        },
-        mantineTableBodyCellProps: ({ row }) => ({
-          className: 'text-center',
-          rowSpan:
-            row.original.position === 'NBD1' ? positions.length : undefined,
-          style: {
-            verticalAlign: 'middle',
-            fontWeight: 600,
-            backgroundColor: '#E6EAEC',
-            display:
-              row.original.position === 'NBD1' ? 'table-cell' : 'none',
-          },
-        }),
-        Cell: ({ row }) => (
+        cell: ({ row }) => (
           <div>
             <div style={{ fontSize: '0.875rem', fontWeight: 600 }}>
               {row.original.day}
@@ -259,13 +271,6 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
         accessorKey: 'position',
         header: 'POSITION',
         size: 100,
-        mantineTableHeadCellProps: {
-          className: 'text-center bg-neutral-3 py-3 px-2 border border-neutral-6',
-        },
-        mantineTableBodyCellProps: {
-          className: 'text-center',
-          style: { fontWeight: 500 },
-        },
       },
     ];
 
@@ -274,31 +279,16 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
       cols.push({
         accessorKey: `bunk${bunkNum}`,
         header: `BUNK ${bunkNum}`,
-        mantineTableHeadCellProps: {
-          className: 'text-center bg-neutral-3 py-3 px-2 border border-neutral-6',
-        },
-        mantineTableBodyCellProps: {
-          className: 'text-center truncate',
-        },
       });
     });
 
     return cols;
   }, [bunkNumbers]);
 
-  const table = useMantineReactTable({
+  const table = useReactTable({
     columns,
     data,
-    enableColumnActions: false,
-    enableDensityToggle: false,
-    enableFullScreenToggle: false,
-    enableHiding: false,
-    enableSorting: false,
-    enableColumnFilters: false,
-    enableGlobalFilter: false,
-    enablePagination: false,
-    enableBottomToolbar: false,
-    enableTopToolbar: false,
+    getCoreRowModel: getCoreRowModel(),
   });
 
   return (
@@ -306,7 +296,113 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
       {(isLoading || !attendeeMap) && <>Loading Table</>}
       <Flex direction={'column'}>
         <Box>
-          <MantineReactTable table={table} />
+          <Table
+            striped
+            highlightOnHover
+            withTableBorder
+            withColumnBorders
+            style={{ borderCollapse: 'collapse' }}
+          >
+            <Table.Thead>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <Table.Tr key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <Table.Th
+                      key={header.id}
+                      style={{
+                        textAlign: 'center',
+                        backgroundColor: '#E6EAEC',
+                        padding: '12px 8px',
+                        border: '1px solid #dee2e6',
+                        fontWeight: 600,
+                      }}
+                    >
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                    </Table.Th>
+                  ))}
+                </Table.Tr>
+              ))}
+            </Table.Thead>
+            <Table.Tbody>
+              {table.getRowModel().rows.map((row) => {
+                const isFirstPositionInDay = row.original.position === 'NBD1';
+                
+                return (
+                  <Table.Tr key={row.id}>
+                    {row.getVisibleCells().map((cell, cellIndex) => {
+                      // Handle the DAY column with rowSpan
+                      if (cellIndex === 0) {
+                        if (!isFirstPositionInDay) {
+                          return null; // Skip rendering for non-first positions
+                        }
+                        return (
+                          <Table.Td
+                            key={cell.id}
+                            rowSpan={positions.length}
+                            style={{
+                              textAlign: 'center',
+                              verticalAlign: 'middle',
+                              fontWeight: 600,
+                              backgroundColor: '#E6EAEC',
+                              border: '1px solid #dee2e6',
+                            }}
+                          >
+                            {flexRender(
+                              cell.column.columnDef.cell,
+                              cell.getContext()
+                            )}
+                          </Table.Td>
+                        );
+                      }
+                      
+                      // Handle POSITION column
+                      if (cellIndex === 1) {
+                        return (
+                          <Table.Td
+                            key={cell.id}
+                            style={{
+                              textAlign: 'center',
+                              fontWeight: 500,
+                              border: '1px solid #dee2e6',
+                            }}
+                          >
+                            {flexRender(
+                              cell.column.columnDef.cell,
+                              cell.getContext()
+                            )}
+                          </Table.Td>
+                        );
+                      }
+                      
+                      // Handle bunk columns
+                      return (
+                        <Table.Td
+                          key={cell.id}
+                          style={{
+                            textAlign: 'center',
+                            border: '1px solid #dee2e6',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                          }}
+                        >
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </Table.Td>
+                      );
+                    })}
+                  </Table.Tr>
+                );
+              })}
+            </Table.Tbody>
+          </Table>
         </Box>
       </Flex>
     </Container>
