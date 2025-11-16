@@ -1,4 +1,4 @@
-import { MantineColorsTuple, MantineTheme, MantineThemeOverride } from "@mantine/core";  
+import { MantineColorsTuple, MantineTheme, MantineThemeOverride, NotificationProps } from "@mantine/core";
 import { campStarfishFonts } from "./fonts";
 
 export const theme: MantineThemeOverride = {
@@ -72,51 +72,44 @@ export const theme: MantineThemeOverride = {
   cursorType: "pointer",
   components: {
     //theme for general toast component notification 
-  Notification: {
-    styles: (theme: MantineTheme, params: Record<string, any>) => {  
-
-      const colorKey = params.color || 'primary';
-      const accent = theme.colors[colorKey][4];
-      const border = theme.colors.neutral[3];
-
-      return {
-        root: {
-          backgroundColor: theme.white,
-          border: `1px solid ${border}`,
-          borderRadius: theme.radius.md,
-          boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
-          padding: '20px 16px',
-          position: 'relative',
-          width: 450,
-          height: 90,
-        },
-        body: {
-          paddingLeft: 12,
-        },
-        icon: { 
-          color: accent 
-        },
-        title: { 
-          fontWeight: 700, color: accent,
-          fontSize: 18,
-        },
-        description: { 
-          color: theme.colors.neutral[5],
-          fontWeight: 510,
-          fontSize: 14,
-        },
-        closeButton: {
-         color: theme.colors.neutral[6],
-         defaultProps: { withBorder: false, closeButtonProps: { iconSize: 90 } },
-        },
-      };
+    Notification: {
+      styles: (theme: MantineTheme, props: NotificationProps) => {
+        const { variant = 'success' } = props;
+        const accent = theme.colors[variant][4];
+        return {
+          root: {
+            backgroundColor: theme.white,
+            border: `1px solid ${theme.colors.neutral[3]}`,
+            borderRadius: theme.radius.md,
+            boxShadow: '0 2px 6px rgba(0, 0, 0, 0.15)',
+            padding: '20px 16px',
+            height: 90,
+          },
+          title: {
+            fontWeight: 700,
+            color: accent,
+            fontSize: 18,
+          },
+          icon: {
+            color: variant
+          },
+          description: {
+            color: theme.colors.neutral[5],
+            fontWeight: 500,
+            fontSize: 14,
+          },
+          closeButton: {
+            color: theme.colors.neutral[6],
+          },
+        };
+      },
+      defaultProps: {
+        withCloseButton: true,
+        withBorder: false,
+        closeButtonProps: {
+          iconSize: 90
+        }
+      },
     },
-    defaultProps: { withBorder: false },
   },
-},
 };
-
-//override the themes for toast notification component here
-//use mantine styles API
-// exit button on right
- //image on left for success (checkmark) and error (x)
