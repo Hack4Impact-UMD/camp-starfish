@@ -1,19 +1,16 @@
-import { db } from "@/config/firebase";
 import { Session, SessionID } from "@/types/sessionTypes";
 import { v4 as uuid } from "uuid";
 import {
-  doc,
   Transaction,
   WriteBatch,
   FirestoreDataConverter,
   WithFieldValue,
   QueryDocumentSnapshot,
   DocumentReference,
-  collection,
-  CollectionReference
-} from "firebase/firestore";
+} from "firebase-admin/firestore";
 import { Collection } from "./utils";
-import { setDoc, deleteDoc, getDoc, updateDoc, executeQuery } from "./firestoreClientOperations";
+import { setDoc, deleteDoc, getDoc, updateDoc } from "./firestoreAdminOperations";
+import { adminDb } from "../../config/firebaseAdminConfig";
 
 const sessionFirestoreConverter: FirestoreDataConverter<SessionID, Session> = {
   toFirestore: (session: WithFieldValue<SessionID>): WithFieldValue<Session> => {
@@ -24,23 +21,19 @@ const sessionFirestoreConverter: FirestoreDataConverter<SessionID, Session> = {
 }
 
 export async function getSessionById(id: string, transaction?: Transaction): Promise<SessionID> {
-  return await getDoc<SessionID, Session>(doc(db, Collection.SESSIONS, id) as DocumentReference<SessionID, Session>, sessionFirestoreConverter, transaction);
-}
-
-export async function getAllSessions(): Promise<SessionID[]> {
-  return await executeQuery<SessionID, Session>(collection(db, Collection.SESSIONS) as CollectionReference<SessionID, Session>, sessionFirestoreConverter);
+  return await getDoc<SessionID, Session>(adminDb.collection(Collection.SESSIONS).doc(id) as DocumentReference<SessionID, Session>, sessionFirestoreConverter, transaction);
 }
 
 export async function setSession(session: Session, instance?: Transaction | WriteBatch): Promise<string> {
   const sessionId = uuid();
-  await setDoc<SessionID, Session>(doc(db, Collection.SESSIONS, sessionId) as DocumentReference<SessionID, Session>, { id: sessionId, ...session }, sessionFirestoreConverter, instance);
+  await setDoc<SessionID, Session>(adminDb.collection(Collection.SESSIONS).doc(sessionId) as DocumentReference<SessionID, Session>, { id: sessionId, ...session }, sessionFirestoreConverter, instance);
   return sessionId;
 }
 
 export async function updateSession(id: string, updates: Partial<Session>, instance?: Transaction | WriteBatch): Promise<void> {
-  await updateDoc<SessionID, Session>(doc(db, Collection.SESSIONS, id) as DocumentReference<SessionID, Session>, updates, sessionFirestoreConverter, instance);
+  await updateDoc<SessionID, Session>(adminDb.collection(Collection.SESSIONS).doc(id) as DocumentReference<SessionID, Session>, updates, sessionFirestoreConverter, instance);
 }
 
 export async function deleteSession(id: string, instance?: Transaction | WriteBatch): Promise<void> {
-  await deleteDoc<SessionID, Session>(doc(db, Collection.SESSIONS, id) as DocumentReference<SessionID, Session>, sessionFirestoreConverter, instance);
+  await deleteDoc<SessionID, Session>(adminDb.collection(Collection.SESSIONS).doc(id) as DocumentReference<SessionID, Session>, sessionFirestoreConverter, instance);
 }
