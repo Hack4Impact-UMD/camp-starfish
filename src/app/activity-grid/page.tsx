@@ -30,7 +30,11 @@ const nonBunkJamboBlock: Block<"NON-BUNK-JAMBO"> = {
     {
       name: "Nature Walk (Non-Bunk)",
       description: "Exploring trails and learning about wildlife.",
-      assignments: { camperIds: [101, 102, 103], staffIds: [401], adminIds: [301] },
+      assignments: {
+        camperIds: [101, 102],
+        staffIds: [401],
+        adminIds: [301],
+      },
     },
     {
       name: "Music (Non-Bunk)",
@@ -42,10 +46,42 @@ const nonBunkJamboBlock: Block<"NON-BUNK-JAMBO"> = {
       description: "Acting warm-ups, improv games, and skits.",
       assignments: { camperIds: [106], staffIds: [403], adminIds: [303] },
     },
+
+    // ---------- NEW ACTIVITIES ----------
+    {
+      name: "Arts & Crafts (Non-Bunk)",
+      description: "Painting, bracelet-making, and creative free art time.",
+      assignments: { camperIds: [107, 108], staffIds: [404], adminIds: [304] },
+    },
+    {
+      name: "Soccer (Non-Bunk)",
+      description: "Scrimmages, drills, and teamwork-focused gameplay.",
+      assignments: { camperIds: [109, 110], staffIds: [405], adminIds: [305] },
+    },
+    {
+      name: "Yoga & Mindfulness (Non-Bunk)",
+      description: "Stretching, breathing exercises, and calm focus.",
+      assignments: { camperIds: [111], staffIds: [406], adminIds: [306] },
+    },
+    {
+      name: "Outdoor Survival (Non-Bunk)",
+      description:
+        "Fire building, shelter making, and basic navigation skills.",
+      assignments: { camperIds: [112, 113], staffIds: [407], adminIds: [307] },
+    },
+    {
+      name: "Photography (Non-Bunk)",
+      description: "Basic camera skills and creative photo challenges.",
+      assignments: { camperIds: [114], staffIds: [408], adminIds: [308] },
+    },
+    {
+      name: "Team Building Games (Non-Bunk)",
+      description: "Problem-solving activities that require collaboration.",
+      assignments: { camperIds: [115, 116], staffIds: [409], adminIds: [309] },
+    },
   ],
   periodsOff: [2, 6],
 };
-
 const sampleProgramArea: ProgramAreaID = {
   name: "Outdoor Skills",
   isDeleted: false,
@@ -95,7 +131,6 @@ const sampleSectionBundle: SectionScheduleID<"BUNDLE"> = {
   blocks: { A: bundleBlock },
   alternatePeriodsOff: {},
 };
-
 
 export default function page() {
   return (
