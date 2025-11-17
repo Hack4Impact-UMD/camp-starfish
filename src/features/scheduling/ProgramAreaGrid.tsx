@@ -138,7 +138,7 @@ export function ProgramAreaGrid({ schedule, sectionName }: ProgramAreaGridProps)
         paddingVertical: 0.5,
       }}>
         <Text style={styles.activityText}>
-          {activity.name}{'\n'}({activity.ageGroup})
+          {`${activity.name} (${activity.ageGroup})`}
         </Text>
       </View>
     ));
@@ -155,7 +155,7 @@ export function ProgramAreaGrid({ schedule, sectionName }: ProgramAreaGridProps)
           </View>
           {areas.map((area) => (
             <View key={area.id} style={[styles.cell, styles.headerCell]}>
-              <Text>{area.name}</Text>
+              <Text>{`${area.name} (${area.id})`}</Text>
             </View>
           ))}
         </View>
