@@ -39,6 +39,7 @@ function SectionPage({
   }
 
   if (isError || !session) {
+
     return (
       <div>
         <div className="p-4">
@@ -55,7 +56,6 @@ function SectionPage({
 
   return (
     <div>
-      <Navbar />
       <div className="p-4">
         <h1 className="text-2xl mb-2 bold">{session.name}</h1>
         <p className="text-sm text-gray-500 mb-4 italic">
