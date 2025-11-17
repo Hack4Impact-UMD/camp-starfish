@@ -4,10 +4,19 @@ import { Button } from "@mantine/core";
 import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { getSessionById } from "@/data/firestore/sessions";
-import { SessionID } from "@/types/sessionTypes";
+import { pdf } from "@react-pdf/renderer";
+import {
+  AdminAttendeeID,
+  CamperAttendeeID,
+  Freeplay,
+  SchedulingSectionType,
+  SectionScheduleID,
+  StaffAttendeeID,
+  SessionID,
+} from "@/types/sessionTypes";
 import LoadingPage from "@/app/loading";
-import Navbar from "../components/Navbar";
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
+import { CombinedPDF } from "@/app/pdf/CombinedExportPDF";
 
 interface BuildInfo {
   timestamp: string;
@@ -17,14 +26,50 @@ interface BuildInfo {
 
 interface SectionPageProps {
   sessionId?: string;
+  fetchSession?: (sessionId: string) => Promise<SessionID>;
 }
 
 function SectionPage({
   sessionId: propSessionId,
+  fetchSession = getSessionById,
 }: SectionPageProps) {
   const params = useParams();
   const sessionId = propSessionId || (params?.sessionId as string);
   const [buildInfo, setBuildInfo] = useState<BuildInfo | null>(null);
+
+  //combines components into PDF page
+  const handleExportPDF = async (
+    schedule: SectionScheduleID<SchedulingSectionType>,
+    freeplay: Freeplay,
+    campers: CamperAttendeeID[],
+    staff: StaffAttendeeID[],
+    admins: AdminAttendeeID[]
+  ) => {
+    try {
+      const blob = await pdf(
+        <CombinedPDF
+          schedule={schedule}
+          freeplay={freeplay}
+          campers={campers}
+          staff={staff}
+          admins={admins}
+        />
+      ).toBlob();
+
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+
+      link.href = url;
+      link.download = "camp-schedule.pdf";
+      document.body.appendChild(link);
+      link.click();
+
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+    }
+  };
 
   useEffect(() => {
     const timestamp =
@@ -48,6 +93,8 @@ function SectionPage({
     }
   }, []);
 
+  //FETCH SESSION DATA
+
   const {
     data: session,
     isLoading,
@@ -55,7 +102,7 @@ function SectionPage({
     error,
   } = useQuery<SessionID>({
     queryKey: ["session", sessionId],
-    queryFn: () => getSessionById(sessionId),
+    queryFn: () => fetchSession(sessionId as string),
     enabled: !!sessionId,
     retry: 2,
   });
@@ -85,44 +132,47 @@ function SectionPage({
 
   return (
     <div>
-      <Navbar />
       <div className="p-4">
-        <h1 className="text-2xl mb-2 bold">{session.name}</h1>
-        <p className="text-sm text-gray-500 mb-4 italic">
-          {buildInfo
-            ? `Last generated: ${buildInfo.formattedDate}${
-                buildInfo.version ? ` • v${buildInfo.version}` : ""
-              }`
-            : "Last generated information unavailable"}
-        </p>
-        <div className="mb-4 text-gray-600">
-        </div>
-        <div className="flex gap-4">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h1 className="text-2xl mb-2 font-bold">{session.name}</h1>
+            <p className="text-sm text-gray-500 mb-4 italic">
+              {buildInfo
+                ? `Last generated: ${buildInfo.formattedDate}${
+                    buildInfo.version ? ` • v${buildInfo.version}` : ""
+                  }`
+                : "Last generated information unavailable"}
+            </p>
+          </div>
           <div className="flex gap-2">
             <Button
               variant="default"
-              color="#06a759"
-              radius="md"
-              className="text-white"
+              radius="xl"
+              className="px-8 min-w-[130px]"
+              style={{ backgroundColor: "#06A759", color: "#ffffff" }}
               onClick={() => {
                 console.log("add functionality here");
               }}
             >
-              Publish
+              PUBLISH
             </Button>
             <Button
               variant="default"
-              color="#274a5c"
-              radius="md"
-              className="text-white"
+              radius="xl"
+              className="px-8 min-w-[130px]"
+              style={{ backgroundColor: "#1f3a48", color: "#ffffff" }}
               onClick={() => {
                 console.log("add functionality here");
+                {
+                  /*  handleExportPDF();*/
+                }
               }}
             >
-              Export
+              EXPORT
             </Button>
           </div>
         </div>
+        <div className="mb-4 text-gray-600"></div>
       </div>
     </div>
   );
