@@ -1,22 +1,15 @@
-import {
-  Block,
-  BlockActivities,
-  SchedulingSectionType,
-} from "@/types/sessionTypes";
+import { Block, SchedulingSectionType } from "@/types/sessionTypes";
 import {
   Box,
-  Center,
-  Container,
   Flex,
-  ScrollArea,
-  SimpleGrid,
   Text,
   useMantineTheme,
+  ActionIcon,
+  ScrollArea,
 } from "@mantine/core";
-import React from "react";
+import React, { useState } from "react";
 import { ActivityCard } from "./ActivityCard";
-
-import { Carousel } from "@mantine/carousel";
+import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 
 interface ActivityGridCellProps {
   block: Block<SchedulingSectionType>;
@@ -28,29 +21,98 @@ export const ActivityGridCell: React.FC<ActivityGridCellProps> = ({
   id,
 }) => {
   const theme = useMantineTheme();
-  return (
-    <>
-      <Container
-        style={{
-          border: `1px solid ${theme.colors["neutral"][5]}`,
-        }}
-      >
-        <Flex gap="md" align="flex-start">
-          <Box w={120}>
-            <Text>Block {id}</Text>
-          </Box>
+  const [currentPage, setCurrentPage] = useState(0);
+  const cardsPerPage = 7;
 
-          <ScrollArea scrollbarSize={4}>
-            <Flex>
-              {block.activities.map((activity, i) => (
-                <Box key={i}>
-                  <ActivityCard id={i + 1} activity={activity} />
-                </Box>
-              ))}
-            </Flex>
-          </ScrollArea>
+  const totalPages = Math.ceil(block.activities.length / cardsPerPage);
+  const startIndex = currentPage * cardsPerPage;
+  const endIndex = Math.min(startIndex + cardsPerPage, block.activities.length);
+  const currentActivities = block.activities.slice(startIndex, endIndex);
+
+  const handlePrevPage = () => {
+    setCurrentPage((prev) => Math.max(0, prev - 1));
+  };
+
+  const handleNextPage = () => {
+    setCurrentPage((prev) => Math.min(totalPages - 1, prev + 1));
+  };
+
+  return (
+    <Box
+      p="sm"
+      style={{
+        border: `1px solid ${theme.colors["neutral"][5]}`,
+      }}
+    >
+      <Flex align="stretch">
+        <Box
+          style={{
+            minWidth: 80,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            border: `1px solid ${theme.colors["neutral"][5]}`,
+            backgroundColor: theme.colors["neutral"][2],
+            borderRadius: 4,
+          }}
+        >
+          <Text fw={600} size="sm">
+            Block {id}
+          </Text>
+        </Box>
+
+        <Flex align="center">
+          <ActionIcon
+            onClick={handlePrevPage}
+            disabled={currentPage === 0}
+            variant="subtle"
+            size="xs"
+            style={{
+              height: "100%",
+              borderRadius: 4,
+            }}
+          >
+            <IconChevronLeft size={24} />
+          </ActionIcon>
         </Flex>
-      </Container>
-    </>
+
+        <ScrollArea
+          style={{
+            flex: 1,
+          }}
+          styles={{
+            scrollbar: {
+              display: "none",
+            },
+          }}
+        >
+          <Flex wrap="nowrap">
+            {currentActivities.map((activity, i) => (
+              <Box
+                key={startIndex + i}
+                style={{ minWidth: 200, maxWidth: 200 }}
+              >
+                <ActivityCard id={startIndex + i + 1} activity={activity} />
+              </Box>
+            ))}
+          </Flex>
+        </ScrollArea>
+
+        <Flex align="center">
+          <ActionIcon
+            onClick={handleNextPage}
+            disabled={currentPage === totalPages - 1}
+            variant="subtle"
+            size="xs"
+            style={{
+              height: "100%",
+              borderRadius: 4,
+            }}
+          >
+            <IconChevronRight size={24} />
+          </ActionIcon>
+        </Flex>
+      </Flex>
+    </Box>
   );
 };

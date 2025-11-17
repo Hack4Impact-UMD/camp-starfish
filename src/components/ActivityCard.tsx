@@ -50,10 +50,22 @@ export function ActivityCard({ id, activity }: ActivityCardProps) {
         <Table withTableBorder={false} withColumnBorders>
           <Table.Thead>
             <Table.Tr>
-              <Table.Th style={{ fontWeight: "bold", textAlign: "left", backgroundColor: theme.colors["neutral"][3]}}>
+              <Table.Th
+                style={{
+                  fontWeight: "bold",
+                  textAlign: "left",
+                  backgroundColor: theme.colors["neutral"][3],
+                }}
+              >
                 STAFF
               </Table.Th>
-              <Table.Th style={{ fontWeight: "bold", textAlign: "left", backgroundColor: theme.colors["neutral"][3] }}>
+              <Table.Th
+                style={{
+                  fontWeight: "bold",
+                  textAlign: "left",
+                  backgroundColor: theme.colors["neutral"][3],
+                }}
+              >
                 CAMPER
               </Table.Th>
             </Table.Tr>
@@ -88,10 +100,22 @@ export function ActivityCard({ id, activity }: ActivityCardProps) {
         <Table withTableBorder={false} withColumnBorders>
           <Table.Thead>
             <Table.Tr>
-              <Table.Th style={{ fontWeight: "bold", textAlign: "left", backgroundColor: theme.colors["neutral"][3] }}>
+              <Table.Th
+                style={{
+                  fontWeight: "bold",
+                  textAlign: "left",
+                  backgroundColor: theme.colors["neutral"][3],
+                }}
+              >
                 BUNKS
               </Table.Th>
-              <Table.Th style={{ fontWeight: "bold", textAlign: "left", backgroundColor: theme.colors["neutral"][3] }}>
+              <Table.Th
+                style={{
+                  fontWeight: "bold",
+                  textAlign: "left",
+                  backgroundColor: theme.colors["neutral"][3],
+                }}
+              >
                 ADMIN
               </Table.Th>
             </Table.Tr>

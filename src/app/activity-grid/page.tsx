@@ -1,8 +1,15 @@
 "use client";
 
 import { ActivityGrid } from "@/components/ActivityGrid";
-import { Block, ProgramAreaID, SectionScheduleID } from "@/types/sessionTypes";
-import { Title, Container, Flex } from "@mantine/core";
+import {
+  Block,
+  ProgramAreaID,
+  SchedulingSectionType,
+  SectionScheduleID,
+} from "@/types/sessionTypes";
+import { Title, Container, Flex, Box, ActionIcon, Text, useMantineTheme } from "@mantine/core";
+import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
+import { useState } from "react";
 
 const bunkJamboBlock: Block<"BUNK-JAMBO"> = {
   activities: [
@@ -47,7 +54,6 @@ const nonBunkJamboBlock: Block<"NON-BUNK-JAMBO"> = {
       assignments: { camperIds: [106], staffIds: [403], adminIds: [303] },
     },
 
-    // ---------- NEW ACTIVITIES ----------
     {
       name: "Arts & Crafts (Non-Bunk)",
       description: "Painting, bracelet-making, and creative free art time.",
@@ -131,13 +137,64 @@ const sampleSectionBundle: SectionScheduleID<"BUNDLE"> = {
   blocks: { A: bundleBlock },
   alternatePeriodsOff: {},
 };
+const allSections: SectionScheduleID<SchedulingSectionType>[] = [
+  sampleSectionBunk,
+  sampleSectionNonBunk,
+  sampleSectionBundle,
+];
 
 export default function page() {
+  const theme = useMantineTheme();
+  const [index, setIndex] = useState(0);
+  const currSection = allSections[index];
+
+  const nextSection = () => {
+    setIndex((prev) => (prev + 1) % allSections.length);
+  };
+
+  const prevSection = () => {
+    setIndex((prev) => (prev - 1 + allSections.length) % allSections.length);
+  };
+
   return (
     <>
-      <Container fluid>
+      <Container>
         <Title order={3}>Session A</Title>
-        <ActivityGrid sectionSchedule={sampleSectionNonBunk} />
+        <Flex direction={"column"}>
+          <Box
+            style={{
+              background: theme.colors["blue-0"][0],
+              borderRadius: 8,
+              border: "1px solid #bcd2e8",
+            }}
+          >
+            <Flex align="center" justify="space-between">
+              <ActionIcon
+                size="lg"
+                variant="subtle"
+                radius="xl"
+                onClick={prevSection}
+              >
+                <IconChevronLeft size={22} />
+              </ActionIcon>
+              <Flex>
+                <Text fw={600} size="lg">
+                  {currSection.sectionId.toUpperCase()}
+                </Text>
+              </Flex>
+
+              <ActionIcon
+                size="lg"
+                variant="subtle"
+                radius="xl"
+                onClick={nextSection}
+              >
+                <IconChevronRight size={22} />
+              </ActionIcon>
+            </Flex>
+          </Box>
+          <ActivityGrid sectionSchedule={allSections[index]} />
+        </Flex>
       </Container>
     </>
   );

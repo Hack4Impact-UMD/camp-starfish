@@ -24,7 +24,9 @@ import {
   Select,
   Text,
   useMantineTheme,
+  ActionIcon,
 } from "@mantine/core";
+import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 
 type BlockWithId<T extends SchedulingSectionType> = Block<T> & {
   id: string;
@@ -74,7 +76,6 @@ export const ActivityGrid: React.FC<ActivityGridProps> = ({
     return arr;
   }, [sectionSchedule.blocks, view, sortFilter]);
 
-  console.log(data);
   const columns = useMemo<MRT_ColumnDef<BlockWithId<SchedulingSectionType>>[]>(
     () => [
       {
@@ -86,6 +87,14 @@ export const ActivityGrid: React.FC<ActivityGridProps> = ({
             id={row.original.id}
           />
         ),
+        mantineTableBodyCellProps: {
+          style: {
+            display: "block",
+            width: "100%",
+            padding: 0,
+            overflow: "visible", // Allow carousel to overflow
+          },
+        },
       },
     ],
     []
@@ -104,6 +113,26 @@ export const ActivityGrid: React.FC<ActivityGridProps> = ({
     initialState: {
       showGlobalFilter: true,
     },
+    mantineTableBodyCellProps: {
+      style: {
+        display: "block",
+        width: "100%",
+        padding: 0,
+        overflow: "visible", // Allow carousel to overflow
+      },
+    },
+    mantineTableBodyRowProps: {
+      style: {
+        display: "block",
+        width: "100%",
+      },
+    },
+    mantineTableProps: {
+      style: {
+        tableLayout: "fixed", // Fix table layout
+        width: "100%",
+      },
+    },
   });
 
   //filter handling functions
@@ -114,7 +143,7 @@ export const ActivityGrid: React.FC<ActivityGridProps> = ({
 
   const handleSortFilter = (value: string | null) => {
     const newValue = sortFilter === value ? null : value;
-    setView(newValue);
+    setSortFilter(newValue);
   };
 
   const handleClearFilters = () => {
