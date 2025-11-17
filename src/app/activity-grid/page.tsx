@@ -1,138 +1,108 @@
 "use client";
 
 import { ActivityGrid } from "@/components/ActivityGrid";
-import { Block, SectionScheduleID } from "@/types/sessionTypes";
+import { Block, ProgramAreaID, SectionScheduleID } from "@/types/sessionTypes";
 import { Title, Container, Flex } from "@mantine/core";
 
-const sampleBlock: Block<"BUNK-JAMBO"> = {
+const bunkJamboBlock: Block<"BUNK-JAMBO"> = {
   activities: [
     {
-      name: "Canoeing",
+      name: "Canoeing (Bunk Jambo)",
       description: "Campers learn paddling techniques on the lake.",
       assignments: { bunkNums: [12, 14, 15], adminIds: [201, 202] },
     },
     {
-      name: "Archery",
+      name: "Archery (Bunk Jambo)",
       description: "Focus and precision training at the archery range.",
       assignments: { bunkNums: [16, 17], adminIds: [203] },
     },
     {
-      name: "Arts & Crafts",
-      description: "Creative drawing, painting, and crafting projects.",
-      assignments: { bunkNums: [18, 19], adminIds: [204] },
-    },
-    {
-      name: "Soccer",
-      description: "Team games and drills on the field.",
-      assignments: { bunkNums: [10, 11], adminIds: [205] },
-    },
-    {
-      name: "Drama",
-      description: "Acting warm-ups, improv games, and skits.",
-      assignments: { bunkNums: [12], adminIds: [206] },
-    },
-    {
-      name: "Swimming",
+      name: "Swimming (Bunk Jambo)",
       description: "Free swim & water safety practice.",
       assignments: { bunkNums: [8, 9], adminIds: [207] },
-    },
-    {
-      name: "Music",
-      description: "Learning basic instruments and rhythm exercises.",
-      assignments: { bunkNums: [15], adminIds: [208] },
-    },
-    {
-      name: "Nature Walk",
-      description: "Exploring trails and learning about wildlife.",
-      assignments: { bunkNums: [7, 13], adminIds: [209] },
-    },
-    {
-      name: "Rock Climbing",
-      description: "Climbing wall safety and challenges.",
-      assignments: { bunkNums: [10], adminIds: [210] },
-    },
-    {
-      name: "Cooking",
-      description: "Hands-on outdoor cooking lessons.",
-      assignments: { bunkNums: [6], adminIds: [211] },
     },
   ],
   periodsOff: [3, 7],
 };
 
-const sampleBlock2: Block<"BUNK-JAMBO"> = {
+const nonBunkJamboBlock: Block<"NON-BUNK-JAMBO"> = {
   activities: [
     {
-      name: "Camping",
-      description: "Campers learn how to camp.",
-      assignments: { bunkNums: [1, 4, 5], adminIds: [21, 0] },
+      name: "Nature Walk (Non-Bunk)",
+      description: "Exploring trails and learning about wildlife.",
+      assignments: { camperIds: [101, 102, 103], staffIds: [401], adminIds: [301] },
     },
     {
-      name: "Archery",
-      description: "Focus and precision training.",
-      assignments: { bunkNums: [16, 17], adminIds: [203] },
+      name: "Music (Non-Bunk)",
+      description: "Learning basic instruments and rhythm exercises.",
+      assignments: { camperIds: [104, 105], staffIds: [402], adminIds: [302] },
     },
     {
-      name: "Kayaking",
-      description: "Basics of maneuvering individual kayaks.",
-      assignments: { bunkNums: [2, 3], adminIds: [220] },
-    },
-    {
-      name: "Basketball",
-      description: "Shooting drills and scrimmages.",
-      assignments: { bunkNums: [5, 6], adminIds: [221] },
-    },
-    {
-      name: "Tie-Dye",
-      description: "Camp shirts tie-dye station.",
-      assignments: { bunkNums: [7], adminIds: [222] },
-    },
-    {
-      name: "Fishing",
-      description: "Lake fishing with bait and tackle safety.",
-      assignments: { bunkNums: [12], adminIds: [223] },
-    },
-    {
-      name: "Yoga",
-      description: "Stretching and mindfulness exercises.",
-      assignments: { bunkNums: [3, 4], adminIds: [224] },
-    },
-    {
-      name: "Dance",
-      description: "Choreography and group dance practice.",
-      assignments: { bunkNums: [8], adminIds: [225] },
-    },
-    {
-      name: "STEM Lab",
-      description: "Hands-on science experiments.",
-      assignments: { bunkNums: [10, 11], adminIds: [226] },
-    },
-    {
-      name: "Board Games",
-      description: "Strategy and cooperative tabletop games.",
-      assignments: { bunkNums: [9], adminIds: [227] },
+      name: "Drama (Non-Bunk)",
+      description: "Acting warm-ups, improv games, and skits.",
+      assignments: { camperIds: [106], staffIds: [403], adminIds: [303] },
     },
   ],
   periodsOff: [2, 6],
 };
 
-const sampleSectionSchedule: SectionScheduleID<"BUNK-JAMBO"> = {
-  id: "schedule-1",
+const sampleProgramArea: ProgramAreaID = {
+  name: "Outdoor Skills",
+  isDeleted: false,
+  id: "pa-outdoors",
+};
+
+const bundleBlock: Block<"BUNDLE"> = {
+  activities: [
+    {
+      name: "Bundle: STEM Lab",
+      description: "Hands-on science experiments with rotating stations.",
+      programArea: sampleProgramArea,
+      ageGroup: "NAV",
+      assignments: { camperIds: [120, 121], staffIds: [420], adminIds: [320] },
+    },
+    {
+      name: "Bundle: Cooking",
+      description: "Outdoor cooking across rotating groups.",
+      programArea: sampleProgramArea,
+      ageGroup: "OCP",
+      assignments: { camperIds: [122, 123], staffIds: [421], adminIds: [321] },
+    },
+  ],
+  periodsOff: [4],
+};
+
+const sampleSectionBunk: SectionScheduleID<"BUNK-JAMBO"> = {
+  id: "schedule-bunk-1",
   sessionId: "session-2025",
-  sectionId: "section-5",
-  blocks: {
-    A: sampleBlock,
-    B: sampleBlock2,
-  },
+  sectionId: "section-bunk",
+  blocks: { A: bunkJamboBlock },
   alternatePeriodsOff: {},
 };
+
+const sampleSectionNonBunk: SectionScheduleID<"NON-BUNK-JAMBO"> = {
+  id: "schedule-nonbunk-1",
+  sessionId: "session-2025",
+  sectionId: "section-nonbunk",
+  blocks: { A: nonBunkJamboBlock, B: nonBunkJamboBlock, C: nonBunkJamboBlock },
+  alternatePeriodsOff: {},
+};
+
+const sampleSectionBundle: SectionScheduleID<"BUNDLE"> = {
+  id: "schedule-bundle-1",
+  sessionId: "session-2025",
+  sectionId: "section-bundle",
+  blocks: { A: bundleBlock },
+  alternatePeriodsOff: {},
+};
+
 
 export default function page() {
   return (
     <>
       <Container fluid>
         <Title order={3}>Session A</Title>
-        <ActivityGrid sectionSchedule={sampleSectionSchedule} />
+        <ActivityGrid sectionSchedule={sampleSectionNonBunk} />
       </Container>
     </>
   );

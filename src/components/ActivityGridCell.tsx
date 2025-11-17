@@ -3,7 +3,15 @@ import {
   BlockActivities,
   SchedulingSectionType,
 } from "@/types/sessionTypes";
-import { Box, Container, Flex, ScrollArea, Text } from "@mantine/core";
+import {
+  Box,
+  Container,
+  Flex,
+  ScrollArea,
+  SimpleGrid,
+  Text,
+  useMantineTheme,
+} from "@mantine/core";
 import React from "react";
 import { ActivityCard } from "./ActivityCard";
 
@@ -16,7 +24,7 @@ export const ActivityGridCell: React.FC<ActivityGridCellProps> = ({
   block,
   id,
 }) => {
-  console.log(block);
+  const theme = useMantineTheme();
   return (
     <>
       <Container fluid>
@@ -25,11 +33,13 @@ export const ActivityGridCell: React.FC<ActivityGridCellProps> = ({
             <Text>Block {id}</Text>
           </Box>
 
-          <Box style={{ flex: 1 }}>
-            <ScrollArea dir="row">
-              {block.activities.map((activity, index) => (
-                <ActivityCard id={index} assignments={activity}/>
-              ))}
+          <Box>
+            <ScrollArea w="100%" offsetScrollbars>
+              <SimpleGrid cols={3} spacing={0}>
+                {block.activities.map((activity, index) => (
+                  <ActivityCard key={index} id={index} activity={activity} />
+                ))}
+              </SimpleGrid>
             </ScrollArea>
           </Box>
         </Flex>

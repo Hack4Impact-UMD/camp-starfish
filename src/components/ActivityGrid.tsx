@@ -1,7 +1,6 @@
 import {
   Block,
   SchedulingSectionType,
-  SectionSchedule,
   SectionScheduleID,
 } from "@/types/sessionTypes";
 import React, { useMemo } from "react";
