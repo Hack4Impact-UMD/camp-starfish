@@ -5,7 +5,7 @@ import CamperModal from "@/components/CamperPopupModal";
 
 const exampleCamper = {
   name: "Sam Smith",
-  bunk: "Bunk 7",
+  bunk: "7",
   navStatus: "OCP" as const,
   swimLevel: "Level 3",
   emergencyMedication: "Inhaler",
