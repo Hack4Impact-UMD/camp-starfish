@@ -67,7 +67,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f8f9fa',
   },
   headerCell: {
-    backgroundColor: '#e9ecef',
+    backgroundColor: '#b8b8b8',
     fontWeight: 'bold',
     textAlign: 'center',
     fontSize: 8,
@@ -78,6 +78,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 8,
     color: '#495057',
+    backgroundColor: '#b8b8b8'
   },
   activityText: {
     fontSize: 5,
