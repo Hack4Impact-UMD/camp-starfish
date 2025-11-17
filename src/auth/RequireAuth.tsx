@@ -1,26 +1,32 @@
 "use client";
 
-import { Role } from "@/types/personTypes";
-import { useAuth } from "./useAuth";
-import { redirect } from "next/navigation";
-import { JSX } from "react";
+import Error from "@/app/error";
+
+interface AuthCase {
+  authFn: () => boolean;
+  component: React.ReactNode;
+}
 
 interface RequireAuthProps {
-  children: JSX.Element;
-  allowedRoles: Role[];
-  allowUnauthenticated?: boolean;
+  authCases: AuthCase[];
 }
 
 export default function RequireAuth(props: RequireAuthProps) {
-  const { children, allowedRoles, allowUnauthenticated = false } = props;
-  const { token } = useAuth();
-
-  if (
-    allowedRoles.some((role: Role) => token?.claims.role === role) ||
-    (allowUnauthenticated && !token)
-  ) {
-    return children;
+  const { authCases } = props;
+  // Iterate through auth cases and return the first matching component
+  for (const authCase of authCases) {
+    if (authCase.authFn()) {
+      return <>{authCase.component}</>;
+    }
   }
 
-  redirect('/');
+  // Default error page when all functions evaluate to false
+  const accessError: Error & { digest?: string } = {
+    name: "Access Denied",
+    message: "You do not have permission to view this page.",
+  };
+  
+  return (
+    <Error error={accessError} />
+  );
 }
