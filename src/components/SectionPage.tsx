@@ -7,6 +7,13 @@ import { getSessionById } from "@/data/firestore/sessions";
 import { SessionID } from "@/types/sessionTypes";
 import LoadingPage from "@/app/loading";
 import Navbar from "../components/Navbar";
+import React, { useEffect, useState } from 'react';
+
+interface BuildInfo {
+  timestamp: string;
+  version: string;
+  formattedDate: string;
+}
 
 interface SectionPageProps {
   sessionId?: string;
@@ -17,6 +24,29 @@ function SectionPage({
 }: SectionPageProps) {
   const params = useParams();
   const sessionId = propSessionId || (params?.sessionId as string);
+  const [buildInfo, setBuildInfo] = useState<BuildInfo | null>(null);
+
+  useEffect(() => {
+    const timestamp =
+      process.env.NEXT_PUBLIC_BUILD_TIMESTAMP || process.env.BUILD_TIMESTAMP;
+    const version =
+      process.env.NEXT_PUBLIC_APP_VERSION || process.env.APP_VERSION;
+
+    if (timestamp) {
+      const date = new Date(timestamp);
+      setBuildInfo({
+        timestamp,
+        version: version || "unknown",
+        formattedDate: date.toLocaleString("en-US", {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+      });
+    }
+  }, []);
 
   const {
     data: session,
@@ -59,7 +89,11 @@ function SectionPage({
       <div className="p-4">
         <h1 className="text-2xl mb-2 bold">{session.name}</h1>
         <p className="text-sm text-gray-500 mb-4 italic">
-          Last generated: {new Date(session.startDate).toLocaleDateString()}
+          {buildInfo
+            ? `Last generated: ${buildInfo.formattedDate}${
+                buildInfo.version ? ` • v${buildInfo.version}` : ""
+              }`
+            : "Last generated information unavailable"}
         </p>
         <div className="mb-4 text-gray-600">
         </div>
