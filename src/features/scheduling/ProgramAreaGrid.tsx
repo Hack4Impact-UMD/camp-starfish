@@ -6,7 +6,7 @@ import {
   View,
   StyleSheet,
 } from '@react-pdf/renderer';
-import { SectionSchedule, BundleActivity } from '@/types/sessionTypes';
+import { SectionSchedule, BundleActivity, ProgramAreaID } from '@/types/sessionTypes';
 
 // ---------- Styles ----------
 const styles = StyleSheet.create({
@@ -108,13 +108,9 @@ interface ProgramAreaGridProps {
 // ---------- Component ----------
 export function ProgramAreaGrid({ schedule, sectionName }: ProgramAreaGridProps) {
   // Identify program areas from bundle activities
-  const allAreas = Array.from(
-    new Set(
-      Object.values(schedule.blocks).flatMap((block) =>
-        (block.activities as BundleActivity[]).map((a) => a.programArea.name)
-      )
-    )
-  ).sort((a, b) => a.localeCompare(b));
+  const programAreaMap: Record<string, ProgramAreaID> = {};
+  Object.values(schedule.blocks).flatMap((block) => block.activities.forEach((a) => programAreaMap[a.programArea.id] = a.programArea))
+  const allAreas = Object.entries(programAreaMap).sort((a, b) => a[0].localeCompare(b[0])).map(a => a[1]);
 
   // Sort blocks alphabetically
   const blockIds = Object.keys(schedule.blocks).sort();
@@ -149,7 +145,7 @@ export function ProgramAreaGrid({ schedule, sectionName }: ProgramAreaGridProps)
   };
 
   // Helper function to render a single table
-  const renderTable = (areas: string[], tableIndex: number) => (
+  const renderTable = (areas: ProgramAreaID[], tableIndex: number) => (
     <View key={tableIndex} style={[styles.tableContainer, tableIndex < areaChunks.length - 1 ? { marginBottom: 20 } : {}]}>
       <View style={styles.table}>
         {/* Table Header */}
@@ -158,8 +154,8 @@ export function ProgramAreaGrid({ schedule, sectionName }: ProgramAreaGridProps)
             <Text>BLOCKS</Text>
           </View>
           {areas.map((area) => (
-            <View key={area} style={[styles.cell, styles.headerCell]}>
-              <Text>{area}</Text>
+            <View key={area.id} style={[styles.cell, styles.headerCell]}>
+              <Text>{area.name}</Text>
             </View>
           ))}
         </View>
@@ -179,7 +175,7 @@ export function ProgramAreaGrid({ schedule, sectionName }: ProgramAreaGridProps)
               {/* Area Cells */}
               {areas.map((area) => {
                 const areaActivities = activities.filter(
-                  (a) => a.programArea.name === area
+                  (a) => a.programArea.id === area.id
                 );
 
                 const isEmpty = areaActivities.length === 0;
@@ -211,4 +207,3 @@ export function ProgramAreaGrid({ schedule, sectionName }: ProgramAreaGridProps)
     </Document>
   );
 }
-// commit
