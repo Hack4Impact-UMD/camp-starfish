@@ -39,7 +39,6 @@ export const ActivityGridCell: React.FC<ActivityGridCellProps> = ({
 
   return (
     <Box
-      p="sm"
       style={{
         border: `1px solid ${theme.colors["neutral"][5]}`,
       }}
