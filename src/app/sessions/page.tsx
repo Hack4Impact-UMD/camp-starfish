@@ -11,7 +11,6 @@ import { useAuth } from "@/auth/useAuth";
 export default function Page() {
   const { data: sessions, isLoading, isError } = useSessions();
   const { token, user } = useAuth();
-  const allowedRoles: Role[] = ["ADMIN", "STAFF"];
   
   if (isLoading) return <LoadingPage />;
   if (isError) return <p>Error loading sessions.</p>;

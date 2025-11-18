@@ -38,7 +38,7 @@ export default function StaffSessionsView({ sessions, userUid }: StaffSessionsVi
         );
         if (!mounted) return;
         setAllowedIds(new Set(results.filter(Boolean) as string[]));
-      } catch (e) {
+      } catch {
         if (!mounted) return;
         // on error, show no sessions to be conservative
         setAllowedIds(new Set());
