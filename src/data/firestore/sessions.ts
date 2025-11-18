@@ -9,9 +9,11 @@ import {
   WithFieldValue,
   QueryDocumentSnapshot,
   DocumentReference,
+  collection,
+  CollectionReference
 } from "firebase/firestore";
 import { Collection } from "./utils";
-import { setDoc, deleteDoc, getDoc, updateDoc } from "./firestoreClientOperations";
+import { setDoc, deleteDoc, getDoc, updateDoc, executeQuery } from "./firestoreClientOperations";
 
 const sessionFirestoreConverter: FirestoreDataConverter<SessionID, Session> = {
   toFirestore: (session: WithFieldValue<SessionID>): WithFieldValue<Session> => {
@@ -23,6 +25,10 @@ const sessionFirestoreConverter: FirestoreDataConverter<SessionID, Session> = {
 
 export async function getSessionById(id: string, transaction?: Transaction): Promise<SessionID> {
   return await getDoc<SessionID, Session>(doc(db, Collection.SESSIONS, id) as DocumentReference<SessionID, Session>, sessionFirestoreConverter, transaction);
+}
+
+export async function getAllSessions(): Promise<SessionID[]> {
+  return await executeQuery<SessionID, Session>(collection(db, Collection.SESSIONS) as CollectionReference<SessionID, Session>, sessionFirestoreConverter);
 }
 
 export async function setSession(session: Session, instance?: Transaction | WriteBatch): Promise<string> {
