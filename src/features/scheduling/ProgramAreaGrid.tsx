@@ -176,7 +176,7 @@ export function ProgramAreaGrid({
           </View>
           {areas.map((area) => (
             <View key={area.id} style={[styles.cell, styles.headerCell]}>
-              <Text style={{ display: 'flex', width: '100%', height: '100%', border: '2px', justifyContent: 'center', flexDirection: 'column' }}>{`${area.name} (${area.id})`}</Text>
+              <Text>{`${area.name} (${area.id})`}</Text>
             </View>
           ))}
         </View>
