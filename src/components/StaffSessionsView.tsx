@@ -41,7 +41,7 @@ export default function StaffSessionsView({ sessions, userUid }: StaffSessionsVi
         if (!mounted) return;
         const allowed = new Set(results.filter((r) => r.exists).map((r) => r.id));
         setAllowedIds(allowed);
-      } catch (err) {
+      } catch {
         if (!mounted) return;
         // on error, show no sessions
         setAllowedIds(new Set());
