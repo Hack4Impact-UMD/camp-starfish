@@ -6,19 +6,20 @@ import { useSessions } from "@/hooks/sessions/useSessions";
 import LoadingPage from "../loading";
 import RequireAuth from "@/auth/RequireAuth";
 import { useAuth } from "@/auth/useAuth";
+import ErrorPage from "@/app/error";
 
 export default function Page() {
   const { data: sessions, isLoading, isError } = useSessions();
   const { token, user } = useAuth();
   
   if (isLoading) return <LoadingPage />;
-  if (isError) return <p>Error loading sessions.</p>;
+  if (isError) return <ErrorPage error={new Error("Error loading sessions")} />;
   
     // prefer numeric/string campminderId custom claim if present, otherwise fall back to auth UID
     const attendeeId: string | undefined = token?.claims?.campminderId
       ? String(token.claims.campminderId)
       : user?.uid;
-
+  
     return (
       <RequireAuth
         authCases={[
