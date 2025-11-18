@@ -5,7 +5,6 @@ import StaffSessionsView from "@/components/StaffSessionsView";
 import { useSessions } from "@/hooks/sessions/useSessions";
 import LoadingPage from "../loading";
 import RequireAuth from "@/auth/RequireAuth";
-import { Role } from "@/types/personTypes";
 import { useAuth } from "@/auth/useAuth";
 
 export default function Page() {
