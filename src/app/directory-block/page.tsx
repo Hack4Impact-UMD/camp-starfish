@@ -1,7 +1,7 @@
 "use client";
 
 import { DirectoryTableView } from "@/components/DirectoryTableView";
-import { Container, Text, Title } from "@mantine/core";
+import { Container, Title } from "@mantine/core";
 
 export default function DirectoryPage() {
   return (

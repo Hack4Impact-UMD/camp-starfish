@@ -1,12 +1,10 @@
 import {
-  MantineReactTable,
   MRT_ColumnDef,
   MRT_GlobalFilterTextInput,
   MRT_TableContainer,
   MRT_TablePagination,
   MRT_ToolbarAlertBanner,
   useMantineReactTable,
-  MRT_SortingFn,
 } from "mantine-react-table";
 import { useEffect, useMemo, useState } from "react";
 import { AttendeeID } from "@/types/sessionTypes";
@@ -24,7 +22,7 @@ import { DirectoryTableCell } from "./DirectoryTableCell";
 import moment from "moment";
 
 export const DirectoryTableView = () => {
-  const { attendeeList, isLoading, error } = useDirectoryTable("session1"); // need to make this a prop
+  const { attendeeList, isLoading } = useDirectoryTable("session1"); // need to make this a prop
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
   const [sortNameOption, setSortNameOption] = useState<string | null>(null);
 
@@ -36,7 +34,7 @@ export const DirectoryTableView = () => {
   const data: AttendeeID[] = useMemo(() => {
     if (!attendeeList) return [];
 
-    let filteredData = selectedRole
+    const filteredData = selectedRole
       ? attendeeList.filter((attendee) => attendee.role === selectedRole)
       : [...attendeeList];
 
@@ -90,7 +88,7 @@ export const DirectoryTableView = () => {
     if (!attendeeIDMap || !idList) {
       return "N/A";
     }
-    let names: string[] = [];
+    const names: string[] = [];
     for (const id of idList) {
       const numberID = Number(id);
       const attendee = attendeeIDMap.get(numberID);
@@ -295,7 +293,7 @@ export const DirectoryTableView = () => {
           <Flex justify="flex-start">
             <MRT_TablePagination table={table} />
           </Flex>
-          <Box sx={{ display: "grid", width: "100%" }}>
+          <Box style={{ display: "grid", width: "100%" }}>
             <MRT_ToolbarAlertBanner stackAlertBanner table={table} />
           </Box>
         </Box>
