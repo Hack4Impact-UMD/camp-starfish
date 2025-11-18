@@ -102,9 +102,9 @@ export async function getAllAttendeesBySession({
   queryKey: [string, string];
 }) {
   const res: AttendeeID[] = [];
-  const [_, sessionID] = queryKey;
+  const [sessionID] = queryKey;
   const sessionRef = doc(db, "sessions", sessionID);
-  let attendeesRef = collection(sessionRef, "attendees");
+  const attendeesRef = collection(sessionRef, "attendees");
 
   const querySnapshot = await getDocs(attendeesRef);
   querySnapshot.forEach((attendee) => {

@@ -6,7 +6,7 @@ import {
   MRT_ToolbarAlertBanner,
   useMantineReactTable,
 } from "mantine-react-table";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { AttendeeID } from "@/types/sessionTypes";
 import {
   Box,
@@ -29,8 +29,6 @@ export const DirectoryTableView = () => {
   const [attendeeIDMap, setAttendeeIDMap] = useState<Map<number, AttendeeID>>(
     new Map()
   );
-  const [isMapReady, setIsMapReady] = useState(false);
-
   const data: AttendeeID[] = useMemo(() => {
     if (!attendeeList) return [];
 
@@ -79,29 +77,26 @@ export const DirectoryTableView = () => {
         map.set(attendee.id, attendee);
       }
       setAttendeeIDMap(map);
-      setIsMapReady(true);
     }
   }, [attendeeList]);
 
-  const parseIDList = (idList: string[]): string => {
-    console.log(idList);
-    if (!attendeeIDMap || !idList) {
-      return "N/A";
-    }
-    const names: string[] = [];
-    for (const id of idList) {
-      const numberID = Number(id);
-      const attendee = attendeeIDMap.get(numberID);
-      if (attendee) {
-        console.log(attendee);
-        names.push(attendee.name.firstName);
+  const parseIDList = useCallback(
+    (idList: string[]): string => {
+      if (!attendeeIDMap || !idList) return "N/A";
+
+      const names: string[] = [];
+
+      for (const id of idList) {
+        const numberID = Number(id);
+        const attendee = attendeeIDMap.get(numberID);
+
+        if (attendee) names.push(attendee.name.firstName);
       }
-    }
-    if (names.length > 0) {
-      return names.join(", ");
-    }
-    return "N/A";
-  };
+
+      return names.length ? names.join(", ") : "N/A";
+    },
+    [attendeeIDMap] 
+  );
 
   // column definitions for the table
   const columns = useMemo<MRT_ColumnDef<AttendeeID>[]>(
@@ -196,7 +191,7 @@ export const DirectoryTableView = () => {
         ),
       },
     ],
-    [isMapReady]
+    [parseIDList]
   );
 
   const table = useMantineReactTable({
