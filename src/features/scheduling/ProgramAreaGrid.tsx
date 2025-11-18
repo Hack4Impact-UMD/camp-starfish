@@ -1,99 +1,101 @@
-import React from 'react';
+import React from "react";
+import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
 import {
-  Document,
-  Page,
-  Text,
-  View,
-  StyleSheet,
-} from '@react-pdf/renderer';
-import { SectionSchedule, BundleActivity, ProgramAreaID } from '@/types/sessionTypes';
+  SectionSchedule,
+  BundleActivity,
+  ProgramAreaID,
+} from "@/types/sessionTypes";
 
 // ---------- Styles ----------
 const styles = StyleSheet.create({
   page: {
     padding: 20,
     fontSize: 9,
-    fontFamily: 'Helvetica',
+    fontFamily: "Helvetica",
   },
   title: {
     fontSize: 18,
-    textAlign: 'center',
+    textAlign: "center",
     marginBottom: 20,
-    fontWeight: 'bold',
-    color: '#333',
+    fontWeight: "bold",
+    color: "#333",
   },
   table: {
-    borderStyle: 'solid',
+    borderStyle: "solid",
     borderWidth: 1,
-    borderColor: '#000',
+    borderColor: "#000",
     borderRightWidth: 0,
     borderBottomWidth: 0,
     marginBottom: 0,
-    alignSelf: 'flex-start',
+    alignSelf: "flex-start",
   },
   row: {
-    flexDirection: 'row',
+    flexDirection: "row",
     minHeight: 40,
-    flexWrap: 'nowrap',
-    alignSelf: 'flex-start',
+    flexWrap: "nowrap",
+    alignSelf: "flex-start",
   },
   cell: {
     width: 60,
     flexGrow: 0,
     flexBasis: 60,
-    borderStyle: 'solid',
-    borderColor: '#000',
+    borderStyle: "solid",
+    borderColor: "#000",
     borderRightWidth: 1,
     borderBottomWidth: 1,
     padding: 4,
     minHeight: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexWrap: 'wrap',
-    overflow: 'hidden',
+    justifyContent: "center",
+    alignItems: "center",
+    flexWrap: "wrap",
+    overflow: "hidden",
   },
   blockCell: {
     width: 80,
     flexGrow: 0,
     flexBasis: 80,
-    borderStyle: 'solid',
-    borderColor: '#000',
+    borderStyle: "solid",
+    borderColor: "#000",
     borderRightWidth: 1,
     borderBottomWidth: 1,
     padding: 4,
     minHeight: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#f8f9fa',
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#f8f9fa",
   },
   headerCell: {
-    backgroundColor: '#b8b8b8',
-    fontWeight: 'bold',
-    textAlign: 'center',
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#b8b8b8",
+    fontWeight: "bold",
+    textAlign: "center",
     fontSize: 8,
-    color: '#495057',
+    color: "#495057",
   },
   blockLabel: {
-    fontWeight: 'bold',
-    textAlign: 'center',
+    fontWeight: "bold",
+    textAlign: "center",
     fontSize: 8,
-    color: '#495057',
-    backgroundColor: '#b8b8b8'
+    color: "#495057",
+    backgroundColor: "#b8b8b8",
   },
   activityText: {
     fontSize: 5,
-    textAlign: 'center',
+    textAlign: "center",
     lineHeight: 1.1,
-    wordWrap: 'normal',
-    maxWidth: '100%',
-    hyphens: 'none',
+    wordWrap: "normal",
+    maxWidth: "100%",
+    hyphens: "none",
     marginBottom: 1,
-    whiteSpace: 'pre-line',
-    overflowWrap: 'normal',
-    wordBreak: 'normal',
+    whiteSpace: "pre-line",
+    overflowWrap: "normal",
+    wordBreak: "normal",
   },
   emptyCell: {
-    backgroundColor: '#f8f9fa',
+    backgroundColor: "#f8f9fa",
   },
   tableContainer: {
     marginBottom: 0,
@@ -102,16 +104,25 @@ const styles = StyleSheet.create({
 
 // ---------- Props ----------
 interface ProgramAreaGridProps {
-  schedule: SectionSchedule<'BUNDLE'>;
+  schedule: SectionSchedule<"BUNDLE">;
   sectionName: string;
 }
 
 // ---------- Component ----------
-export function ProgramAreaGrid({ schedule, sectionName }: ProgramAreaGridProps) {
+export function ProgramAreaGrid({
+  schedule,
+  sectionName,
+}: ProgramAreaGridProps) {
   // Identify program areas from bundle activities
   const programAreaMap: Record<string, ProgramAreaID> = {};
-  Object.values(schedule.blocks).flatMap((block) => block.activities.forEach((a) => programAreaMap[a.programArea.id] = a.programArea))
-  const allAreas = Object.entries(programAreaMap).sort((a, b) => a[0].localeCompare(b[0])).map(a => a[1]);
+  Object.values(schedule.blocks).flatMap((block) =>
+    block.activities.forEach(
+      (a) => (programAreaMap[a.programArea.id] = a.programArea)
+    )
+  );
+  const allAreas = Object.entries(programAreaMap)
+    .sort((a, b) => a[0].localeCompare(b[0]))
+    .map((a) => a[1]);
 
   // Sort blocks alphabetically
   const blockIds = Object.keys(schedule.blocks).sort();
@@ -130,14 +141,17 @@ export function ProgramAreaGrid({ schedule, sectionName }: ProgramAreaGridProps)
     }
 
     return activities.map((activity, index) => (
-      <View key={index} style={{ 
-        marginBottom: index < activities.length - 1 ? 2 : 0,
-        width: '100%',
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingHorizontal: 1,
-        paddingVertical: 0.5,
-      }}>
+      <View
+        key={index}
+        style={{
+          marginBottom: index < activities.length - 1 ? 2 : 0,
+          width: "100%",
+          alignItems: "center",
+          justifyContent: "center",
+          paddingHorizontal: 1,
+          paddingVertical: 0.5,
+        }}
+      >
         <Text style={styles.activityText}>
           {`${activity.name} (${activity.ageGroup})`}
         </Text>
@@ -147,7 +161,13 @@ export function ProgramAreaGrid({ schedule, sectionName }: ProgramAreaGridProps)
 
   // Helper function to render a single table
   const renderTable = (areas: ProgramAreaID[], tableIndex: number) => (
-    <View key={tableIndex} style={[styles.tableContainer, tableIndex < areaChunks.length - 1 ? { marginBottom: 20 } : {}]}>
+    <View
+      key={tableIndex}
+      style={[
+        styles.tableContainer,
+        tableIndex < areaChunks.length - 1 ? { marginBottom: 20 } : {},
+      ]}
+    >
       <View style={styles.table}>
         {/* Table Header */}
         <View style={styles.row}>
@@ -156,7 +176,7 @@ export function ProgramAreaGrid({ schedule, sectionName }: ProgramAreaGridProps)
           </View>
           {areas.map((area) => (
             <View key={area.id} style={[styles.cell, styles.headerCell]}>
-              <Text>{`${area.name} (${area.id})`}</Text>
+              <Text style={{ display: 'flex', width: '100%', height: '100%', border: '2px', justifyContent: 'center', flexDirection: 'column' }}>{`${area.name} (${area.id})`}</Text>
             </View>
           ))}
         </View>
@@ -182,9 +202,11 @@ export function ProgramAreaGrid({ schedule, sectionName }: ProgramAreaGridProps)
                 const isEmpty = areaActivities.length === 0;
 
                 return (
-                  <View 
-                    key={`${blockId}-${area}`} 
-                    style={isEmpty ? [styles.cell, styles.emptyCell] : styles.cell}
+                  <View
+                    key={`${blockId}-${area}`}
+                    style={
+                      isEmpty ? [styles.cell, styles.emptyCell] : styles.cell
+                    }
                   >
                     {renderActivityText(areaActivities)}
                   </View>
