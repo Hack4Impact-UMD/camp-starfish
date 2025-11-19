@@ -1,30 +1,41 @@
-import {
-  MRT_ColumnDef,
-  MRT_GlobalFilterTextInput,
-  MRT_TableContainer,
-  MRT_TablePagination,
-  MRT_ToolbarAlertBanner,
-  useMantineReactTable,
-} from "mantine-react-table";
+import { flexRender } from "mantine-react-table";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { AttendeeID } from "@/types/sessionTypes";
 import {
-  Box,
   Button,
   Container,
   Flex,
   Radio,
   Select,
   ScrollArea,
+  Table,
+  TextInput,
+  Group,
+  Text,
 } from "@mantine/core";
 import useDirectoryTable from "./useDirectoryTable";
 import { DirectoryTableCell } from "./DirectoryTableCell";
 import moment from "moment";
+import {
+  getCoreRowModel,
+  getFilteredRowModel,
+  getSortedRowModel,
+  useReactTable,
+  ColumnDef,
+  getPaginationRowModel,
+} from "@tanstack/react-table";
 
 export const DirectoryTableView = () => {
   const { attendeeList, isLoading } = useDirectoryTable("session1"); // need to make this a prop
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
   const [sortNameOption, setSortNameOption] = useState<string | null>(null);
+
+  // table filter/pagination options
+  const [globalFilter, setGlobalFilter] = useState("");
+  const [pagination, setPagination] = useState({
+    pageIndex: 0,
+    pageSize: 10,
+  });
 
   const [attendeeIDMap, setAttendeeIDMap] = useState<Map<number, AttendeeID>>(
     new Map()
@@ -95,90 +106,90 @@ export const DirectoryTableView = () => {
 
       return names.length ? names.join(", ") : "N/A";
     },
-    [attendeeIDMap] 
+    [attendeeIDMap]
   );
 
   // column definitions for the table
-  const columns = useMemo<MRT_ColumnDef<AttendeeID>[]>(
+  const columns = useMemo<ColumnDef<AttendeeID>[]>(
     () => [
       {
         accessorKey: "id",
         id: "id",
         header: "ID",
-        Cell: ({ cell }) => (
-          <DirectoryTableCell data={renderCell(cell.getValue() as string)} />
+        cell: (info) => (
+          <DirectoryTableCell data={renderCell(info.getValue() as string)} />
         ),
       },
       {
         accessorFn: (row) => `${row.name.firstName}`,
         id: "firstName",
         header: "FIRST NAME",
-        Cell: ({ cell }) => (
-          <DirectoryTableCell data={renderCell(cell.getValue() as string)} />
+        cell: (info) => (
+          <DirectoryTableCell data={renderCell(info.getValue() as string)} />
         ),
       },
       {
         accessorFn: (row) => `${row.name.lastName}`,
         id: "lastName",
         header: "LAST NAME",
-        Cell: ({ cell }) => (
-          <DirectoryTableCell data={renderCell(cell.getValue() as string)} />
+        cell: (info) => (
+          <DirectoryTableCell data={renderCell(info.getValue() as string)} />
         ),
       },
       {
         accessorKey: "ageGroup",
         id: "ageGroup",
         header: "AGE GROUP",
-        Cell: ({ cell }) => (
-          <DirectoryTableCell data={renderCell(cell.getValue() as string)} />
+        cell: (info) => (
+          <DirectoryTableCell data={renderCell(info.getValue() as string)} />
         ),
       },
       {
         accessorKey: "bunk",
         id: "bunk",
         header: "BUNK",
-        Cell: ({ cell }) => (
-          <DirectoryTableCell data={renderCell(cell.getValue() as string)} />
+        cell: (info) => (
+          <DirectoryTableCell data={renderCell(info.getValue() as string)} />
         ),
       },
       {
         accessorKey: "health",
         id: "health",
         header: "HEALTH",
-        Cell: ({ cell }) => (
-          <DirectoryTableCell data={renderCell(cell.getValue() as string)} />
+        cell: (info) => (
+          <DirectoryTableCell data={renderCell(info.getValue() as string)} />
         ),
       },
       {
         accessorKey: "gender",
         header: "GENDER",
-        Cell: ({ cell }) => (
-          <DirectoryTableCell data={renderCell(cell.getValue() as string)} />
+        cell: (info) => (
+          <DirectoryTableCell data={renderCell(info.getValue() as string)} />
         ),
       },
       {
         accessorKey: "nonoList",
         id: "nonoList",
         header: "NO-NO LIST",
-        Cell: ({ cell }) => (
-          <DirectoryTableCell data={parseIDList(cell.getValue() as string[])} />
+        cell: (info) => (
+          <DirectoryTableCell data={parseIDList(info.getValue() as string[])} />
         ),
       },
       {
         accessorKey: "yesyesList",
         id: "yesyesList",
         header: "YES-YES LIST",
-        Cell: ({ cell }) => (
-          <DirectoryTableCell data={parseIDList(cell.getValue() as string[])} />
+        cell: (info) => (
+          <DirectoryTableCell data={parseIDList(info.getValue() as string[])} />
         ),
       },
       {
         accessorKey: "dateOfBirth",
         id: "dateOfBirth",
         header: "DATE OF BIRTH",
-        Cell: ({ cell }) => (
+        cell: (info) => (
           <DirectoryTableCell
-            data={renderCellDate(cell.getValue() as string)}
+            data={renderCellDate(info.getValue() as string)}
           />
         ),
       },
@@ -186,49 +197,33 @@ export const DirectoryTableView = () => {
         accessorKey: "level",
         id: "swimLevel",
         header: "SWIM LEVEL",
-        Cell: ({ cell }) => (
-          <DirectoryTableCell data={renderCell(cell.getValue() as string)} />
+        cell: (info) => (
+          <DirectoryTableCell data={renderCell(info.getValue() as string)} />
         ),
       },
     ],
     [parseIDList]
   );
 
-  const table = useMantineReactTable({
-    columns,
+  const table = useReactTable({
     data,
-    enableColumnActions: false,
-    enableDensityToggle: false,
-    enableFullScreenToggle: false,
-    enableHiding: false,
-    enableSorting: true,
-    enableColumnFilters: true,
-    enableGlobalFilter: true,
-    initialState: {
-      showGlobalFilter: true,
+    columns,
+    state: {
+      globalFilter,
+      pagination,
     },
-    mantineTableHeadCellProps: {
-      className: "text-center bg-neutral-3 py-3 px-2 border border-neutral-6",
-    },
-    mantineTableBodyCellProps: {
-      className: "text-center truncate",
-    },
+    onGlobalFilterChange: setGlobalFilter,
+    getCoreRowModel: getCoreRowModel(),
+    onPaginationChange: setPagination,
+    getFilteredRowModel: getFilteredRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
   });
-
-  const handleRoleSelect = (value: string) => {
-    const newValue = selectedRole === value ? null : value;
-    setSelectedRole(newValue);
-  };
-
-  const handleNameFilterSelect = (value: string | null) => {
-    const newValue = sortNameOption === value ? null : value;
-    setSortNameOption(newValue);
-  };
 
   const handleClearFilters = () => {
     setSelectedRole(null);
     setSortNameOption(null);
-    table.setGlobalFilter("");
+    setGlobalFilter("");
   };
 
   const filtersActive =
@@ -236,63 +231,107 @@ export const DirectoryTableView = () => {
   return (
     <Container>
       {(isLoading || !attendeeIDMap) && <>Loading Table</>}
+
       <Flex direction={"column"}>
-        <Box>
-          <Flex direction={"row"} gap={"md"} align={"baseline"}>
-            <Box mb={"md"}>
-              <MRT_GlobalFilterTextInput table={table} />
-            </Box>
-            <Box>
-              <Flex gap="sm">
+        <Flex direction={"row"} gap="md" align="center" mb="md">
+          <TextInput
+            placeholder="Search..."
+            value={globalFilter}
+            onChange={(e) => setGlobalFilter(e.target.value)}
+          />
+
+          <Flex gap="sm" direction="row">
+            <Radio.Group
+              value={selectedRole}
+              onChange={(value) => setSelectedRole(value)}
+              name="role-group"
+            >
+              <Flex direction="row" gap="sm">
                 {["CAMPER", "STAFF", "ADMIN"].map((role) => (
                   <Radio
                     key={role}
+                    value={role}
                     label={role.charAt(0) + role.slice(1).toLowerCase()}
-                    checked={selectedRole === role}
-                    onChange={() => handleRoleSelect(role)}
                   />
                 ))}
               </Flex>
-            </Box>
-            <Box>
-              <Select
-                value={sortNameOption}
-                onChange={handleNameFilterSelect}
-                placeholder="Sort By: "
-                data={[
-                  { value: "firstNameAZ", label: "First Name (A → Z)" },
-                  { value: "firstNameZA", label: "First Name (Z → A)" },
-                  { value: "lastNameAZ", label: "Last Name (A → Z)" },
-                  { value: "lastNameZA", label: "Last Name (Z → A)" },
-                ]}
-              />
-            </Box>
-            <Box>
-              {" "}
-              <Select
-                placeholder="0 Filters Applied "
-                data={["React", "Angular", "Vue", "Svelte"]}
-              />
-            </Box>
-            {filtersActive && (
-              <Button color="red" variant="light" onClick={handleClearFilters}>
-                Clear Filters
-              </Button>
-            )}
+            </Radio.Group>
           </Flex>
-        </Box>
+
+          <Select
+            value={sortNameOption}
+            onChange={(v) => setSortNameOption(v)}
+            placeholder="Sort By:"
+            data={[
+              { value: "firstNameAZ", label: "First Name (A → Z)" },
+              { value: "firstNameZA", label: "First Name (Z → A)" },
+              { value: "lastNameAZ", label: "Last Name (A → Z)" },
+              { value: "lastNameZA", label: "Last Name (Z → A)" },
+            ]}
+          />
+
+          {filtersActive && (
+            <Button color="red" variant="light" onClick={handleClearFilters}>
+              Clear Filters
+            </Button>
+          )}
+        </Flex>
+
         <ScrollArea>
-          <MRT_TableContainer table={table} />
+          <Table striped highlightOnHover withColumnBorders>
+            <thead>
+              {table.getHeaderGroups().map((hg) => (
+                <tr key={hg.id}>
+                  {hg.headers.map((header) => (
+                    <th key={header.id} className="text-center bg-neutral-3">
+                      {flexRender(
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
+                    </th>
+                  ))}
+                </tr>
+              ))}
+            </thead>
+
+            <tbody>
+              {table.getRowModel().rows.map((row) => (
+                <tr key={row.id}>
+                  {row.getVisibleCells().map((cell) => (
+                    <td key={cell.id} className="text-center truncate">
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </Table>
         </ScrollArea>
-        <Box>
-          <Flex justify="flex-start">
-            <MRT_TablePagination table={table} />
-          </Flex>
-          <Box style={{ display: "grid", width: "100%" }}>
-            <MRT_ToolbarAlertBanner stackAlertBanner table={table} />
-          </Box>
-        </Box>
       </Flex>
+
+      <Group mt="md" align="center">
+        <Button
+          onClick={() => table.previousPage()}
+          disabled={!table.getCanPreviousPage()}
+        >
+          Previous
+        </Button>
+
+        <Text>
+          Page {table.getState().pagination.pageIndex + 1} of{" "}
+          {table.getPageCount()}
+        </Text>
+
+        <Button
+          onClick={() => table.nextPage()}
+          disabled={!table.getCanNextPage()}
+        >
+          Next
+        </Button>
+      </Group>
     </Container>
   );
 };

@@ -102,7 +102,7 @@ export async function getAllAttendeesBySession({
   queryKey: [string, string];
 }) {
   const res: AttendeeID[] = [];
-  const [sessionID] = queryKey;
+  const [_, sessionID] = queryKey;
   const sessionRef = doc(db, "sessions", sessionID);
   const attendeesRef = collection(sessionRef, "attendees");
 
