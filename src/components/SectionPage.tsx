@@ -13,6 +13,10 @@ import {
   SectionScheduleID,
   StaffAttendeeID,
   SessionID,
+  SectionSchedule,
+  BundleActivity,
+  ProgramAreaID,
+  AgeGroup
 } from "@/types/sessionTypes";
 import LoadingPage from "@/app/loading";
 import React, { useEffect, useState } from "react";
@@ -172,7 +176,6 @@ function SectionPage({
             </Button>
           </div>
         </div>
-        <div className="mb-4 text-gray-600"></div>
       </div>
     </div>
   );
