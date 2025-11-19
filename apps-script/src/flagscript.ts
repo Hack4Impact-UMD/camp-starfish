@@ -6,10 +6,6 @@ interface PreferencesSpreadsheetProperties {
   //keeps track of when anything on sheet has been modified last
   lastModified?: string; 
 }
- 
-// access information about the active spreadsheet and use its id as the key
-const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
-const spreadsheetId = spreadsheet.getId();
 
 // access script properties directly 
 const props = PropertiesService.getScriptProperties();
@@ -33,19 +29,43 @@ function onEdit(e: GoogleAppsScript.Events.SheetsOnEdit) {
       return;
     }
     
+    // Get spreadsheet ID from the sheet's parent
+    const spreadsheet = sheet.getParent();
+    if (!spreadsheet) {
+      console.warn('Could not get spreadsheet from sheet');
+      return;
+    }
+    
+    const spreadsheetId = spreadsheet.getId();
     const sheetId = sheet.getSheetId();
     const lastModified = moment().toISOString();
     
     try {
       // get existing properties or initialize if they don't exist
       const existingValue = props.getProperty(spreadsheetId);
-      const existingProps: PreferencesSpreadsheetProperties = existingValue 
-        ? JSON.parse(existingValue) 
-        : { sections: [] };
+      let existingProps: PreferencesSpreadsheetProperties;
+      
+      if (existingValue) {
+        try {
+          existingProps = JSON.parse(existingValue);
+          // Ensure it has the expected structure
+          if (!existingProps || typeof existingProps !== 'object') {
+            existingProps = { sections: [] };
+          }
+          if (!Array.isArray(existingProps.sections)) {
+            existingProps.sections = [];
+          }
+        } catch (parseError) {
+          console.warn('Failed to parse existing properties, using defaults:', parseError);
+          existingProps = { sections: [] };
+        }
+      } else {
+        existingProps = { sections: [] };
+      }
       
       // update the last modified timestamp
-      const updatedProps = {
-        ...existingProps,
+      const updatedProps: PreferencesSpreadsheetProperties = {
+        sections: existingProps.sections || [],
         lastModified: moment().toISOString()
       };
       
@@ -80,6 +100,10 @@ function getSectionLastModified(spreadsheetId: string, sheetId: number): string 
  */
 function getSectionLastModifiedBySheet(sheet: GoogleAppsScript.Spreadsheet.Sheet): string | null {
   const spreadsheet = sheet.getParent();
+  if (!spreadsheet) {
+    console.warn('Could not get spreadsheet from sheet');
+    return null;
+  }
   return getSectionLastModified(spreadsheet.getId(), sheet.getSheetId());
 }
 
@@ -91,9 +115,21 @@ function getSectionLastModifiedBySheet(sheet: GoogleAppsScript.Spreadsheet.Sheet
  */
 function getPreferenceChangeFlags(spreadsheetId: string, sheetId: number) {
   const propsValue = props.getProperty(spreadsheetId);
-  const propsData: PreferencesSpreadsheetProperties | null = propsValue ? JSON.parse(propsValue) : null;
+  let propsData: PreferencesSpreadsheetProperties | null = null;
+  
+  if (propsValue) {
+    try {
+      const parsed = JSON.parse(propsValue);
+      if (parsed && typeof parsed === 'object') {
+        propsData = parsed;
+      }
+    } catch (error) {
+      console.warn('Failed to parse preference flags:', error);
+    }
+  }
+  
   return {
-    lastModified: propsData?.lastModified || null,
+    lastModified: (propsData && propsData.lastModified) ? propsData.lastModified : null,
     getSectionLastModified: (id: number) => getSectionLastModified(spreadsheetId, id)
   };
 }
@@ -127,6 +163,7 @@ function createOnEditTrigger(spreadsheetId: string): void {
 }
 
 // creates an onEdit trigger for the active spreadsheet
+//need to remove export keyword when clasp pushing to apps script local project
 export function createOnEditTriggerForActiveSpreadsheet(): void {
   const ss = SpreadsheetApp.getActive();
   if (!ss) return;
