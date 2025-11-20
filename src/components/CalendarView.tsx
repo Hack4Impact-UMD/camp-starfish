@@ -16,12 +16,9 @@ export default function CalendarView({ session }: CalendarViewProps) {
   );
   const [selectedEndDate, setSelectedEndDate] = useState<Moment | null>(null);
 
-  const isDateInSession = (date: Moment): boolean =>
-    date.isSameOrAfter(session.startDate) &&
-    date.isSameOrBefore(session.endDate);
-
   const handleMouseDown = (date: Moment) => {
     setSelectedStartDate(date);
+    setSelectedEndDate(date);
   };
 
   const isDragging = selectedStartDate !== null;
@@ -36,9 +33,11 @@ export default function CalendarView({ session }: CalendarViewProps) {
     }
   };
 
-  const handleMouseUp = () => {
+  const handleMouseUp = (date: Moment) => {
     // TODO: implement Create Section modal
     console.log("modal opened");
+    setSelectedStartDate(null);
+    setSelectedEndDate(null);
   };
 
   const weekStarts = [moment(session.startDate).startOf("week")];
@@ -48,41 +47,48 @@ export default function CalendarView({ session }: CalendarViewProps) {
   }
 
   return (
-   // need the userselect none to make dragging possible
-    <div style={{ userSelect: "none" }}>
+    <div className="select-none">
       <SimpleGrid cols={7} spacing={0}>
         {weekdaysShort().map((day) => (
           <Box key={day} p="xs" bg="#f5f5f5" bd="1px solid neutral.5">
-            // {/* <Text fs="sm" ta="center" fw="bold" fz={"sm"}> */}
-              // {/* {day} */}
-            // {/* </Text> */}
-          // {/* </Box> */}
+            <Text fs="sm" ta="center" fw="bold" fz={"sm"}>
+              {day}
+            </Text>
+          </Box>
         ))}
-      // {/* </SimpleGrid> */}
-      // {/* {weeks.map((week, weekIdx) => ( */}
-        <SimpleGrid key={weekIdx} cols={7} spacing={0}>
-          // {/* {week.map((day, dayIdx) => { */}
-            const flatIndex = weekIdx * 7 + dayIdx;
+      </SimpleGrid>
+      {weekStarts.map((weekStart) => (
+        <SimpleGrid key={weekStart.format("YYYY-MM-DD")} cols={7} spacing={0}>
+          {Array.from({ length: 7 }, (_, i) =>
+            weekStart.clone().add(i, "day")
+          ).map((day) => {
             return (
               <Box
                 key={day.format("YYYY-MM-DD")}
-                onMouseDown={() => handleMouseDown(flatIndex)}
-                onMouseEnter={() => handleMouseEnter(flatIndex)}
-                onMouseUp={handleMouseUp}
+                onMouseDown={() => handleMouseDown(day)}
+                onMouseEnter={() => handleMouseEnter(day)}
+                onMouseUp={() => handleMouseUp(day)}
               >
-                // {/* <CalendarViewDay */}
-                  inRange={
-                    day.isSameOrAfter(sessionStartDate, "day") &&
-                    day.isSameOrBefore(sessionEndDate, "day")
-                  }
-                  isSelected={selectedDays.includes(flatIndex)}
+                <CalendarViewDay
+                  inRange={day.isBetween(
+                    session.startDate,
+                    session.endDate,
+                    "day",
+                    "[]"
+                  )}
+                  isSelected={day.isBetween(
+                    selectedStartDate,
+                    selectedEndDate,
+                    "day",
+                    "[]"
+                  )}
                   day={day}
                 />
-              // {/* </Box> */}
+              </Box>
             );
           })}
-        // {/* </SimpleGrid> */}
+        </SimpleGrid>
       ))}
-    // {/* </div> */}
+    </div>
   );
 }
