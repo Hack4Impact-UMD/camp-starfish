@@ -14,6 +14,8 @@ import Image from "next/image";
 import { SessionID } from "@/types/sessionTypes";
 import pencilIcon from "@/assets/icons/pencilIcon.svg";
 import SessionCard from "@/components/SessionCard";
+import RequireAuth from "@/auth/RequireAuth";
+import { useAuth } from "@/auth/useAuth";
 
 interface SessionsPageProps {
   sessions: SessionID[];
@@ -21,6 +23,7 @@ interface SessionsPageProps {
 
 export default function SessionsPage({ sessions }: SessionsPageProps) {
   const [editMode, setEditMode] = useState(false);
+  const { token } = useAuth();
 
   // --- Categorize sessions ---
   const { current, future, past } = useMemo(() => {
@@ -56,58 +59,68 @@ export default function SessionsPage({ sessions }: SessionsPageProps) {
       {/* Top bar */}
       <Group justify="space-between" align="center">
         <Title order={2}>Sessions</Title>
+        <RequireAuth
+          authCases={[
+            {
+              authFn: () => token?.claims.role === "ADMIN",
+              component: (
+                <Group gap="sm">
+                  {/* Edit / Done button */}
+                  <Button
+                    size="lg"
+                    color="primary"
+                    radius="xl"
+                    leftSection={
+                      <Image
+                        src={pencilIcon}
+                        alt="Edit"
+                        width={18}
+                        height={18}
+                        style={{
+                          filter:
+                            "invert(100%) sepia(100%) saturate(0%) hue-rotate(180deg)",
+                        }}
+                      />
+                    }
+                    onClick={() => setEditMode((prev) => !prev)}
+                  >
+                    {editMode ? "Done" : "Edit"}
+                  </Button>
 
-        <Group gap="sm">
-          {/* Edit / Done button */}
-          <Button
-            size="lg"
-            color="primary"
-            radius="xl"
-            leftSection={
-              <Image
-                src={pencilIcon}
-                alt="Edit"
-                width={18}
-                height={18}
-                style={{
-                  filter:
-                    "invert(100%) sepia(100%) saturate(0%) hue-rotate(180deg)",
-                }}
-              />
-            }
-            onClick={() => setEditMode((prev) => !prev)}
-          >
-            {editMode ? "Done" : "Edit"}
-          </Button>
+                  {/* Create Session Dropdown */}
+                  <Menu shadow="md" width={200} position="bottom-end">
+                    <Menu.Target>
+                      <Button size="lg" color="secondary-green" radius="xl">
+                        Create Session
+                      </Button>
+                    </Menu.Target>
 
-          {/* Create Session Dropdown */}
-          <Menu shadow="md" width={200} position="bottom-end">
-            <Menu.Target>
-              <Button size="lg" color="secondary-green" radius="xl">
-                Create Session
-              </Button>
-            </Menu.Target>
-
-            <Menu.Dropdown>
-              <Menu.Item
-                leftSection={
-                  <Image src={pencilIcon} alt="Standard" width={16} height={16} />
-                }
-                onClick={() => handleCreateSession("standard")}
-              >
-                Standard Session
-              </Menu.Item>
-              <Menu.Item
-                leftSection={
-                  <Image src={pencilIcon} alt="Customized" width={16} height={16} />
-                }
-                onClick={() => handleCreateSession("customized")}
-              >
-                Customized Session
-              </Menu.Item>
-            </Menu.Dropdown>
-          </Menu>
-        </Group>
+                    <Menu.Dropdown>
+                      <Menu.Item
+                        leftSection={
+                          <Image src={pencilIcon} alt="Standard" width={16} height={16} />
+                        }
+                        onClick={() => handleCreateSession("standard")}
+                      >
+                        Standard Session
+                      </Menu.Item>
+                      <Menu.Item
+                        leftSection={
+                          <Image src={pencilIcon} alt="Customized" width={16} height={16} />
+                        }
+                        onClick={() => handleCreateSession("customized")}
+                      >
+                        Customized Session
+                      </Menu.Item>
+                    </Menu.Dropdown>
+                  </Menu>
+                </Group>
+              )
+            },
+            // Fallback case: render nothing for non-admin users (no error)
+            { authFn: () => true, component: <></> },
+          ]}
+        /> 
       </Group>
 
       {/* Current Sessions */}
@@ -119,7 +132,8 @@ export default function SessionsPage({ sessions }: SessionsPageProps) {
               <SessionCard
                 key={session.id}
                 session={session}
-                editMode={editMode}              />
+                editMode={editMode}
+              />
             ))
           ) : (
             <Text c="dimmed">No current session</Text>
