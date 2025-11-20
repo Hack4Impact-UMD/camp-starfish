@@ -1,124 +1,87 @@
-import { Moment } from "moment";
-import React, { useState, useEffect } from "react";
+import { Moment, weekdaysShort } from "moment";
+
+import React, { useState } from "react";
 import { SimpleGrid, Text, Box } from "@mantine/core";
 import { CalendarViewDay } from "./CalendarViewDay";
-
-import {
-  QueryClient,
-  QueryClientProvider,
-  useQuery,
-} from "@tanstack/react-query";
+import { SessionID } from "@/types/sessionTypes";
+import moment from "moment";
 
 interface CalendarViewProps {
-  sessionStartDate: Moment;
-  sessionEndDate: Moment;
+  session: SessionID;
 }
 
-export const CalendarView: React.FC<CalendarViewProps> = ({
-  sessionStartDate,
-  sessionEndDate,
-}) => {
-  const start = sessionStartDate.clone().startOf("week");
-  const end = sessionEndDate.clone().endOf("week");
+export default function CalendarView({ session }: CalendarViewProps) {
+  const [selectedStartDate, setSelectedStartDate] = useState<Moment | null>(
+    null
+  );
+  const [selectedEndDate, setSelectedEndDate] = useState<Moment | null>(null);
 
-  const [isDragging, setIsDragging] = useState(false);
-  const [selectedDays, setSelectedDays] = useState<number[]>([]);
-  const [startIndex, setStartIndex] = useState<number | null>(null);
+  const isDateInSession = (date: Moment): boolean =>
+    date.isSameOrAfter(session.startDate) &&
+    date.isSameOrBefore(session.endDate);
 
-  const days: Moment[] = [];
-  let curr = start.clone();
-  while (curr.isBefore(end) || curr.isSame(end, "day")) {
-    days.push(curr.clone());
-    curr.add(1, "day");
-  }
-
-  const weeks: Moment[][] = [];
-  for (let i = 0; i < days.length; i += 7) {
-    weeks.push(days.slice(i, i + 7));
-  }
-
-  const daysOfWeek: string[] = [
-    "SUN",
-    "MON",
-    "TUE",
-    "WED",
-    "THU",
-    "FRI",
-    "SAT",
-  ];
-
-  const handleMouseDown = (index: number) => {
-    setIsDragging(true);
-    setStartIndex(index);
-    setSelectedDays([index]);
+  const handleMouseDown = (date: Moment) => {
+    setSelectedStartDate(date);
   };
 
-  const handleMouseEnter = (index: number) => {
-    // handles mouse entering different cells
-    if (isDragging && startIndex != null) {
-      const min = Math.min(startIndex, index);
-      const max = Math.max(startIndex, index);
-
-      const range = Array.from({ length: max - min + 1 }, (_, i) => min + i); //gets all the cells from the start index to the index the mouse is on
-      setSelectedDays(range);
+  const isDragging = selectedStartDate !== null;
+  const handleMouseEnter = (date: Moment) => {
+    if (isDragging) {
+      if (date.isBefore(selectedStartDate)) {
+        setSelectedStartDate(date);
+        setSelectedEndDate(selectedStartDate);
+      } else {
+        setSelectedEndDate(date);
+      }
     }
   };
 
   const handleMouseUp = () => {
-    //when mouse is lifted
-    if (isDragging && selectedDays.length > 1) {
-      const start = days[selectedDays[0]];
-      const end = days[selectedDays[selectedDays.length - 1]];
-      console.log(
-        "Create event from",
-        start.format("MM-DD"),
-        "to",
-        end.format("MM-DD")
-      );
-      // OPEN MODULE HERE
-      // need to add logic where after this module closes, clear selected days
-    }
-    setIsDragging(false);
-    setStartIndex(null);
+    // TODO: implement Create Section modal
+    console.log("modal opened");
   };
+
+  const weekStarts = [moment(session.startDate).startOf("week")];
+  while (weekStarts[weekStarts.length - 1].isBefore(session.endDate)) {
+    weekStarts.push(weekStarts[weekStarts.length - 1].clone().add(1, "week"));
+  }
+
   return (
-    // need the userselect none to make dragging possible
-    <QueryClientProvider client={queryClient}>
-      <div style={{ userSelect: "none" }}>
-        <SimpleGrid cols={7} spacing={0}>
-          {daysOfWeek.map((day) => (
-            <Box key={day} p="xs" bg="#f5f5f5" bd="1px solid neutral.5">
-              <Text fs="sm" ta="center" fw="bold" fz={"sm"}>
-                {day}
-              </Text>
-            </Box>
-          ))}
-        </SimpleGrid>
-        {weeks.map((week, weekIdx) => (
-          <SimpleGrid key={weekIdx} cols={7} spacing={0}>
-            {week.map((day, dayIdx) => {
-              const flatIndex = weekIdx * 7 + dayIdx;
-              return (
-                <Box
-                  key={day.format("YYYY-MM-DD")}
-                  onMouseDown={() => handleMouseDown(flatIndex)}
-                  onMouseEnter={() => handleMouseEnter(flatIndex)}
-                  onMouseUp={handleMouseUp}
-                >
-                  <CalendarViewDay
-                    inRange={
-                      day.isSameOrAfter(sessionStartDate, "day") &&
-                      day.isSameOrBefore(sessionEndDate, "day")
-                    }
-                    isSelected={selectedDays.includes(flatIndex)}
-                    day={day}
-                  />
-                </Box>
-              );
-            })}
-          </SimpleGrid>
+   // need the userselect none to make dragging possible
+    <div style={{ userSelect: "none" }}>
+      <SimpleGrid cols={7} spacing={0}>
+        {weekdaysShort().map((day) => (
+          <Box key={day} p="xs" bg="#f5f5f5" bd="1px solid neutral.5">
+            // {/* <Text fs="sm" ta="center" fw="bold" fz={"sm"}> */}
+              // {/* {day} */}
+            // {/* </Text> */}
+          // {/* </Box> */}
         ))}
-      </div>
-    </QueryClientProvider>
+      // {/* </SimpleGrid> */}
+      // {/* {weeks.map((week, weekIdx) => ( */}
+        <SimpleGrid key={weekIdx} cols={7} spacing={0}>
+          // {/* {week.map((day, dayIdx) => { */}
+            const flatIndex = weekIdx * 7 + dayIdx;
+            return (
+              <Box
+                key={day.format("YYYY-MM-DD")}
+                onMouseDown={() => handleMouseDown(flatIndex)}
+                onMouseEnter={() => handleMouseEnter(flatIndex)}
+                onMouseUp={handleMouseUp}
+              >
+                // {/* <CalendarViewDay */}
+                  inRange={
+                    day.isSameOrAfter(sessionStartDate, "day") &&
+                    day.isSameOrBefore(sessionEndDate, "day")
+                  }
+                  isSelected={selectedDays.includes(flatIndex)}
+                  day={day}
+                />
+              // {/* </Box> */}
+            );
+          })}
+        // {/* </SimpleGrid> */}
+      ))}
+    // {/* </div> */}
   );
-};
+}
