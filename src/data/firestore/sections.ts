@@ -18,7 +18,13 @@ const sectionFirestoreConverter: FirestoreDataConverter<SchedulingSectionID, Sch
     const { id, sessionId, ...dto } = section;
     return dto;
   },
-  fromFirestore: (snapshot: QueryDocumentSnapshot<SchedulingSection, SchedulingSection>): SchedulingSectionID => ({ id: snapshot.ref.id, sessionId: snapshot.ref.parent.parent?.id!, ...snapshot.data() })
+  fromFirestore: (snapshot: QueryDocumentSnapshot<SchedulingSection, SchedulingSection>): SchedulingSectionID => {  
+    const sessionId = snapshot.ref.parent.parent?.id;  
+    if (!sessionId) {  
+      throw new Error(`Invalid document path for section: ${snapshot.ref.path}`);  
+    }  
+    return { id: snapshot.ref.id, sessionId, ...snapshot.data() };  
+  }  
 }
 
 export async function getSectionById(id: string, sessionID: string, transaction?: Transaction): Promise<SchedulingSectionID> {
