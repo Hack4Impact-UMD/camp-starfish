@@ -41,7 +41,7 @@ export interface Photographer extends User {
 }
 export interface PhotographerID extends Photographer, ID<number>, RoleField { role: "PHOTOGRAPHER" };
 
-interface Counselor extends User {
+export interface Counselor extends User {
   sessionIds: string[];
   nonoList: number[];
   yesyesList: number[];
