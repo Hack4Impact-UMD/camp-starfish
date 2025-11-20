@@ -1,4 +1,4 @@
-import { flexRender } from "mantine-react-table";
+import { flexRender } from "@tanstack/react-table";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { AttendeeID } from "@/types/sessionTypes";
 import {
@@ -112,14 +112,7 @@ export const DirectoryTableView = () => {
   // column definitions for the table
   const columns = useMemo<ColumnDef<AttendeeID>[]>(
     () => [
-      {
-        accessorKey: "id",
-        id: "id",
-        header: "ID",
-        cell: (info) => (
-          <DirectoryTableCell data={renderCell(info.getValue() as string)} />
-        ),
-      },
+
       {
         accessorFn: (row) => `${row.name.firstName}`,
         id: "firstName",
