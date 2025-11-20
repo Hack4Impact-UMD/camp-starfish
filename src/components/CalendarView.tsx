@@ -2,7 +2,6 @@ import { Moment, weekdaysShort } from "moment";
 
 import React, { useState } from "react";
 import { SimpleGrid, Text, Box } from "@mantine/core";
-import { CalendarViewDay } from "./CalendarViewDay";
 import { SessionID } from "@/types/sessionTypes";
 import moment from "moment";
 
@@ -62,28 +61,46 @@ export default function CalendarView({ session }: CalendarViewProps) {
           {Array.from({ length: 7 }, (_, i) =>
             weekStart.clone().add(i, "day")
           ).map((day) => {
+            const isInSession = day.isBetween(
+              session.startDate,
+              session.endDate,
+              "day",
+              "[]"
+            );
+            const isInSelection = day.isBetween(
+              selectedStartDate,
+              selectedEndDate,
+              "day",
+              "[]"
+            );
+
+            const eventHandlers = isInSession
+              ? {
+                  onMouseDown: () => handleMouseDown(day),
+                  onMouseEnter: () => handleMouseEnter(day),
+                  onMouseUp: () => handleMouseUp(day),
+                }
+              : {};
+
             return (
               <Box
                 key={day.format("YYYY-MM-DD")}
-                onMouseDown={() => handleMouseDown(day)}
-                onMouseEnter={() => handleMouseEnter(day)}
-                onMouseUp={() => handleMouseUp(day)}
+                {...eventHandlers}
+                p="xs"
+                bg={
+                  isInSession
+                    ? isInSelection
+                      ? "accent-blue"
+                      : "neutral.2"
+                    : "neutral.3"
+                }
+                bd="1px solid neutral.5"
+                display="flex"
+                h={200}
               >
-                <CalendarViewDay
-                  inRange={day.isBetween(
-                    session.startDate,
-                    session.endDate,
-                    "day",
-                    "[]"
-                  )}
-                  isSelected={day.isBetween(
-                    selectedStartDate,
-                    selectedEndDate,
-                    "day",
-                    "[]"
-                  )}
-                  day={day}
-                />
+                <Text size="sm" fw={"bold"} ta={"center"}>
+                  {day.date()}
+                </Text>
               </Box>
             );
           })}
