@@ -47,22 +47,6 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
     "SAT",
   ];
 
-  //API calls
-
-  const queryClient = new QueryClient();
-
-  const { isPending, error, data } = useQuery({
-    queryKey: ["repoData"],
-    queryFn: () =>
-      fetch("https://api.github.com/repos/TanStack/query").then((res) =>
-        res.json()
-      ),
-  });
-
-  if (isPending) return "Loading...";
-
-  if (error) return "An error has occurred: " + error.message;
-
   const handleMouseDown = (index: number) => {
     setIsDragging(true);
     setStartIndex(index);
