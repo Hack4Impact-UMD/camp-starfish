@@ -1,58 +1,58 @@
 {
-  "$schema": "https://cdn.statically.io/gh/nguyenngoclongdev/cdn/main/schema/v11/terminal-keeper.json",
-  "theme": "tribe",
-  "active": "default",
-  "activateOnStartup": true,
-  "keepExistingTerminals": false,
-  "sessions": {
-    "default": [
-      [
-        {
-          "name": "emulators",
-          "icon": "database",
-          "color": "terminal.ansiBrightRed",
-          "autoExecuteCommands": true,
-          "commands": [
-            "firebase emulators:start --import ./test/emulatorData"
-          ]
-        },
-        {
-          "name": "app",
-          "icon": "vm",
-          "color": "terminal.ansiBrightWhite",
-          "autoExecuteCommands": true,
-          "commands": [
-            "npm run dev"
-          ]
-        }
-      ],
-      {
-        "name": "git",
-        "icon": "github",
-        "color": "terminal.ansiGreen",
-        "autoExecuteCommands": true,
-        "commands": [
-          "git fetch"
+    "$schema": "https://cdn.statically.io/gh/nguyenngoclongdev/cdn/main/schema/v11/terminal-keeper.json",
+    "theme": "tribe",
+    "active": "default",
+    "activateOnStartup": true,
+    "keepExistingTerminals": false,
+    "sessions": {
+        "default": [
+            [
+                {
+                    "name": "emulators",
+                    "icon": "database",
+                    "color": "terminal.ansiBrightRed",
+                    "autoExecuteCommands": true,
+                    "commands": [
+                        "firebase emulators:start --import ./test/emulatorData"
+                    ]
+                },
+                {
+                    "name": "app",
+                    "icon": "vm",
+                    "color": "terminal.ansiBrightWhite",
+                    "autoExecuteCommands": true,
+                    "commands": [
+                        "npm run dev"
+                    ]
+                }
+            ],
+            {
+                "name": "git",
+                "icon": "github",
+                "color": "terminal.ansiGreen",
+                "autoExecuteCommands": true,
+                "commands": [
+                    "git fetch"
+                ]
+            },
+            {
+                "name": "functions",
+                "icon": "server",
+                "color": "terminal.ansiBrightYellow",
+                "autoExecuteCommands": true,
+                "commands": [
+                    "cd functions && npm run build"
+                ]
+            },
+            {
+                "name": "apps-script",
+                "icon": "arrow-swap",
+                "color": "terminal.ansiBrightBlue",
+                "autoExecuteCommands": true,
+                "commands": [
+                    "cd apps-script"
+                ]
+            }
         ]
-      },
-      {
-        "name": "functions",
-        "icon": "server",
-        "color": "terminal.ansiBrightYellow",
-        "autoExecuteCommands": true,
-        "commands": [
-          "cd functions && npm run build"
-        ]
-      },
-      {
-        "name": "apps-script",
-        "icon": "arrow-swap",
-        "color": "terminal.ansiBrightBlue",
-        "autoExecuteCommands": true,
-        "commands": [
-          "cd apps-script"
-        ]
-      }
-    ]
-  }
+    }
 }
