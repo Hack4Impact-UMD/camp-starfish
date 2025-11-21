@@ -10,7 +10,7 @@ interface UnpublishSectionSecheduleParams {
   sectionId: string;
 }
 
-export function usePublishSectionSchedule(params: UnpublishSectionSecheduleParams) {
+export function usePublishSectionSchedule() {
   return useMutation({
     mutationFn: ({ sessionId, sectionId }: UnpublishSectionSecheduleParams) => unpublishSectionSchedule(sessionId, sectionId)
   })
