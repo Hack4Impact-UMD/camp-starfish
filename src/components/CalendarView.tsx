@@ -10,33 +10,30 @@ interface CalendarViewProps {
 }
 
 export default function CalendarView({ session }: CalendarViewProps) {
-  const [selectedStartDate, setSelectedStartDate] = useState<Moment | null>(
+  const [firstSelectedDate, setFirstSelectedDate] = useState<Moment | null>(
     null
   );
-  const [selectedEndDate, setSelectedEndDate] = useState<Moment | null>(null);
+  const [secondSelectedDate, setSecondSelectedDate] = useState<Moment | null>(null);
 
   const handleMouseDown = (date: Moment) => {
-    setSelectedStartDate(date);
-    setSelectedEndDate(date);
+    setFirstSelectedDate(date);
+    setSecondSelectedDate(date);
   };
 
-  const isDragging = selectedStartDate !== null;
+  const isSelecting = firstSelectedDate !== null;
   const handleMouseEnter = (date: Moment) => {
-    if (isDragging) {
-      if (date.isBefore(selectedStartDate)) {
-        setSelectedStartDate(date);
-        setSelectedEndDate(selectedStartDate);
-      } else {
-        setSelectedEndDate(date);
-      }
+    if (isSelecting) {
+      setSecondSelectedDate(date);
     }
   };
 
   const handleMouseUp = (date: Moment) => {
-    // TODO: implement Create Section modal
-    console.log("modal opened");
-    setSelectedStartDate(null);
-    setSelectedEndDate(null);
+    if (isSelecting) {
+      // TODO: integrate Create Section modal
+      console.log('open create section modal from ', firstSelectedDate?.format("YYYY-MM-DD"), 'to', secondSelectedDate?.format("YYYY-MM-DD"));
+    }
+    setFirstSelectedDate(null);
+    setSecondSelectedDate(null);
   };
 
   const weekStarts = [moment(session.startDate).startOf("week")];
@@ -67,9 +64,9 @@ export default function CalendarView({ session }: CalendarViewProps) {
               "day",
               "[]"
             );
-            const isInSelection = day.isBetween(
-              selectedStartDate,
-              selectedEndDate,
+            const isInSelection = firstSelectedDate && secondSelectedDate && day.isBetween(
+              firstSelectedDate.isSameOrBefore(secondSelectedDate) ? firstSelectedDate : secondSelectedDate,
+              firstSelectedDate.isSameOrBefore(secondSelectedDate) ? secondSelectedDate : firstSelectedDate,
               "day",
               "[]"
             );
