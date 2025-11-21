@@ -18,20 +18,14 @@ const sectionFirestoreConverter: FirestoreDataConverter<SchedulingSectionID, Sch
     const { id, sessionId, ...dto } = section;
     return dto;
   },
-  fromFirestore: (snapshot: QueryDocumentSnapshot<SchedulingSection, SchedulingSection>): SchedulingSectionID => {  
-    const sessionId = snapshot.ref.parent.parent?.id;  
-    if (!sessionId) {  
-      throw new Error(`Invalid document path for section: ${snapshot.ref.path}`);  
-    }  
-    return { id: snapshot.ref.id, sessionId, ...snapshot.data() };  
-  }  
+  fromFirestore: (snapshot: QueryDocumentSnapshot<SchedulingSection, SchedulingSection>): SchedulingSectionID => ({ id: snapshot.ref.id, sessionId: snapshot.ref.parent.parent!.id, ...snapshot.data() })
 }
 
 export async function getSectionById(id: string, sessionID: string, transaction?: Transaction): Promise<SchedulingSectionID> {
   return await getDoc<SchedulingSectionID, SchedulingSection>(doc(db, Collection.SESSIONS, sessionID, SessionsSubcollection.SECTIONS, id) as DocumentReference<SchedulingSectionID, SchedulingSection>, sectionFirestoreConverter, transaction);
 }
 
-export async function setSection(  sessionID: string, section: SchedulingSection, instance?: Transaction | WriteBatch): Promise<string> {
+export async function setSection(sessionID: string, section: SchedulingSection, instance?: Transaction | WriteBatch): Promise<string> {
   const sectionId = uuid();
   await setDoc<SchedulingSectionID, SchedulingSection>(doc(db, Collection.SESSIONS, sessionID, SessionsSubcollection.SECTIONS, sectionId) as DocumentReference<SchedulingSectionID, SchedulingSection>, { id: sectionId, sessionId: sessionID, ...section }, sectionFirestoreConverter, instance);
   return sectionId;
