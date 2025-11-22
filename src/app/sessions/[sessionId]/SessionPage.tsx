@@ -1,23 +1,16 @@
-"use client";
-import moment, { Moment } from "moment";
-import { CalendarView } from "@/components/CalendarView";
-import { Box, Text, Title } from "@mantine/core";
-import { Flex } from "@mantine/core";
-import { Container } from "@mantine/core";
-import Underline from "@/assets/underline.svg";
-import useCreateSession from "@/components/useSession";
+import { SessionID } from "@/types/sessionTypes";
+import { Container, Flex, Box, Title, Text } from "@mantine/core";
 import Image from "next/image";
+import Underline from "@/assets/underline.svg";
+import moment, { Moment } from "moment";
+import CalendarView from "@/components/CalendarView";
 
-export default function Page() {
-  const { session, isLoading, error } = useCreateSession("session1"); //hardcoded sessionid, need to accept one from 
+interface SessionPageProps {
+  session: SessionID;
+}
 
-  if (isLoading) {
-    return <p>Loading session data...</p>;
-  }
-
-  if (error) {
-    return <p>Error loading session data</p>;
-  }
+export default function SessionPage(props: SessionPageProps) {
+  const { session } = props;
 
   const sessionStartDate = moment(session?.startDate);
   const sessionEndDate = moment(session?.endDate);
@@ -60,10 +53,7 @@ export default function Page() {
         </Box>
 
         <Box mt={"xl"}>
-          <CalendarView
-            sessionStartDate={sessionStartDate}
-            sessionEndDate={sessionEndDate}
-          />
+          <CalendarView session={session} />
         </Box>
       </Flex>
     </Container>
