@@ -120,6 +120,7 @@ function SectionPage({
   }
 
   if (isError || !session) {
+
     return (
       <div>
         <div className="p-4">
