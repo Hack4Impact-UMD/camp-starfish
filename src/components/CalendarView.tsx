@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { SimpleGrid, Text, Box } from "@mantine/core";
 import { SessionID } from "@/types/sessionTypes";
 import moment from "moment";
+import classNames from "classnames";
 
 interface CalendarViewProps {
   session: SessionID;
@@ -13,7 +14,9 @@ export default function CalendarView({ session }: CalendarViewProps) {
   const [firstSelectedDate, setFirstSelectedDate] = useState<Moment | null>(
     null
   );
-  const [secondSelectedDate, setSecondSelectedDate] = useState<Moment | null>(null);
+  const [secondSelectedDate, setSecondSelectedDate] = useState<Moment | null>(
+    null
+  );
 
   const handleMouseDown = (date: Moment) => {
     setFirstSelectedDate(date);
@@ -30,7 +33,6 @@ export default function CalendarView({ session }: CalendarViewProps) {
   const handleMouseUp = (date: Moment) => {
     if (isSelecting) {
       // TODO: integrate Create Section modal
-      console.log('open create section modal from ', firstSelectedDate?.format("YYYY-MM-DD"), 'to', secondSelectedDate?.format("YYYY-MM-DD"));
     }
     setFirstSelectedDate(null);
     setSecondSelectedDate(null);
@@ -43,18 +45,22 @@ export default function CalendarView({ session }: CalendarViewProps) {
   }
 
   return (
-    <div className="select-none">
-      <SimpleGrid cols={7} spacing={0}>
+    <>
+      <SimpleGrid className="grid-cols-7 gap-0 select-none">
         {weekdaysShort().map((day) => (
-          <Box key={day} p="xs" bg="#f5f5f5" bd="1px solid neutral.5">
-            <Text fs="sm" ta="center" fw="bold" fz={"sm"}>
-              {day}
-            </Text>
+          <Box
+            key={day}
+            className="p-xs bg-neutral-0 border-[1px] border-solid border-neutral-5"
+          >
+            <Text className="text-sm text-center font-bold">{day}</Text>
           </Box>
         ))}
       </SimpleGrid>
       {weekStarts.map((weekStart) => (
-        <SimpleGrid key={weekStart.format("YYYY-MM-DD")} cols={7} spacing={0}>
+        <SimpleGrid
+          key={weekStart.format("YYYY-MM-DD")}
+          className="grid-cols-7 gap-0 select-none"
+        >
           {Array.from({ length: 7 }, (_, i) =>
             weekStart.clone().add(i, "day")
           ).map((day) => {
@@ -79,7 +85,7 @@ export default function CalendarView({ session }: CalendarViewProps) {
               );
 
             const eventHandlers = isInSession && {
-              onMouseDown: () => handleMouseDown(day),
+              onPointerDown: () => handleMouseDown(day),
               onMouseEnter: () => handleMouseEnter(day),
               onMouseUp: () => handleMouseUp(day),
             };
@@ -88,19 +94,16 @@ export default function CalendarView({ session }: CalendarViewProps) {
               <Box
                 key={day.format("YYYY-MM-DD")}
                 {...eventHandlers}
-                p="xs"
-                bg={
-                  isInSession
-                    ? isInSelection
-                      ? "accent-blue"
-                      : "neutral.2"
-                    : "neutral.3"
-                }
-                bd="1px solid neutral.5"
-                display="flex"
-                h={200}
+                className={classNames(
+                  "p-xs border-[1px] border-solid border-neutral-5 text-left min-h-52",
+                  {
+                    "bg-accent-blue-4": isInSession && isInSelection,
+                    "bg-neutral-2": isInSession && !isInSelection,
+                    "bg-neutral-3": !isInSession,
+                  }
+                )}
               >
-                <Text size="sm" fw={"bold"} ta={"center"}>
+                <Text className="text-sm font-bold text-center">
                   {day.date()}
                 </Text>
               </Box>
@@ -108,6 +111,6 @@ export default function CalendarView({ session }: CalendarViewProps) {
           })}
         </SimpleGrid>
       ))}
-    </div>
+    </>
   );
 }
