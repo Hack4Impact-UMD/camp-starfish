@@ -18,19 +18,19 @@ export default function CalendarView({ session }: CalendarViewProps) {
     null
   );
 
-  const handleMouseDown = (date: Moment) => {
+  const handlePointerDown = (date: Moment) => {
     setFirstSelectedDate(date);
     setSecondSelectedDate(date);
   };
 
   const isSelecting = firstSelectedDate !== null;
-  const handleMouseEnter = (date: Moment) => {
+  const handlePointerEnter = (date: Moment) => {
     if (isSelecting) {
       setSecondSelectedDate(date);
     }
   };
 
-  const handleMouseUp = (date: Moment) => {
+  const handlePointerUp = (date: Moment) => {
     if (isSelecting) {
       // TODO: integrate Create Section modal
     }
@@ -79,9 +79,9 @@ export default function CalendarView({ session }: CalendarViewProps) {
             );
 
           const eventHandlers = isInSession && {
-            onPointerDown: () => handleMouseDown(day),
-            onMouseEnter: () => handleMouseEnter(day),
-            onMouseUp: () => handleMouseUp(day),
+            onPointerDown: () => handlePointerDown(day),
+            onPointerEnter: () => handlePointerEnter(day),
+            onPointerUp: () => handlePointerUp(day),
           };
 
           return (
