@@ -64,20 +64,25 @@ export default function CalendarView({ session }: CalendarViewProps) {
               "day",
               "[]"
             );
-            const isInSelection = firstSelectedDate && secondSelectedDate && day.isBetween(
-              firstSelectedDate.isSameOrBefore(secondSelectedDate) ? firstSelectedDate : secondSelectedDate,
-              firstSelectedDate.isSameOrBefore(secondSelectedDate) ? secondSelectedDate : firstSelectedDate,
-              "day",
-              "[]"
-            );
+            const isInSelection =
+              firstSelectedDate &&
+              secondSelectedDate &&
+              day.isBetween(
+                firstSelectedDate.isSameOrBefore(secondSelectedDate)
+                  ? firstSelectedDate
+                  : secondSelectedDate,
+                firstSelectedDate.isSameOrBefore(secondSelectedDate)
+                  ? secondSelectedDate
+                  : firstSelectedDate,
+                "day",
+                "[]"
+              );
 
-            const eventHandlers = isInSession
-              ? {
-                  onMouseDown: () => handleMouseDown(day),
-                  onMouseEnter: () => handleMouseEnter(day),
-                  onMouseUp: () => handleMouseUp(day),
-                }
-              : {};
+            const eventHandlers = isInSession && {
+              onMouseDown: () => handleMouseDown(day),
+              onMouseEnter: () => handleMouseEnter(day),
+              onMouseUp: () => handleMouseUp(day),
+            };
 
             return (
               <Box
