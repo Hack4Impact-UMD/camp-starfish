@@ -1,33 +1,4 @@
 {
-  "indexes": [
-    {
-      "collectionGroup": "sections",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "startDate",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "endDate",
-          "order": "ASCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "sections",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "type",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "startDate",
-          "order": "ASCENDING"
-        }
-      ]
-    }
-  ],
+  "indexes": [],
   "fieldOverrides": []
 }
