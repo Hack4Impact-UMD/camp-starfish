@@ -39,8 +39,8 @@ export default function CalendarView({ session }: CalendarViewProps) {
   };
 
   const weekStarts = [moment(session.startDate).startOf("week")];
-  const startOfLastWeek = moment(session.endDate).clone().startOf("week");
-  while (weekStarts[weekStarts.length - 1].isBefore(startOfLastWeek)) {
+  const lastWeekStart = moment(session.endDate).clone().startOf("week");
+  while (weekStarts[weekStarts.length - 1].isBefore(lastWeekStart)) {
     weekStarts.push(weekStarts[weekStarts.length - 1].clone().add(1, "week"));
   }
 
