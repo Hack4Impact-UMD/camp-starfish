@@ -1,5 +1,5 @@
 import { Modal, ModalProps } from '@mantine/core';
-import { modals, ContextModalProps as MantineContextModalProps } from '@mantine/modals';
+import { modals } from '@mantine/modals';
 import { ReactNode } from 'react';
 
 // ============================================================================
