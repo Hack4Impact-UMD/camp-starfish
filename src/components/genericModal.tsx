@@ -1,5 +1,5 @@
 import { Modal, ModalProps } from '@mantine/core';
-import { modals } from '@mantine/modals';
+import { modals, ContextModalProps as MantineContextModalProps } from '@mantine/modals';
 import { ReactNode } from 'react';
 
 // ============================================================================
@@ -17,7 +17,7 @@ export interface GenericModalProps {
   closeOnClickOutside?: boolean;
   withCloseButton?: boolean;
   padding?: string;
-  borderColor?: string; // For different modal types: blue, purple, etc.
+  borderColor?: string;
 }
 
 /**
@@ -65,74 +65,110 @@ export default function GenericModal({
 // CONFIRMATION MODAL - Extends GenericModal
 // ============================================================================
 
-export interface ConfirmationModalProps {
-  opened: boolean;
-  onClose: () => void;
-  onConfirm: () => void;
+export interface ConfirmationModalContentProps {
   title?: string | ReactNode;
   message?: string | ReactNode;
   warningText?: string | ReactNode;
+  onConfirm: () => void;
+  onCancel: () => void;
   confirmLabel?: string;
   cancelLabel?: string;
   loading?: boolean;
   dangerous?: boolean;
 }
 
-export function ConfirmationModal({
-  opened,
-  onClose,
-  onConfirm,
-  title,
+/**
+ * Confirmation Modal Content (used by both standalone and modal manager)
+ */
+export function ConfirmationModalContent({
   message,
   warningText,
+  onConfirm,
+  onCancel,
   confirmLabel = 'CONFIRM',
   cancelLabel = 'CANCEL',
   loading = false,
   dangerous = false,
+}: ConfirmationModalContentProps) {
+  return (
+    <div className="flex flex-col gap-8">
+      {message && (
+        <p className="text-base text-gray-800 text-center">
+          {message}
+        </p>
+      )}
+      {warningText && (
+        <p className="text-sm text-gray-600 text-center">
+          {warningText}
+        </p>
+      )}
+      
+      <div className="flex justify-center gap-4">
+        <button
+          onClick={onCancel}
+          disabled={loading}
+          className="px-12 py-3 text-sm font-bold text-gray-700 bg-gray-300 rounded-full hover:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors uppercase tracking-wide"
+        >
+          {cancelLabel}
+        </button>
+        <button
+          onClick={onConfirm}
+          disabled={loading}
+          className={`px-12 py-3 text-sm font-bold text-white rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wide ${
+            dangerous
+              ? 'bg-red-500 hover:bg-red-600'
+              : 'bg-blue-600 hover:bg-blue-700'
+          }`}
+        >
+          {loading ? 'LOADING...' : confirmLabel}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Standalone Confirmation Modal (wraps GenericModal for direct use)
+ */
+export interface ConfirmationModalProps extends ConfirmationModalContentProps {
+  opened: boolean;
+  onClose: () => void;
+  size?: ModalProps['size'];
+}
+
+export function ConfirmationModal({
+  opened,
+  onClose,
+  title,
+  message,
+  warningText,
+  onConfirm,
+  confirmLabel,
+  cancelLabel,
+  loading = false,
+  dangerous = false,
+  size = 'md',
 }: ConfirmationModalProps) {
   return (
     <GenericModal
       opened={opened}
       onClose={onClose}
       title={title}
-      size="md"
+      size={size}
       closeOnClickOutside={!loading}
       withCloseButton={false}
       borderColor="border-purple-500"
     >
-      <div className="flex flex-col gap-8">
-        {message && (
-          <p className="text-base text-gray-800 text-center">
-            {message}
-          </p>
-        )}
-        {warningText && (
-          <p className="text-sm text-gray-600 text-center">
-            {warningText}
-          </p>
-        )}
-        
-        <div className="flex justify-center gap-4">
-          <button
-            onClick={onClose}
-            disabled={loading}
-            className="px-12 py-3 text-sm font-bold text-gray-700 bg-gray-300 rounded-full hover:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors uppercase tracking-wide"
-          >
-            {cancelLabel}
-          </button>
-          <button
-            onClick={onConfirm}
-            disabled={loading}
-            className={`px-12 py-3 text-sm font-bold text-white rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wide ${
-              dangerous
-                ? 'bg-red-500 hover:bg-red-600'
-                : 'bg-blue-600 hover:bg-blue-700'
-            }`}
-          >
-            {loading ? 'LOADING...' : confirmLabel}
-          </button>
-        </div>
-      </div>
+      <ConfirmationModalContent
+        message={message}
+        warningText={warningText}
+        onConfirm={onConfirm}
+        onCancel={onClose}
+        confirmLabel={confirmLabel}
+        cancelLabel={cancelLabel}
+        loading={loading}
+        dangerous={dangerous}
+      />
     </GenericModal>
   );
 }
@@ -141,6 +177,20 @@ export function ConfirmationModal({
 // CONTENT MODAL - Extends GenericModal
 // ============================================================================
 
+export interface ContentModalContentProps {
+  children: ReactNode;
+}
+
+/**
+ * Content Modal Content (just renders children)
+ */
+export function ContentModalContent({ children }: ContentModalContentProps) {
+  return <>{children}</>;
+}
+
+/**
+ * Standalone Content Modal (wraps GenericModal for direct use)
+ */
 export interface ContentModalProps {
   opened: boolean;
   onClose: () => void;
@@ -188,7 +238,7 @@ export function ContentModal({
       withCloseButton={withCloseButton}
       borderColor="border-blue-500"
     >
-      {children}
+      <ContentModalContent>{children}</ContentModalContent>
     </GenericModal>
   );
 }
@@ -197,6 +247,74 @@ export function ContentModal({
 // CONTEXT MODAL - Extends GenericModal
 // ============================================================================
 
+export interface ContextModalContentProps {
+  contextText: string | ReactNode;
+  description?: string | ReactNode;
+  onAction: () => void;
+  onCancel?: () => void;
+  actionLabel?: string;
+  cancelLabel?: string;
+  icon?: ReactNode;
+  loading?: boolean;
+}
+
+/**
+ * Context Modal Content (used by both standalone and modal manager)
+ */
+export function ContextModalContent({
+  contextText,
+  description,
+  onAction,
+  onCancel,
+  actionLabel = 'GOT IT',
+  cancelLabel = 'CLOSE',
+  icon,
+  loading = false,
+}: ContextModalContentProps) {
+  return (
+    <div className="flex flex-col gap-8">
+      {icon && (
+        <div className="flex justify-center">
+          {icon}
+        </div>
+      )}
+      
+      <div className="space-y-3 text-center">
+        <p className="text-base font-medium text-gray-800">
+          {contextText}
+        </p>
+        {description && (
+          <p className="text-sm text-gray-600">
+            {description}
+          </p>
+        )}
+      </div>
+
+      <div className="flex justify-center gap-4">
+        {onCancel && (
+          <button
+            onClick={onCancel}
+            disabled={loading}
+            className="px-12 py-3 text-sm font-bold text-gray-700 bg-gray-300 rounded-full hover:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors uppercase tracking-wide"
+          >
+            {cancelLabel}
+          </button>
+        )}
+        <button
+          onClick={onAction}
+          disabled={loading}
+          className="px-12 py-3 text-sm font-bold text-white bg-blue-600 rounded-full hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors uppercase tracking-wide"
+        >
+          {loading ? 'LOADING...' : actionLabel}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Standalone Context Modal (wraps GenericModal for direct use)
+ */
 export interface ContextModalProps {
   opened: boolean;
   onClose: () => void;
@@ -208,6 +326,7 @@ export interface ContextModalProps {
   cancelLabel?: string;
   icon?: ReactNode;
   loading?: boolean;
+  size?: ModalProps['size'];
 }
 
 export function ContextModal({
@@ -216,73 +335,41 @@ export function ContextModal({
   title = 'Information',
   contextText,
   description,
-  actionLabel = 'GOT IT',
+  actionLabel,
   onAction,
-  cancelLabel = 'CLOSE',
+  cancelLabel,
   icon,
   loading = false,
+  size = 'md',
 }: ContextModalProps) {
-  const handleAction = () => {
-    if (onAction) {
-      onAction();
-    } else {
-      onClose();
-    }
-  };
+  const handleAction = onAction || onClose;
 
   return (
     <GenericModal
       opened={opened}
       onClose={onClose}
       title={title}
-      size="md"
+      size={size}
       closeOnClickOutside={!loading}
       withCloseButton={!onAction}
       borderColor="border-blue-500"
     >
-      <div className="flex flex-col gap-8">
-        {icon && (
-          <div className="flex justify-center">
-            {icon}
-          </div>
-        )}
-        
-        <div className="space-y-3 text-center">
-          <p className="text-base font-medium text-gray-800">
-            {contextText}
-          </p>
-          {description && (
-            <p className="text-sm text-gray-600">
-              {description}
-            </p>
-          )}
-        </div>
-
-        <div className="flex justify-center gap-4">
-          {onAction && (
-            <button
-              onClick={onClose}
-              disabled={loading}
-              className="px-12 py-3 text-sm font-bold text-gray-700 bg-gray-300 rounded-full hover:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors uppercase tracking-wide"
-            >
-              {cancelLabel}
-            </button>
-          )}
-          <button
-            onClick={handleAction}
-            disabled={loading}
-            className="px-12 py-3 text-sm font-bold text-white bg-blue-600 rounded-full hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors uppercase tracking-wide"
-          >
-            {loading ? 'LOADING...' : actionLabel}
-          </button>
-        </div>
-      </div>
+      <ContextModalContent
+        contextText={contextText}
+        description={description}
+        onAction={handleAction}
+        onCancel={onAction ? onClose : undefined}
+        actionLabel={actionLabel}
+        cancelLabel={cancelLabel}
+        icon={icon}
+        loading={loading}
+      />
     </GenericModal>
   );
 }
 
 // ============================================================================
-// HELPER FUNCTIONS - Use Mantine Modal Manager to open modals
+// HELPER FUNCTIONS - Use Mantine Modal Manager with Modal Components
 // ============================================================================
 
 interface OpenConfirmationModalOptions {
@@ -295,15 +382,20 @@ interface OpenConfirmationModalOptions {
   cancelLabel?: string;
   dangerous?: boolean;
   loading?: boolean;
+  size?: ModalProps['size'];
 }
 
+/**
+ * Opens a confirmation modal using the modal manager
+ * Uses ConfirmationModalContent to ensure consistency
+ */
 export function openConfirmationModal(options: OpenConfirmationModalOptions) {
   const modalId = `confirmation-${Date.now()}`;
   
   modals.open({
     modalId,
     title: options.title,
-    size: 'md',
+    size: options.size || 'md',
     centered: true,
     withCloseButton: false,
     closeOnClickOutside: !options.loading,
@@ -314,45 +406,22 @@ export function openConfirmationModal(options: OpenConfirmationModalOptions) {
       body: 'text-gray-700',
     },
     children: (
-      <div className="flex flex-col gap-8">
-        {options.message && (
-          <p className="text-base text-gray-800 text-center">
-            {options.message}
-          </p>
-        )}
-        {options.warningText && (
-          <p className="text-sm text-gray-600 text-center">
-            {options.warningText}
-          </p>
-        )}
-        
-        <div className="flex justify-center gap-4">
-          <button
-            onClick={() => {
-              modals.close(modalId);
-              options.onCancel?.();
-            }}
-            disabled={options.loading}
-            className="px-12 py-3 text-sm font-bold text-gray-700 bg-gray-300 rounded-full hover:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors uppercase tracking-wide"
-          >
-            {options.cancelLabel || 'CANCEL'}
-          </button>
-          <button
-            onClick={() => {
-              options.onConfirm();
-              modals.close(modalId);
-            }}
-            disabled={options.loading}
-            className={`px-12 py-3 text-sm font-bold text-white rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wide ${
-              options.dangerous
-                ? 'bg-red-500 hover:bg-red-600'
-                : 'bg-blue-600 hover:bg-blue-700'
-            }`}
-          >
-            {options.loading ? 'LOADING...' : (options.confirmLabel || 'CONFIRM')}
-          </button>
-        </div>
-      </div>
+      <ConfirmationModalContent
+        message={options.message}
+        warningText={options.warningText}
+        onConfirm={() => {
+          options.onConfirm();
+          modals.close(modalId);
+        }}
+        onCancel={() => {
+          modals.close(modalId);
+          options.onCancel?.();
+        }}
+        confirmLabel={options.confirmLabel}
+        cancelLabel={options.cancelLabel}
+        loading={options.loading}
+        dangerous={options.dangerous}
+      />
     ),
   });
 }
@@ -365,8 +434,13 @@ interface OpenContentModalOptions {
   size?: ModalProps['size'];
   headerIcon?: ReactNode;
   closeOnClickOutside?: boolean;
+  withCloseButton?: boolean;
 }
 
+/**
+ * Opens a content modal using the modal manager
+ * Uses ContentModalContent to ensure consistency
+ */
 export function openContentModal(options: OpenContentModalOptions) {
   const modalId = `content-${Date.now()}`;
   
@@ -389,16 +463,18 @@ export function openContentModal(options: OpenContentModalOptions) {
     title: modalTitle,
     size: options.size || 'lg',
     centered: true,
-    withCloseButton: true,
+    withCloseButton: options.withCloseButton ?? true,
     closeOnClickOutside: options.closeOnClickOutside ?? true,
-    onClose: options.onClose,
+    onClose: () => {
+      options.onClose?.();
+    },
     classNames: {
       content: 'rounded-xl border-2 border-blue-500',
       header: 'border-b-0 pb-4',
       title: 'w-full',
       body: 'text-gray-700',
     },
-    children: options.children,
+    children: <ContentModalContent>{options.children}</ContentModalContent>,
   });
 }
 
@@ -412,15 +488,20 @@ interface OpenContextModalOptions {
   cancelLabel?: string;
   icon?: ReactNode;
   loading?: boolean;
+  size?: ModalProps['size'];
 }
 
+/**
+ * Opens a context modal using the modal manager
+ * Uses ContextModalContent to ensure consistency
+ */
 export function openContextModal(options: OpenContextModalOptions) {
   const modalId = `context-${Date.now()}`;
   
   modals.open({
     modalId,
     title: options.title || 'Information',
-    size: 'md',
+    size: options.size || 'md',
     centered: true,
     withCloseButton: !options.onAction,
     closeOnClickOutside: !options.loading,
@@ -431,49 +512,22 @@ export function openContextModal(options: OpenContextModalOptions) {
       body: 'text-gray-700',
     },
     children: (
-      <div className="flex flex-col gap-8">
-        {options.icon && (
-          <div className="flex justify-center">
-            {options.icon}
-          </div>
-        )}
-        
-        <div className="space-y-3 text-center">
-          <p className="text-base font-medium text-gray-800">
-            {options.contextText}
-          </p>
-          {options.description && (
-            <p className="text-sm text-gray-600">
-              {options.description}
-            </p>
-          )}
-        </div>
-
-        <div className="flex justify-center gap-4">
-          {options.onAction && (
-            <button
-              onClick={() => {
-                modals.close(modalId);
-                options.onCancel?.();
-              }}
-              disabled={options.loading}
-              className="px-12 py-3 text-sm font-bold text-gray-700 bg-gray-300 rounded-full hover:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors uppercase tracking-wide"
-            >
-              {options.cancelLabel || 'CLOSE'}
-            </button>
-          )}
-          <button
-            onClick={() => {
-              options.onAction?.();
-              modals.close(modalId);
-            }}
-            disabled={options.loading}
-            className="px-12 py-3 text-sm font-bold text-white bg-blue-600 rounded-full hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors uppercase tracking-wide"
-          >
-            {options.loading ? 'LOADING...' : (options.actionLabel || 'GOT IT')}
-          </button>
-        </div>
-      </div>
+      <ContextModalContent
+        contextText={options.contextText}
+        description={options.description}
+        onAction={() => {
+          options.onAction?.();
+          modals.close(modalId);
+        }}
+        onCancel={options.onAction ? () => {
+          modals.close(modalId);
+          options.onCancel?.();
+        } : undefined}
+        actionLabel={options.actionLabel}
+        cancelLabel={options.cancelLabel}
+        icon={options.icon}
+        loading={options.loading}
+      />
     ),
   });
 }
@@ -483,7 +537,7 @@ export function openContextModal(options: OpenContextModalOptions) {
 // ============================================================================
 
 /*
-// OPTION 1: Using helper functions with modal manager (RECOMMENDED)
+// OPTION 1: Using helper functions with modal manager (RECOMMENDED for most cases)
 import { openConfirmationModal, openContentModal, openContextModal } from '@/components/modals/GenericModal';
 
 // Confirmation Modal
@@ -492,6 +546,7 @@ openConfirmationModal({
   warningText: 'WARNING: This action cannot be undone',
   onConfirm: () => console.log('Deleted!'),
   dangerous: true,
+  size: 'md', // Can extend with Mantine props
 });
 
 // Content Modal
@@ -499,6 +554,8 @@ openContentModal({
   title: 'Edit Profile',
   subtitle: 'Update your information',
   headerIcon: <UserIcon />,
+  size: 'xl', // Can extend with Mantine props
+  closeOnClickOutside: false, // Can extend with Mantine props
   children: (
     <div>
       <input placeholder="Name" />
@@ -514,9 +571,10 @@ openContextModal({
   description: 'Here are some tips...',
   icon: <CheckIcon />,
   actionLabel: 'GET STARTED',
+  size: 'lg', // Can extend with Mantine props
 });
 
-// OPTION 2: Using components directly (for custom control)
+// OPTION 2: Using components directly (for custom state management)
 import { ConfirmationModal, ContentModal, ContextModal } from '@/components/modals/GenericModal';
 
 function MyComponent() {
@@ -532,6 +590,7 @@ function MyComponent() {
         title="Confirm Action"
         message="Are you sure?"
         dangerous
+        size="lg" // Can extend with Mantine props
       />
     </>
   );

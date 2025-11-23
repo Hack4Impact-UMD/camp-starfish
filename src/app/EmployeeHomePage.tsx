@@ -4,6 +4,7 @@ import { useAuth } from "@/auth/useAuth";
 import GalleryCardOne from "../components/GalleryCardOne";
 import { openConfirmationModal, openContentModal, openContextModal } from "@/components/genericModal";
 import { modals } from "@mantine/modals";
+import React from 'react';
 
 export default function EmployeeHomePage() {
   const auth = useAuth();
@@ -37,36 +38,60 @@ export default function EmployeeHomePage() {
       ),
       size: "lg",
       children: (
-        <div className="space-y-6">
-          <div>
-            <label className="block text-base font-medium text-gray-700 mb-2">
-              Freeplay Partner(s)
-            </label>
-            <div className="flex items-center gap-3 p-3 border border-gray-300 rounded-lg">
-              <span className="text-gray-400">🔍</span>
-              <span className="bg-gray-200 px-3 py-1 rounded text-sm">
-                Sam Smith
-              </span>
-              <button className="text-gray-500 hover:text-gray-700">✕</button>
-              <button className="ml-auto px-3 py-1 border border-gray-300 rounded text-sm">
-                1 more
-              </button>
-            </div>
-          </div>
-          <button
-            className="w-full py-4 text-lg font-bold text-white bg-green-500 rounded-full hover:bg-green-600 transition-colors uppercase tracking-wide"
-            onClick={() => {
-              console.log("Changes confirmed!");
-              alert("Changes saved!");
-              modals.closeAll();
-            }}
-          >
-            CONFIRM CHANGES
-          </button>
-        </div>
+        <ContentModalExample />
       ),
     });
   };
+  
+  // Add this new component above the EmployeeHomePage component:
+  function ContentModalExample() {
+    const [partners, setPartners] = React.useState(['Sam Smith', 'Jane Doe']);
+    
+    const removePartner = (name: string) => {
+      setPartners(partners.filter(p => p !== name));
+    };
+    
+    const handleConfirm = () => {
+      console.log("Changes confirmed with partners:", partners);
+      alert("Changes saved!");
+      modals.closeAll();
+    };
+  
+    return (
+      <div className="space-y-6">
+        <div>
+          <label className="block text-base font-medium text-gray-700 mb-2">
+            Freeplay Partner(s)
+          </label>
+          <div className="flex flex-wrap items-center gap-3 p-3 border border-gray-300 rounded-lg">
+            <span className="text-gray-400">🔍</span>
+            {partners.map((partner) => (
+              <span key={partner} className="flex items-center gap-2 bg-gray-200 px-3 py-1 rounded">
+                <span className="text-sm">{partner}</span>
+                <button 
+                  onClick={() => removePartner(partner)}
+                  className="text-gray-500 hover:text-gray-700 font-bold"
+                >
+                  ✕
+                </button>
+              </span>
+            ))}
+            {partners.length > 1 && (
+              <button className="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50">
+                {partners.length - 1} more
+              </button>
+            )}
+          </div>
+        </div>
+        <button
+          onClick={handleConfirm}
+          className="w-full py-4 text-lg font-bold text-white bg-green-500 rounded-full hover:bg-green-600 transition-colors uppercase tracking-wide"
+        >
+          CONFIRM CHANGES
+        </button>
+      </div>
+    );
+  }
 
   const testContextModal = () => {
     openContextModal({
