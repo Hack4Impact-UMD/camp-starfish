@@ -1,14 +1,14 @@
 import { useState, useEffect } from "react";
 import { Button, Group, Radio, TextInput, Title, Stack, Box, Text, ActionIcon, LoadingOverlay } from "@mantine/core";
 import { DatePickerInput } from "@mantine/dates";
-import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { X } from "lucide-react";
 import { notifications } from "@mantine/notifications";
 import moment from "moment";
 import { useCreateSection, useUpdateSection, useDeleteSection, useSection } from "@/hooks/useSections";
 import { mapScheduleTypeToSectionType, mapSectionTypeToScheduleType, getDefaultNumBlocks, isSchedulingSectionType } from "@/utils/sections";
 import { Section, SchedulingSection, CommonSection } from "@/types/sessionTypes";
 
-interface ChooseSectionTypeProps {
+interface SectionTypeModalProps {
   sessionId: string;
   sectionId?: string; // If provided, component is in edit mode
   selectedDate: Date;
@@ -22,7 +22,7 @@ interface ChooseSectionTypeProps {
   onClose?: () => void;
 }
 
-export function ChooseSectionType({ sessionId, sectionId, selectedDate, onSubmit, onDelete, onClose }: ChooseSectionTypeProps) {
+export default function SectionTypeModal({ sessionId, sectionId, selectedDate, onSubmit, onDelete, onClose }: SectionTypeModalProps) {
   const [currentDate, setCurrentDate] = useState<Date>(selectedDate); // Header date
   const [startDate, setStartDate] = useState<Date | null>(selectedDate);
   const [endDate, setEndDate] = useState<Date | null>(null);
