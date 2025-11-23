@@ -30,7 +30,7 @@ export default function CalendarView({ session }: CalendarViewProps) {
     }
   };
 
-  const handlePointerUp = (date: Moment) => {
+  const handlePointerUp = () => {
     if (isSelecting) {
       // TODO: integrate Create Section modal
     }

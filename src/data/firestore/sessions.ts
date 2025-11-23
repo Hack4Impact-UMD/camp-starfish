@@ -9,7 +9,6 @@ import {
   WithFieldValue,
   QueryDocumentSnapshot,
   DocumentReference,
-  getDoc as getDocFirestore,
   collection,
   CollectionReference,
 } from "firebase/firestore";
