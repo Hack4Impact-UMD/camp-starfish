@@ -43,25 +43,6 @@ export default function SectionTypeModal({ sessionId, sectionId, selectedDate, o
   const updateMutation = useUpdateSection(sessionId);
   const deleteMutation = useDeleteSection(sessionId);
 
-  // Populate form with existing section data
-  useEffect(() => {
-    if (existingSection && sectionId) {
-      setName(existingSection.name);
-      
-      // Convert ISO strings to local dates at midnight
-      const start = new Date(existingSection.startDate);
-      const startLocal = new Date(start.getFullYear(), start.getMonth(), start.getDate());
-      
-      const end = new Date(existingSection.endDate);
-      const endLocal = new Date(end.getFullYear(), end.getMonth(), end.getDate());
-      
-      setStartDate(startLocal);
-      setEndDate(endLocal);
-      setCurrentDate(startLocal);
-      setScheduleType(mapSectionTypeToScheduleType(existingSection.type));
-    }
-  }, [existingSection, sectionId]);
-
   // Current date format - "Wednesday, October 29, 2025"
   const formatDate = (date: Moment) => {
     return moment(date).format('dddd, MMMM D, YYYY');
