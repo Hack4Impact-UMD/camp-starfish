@@ -1,7 +1,7 @@
 import { SessionID } from "@/types/sessionTypes";
 import { Container, Flex, Title, Text } from "@mantine/core";
 import moment from "moment";
-import CalendarView from "@/components/CalendarView";
+import CalendarView from "./SessionCalendar";
 
 interface SessionPageProps {
   session: SessionID;
