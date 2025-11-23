@@ -10,11 +10,14 @@ import { Section, SchedulingSection, CommonSection } from "@/types/sessionTypes"
 
 interface SectionTypeModalProps {
   sessionId: string;
-  sectionId?: string; // If provided, component is in edit mode
-  selectedDate: Date;
+  sectionId?: string;
+  selectedStartDate: Moment;
+  selectedEndDate: Moment;
+
+  selectedDate: Moment;
   onSubmit: (data: {
-    startDate: Date | null;
-    endDate: Date | null;
+    startDate: Moment | null;
+    endDate: Moment | null;
     scheduleType: string;
     name: string;
   }) => void;
@@ -23,10 +26,10 @@ interface SectionTypeModalProps {
 }
 
 export default function SectionTypeModal({ sessionId, sectionId, selectedDate, onSubmit, onDelete, onClose }: SectionTypeModalProps) {
-  const [currentDate, setCurrentDate] = useState<Date>(selectedDate); // Header date
-  const [startDate, setStartDate] = useState<Date | null>(selectedDate);
-  const [endDate, setEndDate] = useState<Date | null>(null);
-  const [scheduleType, setScheduleType] = useState("Bundle");
+  const [currentDate, setCurrentDate] = useState<Moment>(selectedDate); // Header date
+  const [startDate, setStartDate] = useState<Moment | null>(selectedDate);
+  const [endDate, setEndDate] = useState<Moment | null>(null);
+  const [scheduleType, setScheduleType] = useState<SectionType>("BUNDLE");
   const [name, setName] = useState("");
 
   // Fetch existing section data if in edit mode
@@ -60,14 +63,14 @@ export default function SectionTypeModal({ sessionId, sectionId, selectedDate, o
   }, [existingSection, sectionId]);
 
   // Current date format - "Wednesday, October 29, 2025"
-  const formatDate = (date: Date) => {
+  const formatDate = (date: Moment) => {
     return moment(date).format('dddd, MMMM D, YYYY');
   };
 
   const handleStartDateChange = (value: string | null) => {
     if (value) {
       // Use moment to parse YYYY-MM-DD as local date
-      const localDate = moment(value).toDate();
+      const localDate = moment(value);
       setStartDate(localDate);
       setCurrentDate(localDate); // Updates header date
     } else {
@@ -78,7 +81,7 @@ export default function SectionTypeModal({ sessionId, sectionId, selectedDate, o
   const handleEndDateChange = (value: string | null) => {
     if (value) {
       // Use moment to parse YYYY-MM-DD as local date
-      const localDate = moment(value).toDate();
+      const localDate = moment(value);
       setEndDate(localDate);
     } else {
       setEndDate(null);
