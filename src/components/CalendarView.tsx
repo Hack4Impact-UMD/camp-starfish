@@ -81,7 +81,7 @@ export default function CalendarView({ session }: CalendarViewProps) {
           const eventHandlers = isInSession && {
             onPointerDown: () => handlePointerDown(day),
             onPointerEnter: () => handlePointerEnter(day),
-            onPointerUp: () => handlePointerUp(day),
+            onPointerUp: () => handlePointerUp(),
           };
 
           return (
