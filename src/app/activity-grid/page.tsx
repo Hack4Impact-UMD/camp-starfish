@@ -6,7 +6,7 @@ import { TableControls } from "../../components/schedule/TableControls";
 import { ScheduleTable } from "../../components/schedule/ScheduleTable";
 import { Pagination } from "../../components/schedule/Pagination";
 import { ViewMode, ScheduleEntry } from "../../components/schedule/utils/types";
-import { BundleActivity, SectionScheduleID } from "../../types/sessionTypes";
+import { SectionScheduleID } from "../../types/sessionTypes";
 
 // Fake sample section to generate data from
 const sampleBundleSection: SectionScheduleID<"BUNDLE"> = {
