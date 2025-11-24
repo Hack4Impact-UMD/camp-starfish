@@ -1,4 +1,4 @@
-import { MantineColorsTuple, MantineTheme, MantineThemeOverride, NotificationProps } from "@mantine/core";
+import { MantineColorsTuple, MantineThemeOverride } from "@mantine/core";
 import { campStarfishFonts } from "./fonts";
 
 export const theme: MantineThemeOverride = {
