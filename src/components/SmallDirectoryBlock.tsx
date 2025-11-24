@@ -20,7 +20,6 @@ import {
   IconArrowsVertical,
 } from "@tabler/icons-react";
 import { UserRole, CamperID, StaffID, AdminID } from "../types/personTypes";
-import {CamperAttendee} from "../types/sessionTypes";
 
 // types displayed in directory
 type CamperWithBunk = CamperID & { bunk?: number };

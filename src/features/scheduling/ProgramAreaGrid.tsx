@@ -6,7 +6,7 @@ import {
   ProgramAreaID,
 } from "@/types/sessionTypes";
 import { createTw } from 'react-pdf-tailwind';
-import { Table, TR, TH, TD } from '@ag-media/react-pdf-table';
+import { Table, TR, TD } from '@ag-media/react-pdf-table';
 
 const tw = createTw({
   theme: {

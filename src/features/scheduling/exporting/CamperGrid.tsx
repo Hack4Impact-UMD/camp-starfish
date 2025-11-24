@@ -6,7 +6,7 @@ import {
   StaffAttendeeID,
 } from "@/types/sessionTypes";
 import { getFullName } from "@/utils/personUtils";
-import { Text, Document, Page, View } from "@react-pdf/renderer";
+import { Text, Document, Page} from "@react-pdf/renderer";
 import {
   getFreeplayAssignmentId,
   isBundleActivity,
@@ -167,7 +167,7 @@ interface CamperGridProps<T extends SchedulingSectionType> {
 export default function CamperGrid<T extends SchedulingSectionType>(
   props: CamperGridProps<T>
 ) {
-  const { schedule, freeplay, campers, staff } = props;
+  const { schedule, freeplay, campers } = props;
 
   campers.sort((a, b) => {
     if (a.bunk === b.bunk) {

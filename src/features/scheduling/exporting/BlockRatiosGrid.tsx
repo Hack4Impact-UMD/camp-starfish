@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet } from '@react-pdf/renderer';
+import { View, Text,} from '@react-pdf/renderer';
 import { StaffAttendeeID, CamperAttendeeID, AdminAttendeeID, SectionSchedule, SchedulingSectionType } from "@/types/sessionTypes";
 import { getAttendeesById, isBundleActivity, isIndividualAssignments } from '../generation/schedulingUtils';
 import {createTw} from 'react-pdf-tailwind';
