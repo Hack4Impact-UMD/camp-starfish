@@ -42,19 +42,32 @@ export default function EmployeeGrid<T extends SchedulingSectionType>(
       <Page size="A4">
         <Table style={ [tw("p-[15px] text-[8px]"),{ fontFamily: "Helvetica" }]}>
         <Text style={tw("text-[12px] my-[6px] font-bold")}>{employees.length === 0 ? "Employee" : employees[0].role === "ADMIN" ? "Admin" : "Staff"} Assignments</Text>
-        <TH style={tw("mb-[8px] border border-black")}>
-          <TR style={tw("flex-row bg-black")}>
-            <TD>
-            <Text style={tw("flex-1 text-center text-[8px] font-bold text-white border border-black p-[1px] bg-black justify-center items-center")}>NAME</Text>
-            {Object.keys(schedule.blocks).map((blockId) => (
-              <Text key={blockId} style={tw("flex-1 text-center text-[8px] font-bold text-white border border-black p-[1px] bg-black justify-center items-center")}>
-                {blockId}
-              </Text>
-            ))}
-            </TD>
-            <Text style={tw("flex-1 text-center text-[8px] font-bold text-white border border-black p-[1px] bg-black justify-center items-center")}>APO</Text>
-            <Text style={tw("flex-1 text-center text-[8px] font-bold text-white border border-black p-[1px] bg-black justify-center items-center")}>AM/PM FP</Text>
-          </TR>
+      <TH style={tw("mb-[8px] border border-black")}>  
+         <TR style={tw("flex-row bg-black")}>  
+           <TD>  
+             <Text style={tw("flex-1 text-center text-[8px] font-bold text-white border border-black p-[1px] bg-black justify-center items-center")}>  
+               NAME  
+             </Text>  
+           </TD>  
+           {Object.keys(schedule.blocks).map((blockId) => (  
+             <TD key={blockId}>  
+               <Text style={tw("flex-1 text-center text-[8px] font-bold text-white border border-black p-[1px] bg-black justify-center items-center")}>  
+                 {blockId}  
+               </Text>  
+             </TD>  
+           ))}  
+           <TD>  
+             <Text style={tw("flex-1 text-center text-[8px] font-bold text-white border border-black p-[1px] bg-black justify-center items-center")}>  
+               APO  
+             </Text>  
+           </TD>  
+           <TD>  
+             <Text style={tw("flex-1 text-center text-[8px] font-bold text-white border border-black p-[1px] bg-black justify-center items-center")}>  
+               AM/PM FP  
+             </Text>  
+           </TD>  
+         </TR>  
+       </TH>  
 
           {employees.map((employee) => {
             const fpBuddyIds = getFreeplayAssignmentId(freeplay, employee.id);
@@ -126,9 +139,8 @@ export default function EmployeeGrid<T extends SchedulingSectionType>(
               </TR>
             );
           })}
-        </TH>
         </Table>
-      </Page>
-    </Document>
+        </Page>
+      </Document>
   );
-}
+};

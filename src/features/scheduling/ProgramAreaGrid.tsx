@@ -122,7 +122,7 @@ export function ProgramAreaGrid({
                       style={
                         isEmpty 
                           ? tw("bg-white p-[2px] min-h-[13px] text-center border border-black w-[80px]")
-                          : tw("bg-white p-[2px] min-h-[13px]text-center border border-black w-[80px]")
+                          : tw("bg-white p-[2px] min-h-[13px] text-center border border-black w-[80px]")
                       }
                     >
                       {renderActivityText(areaActivities)}
