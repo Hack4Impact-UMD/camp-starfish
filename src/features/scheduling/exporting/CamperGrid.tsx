@@ -6,14 +6,31 @@ import {
   StaffAttendeeID,
 } from "@/types/sessionTypes";
 import { getFullName } from "@/utils/personUtils";
-import { StyleSheet, View, Text, Document, Page } from "@react-pdf/renderer";
+import { Text, Document, Page, View } from "@react-pdf/renderer";
 import {
   getFreeplayAssignmentId,
   isBundleActivity,
   isIndividualAssignments,
 } from "../generation/schedulingUtils";
+import { createTw } from "react-pdf-tailwind";
+import { Table, TR, TH, TD } from "@ag-media/react-pdf-table";
 
-const styles = StyleSheet.create({
+const tw = createTw({
+  theme: {
+    fontFamily: {
+      sans: ["Helvetica"],
+      "ui-sans-serif": ["Helvetica"],
+    },
+    extend: {
+      colors: {
+        header: "#000",
+        bunk: "#d3d3d3",
+      },
+    },
+  },
+});
+
+/*const styles = StyleSheet.create({
   page: {
     padding: 15, // Reduced padding
     fontSize: 8, // Reduced font size
@@ -138,7 +155,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     fontSize: 6, // Very small font for compact layout
   },
-});
+});*/
 
 interface CamperGridProps<T extends SchedulingSectionType> {
   schedule: SectionScheduleID<T>;
@@ -162,73 +179,109 @@ export default function CamperGrid<T extends SchedulingSectionType>(
     return a.bunk - b.bunk;
   });
 
+  const blockIds = Object.keys(schedule.blocks);
+  const blocksArray = Object.values(schedule.blocks);
+
   return (
     <Document>
-      <Page size="A4">
-      <Text style={styles.sectionTitle}>Camper Grid</Text>
-      <View style={styles.compactTable}>
-        <View style={styles.headerRow}>
-          <Text style={styles.compactHeaderCell}>BUNK</Text>
-          <Text style={styles.compactHeaderCell}>NAME</Text>
-          {Object.keys(schedule.blocks).map((blockId) => (
-            <Text key={blockId} style={styles.compactHeaderCell}>
-              {blockId}
-            </Text>
-          ))}
-          <Text style={styles.compactHeaderCell}>+</Text>
-          <Text style={styles.compactHeaderCell}>FP</Text>
-        </View>
+      <Page size="A4" style={[tw("p-[15px] text-[8px]"), { fontFamily: "Helvetica" }]}>
+        <Text style={tw("text-[12px] my-[6px] font-bold")}>KID GRID</Text>
+        
+        <Table style={[tw("mb-[8px]"), { width: "33.33%" }]}>
+          {/* Header Row */}
+          <TR style={tw("bg-black")}>
+            <TH style={[tw("text-center text-[7px] font-bold text-white p-[1px]"), { width: "30px" }]}>
+            </TH>
+            <TH style={[tw("text-center text-[7px] font-bold text-white p-[1px]"), { width: "35px" }]}>
+              <Text>NAME</Text>
+            </TH>
+            {blockIds.map((blockId) => (
+              <TH
+                key={blockId}
+                style={[tw("text-center text-[7px] font-bold text-white p-[1px]"), { width: "30px" }]}
+              >
+                <Text>{blockId}</Text>
+              </TH>
+            ))}
+            <TH style={[tw("text-center text-[7px] font-bold text-white p-[1px]"), { width: "25px" }]}>
+              <Text>+</Text>
+            </TH>
+            <TH style={[tw("text-center text-[7px] font-bold text-white p-[1px]"), { width: "25px" }]}>
+              <Text>FP</Text>
+            </TH>
+          </TR>
 
-        {campers.map((camper) => {
-          const blocksArray = Object.values(schedule.blocks);
-          const fpBuddyId = getFreeplayAssignmentId(freeplay, camper.id);
-          const fpBuddyObj = staff.find((staff) => staff.id === fpBuddyId);
-          const fpBuddyName = fpBuddyObj ? getFullName(fpBuddyObj) : "N/A";
-
-          return (
-            <View key={camper.id} style={styles.row}>
-              <View style={styles.compactBunkCell}>
-                <Text>{camper.bunk}</Text>
-              </View>
-
-              <View style={styles.compactDataCell}>
-                <Text>{getFullName(camper)}</Text>
-              </View>
-
-              {blocksArray.map((block, i) => {
-                const activity = block.activities.find((act) =>
-                  isIndividualAssignments(act.assignments)
-                    ? act.assignments.camperIds.includes(camper.id)
-                    : act.assignments.bunkNums.includes(camper.bunk)
-                );
-
-                let activityText;
-                if (!activity) {
-                  activityText = "-";
-                } else if (isBundleActivity(activity)) {
-                  activityText = activity.programArea.id;
-                } else {
-                  activityText = activity.name;
+          {/* Data Rows */}
+          {campers.map((camper) => {
+            const fpAssignment = getFreeplayAssignmentId(freeplay, camper.id);
+            
+            // Get activity code for FP column
+            let fpActivityCode = "-";
+            if (fpAssignment) {
+              if (typeof fpAssignment === "string") {
+                // If it's a string, it's a postId (activity code)
+                fpActivityCode = fpAssignment;
+              } else if (typeof fpAssignment === "number") {
+                // If it's a number, it's a staffId - find what post they're assigned to
+                for (const [postId, employeeIds] of Object.entries(freeplay.posts)) {
+                  if (employeeIds.includes(fpAssignment)) {
+                    fpActivityCode = postId;
+                    break;
+                  }
                 }
+              }
+            }
 
-                return (
-                  <View key={i} style={styles.compactDataCell}>
-                    <Text>{activityText}</Text>
-                  </View>
-                );
-              })}
+            return (
+              <TR key={camper.id}>
+                {/* Bunk Column */}
+                <TD style={[tw("p-[1px] bg-bunk text-center text-[6px]"), { width: "10px" }]}>
+                  <Text>{camper.bunk}</Text>
+                </TD>
 
-              <View style={styles.compactDataCell}>
-                <Text>-</Text>
-              </View>
+                {/* Name Column */}
+                <TD style={[tw("p-[1px] bg-white text-left text-[6px]"), { width: "50px" }]}>
+                  <Text>
+                    {camper.name.firstName} {camper.name.lastName[0]}.
+                  </Text>
+                </TD>
 
-              <View style={styles.compactDataCell}>
-                <Text>{fpBuddyName}</Text>
-              </View>
-            </View>
-          );
-        })}
-      </View>
+                {/* Block Activity Columns */}
+                {blocksArray.map((block, i) => {
+                  const activity = block.activities.find((act) =>
+                    isIndividualAssignments(act.assignments)
+                      ? act.assignments.camperIds.includes(camper.id)
+                      : act.assignments.bunkNums.includes(camper.bunk)
+                  );
+
+                  let activityText;
+                  if (!activity) {
+                    activityText = "";
+                  } else if (isBundleActivity(activity)) {
+                    activityText = activity.programArea.id;
+                  } else {
+                    activityText = activity.name;
+                  }
+
+                  return (
+                    <TD key={i} style={[tw("p-[1px] bg-white text-center text-[6px]"), { width: "20px" }]}>
+                      <Text>{activityText}</Text>
+                    </TD>
+                  );
+                })}
+
+                {/* Plus Column */}
+                <TD style={[tw("p-[1px] bg-white text-center text-[6px]"), { width: "20px" }]}>
+                </TD>
+
+                {/* Freeplay Column */}
+                <TD style={[tw("p-[1px] bg-white text-center text-[6px]"), { width: "20px" }]}>
+                  <Text>{fpActivityCode}</Text>
+                </TD>
+              </TR>
+            );
+          })}
+        </Table>
       </Page>
     </Document>
   );
