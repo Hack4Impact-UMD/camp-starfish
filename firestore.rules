@@ -2,6 +2,46 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && request.auth.token.role == 'ADMIN';
+    }
+
+    function isStaff() {
+      return isSignedIn() && request.auth.token.role == 'STAFF';
+    }
+
+    function userDoc() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+
+    function isSessionAttendee(sessionId) {
+      return userDoc().data.attendingSessions != null && sessionId in userDoc().data.attendingSessions;
+    }
+    
+    function isSectionPublished(sessionId, sectionId) {
+      return get(/databases/$(database)/documents/sessions/$(sessionId)/sections/$(sectionId)).data.isPublished == true;
+    }
+
+    match /sessions/{sessionId} {
+      allow read: if isAdmin() || (isStaff() && isSessionAttendee(sessionId));
+      allow write: if isAdmin();
+
+      match /sections/{sectionId} {
+        allow read: if isAdmin() || (isStaff() && isSessionAttendee(sessionId));
+        allow write: if isAdmin();
+
+        match /schedule/{scheduleId} {
+          allow read: if isAdmin() || (isStaff() && isSessionAttendee(sessionId) && isSectionPublished(sessionId, sectionId));
+          allow write: if isAdmin();
+        }
+      }
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }
