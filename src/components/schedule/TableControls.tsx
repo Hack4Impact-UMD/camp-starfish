@@ -22,8 +22,8 @@ export const TableControls = ({
         value={viewMode}
         onChange={(e) => onViewModeChange(e.target.value as ViewMode)}
       >
-        <option value="staff">Schedule View: Camper</option>
-        <option value="freeplay">Schedule View: Staff</option>
+        <option value="camper">Schedule View: Camper</option>
+        <option value="staff">Schedule View: Staff</option>
       </select>
       
       <select className="border border-gray-300 rounded px-4 py-2 bg-white">

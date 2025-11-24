@@ -41,7 +41,9 @@ export const Pagination = ({
       </button>
       
       <div className="text-sm text-gray-600">
-        Showing {(currentPage - 1) * itemsPerPage + 1} out of {totalEntries} entries
+      {totalEntries === 0 
+        ? 'No entries to display'
+        : `Showing ${(currentPage - 1) * itemsPerPage + 1} out of ${totalEntries} entries`}
       </div>
     </div>
   );

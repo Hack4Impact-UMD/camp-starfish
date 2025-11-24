@@ -17,6 +17,7 @@ export const BundleHeader = ({
       <button 
         onClick={onPrevious}
         className="p-2 hover:bg-blue-200 rounded"
+        aria-label="Previous bundle"
       >
         <ChevronLeft size={24} />
       </button>
@@ -27,6 +28,7 @@ export const BundleHeader = ({
       <button 
         onClick={onNext}
         className="p-2 hover:bg-blue-200 rounded"
+        aria-label="Next bundle"
       >
         <ChevronRight size={24} />
       </button>

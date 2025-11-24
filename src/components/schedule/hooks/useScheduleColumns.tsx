@@ -27,7 +27,7 @@ export const useScheduleColumns = (viewMode: ViewMode) => {
             header: 'AM/PM FREEPLAY',
             cell: (info) => <FreeplayCell value={ info.getValue() } />,
       }),
-    ], []);
+  ], [helper]);
 
 const freeplayColumns = useMemo(() => [
     helper.accessor('name', {
@@ -43,8 +43,8 @@ const freeplayColumns = useMemo(() => [
     helper.accessor('freeplayAssignment', {
         header: 'FREEPLAY ASSIGNMENT',
         cell: (info) => <FreeplayCell value={ info.getValue() } />,
-      }),
-    ], []);
+    }),
+] , [helper]);
 
 return viewMode === 'staff' ? staffColumns : freeplayColumns;
   };
