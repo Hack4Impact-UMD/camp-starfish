@@ -4,7 +4,6 @@ import CreateSession from "@/components/CreateSessionModal";
 import { useState } from "react";
 import { useCreateSession } from "@/hooks/sessions/useCreateSessions";
 import { Session } from "@/types/sessionTypes";
-import moment from "moment";
 
 export default function Page() {
   const [showCreateSession, setShowCreateSession] = useState(false);

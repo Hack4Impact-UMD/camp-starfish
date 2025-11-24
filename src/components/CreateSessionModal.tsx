@@ -21,6 +21,10 @@ export default function CreateSessionModal({ onSubmit, onCancel }: DateRangeGene
     const startDate = dateRange[0] ? moment(dateRange[0]) : null;
     const endDate = dateRange[1] ? moment(dateRange[1]) : null;
 
+    if (sessionName.trim() === '') {
+      throw new Error('Please enter a session name.');
+    }
+
     if (!startDate || !endDate) {
       throw new Error('Please select a start and end date.');
     }
