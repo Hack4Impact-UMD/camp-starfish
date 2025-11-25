@@ -46,5 +46,5 @@ const freeplayColumns = useMemo(() => [
     }),
 ] , [helper]);
 
-return viewMode === 'staff' ? staffColumns : freeplayColumns;
+return viewMode === 'camper' ? staffColumns : freeplayColumns;
   };
