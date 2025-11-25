@@ -56,13 +56,13 @@ export function ProgramAreaGrid({
     areaChunks.push(allAreas.slice(i, i + maxAreasPerTable));
   }
 
-  // Helper function to render activity text (only first activity)
+  // function to render activity text (only first activity)
   const renderActivityText = (activities: BundleActivity[]) => {
     if (activities.length === 0) {
       return null;
     }
 
-    // Only show the first activity
+    //  show the first activity
     const activity = activities[0];
     return (
       <Text style={tw("text-[6px] text-center leading-[1.1] max-w-full")}>
@@ -71,7 +71,7 @@ export function ProgramAreaGrid({
     );
   };
 
-  // Helper function to render a single table
+  //  render a single table
   const renderTable = (areas: ProgramAreaID[], tableIndex: number) => {
     return (
       <View
@@ -113,17 +113,10 @@ export function ProgramAreaGrid({
                   const areaActivities = activities.filter(
                     (a) => a.programArea.id === area.id
                   );
-
-                  const isEmpty = areaActivities.length === 0;
-
                   return (
                     <TD
                       key={`${blockId}-${area.id}`}
-                      style={
-                        isEmpty 
-                          ? tw("bg-white p-[2px] min-h-[13px] text-center border border-black w-[80px]")
-                          : tw("bg-white p-[2px] min-h-[13px] text-center border border-black w-[80px]")
-                      }
+                      style={tw("bg-white p-[2px] min-h-[13px] text-center border border-black w-[80px]")}  
                     >
                       {renderActivityText(areaActivities)}
                     </TD>
