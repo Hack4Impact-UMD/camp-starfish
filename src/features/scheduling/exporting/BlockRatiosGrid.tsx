@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text,} from '@react-pdf/renderer';
 import { StaffAttendeeID, CamperAttendeeID, AdminAttendeeID, SectionSchedule, SchedulingSectionType } from "@/types/sessionTypes";
 import { getAttendeesById, isBundleActivity, isIndividualAssignments } from '../generation/schedulingUtils';
-import {createTw} from 'react-pdf-tailwind';
+import { tw } from "@/utils/reactPdfTailwind";
 import {Table, TR, TH, TD} from '@ag-media/react-pdf-table';
 
 // helper function to format first name and first initial of last name"
@@ -16,17 +16,6 @@ interface BlockRatiosGridProps<T extends SchedulingSectionType = SchedulingSecti
   staff: StaffAttendeeID[];
   admins: AdminAttendeeID[];
 }
-
-const tw = createTw({
-  theme: {
-    extend: {
-      colors: {
-        'gray-light': '#f0f0f0',
-        'gray-medium': '#d9d9d9',
-      },
-    },
-  },
-});
 
 /*const styles = StyleSheet.create({
   // Container styles

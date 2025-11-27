@@ -13,18 +13,8 @@ import {
   isIndividualAssignments,
 } from "../generation/schedulingUtils";
 import { getFullName } from "@/utils/personUtils";
-import {createTw} from 'react-pdf-tailwind';
+import { tw } from "@/utils/reactPdfTailwind";
 import { Table, TR, TH, TD } from "@ag-media/react-pdf-table";
-
-const tw = createTw({
-  theme: {
-    extend: {
-      colors: {
-        'bunk': '#d3d3d3',
-      },
-    },
-  },
-});
 
 interface EmployeeGridProps<T extends SchedulingSectionType> {
   schedule: SectionScheduleID<T>;

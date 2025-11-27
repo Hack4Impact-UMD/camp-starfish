@@ -7,15 +7,7 @@ import {
   AgeGroup,
 } from "@/types/sessionTypes";
 import { isBundleActivity } from "../generation/schedulingUtils";
-import {createTw} from 'react-pdf-tailwind';
-
-const tw = createTw({
-  theme: {
-    fontFamily: {
-      sans: ["Helvetica"],
-    },
-  },
-});
+import { tw } from "@/utils/reactPdfTailwind";
 
 /*const styles = StyleSheet.create({
   page: { padding: 40, fontSize: 12, fontFamily: "Helvetica" },
@@ -81,7 +73,7 @@ export function CamperPreferencesSheet<T extends SchedulingSectionType = Schedul
               <Text style={tw("text-[14px] font-bold mb-[4px]")}>Block {blockId}</Text>
               {activities.map((activity, idx) => (
                 <View key={`${blockId}-${idx}`} style={tw("ml-[10px] mb-[6px] flex flex-row justify-between")}>
-                  <View style={tw("")}>
+                  <View>
                     <Text style={tw("font-bold")}>
                       {`${isBundleActivity(activity) ? `${activity.programArea.name}: ` : ""}${activity.name}`}
                     </Text>

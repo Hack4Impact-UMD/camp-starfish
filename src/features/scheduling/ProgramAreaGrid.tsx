@@ -5,25 +5,8 @@ import {
   BundleActivity,
   ProgramAreaID,
 } from "@/types/sessionTypes";
-import { createTw } from 'react-pdf-tailwind';
+import { tw } from "@/utils/reactPdfTailwind";
 import { Table, TR, TD } from '@ag-media/react-pdf-table';
-
-const tw = createTw({
-  theme: {
-    fontFamily: {
-      sans: ["Helvetica"],
-      "ui-sans-serif": ["Helvetica"],
-    },
-    extend: {
-      colors: {
-        'gray-50': '#f8f9fa',
-        'gray-400': '#b8b8b8',
-        'gray-700': '#495057',
-        'gray-900': '#333',
-      },
-    },
-  },
-});
 
 interface ProgramAreaGridProps {
   schedule: SectionSchedule<"BUNDLE">;

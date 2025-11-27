@@ -12,23 +12,8 @@ import {
   isBundleActivity,
   isIndividualAssignments,
 } from "../generation/schedulingUtils";
-import { createTw } from "react-pdf-tailwind";
+import { tw } from "@/utils/reactPdfTailwind";
 import { Table, TR, TH, TD } from "@ag-media/react-pdf-table";
-
-const tw = createTw({
-  theme: {
-    fontFamily: {
-      sans: ["Helvetica"],
-      "ui-sans-serif": ["Helvetica"],
-    },
-    extend: {
-      colors: {
-        header: "#000",
-        bunk: "#d3d3d3",
-      },
-    },
-  },
-});
 
 /*const styles = StyleSheet.create({
   page: {
@@ -190,9 +175,9 @@ export default function CamperGrid<T extends SchedulingSectionType>(
         <Table style={[tw("mb-[8px]"), { width: "33.33%" }]}>
           {/* Header Row */}
           <TR style={tw("bg-black")}>
-            <TH style={[tw("text-center text-[7px] font-bold text-white p-[1px]"), { width: "30px" }]}>
+            <TH style={tw("text-center text-[7px] font-bold text-white p-[1px] width: 30px")}>
             </TH>
-            <TH style={[tw("text-center text-[7px] font-bold text-white p-[1px]"), { width: "35px" }]}>
+            <TH style={tw("text-center text-[7px] font-bold text-white p-[1px] width: 35px" )}>
               <Text>NAME</Text>
             </TH>
             {blockIds.map((blockId) => (
