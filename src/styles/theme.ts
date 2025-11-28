@@ -1,4 +1,4 @@
-import { MantineColorsTuple, MantineThemeOverride } from "@mantine/core";
+import { MantineColorsTuple, MantineTheme, MantineThemeOverride, NotificationProps } from "@mantine/core";
 import { campStarfishFonts } from "./fonts";
 
 export const theme: MantineThemeOverride = {
@@ -44,8 +44,8 @@ export const theme: MantineThemeOverride = {
       "#007F90",
       ...Array<string>(4).fill("#006F7E"),
     ] as unknown as MantineColorsTuple,
-    "blue-0": [
-      ...Array<string>(1).fill("#eaf9fb"),
+    "light-grey": [
+
     ] as unknown as MantineColorsTuple,
     success: [
       ...Array<string>(5).fill("#1E8E3E"),
@@ -73,4 +73,46 @@ export const theme: MantineThemeOverride = {
   },
   defaultRadius: "xl",
   cursorType: "pointer",
+  components: {
+    //theme for general toast component notification 
+    Notification: {
+      styles: (theme: MantineTheme, props: NotificationProps) => {
+        const { variant = 'success' } = props;
+        const accent = theme.colors[variant][4];
+        return {
+          root: {
+            backgroundColor: theme.white,
+            border: `1px solid ${theme.colors.neutral[3]}`,
+            borderRadius: theme.radius.md,
+            boxShadow: '0 2px 6px rgba(0, 0, 0, 0.15)',
+            padding: '20px 16px',
+            height: 90,
+          },
+          title: {
+            fontWeight: 700,
+            color: accent,
+            fontSize: 18,
+          },
+          icon: {
+            color: variant
+          },
+          description: {
+            color: theme.colors.neutral[5],
+            fontWeight: 500,
+            fontSize: 14,
+          },
+          closeButton: {
+            color: theme.colors.neutral[6],
+          },
+        };
+      },
+      defaultProps: {
+        withCloseButton: true,
+        withBorder: false,
+        closeButtonProps: {
+          iconSize: 90
+        }
+      },
+    },
+  },
 };
