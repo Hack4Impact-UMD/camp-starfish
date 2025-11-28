@@ -4,7 +4,7 @@ import { campStarfishFonts } from "./fonts";
 export const theme: MantineThemeOverride = {
   colors: {
     neutral: [
-      ...Array<string>(2).fill("#FFFFFF"),
+      "#FFFFFF",
       "#FAFAFB",
       "#DEE1E3",
       "#C0C6C9",
