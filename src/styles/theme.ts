@@ -1,4 +1,4 @@
-import { MantineColorsTuple, MantineThemeOverride } from "@mantine/core";
+import { MantineColorsTuple, MantineThemeOverride, MantineTheme } from "@mantine/core";
 import { campStarfishFonts } from "./fonts";
 
 export const theme: MantineThemeOverride = {
@@ -44,9 +44,7 @@ export const theme: MantineThemeOverride = {
       "#007F90",
       ...Array<string>(4).fill("#006F7E"),
     ] as unknown as MantineColorsTuple,
-    "light-grey": [
-
-    ] as unknown as MantineColorsTuple,
+    "light-grey": [] as unknown as MantineColorsTuple,
     success: [
       ...Array<string>(5).fill("#1E8E3E"),
       "#15632B",
@@ -73,56 +71,30 @@ export const theme: MantineThemeOverride = {
   },
   defaultRadius: "xl",
   cursorType: "pointer",
-  
+
   components: {
     TextInput: {
-      defaultProps: {
-        styles: {
-          input: {
-            backgroundColor: 'var(--mantine-color-neutral-2)',
-            borderRadius: 'var(--mantine-radius-md)',
-            border: 'none',
-            padding: '12px 16px',
-            fontSize: '14px',
-            color: 'var(--mantine-color-neutral-4)',
-          },
-        },
+      classNames: {
+        input: "bg-primary-0 rounded-md border-none px-3 py-2 text-sm text-red-500 placeholder:text-neutral-5 focus:outline-none"
       },
     },
-    DatePicker: {
-      defaultProps: {
-        styles: {
-          calendarHeader: {
-            maxWidth: 'none',
-          },
-          calendarHeaderControl: {
-            color: 'var(--mantine-color-neutral-9)',
-          },
-          monthCell: {
-            color: 'var(--mantine-color-neutral-9)',
-          },
-          day: {
-            color: 'var(--mantine-color-neutral-9)',
-            fontSize: '16px',
-            height: '40px',
-          },
-          month: {
-            width: '100%',
-          },
-        },
-      },
-    },
-  },
-};
 
-// Global styles for DatePicker data attributes (must be in CSS, not inline styles)
-export const datePickerGlobalStyles = `
-  .mantine-DatePicker-day[data-selected] {
-    background-color: var(--mantine-color-primary-5) !important;
-    color: white !important;
+    DatePicker: {
+      classNames: {
+        calendarHeader: "mb-3",
+        calendarHeaderLevel: "text-[15px] font-bold text-primary-5",
+        weekday: "text-neutral-5 font-medium text-[13px]",
+        day: `
+          text-[14px] h-[38px] rounded-sm text-neutral-7
+          hover:bg-primary-0
+          data-[selected]:bg-link-0 data-[selected]:text-white
+          data-[selected]:hover:bg-primary-6
+          data-[in-range]:bg-link-1
+          data-[first-in-range]:bg-link-5 data-[first-in-range]:text-white data-[first-in-range]:rounded-l-sm
+          data-[last-in-range]:bg-primary-5 data-[last-in-range]:text-white data-[last-in-range]:rounded-r-sm
+        `
+      }
+    }
   }
-  .mantine-DatePicker-day[data-in-range] {
-    background-color: var(--mantine-color-accent-blue-0) !important;
-    color: var(--mantine-color-neutral-9) !important;
-  }
-`;
+
+};
