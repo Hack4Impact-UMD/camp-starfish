@@ -65,7 +65,7 @@ export default function CreateSessionModal({ onSubmit, onCancel }: DateRangeGene
               Enter Session Name:
             </Text>
             <TextInput
-              placeholder="Enter session name here"
+              placeholder="Enter name..."
               value={sessionName}
               onChange={(e) => setSessionName(e.currentTarget.value)}
               className='w-[50%]'

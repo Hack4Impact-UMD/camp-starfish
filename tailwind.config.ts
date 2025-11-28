@@ -1,6 +1,7 @@
 import type { Config } from "tailwindcss";
 import { theme } from "./src/styles/theme";
 import { campStarfishFonts } from "./src/styles/fonts";
+import { MantineColorsTuple } from "@mantine/core";
 
 function mantineToTailwindColors(colors: Record<string, MantineColorsTuple | undefined>) {
   const result: Record<string, Record<number, string>> = {};
@@ -9,16 +10,16 @@ function mantineToTailwindColors(colors: Record<string, MantineColorsTuple | und
     if (!arr) continue;
 
     result[name] = {
-      0: arr[0] ?? "#ffffff",
-      1: arr[1] ?? arr[0],
-      2: arr[2] ?? arr[0],
-      3: arr[3] ?? arr[0],
-      4: arr[4] ?? arr[0],
-      5: arr[5] ?? arr[0],
-      6: arr[6] ?? arr[0],
-      7: arr[7] ?? arr[0],
-      8: arr[8] ?? arr[0],
-      9: arr[9] ?? arr[0],
+      0: arr[0],
+      1: arr[1],
+      2: arr[2],
+      3: arr[3],
+      4: arr[4],
+      5: arr[5],
+      6: arr[6],
+      7: arr[7],
+      8: arr[8],
+      9: arr[9],
     };
   }
 
