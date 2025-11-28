@@ -13,6 +13,7 @@ import {
   CollectionReference,
 } from "firebase/firestore";
 import { setDoc, deleteDoc, getDoc, updateDoc, executeQuery } from "./firestoreClientOperations";
+import { getDoc as getDocFirestore } from "firebase/firestore";
 import { Collection } from "./utils";
 
 const sessionFirestoreConverter: FirestoreDataConverter<SessionID, Session> = {
