@@ -27,7 +27,7 @@ export interface CamperAttendeeID extends CamperAttendee, ID<number> { sessionId
 
 export type StaffAttendee = Pick<Staff, 'name' | 'gender' | 'nonoList' | 'yesyesList'> & {
   role: "STAFF";
-  programCounselor?: ProgramArea;
+  programCounselor?: ProgramAreaID;
   bunk: number;
   leadBunkCounselor: boolean;
   daysOff: string[] // ISO-8601
@@ -65,6 +65,7 @@ export interface CommonSectionID extends CommonSection, ID<string> { sessionId: 
 export type SchedulingSection = Omit<CommonSection, 'type'> & {
   type: SchedulingSectionType;
   numBlocks: number;
+  isPublished: boolean;
 }
 export interface SchedulingSectionID extends SchedulingSection, ID<string> { sessionId: string; };
 
@@ -102,7 +103,7 @@ export interface JamboreeActivity {
 }
 
 export interface BundleActivity extends JamboreeActivity {
-  programArea: ProgramArea;
+  programArea: ProgramAreaID;
   ageGroup: AgeGroup;
 }
 
@@ -117,7 +118,7 @@ export interface IndividualAssignments {
 }
 
 export interface BunkAssignments {
-  bunk: number;
+  bunkNums: number[];
   adminIds: number[];
 }
 

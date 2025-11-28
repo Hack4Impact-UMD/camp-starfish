@@ -9,17 +9,11 @@ import {
   WithFieldValue,
   QueryDocumentSnapshot,
   DocumentReference,
-  getDoc as getDocFirestore,
+  collection,
+  CollectionReference,
 } from "firebase/firestore";
+import { setDoc, deleteDoc, getDoc, updateDoc, executeQuery } from "./firestoreClientOperations";
 import { Collection } from "./utils";
-import {
-  setDoc,
-  deleteDoc,
-  getDoc,
-  updateDoc,
-} from "./firestoreClientOperations";
-import { QueryFunctionContext } from '@tanstack/react-query';
-
 
 const sessionFirestoreConverter: FirestoreDataConverter<SessionID, Session> = {
   toFirestore: (
@@ -44,10 +38,11 @@ export async function getSessionById(
   );
 }
 
-export async function setSession(
-  session: Session,
-  instance?: Transaction | WriteBatch
-): Promise<string> {
+export async function getAllSessions(): Promise<SessionID[]> {
+  return await executeQuery<SessionID, Session>(collection(db, Collection.SESSIONS) as CollectionReference<SessionID, Session>, sessionFirestoreConverter);
+}
+
+export async function setSession(session: Session, instance?: Transaction | WriteBatch): Promise<string> {
   const sessionId = uuid();
   await setDoc<SessionID, Session>(
     doc(db, Collection.SESSIONS, sessionId) as DocumentReference<
