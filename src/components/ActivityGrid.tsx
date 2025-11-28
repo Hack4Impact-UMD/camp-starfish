@@ -26,7 +26,6 @@ import {
   useMantineTheme,
   ActionIcon,
 } from "@mantine/core";
-import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 
 type BlockWithId<T extends SchedulingSectionType> = Block<T> & {
   id: string;
@@ -118,7 +117,7 @@ export const ActivityGrid: React.FC<ActivityGridProps> = ({
         display: "block",
         width: "100%",
         padding: 0,
-        overflow: "visible", // Allow carousel to overflow
+        overflow: "visible", 
       },
     },
     mantineTableBodyRowProps: {
@@ -129,7 +128,7 @@ export const ActivityGrid: React.FC<ActivityGridProps> = ({
     },
     mantineTableProps: {
       style: {
-        tableLayout: "fixed", // Fix table layout
+        tableLayout: "fixed",
         width: "100%",
       },
     },

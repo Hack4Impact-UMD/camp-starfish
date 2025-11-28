@@ -7,9 +7,19 @@ import {
   SchedulingSectionType,
   SectionScheduleID,
 } from "@/types/sessionTypes";
-import { Title, Container, Flex, Box, ActionIcon, Text, useMantineTheme } from "@mantine/core";
+import {
+  Title,
+  Container,
+  Flex,
+  Box,
+  ActionIcon,
+  Text,
+  useMantineTheme,
+} from "@mantine/core";
 import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 import { useState } from "react";
+
+import { EditActivityCard } from "@/components/EditActivityCard";
 
 const bunkJamboBlock: Block<"BUNK-JAMBO"> = {
   activities: [
@@ -195,6 +205,17 @@ export default function page() {
           </Box>
           <ActivityGrid sectionSchedule={allSections[index]} />
         </Flex>
+      </Container>
+
+      <Container>
+        <EditActivityCard
+          author="Parth"
+          block={{
+            ...bundleBlock,
+            id: "A",
+          }}
+          activities={bundleBlock.activities}
+        />
       </Container>
     </>
   );
