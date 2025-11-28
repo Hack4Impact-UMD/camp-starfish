@@ -71,7 +71,7 @@ export default function CreateSessionModal({ onSubmit, onCancel }: DateRangeGene
 
               <TextInput
                 placeholder="Start Date"
-                className="w-[25%] !disabled:bg-primary-0"
+                className="w-[25%]"
                 value={dateRange[0] ? moment(dateRange[0]).format('MMM D, YYYY') : ''}
                 disabled
               />
