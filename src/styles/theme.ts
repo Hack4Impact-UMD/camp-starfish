@@ -1,4 +1,4 @@
-import { MantineColorsTuple, MantineThemeOverride, MantineTheme } from "@mantine/core";
+import { MantineColorsTuple, MantineThemeOverride } from "@mantine/core";
 import { campStarfishFonts } from "./fonts";
 
 

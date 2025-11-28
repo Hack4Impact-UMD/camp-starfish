@@ -30,7 +30,7 @@ export default function CreateSessionModal({ onSubmit, onCancel }: DateRangeGene
     const newSession: Session = {
       name: sessionName,
       startDate: moment(startDateStr).toISOString(),
-      endDate: moment(endDateStr).toISOString(),
+      endDate: moment(endDateStr).add(1, 'day').toISOString(),
       driveFolderId: '',
     };
 
