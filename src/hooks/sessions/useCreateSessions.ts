@@ -15,7 +15,7 @@ export function useCreateSession() {
       success("Session created successfully!");
     },
 
-    onError: (err: Error | any) => {
+    onError: (err: Error) => {
       console.error("Error creating session:", err);
       error(err?.message || "Failed to create session.");
     },
