@@ -20,11 +20,11 @@ const attendeeFirestoreConverter: FirestoreDataConverter<AttendeeID, Attendee> =
     const { id, sessionId, ...dto } = attendee;
     return dto as WithFieldValue<AttendeeID>; 
   },
-  fromFirestore: (snapshot: QueryDocumentSnapshot<Attendee, Attendee>): AttendeeID => ({ id: Number(snapshot.ref.id), sessionId: snapshot.ref.parent.id, ...snapshot.data() as Attendee })
+  fromFirestore: (snapshot: QueryDocumentSnapshot<Attendee, Attendee>): AttendeeID => ({ id: Number(snapshot.ref.id), sessionId: snapshot.ref.parent.parent!.id, ...snapshot.data() })
 
 };
 
-// Get attendedee by id
+// Get attendee by id
 export async function getAttendeeById(campminderId: number, sessionId: string, transaction?: Transaction): Promise<AttendeeID> {
     return await getDoc<AttendeeID, Attendee>(doc(db, Collection.SESSIONS, sessionId, SessionsSubcollection.ATTENDEES, String(campminderId)) as DocumentReference<AttendeeID, Attendee>, attendeeFirestoreConverter, transaction);
 };
@@ -34,9 +34,9 @@ export async function getAllAttendees(sessionId: string): Promise<AttendeeID[]> 
 }
 
 export async function setAttendee(campminderId: number, sessionId: string, attendee: Attendee, instance?: Transaction | WriteBatch): Promise<number> {
-  const attendedeeId = campminderId;
-  await setDoc<AttendeeID, Attendee>(doc(db, Collection.SESSIONS, sessionId, SessionsSubcollection.ATTENDEES, String(campminderId)) as DocumentReference<AttendeeID, Attendee>, { id: attendedeeId, sessionId: sessionId, ...attendee }, attendeeFirestoreConverter, instance);
-  return attendedeeId;
+  const attendeeId = campminderId;
+  await setDoc<AttendeeID, Attendee>(doc(db, Collection.SESSIONS, sessionId, SessionsSubcollection.ATTENDEES, String(campminderId)) as DocumentReference<AttendeeID, Attendee>, { id: attendeeId, sessionId: sessionId, ...attendee }, attendeeFirestoreConverter, instance);
+  return attendeeId;
 }
 
 export async function updateAttendee(campminderId: number, sessionId: string, updates: Partial<Attendee>, instance?: Transaction | WriteBatch): Promise<void>{
