@@ -12,7 +12,6 @@ import {
   IconChevronDown,
   IconChevronUp,
   IconArrowsVertical,
-  IconAlertCircle,
 } from "@tabler/icons-react";
 import { useAttendees } from "@/hooks/attendees/useAttendees";
 import Profile from "@/assets/icons/Profile.svg";
@@ -103,10 +102,7 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
           onClick={() => console.log("Redirect to expanded directory view")}
           aria-label="Expand directory view"
         >
-          <IconArrowsVertical
-            size={25}
-            style={{ transform: "rotate(45deg)" }}
-          />
+          <IconArrowsVertical size={25} className="rotate-45" />
         </ActionIcon>
       </div>
 
