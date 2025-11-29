@@ -25,11 +25,13 @@ export default function CreateSessionModal({ opened, onClose }: CreateSessionMod
 
     if (sessionName.trim() === '') {
       setError('Please enter a session name.');
+      console.log(error);
       return;
     }
 
     if (!startDateStr || !endDateStr) {
       setError('Please select a start and end date.');
+      console.log(error);
       return;
     }
 
