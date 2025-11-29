@@ -1,5 +1,5 @@
 import { db } from "@/config/firebase";
-import { AttendeeID, CamperAttendeeID, StaffAttendeeID, AdminAttendeeID, Attendee } from "@/types/sessionTypes";
+import { AttendeeID, Attendee } from "@/types/sessionTypes";
 import {
   doc,
   Transaction,
@@ -11,9 +11,8 @@ import {
   collection,
   CollectionReference
 } from "firebase/firestore";
-import { setDoc, deleteDoc, getDoc, updateDoc, executeQuery } from "./firestoreClientOperations";
+import { setDoc, getDoc, updateDoc, executeQuery } from "./firestoreClientOperations";
 import { Collection, SessionsSubcollection } from "./utils";
-import { v4 as uuid } from "uuid";
 
 // Generic Firestore converter for any Attendee
 const attendeeFirestoreConverter: FirestoreDataConverter<AttendeeID, Attendee> = {

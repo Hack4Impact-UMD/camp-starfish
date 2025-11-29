@@ -27,7 +27,7 @@ const INITIAL_VISIBILE_COUNT = 3;
 const LOAD_MORE_COUNT = 3;
 
 export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
-  const router = useRouter();
+  ///const router = useRouter();
   const { data: people, isLoading, error } = useAttendees(sessionId);
   const [searchQuery, setSearchQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState<"CAMPER" | "STAFF" | "ADMIN">("CAMPER");
