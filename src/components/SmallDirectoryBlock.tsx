@@ -12,6 +12,7 @@ import {
   IconChevronDown,
   IconChevronUp,
   IconArrowsVertical,
+  IconAlertCircle
 } from "@tabler/icons-react";
 import { useAttendees } from "@/hooks/attendees/useAttendees";
 import Profile from "@/assets/icons/Profile.svg";
