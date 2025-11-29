@@ -100,8 +100,8 @@ export const theme: MantineThemeOverride = {
       "#644A00",
     ],
   },
-  primaryShade: 4,
-  primaryColor: "primary",
+  primaryShade: 5,
+  primaryColor: "blue",
   fontFamily: `${campStarfishFonts.join(', ')}, sans-serif`,
   headings: {
     fontFamily: `Lato, sans-serif`,
