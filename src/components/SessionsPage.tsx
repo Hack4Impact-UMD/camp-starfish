@@ -8,15 +8,13 @@ import {
   Title,
   Menu,
   Text,
-  Modal,
 } from "@mantine/core";
 import moment from "moment";
 import Image from "next/image";
-import { Session, SessionID } from "@/types/sessionTypes";
+import { SessionID } from "@/types/sessionTypes";
 import pencilIcon from "@/assets/icons/pencilIcon.svg";
 import SessionCard from "@/components/SessionCard";
 import CreateSessionModal from "@/components/CreateSessionModal";
-import { useCreateSession } from "@/hooks/sessions/useCreateSessions";
 
 interface SessionsPageProps {
   sessions: SessionID[];
@@ -24,19 +22,10 @@ interface SessionsPageProps {
 
 export default function SessionsPage({ sessions }: SessionsPageProps) {
   const [editMode, setEditMode] = useState(false);
-
   const [opened, setOpened] = useState(false);
+  const handleCancel = () => setOpened(false);
+  const toggleModal = () => setOpened(true);
 
-  const createSessionMutation = useCreateSession();
-
-  const handleSessionSubmit = async (newSession: Session) => {
-    createSessionMutation.mutate(newSession);
-    setOpened(false);
-  };
-
-  const handleCreateSession = () => {
-    setOpened(true);
-  };
 
   // --- Categorize sessions ---
   const { current, future, past } = useMemo(() => {
@@ -109,7 +98,7 @@ export default function SessionsPage({ sessions }: SessionsPageProps) {
                       height={16}
                     />
                   }
-                  onClick={() => handleCreateSession()}
+                  onClick={toggleModal}
                 >
                   Standard Session
                 </Menu.Item>
@@ -123,7 +112,7 @@ export default function SessionsPage({ sessions }: SessionsPageProps) {
                       height={16}
                     />
                   }
-                  onClick={() => handleCreateSession()}
+                  onClick={toggleModal}
                 >
                   Customized Session
                 </Menu.Item>
@@ -190,22 +179,8 @@ export default function SessionsPage({ sessions }: SessionsPageProps) {
         </Stack>
       </Stack>
 
-      <Modal
-        opened={opened}
-        onClose={() => setOpened(false)}
-        centered
-        overlayProps={{ opacity: 0.25, blur: 3 }}
-        withCloseButton={false}
-        title={null}
-        padding={0}
-        radius="md"
-        size="auto"
-      >
-        <CreateSessionModal
-          onSubmit={handleSessionSubmit}
-          onCancel={() => setOpened(false)}
-        />
-      </Modal>
+      {/* YOUR MODAL — now correctly wired */}
+      <CreateSessionModal opened={opened} onClose={handleCancel} />
     </>
   );
 }

@@ -3,7 +3,7 @@ import { setSession } from '@/data/firestore/sessions';
 import { Session } from '../../types/sessionTypes';
 import useNotifications from '@/features/notifications/useNotifications';
 
-export function useCreateSession() {
+export default function useCreateSession() {
   const queryClient = useQueryClient();
   const { success, error } = useNotifications();
 
