@@ -13,7 +13,6 @@ import {
   CollectionReference,
   getDocs,
 } from "firebase/firestore";
-import { Collection } from "./utils";
 import {
   setDoc,
   deleteDoc,
@@ -21,6 +20,7 @@ import {
   updateDoc,
   executeQuery,
 } from "./firestoreClientOperations";
+import { Collection } from "./utils";
 
 const sessionFirestoreConverter: FirestoreDataConverter<SessionID, Session> = {
   toFirestore: (
