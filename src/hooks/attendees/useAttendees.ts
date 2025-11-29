@@ -4,7 +4,7 @@ import { AttendeeID } from "@/types/sessionTypes";
 
 export function useAttendees(sessionId: string) {
     return useQuery<AttendeeID[]>({
-        queryKey: ["attendees"],
+        queryKey: ["attendees", sessionId],
         queryFn: () => getAllAttendees(sessionId), 
         staleTime: 1000 * 60 * 5, // 5 minutes
         retry: 2,
