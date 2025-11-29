@@ -3,172 +3,104 @@ import { useState } from "react";
 import {
   TextInput,
   Radio,
-  Group,
-  Text,
-  Box,
-  Stack,
   Button,
   ActionIcon,
-  Divider,
   RadioGroup,
-  Alert,
 } from "@mantine/core";
 import {
   IconSearch,
   IconChevronDown,
   IconChevronUp,
-  IconUserCircle,
   IconArrowsVertical,
   IconAlertCircle,
 } from "@tabler/icons-react";
-import { useQuery } from "@tanstack/react-query";
-import { EmployeeRole, UserRole } from "../types/personTypes";
-
-// fetch function type for getting people data to display in the directory
-type FetchPeopleFunction = () => Promise<Person[]>;
-
-export type Person = {
-  id: string | number;
-  name: string;
-  avatar?: string;
-  role: EmployeeRole | UserRole | "PARENT" | "CAMPER";
-  bunk?: number;
-};
+import { useAttendees } from "@/hooks/attendees/useAttendees";
+import Profile from "@/assets/icons/Profile.svg";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 type SmallDirectoryBlockProps = {
-  people?: Person[];
-  fetchPeople?: FetchPeopleFunction;
-  queryKey?: string[];
-  onExpand?: () => void;
-  viewMoreLink?: string;
-  initialVisibleCount?: number;
-  loadMoreCount?: number;
+  sessionId: string;
 };
 
-export function SmallDirectoryBlock({
-  people: propsPeople,
-  fetchPeople,
-  queryKey = ["directory-people"],
-  onExpand,
-  initialVisibleCount = 4,
-  loadMoreCount = 3,
-}: SmallDirectoryBlockProps) {
-  // react query if fetchPeople is provided, otherwise use props data
-  const {
-    data: queryData,
-    isLoading,
-    error,
-  } = useQuery({
-    queryKey,
-    queryFn: fetchPeople || (() => Promise.resolve([])),
-    enabled: !!fetchPeople,
-  });
+const INITIAL_VISIBILE_COUNT = 3;
+const LOAD_MORE_COUNT = 3;
 
-  const people = fetchPeople ? queryData || [] : propsPeople || [];
+export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
+  const router = useRouter();
+  const { data: people, isLoading, error } = useAttendees(sessionId);
   const [searchQuery, setSearchQuery] = useState("");
-  const [roleFilter, setRoleFilter] = useState<
-    EmployeeRole | UserRole | "CAMPER"
-  >("CAMPER");
-  const [visibleCount, setVisibleCount] = useState(initialVisibleCount);
+  const [roleFilter, setRoleFilter] = useState<"CAMPER" | "STAFF" | "ADMIN">("CAMPER");
+  const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBILE_COUNT);
   const [showAll, setShowAll] = useState(false);
 
   // loading state
-  if (isLoading && fetchPeople) {
+  if (isLoading) {
     return (
-      <Box
-        p="md"
-        style={{
-          maxWidth: 400,
-          margin: "50px",
-          border: "1.3px solid black",
-          padding: "15px",
-          backgroundColor: "#FAFAFB",
-        }}
-      >
-        <Group justify="space-between" mb="md">
-          <Text size="xlg" fw={900}>
-            DIRECTORY
-          </Text>
-        </Group>
-        <Stack align="center" justify="center" style={{ minHeight: 200 }}>
-          \{" "}
-          <Text c="dimmed" size="sm">
-            Loading directory...
-          </Text>
-        </Stack>
-      </Box>
+      <div className="max-w-[400px] m-[50px] border-[1.3px] border-black p-4 bg-neutral-2">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-black">DIRECTORY</h2>
+        </div>
+        <div className="flex flex-col items-center justify-center min-h-[200px]">
+          <p className="text-neutral-5 text-sm">Loading directory...</p>
+        </div>
+      </div>
     );
   }
 
   // error state
-  if (error && fetchPeople) {
+  if (error) {
     return (
-      <Box
-        p="md"
-        style={{
-          maxWidth: 400,
-          margin: "50px",
-          border: "1.3px solid black",
-          padding: "15px",
-          backgroundColor: "#FAFAFB",
-        }}
-      >
-        <Group justify="space-between" mb="md">
-          <Text size="xlg" fw={900}>
-            DIRECTORY
-          </Text>
-        </Group>
-        <Alert icon={<IconAlertCircle size={16} />} title="Error" color="red">
-          {error instanceof Error
-            ? error.message
-            : "Failed to load directory data"}
-        </Alert>
-      </Box>
+      <div className="max-w-[400px] m-[50px] border-[1.3px] border-black p-4 bg-neutral-2">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-black">DIRECTORY</h2>
+        </div>
+        <div className="flex items-start gap-3 p-3 bg-error-0 border border-error-5 rounded-md">
+          <IconAlertCircle size={16} className="text-error-5 mt-0.5" />
+          <div>
+            <p className="font-semibold text-error-5 mb-1">Error</p>
+            <p className="text-sm text-error-5">
+              {error instanceof Error
+                ? error.message
+                : "Failed to load directory data"}
+            </p>
+          </div>
+        </div>
+      </div>
     );
   }
 
-  //filtering the people based on role in search
-  const filteredPeople = people
+  // filtering the people based on role in search
+  const filteredPeople = (people || [])
     .filter(
       (person) =>
         person.role === roleFilter &&
-        person.name.toLowerCase().includes(searchQuery.toLowerCase())
+        person.name.firstName.toLowerCase().includes(searchQuery.toLowerCase())
     )
-    .slice(0, showAll ? people.length : visibleCount);
+    .slice(0, showAll ? people?.length : visibleCount);
 
   // view more button that displays (all) people when clicked
   const handleViewMore = () => {
     if (showAll) {
       setShowAll(false);
-      setVisibleCount(initialVisibleCount);
+      setVisibleCount(INITIAL_VISIBILE_COUNT);
     } else {
-      setVisibleCount((prev) => Math.min(prev + loadMoreCount, people.length));
-      if (visibleCount + loadMoreCount >= people.length) {
+      setVisibleCount((prev) => Math.min(prev + LOAD_MORE_COUNT , people?.length || 0));
+      if (visibleCount + LOAD_MORE_COUNT >= (people?.length || 0)) {
         setShowAll(true);
       }
     }
   };
 
   return (
-    <Box
-      p="md"
-      style={{
-        maxWidth: 400,
-        margin: "50px",
-        border: "1.3px solid black",
-        padding: "15px",
-        backgroundColor: "#FAFAFB",
-      }}
-    >
+    <div className="max-w-[344px] m-[50px] border-[1.3px] border-black p-4 bg-neutral-2">
       {/* header with directory and expand button */}
-      <Group justify="space-between" mb="md">
-        <Text size="xlg" fw={900}>
-          DIRECTORY
-        </Text>
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-xl font-black">DIRECTORY</h2>
         <ActionIcon
           variant="transparent"
           size="md"
-          onClick={onExpand}
+          onClick={() => console.log("Redirect to expanded directory view")}
           aria-label="Expand directory view"
         >
           <IconArrowsVertical
@@ -176,7 +108,7 @@ export function SmallDirectoryBlock({
             style={{ transform: "rotate(45deg)" }}
           />
         </ActionIcon>
-      </Group>
+      </div>
 
       {/* search bar */}
       <TextInput
@@ -189,43 +121,39 @@ export function SmallDirectoryBlock({
 
       <RadioGroup
         value={roleFilter}
-        onChange={(value) =>
-          setRoleFilter(value as EmployeeRole | UserRole | "CAMPER")
-        }
+        onChange={(value) => setRoleFilter(value as "CAMPER" | "STAFF" | "ADMIN")}
       >
         {/* radio options to choose */}
-        <Group mt="lg">
+        <div className="flex gap-4 mt-4">
           <Radio value="CAMPER" label="Campers" />
           <Radio value="STAFF" label="Staff" />
           <Radio value="ADMIN" label="Admin" />
-        </Group>
+        </div>
       </RadioGroup>
 
-      <Stack gap="lg" mt="lg">
+      <div className="flex flex-col gap-4 mt-7">
         {filteredPeople.map((person) => (
-          <Box key={person.id}>
-            <Group wrap="nowrap" gap="sm">
-              <IconUserCircle size={32} />
+          <div key={person.id}>
+            <div className="flex items-center gap-[32px]">
+              <Image className="flex-shrink-0 w-[32px] h-[32px]" src={Profile} alt="Profile" />
               <div>
-                <Text size="sm" fw={700}>
-                  {person.name}
-                  {person.bunk !== undefined && `  (${person.bunk})`}
-                </Text>
+                <p className="text-sm font-bold text-primary-5">
+                  {person.name.firstName} {person.name.lastName}
+                  {'bunk' in person && person.bunk !== undefined && ` (${person.bunk})`}
+                </p>
               </div>
-            </Group>
-            <Divider mt="sm" />
-          </Box>
+            </div>
+            <hr className="mt-2 border-neutral-3" />
+          </div>
         ))}
-      </Stack>
+      </div>
 
       {filteredPeople.length === 0 && (
-        <Text c="dimmed" ta="center" my="md">
-          No people found
-        </Text>
+        <p className="text-neutral-5 text-center my-4">No people found</p>
       )}
 
       {/* bottom button */}
-      {people.length > initialVisibleCount && (
+      {(people?.length || 0) > INITIAL_VISIBILE_COUNT && (
         <Button
           variant="subtle"
           size="sm"
@@ -243,6 +171,6 @@ export function SmallDirectoryBlock({
           {showAll ? "Show less" : "View more"}
         </Button>
       )}
-    </Box>
+    </div>
   );
 }
