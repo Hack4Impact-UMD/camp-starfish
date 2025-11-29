@@ -17,7 +17,7 @@ import {
 import { useAttendees } from "@/hooks/attendees/useAttendees";
 import Profile from "@/assets/icons/Profile.svg";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+//import { useRouter } from "next/navigation";
 
 type SmallDirectoryBlockProps = {
   sessionId: string;
