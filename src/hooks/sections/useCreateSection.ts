@@ -3,13 +3,18 @@ import useNotifications from "@/features/notifications/useNotifications";
 import { Section } from "@/types/sessionTypes";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-export default function useCreateSection(sessionId: string) {
+interface UseCreateSectionVariables {
+  sessionId: string;
+  section: Section;
+}
+
+export default function useCreateSection() {
   const queryClient = useQueryClient();
   const notifications = useNotifications();
 
   return useMutation({
-    mutationFn: (sectionData: Section) => setSection(sessionId, sectionData),
-    onSuccess: () => {
+    mutationFn: ({ sessionId, section }: UseCreateSectionVariables) => setSection(sessionId, section),
+    onSuccess: (_, { sessionId }) => {
       queryClient.invalidateQueries({ queryKey: ['sessions', sessionId, 'sections'] });
     },
     onError: () => {
