@@ -1,11 +1,13 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button, Group, Radio, TextInput, Title, Stack, Box, Text, ActionIcon, LoadingOverlay } from "@mantine/core";
 import { DatePickerInput } from "@mantine/dates";
 import { X } from "lucide-react";
 import { notifications } from "@mantine/notifications";
-import moment from "moment";
-import { useCreateSection, useUpdateSection, useDeleteSection, useSection } from "@/hooks/useSections";
-import { mapScheduleTypeToSectionType, mapSectionTypeToScheduleType, getDefaultNumBlocks, isSchedulingSectionType } from "@/utils/sections";
+import moment, { Moment } from "moment";
+import useCreateSection from "@/hooks/sections/useCreateSection";
+import useUpdateSection from "@/hooks/sections/useUpdateSection";
+import useDeleteSection from "@/hooks/sections/useDeleteSection";
+import { mapScheduleTypeToSectionType, getDefaultNumBlocks, isSchedulingSectionType } from "@/utils/sections";
 import { Section, SchedulingSection, CommonSection } from "@/types/sessionTypes";
 
 interface SectionTypeModalProps {
