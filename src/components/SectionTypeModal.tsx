@@ -86,12 +86,13 @@ export default function SectionTypeModal({
         ...baseSectionData,
         type: sectionType,
         numBlocks: getDefaultNumBlocks(scheduleType),
-      } as SchedulingSection;
+        isPublished: false,
+      } satisfies SchedulingSection;
     } else {
       sectionData = {
         ...baseSectionData,
         type: "COMMON",
-      } as CommonSection;
+      } satisfies CommonSection;
     }
 
     if (isEditMode) {
