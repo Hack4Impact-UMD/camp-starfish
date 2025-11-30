@@ -110,7 +110,6 @@ export const theme: MantineThemeOverride = {
   defaultRadius: "xl",
   cursorType: "pointer",
   components: {
-    //theme for general toast component notification 
     Notification: {
       styles: (theme: MantineTheme, props: NotificationProps) => {
         const { variant = 'success' } = props;
@@ -150,5 +149,96 @@ export const theme: MantineThemeOverride = {
         }
       },
     },
+    TextInput: {
+      defaultProps: {
+        radius: "md",
+        size: "sm",
+        styles: {
+          input: {
+            backgroundColor: "#C0C6C9", // neutral.4
+            border: 'none', // Remove borders for all text inputs
+          },
+        },
+      },
+    },
+    DatePickerInput: {
+      defaultProps: {
+        styles: {
+          input: {
+            backgroundColor: "#C0C6C9", // neutral.4 (matching TextInput)
+            border: 'none', // Remove borders for all date inputs
+          },
+          // Calendar dropdown styling
+          calendarHeaderControl: {
+            width: 28,
+            height: 28,
+            fontSize: 14,
+          },
+          calendarHeader: {
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            paddingLeft: 8,
+          },
+          calendarHeaderLevel: {
+            fontWeight: 600,
+            fontSize: "15px",
+            textAlign: "center" as const,
+            flex: 1,
+          },
+          day: {
+            fontVariantNumeric: "tabular-nums",
+            fontFeatureSettings: "'tnum' 1",
+            fontFamily: "Inter, sans-serif",
+            width: 32,
+            height: 32,
+            lineHeight: "32px",
+            textAlign: "center" as const,
+          },
+        },
+      },
+    },
+    Button: {
+      defaultProps: {
+        radius: "xl",
+        size: "md",
+        styles: {
+          root: {
+            textTransform: "uppercase" as const,
+            fontWeight: 500,
+            fontSize: "14px",
+          },
+        },
+      },
+    },
+    Title: {
+      defaultProps: {
+        fw: 700,
+      },
+    },
+    Text: {
+      defaultProps: {
+        fw: 500,
+      },
+    },
+    Radio: {
+      defaultProps: {
+        styles: {
+          radio: {
+            width: 16,
+            height: 16,
+            marginTop: 2,
+            '&:checked': {
+              backgroundColor: 'var(--mantine-color-blue-filled)',
+              borderColor: 'var(--mantine-color-blue-filled)',
+            }
+          },
+          icon: { 
+            display: 'none' // Hide default white dot for solid bullets
+          }
+        },
+      },
+    },
+  
   },
 };

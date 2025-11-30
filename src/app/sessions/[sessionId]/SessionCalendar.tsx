@@ -5,12 +5,14 @@ import { SimpleGrid, Text, Box } from "@mantine/core";
 import { SessionID } from "@/types/sessionTypes";
 import moment from "moment";
 import classNames from "classnames";
+import { modals } from "@mantine/modals";
+import EditSectionModal from "@/components/EditSectionModal";
 
-interface CalendarViewProps {
+interface SessionCalendarProps {
   session: SessionID;
 }
 
-export default function CalendarView({ session }: CalendarViewProps) {
+export default function SessionCalendar({ session }: SessionCalendarProps) {
   const [firstSelectedDate, setFirstSelectedDate] = useState<Moment | null>(
     null
   );
@@ -23,7 +25,7 @@ export default function CalendarView({ session }: CalendarViewProps) {
     setSecondSelectedDate(date);
   };
 
-  const isSelecting = firstSelectedDate !== null;
+  const isSelecting = firstSelectedDate !== null && secondSelectedDate !== null;
   const handlePointerEnter = (date: Moment) => {
     if (isSelecting) {
       setSecondSelectedDate(date);
@@ -32,7 +34,16 @@ export default function CalendarView({ session }: CalendarViewProps) {
 
   const handlePointerUp = () => {
     if (isSelecting) {
-      // TODO: integrate Create Section modal
+      modals.open({
+        title: "Create Section",
+        children: (
+          <EditSectionModal
+            selectedStartDate={firstSelectedDate.isSameOrBefore(secondSelectedDate) ? firstSelectedDate : secondSelectedDate}
+            selectedEndDate={firstSelectedDate.isSameOrBefore(secondSelectedDate) ? secondSelectedDate : firstSelectedDate}
+            sessionId={session.id}
+          />
+        ),
+      })
     }
     setFirstSelectedDate(null);
     setSecondSelectedDate(null);

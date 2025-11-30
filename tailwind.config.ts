@@ -45,6 +45,9 @@ const tailwindThemeConverters: Partial<TailwindThemeConverters> = {
   screens: () => {
     return (theme.breakpoints ?? DEFAULT_THEME.breakpoints) as CustomThemeConfig['screens'];
   },
+  blur: () => {
+    return (theme.radius ?? DEFAULT_THEME.radius) as CustomThemeConfig['blur'];
+  },
 }
 
 const tailwindConfigExtension: Partial<CustomThemeConfig> = {};
