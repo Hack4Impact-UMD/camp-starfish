@@ -8,11 +8,11 @@ import classNames from "classnames";
 import { modals } from "@mantine/modals";
 import EditSectionModal from "@/components/EditSectionModal";
 
-interface CalendarViewProps {
+interface SessionCalendarProps {
   session: SessionID;
 }
 
-export default function CalendarView({ session }: CalendarViewProps) {
+export default function SessionCalendar({ session }: SessionCalendarProps) {
   const [firstSelectedDate, setFirstSelectedDate] = useState<Moment | null>(
     null
   );
