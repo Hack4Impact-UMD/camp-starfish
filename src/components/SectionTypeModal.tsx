@@ -1,5 +1,17 @@
 import { useState } from "react";
-import { Button, Group, Radio, TextInput, Title, Stack, Box, Text, ActionIcon, LoadingOverlay } from "@mantine/core";
+import {
+  Button,
+  Group,
+  Radio,
+  TextInput,
+  Title,
+  Stack,
+  Box,
+  Text,
+  ActionIcon,
+  LoadingOverlay,
+  Modal,
+} from "@mantine/core";
 import { DatePickerInput } from "@mantine/dates";
 import { X } from "lucide-react";
 import { notifications } from "@mantine/notifications";
@@ -7,8 +19,17 @@ import moment, { Moment } from "moment";
 import useCreateSection from "@/hooks/sections/useCreateSection";
 import useUpdateSection from "@/hooks/sections/useUpdateSection";
 import useDeleteSection from "@/hooks/sections/useDeleteSection";
-import { mapScheduleTypeToSectionType, getDefaultNumBlocks, isSchedulingSectionType } from "@/utils/sections";
-import { Section, SchedulingSection, CommonSection, SectionType } from "@/types/sessionTypes";
+import {
+  mapScheduleTypeToSectionType,
+  getDefaultNumBlocks,
+  isSchedulingSectionType,
+} from "@/utils/sections";
+import {
+  Section,
+  SchedulingSection,
+  CommonSection,
+  SectionType,
+} from "@/types/sessionTypes";
 import useSection from "@/hooks/sections/useSection";
 
 interface SectionTypeModalProps {
@@ -17,7 +38,6 @@ interface SectionTypeModalProps {
   selectedStartDate: Moment;
   selectedEndDate: Moment;
 
-  selectedDate: Moment;
   onSubmit: (data: {
     startDate: Moment | null;
     endDate: Moment | null;
@@ -28,17 +48,24 @@ interface SectionTypeModalProps {
   onClose?: () => void;
 }
 
-export default function SectionTypeModal({ sessionId, sectionId, selectedDate, onSubmit, onDelete, onClose }: SectionTypeModalProps) {
-  const [currentDate, setCurrentDate] = useState<Moment>(selectedDate); // Header date
-  const [startDate, setStartDate] = useState<Moment | null>(selectedDate);
-  const [endDate, setEndDate] = useState<Moment | null>(null);
+export default function SectionTypeModal({
+  sessionId,
+  sectionId,
+  selectedStartDate,
+  selectedEndDate,
+  onSubmit,
+  onDelete,
+  onClose,
+}: SectionTypeModalProps) {
+  const [startDate, setStartDate] = useState<Moment | null>(selectedStartDate);
+  const [endDate, setEndDate] = useState<Moment | null>(selectedEndDate);
   const [scheduleType, setScheduleType] = useState<SectionType>("BUNDLE");
   const [name, setName] = useState("");
 
   // Fetch existing section data if in edit mode
   const { data: existingSection, isLoading: isLoadingSection } = useSection(
-    sessionId, 
-    sectionId || '',
+    sessionId,
+    sectionId || ""
   );
 
   // React Query mutations
@@ -48,7 +75,7 @@ export default function SectionTypeModal({ sessionId, sectionId, selectedDate, o
 
   // Current date format - "Wednesday, October 29, 2025"
   const formatDate = (date: Moment) => {
-    return moment(date).format('dddd, MMMM D, YYYY');
+    return moment(date).format("dddd, MMMM D, YYYY");
   };
 
   const handleStartDateChange = (value: string | null) => {
@@ -56,7 +83,6 @@ export default function SectionTypeModal({ sessionId, sectionId, selectedDate, o
       // Use moment to parse YYYY-MM-DD as local date
       const localDate = moment(value);
       setStartDate(localDate);
-      setCurrentDate(localDate); // Updates header date
     } else {
       setStartDate(null);
     }
@@ -87,7 +113,7 @@ export default function SectionTypeModal({ sessionId, sectionId, selectedDate, o
     };
 
     let sectionData: Section;
-    
+
     if (isSchedulingSectionType(sectionType)) {
       sectionData = {
         ...baseSectionData,
@@ -97,42 +123,44 @@ export default function SectionTypeModal({ sessionId, sectionId, selectedDate, o
     } else {
       sectionData = {
         ...baseSectionData,
-        type: 'COMMON',
+        type: "COMMON",
       } as CommonSection;
     }
 
     try {
       if (sectionId) {
         // UPDATE MODE
-        await updateMutation.mutateAsync({ 
+        await updateMutation.mutateAsync({
           sectionId,
           sessionId,
-          updates: sectionData 
+          updates: sectionData,
         });
-        notifications.show({ 
-          title: 'Success',
-          message: 'Section updated successfully!', 
-          color: 'green' 
+        notifications.show({
+          title: "Success",
+          message: "Section updated successfully!",
+          color: "green",
         });
       } else {
         // CREATE MODE
-        await createMutation.mutateAsync({ sessionId, section: sectionData});
-        notifications.show({ 
-          title: 'Success',
-          message: 'Section created successfully!', 
-          color: 'green' 
+        await createMutation.mutateAsync({ sessionId, section: sectionData });
+        notifications.show({
+          title: "Success",
+          message: "Section created successfully!",
+          color: "green",
         });
       }
-      
+
       // Call the onSubmit callback for backward compatibility
       onSubmit({ startDate, endDate, scheduleType, name });
       onClose?.();
     } catch (error) {
-      console.error('Error saving section:', error);
-      notifications.show({ 
-        title: 'Error',
-        message: `Failed to ${sectionId ? 'update' : 'create'} section. Please try again.`, 
-        color: 'red' 
+      console.error("Error saving section:", error);
+      notifications.show({
+        title: "Error",
+        message: `Failed to ${
+          sectionId ? "update" : "create"
+        } section. Please try again.`,
+        color: "red",
       });
     }
   };
@@ -142,24 +170,28 @@ export default function SectionTypeModal({ sessionId, sectionId, selectedDate, o
 
     try {
       await deleteMutation.mutateAsync({ sectionId, sessionId });
-      notifications.show({ 
-        title: 'Success',
-        message: 'Section deleted successfully!', 
-        color: 'green' 
+      notifications.show({
+        title: "Success",
+        message: "Section deleted successfully!",
+        color: "green",
       });
       onDelete?.();
       onClose?.();
     } catch (error) {
-      console.error('Error deleting section:', error);
-      notifications.show({ 
-        title: 'Error',
-        message: 'Failed to delete section. Please try again.', 
-        color: 'red' 
+      console.error("Error deleting section:", error);
+      notifications.show({
+        title: "Error",
+        message: "Failed to delete section. Please try again.",
+        color: "red",
       });
     }
   };
 
-  const isLoading = createMutation.isPending || updateMutation.isPending || deleteMutation.isPending || isLoadingSection;
+  const isLoading =
+    createMutation.isPending ||
+    updateMutation.isPending ||
+    deleteMutation.isPending ||
+    isLoadingSection;
 
   return (
     <Box
@@ -174,7 +206,7 @@ export default function SectionTypeModal({ sessionId, sectionId, selectedDate, o
       }}
     >
       <LoadingOverlay visible={isLoading} overlayProps={{ blur: 2 }} />
-      
+
       {/* Close button (X) in top left corner */}
       <ActionIcon
         variant="subtle"
@@ -188,7 +220,7 @@ export default function SectionTypeModal({ sessionId, sectionId, selectedDate, o
       >
         <X size={24} strokeWidth={3} />
       </ActionIcon>
-      
+
       {/* Modal title */}
       <Title order={2} ta="center" mb="md" mt="sm" c="primary.5">
         Choose Section Type
@@ -196,17 +228,13 @@ export default function SectionTypeModal({ sessionId, sectionId, selectedDate, o
 
       {/* Current Date */}
       <Group justify="center" mb="lg" gap="md">
-        <Text ta="center">
-          {formatDate(currentDate)}
-        </Text>
+        <Text ta="center">{formatDate(selectedStartDate)}</Text>
       </Group>
 
       <Stack gap="md">
         {/* Date range selection (start date to end date) */}
         <Box>
-          <Text mb="xs">
-            Date(s)
-          </Text>
+          <Text mb="xs">Date(s)</Text>
           <Group>
             {/* Start date (user selectable via calendar) */}
             <DatePickerInput
@@ -229,7 +257,7 @@ export default function SectionTypeModal({ sessionId, sectionId, selectedDate, o
               size="sm"
               w={140}
             />
-        </Group>
+          </Group>
         </Box>
 
         {/* Schedule type radio selection */}
@@ -239,22 +267,10 @@ export default function SectionTypeModal({ sessionId, sectionId, selectedDate, o
           </Text>
           <Radio.Group value={scheduleType} onChange={setScheduleType}>
             <Stack gap="xs">
-              <Radio 
-                value="Bunk Jamboree" 
-                label="Bunk Jamboree"
-              />
-              <Radio 
-                value="Non-Bunk Jamboree" 
-                label="Non-Bunk Jamboree"
-              />
-              <Radio 
-                value="Bundle" 
-                label="Bundle"
-              />
-              <Radio 
-                value="Non-Scheduling" 
-                label="Non-Scheduling"
-              />
+              <Radio value="Bunk Jamboree" label="Bunk Jamboree" />
+              <Radio value="Non-Bunk Jamboree" label="Non-Bunk Jamboree" />
+              <Radio value="Bundle" label="Bundle" />
+              <Radio value="Non-Scheduling" label="Non-Scheduling" />
             </Stack>
           </Radio.Group>
         </Box>
@@ -268,7 +284,9 @@ export default function SectionTypeModal({ sessionId, sectionId, selectedDate, o
             placeholder="e.g. Bundle 1"
             value={name}
             w={250}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.currentTarget.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setName(e.currentTarget.value)
+            }
           />
         </Box>
 
@@ -280,7 +298,7 @@ export default function SectionTypeModal({ sessionId, sectionId, selectedDate, o
               loading={deleteMutation.isPending}
               disabled={isLoading}
               bg="#dc2626"
-              style={{ flex: .375 }}
+              style={{ flex: 0.375 }}
             >
               Delete
             </Button>
@@ -290,9 +308,9 @@ export default function SectionTypeModal({ sessionId, sectionId, selectedDate, o
             loading={createMutation.isPending || updateMutation.isPending}
             disabled={!name || !startDate || isLoading}
             bg="#1e3a5f"
-            style={{ flex: sectionId ? .375 : 1 }}
+            style={{ flex: sectionId ? 0.375 : 1 }}
           >
-            {sectionId ? 'Update' : 'Create'}
+            {sectionId ? "Update" : "Create"}
           </Button>
         </Group>
       </Stack>
