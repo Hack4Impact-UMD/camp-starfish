@@ -1,6 +1,6 @@
 // google apps script that creates preference spreadsheets for jamborees and bundles
 // importing necessary types to use in spreadsheet
-import { BlockActivities, CamperAttendeeID, SchedulingSectionID } from "../../src/types/sessionTypes";
+import { BlockActivities, CamperAttendeeID, SchedulingSectionID } from "../../../../src/types/sessionTypes";
 import { getFullName } from "@/utils/personUtils";
 
 // color blocks to use for different blocks on the sheet for design
@@ -10,27 +10,6 @@ const BLOCK_COLORS: { [key: string]: string } = {
   'C': '#ffe599',
   'D': '#b6d7a8',
 };
-
-interface PreferencesSpreadsheetProperties {
-  sections: SchedulingSectionID[];
-}
-
-function setScriptProperty<T>(key: string, value: T) {
-  PropertiesService.getScriptProperties().setProperty(key, JSON.stringify(value));
-}
-
-function getScriptProperty<T>(key: string): T | null {
-  const value = PropertiesService.getScriptProperties().getProperty(key);
-  return value ? JSON.parse(value) : null;
-}
-
-function getPreferencesSpreadsheetProperties(spreadsheetId: string): PreferencesSpreadsheetProperties | null {
-  return getScriptProperty<PreferencesSpreadsheetProperties>(spreadsheetId);
-}
-
-function setPreferencesSpreadsheetProperties(spreadsheetId: string, properties: PreferencesSpreadsheetProperties) {
-  setScriptProperty<PreferencesSpreadsheetProperties>(spreadsheetId, properties);
-}
 
 function createPreferencesSpreadsheet(sessionName: string): string {
   const spreadsheet = SpreadsheetApp.create(sessionName);

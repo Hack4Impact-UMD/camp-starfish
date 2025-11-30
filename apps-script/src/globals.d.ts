@@ -1,6 +1,7 @@
 
 import { BlockActivities, CamperAttendeeID, SchedulingSectionID } from "@/types/sessionTypes";
 import type momentType from "moment";
+import { PreferencesSpreadsheetProperties } from "./features/preferencesSheets/preferencesSheetsProperties";
 
 declare global {
   namespace Moment {
@@ -8,7 +9,7 @@ declare global {
   }
   var moment: typeof momentType
 
-  //preferencesSheets.ts 
+  // features/preferenceSheets/preferencesSheets.ts 
   var createPreferencesSpreadsheet: (sessionName: string) => string;
   var addSectionPreferencesSheet: (spreadsheetId: string, section: SchedulingSectionID) => void;
   var populateCamperAttendeeColumns_: (sheet: GoogleAppsScript.Spreadsheet.Sheet, attendees: CamperAttendeeID[]) => void;
@@ -29,6 +30,12 @@ declare global {
   var createOnEditTrigger: (spreadsheetId: string) => void;
   var createOnEditTriggerForActiveSpreadsheet: () => void;
 
-  
+  // utils/properties.ts
+  var getScriptProperty: <T>(key: string) => T | null;
+  var setScriptProperty: <T>(key: string, value: T) => void;
+
+  // features/preferencesSheets/preferencesSheetsProperties.ts
+  var getPreferencesSpreadsheetProperties: (spreadsheetId: string) => PreferencesSpreadsheetProperties | null;
+  var setPreferencesSpreadsheetProperties: (spreadsheetId: string, properties: PreferencesSpreadsheetProperties) => void;
 }
 export {};
