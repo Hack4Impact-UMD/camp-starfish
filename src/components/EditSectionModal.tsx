@@ -15,7 +15,6 @@ import useCreateSection from "@/hooks/sections/useCreateSection";
 import useUpdateSection from "@/hooks/sections/useUpdateSection";
 import useDeleteSection from "@/hooks/sections/useDeleteSection";
 import {
-  mapScheduleTypeToSectionType,
   getDefaultNumBlocks,
   isSchedulingSectionType,
 } from "@/utils/sections";
@@ -28,19 +27,19 @@ import {
 import useSection from "@/hooks/sections/useSection";
 import { modals } from "@mantine/modals";
 
-interface SectionTypeModalProps {
+interface EditSectionModalProps {
   sessionId: string;
   sectionId?: string;
   selectedStartDate?: Moment;
   selectedEndDate?: Moment;
 }
 
-export default function SectionTypeModal({
+export default function EditSectionModal({
   sessionId,
   sectionId,
   selectedStartDate,
   selectedEndDate,
-}: SectionTypeModalProps) {
+}: EditSectionModalProps) {
   const { data: section, isLoading: isLoadingSection } = useSection(
     sessionId,
     sectionId || ""

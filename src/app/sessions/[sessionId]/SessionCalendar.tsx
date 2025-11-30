@@ -6,7 +6,7 @@ import { SessionID } from "@/types/sessionTypes";
 import moment from "moment";
 import classNames from "classnames";
 import { modals } from "@mantine/modals";
-import SectionTypeModal from "@/components/SectionTypeModal";
+import EditSectionModal from "@/components/EditSectionModal";
 
 interface CalendarViewProps {
   session: SessionID;
@@ -37,7 +37,7 @@ export default function CalendarView({ session }: CalendarViewProps) {
       modals.open({
         title: "Create Section",
         children: (
-          <SectionTypeModal
+          <EditSectionModal
             selectedStartDate={firstSelectedDate.isSameOrBefore(secondSelectedDate) ? firstSelectedDate : secondSelectedDate}
             selectedEndDate={firstSelectedDate.isSameOrBefore(secondSelectedDate) ? secondSelectedDate : firstSelectedDate}
             sessionId={session.id}
