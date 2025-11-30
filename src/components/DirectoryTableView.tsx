@@ -12,6 +12,7 @@ import {
   TextInput,
   Group,
   Text,
+  Title
 } from "@mantine/core";
 import { useAttendees } from "@/hooks/attendees/useAttendees";
 import { DirectoryTableCell } from "./DirectoryTableCell";
@@ -44,7 +45,7 @@ export default function DirectoryTableView ({ sessionId }: LargeDirectoryBlockPr
   const data: AttendeeID[] = useMemo(() => {
     if (!attendeeList) return [];
 
-    let attendeeArr = attendeeList;
+    let attendeeArr = [...attendeeList];
 
     if (selectedRole) {
       attendeeArr = attendeeArr.filter((a) => a.role === selectedRole);
@@ -69,7 +70,6 @@ export default function DirectoryTableView ({ sessionId }: LargeDirectoryBlockPr
 
     return attendeeArr;
   }, [attendeeList, selectedRole, sortNameOption]);
-
 
   const columns = useMemo<ColumnDef<any>[]>(() => {
     const render = (v: any) => <DirectoryTableCell data={v ?? "N/A"} />;
@@ -214,112 +214,116 @@ export default function DirectoryTableView ({ sessionId }: LargeDirectoryBlockPr
     setGlobalFilter("");
   };
 
-  const filtersActive =
-    !!selectedRole || !!sortNameOption || !!table.getState().globalFilter;
+  const filtersActive = !!selectedRole || !!sortNameOption || !!table.getState().globalFilter;
+
   return (
-    <Container>
-      {(isLoading || !attendeeIDMap) && <>Loading Table</>}
+    <div className = "border border-black bg-[#F7F7F7] w-[80%] mx-auto py-[20px]">
+      <Title order={3} className="text-center !font-bold !mb-10">DIRECTORY</Title>
+      
+      <Container>
+        {(isLoading || !attendeeIDMap) && <>Loading Table</>}
+      
+        <Flex direction={"column"}>
+          <Flex direction={"row"} gap="md" align="center" mb="md">
+            <TextInput
+              placeholder="Search..."
+              value={globalFilter}
+              onChange={(e) => setGlobalFilter(e.target.value)}
+            />
 
-      <Flex direction={"column"}>
-        <Flex direction={"row"} gap="md" align="center" mb="md">
-          <TextInput
-            placeholder="Search..."
-            value={globalFilter}
-            onChange={(e) => setGlobalFilter(e.target.value)}
-          />
+            <Flex gap="sm" direction="row">
+              <Radio.Group
+                value={selectedRole}
+                onChange={(value) => setSelectedRole(value)}
+                name="role-group"
+              >
+                <Flex direction="row" gap="sm">
+                  {["CAMPER", "STAFF", "ADMIN"].map((role) => (
+                    <Radio
+                      key={role}
+                      value={role}
+                      label={role.charAt(0) + role.slice(1).toLowerCase()}
+                    />
+                  ))}
+                </Flex>
+              </Radio.Group>
+            </Flex>
 
-          <Flex gap="sm" direction="row">
-            <Radio.Group
-              value={selectedRole}
-              onChange={(value) => setSelectedRole(value)}
-              name="role-group"
-            >
-              <Flex direction="row" gap="sm">
-                {["CAMPER", "STAFF", "ADMIN"].map((role) => (
-                  <Radio
-                    key={role}
-                    value={role}
-                    label={role.charAt(0) + role.slice(1).toLowerCase()}
-                  />
-                ))}
-              </Flex>
-            </Radio.Group>
+            <Select
+              value={sortNameOption}
+              onChange={(v) => setSortNameOption(v)}
+              placeholder="Sort By:"
+              data={[
+                { value: "firstNameAZ", label: "First Name (A → Z)" },
+                { value: "firstNameZA", label: "First Name (Z → A)" },
+                { value: "lastNameAZ", label: "Last Name (A → Z)" },
+                { value: "lastNameZA", label: "Last Name (Z → A)" },
+              ]}
+            />
+
+            {filtersActive && (
+              <Button color="red" variant="light" onClick={handleClearFilters}>
+                Clear Filters
+              </Button>
+            )}
           </Flex>
 
-          <Select
-            value={sortNameOption}
-            onChange={(v) => setSortNameOption(v)}
-            placeholder="Sort By:"
-            data={[
-              { value: "firstNameAZ", label: "First Name (A → Z)" },
-              { value: "firstNameZA", label: "First Name (Z → A)" },
-              { value: "lastNameAZ", label: "Last Name (A → Z)" },
-              { value: "lastNameZA", label: "Last Name (Z → A)" },
-            ]}
-          />
+          <ScrollArea>
+            <Table striped highlightOnHover withColumnBorders>
+              <thead>
+                {table.getHeaderGroups().map((hg) => (
+                  <tr key={hg.id}>
+                    {hg.headers.map((header) => (
+                      <th key={header.id} className="text-center bg-neutral-3">
+                        {flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                      </th>
+                    ))}
+                  </tr>
+                ))}
+              </thead>
 
-          {filtersActive && (
-            <Button color="red" variant="light" onClick={handleClearFilters}>
-              Clear Filters
-            </Button>
-          )}
+              <tbody>
+                {table.getRowModel().rows.map((row) => (
+                  <tr key={row.id}>
+                    {row.getVisibleCells().map((cell) => (
+                      <td key={cell.id} className="text-center truncate">
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          </ScrollArea>
         </Flex>
 
-        <ScrollArea>
-          <Table striped highlightOnHover withColumnBorders>
-            <thead>
-              {table.getHeaderGroups().map((hg) => (
-                <tr key={hg.id}>
-                  {hg.headers.map((header) => (
-                    <th key={header.id} className="text-center bg-neutral-3">
-                      {flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
-                    </th>
-                  ))}
-                </tr>
-              ))}
-            </thead>
+        <Group mt="md" align="center">
+          <Button
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+          >
+            Previous
+          </Button>
 
-            <tbody>
-              {table.getRowModel().rows.map((row) => (
-                <tr key={row.id}>
-                  {row.getVisibleCells().map((cell) => (
-                    <td key={cell.id} className="text-center truncate">
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </Table>
-        </ScrollArea>
-      </Flex>
+          <Text>
+            Page {table.getState().pagination.pageIndex + 1} of{" "}
+            {table.getPageCount()}
+          </Text>
 
-      <Group mt="md" align="center">
-        <Button
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
-        >
-          Previous
-        </Button>
-
-        <Text>
-          Page {table.getState().pagination.pageIndex + 1} of{" "}
-          {table.getPageCount()}
-        </Text>
-
-        <Button
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
-        >
-          Next
-        </Button>
-      </Group>
-    </Container>
+          <Button
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+          >
+            Next
+          </Button>
+        </Group>
+      </Container>
+    </div>
   );
 };
