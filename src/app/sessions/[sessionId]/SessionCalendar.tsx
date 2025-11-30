@@ -91,7 +91,7 @@ export default function CalendarView({ session }: CalendarViewProps) {
               className={classNames(
                 "p-xs border-[1px] border-solid border-neutral-5 text-left min-h-52",
                 {
-                  "bg-accent-blue-4": isInSession && isInSelection,
+                  "bg-aqua-4": isInSession && isInSelection,
                   "bg-neutral-2": isInSession && !isInSelection,
                   "bg-neutral-3": !isInSession,
                 }
