@@ -16,6 +16,7 @@ export default function useCreateSection() {
     mutationFn: ({ sessionId, section }: UseCreateSectionVariables) => setSection(sessionId, section),
     onSuccess: (_, { sessionId }) => {
       queryClient.invalidateQueries({ queryKey: ['sessions', sessionId, 'sections'] });
+      notifications.success('Section created successfully!')
     },
     onError: () => {
       notifications.error('Unable to create section. Please try again.');

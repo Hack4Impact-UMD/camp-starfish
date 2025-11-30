@@ -19,6 +19,7 @@ export default function useUpdateSection() {
     onSuccess: (_, { sectionId, sessionId }) => {
       queryClient.invalidateQueries({ queryKey: ['sessions', sessionId] });
       queryClient.invalidateQueries({ queryKey: ['sessions', sessionId, 'sections', sectionId] });
+      notifications.success('Section updated successfully!')
     },
     onError: () => {
       notifications.error('Failed to update section. Please try again.');
