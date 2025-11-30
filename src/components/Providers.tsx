@@ -4,6 +4,7 @@ import AuthProvider from "@/auth/AuthProvider";
 import { queryClient } from "@/config/query";
 import { theme } from "@/styles/theme";
 import { MantineProvider } from "@mantine/core";
+import { ModalsProvider } from "@mantine/modals";
 import { Notifications } from "@mantine/notifications";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { JSX } from "react";
@@ -18,7 +19,9 @@ export default function Providers(props: ProvidersProps) {
     <QueryClientProvider client={queryClient}>
       <MantineProvider theme={theme} withCssVariables>
         <Notifications />
-        <AuthProvider>{children}</AuthProvider>
+        <ModalsProvider>
+          <AuthProvider>{children}</AuthProvider>
+        </ModalsProvider>
       </MantineProvider>
     </QueryClientProvider>
   );

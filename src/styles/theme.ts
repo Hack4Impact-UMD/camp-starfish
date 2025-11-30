@@ -1,70 +1,107 @@
-import { MantineColorsTuple, MantineThemeOverride } from "@mantine/core";
+import { MantineTheme, MantineThemeOverride, NotificationProps } from "@mantine/core";
 import { campStarfishFonts } from "./fonts";
-
 
 export const theme: MantineThemeOverride = {
   colors: {
     neutral: [
-      ...Array<string>(2).fill("#FFFFFF"),
+      "#FFFFFF",
       "#FAFAFB",
+      "#F0F3F5",
       "#DEE1E3",
       "#C0C6C9",
       "#3B4E57",
       "#2F424C",
-      ...Array<string>(3).fill("#1D323D"),
-    ] as unknown as MantineColorsTuple,
-    primary: [
-      ...Array<string>(4).fill("#E6EAEC"),
+      "#1D323D",
+      "#1A80D8",
+      "#1460A3",
+    ],
+    blue: [
+      "#E6EAEC",
+      "#BDC9CF",
+      "#9DAFB8",
+      "#718A98",
+      "#557484",
       "#2B5165",
-      "#002D45",
-      ...Array<string>(4).fill("#001B2A"),
-    ] as unknown as MantineColorsTuple,
-    "secondary-orange": [
-      ...Array<string>(4).fill("#FACCA3"),
+      "#274A5C",
+      "#1F3A48",
+      "#182D38",
+      "#12222A",
+    ],
+    orange: [
+      "#FEF3E9",
+      "#FCD9BA",
+      "#FACCA3",
+      "#F8AC69",
+      "#F69C4C",
       "#F4831F",
+      "#DE771C",
       "#AB5C16",
-      ...Array<string>(4).fill("#955013"),
-    ] as unknown as MantineColorsTuple,
-    "secondary-green": [
-      ...Array<string>(4).fill("#99E2BF"),
+      "#864811",
+      "#66370D",
+    ],
+    green: [
+      "#E6F8EF",
+      "#B2E9CE",
+      "#99E2BF",
+      "#59CF96",
+      "#39C681",
       "#07B862",
+      "#06A759",
       "#058145",
-      ...Array<string>(4).fill("#04703C"),
-    ] as unknown as MantineColorsTuple,
-    "accent-yellow": [
-      ...Array<string>(3).fill("#FFEC9F"),
-      "#FFE475",
-      "#FFDE59",
-      "#B39B3E",
-      ...Array<string>(4).fill("#9C8736"),
-    ] as unknown as MantineColorsTuple,
-    "accent-blue": [
-      ...Array<string>(3).fill("#6BD5E3"),
+      "#046536",
+      "#034D29",
+    ],
+    aqua: [
+      "#EAF9FB",
+      "#BDECF2",
+      "#9DE3EC",
+      "#6BD5E3",
+      "#55CEDE",
       "#2BC2D6",
-      "#00B6CE",
+      "#27B1CE",
       "#007F90",
-      ...Array<string>(4).fill("#006F7E"),
-    ] as unknown as MantineColorsTuple,
-    "light-grey": [] as unknown as MantineColorsTuple,
+      "#186B76",
+      "#12515A",
+    ],
     success: [
-      ...Array<string>(5).fill("#1E8E3E"),
+      "#E9F4EC",
+      "#B9DCC3",
+      "#98CBA6",
+      "#68B37E",
+      "#4BA565",
+      "#1E8E3E",
+      "#1B8138",
       "#15632B",
-      ...Array<string>(4).fill("#125726"),
-    ] as unknown as MantineColorsTuple,
+      "#114E22",
+      "#0D3C1A",
+    ],
     error: [
-      ...Array<string>(5).fill("#D32F2F"),
+      "#FBEAEA",
+      "#F1BFBF",
+      "#EB9F9F",
+      "#E27474",
+      "#DC5959",
+      "#D32F2F",
+      "#C02B2B",
       "#942121",
-      ...Array<string>(4).fill("#811D1D"),
-    ] as unknown as MantineColorsTuple,
+      "#741A1A",
+      "#591414",
+    ],
     warning: [
-      ...Array<string>(5).fill("#EFAF00"),
+      "#FDF7E6",
+      "#FAE6B0",
+      "#F8DA8A",
+      "#F4C954",
+      "#F2BF33",
+      "#EFAF00",
+      "#D99F00",
       "#A77A00",
-      ...Array<string>(4).fill("#926B00"),
-    ] as unknown as MantineColorsTuple,
-    link: Array<string>(10).fill('#1A80D8') as unknown as MantineColorsTuple,
+      "#836000",
+      "#644A00",
+    ],
   },
-  primaryShade: 4,
-  primaryColor: "primary",
+  primaryShade: 5,
+  primaryColor: "blue",
   fontFamily: `${campStarfishFonts.join(', ')}, sans-serif`,
   headings: {
     fontFamily: `Lato, sans-serif`,
@@ -74,22 +111,16 @@ export const theme: MantineThemeOverride = {
   cursorType: "pointer",
 
   components: {
-    TextInput: {
-      classNames: {
-        input: "bg-primary-0 rounded-md border-none px-3 py-2 text-sm text-neutral-5 placeholder:text-neutral-5 "
-      },
-    },
-
     DatePicker: {
       defaultProps: {
-        firstDayOfWeek: 0, 
+        firstDayOfWeek: 0,
 
       },
       classNames: {
         calendarHeader: "mb-[20px]",
         calendarHeaderLevel: "!text-[14px] !font-bold text-primary-5",
         weekday: "!text-neutral-5 !font-[600] !text-[14px]  border-none",
-        
+
         day: `
           !text-[14px] h-[38px] !text-primary-6 !p-[1px]
           hover:bg-primary-0
@@ -102,7 +133,139 @@ export const theme: MantineThemeOverride = {
         root: "!border !border-primary-5 !rounded-lg !p-2",
 
       }
-    }
-  }
+    },
+    Notification: {
+      styles: (theme: MantineTheme, props: NotificationProps) => {
+        const { variant = 'success' } = props;
+        const accent = theme.colors[variant][4];
+        return {
+          root: {
+            backgroundColor: theme.white,
+            border: `1px solid ${theme.colors.neutral[3]}`,
+            borderRadius: theme.radius.md,
+            boxShadow: '0 2px 6px rgba(0, 0, 0, 0.15)',
+            padding: '20px 16px',
+            height: 90,
+          },
+          title: {
+            fontWeight: 700,
+            color: accent,
+            fontSize: 18,
+          },
+          icon: {
+            color: variant
+          },
+          description: {
+            color: theme.colors.neutral[5],
+            fontWeight: 500,
+            fontSize: 14,
+          },
+          closeButton: {
+            color: theme.colors.neutral[6],
+          },
+        };
+      },
+      defaultProps: {
+        withCloseButton: true,
+        withBorder: false,
+        closeButtonProps: {
+          iconSize: 90
+        }
+      },
+    },
+    TextInput: {
+      classNames: {
+        input: "bg-primary-0 rounded-md border-none px-3 py-2 text-sm text-neutral-5 placeholder:text-neutral-5 "
+      },
+      defaultProps: {
+        radius: "md",
+        size: "sm",
+        styles: {
+          input: {
+            backgroundColor: "#C0C6C9", // neutral.4
+            border: 'none', // Remove borders for all text inputs
+          },
+        },
+      },
+    },
+    DatePickerInput: {
+      defaultProps: {
+        styles: {
+          input: {
+            backgroundColor: "#C0C6C9", // neutral.4 (matching TextInput)
+            border: 'none', // Remove borders for all date inputs
+          },
+          // Calendar dropdown styling
+          calendarHeaderControl: {
+            width: 28,
+            height: 28,
+            fontSize: 14,
+          },
+          calendarHeader: {
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            paddingLeft: 8,
+          },
+          calendarHeaderLevel: {
+            fontWeight: 600,
+            fontSize: "15px",
+            textAlign: "center" as const,
+            flex: 1,
+          },
+          day: {
+            fontVariantNumeric: "tabular-nums",
+            fontFeatureSettings: "'tnum' 1",
+            fontFamily: "Inter, sans-serif",
+            width: 32,
+            height: 32,
+            lineHeight: "32px",
+            textAlign: "center" as const,
+          },
+        },
+      },
+    },
+    Button: {
+      defaultProps: {
+        radius: "xl",
+        size: "md",
+        styles: {
+          root: {
+            textTransform: "uppercase" as const,
+            fontWeight: 500,
+            fontSize: "14px",
+          },
+        },
+      },
+    },
+    Title: {
+      defaultProps: {
+        fw: 700,
+      },
+    },
+    Text: {
+      defaultProps: {
+        fw: 500,
+      },
+    },
+    Radio: {
+      defaultProps: {
+        styles: {
+          radio: {
+            width: 16,
+            height: 16,
+            marginTop: 2,
+            '&:checked': {
+              backgroundColor: 'var(--mantine-color-blue-filled)',
+              borderColor: 'var(--mantine-color-blue-filled)',
+            }
+          },
+          icon: {
+            display: 'none' // Hide default white dot for solid bullets
+          }
+        },
+      },
+    },
 
+  },
 };

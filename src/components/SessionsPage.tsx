@@ -80,13 +80,13 @@ export default function SessionsPage({ sessions }: SessionsPageProps) {
               {editMode ? "Done" : "Edit"}
             </Button>
 
-            {/* Create Session Dropdown */}
-            <Menu shadow="md" width={200} position="bottom-end">
-              <Menu.Target>
-                <Button size="lg" color="secondary-green" radius="xl">
-                  Create Session
-                </Button>
-              </Menu.Target>
+          {/* Create Session Dropdown */}
+          <Menu shadow="md" width={200} position="bottom-end">
+            <Menu.Target>
+              <Button size="lg" color="green" radius="xl">
+                Create Session
+              </Button>
+            </Menu.Target>
 
               <Menu.Dropdown>
                 <Menu.Item
