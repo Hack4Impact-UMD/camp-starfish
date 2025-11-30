@@ -43,7 +43,7 @@ export default function SectionTypeModal({
 }: SectionTypeModalProps) {
   const { data: section, isLoading: isLoadingSection } = useSection(
     sessionId,
-    sectionId
+    sectionId || ""
   );
   const isEditMode = !!sectionId;
 
