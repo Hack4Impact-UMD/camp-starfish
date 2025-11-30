@@ -64,22 +64,19 @@ export default function SectionTypeModal({
   };
 
   const handleSubmit = () => {
-    if (!startDate || !endDate || !name) return;
-
-    const sectionType = mapScheduleTypeToSectionType(scheduleType);
-
+    if (!startDate || !endDate || !name || !scheduleType) return;
     const baseSectionData = {
       name,
-      type: sectionType,
+      type: scheduleType,
       startDate: startDate.toISOString(),
       endDate: endDate.toISOString(),
     };
 
     let sectionData: Section;
-    if (isSchedulingSectionType(sectionType)) {
+    if (isSchedulingSectionType(scheduleType)) {
       sectionData = {
         ...baseSectionData,
-        type: sectionType,
+        type: scheduleType,
         numBlocks: getDefaultNumBlocks(scheduleType),
         isPublished: false,
       } satisfies SchedulingSection;
