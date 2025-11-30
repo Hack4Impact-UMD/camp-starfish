@@ -14,10 +14,7 @@ import moment, { Moment } from "moment";
 import useCreateSection from "@/hooks/sections/useCreateSection";
 import useUpdateSection from "@/hooks/sections/useUpdateSection";
 import useDeleteSection from "@/hooks/sections/useDeleteSection";
-import {
-  getDefaultNumBlocks,
-  isSchedulingSectionType,
-} from "@/utils/sections";
+import { isSchedulingSectionType } from "@/utils/sections";
 import {
   Section,
   SchedulingSection,
@@ -46,9 +43,15 @@ export default function EditSectionModal({
   );
   const isEditMode = !!sectionId;
 
-  const [startDate, setStartDate] = useState<Moment | null>((isEditMode ? moment(section?.startDate) : selectedStartDate) ?? null);
-  const [endDate, setEndDate] = useState<Moment | null>((isEditMode ? moment(section?.endDate) : selectedEndDate) ?? null);
-  const [scheduleType, setScheduleType] = useState<SectionType | null>(section?.type ?? null);
+  const [startDate, setStartDate] = useState<Moment | null>(
+    (isEditMode ? moment(section?.startDate) : selectedStartDate) ?? null
+  );
+  const [endDate, setEndDate] = useState<Moment | null>(
+    (isEditMode ? moment(section?.endDate) : selectedEndDate) ?? null
+  );
+  const [scheduleType, setScheduleType] = useState<SectionType | null>(
+    section?.type ?? null
+  );
   const [name, setName] = useState<string>(section?.name ?? "");
 
   const createMutation = useCreateSection();
@@ -76,7 +79,7 @@ export default function EditSectionModal({
       sectionData = {
         ...baseSectionData,
         type: scheduleType,
-        numBlocks: getDefaultNumBlocks(scheduleType),
+        numBlocks: 5,
         isPublished: false,
       } satisfies SchedulingSection;
     } else {
@@ -87,13 +90,19 @@ export default function EditSectionModal({
     }
 
     if (isEditMode) {
-      updateMutation.mutate({ sessionId, sectionId, updates: sectionData }, {
-        onSuccess: () => modals.closeAll()
-      });
+      updateMutation.mutate(
+        { sessionId, sectionId, updates: sectionData },
+        {
+          onSuccess: () => modals.closeAll(),
+        }
+      );
     } else {
-      createMutation.mutate({ sessionId, section: sectionData }, {
-        onSuccess: () => modals.closeAll()
-      });
+      createMutation.mutate(
+        { sessionId, section: sectionData },
+        {
+          onSuccess: () => modals.closeAll(),
+        }
+      );
     }
   };
 
