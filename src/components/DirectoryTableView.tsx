@@ -13,7 +13,7 @@ import {
   Group,
   Text,
 } from "@mantine/core";
-import useDirectoryTable from "./useDirectoryTable";
+import { useAttendees } from "@/hooks/attendees/useAttendees";
 import { DirectoryTableCell } from "./DirectoryTableCell";
 import moment from "moment";
 import {
@@ -25,178 +25,173 @@ import {
   getPaginationRowModel,
 } from "@tanstack/react-table";
 
-export const DirectoryTableView = () => {
-  const { attendeeList, isLoading } = useDirectoryTable("session1"); // need to make this a prop
+
+type LargeDirectoryBlockProps = { 
+    sessionId: string;
+};
+export default function DirectoryTableView ({ sessionId }: LargeDirectoryBlockProps) {
+
+  const { data: attendeeList, isLoading } = useAttendees(sessionId);
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
   const [sortNameOption, setSortNameOption] = useState<string | null>(null);
 
   // table filter/pagination options
   const [globalFilter, setGlobalFilter] = useState("");
-  const [pagination, setPagination] = useState({
-    pageIndex: 0,
-    pageSize: 10,
-  });
+  const [pagination, setPagination] = useState({pageIndex: 0, pageSize: 10,});
 
-  const [attendeeIDMap, setAttendeeIDMap] = useState<Map<number, AttendeeID>>(
-    new Map()
-  );
+  const [attendeeIDMap, setAttendeeIDMap] = useState<Map<number, AttendeeID>>(new Map());
+
   const data: AttendeeID[] = useMemo(() => {
     if (!attendeeList) return [];
 
-    const filteredData = selectedRole
-      ? attendeeList.filter((attendee) => attendee.role === selectedRole)
-      : [...attendeeList];
+    let attendeeArr = attendeeList;
+
+    if (selectedRole) {
+      attendeeArr = attendeeArr.filter((a) => a.role === selectedRole);
+    }
 
     if (sortNameOption) {
-      filteredData.sort((a, b) => {
+      attendeeArr.sort((a, b) => {
         const aFirst = a.name.firstName.toLowerCase();
         const bFirst = b.name.firstName.toLowerCase();
         const aLast = a.name.lastName.toLowerCase();
         const bLast = b.name.lastName.toLowerCase();
 
         switch (sortNameOption) {
-          case "firstNameAZ":
-            return aFirst.localeCompare(bFirst);
-          case "firstNameZA":
-            return bFirst.localeCompare(aFirst);
-          case "lastNameAZ":
-            return aLast.localeCompare(bLast);
-          case "lastNameZA":
-            return bLast.localeCompare(aLast);
-          default:
-            return 0;
+          case "firstNameAZ": return aFirst.localeCompare(bFirst);
+          case "firstNameZA": return bFirst.localeCompare(aFirst);
+          case "lastNameAZ": return aLast.localeCompare(bLast);
+          case "lastNameZA": return bLast.localeCompare(aLast);
+          default: return 0;
         }
       });
     }
 
-    return filteredData;
+    return attendeeArr;
   }, [attendeeList, selectedRole, sortNameOption]);
 
-  // processes cell data for table
-  const renderCell = (value: string) => {
-    return value === undefined ? "N/A" : value;
-  };
 
-  const renderCellDate = (value: string) => {
-    return value === undefined ? "N/A" : moment(value).format("MM-YYYY");
-  };
+  const columns = useMemo<ColumnDef<any>[]>(() => {
+    const render = (v: any) => <DirectoryTableCell data={v ?? "N/A"} />;
 
-  useEffect(() => {
-    if (attendeeList && attendeeList.length > 0) {
-      const map = new Map<number, AttendeeID>();
-      for (const attendee of attendeeList) {
-        map.set(attendee.id, attendee);
-      }
-      setAttendeeIDMap(map);
+    if (selectedRole === "CAMPER") {
+      return [
+        {
+          accessorFn: row => row.name.firstName,
+          header: "FIRST NAME",
+          cell: info => render(info.getValue()),
+        },
+        {
+          accessorFn: row => row.name.lastName,
+          header: "LAST NAME",
+          cell: info => render(info.getValue()),
+        },
+        { accessorKey: "ageGroup", header: "AGE GROUP", cell: info => render(info.getValue()) },
+        { accessorKey: "bunk", header: "BUNK", cell: info => render(info.getValue()) },
+        { accessorKey: "health", header: "HEALTH", cell: info => render(info.getValue()) },
+        { accessorKey: "gender", header: "GENDER", cell: info => render(info.getValue()) },
+        {
+          accessorKey: "nonoList",
+          header: "NO-NO LIST",
+          cell: info => {
+            const list = info.getValue<string[]>();
+            return render(list && list.length ? list.join(", ") : "N/A");
+          },
+        },
+        {
+          accessorFn: row => row.dateOfBirth,
+          header: "DOB",
+          cell: info => {
+            const dob = info.getValue<string>();
+            return render(dob ? moment(dob).format("MM-YYYY") : "N/A");
+          },
+        },
+        { accessorKey: "level", header: "SWIM LEVEL", cell: info => render(info.getValue()) },
+      ];
     }
-  }, [attendeeList]);
 
-  const parseIDList = useCallback(
-    (idList: string[]): string => {
-      if (!attendeeIDMap || !idList) return "N/A";
+    if (selectedRole === "STAFF") {
+      return [
+        { accessorFn: row => row.name.firstName, header: "FIRST NAME", cell: info => render(info.getValue()) },
+        { accessorFn: row => row.name.lastName, header: "LAST NAME", cell: info => render(info.getValue()) },
+        { accessorKey: "bunk", header: "BUNK", cell: info => render(info.getValue()) },
+        { accessorKey: "gender", header: "GENDER", cell: info => render(info.getValue()) },
+        {
+          accessorKey: "nonoList",
+          header: "NO-NO LIST",
+          cell: info => {
+            const list = info.getValue<string[]>();
+            return render(list && list.length ? list.join(", ") : "N/A");
+          },
+        },
+        {
+          accessorKey: "yesyesList",
+          header: "YES-YES LIST",
+          cell: info => {
+            const list = info.getValue<string[]>();
+            return render(list && list.length ? list.join(", ") : "N/A");
+          },
+        },
+        {
+          accessorFn: row => row.programCounselor?.name,
+          header: "Program Counselor",
+          cell: info => render(info.getValue()),
+        },
+        {
+          accessorKey: "leadBunkCounselor",
+          header: "Lead Bunk Counselor",
+          cell: info => {
+            const val = info.getValue<boolean>();
+            return render(val ? "Yes" : "No");
+          },
+        },
+        {
+          accessorKey: "daysOff",
+          header: "Days Off",
+          cell: info => {
+            const dates = info.getValue<string[]>();
+            if (!dates || dates.length === 0) return render("N/A");
+            return render(dates.map(d => moment(d).format("MM-YYYY")).join(", "));
+          },
+        },
+      ];
+    }
 
-      const names: string[] = [];
+    if (selectedRole === "ADMIN") {
+      return [
+        { accessorFn: row => row.name.firstName, header: "FIRST NAME", cell: info => render(info.getValue()) },
+        { accessorFn: row => row.name.lastName, header: "LAST NAME", cell: info => render(info.getValue()) },
+        { accessorKey: "gender", header: "GENDER", cell: info => render(info.getValue()) },
+        {
+          accessorKey: "nonoList",
+          header: "NO-NO LIST",
+          cell: info => {
+            const list = info.getValue<string[]>();
+            return render(list && list.length ? list.join(", ") : "N/A");
+          },
+        },
+        {
+          accessorKey: "yesyesList",
+          header: "YES-YES LIST",
+          cell: info => {
+            const list = info.getValue<string[]>();
+            return render(list && list.length ? list.join(", ") : "N/A");
+          },
+        },
+        {
+          accessorKey: "daysOff",
+          header: "Days Off",
+          cell: info => {
+            const dates = info.getValue<string[]>();
+            if (!dates || dates.length === 0) return render("N/A");
+            return render(dates.map(d => moment(d).format("MM-YYYY")).join(", "));
+          },
+        },
+      ];
+    }
 
-      for (const id of idList) {
-        const numberID = Number(id);
-        const attendee = attendeeIDMap.get(numberID);
-
-        if (attendee) names.push(attendee.name.firstName);
-      }
-
-      return names.length ? names.join(", ") : "N/A";
-    },
-    [attendeeIDMap]
-  );
-
-  // column definitions for the table
-  const columns = useMemo<ColumnDef<AttendeeID>[]>(
-    () => [
-
-      {
-        accessorFn: (row) => `${row.name.firstName}`,
-        id: "firstName",
-        header: "FIRST NAME",
-        cell: (info) => (
-          <DirectoryTableCell data={renderCell(info.getValue() as string)} />
-        ),
-      },
-      {
-        accessorFn: (row) => `${row.name.lastName}`,
-        id: "lastName",
-        header: "LAST NAME",
-        cell: (info) => (
-          <DirectoryTableCell data={renderCell(info.getValue() as string)} />
-        ),
-      },
-      {
-        accessorKey: "ageGroup",
-        id: "ageGroup",
-        header: "AGE GROUP",
-        cell: (info) => (
-          <DirectoryTableCell data={renderCell(info.getValue() as string)} />
-        ),
-      },
-      {
-        accessorKey: "bunk",
-        id: "bunk",
-        header: "BUNK",
-        cell: (info) => (
-          <DirectoryTableCell data={renderCell(info.getValue() as string)} />
-        ),
-      },
-      {
-        accessorKey: "health",
-        id: "health",
-        header: "HEALTH",
-        cell: (info) => (
-          <DirectoryTableCell data={renderCell(info.getValue() as string)} />
-        ),
-      },
-      {
-        accessorKey: "gender",
-        header: "GENDER",
-        cell: (info) => (
-          <DirectoryTableCell data={renderCell(info.getValue() as string)} />
-        ),
-      },
-      {
-        accessorKey: "nonoList",
-        id: "nonoList",
-        header: "NO-NO LIST",
-        cell: (info) => (
-          <DirectoryTableCell data={parseIDList(info.getValue() as string[])} />
-        ),
-      },
-      {
-        accessorKey: "yesyesList",
-        id: "yesyesList",
-        header: "YES-YES LIST",
-        cell: (info) => (
-          <DirectoryTableCell data={parseIDList(info.getValue() as string[])} />
-        ),
-      },
-      {
-        accessorKey: "dateOfBirth",
-        id: "dateOfBirth",
-        header: "DATE OF BIRTH",
-        cell: (info) => (
-          <DirectoryTableCell
-            data={renderCellDate(info.getValue() as string)}
-          />
-        ),
-      },
-      {
-        accessorKey: "level",
-        id: "swimLevel",
-        header: "SWIM LEVEL",
-        cell: (info) => (
-          <DirectoryTableCell data={renderCell(info.getValue() as string)} />
-        ),
-      },
-    ],
-    [parseIDList]
-  );
+    return [];
+  }, [selectedRole]);
 
   const table = useReactTable({
     data,
