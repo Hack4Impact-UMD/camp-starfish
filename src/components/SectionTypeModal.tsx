@@ -49,8 +49,8 @@ export default function SectionTypeModal({
 
   const [startDate, setStartDate] = useState<Moment | null>((isEditMode ? moment(section?.startDate) : selectedStartDate) ?? null);
   const [endDate, setEndDate] = useState<Moment | null>((isEditMode ? moment(section?.endDate) : selectedEndDate) ?? null);
-  const [scheduleType, setScheduleType] = useState<SectionType>("BUNDLE");
-  const [name, setName] = useState("");
+  const [scheduleType, setScheduleType] = useState<SectionType | null>(section?.type ?? null);
+  const [name, setName] = useState<string>(section?.name ?? "");
 
   const createMutation = useCreateSection();
   const updateMutation = useUpdateSection();
