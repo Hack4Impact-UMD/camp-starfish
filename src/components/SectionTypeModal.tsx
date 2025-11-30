@@ -8,7 +8,8 @@ import useCreateSection from "@/hooks/sections/useCreateSection";
 import useUpdateSection from "@/hooks/sections/useUpdateSection";
 import useDeleteSection from "@/hooks/sections/useDeleteSection";
 import { mapScheduleTypeToSectionType, getDefaultNumBlocks, isSchedulingSectionType } from "@/utils/sections";
-import { Section, SchedulingSection, CommonSection } from "@/types/sessionTypes";
+import { Section, SchedulingSection, CommonSection, SectionType } from "@/types/sessionTypes";
+import useSection from "@/hooks/sections/useSection";
 
 interface SectionTypeModalProps {
   sessionId: string;
@@ -41,9 +42,9 @@ export default function SectionTypeModal({ sessionId, sectionId, selectedDate, o
   );
 
   // React Query mutations
-  const createMutation = useCreateSection(sessionId);
-  const updateMutation = useUpdateSection(sessionId);
-  const deleteMutation = useDeleteSection(sessionId);
+  const createMutation = useCreateSection();
+  const updateMutation = useUpdateSection();
+  const deleteMutation = useDeleteSection();
 
   // Current date format - "Wednesday, October 29, 2025"
   const formatDate = (date: Moment) => {
@@ -104,7 +105,8 @@ export default function SectionTypeModal({ sessionId, sectionId, selectedDate, o
       if (sectionId) {
         // UPDATE MODE
         await updateMutation.mutateAsync({ 
-          sectionId, 
+          sectionId,
+          sessionId,
           updates: sectionData 
         });
         notifications.show({ 
@@ -114,7 +116,7 @@ export default function SectionTypeModal({ sessionId, sectionId, selectedDate, o
         });
       } else {
         // CREATE MODE
-        await createMutation.mutateAsync(sectionData);
+        await createMutation.mutateAsync({ sessionId, section: sectionData});
         notifications.show({ 
           title: 'Success',
           message: 'Section created successfully!', 
@@ -139,7 +141,7 @@ export default function SectionTypeModal({ sessionId, sectionId, selectedDate, o
     if (!sectionId) return;
 
     try {
-      await deleteMutation.mutateAsync(sectionId);
+      await deleteMutation.mutateAsync({ sectionId, sessionId });
       notifications.show({ 
         title: 'Success',
         message: 'Section deleted successfully!', 
@@ -209,7 +211,7 @@ export default function SectionTypeModal({ sessionId, sectionId, selectedDate, o
             {/* Start date (user selectable via calendar) */}
             <DatePickerInput
               placeholder="Start date"
-              value={startDate}
+              value={startDate?.toDate()}
               onChange={handleStartDateChange}
               valueFormat="ddd, MMM D"
               radius="md"
@@ -220,7 +222,7 @@ export default function SectionTypeModal({ sessionId, sectionId, selectedDate, o
             {/* End date (user selectable via calendar) */}
             <DatePickerInput
               placeholder="End date"
-              value={endDate} //  ? new Date(endDate.getTime() + 86400000) : null
+              value={endDate?.toDate()}
               onChange={handleEndDateChange}
               valueFormat="ddd, MMM D"
               radius="md"
