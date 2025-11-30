@@ -50,8 +50,11 @@ export default function SectionTypeModal({
   const [scheduleType, setScheduleType] = useState<SectionType>("BUNDLE");
   const [name, setName] = useState("");
 
-  const { data: section, isLoading: isLoadingSection } = useSection(sessionId, sectionId);
-  const isEditMode = !!section;
+  const { data: section, isLoading: isLoadingSection } = useSection(
+    sessionId,
+    sectionId
+  );
+  const isEditMode = !!sectionId;
 
   const createMutation = useCreateSection();
   const updateMutation = useUpdateSection();
@@ -62,10 +65,14 @@ export default function SectionTypeModal({
     return moment(date).format("dddd, MMMM D, YYYY");
   };
 
-  const handleStartDateChange = (value: string | null) => { setStartDate(value ? moment(value) : null); };
-  const handleEndDateChange = (value: string | null) => { setEndDate(value ? moment(value) : null); };
+  const handleStartDateChange = (value: string | null) => {
+    setStartDate(value ? moment(value) : null);
+  };
+  const handleEndDateChange = (value: string | null) => {
+    setEndDate(value ? moment(value) : null);
+  };
 
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
     if (!startDate || !endDate || !name) return;
 
     const sectionType = mapScheduleTypeToSectionType(scheduleType);
@@ -79,7 +86,6 @@ export default function SectionTypeModal({
     };
 
     let sectionData: Section;
-
     if (isSchedulingSectionType(sectionType)) {
       sectionData = {
         ...baseSectionData,
@@ -93,59 +99,16 @@ export default function SectionTypeModal({
       } as CommonSection;
     }
 
-    try {
-      if (sectionId) {
-        // UPDATE MODE
-        await updateMutation.mutateAsync({
-          sectionId,
-          sessionId,
-          updates: sectionData,
-        });
-        notifications.show({
-          title: "Success",
-          message: "Section updated successfully!",
-          color: "green",
-        });
-      } else {
-        // CREATE MODE
-        await createMutation.mutateAsync({ sessionId, section: sectionData });
-        notifications.show({
-          title: "Success",
-          message: "Section created successfully!",
-          color: "green",
-        });
-      }
-
-    } catch (error) {
-      console.error("Error saving section:", error);
-      notifications.show({
-        title: "Error",
-        message: `Failed to ${
-          sectionId ? "update" : "create"
-        } section. Please try again.`,
-        color: "red",
-      });
+    if (isEditMode) {
+      updateMutation.mutate({ sessionId, sectionId, updates: sectionData });
+    } else {
+      createMutation.mutate({ sessionId, section: sectionData });
     }
   };
 
-  const handleDelete = async () => {
+  const handleDelete = () => {
     if (!sectionId) return;
-
-    try {
-      await deleteMutation.mutateAsync({ sectionId, sessionId });
-      notifications.show({
-        title: "Success",
-        message: "Section deleted successfully!",
-        color: "green",
-      });
-    } catch (error) {
-      console.error("Error deleting section:", error);
-      notifications.show({
-        title: "Error",
-        message: "Failed to delete section. Please try again.",
-        color: "red",
-      });
-    }
+    deleteMutation.mutate({ sessionId, sectionId });
   };
 
   const isLoading =
