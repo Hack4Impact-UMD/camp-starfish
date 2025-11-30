@@ -4,17 +4,12 @@ import {
   Group,
   Radio,
   TextInput,
-  Title,
   Stack,
   Box,
   Text,
-  ActionIcon,
   LoadingOverlay,
-  Modal,
 } from "@mantine/core";
 import { DatePickerInput } from "@mantine/dates";
-import { X } from "lucide-react";
-import { notifications } from "@mantine/notifications";
 import moment, { Moment } from "moment";
 import useCreateSection from "@/hooks/sections/useCreateSection";
 import useUpdateSection from "@/hooks/sections/useUpdateSection";
@@ -54,7 +49,7 @@ export default function SectionTypeModal({
     sessionId,
     sectionId
   );
-  const isEditMode = !!sectionId;
+  const isEditMode = true;//!!sectionId;
 
   const createMutation = useCreateSection();
   const updateMutation = useUpdateSection();
@@ -118,110 +113,100 @@ export default function SectionTypeModal({
     isLoadingSection;
 
   return (
-    <Box
-      p="lg"
-      bg="white"
-      bd="2px solid #002D45"
-      style={{
-        borderRadius: 8,
-        maxWidth: 400,
-        margin: "auto",
-        position: "relative",
-      }}
-    >
-      <LoadingOverlay visible={isLoading} overlayProps={{ blur: 2 }} />
+    <Box className="p-lg bg-white border-[2px] border-solid border-blue-8 rounded-md m-auto">
+      <LoadingOverlay
+        visible={isLoading}
+        overlayProps={{ blur: 2 }}
+        classNames={{
+          overlay: "blur-xs",
+        }}
+      />
 
-      {/* Close button (X) in top left corner */}
-      <ActionIcon
-        variant="subtle"
-        aria-label="Close"
-        c="primary.5"
-        pos="absolute"
-        top={16}
-        left={16}
-        disabled={isLoading}
-      >
-        <X size={24} strokeWidth={3} />
-      </ActionIcon>
-
-      {/* Modal title */}
-      <Title order={2} ta="center" mb="md" mt="sm" c="primary.5">
-        Choose Section Type
-      </Title>
-
-      {/* Current Date */}
-      <Group justify="center" mb="lg" gap="md">
-        <Text ta="center">{formatDate(selectedStartDate)}</Text>
-      </Group>
-
-      <Stack gap="md">
+      <Stack className="gap-md">
         {/* Date range selection (start date to end date) */}
         <Box>
-          <Text mb="xs">Date(s)</Text>
+          <Text className="mb-sm">Date(s)</Text>
           <Group>
             {/* Start date (user selectable via calendar) */}
             <DatePickerInput
-              placeholder="Start date"
+              placeholder="Start Date"
               value={startDate?.toDate()}
               onChange={handleStartDateChange}
               valueFormat="ddd, MMM D"
-              radius="md"
-              size="sm"
-              w={140}
+              classNames={{
+                root: "flex-1",
+                input: "size-sm rounded-md w-full",
+              }}
             />
             <Text>to</Text>
             {/* End date (user selectable via calendar) */}
             <DatePickerInput
-              placeholder="End date"
+              placeholder="End Date"
               value={endDate?.toDate()}
               onChange={handleEndDateChange}
               valueFormat="ddd, MMM D"
-              radius="md"
-              size="sm"
-              w={140}
+              classNames={{
+                root: "flex-1",
+                input: "size-sm rounded-md w-full",
+              }}
             />
           </Group>
         </Box>
 
         {/* Schedule type radio selection */}
         <Box>
-          <Text mb="xs" mt="sm">
-            Schedule Type
-          </Text>
-          <Radio.Group value={scheduleType} onChange={setScheduleType}>
-            <Stack gap="xs">
-              <Radio value="Bunk Jamboree" label="Bunk Jamboree" />
-              <Radio value="Non-Bunk Jamboree" label="Non-Bunk Jamboree" />
-              <Radio value="Bundle" label="Bundle" />
-              <Radio value="Non-Scheduling" label="Non-Scheduling" />
+          <Text className="my-sm">Schedule Type</Text>
+          <Radio.Group
+            label="Schedule Type"
+            value={scheduleType}
+            onChange={(newScheduleType) =>
+              setScheduleType(newScheduleType as SectionType)
+            }
+            classNames={{
+              label: "text-md",
+            }}
+          >
+            <Stack className="gap-xs">
+              <Radio
+                value={"BUNK-JAMBO" satisfies SectionType}
+                label="Bunk Jamboree"
+              />
+              <Radio
+                value={"NON-BUNK-JAMBO" satisfies SectionType}
+                label="Non-Bunk Jamboree"
+              />
+              <Radio value={"BUNDLE" satisfies SectionType} label="Bundle" />
+              <Radio
+                value={"COMMON" satisfies SectionType}
+                label="Non-Scheduling"
+              />
             </Stack>
           </Radio.Group>
         </Box>
 
-        {/* Name input field for section identifier */}
-        <Box>
-          <Text mb="xs" mt="sm">
-            Name
-          </Text>
-          <TextInput
-            placeholder="e.g. Bundle 1"
-            value={name}
-            w={250}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setName(e.currentTarget.value)
-            }
-          />
-        </Box>
+        <TextInput
+          label="Name"
+          value={name}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            setName(e.currentTarget.value)
+          }
+          classNames={{
+            root: "w-3/4",
+            label: "text-md",
+          }}
+        />
 
         {/* Action buttons: Delete and Done */}
         <Group justify="center" gap="sm" mt="md">
-          {sectionId && (
+          {isEditMode && (
             <Button
+              color="error"
               onClick={handleDelete}
               loading={deleteMutation.isPending}
               disabled={isLoading}
-              bg="#dc2626"
-              style={{ flex: 0.375 }}
+              classNames={{
+                root: "flex-1",
+              }}
             >
               Delete
             </Button>
@@ -230,10 +215,11 @@ export default function SectionTypeModal({
             onClick={handleSubmit}
             loading={createMutation.isPending || updateMutation.isPending}
             disabled={!name || !startDate || isLoading}
-            bg="#1e3a5f"
-            style={{ flex: sectionId ? 0.375 : 1 }}
+            classNames={{
+              root: "flex-1",
+            }}
           >
-            {sectionId ? "Update" : "Create"}
+            {isEditMode ? "Save Changes" : "Create"}
           </Button>
         </Group>
       </Stack>
