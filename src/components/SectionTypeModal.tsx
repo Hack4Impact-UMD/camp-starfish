@@ -26,12 +26,13 @@ import {
   SectionType,
 } from "@/types/sessionTypes";
 import useSection from "@/hooks/sections/useSection";
+import { modals } from "@mantine/modals";
 
 interface SectionTypeModalProps {
   sessionId: string;
   sectionId?: string;
-  selectedStartDate: Moment;
-  selectedEndDate: Moment;
+  selectedStartDate?: Moment;
+  selectedEndDate?: Moment;
 }
 
 export default function SectionTypeModal({
@@ -40,25 +41,20 @@ export default function SectionTypeModal({
   selectedStartDate,
   selectedEndDate,
 }: SectionTypeModalProps) {
-  const [startDate, setStartDate] = useState<Moment | null>(selectedStartDate);
-  const [endDate, setEndDate] = useState<Moment | null>(selectedEndDate);
-  const [scheduleType, setScheduleType] = useState<SectionType>("BUNDLE");
-  const [name, setName] = useState("");
-
   const { data: section, isLoading: isLoadingSection } = useSection(
     sessionId,
     sectionId
   );
-  const isEditMode = true;//!!sectionId;
+  const isEditMode = !!sectionId;
+
+  const [startDate, setStartDate] = useState<Moment | null>((isEditMode ? moment(section?.startDate) : selectedStartDate) ?? null);
+  const [endDate, setEndDate] = useState<Moment | null>((isEditMode ? moment(section?.endDate) : selectedEndDate) ?? null);
+  const [scheduleType, setScheduleType] = useState<SectionType>("BUNDLE");
+  const [name, setName] = useState("");
 
   const createMutation = useCreateSection();
   const updateMutation = useUpdateSection();
   const deleteMutation = useDeleteSection();
-
-  // Current date format - "Wednesday, October 29, 2025"
-  const formatDate = (date: Moment) => {
-    return moment(date).format("dddd, MMMM D, YYYY");
-  };
 
   const handleStartDateChange = (value: string | null) => {
     setStartDate(value ? moment(value) : null);
@@ -72,7 +68,6 @@ export default function SectionTypeModal({
 
     const sectionType = mapScheduleTypeToSectionType(scheduleType);
 
-    // Build section data based on type
     const baseSectionData = {
       name,
       type: sectionType,
@@ -96,9 +91,13 @@ export default function SectionTypeModal({
     }
 
     if (isEditMode) {
-      updateMutation.mutate({ sessionId, sectionId, updates: sectionData });
+      updateMutation.mutate({ sessionId, sectionId, updates: sectionData }, {
+        onSuccess: () => modals.closeAll()
+      });
     } else {
-      createMutation.mutate({ sessionId, section: sectionData });
+      createMutation.mutate({ sessionId, section: sectionData }, {
+        onSuccess: () => modals.closeAll()
+      });
     }
   };
 
@@ -114,10 +113,9 @@ export default function SectionTypeModal({
     isLoadingSection;
 
   return (
-    <Box className="p-lg bg-white border-[2px] border-solid border-blue-8 rounded-md m-auto">
+    <Box className="p-lg bg-white m-auto">
       <LoadingOverlay
         visible={isLoading}
-        overlayProps={{ blur: 2 }}
         classNames={{
           overlay: "blur-xs",
         }}
@@ -156,7 +154,6 @@ export default function SectionTypeModal({
 
         {/* Schedule type radio selection */}
         <Box>
-          <Text className="my-sm">Schedule Type</Text>
           <Radio.Group
             label="Schedule Type"
             value={scheduleType}
@@ -198,7 +195,7 @@ export default function SectionTypeModal({
         />
 
         {/* Action buttons: Delete and Done */}
-        <Group justify="center" gap="sm" mt="md">
+        <Group className="justify-center gap-sm">
           {isEditMode && (
             <Button
               color="error"
@@ -220,7 +217,7 @@ export default function SectionTypeModal({
               root: "flex-1",
             }}
           >
-            {isEditMode ? "Save Changes" : "Create"}
+            {isEditMode ? "Save Changes" : "Create Section"}
           </Button>
         </Group>
       </Stack>
