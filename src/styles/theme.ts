@@ -72,6 +72,13 @@ export const theme: MantineThemeOverride = {
   cursorType: "pointer",
   components: {
     //theme for general toast component notification 
+    Modal: {
+      classNames: {
+        header: 'border-b-0 pb-4',
+        title: 'text-xl font-semibold text-gray-800 text-center w-full',
+        body: 'text-gray-700',
+      },
+    },
     Notification: {
       styles: (theme: MantineTheme, props: NotificationProps) => {
         const { variant = 'success' } = props;

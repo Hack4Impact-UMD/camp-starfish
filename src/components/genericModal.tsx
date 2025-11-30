@@ -133,6 +133,7 @@ export function ConfirmationModalContent({
 export interface ConfirmationModalProps extends ConfirmationModalContentProps {
   opened: boolean;
   onClose: () => void;
+  // onCancel?: () => void;
   size?: ModalProps['size'];
 }
 
@@ -143,6 +144,7 @@ export function ConfirmationModal({
   message,
   warningText,
   onConfirm,
+  // onCancel,
   confirmLabel,
   cancelLabel,
   loading = false,
@@ -163,6 +165,7 @@ export function ConfirmationModal({
         message={message}
         warningText={warningText}
         onConfirm={onConfirm}
+        // onCancel={onCancel || onClose}
         onCancel={onClose}
         confirmLabel={confirmLabel}
         cancelLabel={cancelLabel}
@@ -414,8 +417,8 @@ export function openConfirmationModal(options: OpenConfirmationModalOptions) {
           modals.close(modalId);
         }}
         onCancel={() => {
-          modals.close(modalId);
           options.onCancel?.();
+          modals.close(modalId);
         }}
         confirmLabel={options.confirmLabel}
         cancelLabel={options.cancelLabel}
@@ -531,68 +534,3 @@ export function openContextModal(options: OpenContextModalOptions) {
     ),
   });
 }
-
-// ============================================================================
-// USAGE EXAMPLES
-// ============================================================================
-
-/*
-// OPTION 1: Using helper functions with modal manager (RECOMMENDED for most cases)
-import { openConfirmationModal, openContentModal, openContextModal } from '@/components/modals/GenericModal';
-
-// Confirmation Modal
-openConfirmationModal({
-  title: 'Are you sure you want to delete this item?',
-  warningText: 'WARNING: This action cannot be undone',
-  onConfirm: () => console.log('Deleted!'),
-  dangerous: true,
-  size: 'md', // Can extend with Mantine props
-});
-
-// Content Modal
-openContentModal({
-  title: 'Edit Profile',
-  subtitle: 'Update your information',
-  headerIcon: <UserIcon />,
-  size: 'xl', // Can extend with Mantine props
-  closeOnClickOutside: false, // Can extend with Mantine props
-  children: (
-    <div>
-      <input placeholder="Name" />
-      <button>Save</button>
-    </div>
-  ),
-});
-
-// Context Modal
-openContextModal({
-  title: 'Welcome!',
-  contextText: 'Thank you for joining.',
-  description: 'Here are some tips...',
-  icon: <CheckIcon />,
-  actionLabel: 'GET STARTED',
-  size: 'lg', // Can extend with Mantine props
-});
-
-// OPTION 2: Using components directly (for custom state management)
-import { ConfirmationModal, ContentModal, ContextModal } from '@/components/modals/GenericModal';
-
-function MyComponent() {
-  const [opened, setOpened] = useState(false);
-  
-  return (
-    <>
-      <button onClick={() => setOpened(true)}>Open</button>
-      <ConfirmationModal
-        opened={opened}
-        onClose={() => setOpened(false)}
-        onConfirm={() => console.log('Confirmed')}
-        title="Confirm Action"
-        message="Are you sure?"
-        dangerous
-        size="lg" // Can extend with Mantine props
-      />
-    </>
-  );
-}
-*/
