@@ -18,7 +18,12 @@ function createPreferencesSpreadsheet(sessionName: string): string {
   //sheet.deleteRows(1, sheet.getMaxRows() - 1);
   //sheet.deleteColumns(1, sheet.getMaxColumns() - 1);
   sheet.getRange('A1').setValue("No sections yet!\nAdd campers and scheduling sections at https://camp-starfish.web.app")
-  setPreferencesSpreadsheetProperties(spreadsheet.getId(), { sections: [] })
+  setPreferencesSpreadsheetProperties(spreadsheet.getId(), {
+    sections: [],
+    sheets: {
+      [sheet.getSheetId()]: { lastModified: moment().toISOString() }
+    }
+  })
   return spreadsheet.getId();
 }
 globalThis.createPreferencesSpreadsheet = createPreferencesSpreadsheet;
@@ -59,7 +64,13 @@ function addSectionPreferencesSheet(spreadsheetId: string, section: SchedulingSe
     sheet.setName(section.name);
   }
 
-  setPreferencesSpreadsheetProperties(spreadsheetId, { sections });
+  setPreferencesSpreadsheetProperties(spreadsheetId, {
+    sections,
+    sheets: {
+      ...spreadsheetProperties?.sheets,
+      [sheet.getSheetId()]: { lastModified: moment().toISOString() }
+    }
+  });
 }
 globalThis.addSectionPreferencesSheet = addSectionPreferencesSheet;
 

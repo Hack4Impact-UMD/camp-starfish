@@ -2,6 +2,11 @@ import { SchedulingSectionID } from "@/types/sessionTypes";
 
 export interface PreferencesSpreadsheetProperties {
   sections: SchedulingSectionID[];
+  sheets: {
+    [sheetId: number]: {
+      lastModified: string;
+    }
+  }
 }
 
 function getPreferencesSpreadsheetProperties(spreadsheetId: string): PreferencesSpreadsheetProperties | null {
