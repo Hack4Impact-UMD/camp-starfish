@@ -1,12 +1,10 @@
 import { db } from "@/config/firebase";
-<<<<<<< HEAD
 import { SchedulingSection, SchedulingSectionID, SectionSchedule, SectionScheduleID, SchedulingSectionType, Freeplay, FreeplayID, AttendeeID, CamperAttendee, StaffAttendee, AdminAttendee } from "@/types/sessionTypes";
-=======
 import { Section, SectionID } from "@/types/sessionTypes";
->>>>>>> c46a1c9377478ac5a045986a593c8b77654152f0
 import { v4 as uuid } from "uuid";
 import {
   doc,
+  collection,
   Transaction,
   WriteBatch,
   FirestoreDataConverter,
@@ -14,15 +12,9 @@ import {
   QueryDocumentSnapshot,
   DocumentReference,
   CollectionReference,
-  collection,
 } from "firebase/firestore";
-<<<<<<< HEAD
 import { Collection, SessionsSubcollection, SectionsSubcollection } from "./utils";
-import { setDoc, deleteDoc, getDoc, updateDoc } from "./firestoreClientOperations";
-=======
-import { Collection, SessionsSubcollection } from "./utils";
 import { setDoc, deleteDoc, getDoc, updateDoc, executeQuery } from "./firestoreClientOperations";
->>>>>>> c46a1c9377478ac5a045986a593c8b77654152f0
 
 const sectionFirestoreConverter: FirestoreDataConverter<SectionID, Section> = {
   toFirestore: (section: WithFieldValue<SectionID>): WithFieldValue<Section> => {
@@ -51,8 +43,7 @@ export async function updateSection(sessionId: string, sectionId: string, update
 }
 
 export async function deleteSection(id: string, sessionID: string, instance?: Transaction | WriteBatch): Promise<void> {
-<<<<<<< HEAD
-  await deleteDoc<SchedulingSectionID, SchedulingSection>(doc(db, Collection.SESSIONS, sessionID, SessionsSubcollection.SECTIONS, id) as DocumentReference<SchedulingSectionID, SchedulingSection>, sectionFirestoreConverter, instance);
+  await deleteDoc<SectionID, Section>(doc(db, Collection.SESSIONS, sessionID, SessionsSubcollection.SECTIONS, id) as DocumentReference<SectionID, Section>, sectionFirestoreConverter, instance);
 }
 
 const scheduleFirestoreConverter: FirestoreDataConverter<SectionScheduleID<SchedulingSectionType>, SectionSchedule<SchedulingSectionType>> = {
@@ -114,8 +105,4 @@ export const attendeeConverter: FirestoreDataConverter<
       ...data,
     } as AttendeeID;
   },
-};
-=======
-  await deleteDoc<SectionID, Section>(doc(db, Collection.SESSIONS, sessionID, SessionsSubcollection.SECTIONS, id) as DocumentReference<SectionID, Section>, sectionFirestoreConverter, instance);
-}
->>>>>>> c46a1c9377478ac5a045986a593c8b77654152f0
+}; 

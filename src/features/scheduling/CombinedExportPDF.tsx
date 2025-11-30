@@ -13,7 +13,6 @@ import CamperGrid from "@/features/scheduling/exporting/CamperGrid";
 import BlockRatiosGrid from "@/features/scheduling/exporting/BlockRatiosGrid";
 import EmployeeGrid from "@/features/scheduling/exporting/EmployeeGrid";
 import { ProgramAreaGrid } from "@/features/scheduling/ProgramAreaGrid";
-import { CamperPreferencesSheet } from "@/features/scheduling/exporting/CamperPreferencesSheet";
 
 interface CombinedPDFProps {
   schedule: SectionScheduleID<SchedulingSectionType>;
@@ -21,8 +20,6 @@ interface CombinedPDFProps {
   campers: CamperAttendeeID[];
   staff: StaffAttendeeID[];
   admins: AdminAttendeeID[];
-  ageGroup?: AgeGroup;
-  sectionType: SchedulingSectionType;
   sectionName: string;
 }
 
@@ -32,8 +29,6 @@ export const CombinedPDF: React.FC<CombinedPDFProps> = ({
   campers,
   staff,
   admins,
-  ageGroup,
-  sectionType,
   sectionName,
 }) => (
   <Document>
@@ -57,12 +52,6 @@ export const CombinedPDF: React.FC<CombinedPDFProps> = ({
         employees={staff}
       />
       <ProgramAreaGrid schedule={schedule} sectionName={sectionName} />
-      <CamperPreferencesSheet
-        schedule={schedule}
-        sectionType={sectionType}
-        sectionName={sectionName}
-        ageGroup={ageGroup}
-      />
     </Page>
   </Document>
 );
