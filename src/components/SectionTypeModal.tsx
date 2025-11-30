@@ -37,15 +37,6 @@ interface SectionTypeModalProps {
   sectionId?: string;
   selectedStartDate: Moment;
   selectedEndDate: Moment;
-
-  onSubmit: (data: {
-    startDate: Moment | null;
-    endDate: Moment | null;
-    scheduleType: string;
-    name: string;
-  }) => void;
-  onDelete?: () => void;
-  onClose?: () => void;
 }
 
 export default function SectionTypeModal({
@@ -53,22 +44,15 @@ export default function SectionTypeModal({
   sectionId,
   selectedStartDate,
   selectedEndDate,
-  onSubmit,
-  onDelete,
-  onClose,
 }: SectionTypeModalProps) {
   const [startDate, setStartDate] = useState<Moment | null>(selectedStartDate);
   const [endDate, setEndDate] = useState<Moment | null>(selectedEndDate);
   const [scheduleType, setScheduleType] = useState<SectionType>("BUNDLE");
   const [name, setName] = useState("");
 
-  // Fetch existing section data if in edit mode
-  const { data: existingSection, isLoading: isLoadingSection } = useSection(
-    sessionId,
-    sectionId || ""
-  );
+  const { data: section, isLoading: isLoadingSection } = useSection(sessionId, sectionId);
+  const isEditMode = !!section;
 
-  // React Query mutations
   const createMutation = useCreateSection();
   const updateMutation = useUpdateSection();
   const deleteMutation = useDeleteSection();
@@ -78,38 +62,20 @@ export default function SectionTypeModal({
     return moment(date).format("dddd, MMMM D, YYYY");
   };
 
-  const handleStartDateChange = (value: string | null) => {
-    if (value) {
-      // Use moment to parse YYYY-MM-DD as local date
-      const localDate = moment(value);
-      setStartDate(localDate);
-    } else {
-      setStartDate(null);
-    }
-  };
-
-  const handleEndDateChange = (value: string | null) => {
-    if (value) {
-      // Use moment to parse YYYY-MM-DD as local date
-      const localDate = moment(value);
-      setEndDate(localDate);
-    } else {
-      setEndDate(null);
-    }
-  };
+  const handleStartDateChange = (value: string | null) => { setStartDate(value ? moment(value) : null); };
+  const handleEndDateChange = (value: string | null) => { setEndDate(value ? moment(value) : null); };
 
   const handleSubmit = async () => {
-    if (!startDate || !name) return;
+    if (!startDate || !endDate || !name) return;
 
     const sectionType = mapScheduleTypeToSectionType(scheduleType);
-    const finalEndDate = endDate || startDate;
 
     // Build section data based on type
     const baseSectionData = {
       name,
       type: sectionType,
       startDate: startDate.toISOString(),
-      endDate: finalEndDate.toISOString(),
+      endDate: endDate.toISOString(),
     };
 
     let sectionData: Section;
@@ -150,9 +116,6 @@ export default function SectionTypeModal({
         });
       }
 
-      // Call the onSubmit callback for backward compatibility
-      onSubmit({ startDate, endDate, scheduleType, name });
-      onClose?.();
     } catch (error) {
       console.error("Error saving section:", error);
       notifications.show({
@@ -175,8 +138,6 @@ export default function SectionTypeModal({
         message: "Section deleted successfully!",
         color: "green",
       });
-      onDelete?.();
-      onClose?.();
     } catch (error) {
       console.error("Error deleting section:", error);
       notifications.show({
@@ -210,7 +171,6 @@ export default function SectionTypeModal({
       {/* Close button (X) in top left corner */}
       <ActionIcon
         variant="subtle"
-        onClick={onClose}
         aria-label="Close"
         c="primary.5"
         pos="absolute"
