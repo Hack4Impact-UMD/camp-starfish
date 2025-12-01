@@ -14,7 +14,7 @@ import Image from "next/image";
 import { SessionID } from "@/types/sessionTypes";
 import pencilIcon from "@/assets/icons/pencilIcon.svg";
 import SessionCard from "@/components/SessionCard";
-import CreateSessionModal from "@/components/CreateSessionModal";
+import { openCreateSessionModal } from "@/components/CreateSessionModal";
 
 interface SessionsPageProps {
   sessions: SessionID[];
@@ -22,10 +22,6 @@ interface SessionsPageProps {
 
 export default function SessionsPage({ sessions }: SessionsPageProps) {
   const [editMode, setEditMode] = useState(false);
-  const [opened, setOpened] = useState(false);
-  const handleCancel = () => setOpened(false);
-  const toggleModal = () => setOpened(true);
-
 
   // --- Categorize sessions ---
   const { current, future, past } = useMemo(() => {
@@ -98,7 +94,7 @@ export default function SessionsPage({ sessions }: SessionsPageProps) {
                       height={16}
                     />
                   }
-                  onClick={toggleModal}
+                  onClick={openCreateSessionModal}
                 >
                   Standard Session
                 </Menu.Item>
@@ -112,7 +108,7 @@ export default function SessionsPage({ sessions }: SessionsPageProps) {
                       height={16}
                     />
                   }
-                  onClick={toggleModal}
+                  onClick={openCreateSessionModal}
                 >
                   Customized Session
                 </Menu.Item>
@@ -178,9 +174,6 @@ export default function SessionsPage({ sessions }: SessionsPageProps) {
           </Stack>
         </Stack>
       </Stack>
-
-      {/* YOUR MODAL — now correctly wired */}
-      <CreateSessionModal opened={opened} onClose={handleCancel} />
     </>
   );
 }
