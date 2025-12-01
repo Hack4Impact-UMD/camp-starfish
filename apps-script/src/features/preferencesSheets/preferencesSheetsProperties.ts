@@ -18,3 +18,13 @@ function setPreferencesSpreadsheetProperties(spreadsheetId: string, properties: 
   setScriptProperty<PreferencesSpreadsheetProperties>(spreadsheetId, properties);
 }
 globalThis.setPreferencesSpreadsheetProperties = setPreferencesSpreadsheetProperties;
+
+function generatePreferencesSheetProperties(spreadsheetId: string): PreferencesSpreadsheetProperties {
+  const defaultSPreferencesSpreadsheetProperties: PreferencesSpreadsheetProperties = {
+    sections: [],
+    sheets: {}
+  }
+  setPreferencesSpreadsheetProperties(spreadsheetId, defaultSPreferencesSpreadsheetProperties);
+  return defaultSPreferencesSpreadsheetProperties
+}
+globalThis.generatePreferencesSheetProperties = generatePreferencesSheetProperties;
