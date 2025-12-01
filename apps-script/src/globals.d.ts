@@ -37,5 +37,6 @@ declare global {
   // features/preferencesSheets/preferencesSheetsProperties.ts
   var getPreferencesSpreadsheetProperties: (spreadsheetId: string) => PreferencesSpreadsheetProperties | null;
   var setPreferencesSpreadsheetProperties: (spreadsheetId: string, properties: PreferencesSpreadsheetProperties) => void;
+  var generatePreferencesSheetProperties: (spreadsheetId: string) => PreferencesSpreadsheetProperties;
 }
 export {};

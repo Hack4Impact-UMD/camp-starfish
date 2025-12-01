@@ -25,7 +25,9 @@ function onEdit(e: GoogleAppsScript.Events.SheetsOnEdit) {
     const lastModified = moment().toISOString();
     
     try {
-      // get existing properties or initialize if they don't exist
+      const spreadsheetProperties = getPreferencesSpreadsheetProperties(spreadsheetId);
+      if (!spreadsheetProperties) { generatePreferencesSheetProperties(spreadsheetId); }
+
       const existingValue = props.getProperty(spreadsheetId);
       let existingProps: PreferencesSpreadsheetProperties;
       
