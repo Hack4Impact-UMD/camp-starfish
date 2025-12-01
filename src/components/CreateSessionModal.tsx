@@ -6,7 +6,6 @@ import {
   Stack,
   Group,
   Text,
-  Modal,
   Box,
 } from "@mantine/core";
 import moment from "moment";
@@ -15,22 +14,14 @@ import useCreateSession from "@/hooks/sessions/useCreateSession";
 import { modals } from "@mantine/modals";
 
 export default function CreateSessionModal() {
-  const [sessionName, setSessionName] = useState("");
+  const [sessionName, setSessionName] = useState<string>("");
   const [dateRange, setDateRange] = useState<DatesRangeValue>([null, null]);
   const createSessionMutation = useCreateSession();
-
-  const [error, setError] = useState("");
 
   const handleGenerate = () => {
     const [startDateStr, endDateStr] = dateRange;
 
-    if (sessionName.trim() === "") {
-      setError("Please enter a session name.");
-      return;
-    }
-
-    if (!startDateStr || !endDateStr) {
-      setError("Please select a start and end date.");
+    if (sessionName.trim() === "" || !startDateStr || !endDateStr) {
       return;
     }
 
