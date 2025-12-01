@@ -1,14 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import {
-  Button,
-  Group,
-  Stack,
-  Title,
-  Menu,
-  Text,
-} from "@mantine/core";
+import { Button, Group, Stack, Title, Menu, Text } from "@mantine/core";
 import moment from "moment";
 import Image from "next/image";
 import { SessionID } from "@/types/sessionTypes";
@@ -46,35 +39,33 @@ export default function SessionsPage({ sessions }: SessionsPageProps) {
   }, [sessions]);
 
   return (
-    <>
-      {/* MAIN PAGE */}
-      <Stack gap={36} p="md">
-        {/* Top bar */}
-        <Group justify="space-between" align="center">
-          <Title order={2}>Sessions</Title>
+    <Stack gap={36} p="md">
+      {/* Top bar */}
+      <Group justify="space-between" align="center">
+        <Title order={2}>Sessions</Title>
 
-          <Group gap="sm">
-            {/* Edit / Done button */}
-            <Button
-              size="lg"
-              color="primary"
-              radius="xl"
-              leftSection={
-                <Image
-                  src={pencilIcon}
-                  alt="Edit"
-                  width={18}
-                  height={18}
-                  style={{
-                    filter:
-                      "invert(100%) sepia(100%) saturate(0%) hue-rotate(180deg)",
-                  }}
-                />
-              }
-              onClick={() => setEditMode((prev) => !prev)}
-            >
-              {editMode ? "Done" : "Edit"}
-            </Button>
+        <Group gap="sm">
+          {/* Edit / Done button */}
+          <Button
+            size="lg"
+            color="primary"
+            radius="xl"
+            leftSection={
+              <Image
+                src={pencilIcon}
+                alt="Edit"
+                width={18}
+                height={18}
+                style={{
+                  filter:
+                    "invert(100%) sepia(100%) saturate(0%) hue-rotate(180deg)",
+                }}
+              />
+            }
+            onClick={() => setEditMode((prev) => !prev)}
+          >
+            {editMode ? "Done" : "Edit"}
+          </Button>
 
           {/* Create Session Dropdown */}
           <Menu shadow="md" width={200} position="bottom-end">
@@ -84,45 +75,66 @@ export default function SessionsPage({ sessions }: SessionsPageProps) {
               </Button>
             </Menu.Target>
 
-              <Menu.Dropdown>
-                <Menu.Item
-                  leftSection={
-                    <Image
-                      src={pencilIcon}
-                      alt="Standard"
-                      width={16}
-                      height={16}
-                    />
-                  }
-                  onClick={openCreateSessionModal}
-                >
-                  Standard Session
-                </Menu.Item>
+            <Menu.Dropdown>
+              <Menu.Item
+                leftSection={
+                  <Image
+                    src={pencilIcon}
+                    alt="Standard"
+                    width={16}
+                    height={16}
+                  />
+                }
+                onClick={openCreateSessionModal}
+              >
+                Standard Session
+              </Menu.Item>
 
-                <Menu.Item
-                  leftSection={
-                    <Image
-                      src={pencilIcon}
-                      alt="Customized"
-                      width={16}
-                      height={16}
-                    />
-                  }
-                  onClick={openCreateSessionModal}
-                >
-                  Customized Session
-                </Menu.Item>
-              </Menu.Dropdown>
-            </Menu>
-          </Group>
+              <Menu.Item
+                leftSection={
+                  <Image
+                    src={pencilIcon}
+                    alt="Customized"
+                    width={16}
+                    height={16}
+                  />
+                }
+                onClick={openCreateSessionModal}
+              >
+                Customized Session
+              </Menu.Item>
+            </Menu.Dropdown>
+          </Menu>
         </Group>
+      </Group>
 
-        {/* Current Sessions */}
-        <Stack gap={12}>
-          <Title order={3}>Current Session</Title>
+      {/* Current Sessions */}
+      <Stack gap={12}>
+        <Title order={3}>Current Session</Title>
+        <Group justify="flex-start" wrap="wrap" gap="md">
+          {current.length ? (
+            current.map((session) => (
+              <SessionCard
+                key={session.id}
+                session={session}
+                editMode={editMode}
+              />
+            ))
+          ) : (
+            <Text c="dimmed">No current session</Text>
+          )}
+        </Group>
+      </Stack>
+
+      {/* Non-Current Sessions */}
+      <Stack gap={12}>
+        <Title order={3}>Non-Current Session</Title>
+
+        <Stack gap={4}>
+          <Title order={4}>Future Sessions</Title>
           <Group justify="flex-start" wrap="wrap" gap="md">
-            {current.length ? (
-              current.map((session) => (
+            {future.length ? (
+              future.map((session) => (
                 <SessionCard
                   key={session.id}
                   session={session}
@@ -130,50 +142,28 @@ export default function SessionsPage({ sessions }: SessionsPageProps) {
                 />
               ))
             ) : (
-              <Text c="dimmed">No current session</Text>
+              <Text c="dimmed">No future sessions</Text>
             )}
           </Group>
         </Stack>
 
-        {/* Non-Current Sessions */}
-        <Stack gap={12}>
-          <Title order={3}>Non-Current Session</Title>
-
-          <Stack gap={4}>
-            <Title order={4}>Future Sessions</Title>
-            <Group justify="flex-start" wrap="wrap" gap="md">
-              {future.length ? (
-                future.map((session) => (
-                  <SessionCard
-                    key={session.id}
-                    session={session}
-                    editMode={editMode}
-                  />
-                ))
-              ) : (
-                <Text c="dimmed">No future sessions</Text>
-              )}
-            </Group>
-          </Stack>
-
-          <Stack gap={4} mt="md">
-            <Title order={4}>Past Sessions</Title>
-            <Group justify="flex-start" wrap="wrap" gap="md">
-              {past.length ? (
-                past.map((session) => (
-                  <SessionCard
-                    key={session.id}
-                    session={session}
-                    editMode={editMode}
-                  />
-                ))
-              ) : (
-                <Text c="dimmed">No past sessions</Text>
-              )}
-            </Group>
-          </Stack>
+        <Stack gap={4} mt="md">
+          <Title order={4}>Past Sessions</Title>
+          <Group justify="flex-start" wrap="wrap" gap="md">
+            {past.length ? (
+              past.map((session) => (
+                <SessionCard
+                  key={session.id}
+                  session={session}
+                  editMode={editMode}
+                />
+              ))
+            ) : (
+              <Text c="dimmed">No past sessions</Text>
+            )}
+          </Group>
         </Stack>
       </Stack>
-    </>
+    </Stack>
   );
 }
