@@ -1,6 +1,14 @@
 import React, { useState } from "react";
 import { DatePicker, DatesRangeValue } from "@mantine/dates";
-import { Button, TextInput, Stack, Group, Text, Modal } from "@mantine/core";
+import {
+  Button,
+  TextInput,
+  Stack,
+  Group,
+  Text,
+  Modal,
+  Box,
+} from "@mantine/core";
 import moment from "moment";
 import { Session } from "@/types/sessionTypes";
 import useCreateSession from "@/hooks/sessions/useCreateSession";
@@ -37,91 +45,73 @@ export default function CreateSessionModal() {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md max-w-full mx-auto overflow-hidden">
-      {/* Header */}
-      <div className="bg-primary-5 px-10 py-6 text-white">
-        <Text size="xl" fw={700} className="tracking-wide">
-          CREATE SESSION
-        </Text>
-      </div>
+    <Box className="bg-white max-w-full mx-auto overflow-hidden gap-xl">
+      <Stack className="gap-xl">
+        <TextInput
+          label="Session Name"
+          placeholder="Enter name..."
+          value={sessionName}
+          onChange={(e) => setSessionName(e.currentTarget.value)}
+          className="w-full"
+        />
 
-      {/* Content */}
-      <div className="p-10">
-        <Stack gap="xl">
-          {/* Session Name */}
-          <div className="flex flex-row gap-[5px]">
-            <Text size="lg" className="mb-3 text-black font-[700]">
-              Enter Session Name:
-            </Text>
+        {/* Date Picker */}
+        <Stack className="items-center gap-lg">
+          <Group className="w-full items-center gap-[5px]">
             <TextInput
-              placeholder="Enter name..."
-              value={sessionName}
-              onChange={(e) => setSessionName(e.currentTarget.value)}
-              className="w-[50%]"
+              label="Start Date"
+              placeholder="Start Date"
+              className="w-1/4"
+              value={
+                dateRange[0] ? moment(dateRange[0]).format("MMM D, YYYY") : ""
+              }
+              disabled
+              classNames={{
+                root: "flex-grow",
+              }}
             />
-          </div>
 
-          {/* Date Picker */}
-          <div>
-            <div className="flex flex-row items-center gap-[5px]">
-              <Text size="lg" fw={700} className=" text-black">
-                Select Session Dates:
-              </Text>
+            <Text>To</Text>
 
-              <TextInput
-                placeholder="Start Date"
-                className="w-[25%]"
-                value={
-                  dateRange[0] ? moment(dateRange[0]).format("MMM D, YYYY") : ""
-                }
-                disabled
-              />
-
-              <Text>To</Text>
-
-              <TextInput
-                placeholder="End Date"
-                className="w-[25%] placeholder:text-neutral-400"
-                value={
-                  dateRange[1] ? moment(dateRange[1]).format("MMM D, YYYY") : ""
-                }
-                disabled
-              />
-            </div>
-
-            <div className="flex justify-center">
-              <div className="max-w-[350px] mt-[20px] py-[16px] px-[10px] border !border-primary-5 !rounded-sm !p-2">
-                <DatePicker
-                  type="range"
-                  value={dateRange}
-                  onChange={setDateRange}
-                  numberOfColumns={1}
-                  size="md"
-                  withCellSpacing={false}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Buttons */}
-          <Group justify="center" gap="md" className="mt-5">
-            <Button
-              className=" w-[100px] bg-neutral-3 text-neutral-9"
-              onClick={() => modals.closeAll()}
-            >
-              CANCEL
-            </Button>
-
-            <Button
-              className=" w-[100px] bg-secondary-green-4 text-neutral-0"
-              onClick={handleGenerate}
-            >
-              DONE
-            </Button>
+            <TextInput
+              label="End Date"
+              placeholder="End Date"
+              className="w-1/4 placeholder:text-neutral-400"
+              value={
+                dateRange[1] ? moment(dateRange[1]).format("MMM D, YYYY") : ""
+              }
+              disabled
+              classNames={{
+                root: "flex-grow",
+              }}
+            />
           </Group>
+
+          <DatePicker
+            type="range"
+            value={dateRange}
+            onChange={setDateRange}
+            numberOfColumns={1}
+            size="md"
+            withCellSpacing={false}
+          />
         </Stack>
-      </div>
-    </div>
+
+        <Group className="justify-center gap-md">
+          <Button
+            color="neutral"
+            className=" "
+            onClick={() => modals.closeAll()}
+          >
+            CANCEL
+          </Button>
+
+          <Button color="green" className="w-[100px]" onClick={handleGenerate}>
+            DONE
+          </Button>
+        </Group>
+      </Stack>
+    </Box>
   );
 }
 
@@ -130,4 +120,4 @@ export function openCreateSessionModal() {
     title: "Create Session",
     children: <CreateSessionModal />,
   });
-};
+}
