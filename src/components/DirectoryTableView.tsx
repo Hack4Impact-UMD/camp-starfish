@@ -220,15 +220,16 @@ export default function DirectoryTableView ({ sessionId }: LargeDirectoryBlockPr
     <div className = "border border-black bg-[#F7F7F7] w-[80%] mx-auto py-[20px]">
       <Title order={3} className="text-center !font-bold !mb-10">DIRECTORY</Title>
       
-      <Container>
+      <Container size="90%">
         {(isLoading || !attendeeIDMap) && <>Loading Table</>}
       
         <Flex direction={"column"}>
           <Flex direction={"row"} gap="md" align="center" mb="md">
             <TextInput
-              placeholder="Search..."
+              placeholder="Search directory..."
               value={globalFilter}
               onChange={(e) => setGlobalFilter(e.target.value)}
+              className="w-[342px] !rounded-md placeholder:text-neutral-5"
             />
 
             <Flex gap="sm" direction="row">
@@ -269,12 +270,12 @@ export default function DirectoryTableView ({ sessionId }: LargeDirectoryBlockPr
           </Flex>
 
           <ScrollArea>
-            <Table striped highlightOnHover withColumnBorders>
+            <Table striped highlightOnHover className = "w-[100%] border-collapse">
               <thead>
                 {table.getHeaderGroups().map((hg) => (
                   <tr key={hg.id}>
                     {hg.headers.map((header) => (
-                      <th key={header.id} className="text-center bg-neutral-3">
+                      <th key={header.id} className="border border-black text-center bg-neutral-3 px-[11px] py-[10px]">
                         {flexRender(
                           header.column.columnDef.header,
                           header.getContext()
@@ -289,7 +290,7 @@ export default function DirectoryTableView ({ sessionId }: LargeDirectoryBlockPr
                 {table.getRowModel().rows.map((row) => (
                   <tr key={row.id}>
                     {row.getVisibleCells().map((cell) => (
-                      <td key={cell.id} className="text-center truncate">
+                      <td key={cell.id} className="text-center border border-black truncate p-0">
                         {flexRender(
                           cell.column.columnDef.cell,
                           cell.getContext()
@@ -303,7 +304,7 @@ export default function DirectoryTableView ({ sessionId }: LargeDirectoryBlockPr
           </ScrollArea>
         </Flex>
 
-        <Group mt="md" align="center">
+        <Group mt="md" align="center" className = "flex flex-row justify-center align-center">
           <Button
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
