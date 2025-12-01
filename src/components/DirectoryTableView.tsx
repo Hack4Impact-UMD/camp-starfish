@@ -26,6 +26,8 @@ import {
   getPaginationRowModel,
 } from "@tanstack/react-table";
 
+import { IconSearch } from "@tabler/icons-react";
+
 
 type LargeDirectoryBlockProps = { 
     sessionId: string;
@@ -229,7 +231,11 @@ export default function DirectoryTableView ({ sessionId }: LargeDirectoryBlockPr
               placeholder="Search directory..."
               value={globalFilter}
               onChange={(e) => setGlobalFilter(e.target.value)}
-              className="w-[342px] !rounded-md placeholder:text-neutral-5"
+              classNames={{
+                input: "w-[342px] !bg-white !border !border-neutral-4 text-neutral-7"
+              }}
+              leftSection={<IconSearch size={16} stroke={1.5} className="text-neutral-5" />}
+
             />
 
             <Flex gap="sm" direction="row">
