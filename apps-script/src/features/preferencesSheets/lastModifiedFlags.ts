@@ -17,25 +17,9 @@ const props = PropertiesService.getScriptProperties();
  */
 function onEdit(e: GoogleAppsScript.Events.SheetsOnEdit) {
   try {
-    if (!e?.range) {
-      console.warn('Invalid edit event received:', e);
-      return;
-    }
-    
     const range = e.range;
-    const sheet = range.getSheet();
-    if (!sheet) {
-      console.warn('Could not get sheet from range');
-      return;
-    }
-    
-    // Get spreadsheet ID from the sheet's parent
+    const sheet = range.getSheet();    
     const spreadsheet = sheet.getParent();
-    if (!spreadsheet) {
-      console.warn('Could not get spreadsheet from sheet');
-      return;
-    }
-    
     const spreadsheetId = spreadsheet.getId();
     const sheetId = sheet.getSheetId();
     const lastModified = moment().toISOString();
