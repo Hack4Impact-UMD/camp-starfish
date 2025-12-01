@@ -3,7 +3,6 @@
 import { useAuth } from "@/auth/useAuth";
 import GalleryCardOne from "../components/GalleryCardOne";
 import React from 'react';
-import ModalTestingSetup from "@/components/modals/testingsetup";
 
 export default function EmployeeHomePage() {
   const auth = useAuth();
@@ -16,8 +15,6 @@ export default function EmployeeHomePage() {
           Welcome, {auth.user?.displayName}!
         </h1>
       </div>
-
-      <ModalTestingSetup />
 
       {/* Content Section */}
       <div className="flex flex-wrap justify-center items-center gap-[84px]">
