@@ -14,9 +14,6 @@ export default function EmployeeHomePage() {
         <h1 className="text-[65px] lg:text-[80px] font-semibold font-newSpirit">Welcome, {auth.user?.displayName}!</h1>
       </div>
 
-      <h2>Night Schedule</h2>
-      <NightScheduleTable sessionId="session1" />
-
       {/* Content Section */}
       <div className="flex flex-wrap justify-center items-center gap-[84px]">
         {/* Albums */}

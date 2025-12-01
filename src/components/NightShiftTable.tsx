@@ -7,7 +7,10 @@ import {
   flexRender,
 } from '@tanstack/react-table';
 import { StaffAttendeeID, NightShiftID, AttendeeID } from '@/types/sessionTypes';
-import useNightScheduleTable from './useNightShiftTable';
+import { getFullName } from '@/utils/personUtils'; // ADDED: Import name utility
+import useNightScheduleData from './useNightShiftTable';
+
+import moment from 'moment';
 
 interface NightScheduleTableProps {
   sessionId: string;
@@ -26,7 +29,7 @@ interface TableRow {
 export default function NightScheduleTable(props: NightScheduleTableProps) {
   const { sessionId } = props;
 
-  const { nightShifts, attendeeList, isLoading, error } = useNightScheduleTable(sessionId);
+  const { nightShifts, attendeeList, isLoading, error } = useNightScheduleData(sessionId);
 
   // Debug logging
   useEffect(() => {
@@ -88,13 +91,10 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
   // Format date for display
   const formatDate = (isoDate: string) => {
     console.log('formatDate input:', isoDate);
-    const date = new Date(isoDate);
-    console.log('parsed date:', date);
-    const formatted = date.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    });
+    // UPDATED: Use moment library for formatting
+    const date = moment(isoDate); 
+    console.log('parsed date:', date.format());
+    const formatted = date.format('MMM D, YYYY');
     console.log('formatted date:', formatted);
     return formatted;
   };
@@ -104,16 +104,7 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
     const staff = attendeeMap.get(staffId);
     if (!staff) return `Unknown (${staffId})`;
 
-    // Handle name being either a string or an object with firstName/lastName
-    if (typeof staff.name === 'string') {
-      return staff.name;
-    }
-
-    // Handle structured name object
-    const { firstName, middleName, lastName } = staff.name;
-    return middleName
-      ? `${firstName} ${middleName} ${lastName}`
-      : `${firstName} ${lastName}`;
+    return getFullName(staff); 
   };
 
   // Get staff for a specific position in a bunk on a date
@@ -293,7 +284,8 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
 
   return (
     <Container>
-      {(isLoading || !attendeeMap) && <>Loading Table</>}
+      {/* UPDATED: Loading check uses !isMapReady */}
+      {(isLoading || !isMapReady) && <>Loading Table</>}
       <Flex direction={'column'}>
         <Box>
           <Table
@@ -301,7 +293,8 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
             highlightOnHover
             withTableBorder
             withColumnBorders
-            style={{ borderCollapse: 'collapse' }}
+            // REPLACED: style={{ borderCollapse: 'collapse' }}
+            className="border-collapse" 
           >
             <Table.Thead>
               {table.getHeaderGroups().map((headerGroup) => (
@@ -309,13 +302,8 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
                   {headerGroup.headers.map((header) => (
                     <Table.Th
                       key={header.id}
-                      style={{
-                        textAlign: 'center',
-                        backgroundColor: '#E6EAEC',
-                        padding: '12px 8px',
-                        border: '1px solid #dee2e6',
-                        fontWeight: 600,
-                      }}
+                      // ALREADY TAILWIND
+                      className="text-center bg-gray-200 py-3 px-2 border border-gray-300 font-semibold"
                     >
                       {header.isPlaceholder
                         ? null
@@ -344,13 +332,8 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
                           <Table.Td
                             key={cell.id}
                             rowSpan={positions.length}
-                            style={{
-                              textAlign: 'center',
-                              verticalAlign: 'middle',
-                              fontWeight: 600,
-                              backgroundColor: '#E6EAEC',
-                              border: '1px solid #dee2e6',
-                            }}
+                            // REPLACED INLINE STYLE WITH TAILWIND
+                            className="text-center align-middle font-semibold bg-gray-200 border border-gray-300"
                           >
                             {flexRender(
                               cell.column.columnDef.cell,
@@ -365,11 +348,8 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
                         return (
                           <Table.Td
                             key={cell.id}
-                            style={{
-                              textAlign: 'center',
-                              fontWeight: 500,
-                              border: '1px solid #dee2e6',
-                            }}
+                            // REPLACED INLINE STYLE WITH TAILWIND
+                            className="text-center font-medium border border-gray-300"
                           >
                             {flexRender(
                               cell.column.columnDef.cell,
@@ -383,13 +363,8 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
                       return (
                         <Table.Td
                           key={cell.id}
-                          style={{
-                            textAlign: 'center',
-                            border: '1px solid #dee2e6',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap',
-                          }}
+                          // REPLACED INLINE STYLE WITH TAILWIND
+                          className="text-center border border-gray-300 overflow-hidden text-ellipsis whitespace-nowrap"
                         >
                           {flexRender(
                             cell.column.columnDef.cell,
