@@ -1,6 +1,6 @@
 "use client";
 
-import { Container, Flex, Title, Text } from "@mantine/core";
+import { Flex, Title, Text } from "@mantine/core";
 import useSession from "@/hooks/sessions/useSession";
 import moment from "moment";
 import { useParams } from "next/navigation";
