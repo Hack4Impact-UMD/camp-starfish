@@ -42,4 +42,3 @@ export async function setAttendee(campminderId: number, sessionId: string, atten
 export async function updateAttendee(campminderId: number, sessionId: string, updates: Partial<Attendee>, instance?: Transaction | WriteBatch): Promise<void>{
   await updateDoc<AttendeeID, Attendee>(doc(db, Collection.SESSIONS, sessionId, SessionsSubcollection.ATTENDEES, String(campminderId)) as DocumentReference<AttendeeID, Attendee>, updates, attendeeFirestoreConverter, instance);
 }
-

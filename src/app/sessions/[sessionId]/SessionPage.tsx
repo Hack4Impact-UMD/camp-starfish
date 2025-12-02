@@ -1,7 +1,7 @@
 import { SessionID } from "@/types/sessionTypes";
 import { Container, Flex, Title, Text } from "@mantine/core";
 import moment from "moment";
-import CalendarView from "./SessionCalendar";
+import SessionCalendar from "./SessionCalendar";
 
 interface SessionPageProps {
   session: SessionID;
@@ -30,7 +30,7 @@ export default function SessionPage(props: SessionPageProps) {
               : `-${sessionEndDate.format("MMMM YYYY")}`}
           </Text>
         </Flex>
-        <CalendarView session={session} />
+        <SessionCalendar session={session} />
       </Flex>
     </Container>
   );
