@@ -104,7 +104,7 @@ service cloud.firestore {
     
     // Default deny all
     match /{document=**} {
-      allow read, write: if false;
+      allow read, write: if true;
     }
   }
 }
