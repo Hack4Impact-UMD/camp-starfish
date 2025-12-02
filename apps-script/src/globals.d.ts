@@ -22,12 +22,11 @@ declare global {
   var onEdit: (e: GoogleAppsScript.Events.SheetsOnEdit) => void;
   var getSectionLastModified: (spreadsheetId: string, sheetId: number) => string | null;
   var getSectionLastModifiedBySheet: (sheet: GoogleAppsScript.Spreadsheet.Sheet) => string | null;
-  var getPreferenceChangeFlags: (spreadsheetId: string, sheetId: number) => { 
-    lastModified: string | null; 
-    getSectionLastModified: (id: number) => string | null 
+  var getPreferenceChangeFlags: (spreadsheetId: string, sheetId: number) => {
+    lastModified: string | null;
+    getSectionLastModified: (id: number) => string | null
   };
   var getPreferenceChangeFlagsWrapper: (spreadsheetId: string, sheetId: number) => string;
-  var createOnEditTrigger: (spreadsheetId: string) => void;
   var createOnEditTriggerForActiveSpreadsheet: () => void;
 
   // utils/properties.ts
@@ -38,5 +37,8 @@ declare global {
   var getPreferencesSpreadsheetProperties: (spreadsheetId: string) => PreferencesSpreadsheetProperties | null;
   var setPreferencesSpreadsheetProperties: (spreadsheetId: string, properties: PreferencesSpreadsheetProperties) => void;
   var generatePreferencesSheetProperties: (spreadsheetId: string) => PreferencesSpreadsheetProperties;
+
+  // features/preferencesSheets/triggers.ts
+  var createPreferencesSpreadsheetTrigger: (spreadsheetId: string) => void;
 }
-export {};
+export { };

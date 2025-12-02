@@ -130,24 +130,6 @@ function getPreferenceChangeFlagsWrapper(spreadsheetId: string, sheetId: number)
   return JSON.stringify(getPreferenceChangeFlags(spreadsheetId, sheetId));
 }
 
-// creates an onEdit trigger for a specific spreadsheet
-function createOnEditTrigger(spreadsheetId: string): void {
-  const exists = ScriptApp.getProjectTriggers().some(
-    (t) =>
-      t.getHandlerFunction() === "onEdit" &&
-      t.getTriggerSource() === ScriptApp.TriggerSource.SPREADSHEETS &&
-      t.getEventType() === ScriptApp.EventType.ON_EDIT &&
-      t.getTriggerSourceId() === spreadsheetId
-  );
-  
-  if (!exists) {
-    ScriptApp.newTrigger("onEdit")
-      .forSpreadsheet(spreadsheetId)
-      .onEdit()
-      .create();
-  }
-}
-
 // creates an onEdit trigger for the active spreadsheet
 //need to remove export keyword when clasp pushing to apps script local project
 export function createOnEditTriggerForActiveSpreadsheet(): void {
