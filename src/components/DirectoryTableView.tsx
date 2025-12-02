@@ -232,12 +232,21 @@ export default function DirectoryTableView ({ sessionId }: LargeDirectoryBlockPr
   };
 
   const filtersActive = !!selectedRole || !!sortNameOption || !!table.getState().globalFilter;
-  {(isLoading) && <LoadingPage />}
-  {(isError) && <p>Error loading attendees.</p>}
+  
+  if (isLoading) {
+    return <LoadingPage />;
+  }
+
+  if (isError) {
+    return <p>Error loading attendees.</p>;
+  }
 
 
   return (
     <div className = "border border-black bg-[#F7F7F7] w-[80%] mx-auto py-[20px]">
+
+
+
       <Title order={3} className="text-center !font-bold !mb-10">DIRECTORY</Title>
       
       <Container size="90%">
