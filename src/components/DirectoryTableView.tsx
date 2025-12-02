@@ -81,7 +81,7 @@ export default function DirectoryTableView ({ sessionId }: LargeDirectoryBlockPr
     [attendeeList]
   );
 
-  const columns = useMemo<ColumnDef<AttendeeID>[]>(() => {
+  const columns = useMemo<ColumnDef<any>[]>(() => {
     const render = (v: any) => <DirectoryTableCell data={v ?? "N/A"} />;
 
     const renderIdListAsNames = (ids: number[]) => {
