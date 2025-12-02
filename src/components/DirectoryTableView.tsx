@@ -1,5 +1,5 @@
 import { flexRender } from "@tanstack/react-table";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { AttendeeID } from "@/types/sessionTypes";
 import {
   Button,
@@ -42,7 +42,6 @@ export default function DirectoryTableView ({ sessionId }: LargeDirectoryBlockPr
   const [globalFilter, setGlobalFilter] = useState("");
   const [pagination, setPagination] = useState({pageIndex: 0, pageSize: 10,});
 
-  const [attendeeIDMap, setAttendeeIDMap] = useState<Map<number, AttendeeID>>(new Map());
 
   const data: AttendeeID[] = useMemo(() => {
     if (!attendeeList) return [];
@@ -73,8 +72,27 @@ export default function DirectoryTableView ({ sessionId }: LargeDirectoryBlockPr
     return attendeeArr;
   }, [attendeeList, selectedRole, sortNameOption]);
 
-  const columns = useMemo<ColumnDef<any>[]>(() => {
+  const getNameFromId = useCallback(
+    (id: number) => {
+      const person = attendeeList?.find(a => a.id === id);
+      if (!person) return null;
+      return `${person.name.firstName} ${person.name.lastName[0]}.`;
+    },
+    [attendeeList]
+  );
+
+  const columns = useMemo<ColumnDef<AttendeeID>[]>(() => {
     const render = (v: any) => <DirectoryTableCell data={v ?? "N/A"} />;
+
+    const renderIdListAsNames = (ids: number[]) => {
+      if (!ids || ids.length === 0) return render("N/A");
+
+      const names = ids
+        .map(id => getNameFromId(id))
+        .filter(Boolean);
+
+      return render(names.length ? names.join(", ") : "N/A");
+    };
 
     if (selectedRole === "CAMPER") {
       return [
@@ -92,14 +110,13 @@ export default function DirectoryTableView ({ sessionId }: LargeDirectoryBlockPr
         { accessorKey: "bunk", header: "BUNK", cell: info => render(info.getValue()) },
         { accessorKey: "health", header: "HEALTH", cell: info => render(info.getValue()) },
         { accessorKey: "gender", header: "GENDER", cell: info => render(info.getValue()) },
+
         {
           accessorKey: "nonoList",
           header: "NO-NO LIST",
-          cell: info => {
-            const list = info.getValue<string[]>();
-            return render(list && list.length ? list.join(", ") : "N/A");
-          },
+          cell: info => renderIdListAsNames(info.getValue<number[]>()),
         },
+
         {
           accessorFn: row => row.dateOfBirth,
           header: "DOB",
@@ -108,6 +125,7 @@ export default function DirectoryTableView ({ sessionId }: LargeDirectoryBlockPr
             return render(dob ? moment(dob).format("MM-YYYY") : "N/A");
           },
         },
+
         { accessorKey: "level", header: "SWIM LEVEL", cell: info => render(info.getValue()) },
       ];
     }
@@ -118,22 +136,19 @@ export default function DirectoryTableView ({ sessionId }: LargeDirectoryBlockPr
         { accessorFn: row => row.name.lastName, header: "LAST NAME", cell: info => render(info.getValue()) },
         { accessorKey: "bunk", header: "BUNK", cell: info => render(info.getValue()) },
         { accessorKey: "gender", header: "GENDER", cell: info => render(info.getValue()) },
+
         {
           accessorKey: "nonoList",
           header: "NO-NO LIST",
-          cell: info => {
-            const list = info.getValue<string[]>();
-            return render(list && list.length ? list.join(", ") : "N/A");
-          },
+          cell: info => renderIdListAsNames(info.getValue<number[]>()),
         },
+
         {
           accessorKey: "yesyesList",
           header: "YES-YES LIST",
-          cell: info => {
-            const list = info.getValue<string[]>();
-            return render(list && list.length ? list.join(", ") : "N/A");
-          },
+          cell: info => renderIdListAsNames(info.getValue<number[]>()),
         },
+
         {
           accessorFn: row => row.programCounselor?.name,
           header: "Program Counselor",
@@ -164,22 +179,19 @@ export default function DirectoryTableView ({ sessionId }: LargeDirectoryBlockPr
         { accessorFn: row => row.name.firstName, header: "FIRST NAME", cell: info => render(info.getValue()) },
         { accessorFn: row => row.name.lastName, header: "LAST NAME", cell: info => render(info.getValue()) },
         { accessorKey: "gender", header: "GENDER", cell: info => render(info.getValue()) },
+
         {
           accessorKey: "nonoList",
           header: "NO-NO LIST",
-          cell: info => {
-            const list = info.getValue<string[]>();
-            return render(list && list.length ? list.join(", ") : "N/A");
-          },
+          cell: info => renderIdListAsNames(info.getValue<number[]>()),
         },
+
         {
           accessorKey: "yesyesList",
           header: "YES-YES LIST",
-          cell: info => {
-            const list = info.getValue<string[]>();
-            return render(list && list.length ? list.join(", ") : "N/A");
-          },
+          cell: info => renderIdListAsNames(info.getValue<number[]>()),
         },
+
         {
           accessorKey: "daysOff",
           header: "Days Off",
@@ -193,7 +205,7 @@ export default function DirectoryTableView ({ sessionId }: LargeDirectoryBlockPr
     }
 
     return [];
-  }, [selectedRole]);
+  }, [selectedRole, attendeeList, getNameFromId]);
 
   const table = useReactTable({
     data,
@@ -223,7 +235,7 @@ export default function DirectoryTableView ({ sessionId }: LargeDirectoryBlockPr
       <Title order={3} className="text-center !font-bold !mb-10">DIRECTORY</Title>
       
       <Container size="90%">
-        {(isLoading || !attendeeIDMap) && <>Loading Table</>}
+        {(isLoading) && <>Loading Table</>}
       
         <Flex direction={"column"}>
           <Flex direction={"row"} gap="md" align="center" mb="md">
@@ -296,7 +308,7 @@ export default function DirectoryTableView ({ sessionId }: LargeDirectoryBlockPr
                 {table.getRowModel().rows.map((row) => (
                   <tr key={row.id}>
                     {row.getVisibleCells().map((cell) => (
-                      <td key={cell.id} className="text-center border border-black truncate p-0">
+                      <td key={cell.id}   className="text-center border border-black p-1 whitespace-normal break-words bg-white">
                         {flexRender(
                           cell.column.columnDef.cell,
                           cell.getContext()
