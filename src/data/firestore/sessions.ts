@@ -96,20 +96,4 @@ export async function deleteSession(
   );
 }
 
-export async function getAllAttendeesBySession({
-  queryKey,
-}: {
-  queryKey: [string, string];
-}) {
-  const res: AttendeeID[] = [];
-  const [_, sessionID] = queryKey;
-  const sessionRef = doc(db, "sessions", sessionID);
-  const attendeesRef = collection(sessionRef, "attendees");
 
-  const querySnapshot = await getDocs(attendeesRef);
-  querySnapshot.forEach((attendee) => {
-    res.push(attendee.data() as AttendeeID);
-  });
-
-  return res;
-}

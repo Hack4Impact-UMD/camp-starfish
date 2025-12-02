@@ -1,6 +1,6 @@
 import { flexRender } from "@tanstack/react-table";
 import { useCallback, useMemo, useState } from "react";
-import { AttendeeID } from "@/types/sessionTypes";
+import { AttendeeID, CamperAttendeeID, StaffAttendeeID } from "@/types/sessionTypes";
 import {
   Button,
   Container,
@@ -26,6 +26,9 @@ import {
   getPaginationRowModel,
 } from "@tanstack/react-table";
 
+import LoadingPage from "@/app/loading";
+
+
 import { IconSearch } from "@tabler/icons-react";
 
 
@@ -34,7 +37,7 @@ type LargeDirectoryBlockProps = {
 };
 export default function DirectoryTableView ({ sessionId }: LargeDirectoryBlockProps) {
 
-  const { data: attendeeList, isLoading } = useAttendees(sessionId);
+  const { data: attendeeList, isLoading, isError } = useAttendees(sessionId);
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
   const [sortNameOption, setSortNameOption] = useState<string | null>(null);
 
@@ -81,8 +84,8 @@ export default function DirectoryTableView ({ sessionId }: LargeDirectoryBlockPr
     [attendeeList]
   );
 
-  const columns = useMemo<ColumnDef<any>[]>(() => {
-    const render = (v: any) => <DirectoryTableCell data={v ?? "N/A"} />;
+  const columns = useMemo<ColumnDef<AttendeeID>[]>(() => {
+    const render = (v: unknown) => <DirectoryTableCell data={v != null ? String(v) : "N/A"} />;
 
     const renderIdListAsNames = (ids: number[]) => {
       if (!ids || ids.length === 0) return render("N/A");
@@ -118,7 +121,7 @@ export default function DirectoryTableView ({ sessionId }: LargeDirectoryBlockPr
         },
 
         {
-          accessorFn: row => row.dateOfBirth,
+          accessorFn: row => (row as CamperAttendeeID).dateOfBirth ,
           header: "DOB",
           cell: info => {
             const dob = info.getValue<string>();
@@ -150,7 +153,7 @@ export default function DirectoryTableView ({ sessionId }: LargeDirectoryBlockPr
         },
 
         {
-          accessorFn: row => row.programCounselor?.name,
+          accessorFn: row => (row as StaffAttendeeID).programCounselor?.name,
           header: "Program Counselor",
           cell: info => render(info.getValue()),
         },
@@ -205,7 +208,7 @@ export default function DirectoryTableView ({ sessionId }: LargeDirectoryBlockPr
     }
 
     return [];
-  }, [selectedRole, attendeeList, getNameFromId]);
+  }, [selectedRole, getNameFromId]);
 
   const table = useReactTable({
     data,
@@ -229,13 +232,15 @@ export default function DirectoryTableView ({ sessionId }: LargeDirectoryBlockPr
   };
 
   const filtersActive = !!selectedRole || !!sortNameOption || !!table.getState().globalFilter;
+  {(isLoading) && <LoadingPage />}
+  {(isError) && <p>Error loading attendees.</p>}
+
 
   return (
     <div className = "border border-black bg-[#F7F7F7] w-[80%] mx-auto py-[20px]">
       <Title order={3} className="text-center !font-bold !mb-10">DIRECTORY</Title>
       
       <Container size="90%">
-        {(isLoading) && <>Loading Table</>}
       
         <Flex direction={"column"}>
           <Flex direction={"row"} gap="md" align="center" mb="md">
