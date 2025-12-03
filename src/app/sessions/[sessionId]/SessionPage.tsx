@@ -1,7 +1,8 @@
 import { SessionID } from "@/types/sessionTypes";
-import { Container, Flex, Title, Text } from "@mantine/core";
+import { Container, Flex, Title, Text, Group, Stack } from "@mantine/core";
 import moment from "moment";
 import SessionCalendar from "./SessionCalendar";
+import { SmallDirectoryBlock } from "@/components/SmallDirectoryBlock";
 
 interface SessionPageProps {
   session: SessionID;
@@ -14,7 +15,7 @@ export default function SessionPage(props: SessionPageProps) {
   const sessionEndDate = moment(session.endDate);
 
   return (
-    <Container>
+    <Stack className="px-40 py-10">
       <Flex className="flex-col gap-5">
         <Flex className="flex-row items-center gap-lg border-red-500">
           <Title
@@ -30,8 +31,15 @@ export default function SessionPage(props: SessionPageProps) {
               : `-${sessionEndDate.format("MMMM YYYY")}`}
           </Text>
         </Flex>
-        <SessionCalendar session={session} />
+        <Group>
+          <div className="w-1/2">
+            <SessionCalendar session={session} />
+          </div>
+          <div className="w-1/3">
+            <SmallDirectoryBlock sessionId={session.id} />
+          </div>
+        </Group>
       </Flex>
-    </Container>
+    </Stack>
   );
 }
