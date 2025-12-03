@@ -5,7 +5,7 @@ import { PreferencesSpreadsheetProperties } from "./preferencesSheetsProperties"
  * @param {GoogleAppsScript.Events.SheetsOnEdit} e The onEdit event.
  * @see https://developers.google.com/apps-script/guides/triggers#onedit
  */
-function onEdit(e: GoogleAppsScript.Events.SheetsOnEdit) {
+function onPreferencesSpreadsheetEdit(e: GoogleAppsScript.Events.SheetsOnEdit) {
   try {
     const range = e.range;
     const sheet = range.getSheet();
@@ -34,6 +34,7 @@ function onEdit(e: GoogleAppsScript.Events.SheetsOnEdit) {
     console.error('Unexpected error in onEdit:', error);
   }
 }
+globalThis.onPreferencesSpreadsheetEdit = onPreferencesSpreadsheetEdit;
 
 /**
  * Get the last modified timestamp for a specific sheet
@@ -41,17 +42,11 @@ function onEdit(e: GoogleAppsScript.Events.SheetsOnEdit) {
  * @param sheetId The ID of the sheet
  * @returns The last modified timestamp or null if not found
  */
-function getLastModifiedBySheetId(spreadsheetId: string, sheetId: number): string | null {
+function getLastModifiedTimeBySheetId(spreadsheetId: string, sheetId: number): string | null {
   const spreadsheetProperties = getPreferencesSpreadsheetProperties(spreadsheetId);
   if (!spreadsheetProperties || !spreadsheetProperties.sheets[sheetId]) {
     return null;
   }
   return spreadsheetProperties.sheets[sheetId].lastModified;
 }
-
-globalThis.onEdit = onEdit;
-globalThis.getSectionLastModified = getLastModifiedBySheetId;
-globalThis.getSectionLastModifiedBySheet = getSectionLastModifiedBySheet;
-globalThis.getPreferenceChangeFlags = getPreferenceChangeFlags;
-globalThis.getPreferenceChangeFlagsWrapper = getPreferenceChangeFlagsWrapper;
-globalThis.createOnEditTriggerForActiveSpreadsheet = createOnEditTriggerForActiveSpreadsheet;
+globalThis.getLastModifiedTimeBySheetId = getLastModifiedTimeBySheetId;

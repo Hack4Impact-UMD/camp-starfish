@@ -9,6 +9,10 @@ declare global {
   }
   var moment: typeof momentType
 
+  // features/preferenceSheets/lastModifiedFlags.ts
+  var onPreferencesSpreadsheetEdit: (e: GoogleAppsScript.Events.SheetsOnEdit) => void;
+  var getLastModifiedTimeBySheetId: (spreadsheetId: string, sheetId: number) => string | null;
+
   // features/preferenceSheets/preferencesSheets.ts 
   var createPreferencesSpreadsheet: (sessionName: string) => string;
   var addSectionPreferencesSheet: (spreadsheetId: string, section: SchedulingSectionID) => void;
@@ -18,27 +22,16 @@ declare global {
   var populateBunkJamboreePreferencesSheet: (bunks: number[], blockActivities: BlockActivities<'BUNK-JAMBO'>, spreadsheetId: string, sheetId: number) => void;
   var populateNonBunkJamboreePreferencesSheet: (campers: CamperAttendeeID[], blockActivities: BlockActivities<'NON-BUNK-JAMBO'>, spreadsheetId: string, sheetId: number) => void;
 
-  // flagscript.ts
-  var onEdit: (e: GoogleAppsScript.Events.SheetsOnEdit) => void;
-  var getSectionLastModified: (spreadsheetId: string, sheetId: number) => string | null;
-  var getSectionLastModifiedBySheet: (sheet: GoogleAppsScript.Spreadsheet.Sheet) => string | null;
-  var getPreferenceChangeFlags: (spreadsheetId: string, sheetId: number) => {
-    lastModified: string | null;
-    getSectionLastModified: (id: number) => string | null
-  };
-  var getPreferenceChangeFlagsWrapper: (spreadsheetId: string, sheetId: number) => string;
-  var createOnEditTriggerForActiveSpreadsheet: () => void;
-
-  // utils/properties.ts
-  var getScriptProperty: <T>(key: string) => T | null;
-  var setScriptProperty: <T>(key: string, value: T) => void;
-
   // features/preferencesSheets/preferencesSheetsProperties.ts
   var getPreferencesSpreadsheetProperties: (spreadsheetId: string) => PreferencesSpreadsheetProperties | null;
   var setPreferencesSpreadsheetProperties: (spreadsheetId: string, properties: PreferencesSpreadsheetProperties) => void;
   var generatePreferencesSheetProperties: (spreadsheetId: string) => PreferencesSpreadsheetProperties;
 
-  // features/preferencesSheets/triggers.ts
+  // features/preferenceSheets/triggers.ts
   var createPreferencesSpreadsheetTrigger: (spreadsheetId: string) => void;
+
+  // utils/properties.ts
+  var getScriptProperty: <T>(key: string) => T | null;
+  var setScriptProperty: <T>(key: string, value: T) => void;
 }
 export { };
