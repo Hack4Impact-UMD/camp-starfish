@@ -9,4 +9,4 @@ function getScriptProperty<T>(key: string): T | null {
 }
 globalThis.getScriptProperty = getScriptProperty;
 
-export {};
+export { };
