@@ -5,7 +5,6 @@ import useSession from "@/hooks/sessions/useSession";
 import moment from "moment";
 import { useParams } from "next/navigation";
 import { Params } from "next/dist/server/request/params";
-import { SessionContext } from "./SessionContext";
 
 
 export type SessionLayoutProps = { 
@@ -27,22 +26,20 @@ export default function SessionLayout({ children }: SessionLayoutProps) {
   const end = moment(session?.endDate);
 
   return (
-    <SessionContext.Provider value={session}>
 
-      <div className="w-full flex  ">
-        <Flex className="flex flex-col gap-5 w-full align-center px-[100px] justify-center">
-          <Flex className="flex-row items-end gap-lg">
-            <Title order={1} className = "m-[0px]">{session?.name}</Title>
-            <Text className="text-lg text-neutral-5 font-semibold">
-              {start.format("MMMM YYYY")}
-              {!start.isSame(end, "month") && ` - ${end.format("MMMM YYYY")}`}
-            </Text>
-          </Flex>
-
-          {children}
+    <div className="w-full flex  ">
+      <Flex className="flex flex-col gap-5 w-full align-center px-[100px] justify-center">
+        <Flex className="flex-row items-end gap-lg">
+          <Title order={1} className = "m-[0px]">{session?.name}</Title>
+          <Text className="text-lg text-neutral-5 font-semibold">
+            {start.format("MMMM YYYY")}
+            {!start.isSame(end, "month") && ` - ${end.format("MMMM YYYY")}`}
+          </Text>
         </Flex>
-      </div>
 
-    </SessionContext.Provider>
+        {children}
+      </Flex>
+    </div>
+
   );
 }

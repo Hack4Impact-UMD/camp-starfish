@@ -10,7 +10,7 @@ import EditSectionModal from "@/components/EditSectionModal";
 import { SessionID } from "@/types/sessionTypes";
 
 interface SessionCalendarProps {
-  session: SessionID;
+  session: SessionID ;
 }
 
 

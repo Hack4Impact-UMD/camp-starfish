@@ -2,6 +2,7 @@
 import { flexRender } from "@tanstack/react-table";
 import { useCallback, useMemo, useState } from "react";
 import { AttendeeID, CamperAttendeeID, StaffAttendeeID } from "@/types/sessionTypes";
+import { Role } from "@/types/personTypes";
 import {
   Button,
   Container,
@@ -33,6 +34,7 @@ import LoadingPage from "@/app/loading";
 import { IconSearch } from "@tabler/icons-react";
 
 
+
 type LargeDirectoryBlockProps = { 
     sessionId: string;
 };
@@ -40,7 +42,7 @@ export default function DirectoryTableView ({ sessionId }: LargeDirectoryBlockPr
 
 
   const { data: attendeeList, isLoading, isError } = useAttendees(sessionId);
-  const [selectedRole, setSelectedRole] = useState<string | null>("CAMPER");
+  const [selectedRole, setSelectedRole] = useState<Role>("CAMPER");
   const [sortNameOption, setSortNameOption] = useState<string | null>(null);
 
   // table filter/pagination options
@@ -228,7 +230,7 @@ export default function DirectoryTableView ({ sessionId }: LargeDirectoryBlockPr
   });
 
   const handleClearFilters = () => {
-    setSelectedRole(null);
+    setSelectedRole("CAMPER" as Role);
     setSortNameOption(null);
     setGlobalFilter("");
   };
@@ -269,7 +271,7 @@ export default function DirectoryTableView ({ sessionId }: LargeDirectoryBlockPr
             <Flex gap="sm" direction="row">
               <Radio.Group
                 value={selectedRole}
-                onChange={(value) => setSelectedRole(value)}
+                onChange={(value) => setSelectedRole(value as Role)}
                 name="role-group"
               >
                 <Flex direction="row" gap="sm">
