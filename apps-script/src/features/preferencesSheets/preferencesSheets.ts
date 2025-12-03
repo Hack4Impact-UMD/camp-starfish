@@ -28,7 +28,7 @@ function createPreferencesSpreadsheet(sessionName: string): string {
 }
 globalThis.createPreferencesSpreadsheet = createPreferencesSpreadsheet;
 
-function getSheetIndexFromSectionIndex(sections: SchedulingSectionID[], sectionIndex: number) {
+function getSheetIndexFromSectionIndex(sections: SchedulingSectionID[], sectionIndex: number): number {
   let index = 0;
   for (let i = 0; i < sectionIndex; i++) {
     index += sections[i].type === "BUNDLE" ? 2 : 1;
