@@ -30,7 +30,7 @@ export default function SessionLayout({ children }: SessionLayoutProps) {
     <SessionContext.Provider value={session}>
 
       <div className="w-full flex  ">
-        <Flex className="flex flex-col gap-5 w-full align-center px-[100px] justify-center">
+        <Flex className="flex flex-col gap-5 w-full align-center px-[100px] py-[50px] justify-center">
           <Flex className="flex-row items-end gap-lg">
             <Title order={1} className = "m-[0px]">{session?.name}</Title>
             <Text className="text-lg text-neutral-5 font-semibold">
