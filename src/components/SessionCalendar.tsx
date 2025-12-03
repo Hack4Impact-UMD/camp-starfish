@@ -1,25 +1,25 @@
-import { Moment, weekdaysShort } from "moment";
+"use client";
 
+import { Moment, weekdaysShort } from "moment";
 import React, { JSX, useState } from "react";
-import { Grid, Text, Box, Badge } from "@mantine/core";
-import { SessionID } from "@/types/sessionTypes";
+import { SimpleGrid, Text, Box, Grid, Badge } from "@mantine/core";
 import moment from "moment";
 import classNames from "classnames";
 import { modals } from "@mantine/modals";
 import EditSectionModal from "@/components/EditSectionModal";
+import { SessionID } from "@/types/sessionTypes";
 import useSectionsBySessionId from "@/hooks/sections/useSectionsBySessionId";
 
 interface SessionCalendarProps {
   session: SessionID;
 }
 
+
 export default function SessionCalendar({ session }: SessionCalendarProps) {
-  const [firstSelectedDate, setFirstSelectedDate] = useState<Moment | null>(
-    null
-  );
-  const [secondSelectedDate, setSecondSelectedDate] = useState<Moment | null>(
-    null
-  );
+
+
+  const [firstSelectedDate, setFirstSelectedDate] = useState<Moment | null>(null);
+  const [secondSelectedDate, setSecondSelectedDate] = useState<Moment | null>(null);
 
   const { data: sections } = useSectionsBySessionId(session.id);
 
@@ -70,19 +70,18 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
   (sections || []).forEach((section) => {
     const weekIndex = weekStarts.findIndex((weekStart) => weekStart.isSameOrBefore(section.startDate) && moment(section.endDate).isSameOrBefore(weekStart.clone().add(1, 'week')));
     const numDays = moment(section.startDate).startOf('day').diff(moment(section.endDate).startOf('day'), 'day');
-    badges.push(<Grid.Col span={numDays + 1}><Badge>{section.name}</Badge></Grid.Col>);
+    badges.push(<Badge>{section.name}</Badge>);
   })
 
   return (
-    <Grid columns={7} className="grid-cols-7 gap-0 select-none">
+    <SimpleGrid className="grid-cols-7 gap-0 select-none min-w-[894px] flex-grow">
       {weekdaysShort().map((day) => (
-        <Grid.Col
-          span={1}
+        <Box
           key={day}
           className="p-xs bg-neutral-0 border-[1px] border-solid border-neutral-5"
         >
           <Text className="text-sm text-center font-bold">{day}</Text>
-        </Grid.Col>
+        </Box>
       ))}
       {weekStarts.map((weekStart) =>
         Array.from({ length: 7 }, (_, i) =>
@@ -115,8 +114,7 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
           };
 
           return (
-            <Grid.Col
-              span={1}
+            <Box
               key={day.format("YYYY-MM-DD")}
               {...eventHandlers}
               className={classNames(
@@ -131,11 +129,11 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
               <Text className="text-sm font-bold text-center">
                 {day.date()}
               </Text>
-            </Grid.Col>
+            </Box>
           );
         })
       )}
       {badges}
-    </Grid>
+    </SimpleGrid>
   );
 }

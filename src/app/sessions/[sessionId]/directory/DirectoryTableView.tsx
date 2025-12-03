@@ -1,3 +1,4 @@
+"use client";
 import { flexRender } from "@tanstack/react-table";
 import { useCallback, useMemo, useState } from "react";
 import { AttendeeID, CamperAttendeeID, StaffAttendeeID } from "@/types/sessionTypes";
@@ -37,8 +38,9 @@ type LargeDirectoryBlockProps = {
 };
 export default function DirectoryTableView ({ sessionId }: LargeDirectoryBlockProps) {
 
+
   const { data: attendeeList, isLoading, isError } = useAttendees(sessionId);
-  const [selectedRole, setSelectedRole] = useState<string | null>(null);
+  const [selectedRole, setSelectedRole] = useState<string | null>("CAMPER");
   const [sortNameOption, setSortNameOption] = useState<string | null>(null);
 
   // table filter/pagination options
@@ -243,7 +245,7 @@ export default function DirectoryTableView ({ sessionId }: LargeDirectoryBlockPr
 
 
   return (
-    <div className = "border border-black bg-[#F7F7F7] w-[80%] mx-auto py-[20px]">
+    <div className = "border border-black bg-[#F7F7F7] w-[100%] mx-auto py-[20px]">
 
 
 
