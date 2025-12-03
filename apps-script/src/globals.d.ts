@@ -23,9 +23,8 @@ declare global {
   var populateNonBunkJamboreePreferencesSheet: (campers: CamperAttendeeID[], blockActivities: BlockActivities<'NON-BUNK-JAMBO'>, spreadsheetId: string, sheetId: number) => void;
 
   // features/preferencesSheets/preferencesSheetsProperties.ts
-  var getPreferencesSpreadsheetProperties: (spreadsheetId: string) => PreferencesSpreadsheetProperties | null;
+  var getPreferencesSpreadsheetProperties: (spreadsheetId: string) => PreferencesSpreadsheetProperties;
   var setPreferencesSpreadsheetProperties: (spreadsheetId: string, properties: PreferencesSpreadsheetProperties) => void;
-  var generatePreferencesSheetProperties: (spreadsheetId: string) => PreferencesSpreadsheetProperties;
 
   // features/preferenceSheets/triggers.ts
   var createPreferencesSpreadsheetTrigger: (spreadsheetId: string) => void;

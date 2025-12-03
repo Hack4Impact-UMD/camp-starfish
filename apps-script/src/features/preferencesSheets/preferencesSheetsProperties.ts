@@ -9,8 +9,10 @@ export interface PreferencesSpreadsheetProperties {
   }
 }
 
-function getPreferencesSpreadsheetProperties(spreadsheetId: string): PreferencesSpreadsheetProperties | null {
-  return getScriptProperty<PreferencesSpreadsheetProperties>(spreadsheetId);
+function getPreferencesSpreadsheetProperties(spreadsheetId: string): PreferencesSpreadsheetProperties {
+  const spreadsheetProperties = getScriptProperty<PreferencesSpreadsheetProperties>(spreadsheetId);
+  if (!spreadsheetProperties) { throw Error(`Preferences spreadsheet properties not found for spreadsheet with id ${spreadsheetId}`) };
+  return spreadsheetProperties;
 }
 globalThis.getPreferencesSpreadsheetProperties = getPreferencesSpreadsheetProperties;
 
@@ -18,14 +20,3 @@ function setPreferencesSpreadsheetProperties(spreadsheetId: string, properties: 
   setScriptProperty<PreferencesSpreadsheetProperties>(spreadsheetId, properties);
 }
 globalThis.setPreferencesSpreadsheetProperties = setPreferencesSpreadsheetProperties;
-
-function generatePreferencesSheetProperties(spreadsheetId: string): PreferencesSpreadsheetProperties {
-  // TODO: implement properties generation from the content of the prefs sheet
-  const defaultSPreferencesSpreadsheetProperties: PreferencesSpreadsheetProperties = {
-    sections: [],
-    sheets: {}
-  }
-  setPreferencesSpreadsheetProperties(spreadsheetId, defaultSPreferencesSpreadsheetProperties);
-  return defaultSPreferencesSpreadsheetProperties
-}
-globalThis.generatePreferencesSheetProperties = generatePreferencesSheetProperties;

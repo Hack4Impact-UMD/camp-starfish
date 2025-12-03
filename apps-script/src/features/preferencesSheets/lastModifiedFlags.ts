@@ -15,17 +15,15 @@ function onPreferencesSpreadsheetEdit(e: GoogleAppsScript.Events.SheetsOnEdit) {
     const lastModified = moment().toISOString();
 
     try {
-      let spreadsheetProperties = getPreferencesSpreadsheetProperties(spreadsheetId);
-      if (!spreadsheetProperties) { spreadsheetProperties = generatePreferencesSheetProperties(spreadsheetId); }
-
-      const updatedProps: PreferencesSpreadsheetProperties = {
+      const spreadsheetProperties = getPreferencesSpreadsheetProperties(spreadsheetId);
+      const updatedProperties: PreferencesSpreadsheetProperties = {
         ...spreadsheetProperties,
         sheets: {
           ...spreadsheetProperties.sheets,
           [sheetId]: { lastModified }
         }
       };
-      setPreferencesSpreadsheetProperties(spreadsheetId, updatedProps);
+      setPreferencesSpreadsheetProperties(spreadsheetId, updatedProperties);
 
     } catch (error) {
       console.error('Error updating sheet properties:', error);
