@@ -20,6 +20,7 @@ function setPreferencesSpreadsheetProperties(spreadsheetId: string, properties: 
 globalThis.setPreferencesSpreadsheetProperties = setPreferencesSpreadsheetProperties;
 
 function generatePreferencesSheetProperties(spreadsheetId: string): PreferencesSpreadsheetProperties {
+  // TODO: implement properties generation from the content of the prefs sheet
   const defaultSPreferencesSpreadsheetProperties: PreferencesSpreadsheetProperties = {
     sections: [],
     sheets: {}
