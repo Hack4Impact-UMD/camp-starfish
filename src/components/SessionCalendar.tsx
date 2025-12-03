@@ -66,13 +66,6 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
     weekStarts.push(weekStarts[weekStarts.length - 1].clone().add(1, "week"));
   }
 
-  const badges: JSX.Element[] = [];
-  (sections || []).forEach((section) => {
-    const weekIndex = weekStarts.findIndex((weekStart) => weekStart.isSameOrBefore(section.startDate) && moment(section.endDate).isSameOrBefore(weekStart.clone().add(1, 'week')));
-    const numDays = moment(section.startDate).startOf('day').diff(moment(section.endDate).startOf('day'), 'day');
-    badges.push(<Badge>{section.name}</Badge>);
-  })
-
   return (
     <SimpleGrid className="grid-cols-7 gap-0 select-none min-w-[894px] flex-grow">
       {weekdaysShort().map((day) => (
@@ -129,11 +122,13 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
               <Text className="text-sm font-bold text-center">
                 {day.date()}
               </Text>
+              <Text>
+                {sections?.find(s => moment(s.startDate).isSameOrBefore(day) && day.isSameOrBefore(s.endDate))?.name}
+              </Text>
             </Box>
           );
         })
       )}
-      {badges}
     </SimpleGrid>
   );
 }
