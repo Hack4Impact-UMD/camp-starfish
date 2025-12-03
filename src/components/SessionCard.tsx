@@ -62,7 +62,7 @@ export default function SessionCard({ session, editMode }: SessionCardProps) {
 
         <Button
           mt="sm"
-          color="secondary-green"
+          color="green"
           radius="xl"
           onClick={() => router.push(`/sessions/${session.id}`)}
         >
