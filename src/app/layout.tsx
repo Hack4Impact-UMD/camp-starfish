@@ -1,8 +1,11 @@
-import type { Metadata } from "next";
+import "@mantine/core/styles.css";
+import "@mantine/notifications/styles.css"
+import "@mantine/dates/styles.css";
 import "./globals.css";
+
+import type { Metadata } from "next";
 import Navbar from "../components/Navbar"; // Adjust the path as needed
 import Footer from "../components/Footer";
-import "@mantine/core/styles.css";
 import localFont from "next/font/local";
 import { NextFontWithVariable } from "next/dist/compiled/@next/font";
 import { CampStarfishFont, campStarfishFonts } from "@/styles/fonts";
