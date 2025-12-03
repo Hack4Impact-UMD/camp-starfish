@@ -4,44 +4,48 @@ import { useParams } from "next/navigation";
 import { getSessionById } from "@/data/firestore/sessions";
 import { Freeplay, SessionID } from "@/types/sessionTypes";
 import LoadingPage from "@/app/loading";
-import React from "react";
+import React, { useMemo } from "react";
 import { CombinedPDF } from "@/features/scheduling/CombinedExportPDF";
 import { usePublishSectionSchedule } from "@/features/scheduling/publishing/publishSectionSchedule";
-import ReactPDF from '@react-pdf/renderer';
+import ReactPDF from "@react-pdf/renderer";
 import { useBuildInfo } from "@/hooks/sections/useBuildInfo";
 import { useSectionPageData } from "@/hooks/sections/useSectionPageData";
+import { useAttendees } from "@/hooks/attendees/useAttendees";
+import useSession from "@/hooks/sessions/useSession";
+import useSection from "@/hooks/sections/useSection";
+import { useQuery } from "@tanstack/react-query";
+import { getSectionScheduleBySectionId } from "@/data/firestore/sections";
 
 interface SectionPageProps {
-  sessionId?: string;
-  fetchSession?: (sessionId: string) => Promise<SessionID>;
+  sessionId: string;
+  sectionId: string;
 }
 
 function SectionPage({
-  sessionId: propSessionId,
-  fetchSession = getSessionById,
+  sessionId, sectionId
 }: SectionPageProps) {
-  const params = useParams();
-  const sessionId = propSessionId || (params?.sessionId as string);
-  const sectionId = (params?.sectionId as string) || undefined;
-
   const buildInfo = useBuildInfo();
-  const publishMutation = usePublishSectionSchedule();
-  const {
-    session,
-    section,
-    schedule,
-    freeplay,
-    campers,
-    staff,
-    admins,
-    isLoading,
-    isError,
-    error,
-  } = useSectionPageData({
-    sessionId,
-    sectionId,
-    fetchSession,
+  const { data: session, isLoading, isError, error } = useSession(sessionId);
+  const { data: section } = useSection(sessionId, sectionId);
+  const { data: attendees } = useAttendees(sessionId);
+  const { data: schedule } = useQuery({
+    queryKey: ['sessions', sessionId, 'sections', sectionId, 'schedule'],
+    queryFn: () => getSectionScheduleBySectionId(sectionId, sessionId),
+    enabled: !!sessionId && !!sectionId
   });
+  // get freeplay if necessary
+
+
+  const { campers, staff, admins } = useMemo(() => {
+    if (!attendees) return { campers: [], staff: [], admins: [] };
+    return {
+      campers: attendees.filter((attendee) => attendee.role === "CAMPER"),
+      staff: attendees.filter((attendee) => attendee.role === "STAFF"),
+      admins: attendees.filter((attendee) => attendee.role === "ADMIN"),
+    };
+  }, [attendees]);
+
+  const publishMutation = usePublishSectionSchedule();
 
   if (isLoading) {
     return (
@@ -52,7 +56,6 @@ function SectionPage({
   }
 
   if (isError || !session) {
-
     return (
       <div>
         <div className="p-4">
