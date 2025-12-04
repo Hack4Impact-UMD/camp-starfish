@@ -60,7 +60,8 @@ function SectionPage({ sessionId, sectionId }: SectionPageProps) {
           <div className="flex gap-2">
             <Button
               radius="xl"
-              className="px-8 min-w-[130px] bg-[#f0ad4e] text-white"
+              color="aqua"
+              className="px-8 min-w-[130px]"
               onClick={handleGenerate}
             >
               GENERATE
