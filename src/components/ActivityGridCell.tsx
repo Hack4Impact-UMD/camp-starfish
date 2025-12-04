@@ -14,11 +14,13 @@ import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 interface ActivityGridCellProps {
   block: Block<SchedulingSectionType>;
   id: string;
+  isGenerated: boolean; // ⬅️ Added
 }
 
 export const ActivityGridCell: React.FC<ActivityGridCellProps> = ({
   block,
   id,
+  isGenerated,
 }) => {
   const theme = useMantineTheme();
   const [currentPage, setCurrentPage] = useState(0);
@@ -38,9 +40,7 @@ export const ActivityGridCell: React.FC<ActivityGridCellProps> = ({
   };
 
   return (
-    <Box
-
-    >
+    <Box>
       <Flex align="stretch">
         <Box
           style={{
@@ -57,6 +57,7 @@ export const ActivityGridCell: React.FC<ActivityGridCellProps> = ({
           </Text>
         </Box>
 
+        {/* LEFT NAV */}
         <Flex align="center">
           <ActionIcon
             onClick={handlePrevPage}
@@ -68,21 +69,17 @@ export const ActivityGridCell: React.FC<ActivityGridCellProps> = ({
               borderRadius: 0,
               backgroundColor: "#FFFFFF",
               border: `1px solid ${theme.colors["neutral"][5]}`,
-
             }}
           >
             <IconChevronLeft size={24} />
           </ActionIcon>
         </Flex>
 
+        {/* CARDS */}
         <ScrollArea
-          style={{
-            flex: 1,
-          }}
+          style={{ flex: 1 }}
           styles={{
-            scrollbar: {
-              display: "none",
-            },
+            scrollbar: { display: "none" },
           }}
         >
           <Flex wrap="nowrap">
@@ -91,12 +88,17 @@ export const ActivityGridCell: React.FC<ActivityGridCellProps> = ({
                 key={startIndex + i}
                 style={{ minWidth: 200, maxWidth: 200 }}
               >
-                <ActivityCard id={startIndex + i + 1} activity={activity}/>
+                <ActivityCard
+                  id={startIndex + i + 1}
+                  activity={activity}
+                  isGenerated={isGenerated}  // ⬅️ Pass through
+                />
               </Box>
             ))}
           </Flex>
         </ScrollArea>
 
+        {/* RIGHT NAV */}
         <Flex align="center">
           <ActionIcon
             onClick={handleNextPage}
@@ -108,7 +110,6 @@ export const ActivityGridCell: React.FC<ActivityGridCellProps> = ({
               borderRadius: 0,
               backgroundColor: "#FFFFFF",
               border: `1px solid ${theme.colors["neutral"][5]}`,
-
             }}
           >
             <IconChevronRight size={24} />

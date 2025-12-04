@@ -36,24 +36,20 @@ type BlockWithId<T extends SchedulingSectionType> = Block<T> & {
 
 interface ActivityGridProps {
   sectionSchedule: SectionScheduleID<SchedulingSectionType>;
+  isGenerated: boolean;
 }
 
 export const ActivityGrid: React.FC<ActivityGridProps> = ({
   sectionSchedule,
+  isGenerated,
 }) => {
   const theme = useMantineTheme();
 
-  // -------------------------
-  // Component State
-  // -------------------------
+
   const [view, setView] = useState<string | null>(null);
   const [sortFilter, setSortFilter] = useState<string | null>(null);
   const [globalFilter, setGlobalFilter] = useState("");
-  console.log(sectionSchedule.blocks)
-  console.log(Object.entries(sectionSchedule.blocks))
-  // -------------------------
-  // Data Preparation
-  // -------------------------
+  
   const data = useMemo(() => {
     let arr = Object.entries(sectionSchedule.blocks).map(([id, block]) => ({
       ...block,
@@ -84,9 +80,6 @@ export const ActivityGrid: React.FC<ActivityGridProps> = ({
     return arr;
   }, [sectionSchedule.blocks, view, sortFilter]);
 
-  // -------------------------
-  // Columns
-  // -------------------------
   const columns = useMemo<ColumnDef<BlockWithId<SchedulingSectionType>>[]>(
     () => [
       {
@@ -96,6 +89,7 @@ export const ActivityGrid: React.FC<ActivityGridProps> = ({
           <ActivityGridCell
             block={row.original as Block<SchedulingSectionType>}
             id={row.original.id}
+            isGenerated={isGenerated}
           />
         ),
       },
@@ -103,9 +97,6 @@ export const ActivityGrid: React.FC<ActivityGridProps> = ({
     []
   );
 
-  // -------------------------
-  // React Table Instance
-  // -------------------------
   const table = useReactTable({
     data,
     columns,
@@ -135,9 +126,7 @@ export const ActivityGrid: React.FC<ActivityGridProps> = ({
 
   const filtersActive = !!view || !!sortFilter || !!globalFilter;
 
-  // -------------------------
-  // Render
-  // -------------------------
+
   return (
     <Container style={{ border: `1px solid ${theme.colors["neutral"][5]}` }}>
       <Flex direction="column" mt="md">

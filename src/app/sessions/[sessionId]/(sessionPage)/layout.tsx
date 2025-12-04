@@ -31,8 +31,8 @@ export default function SessionLayout({ children }: SessionLayoutProps) {
   };
 
   return (
-    <div className="w-full flex">
-      <Flex className="flex flex-col gap-5 w-full py-[50px] justify-between">
+    <div className="w-full flex justify-center">
+      <Flex className="flex flex-col gap-5 w-full py-[50px] px-[100px] justify-between">
         <Flex className="flex-row items-center w-full justify-between">
           <div className = "flex flex-col">
             <Title order={1} className="m-0">{session?.name}</Title>
@@ -42,9 +42,7 @@ export default function SessionLayout({ children }: SessionLayoutProps) {
             </Text>
           </div>
 
-          <Button onClick={handleGenerate} color="green">
-            Generate
-          </Button>
+
         </Flex>
 
         {children}

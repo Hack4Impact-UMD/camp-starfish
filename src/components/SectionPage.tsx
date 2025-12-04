@@ -1,144 +1,103 @@
 "use client";
 import { Button } from "@mantine/core";
-import { useParams } from "next/navigation";
-import { getSessionById } from "@/data/firestore/sessions";
-import { Freeplay, SessionID } from "@/types/sessionTypes";
+import { useAttendees } from "@/hooks/attendees/useAttendees";
+import { useSectionPageData } from "@/hooks/sections/useSectionPageData";
 import LoadingPage from "@/app/loading";
-import React, { useMemo } from "react";
+import React, { useState } from "react";
+import ReactPDF from "@react-pdf/renderer";
 import { CombinedPDF } from "@/features/scheduling/CombinedExportPDF";
 import { usePublishSectionSchedule } from "@/features/scheduling/publishing/publishSectionSchedule";
-import ReactPDF from "@react-pdf/renderer";
-import { useBuildInfo } from "@/hooks/sections/useBuildInfo";
-import { useSectionPageData } from "@/hooks/sections/useSectionPageData";
-import { useAttendees } from "@/hooks/attendees/useAttendees";
-import useSession from "@/hooks/sessions/useSession";
-import useSection from "@/hooks/sections/useSection";
-import { useQuery } from "@tanstack/react-query";
-import { getSectionScheduleBySectionId } from "@/data/firestore/sections";
+import { ActivityGrid } from "./ActivityGrid";
 
 interface SectionPageProps {
   sessionId: string;
   sectionId: string;
 }
 
-function SectionPage({
-  sessionId, sectionId
-}: SectionPageProps) {
-  const buildInfo = useBuildInfo();
-  const { data: session, isLoading, isError, error } = useSession(sessionId);
-  const { data: section } = useSection(sessionId, sectionId);
-  const { data: attendees } = useAttendees(sessionId);
-  const { data: schedule } = useQuery({
-    queryKey: ['sessions', sessionId, 'sections', sectionId, 'schedule'],
-    queryFn: () => getSectionScheduleBySectionId(sectionId, sessionId),
-    enabled: !!sessionId && !!sectionId
-  });
-  
-  //const { data: freeplay } = useQuery({
-  //  
-  //})
+function SectionPage({ sessionId, sectionId }: SectionPageProps) {
+  const { session, schedule:schedule, isError, isLoading, error } =
+    useSectionPageData({ sessionId, sectionId });
 
-  const freeplay = {
-    posts: {},
-    buddies: {}
-  }
+  const { data: attendeeList } = useAttendees(sessionId);
 
-  const { campers, staff, admins } = useMemo(() => {
-    if (!attendees) return { campers: [], staff: [], admins: [] };
-    return {
-      campers: attendees.filter((attendee) => attendee.role === "CAMPER"),
-      staff: attendees.filter((attendee) => attendee.role === "STAFF"),
-      admins: attendees.filter((attendee) => attendee.role === "ADMIN"),
-    };
-  }, [attendees]);
+  const campers = attendeeList?.filter((a) => a.role === "CAMPER");
+  const staff = attendeeList?.filter((a) => a.role === "STAFF");
+  const admins = attendeeList?.filter((a) => a.role === "ADMIN");
 
   const publishMutation = usePublishSectionSchedule();
 
-  if (isLoading) {
+  const freeplay = { posts: {}, buddies: {} };
+
+  const [hasGenerated, setHasGenerated] = useState(false);
+
+  const handleGenerate = () => {
+    setHasGenerated(!hasGenerated);
+
+  };
+
+  // ------------ LOADING / ERROR --------
+  if (isLoading) return <LoadingPage />;
+  if (isError || !session || !schedule || !attendeeList || !campers || !staff || !admins) {
     return (
-      <div>
-        <LoadingPage />
+      <div className="p-4">
+        <h1 className="text-2xl mb-4 text-red-600">Error loading session</h1>
+        <p>{error?.message ?? "Failed to load session data"}</p>
       </div>
     );
   }
 
-  if (isError || !session) {
-    return (
-      <div>
-        <div className="p-4">
-          <h1 className="text-2xl mb-4 text-red-600">Error loading session</h1>
-          <p className="text-gray-600">
-            {error instanceof Error
-              ? error.message
-              : "Failed to load session data"}
-          </p>
-        </div>
-      </div>
-    );
-  }
 
   return (
-    <div>
-      <div className="p-4">
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+    <div className="p-4">
+      <div className="flex flex-col gap-4">
+        {/* HEADER + BUTTONS */}
+        <div className="flex flex-row justify-between">
           <div>
             <h1 className="text-2xl mb-2 font-bold">{session.name}</h1>
-            <p className="text-sm text-gray-500 mb-4 italic">
-              {buildInfo
-                ? `Last generated: ${buildInfo.formattedDate}${
-                    buildInfo.version ? ` • v${buildInfo.version}` : ""
-                  }`
-                : "Last generated information unavailable"}
-            </p>
+            <p className="text-sm text-gray-500 italic">Last Generated: N/A</p>
           </div>
+
           <div className="flex gap-2">
             <Button
-              variant="default"
+              radius="xl"
+              className="px-8 min-w-[130px] bg-[#f0ad4e] text-white"
+              onClick={handleGenerate}
+            >
+              GENERATE
+            </Button>
+
+            <Button
               radius="xl"
               className="px-8 min-w-[130px] bg-[#06A759] text-white"
-              onClick={() => {
-                if (sessionId && sectionId) {
-                  publishMutation.mutate({ sessionId, sectionId });
-                }
-              }}
+              onClick={() => publishMutation.mutate({ sessionId, sectionId })}
             >
               PUBLISH
             </Button>
+
             <Button
-              variant="default"
               radius="xl"
               className="px-8 min-w-[130px] bg-[#1f3a48] text-white"
               onClick={async () => {
                 try {
-                  if (!schedule || !freeplay) {
-                    console.error("No schedule or freeplay data available.");
-                    return;
-                  }
-                  const freeplayData: Freeplay = {
-                    posts: freeplay.posts,
-                    buddies: freeplay.buddies,
-                  };
                   const pdfDoc = (
                     <CombinedPDF
                       schedule={schedule}
-                      freeplay={freeplayData}
+                      freeplay={freeplay}
                       campers={campers}
                       staff={staff}
                       admins={admins}
-                      sectionName={section?.name as string}
+                      sectionName={session.name}
                     />
                   );
                   const blob = await ReactPDF.pdf(pdfDoc).toBlob();
                   const url = URL.createObjectURL(blob);
                   const link = document.createElement("a");
                   link.href = url;
-                  link.download = `${session?.name || "schedule"}-export.pdf`;
-                  document.body.appendChild(link);
+                  link.download = `${session.name}-export.pdf`;
                   link.click();
-                  document.body.removeChild(link);
                   URL.revokeObjectURL(url);
-                } catch (error) {
-                  console.error("Failed to generate PDF:", error);
+                } catch (err) {
+                  console.error("PDF generation failed:", err);
                 }
               }}
             >
@@ -146,6 +105,24 @@ function SectionPage({
             </Button>
           </div>
         </div>
+
+        {/* ---------- BEFORE + AFTER VIEW ---------- */}
+
+        {!hasGenerated && (
+          <div>
+            <ActivityGrid sectionSchedule={schedule} isGenerated={false} />
+          </div>
+        )}
+
+        {hasGenerated && (
+          <div>
+            <ActivityGrid
+              sectionSchedule={schedule}
+              isGenerated={true}
+            />
+          </div>
+        )}
+
       </div>
     </div>
   );

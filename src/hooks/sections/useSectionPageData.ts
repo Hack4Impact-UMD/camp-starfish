@@ -1,3 +1,4 @@
+"use client"
 import { useQuery } from "@tanstack/react-query";
 import { getSessionById } from "@/data/firestore/sessions";
 import {
