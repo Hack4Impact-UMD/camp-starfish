@@ -10,7 +10,6 @@ import EditSectionModal from "@/components/EditSectionModal";
 import { SessionID } from "@/types/sessionTypes";
 import useSectionsBySessionId from "@/hooks/sections/useSectionsBySessionId";
 import { useRouter } from "next/navigation";
-
 interface SessionCalendarProps {
   session: SessionID;
 }
@@ -132,18 +131,18 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
               <Text className="text-sm font-bold text-center">
                 {day.date()}
               </Text>
-              <Text
-                onClick={(e) => {
-                  if (section) {
+              {section && (
+                <Badge
+                  onClick={(e) => {
                     router.push(`/sessions/${session.id}/${section.id}`);
-                  }
-                }}
-                onPointerDown={(e) => e.stopPropagation()}
-                onPointerEnter={(e) => e.stopPropagation()}
-                onPointerUp={(e) => e.stopPropagation()}
-              >
-                {section?.name ?? ""}
-              </Text>
+                  }}
+                  onPointerDown={(e) => e.stopPropagation()}
+                  onPointerEnter={(e) => e.stopPropagation()}
+                  onPointerUp={(e) => e.stopPropagation()}
+                >
+                  {section?.name ?? ""}
+                </Badge>
+              )}
             </Box>
           );
         })
