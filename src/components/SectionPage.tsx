@@ -34,10 +34,14 @@ function SectionPage({
     enabled: !!sessionId && !!sectionId
   });
   
-  const { data: freeplay } = useQuery({
-    
-  })
+  //const { data: freeplay } = useQuery({
+  //  
+  //})
 
+  const freeplay = {
+    posts: {},
+    buddies: {}
+  }
 
   const { campers, staff, admins } = useMemo(() => {
     if (!attendees) return { campers: [], staff: [], admins: [] };
