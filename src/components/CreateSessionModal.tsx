@@ -33,6 +33,7 @@ export default function CreateSessionModal() {
     };
 
     createSessionMutation.mutate(newSession);
+    modals.closeAll();
   };
 
   return (
