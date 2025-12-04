@@ -127,8 +127,8 @@ export const theme: MantineThemeOverride = {
           data-[selected]:bg-link-0 data-[selected]:text-white
           data-[selected]:hover:bg-primary-6
           data-[in-range]:bg-[rgba(34,139,230,0.2)]
-          data-[first-in-range]:!bg-link-0 data-[first-in-range]:!text-white data-[first-in-range]:!rounded-sm 
-          data-[last-in-range]:!bg-link-0 data-[last-in-range]:!text-white data-[last-in-range]:!rounded-sm
+          data-[first-in-range]:!bg-link-0 data-[first-in-range]:!text-black data-[first-in-range]:!rounded-sm 
+          data-[last-in-range]:!bg-link-0 data-[last-in-range]:!text-black data-[last-in-range]:!rounded-sm
         `,
         root: "!border !border-primary-5 !rounded-lg !p-2",
 
@@ -175,7 +175,7 @@ export const theme: MantineThemeOverride = {
     },
     TextInput: {
       classNames: {
-        input: "bg-primary-0 rounded-md border-none px-3 py-2 text-sm text-neutral-5 placeholder:text-neutral-5 "
+        input: "bg-primary-0 rounded-md border-none px-3 py-2 text-sm text-black placeholder:text-neutral-5 "
       },
       defaultProps: {
         radius: "md",

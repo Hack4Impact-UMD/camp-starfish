@@ -57,7 +57,6 @@ export default function CreateSessionModal() {
               value={
                 dateRange[0] ? moment(dateRange[0]).format("MMM D, YYYY") : ""
               }
-              disabled
               classNames={{
                 root: "flex-grow",
               }}
@@ -72,7 +71,6 @@ export default function CreateSessionModal() {
               value={
                 dateRange[1] ? moment(dateRange[1]).format("MMM D, YYYY") : ""
               }
-              disabled
               classNames={{
                 root: "flex-grow",
               }}
