@@ -5,8 +5,9 @@ import useSession from "@/hooks/sessions/useSession";
 import moment from "moment";
 import { useParams, useRouter } from "next/navigation";
 import { Params } from "next/dist/server/request/params";
+import Link from "next/link";
 
-export type SessionLayoutProps = { 
+export type SessionLayoutProps = {
   children: React.ReactNode;
 };
 
@@ -34,15 +35,20 @@ export default function SessionLayout({ children }: SessionLayoutProps) {
     <div className="w-full flex justify-center">
       <Flex className="flex flex-col gap-5 w-full py-[50px] px-[50px] justify-between">
         <Flex className="flex-row items-center w-full justify-between">
-          <div className = "flex flex-col">
-            <Title order={1} className="m-0">{session?.name}</Title>
+          <div className="flex flex-col">
+            <Title order={1} className="m-0">
+              {session?.name}
+            </Title>
             <Text className="text-lg text-neutral-5 font-semibold">
               {start.format("MMMM YYYY")}
               {!start.isSame(end, "month") && ` - ${end.format("MMMM YYYY")}`}
             </Text>
           </div>
-
-
+          <Link
+            href={`https://docs.google.com/spreadsheets/d/${session.driveFolderId}/edit?gid=0#gid=0`}
+          >
+            <Button color="aqua">Camper Prefs</Button>
+          </Link>
         </Flex>
 
         {children}

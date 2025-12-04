@@ -10,7 +10,7 @@ import Image from "next/image";
 import { signOut } from "@/auth/authN";
 
 const navbarLinks: { name: string; href: string; roles: Role[] }[] = [
-  { name: "Programs", href: "/programs", roles: ["STAFF", "ADMIN"] },
+  { name: "Sessions", href: "/sessions", roles: ["STAFF", "ADMIN"] },
   {
     name: "Campers",
     href: "/campers",
