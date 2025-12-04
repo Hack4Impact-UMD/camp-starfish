@@ -5,7 +5,6 @@ import useSession from "@/hooks/sessions/useSession";
 import moment from "moment";
 import { useParams } from "next/navigation";
 import { Params } from "next/dist/server/request/params";
-import { SessionContext } from "./SessionContext";
 
 
 export type SessionLayoutProps = { 
@@ -27,7 +26,6 @@ export default function SessionLayout({ children }: SessionLayoutProps) {
   const end = moment(session?.endDate);
 
   return (
-    <SessionContext.Provider value={session}>
 
       <div className="w-full flex  ">
         <Flex className="flex flex-col gap-5 w-full align-center px-[100px] py-[50px] justify-center">
@@ -43,6 +41,5 @@ export default function SessionLayout({ children }: SessionLayoutProps) {
         </Flex>
       </div>
 
-    </SessionContext.Provider>
   );
 }

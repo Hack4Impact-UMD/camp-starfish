@@ -33,7 +33,10 @@ function SectionPage({
     queryFn: () => getSectionScheduleBySectionId(sectionId, sessionId),
     enabled: !!sessionId && !!sectionId
   });
-  // get freeplay if necessary
+  
+  const { data: freeplay } = useQuery({
+    
+  })
 
 
   const { campers, staff, admins } = useMemo(() => {

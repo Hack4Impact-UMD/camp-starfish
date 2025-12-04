@@ -1,13 +1,15 @@
-"use client"
+"use client";
 import SessionCalendar from "@/components/SessionCalendar";
 import { SmallDirectoryBlock } from "@/components/SmallDirectoryBlock";
-import { useSessionContext } from "./SessionContext";
+import useSession from "@/hooks/sessions/useSession";
+import { useParams } from "next/navigation";
 
 export default function Page() {
-  const session = useSessionContext();
+  const { sessionId } = useParams();
+  const { data: session } = useSession(sessionId);
   return (
     <div className="flex flex-row gap-4">
-      <SessionCalendar session = {session}/>
+      <SessionCalendar session={session} />
       <SmallDirectoryBlock sessionId={session.id} />
     </div>
   );
