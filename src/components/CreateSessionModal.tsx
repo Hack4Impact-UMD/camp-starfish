@@ -37,7 +37,7 @@ export default function CreateSessionModal() {
   };
 
   return (
-    <Box className="bg-white max-w-full mx-auto overflow-hidden gap-xl">
+    <Box className="bg-neutral-100 max-w-full mx-auto overflow-hidden gap-xl">
       <Stack className="gap-xl">
         <TextInput
           label="Session Name"

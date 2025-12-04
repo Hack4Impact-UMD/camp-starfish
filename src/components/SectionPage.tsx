@@ -37,7 +37,7 @@ function SectionPage({ sessionId, sectionId }: SectionPageProps) {
 
   // ------------ LOADING / ERROR --------
   if (isLoading) return <LoadingPage />;
-  if (isError || !session || !schedule || !attendeeList || !campers || !staff || !admins) {
+  if (isError) {
     return (
       <div className="p-4">
         <h1 className="text-2xl mb-4 text-red-600">Error loading session</h1>
@@ -45,6 +45,9 @@ function SectionPage({ sessionId, sectionId }: SectionPageProps) {
       </div>
     );
   }
+
+  if (!session || !schedule || !attendeeList || !campers || !staff || !admins)
+    return null;
 
 
   return (
