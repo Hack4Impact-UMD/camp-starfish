@@ -128,7 +128,9 @@ export const ActivityGrid: React.FC<ActivityGridProps> = ({
 
 
   return (
-    <Container style={{ border: `1px solid ${theme.colors["neutral"][5]}` }}>
+    <Container style={{ 
+      border: `1px solid ${theme.colors["neutral"][5]}`,  
+      padding: "1rem"}} className = "min-w-full">
       <Flex direction="column" mt="md">
         {/* Toolbar */}
         <Box style={{ backgroundColor: theme.colors["neutral"][3] }}>

@@ -49,7 +49,7 @@ function SectionPage({ sessionId, sectionId }: SectionPageProps) {
 
   return (
     <div className="p-4">
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4 py-[50px] px-[50px]">
         {/* HEADER + BUTTONS */}
         <div className="flex flex-row justify-between">
           <div>
@@ -109,18 +109,14 @@ function SectionPage({ sessionId, sectionId }: SectionPageProps) {
         {/* ---------- BEFORE + AFTER VIEW ---------- */}
 
         {!hasGenerated && (
-          <div>
             <ActivityGrid sectionSchedule={schedule} isGenerated={false} />
-          </div>
         )}
 
         {hasGenerated && (
-          <div>
             <ActivityGrid
               sectionSchedule={schedule}
               isGenerated={true}
             />
-          </div>
         )}
 
       </div>
