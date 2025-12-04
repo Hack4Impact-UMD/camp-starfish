@@ -39,9 +39,7 @@ export const ActivityGridCell: React.FC<ActivityGridCellProps> = ({
 
   return (
     <Box
-      style={{
-        border: `1px solid ${theme.colors["neutral"][5]}`,
-      }}
+
     >
       <Flex align="stretch">
         <Box
@@ -52,7 +50,6 @@ export const ActivityGridCell: React.FC<ActivityGridCellProps> = ({
             justifyContent: "center",
             border: `1px solid ${theme.colors["neutral"][5]}`,
             backgroundColor: theme.colors["neutral"][2],
-            borderRadius: 4,
           }}
         >
           <Text fw={600} size="sm">
@@ -68,7 +65,10 @@ export const ActivityGridCell: React.FC<ActivityGridCellProps> = ({
             size="xs"
             style={{
               height: "100%",
-              borderRadius: 4,
+              borderRadius: 0,
+              backgroundColor: "#FFFFFF",
+              border: `1px solid ${theme.colors["neutral"][5]}`,
+
             }}
           >
             <IconChevronLeft size={24} />
@@ -91,7 +91,7 @@ export const ActivityGridCell: React.FC<ActivityGridCellProps> = ({
                 key={startIndex + i}
                 style={{ minWidth: 200, maxWidth: 200 }}
               >
-                <ActivityCard id={startIndex + i + 1} activity={activity} />
+                <ActivityCard id={startIndex + i + 1} activity={activity}/>
               </Box>
             ))}
           </Flex>
@@ -105,7 +105,10 @@ export const ActivityGridCell: React.FC<ActivityGridCellProps> = ({
             size="xs"
             style={{
               height: "100%",
-              borderRadius: 4,
+              borderRadius: 0,
+              backgroundColor: "#FFFFFF",
+              border: `1px solid ${theme.colors["neutral"][5]}`,
+
             }}
           >
             <IconChevronRight size={24} />

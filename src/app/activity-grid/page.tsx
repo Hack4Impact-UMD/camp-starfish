@@ -26,17 +26,17 @@ const bunkJamboBlock: Block<"BUNK-JAMBO"> = {
     {
       name: "Canoeing (Bunk Jambo)",
       description: "Campers learn paddling techniques on the lake.",
-      assignments: { bunkNums: [12, 14, 15], adminIds: [201, 202] },
+      assignments: { bunkNums: [12, 14, 15, 18, 19], adminIds: [201, 202, 204] },
     },
     {
       name: "Archery (Bunk Jambo)",
       description: "Focus and precision training at the archery range.",
-      assignments: { bunkNums: [16, 17], adminIds: [203] },
+      assignments: { bunkNums: [16, 17, 20], adminIds: [203, 205] },
     },
     {
       name: "Swimming (Bunk Jambo)",
       description: "Free swim & water safety practice.",
-      assignments: { bunkNums: [8, 9], adminIds: [207] },
+      assignments: { bunkNums: [8, 9, 10], adminIds: [207, 208] },
     },
   ],
   periodsOff: [3, 7],
@@ -48,52 +48,51 @@ const nonBunkJamboBlock: Block<"NON-BUNK-JAMBO"> = {
       name: "Nature Walk (Non-Bunk)",
       description: "Exploring trails and learning about wildlife.",
       assignments: {
-        camperIds: [101, 102],
-        staffIds: [401],
-        adminIds: [301],
+        camperIds: [101, 102, 103],
+        staffIds: [401, 410],
+        adminIds: [301, 311],
       },
     },
     {
       name: "Music (Non-Bunk)",
       description: "Learning basic instruments and rhythm exercises.",
-      assignments: { camperIds: [104, 105], staffIds: [402], adminIds: [302] },
+      assignments: { camperIds: [104, 105, 106], staffIds: [402, 412], adminIds: [302, 312] },
     },
     {
       name: "Drama (Non-Bunk)",
       description: "Acting warm-ups, improv games, and skits.",
-      assignments: { camperIds: [106], staffIds: [403], adminIds: [303] },
+      assignments: { camperIds: [106, 107], staffIds: [403, 413], adminIds: [303, 313] },
     },
-
     {
       name: "Arts & Crafts (Non-Bunk)",
       description: "Painting, bracelet-making, and creative free art time.",
-      assignments: { camperIds: [107, 108], staffIds: [404], adminIds: [304] },
+      assignments: { camperIds: [107, 108, 109], staffIds: [404, 414], adminIds: [304, 314] },
     },
     {
       name: "Soccer (Non-Bunk)",
       description: "Scrimmages, drills, and teamwork-focused gameplay.",
-      assignments: { camperIds: [109, 110], staffIds: [405], adminIds: [305] },
+      assignments: { camperIds: [109, 110, 111], staffIds: [405, 415], adminIds: [305, 315] },
     },
     {
       name: "Yoga & Mindfulness (Non-Bunk)",
       description: "Stretching, breathing exercises, and calm focus.",
-      assignments: { camperIds: [111], staffIds: [406], adminIds: [306] },
+      assignments: { camperIds: [111, 112], staffIds: [406, 416], adminIds: [306, 316] },
     },
     {
       name: "Outdoor Survival (Non-Bunk)",
       description:
         "Fire building, shelter making, and basic navigation skills.",
-      assignments: { camperIds: [112, 113], staffIds: [407], adminIds: [307] },
+      assignments: { camperIds: [112, 113, 114], staffIds: [407, 417], adminIds: [307, 317] },
     },
     {
       name: "Photography (Non-Bunk)",
       description: "Basic camera skills and creative photo challenges.",
-      assignments: { camperIds: [114], staffIds: [408], adminIds: [308] },
+      assignments: { camperIds: [114, 115], staffIds: [408, 418], adminIds: [308, 318] },
     },
     {
       name: "Team Building Games (Non-Bunk)",
       description: "Problem-solving activities that require collaboration.",
-      assignments: { camperIds: [115, 116], staffIds: [409], adminIds: [309] },
+      assignments: { camperIds: [115, 116, 117], staffIds: [409, 419], adminIds: [309, 319] },
     },
   ],
   periodsOff: [2, 6],
@@ -111,19 +110,18 @@ const bundleBlock: Block<"BUNDLE"> = {
       description: "Hands-on science experiments with rotating stations.",
       programArea: sampleProgramArea,
       ageGroup: "NAV",
-      assignments: { camperIds: [120, 121], staffIds: [420], adminIds: [320] },
+      assignments: { camperIds: [120, 121, 122], staffIds: [420, 421], adminIds: [320, 321] },
     },
     {
       name: "Bundle: Cooking",
       description: "Outdoor cooking across rotating groups.",
       programArea: sampleProgramArea,
       ageGroup: "OCP",
-      assignments: { camperIds: [122, 123], staffIds: [421], adminIds: [321] },
+      assignments: { camperIds: [122, 123, 124], staffIds: [421, 422], adminIds: [321, 322] },
     },
   ],
   periodsOff: [4],
 };
-
 const sampleSectionBunk: SectionScheduleID<"BUNK-JAMBO"> = {
   id: "schedule-bunk-1",
   sessionId: "session-2025",
@@ -173,7 +171,7 @@ export default function page() {
         <Flex direction={"column"}>
           <Box
             style={{
-              background: theme.colors["blue-0"][0],
+              background: theme.colors["blue-0"],
               borderRadius: 8,
               border: "1px solid #bcd2e8",
             }}
@@ -207,16 +205,7 @@ export default function page() {
         </Flex>
       </Container>
 
-      <Container>
-        <EditActivityCard
-          author="Parth"
-          block={{
-            ...bundleBlock,
-            id: "A",
-          }}
-          activities={bundleBlock.activities}
-        />
-      </Container>
+      
     </>
   );
 }

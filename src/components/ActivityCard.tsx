@@ -1,6 +1,11 @@
-import { IndividualAssignments, BunkAssignments } from "@/types/sessionTypes";
-import { Box, Table, Text } from "@mantine/core";
+"use client";
+
+import { Box, Table } from "@mantine/core";
 import { useMantineTheme } from "@mantine/core";
+import {
+  IndividualAssignments,
+  BunkAssignments,
+} from "@/types/sessionTypes";
 
 type AnyAssignments = IndividualAssignments | BunkAssignments;
 
@@ -13,140 +18,88 @@ interface ActivityCardProps {
   };
 }
 
-// Type guard functions
-function isIndividualAssignments(
+function isIndividual(
   assignments: AnyAssignments
 ): assignments is IndividualAssignments {
-  return "camperIds" in assignments && "staffIds" in assignments;
+  return "camperIds" in assignments;
 }
 
-function isBunkAssignments(
-  assignments: AnyAssignments
-): assignments is BunkAssignments {
-  return "bunkNums" in assignments && !("camperIds" in assignments);
+function isBunk(assignments: AnyAssignments): assignments is BunkAssignments {
+  return "bunkNums" in assignments;
 }
 
 export function ActivityCard({ id, activity }: ActivityCardProps) {
-  const theme = useMantineTheme();
   const assignments = activity.assignments;
 
+  const maxRows = isIndividual(assignments)
+    ? Math.max(assignments.staffIds.length, assignments.camperIds.length)
+    : Math.max(assignments.bunkNums.length, assignments.adminIds.length);
+
   return (
-    <Box
-      style={{
-        border: `1px solid ${theme.colors["neutral"][5]}`,
-      }}
-    >
+    <Box>
+      {/* === CARD HEADER === */}
       <Box
-        className="text-center font-bold p-1 w-full"
-        style={{
-          backgroundColor: theme.colors["accent-yellow"][1],
-          borderBottom: `1px solid ${theme.colors["neutral"][5]}`,
-        }}
+        className="text-center font-bold bg-[#FFF7D5] p-[6px] text-[0.9rem] tracking-[0.3px] border border-[#001B2A]"
       >
-        ACTIVITY {id}
+        {activity.name}
       </Box>
 
-      {isIndividualAssignments(assignments) ? (
-        <Table withTableBorder={false} withColumnBorders>
-          <Table.Thead>
+      {/* === TABLE WRAPPER === */}
+      <Box style={{ maxHeight: 5 * 36, overflowY: "auto" }}>
+        <Table
+          withTableBorder
+          withColumnBorders
+          className="w-full border border-[#001B2A] border-collapse [&_*]:border-[#001B2A]"
+        >
+          {/* HEADER */}
+          <Table.Thead
+            className="bg-[#ECECEC] sticky top-0 z-20"
+          >
             <Table.Tr>
-              <Table.Th
-                style={{
-                  fontWeight: "bold",
-                  textAlign: "left",
-                  backgroundColor: theme.colors["neutral"][3],
-                }}
-              >
-                STAFF
-              </Table.Th>
-              <Table.Th
-                style={{
-                  fontWeight: "bold",
-                  textAlign: "left",
-                  backgroundColor: theme.colors["neutral"][3],
-                }}
-              >
-                CAMPER
-              </Table.Th>
+              {isIndividual(assignments) && (
+                <>
+                  <Table.Th className="font-bold bg-[#DEE1E3] px-2 py-1 text-center border border-[#001B2A]">
+                    STAFF
+                  </Table.Th>
+                  <Table.Th className="font-bold bg-[#DEE1E3] px-2 py-1 text-center border border-[#001B2A]">
+                    CAMPER
+                  </Table.Th>
+                </>
+              )}
+
+              {isBunk(assignments) && (
+                <>
+                  <Table.Th className="font-bold bg-[#DEE1E3] px-2 py-1 text-center border border-[#001B2A]">
+                    BUNKS
+                  </Table.Th>
+                  <Table.Th className="font-bold bg-[#DEE1E3] px-2 py-1 text-center border border-[#001B2A]">
+                    ADMIN
+                  </Table.Th>
+                </>
+              )}
             </Table.Tr>
           </Table.Thead>
+
+          {/* BODY ROWS */}
           <Table.Tbody>
-            {Math.max(
-              assignments.staffIds.length,
-              assignments.camperIds.length
-            ) > 0 &&
-              Array.from({
-                length: Math.max(
-                  assignments.staffIds.length,
-                  assignments.camperIds.length
-                ),
-              }).map((_, index) => (
-                <Table.Tr key={index}>
-                  <Table.Td>
-                    {assignments.staffIds[index] ? (
-                      <Text>{assignments.staffIds[index]}</Text>
-                    ) : null}
-                  </Table.Td>
-                  <Table.Td>
-                    {assignments.camperIds[index] ? (
-                      <Text>{assignments.camperIds[index]}</Text>
-                    ) : null}
-                  </Table.Td>
-                </Table.Tr>
-              ))}
+            {Array.from({ length: maxRows }).map((_, index) => (
+              <Table.Tr key={index}>
+                <Table.Td className="px-2 py-1 text-[0.9rem] text-center border border-[#001B2A]">
+                  {isIndividual(assignments)
+                    ? assignments.staffIds[index] ?? ""
+                    : assignments.bunkNums[index] ?? ""}
+                </Table.Td>
+
+                <Table.Td className="px-2 py-2 text-[0.9rem] text-center border border-[#001B2A]">
+                  {isIndividual(assignments)
+                    ? assignments.camperIds[index] ?? ""
+                    : assignments.adminIds[index] ?? ""}
+                </Table.Td>
+              </Table.Tr>
+            ))}
           </Table.Tbody>
         </Table>
-      ) : isBunkAssignments(assignments) ? (
-        <Table withTableBorder={false} withColumnBorders>
-          <Table.Thead>
-            <Table.Tr>
-              <Table.Th
-                style={{
-                  fontWeight: "bold",
-                  textAlign: "left",
-                  backgroundColor: theme.colors["neutral"][3],
-                }}
-              >
-                BUNKS
-              </Table.Th>
-              <Table.Th
-                style={{
-                  fontWeight: "bold",
-                  textAlign: "left",
-                  backgroundColor: theme.colors["neutral"][3],
-                }}
-              >
-                ADMIN
-              </Table.Th>
-            </Table.Tr>
-          </Table.Thead>
-          <Table.Tbody>
-            {Math.max(
-              assignments.bunkNums.length,
-              assignments.adminIds.length
-            ) > 0 &&
-              Array.from({
-                length: Math.max(
-                  assignments.bunkNums.length,
-                  assignments.adminIds.length
-                ),
-              }).map((_, index) => (
-                <Table.Tr key={index}>
-                  <Table.Td>
-                    {assignments.bunkNums[index] !== undefined ? (
-                      <Text>{assignments.bunkNums[index]}</Text>
-                    ) : null}
-                  </Table.Td>
-                  <Table.Td>
-                    {assignments.adminIds[index] !== undefined ? (
-                      <Text>{assignments.adminIds[index]}</Text>
-                    ) : null}
-                  </Table.Td>
-                </Table.Tr>
-              ))}
-          </Table.Tbody>
-        </Table>
-      ) : null}
+      </Box>
     </Box>
   );
 }

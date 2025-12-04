@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Block,
   SchedulingSectionType,
@@ -6,15 +8,16 @@ import {
 import React, { useMemo, useState } from "react";
 
 import {
-  MantineReactTable,
-  MRT_GlobalFilterTextInput,
-  MRT_TableContainer,
-  MRT_TablePagination,
-  MRT_ToolbarAlertBanner,
-  useMantineReactTable,
-  type MRT_ColumnDef,
-} from "mantine-react-table";
+  useReactTable,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getSortedRowModel,
+  ColumnDef,
+  flexRender,
+} from "@tanstack/react-table";
+
 import { ActivityGridCell } from "./ActivityGridCell";
+
 import {
   Box,
   Button,
@@ -23,8 +26,8 @@ import {
   ScrollArea,
   Select,
   Text,
+  TextInput,
   useMantineTheme,
-  ActionIcon,
 } from "@mantine/core";
 
 type BlockWithId<T extends SchedulingSectionType> = Block<T> & {
@@ -34,29 +37,35 @@ type BlockWithId<T extends SchedulingSectionType> = Block<T> & {
 interface ActivityGridProps {
   sectionSchedule: SectionScheduleID<SchedulingSectionType>;
 }
+
 export const ActivityGrid: React.FC<ActivityGridProps> = ({
   sectionSchedule,
 }) => {
   const theme = useMantineTheme();
 
-  // states
+  // -------------------------
+  // Component State
+  // -------------------------
   const [view, setView] = useState<string | null>(null);
   const [sortFilter, setSortFilter] = useState<string | null>(null);
-
+  const [globalFilter, setGlobalFilter] = useState("");
+  console.log(sectionSchedule.blocks)
+  console.log(Object.entries(sectionSchedule.blocks))
+  // -------------------------
+  // Data Preparation
+  // -------------------------
   const data = useMemo(() => {
     let arr = Object.entries(sectionSchedule.blocks).map(([id, block]) => ({
       ...block,
       id,
     }));
 
-    if (view) {
-      return arr;
-    }
+    // keep your view toggle logic
+    if (view) return arr;
 
-    // sort filtering
+    // manual sorting (custom)
     if (sortFilter) {
       arr = [...arr];
-
       arr.sort((a, b) => {
         const aName = a.activities[0]?.name?.toLowerCase() ?? "";
         const bName = b.activities[0]?.name?.toLowerCase() ?? "";
@@ -75,128 +84,90 @@ export const ActivityGrid: React.FC<ActivityGridProps> = ({
     return arr;
   }, [sectionSchedule.blocks, view, sortFilter]);
 
-  const columns = useMemo<MRT_ColumnDef<BlockWithId<SchedulingSectionType>>[]>(
+  // -------------------------
+  // Columns
+  // -------------------------
+  const columns = useMemo<ColumnDef<BlockWithId<SchedulingSectionType>>[]>(
     () => [
       {
-        accessorKey: "blocks",
+        id: "blocks",
         header: "",
-        Cell: ({ row }) => (
+        cell: ({ row }) => (
           <ActivityGridCell
             block={row.original as Block<SchedulingSectionType>}
             id={row.original.id}
           />
         ),
-        mantineTableBodyCellProps: {
-          style: {
-            display: "block",
-            width: "100%",
-            padding: 0,
-            overflow: "visible", // Allow carousel to overflow
-          },
-        },
       },
     ],
     []
   );
 
-  const table = useMantineReactTable({
-    columns,
+  // -------------------------
+  // React Table Instance
+  // -------------------------
+  const table = useReactTable({
     data,
-    enableColumnActions: false,
-    enableDensityToggle: false,
-    enableFullScreenToggle: false,
-    enableHiding: false,
-    enableSorting: false,
-    enableColumnFilters: true,
-    enableGlobalFilter: true,
-    initialState: {
-      showGlobalFilter: true,
+    columns,
+    state: {
+      globalFilter,
     },
-    mantineTableBodyCellProps: {
-      style: {
-        display: "block",
-        width: "100%",
-        padding: 0,
-        overflow: "visible", 
-      },
-    },
-    mantineTableBodyRowProps: {
-      style: {
-        display: "block",
-        width: "100%",
-      },
-    },
-    mantineTableProps: {
-      style: {
-        tableLayout: "fixed",
-        width: "100%",
-      },
-    },
+    onGlobalFilterChange: setGlobalFilter,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
   });
 
-  //filter handling functions
-  const handleViewChange = (value: string | null) => {
-    const newValue = view === value ? null : value;
-    setView(newValue);
-  };
+  // -------------------------
+  // Filter UI Logic
+  // -------------------------
+  const handleViewChange = (value: string | null) =>
+    setView(value === view ? null : value);
 
-  const handleSortFilter = (value: string | null) => {
-    const newValue = sortFilter === value ? null : value;
-    setSortFilter(newValue);
-  };
+  const handleSortFilter = (value: string | null) =>
+    setSortFilter(value === sortFilter ? null : value);
 
   const handleClearFilters = () => {
     setView(null);
     setSortFilter(null);
-    table.setGlobalFilter("");
+    setGlobalFilter("");
   };
 
-  const filtersActive =
-    !!view || !!sortFilter || !!table.getState().globalFilter;
+  const filtersActive = !!view || !!sortFilter || !!globalFilter;
 
+  // -------------------------
+  // Render
+  // -------------------------
   return (
-    <Container
-      style={{
-        border: `1px solid ${theme.colors["neutral"][5]}`,
-      }}
-    >
-      <Flex direction={"column"} mt={"md"}>
-        <Box
-          style={{
-            backgroundColor: theme.colors["neutral"][3],
-          }}
-        >
-          <Flex direction={"row"} gap={"md"} align={"center"} p={"md"}>
-            <Box>
-              <Select
-                value={view}
-                onChange={handleViewChange}
-                placeholder="Sort By: "
-                data={[{ value: "scheduleView", label: "Schedule View" }]}
-              />
-            </Box>
-            <Box>
-              <Select
-                value={sortFilter}
-                onChange={handleSortFilter}
-                placeholder="Sort By: "
-                data={[
-                  { value: "firstNameAZ", label: "First Name (A → Z)" },
-                  { value: "firstNameZA", label: "First Name (Z → A)" },
-                  { value: "lastNameAZ", label: "Last Name (A → Z)" },
-                  { value: "lastNameZA", label: "Last Name (Z → A)" },
-                ]}
-              />
-            </Box>
-            <Box>
-              <Select
-                placeholder="0 Filters Applied "
-                data={["React", "Angular", "Vue", "Svelte"]}
-              />
-            </Box>
-            <Box>
-              <MRT_GlobalFilterTextInput table={table} />
-            </Box>
+    <Container style={{ border: `1px solid ${theme.colors["neutral"][5]}` }}>
+      <Flex direction="column" mt="md">
+        {/* Toolbar */}
+        <Box style={{ backgroundColor: theme.colors["neutral"][3] }}>
+          <Flex direction="row" gap="md" p="md" align="center">
+            <Select
+              value={view}
+              onChange={handleViewChange}
+              placeholder="View:"
+              data={[{ value: "scheduleView", label: "Schedule View" }]}
+            />
+
+            <Select
+              value={sortFilter}
+              onChange={handleSortFilter}
+              placeholder="Sort By:"
+              data={[
+                { value: "firstNameAZ", label: "First Name (A → Z)" },
+                { value: "firstNameZA", label: "First Name (Z → A)" },
+              ]}
+            />
+
+            <TextInput
+              placeholder="Search…"
+              value={globalFilter}
+              onChange={(e) => setGlobalFilter(e.target.value)}
+              style={{ width: 200 }}
+            />
+
             {filtersActive && (
               <Button color="red" variant="light" onClick={handleClearFilters}>
                 Clear Filters
@@ -204,15 +175,67 @@ export const ActivityGrid: React.FC<ActivityGridProps> = ({
             )}
           </Flex>
         </Box>
-        <MRT_TableContainer table={table} />
+
+        {/* Table */}
         <Box>
-          <Flex justify="flex-start">
-            <MRT_TablePagination table={table} />
-          </Flex>
-          <Box style={{ display: "grid", width: "100%" }}>
-            <MRT_ToolbarAlertBanner stackAlertBanner table={table} />
-          </Box>
+          <ScrollArea>
+            <table
+              style={{
+                width: "100%",
+                tableLayout: "fixed",
+                borderCollapse: "collapse",
+              }}
+            >
+              <tbody>
+                {table.getRowModel().rows.map((row) => (
+                  <tr
+                    key={row.id}
+                    style={{
+                      display: "block",
+                      width: "100%",
+                    }}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <td
+                        key={cell.id}
+                        style={{
+                          display: "block",
+                          width: "100%",
+                          padding: 0,
+                          overflow: "visible",
+                        }}
+                      >
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </ScrollArea>
         </Box>
+
+        {/* Pagination */}
+        <Flex justify="flex-start" p="md">
+          <Button
+            variant="subtle"
+            disabled={!table.getCanPreviousPage()}
+            onClick={() => table.previousPage()}
+          >
+            Previous
+          </Button>
+
+          <Button
+            variant="subtle"
+            disabled={!table.getCanNextPage()}
+            onClick={() => table.nextPage()}
+          >
+            Next
+          </Button>
+        </Flex>
       </Flex>
     </Container>
   );
