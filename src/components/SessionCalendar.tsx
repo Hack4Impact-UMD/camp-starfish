@@ -9,19 +9,23 @@ import { modals } from "@mantine/modals";
 import EditSectionModal from "@/components/EditSectionModal";
 import { SessionID } from "@/types/sessionTypes";
 import useSectionsBySessionId from "@/hooks/sections/useSectionsBySessionId";
+import { useRouter } from "next/navigation";
 
 interface SessionCalendarProps {
   session: SessionID;
 }
 
-
 export default function SessionCalendar({ session }: SessionCalendarProps) {
-
-
-  const [firstSelectedDate, setFirstSelectedDate] = useState<Moment | null>(null);
-  const [secondSelectedDate, setSecondSelectedDate] = useState<Moment | null>(null);
+  const [firstSelectedDate, setFirstSelectedDate] = useState<Moment | null>(
+    null
+  );
+  const [secondSelectedDate, setSecondSelectedDate] = useState<Moment | null>(
+    null
+  );
 
   const { data: sections } = useSectionsBySessionId(session.id);
+
+  const router = useRouter();
 
   const handlePointerDown = (date: Moment) => {
     setFirstSelectedDate(date);
@@ -106,6 +110,12 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
             onPointerUp: () => handlePointerUp(),
           };
 
+          const section = sections?.find(
+            (s) =>
+              moment(s.startDate).isSameOrBefore(day) &&
+              day.isSameOrBefore(s.endDate)
+          );
+
           return (
             <Box
               key={day.format("YYYY-MM-DD")}
@@ -122,8 +132,17 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
               <Text className="text-sm font-bold text-center">
                 {day.date()}
               </Text>
-              <Text>
-                {sections?.find(s => moment(s.startDate).isSameOrBefore(day) && day.isSameOrBefore(s.endDate))?.name}
+              <Text
+                onClick={(e) => {
+                  if (section) {
+                    router.push(`/sessions/${session.id}/${section.id}`);
+                  }
+                }}
+                onPointerDown={(e) => e.stopPropagation()}
+                onPointerEnter={(e) => e.stopPropagation()}
+                onPointerUp={(e) => e.stopPropagation()}
+              >
+                {section?.name ?? ""}
               </Text>
             </Box>
           );
