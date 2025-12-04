@@ -65,7 +65,7 @@ const scheduleFirestoreConverter: FirestoreDataConverter<SectionScheduleID<Sched
 export async function getSectionScheduleBySectionId(sectionId: string, sessionId: string, transaction?: Transaction): Promise<SectionScheduleID<SchedulingSectionType> | null> {
   try {
     return await getDoc<SectionScheduleID<SchedulingSectionType>, SectionSchedule<SchedulingSectionType>>(
-      doc(db, Collection.SESSIONS, sessionId, SessionsSubcollection.SECTIONS, sectionId, SectionsSubcollection.SCHEDULE, SectionsSubcollection.SCHEDULE) as DocumentReference<SectionScheduleID<SchedulingSectionType>, SectionSchedule<SchedulingSectionType>>,
+      doc(db, Collection.SESSIONS, sessionId, SessionsSubcollection.SECTIONS, sectionId, SectionsSubcollection.SCHEDULE, sectionId + '-' + SectionsSubcollection.SCHEDULE) as DocumentReference<SectionScheduleID<SchedulingSectionType>, SectionSchedule<SchedulingSectionType>>,
       scheduleFirestoreConverter,
       transaction
     );
