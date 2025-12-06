@@ -17,7 +17,7 @@ import {
 import { useAttendees } from "@/hooks/attendees/useAttendees";
 import Profile from "@/assets/icons/Profile.svg";
 import Image from "next/image";
-//import { useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 type SmallDirectoryBlockProps = {
   sessionId: string;
@@ -27,7 +27,7 @@ const INITIAL_VISIBILE_COUNT = 3;
 const LOAD_MORE_COUNT = 3;
 
 export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
-  ///const router = useRouter();
+  const router = useRouter();
   const { data: people, isLoading, error } = useAttendees(sessionId);
   const [searchQuery, setSearchQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState<"CAMPER" | "STAFF" | "ADMIN">("CAMPER");
@@ -93,7 +93,7 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
   };
 
   return (
-    <div className="max-w-[344px] m-[50px] border-[1.3px] border-black p-4 bg-neutral-2">
+    <div className="min-w-[344px] flex-grow border-[1.3px] border-black p-4 bg-neutral-2">
       {/* header with directory and expand button */}
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-black">DIRECTORY</h2>
@@ -103,7 +103,7 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
           onClick={() => console.log("Redirect to expanded directory view")}
           aria-label="Expand directory view"
         >
-          <IconArrowsVertical size={25} className="rotate-45" />
+          <IconArrowsVertical size={25} className="rotate-45" onClick = {() => router.push("/sessions/" + sessionId + "/directory")}/>
         </ActionIcon>
       </div>
 
