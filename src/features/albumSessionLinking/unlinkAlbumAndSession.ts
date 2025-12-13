@@ -2,7 +2,7 @@ import { db } from "@/config/firebase";
 import { getAlbumById, updateAlbum } from "@/data/firestore/albums";
 import { getSessionById, updateSession } from "@/data/firestore/sessions";
 import { useMutation } from "@tanstack/react-query";
-import { deleteField, FieldValue, runTransaction, Transaction } from "firebase/firestore";
+import { deleteField, runTransaction, Transaction } from "firebase/firestore";
 
 type UseUnlinkAlbumAndSessionVars = {
   albumId: string;

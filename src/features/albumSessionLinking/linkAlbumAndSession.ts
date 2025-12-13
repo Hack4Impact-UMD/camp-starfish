@@ -1,7 +1,7 @@
 import { db } from "@/config/firebase";
 import { getAlbumById, updateAlbum } from "@/data/firestore/albums";
 import { getSessionById, updateSession } from "@/data/firestore/sessions";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { runTransaction, Transaction } from "firebase/firestore";
 
 export default async function linkAlbumAndSession(albumId: string, sessionId: string) {
