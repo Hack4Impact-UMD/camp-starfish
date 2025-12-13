@@ -2,7 +2,7 @@ import { db } from "@/config/firebase";
 import { getAlbumById, updateAlbum } from "@/data/firestore/albums";
 import { getSessionById, updateSession } from "@/data/firestore/sessions";
 import { useMutation } from "@tanstack/react-query";
-import { runTransaction, Transaction } from "firebase/firestore";
+import { deleteField, FieldValue, runTransaction, Transaction } from "firebase/firestore";
 
 type UseUnlinkAlbumAndSessionVars = {
   albumId: string;
@@ -18,8 +18,8 @@ export default async function unlinkAlbumAndSession(albumId: string, sessionId: 
       throw Error(`Session ${sessionId} and Album ${albumId} are not linked to each other`);
     }
 
-    await updateSession(sessionId, { albumId: undefined }, transaction);
-    await updateAlbum(albumId, { sessionId: undefined }, transaction);
+    await updateSession(sessionId, { albumId: deleteField() }, transaction);
+    await updateAlbum(albumId, { sessionId: deleteField() }, transaction);
   });
 }
 

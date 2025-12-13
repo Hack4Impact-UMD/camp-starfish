@@ -10,7 +10,8 @@ import {
   QueryDocumentSnapshot,
   DocumentReference,
   collection,
-  CollectionReference
+  CollectionReference,
+  UpdateData
 } from "firebase/firestore";
 import { Collection } from "./utils";
 import { setDoc, deleteDoc, getDoc, updateDoc, executeQuery } from "./firestoreClientOperations";
@@ -37,7 +38,7 @@ export async function setSession(session: Session, instance?: Transaction | Writ
   return sessionId;
 }
 
-export async function updateSession(id: string, updates: Partial<Session>, instance?: Transaction | WriteBatch): Promise<void> {
+export async function updateSession(id: string, updates: UpdateData<Session>, instance?: Transaction | WriteBatch): Promise<void> {
   await updateDoc<SessionID, Session>(doc(db, Collection.SESSIONS, id) as DocumentReference<SessionID, Session>, updates, sessionFirestoreConverter, instance);
 }
 
