@@ -1,11 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
-import Image from "next/image";
-import cross from "@/assets/icons/crossIcon.svg";
+import React from "react";
 import { useActivityData } from "@/hooks/useActivityData";
 import { IndividualAssignments, BunkAssignments } from "@/types/sessionTypes";
 import { modals } from "@mantine/modals";
+import moment from "moment";
 
 interface ActivityModalProps {
   sessionId: string;
@@ -27,29 +26,7 @@ export default function ActivityModal({
     activityIndex,
   });
 
-  // Helper to format date range
-  const formatDateRange = (startDate: string, endDate: string) => {
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-
-    const formatDate = (date: Date) => {
-      const days = [
-        "Sunday",
-        "Monday",
-        "Tuesday",
-        "Wednesday",
-        "Thursday",
-        "Friday",
-        "Saturday",
-      ];
-      const weekday = days[date.getDay()];
-      const month = date.getMonth() + 1;
-      const day = date.getDate();
-      return `${weekday} ${month}/${day}`;
-    };
-
-    return `${formatDate(start)} - ${formatDate(end)}`;
-  };
+  const formatDateRange = (startDate: string, endDate: string) => `${moment(startDate).format('dddd M/D')} - ${moment(endDate).format('dddd M/D')}`//{
 
   // Helper to get attendee name by ID
   const getAttendeeName = (id: number, role: "CAMPER" | "STAFF" | "ADMIN") => {
