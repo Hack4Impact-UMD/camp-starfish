@@ -5,8 +5,6 @@ import Image from "next/image";
 import cross from "@/assets/icons/crossIcon.svg";
 import { useActivityData } from "@/hooks/useActivityData";
 import { 
-  BundleActivity, 
-  JamboreeActivity,
   IndividualAssignments,
   BunkAssignments,
 } from "@/types/sessionTypes";
