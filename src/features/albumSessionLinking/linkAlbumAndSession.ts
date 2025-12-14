@@ -11,9 +11,9 @@ export default async function linkAlbumAndSession(albumId: string, sessionId: st
 
     if (session.albumId === albumId && album.sessionId === sessionId) {
       return;
-    } else if (session.albumId) {
+    } else if (session.albumId && session.albumId !== albumId) {
       throw Error(`Session ${sessionId} is already linked to album ${session.albumId}`);
-    } else if (album.sessionId) {
+    } else if (album.sessionId && album.sessionId !== sessionId) {
       throw Error(`Album ${albumId} is already linked to session ${album.sessionId}`);
     }
 
