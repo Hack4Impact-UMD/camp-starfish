@@ -1,6 +1,6 @@
 // google apps script that creates preference spreadsheets for jamborees and bundles
 // importing necessary types to use in spreadsheet
-import { BlockActivities, CamperAttendeeID, SchedulingSectionID } from "../../src/types/sessionTypes";
+import { BlockActivities, CamperAttendeeID, SchedulingSectionID } from "../../../../src/types/sessionTypes";
 import { getFullName } from "@/utils/personUtils";
 
 // color blocks to use for different blocks on the sheet for design
@@ -11,27 +11,6 @@ const BLOCK_COLORS: { [key: string]: string } = {
   'D': '#b6d7a8',
 };
 
-interface PreferencesSpreadsheetProperties {
-  sections: SchedulingSectionID[];
-}
-
-function setScriptProperty<T>(key: string, value: T) {
-  PropertiesService.getScriptProperties().setProperty(key, JSON.stringify(value));
-}
-
-function getScriptProperty<T>(key: string): T | null {
-  const value = PropertiesService.getScriptProperties().getProperty(key);
-  return value ? JSON.parse(value) : null;
-}
-
-function getPreferencesSpreadsheetProperties(spreadsheetId: string): PreferencesSpreadsheetProperties | null {
-  return getScriptProperty<PreferencesSpreadsheetProperties>(spreadsheetId);
-}
-
-function setPreferencesSpreadsheetProperties(spreadsheetId: string, properties: PreferencesSpreadsheetProperties) {
-  setScriptProperty<PreferencesSpreadsheetProperties>(spreadsheetId, properties);
-}
-
 function createPreferencesSpreadsheet(sessionName: string): string {
   const spreadsheet = SpreadsheetApp.create(sessionName);
   const sheet = spreadsheet.getSheets()[0];
@@ -39,12 +18,17 @@ function createPreferencesSpreadsheet(sessionName: string): string {
   //sheet.deleteRows(1, sheet.getMaxRows() - 1);
   //sheet.deleteColumns(1, sheet.getMaxColumns() - 1);
   sheet.getRange('A1').setValue("No sections yet!\nAdd campers and scheduling sections at https://camp-starfish.web.app")
-  setPreferencesSpreadsheetProperties(spreadsheet.getId(), { sections: [] })
+  setPreferencesSpreadsheetProperties(spreadsheet.getId(), {
+    sections: [],
+    sheets: {
+      [sheet.getSheetId()]: { lastModified: moment().toISOString() }
+    }
+  })
   return spreadsheet.getId();
 }
 globalThis.createPreferencesSpreadsheet = createPreferencesSpreadsheet;
 
-function getSheetIndexFromSectionIndex(sections: SchedulingSectionID[], sectionIndex: number) {
+function getSheetIndexFromSectionIndex(sections: SchedulingSectionID[], sectionIndex: number): number {
   let index = 0;
   for (let i = 0; i < sectionIndex; i++) {
     index += sections[i].type === "BUNDLE" ? 2 : 1;
@@ -80,7 +64,13 @@ function addSectionPreferencesSheet(spreadsheetId: string, section: SchedulingSe
     sheet.setName(section.name);
   }
 
-  setPreferencesSpreadsheetProperties(spreadsheetId, { sections });
+  setPreferencesSpreadsheetProperties(spreadsheetId, {
+    sections,
+    sheets: {
+      ...spreadsheetProperties?.sheets,
+      [sheet.getSheetId()]: { lastModified: moment().toISOString() }
+    }
+  });
 }
 globalThis.addSectionPreferencesSheet = addSectionPreferencesSheet;
 

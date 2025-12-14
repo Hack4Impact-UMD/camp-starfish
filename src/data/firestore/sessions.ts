@@ -13,16 +13,26 @@ import {
   CollectionReference,
   UpdateData
 } from "firebase/firestore";
+import {
+  setDoc,
+  deleteDoc,
+  getDoc,
+  updateDoc,
+  executeQuery,
+} from "./firestoreClientOperations";
 import { Collection } from "./utils";
-import { setDoc, deleteDoc, getDoc, updateDoc, executeQuery } from "./firestoreClientOperations";
 
 const sessionFirestoreConverter: FirestoreDataConverter<SessionID, Session> = {
-  toFirestore: (session: WithFieldValue<SessionID>): WithFieldValue<Session> => {
+  toFirestore: (
+    session: WithFieldValue<SessionID>
+  ): WithFieldValue<Session> => {
     const { id, ...dto } = session;
     return dto;
   },
-  fromFirestore: (snapshot: QueryDocumentSnapshot<Session, Session>): SessionID => ({ id: snapshot.ref.id, ...snapshot.data() })
-}
+  fromFirestore: (
+    snapshot: QueryDocumentSnapshot<Session, Session>
+  ): SessionID => ({ id: snapshot.ref.id, ...snapshot.data() }),
+};
 
 export async function getSessionById(id: string, transaction?: Transaction): Promise<SessionID> {
   return await getDoc<SessionID, Session>(doc(db, Collection.SESSIONS, id) as DocumentReference<SessionID, Session>, sessionFirestoreConverter, transaction);
