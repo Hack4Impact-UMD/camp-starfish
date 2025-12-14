@@ -1,24 +1,24 @@
-import { Moment, weekdaysShort } from "moment";
+"use client";
 
+import { Moment, weekdaysShort } from "moment";
 import React, { useState } from "react";
 import { SimpleGrid, Text, Box } from "@mantine/core";
-import { SessionID } from "@/types/sessionTypes";
 import moment from "moment";
 import classNames from "classnames";
 import { modals } from "@mantine/modals";
 import EditSectionModal from "@/components/EditSectionModal";
+import { SessionID } from "@/types/sessionTypes";
 
 interface SessionCalendarProps {
-  session: SessionID;
+  session: SessionID ;
 }
 
+
 export default function SessionCalendar({ session }: SessionCalendarProps) {
-  const [firstSelectedDate, setFirstSelectedDate] = useState<Moment | null>(
-    null
-  );
-  const [secondSelectedDate, setSecondSelectedDate] = useState<Moment | null>(
-    null
-  );
+
+
+  const [firstSelectedDate, setFirstSelectedDate] = useState<Moment | null>(null);
+  const [secondSelectedDate, setSecondSelectedDate] = useState<Moment | null>(null);
 
   const handlePointerDown = (date: Moment) => {
     setFirstSelectedDate(date);
@@ -56,7 +56,7 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
   }
 
   return (
-    <SimpleGrid className="grid-cols-7 gap-0 select-none">
+    <SimpleGrid className="grid-cols-7 gap-0 select-none min-w-[894px] flex-grow">
       {weekdaysShort().map((day) => (
         <Box
           key={day}
