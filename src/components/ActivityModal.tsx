@@ -8,7 +8,6 @@ import { IndividualAssignments, BunkAssignments } from "@/types/sessionTypes";
 import { modals } from "@mantine/modals";
 
 interface ActivityModalProps {
-  trigger?: React.ReactNode;
   sessionId: string;
   sectionId: string;
   blockId: string;
@@ -16,7 +15,6 @@ interface ActivityModalProps {
 }
 
 export default function ActivityModal({
-  trigger,
   sessionId,
   sectionId,
   blockId,
