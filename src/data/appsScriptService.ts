@@ -1,6 +1,6 @@
 import { auth, functions } from "@/config/firebase";
 import { httpsCallable } from "firebase/functions";
-import { CamperAttendeeID, BundleBlockActivities, BunkJamboreeBlockActivities, NonBunkJamboreeBlockActivities } from "@/types/sessionTypes";
+import { CamperAttendeeID, BundleActivityWithAssignments, BunkJamboreeActivityWithAssignments, NonBunkJamboreeActivityWithAssignments } from "@/types/sessionTypes";
 
 /**  
  * Calls an Apps Script function via Firebase callable.  
@@ -26,7 +26,7 @@ async function callAppsScript<T = unknown>(
 //function for bundle sheet creation
 export async function createBundleSheet(
   campers: CamperAttendeeID[],
-  blockActivities: { [blockId: string]: BundleBlockActivities },
+  blockActivities: { [blockId: string]: BundleActivityWithAssignments[] },
   bundleLetter: string,
   spreadsheetId?: string
 ): Promise<string> {
@@ -36,7 +36,7 @@ export async function createBundleSheet(
 // function for bunk jamboree sheet creation
 export async function createBunkJamboreeSheet(
   bunkNumbers: number[],
-  blockActivities: { [blockId: string]: BunkJamboreeBlockActivities },
+  blockActivities: { [blockId: string]: BunkJamboreeActivityWithAssignments[] },
   spreadsheetId?: string
 ): Promise<string> {
   return callAppsScript<string>('createBunkJamboreeSheet', [bunkNumbers, blockActivities, spreadsheetId]);
@@ -46,7 +46,7 @@ export async function createBunkJamboreeSheet(
 
 export async function createNonBunkJamboreeSheet(
   campers: CamperAttendeeID[],
-  blockActivities: { [blockId: string]: NonBunkJamboreeBlockActivities },
+  blockActivities: { [blockId: string]: NonBunkJamboreeActivityWithAssignments[] },
   spreadsheetId?: string
 ): Promise<string> {
   return callAppsScript<string>('createNonBunkJamboreeSheet', [campers, blockActivities, spreadsheetId]);
