@@ -16,7 +16,7 @@ import {
 } from "@/features/scheduling/generation/schedulingUtils";
 import { getActivityName } from "@/utils/activityUtils";
 import { getFullName } from "@/utils/personUtils";
-import { Grid, Stack } from "@mantine/core";
+import { Title, Text } from "@mantine/core";
 
 interface ActivityModalProps {
   section: SectionID;
@@ -67,39 +67,39 @@ export default function ActivityModal(props: ActivityModalProps) {
   return (
     <div className="grid grid-cols-2">
       <div className="col-span-2 flex flex-col justify-center items-center bg-[#D6EAF8] rounded-none border-black border-y-2 py-2 w-full">
-        <h2 className="text-2xl font-bold mb-2">{section.name}</h2>
-        <p className="text-lg">
+        <Title order={2} className="mb-2">{section.name}</Title>
+        <Text className="text-lg">
           {`${moment(section.startDate).format("dddd M/D")} - ${moment(
             section.endDate
           ).format("dddd M/D")}`}
-        </p>
+        </Text>
       </div>
       <div className="col-span-2 flex flex-col justify-center items-center bg-white rounded-none border-black border-b-2 py-2 w-full">
-        <h2 className="text-xl font-bold">
+        <Title order={3} className="font-bold">
           BLOCK {blockId.toUpperCase()} - {getActivityName(activity)}
-        </h2>
+        </Title>
       </div>
       <div className="col-span-2 flex flex-col justify-center items-center bg-white rounded-none border-black border-b-2 py-2 w-full">
-        <p className="text-md text-center">{activity.description}</p>
+        <Text className="text-md text-center">{activity.description}</Text>
       </div>
-      <p className="text-lg font-bold mb-2 border-black border-b-2 border-r-2 w-full h-full text-center align-middle">
+      <Text className="text-lg font-bold mb-2 border-black border-b-2 border-r-2 w-full h-full text-center align-middle">
         Staff
-      </p>
-      <p className="text-lg font-bold mb-2 border-black border-b-2 w-full h-full text-center align-middle">
+      </Text>
+      <Text className="text-lg font-bold mb-2 border-black border-b-2 w-full h-full text-center align-middle">
         Campers
-      </p>
+      </Text>
       <div className="space-y-3 border-black border-r-2">
         {staffNames.map((staffName) => (
-          <div key={staffName} className="p-3 text-center bg-white">
+          <Text key={staffName} className="p-3 text-center bg-white">
             {staffName}
-          </div>
+          </Text>
         ))}
       </div>
       <div className="space-y-3">
         {camperNames.map((camperName) => (
-          <div key={camperName} className="p-3 text-center bg-white">
+          <Text key={camperName} className="p-3 text-center bg-white">
             {camperName}
-          </div>
+          </Text>
         ))}
       </div>
     </div>
