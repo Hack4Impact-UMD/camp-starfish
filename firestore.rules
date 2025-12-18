@@ -2,9 +2,109 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+
+    function hasDatabaseAccess() {
+      return request.auth.token.hasDatabaseAccess == true
+    }
+
+    function isAuthenticated() {
+      return hasDatabaseAccess();
+    }
+    
+    function isStaffOrAdmin() {
+      return hasDatabaseAccess();
+    }
+
+    // Sessions collection
+    match /sessions/{sessionId} {
+      allow read: if isAuthenticated();
+      allow write: if isStaffOrAdmin();
+      
+      // Sections subcollection
+      match /sections/{sectionId} {
+        allow read: if isAuthenticated();
+        allow create, update, delete: if isStaffOrAdmin();
+        
+        // Section schedules subcollection
+        match /schedule/{scheduleId} {
+          allow read: if isAuthenticated();
+          allow create, update, delete: if isStaffOrAdmin();
+        }
+      }
+      
+      // Other subcollections
+      match /attendees/{attendeeId} {
+        allow read: if isAuthenticated();
+        allow write: if isStaffOrAdmin();
+      }
+      
+      match /bunks/{bunkId} {
+        allow read: if isAuthenticated();
+        allow write: if isStaffOrAdmin();
+      }
+      
+      match /night_shifts/{shiftId} {
+        allow read: if isAuthenticated();
+        allow write: if isStaffOrAdmin();
+      }
+      
+      match /freeplays/{freeplayId} {
+        allow read: if isAuthenticated();
+        allow write: if isStaffOrAdmin();
+      }
+    }
+    
+    // Albums collection
+    match /albums/{albumId} {
+      allow read: if isAuthenticated();
+      allow write: if isStaffOrAdmin();
+      
+      match /image_metadatas/{imageId} {
+        allow read: if isAuthenticated();
+        allow write: if isStaffOrAdmin();
+      }
+    }
+    
+    // User collections
+    match /campers/{camperId} {
+      allow read: if isAuthenticated();
+      allow write: if isStaffOrAdmin();
+    }
+    
+    match /parents/{parentId} {
+      allow read: if isAuthenticated();
+      allow write: if isStaffOrAdmin();
+    }
+    
+    match /staff/{staffId} {
+      allow read: if isAuthenticated();
+      allow write: if isStaffOrAdmin();
+    }
+    
+    match /admins/{adminId} {
+      allow read: if isAuthenticated();
+      allow write: if isStaffOrAdmin();
+    }
+    
+    match /photographers/{photographerId} {
+      allow read: if isAuthenticated();
+      allow write: if isStaffOrAdmin();
+    }
+    
+    // Shared resources
+    match /program_areas/{areaId} {
+      allow read: if isAuthenticated();
+      allow write: if isStaffOrAdmin();
+    }
+    
+    match /posts/{postId} {
+      allow read: if isAuthenticated();
+      allow write: if isStaffOrAdmin();
+    }
+    
+    // Default deny all
     match /{document=**} {
-      allow read: if true;  // Allow anyone to read
-      allow write: if false;
+      allow read, write: if true;
     }
   }
 }
