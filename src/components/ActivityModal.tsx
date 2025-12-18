@@ -2,13 +2,9 @@
 
 import React, { useMemo } from "react";
 import {
-  IndividualAssignments,
-  BunkAssignments,
-  Activity,
   CamperAttendeeID,
   StaffAttendeeID,
   AdminAttendeeID,
-  SessionID,
   SectionID,
   ActivityWithAssignments,
 } from "@/types/sessionTypes";
@@ -23,7 +19,6 @@ import { getFullName } from "@/utils/personUtils";
 import { Grid, Stack } from "@mantine/core";
 
 interface ActivityModalProps {
-  session: SessionID;
   section: SectionID;
   blockId: string;
   activity: ActivityWithAssignments;
@@ -33,7 +28,7 @@ interface ActivityModalProps {
 }
 
 export default function ActivityModal(props: ActivityModalProps) {
-  const { session, section, blockId, activity, campers, staff, admins } = props;
+  const { section, blockId, activity, campers, staff, admins } = props;
 
   const { staffNames, camperNames } = useMemo(() => {
     const attendeesById = getAttendeesById([...campers, ...staff, ...admins]);
