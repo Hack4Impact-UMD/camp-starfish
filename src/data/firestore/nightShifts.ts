@@ -11,7 +11,7 @@ import {
   collection,
   CollectionReference
 } from "firebase/firestore";
-import { setDoc, getDoc, updateDoc, executeQuery } from "./firestoreClientOperations";
+import { setDoc, getDoc, updateDoc, executeQuery, deleteDoc } from "./firestoreClientOperations";
 import { Collection, SessionsSubcollection } from "./utils";
 
 const nightShiftFirestoreConverter: FirestoreDataConverter<NightShiftID, NightShift> = {
@@ -30,12 +30,14 @@ export async function getAllNightShiftsBySessionId(sessionId: string): Promise<N
   return await executeQuery<NightShiftID, NightShift>(collection(db, Collection.SESSIONS, sessionId, SessionsSubcollection.NIGHT_SHIFTS) as CollectionReference<NightShiftID, NightShift>, nightShiftFirestoreConverter);
 }
 
-export async function setNightShift(campminderId: number, sessionId: string, attendee: Attendee, instance?: Transaction | WriteBatch): Promise<number> {
-  const attendeeId = campminderId;
-  await setDoc<NightShiftID, NightShift>(doc(db, Collection.SESSIONS, sessionId, SessionsSubcollection.NIGHT_SHIFTS, String(campminderId)) as DocumentReference<NightShiftID, NightShift>, { id: attendeeId, sessionId: sessionId, ...attendee }, nightShiftFirestoreConverter, instance);
-  return attendeeId;
+export async function setNightShift(id: string, sessionId: string, nightShift: NightShift, instance?: Transaction | WriteBatch): Promise<void> {
+  await setDoc<NightShiftID, NightShift>(doc(db, Collection.SESSIONS, sessionId, SessionsSubcollection.NIGHT_SHIFTS, id) as DocumentReference<NightShiftID, NightShift>, { id, sessionId, ...nightShift }, nightShiftFirestoreConverter, instance);
 }
 
-export async function updateNightShift(campminderId: number, sessionId: string, updates: Partial<Attendee>, instance?: Transaction | WriteBatch): Promise<void> {
-  await updateDoc<NightShiftID, NightShift>(doc(db, Collection.SESSIONS, sessionId, SessionsSubcollection.NIGHT_SHIFTS, String(campminderId)) as DocumentReference<NightShiftID, NightShift>, updates, nightShiftFirestoreConverter, instance);
+export async function updateNightShift(id: string, sessionId: string, updates: Partial<NightShift>, instance?: Transaction | WriteBatch): Promise<void> {
+  await updateDoc<NightShiftID, NightShift>(doc(db, Collection.SESSIONS, sessionId, SessionsSubcollection.NIGHT_SHIFTS, id) as DocumentReference<NightShiftID, NightShift>, updates, nightShiftFirestoreConverter, instance);
+}
+
+export async function deleteNightShift(id: string, sessionId: string, instance?: Transaction | WriteBatch): Promise<void> {
+  await deleteDoc<NightShiftID, NightShift>(doc(db, Collection.SESSIONS, sessionId, SessionsSubcollection.NIGHT_SHIFTS, id) as DocumentReference<NightShiftID, NightShift>, nightShiftFirestoreConverter, instance);
 }
