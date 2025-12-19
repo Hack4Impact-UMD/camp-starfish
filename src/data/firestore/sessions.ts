@@ -55,39 +55,3 @@ export async function updateSession(id: string, updates: UpdateData<Session>, in
 export async function deleteSession(id: string, instance?: Transaction | WriteBatch): Promise<void> {
   await deleteDoc<SessionID, Session>(doc(db, Collection.SESSIONS, id) as DocumentReference<SessionID, Session>, sessionFirestoreConverter, instance);
 }
-
-export async function getAllAttendeesBySession({
-  queryKey,
-}: {
-  queryKey: [string, string];
-}) {
-  const res: AttendeeID[] = [];
-  const [_, sessionID] = queryKey;
-  const sessionRef = doc(db, "sessions", sessionID);
-  let attendeesRef = collection(sessionRef, "attendees");
-
-  const querySnapshot = await getDocs(attendeesRef);
-  querySnapshot.forEach((attendee) => {
-    res.push(attendee.data() as AttendeeID);
-  });
-
-  return res;
-}
-
-export async function getNightShiftsBySession({
-  queryKey,
-}: {
-  queryKey: [string, string];
-}) {
-  const res: NightShiftID[] = [];
-  const [_, sessionID] = queryKey;
-  const sessionRef = doc(db, "sessions", sessionID);
-  let nights = collection(sessionRef, "night_shifts");
-
-  const querySnapshot = await getDocs(nights);
-  querySnapshot.forEach((night) => {
-    res.push(night.data() as NightShiftID);
-  });
-
-  return res;
-}
