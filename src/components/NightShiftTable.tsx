@@ -8,7 +8,6 @@ import {
 } from '@tanstack/react-table';
 import { StaffAttendeeID, NightShiftID, AttendeeID } from '@/types/sessionTypes';
 import { getFullName } from '@/utils/personUtils'; // ADDED: Import name utility
-import useNightScheduleData from './useNightShiftTable';
 
 import moment from 'moment';
 
@@ -31,20 +30,9 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
 
   const { nightShifts, attendeeList, isLoading, error } = useNightScheduleData(sessionId);
 
-  // Debug logging
-  useEffect(() => {
-    console.log('=== DEBUGGING DATA ===');
-    console.log('nightShifts:', nightShifts);
-    console.log('attendeeList:', attendeeList);
-    console.log('isLoading:', isLoading);
-    console.log('error:', error);
-  }, [nightShifts, attendeeList, isLoading, error]);
-
-  // Filter to only staff attendees
   const staffAttendees: StaffAttendeeID[] = useMemo(() => {
     if (!attendeeList) return [];
     const filtered = attendeeList.filter((att: AttendeeID) => att.role === "STAFF") as StaffAttendeeID[];
-    console.log('staffAttendees:', filtered);
     return filtered;
   }, [attendeeList]);
 
@@ -61,7 +49,6 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
       });
       setAttendeeMap(map);
       setIsMapReady(true);
-      console.log('attendeeMap created:', map);
     }
   }, [staffAttendees]);
 
@@ -88,14 +75,9 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
     return Array.from(bunks).sort((a, b) => a - b);
   }, [staffAttendees]);
 
-  // Format date for display
   const formatDate = (isoDate: string) => {
-    console.log('formatDate input:', isoDate);
-    // UPDATED: Use moment library for formatting
     const date = moment(isoDate); 
-    console.log('parsed date:', date.format());
     const formatted = date.format('MMM D, YYYY');
-    console.log('formatted date:', formatted);
     return formatted;
   };
 
@@ -121,42 +103,18 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
     switch (position) {
       case 'NBD1': {
         const staffIds = bunkData.nightBunkDuty;
-        if (staffIds.length > 1) {
-          console.warn(
-            `Multiple NBD1 staff for bunk ${bunkNum} on ${date}:`,
-            staffIds
-          );
-        }
         return staffIds[0] ? getStaffName(staffIds[0]) : '-';
       }
       case 'NBD2': {
         const staffIds = bunkData.nightBunkDuty;
-        if (staffIds.length > 2) {
-          console.warn(
-            `More than 2 NBD staff for bunk ${bunkNum} on ${date}:`,
-            staffIds
-          );
-        }
         return staffIds[1] ? getStaffName(staffIds[1]) : '-';
       }
       case 'COD1': {
         const staffIds = bunkData.counselorsOnDuty;
-        if (staffIds.length > 1) {
-          console.warn(
-            `Multiple COD1 staff for bunk ${bunkNum} on ${date}:`,
-            staffIds
-          );
-        }
         return staffIds[0] ? getStaffName(staffIds[0]) : '-';
       }
       case 'COD2': {
         const staffIds = bunkData.counselorsOnDuty;
-        if (staffIds.length > 2) {
-          console.warn(
-            `More than 2 COD staff for bunk ${bunkNum} on ${date}:`,
-            staffIds
-          );
-        }
         return staffIds[1] ? getStaffName(staffIds[1]) : '-';
       }
       case 'DAY OFF': {
@@ -202,18 +160,12 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
   // Build table data
   const data: TableRow[] = useMemo(() => {
     if (!isMapReady || !nightShifts) {
-      console.log('Data building skipped - isMapReady:', isMapReady, 'nightShifts:', nightShifts);
       return [];
     }
-
-    console.log('Building table data...');
-    console.log('nightShifts structure:', nightShifts);
-    console.log('bunkNumbers:', bunkNumbers);
 
     const rows: TableRow[] = [];
 
     nightShifts.forEach((nightShift: NightShiftID, dayIndex: number) => {
-      console.log(`Processing nightShift for day ${dayIndex + 1}:`, nightShift);
       
       positions.forEach((position: Position) => {
         const row: TableRow = {
@@ -227,16 +179,12 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
         bunkNumbers.forEach((bunkNum: number) => {
           const staffValue = getStaffForPosition(nightShift, bunkNum, position);
           row[`bunk${bunkNum}`] = staffValue;
-          if (dayIndex === 0 && position === 'NBD1') {
-            console.log(`Bunk ${bunkNum}, ${position}:`, staffValue);
-          }
         });
 
         rows.push(row);
       });
     });
 
-    console.log('Final table rows:', rows);
     return rows;
   }, [nightShifts, isMapReady, bunkNumbers]);
 
