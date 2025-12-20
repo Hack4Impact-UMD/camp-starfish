@@ -5,6 +5,7 @@ import GalleryCardOne from "../components/GalleryCardOne";
 import NightScheduleTable from "../components/NightShiftTable";
 
 
+
 export default function EmployeeHomePage() {
   const auth = useAuth();
   return (

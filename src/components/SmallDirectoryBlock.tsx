@@ -87,9 +87,7 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
       setShowAll(false);
       setVisibleCount(INITIAL_VISIBILE_COUNT);
     } else {
-      setVisibleCount((prev) =>
-        Math.min(prev + LOAD_MORE_COUNT, people?.length || 0)
-      );
+      setVisibleCount((prev) => Math.min(prev + LOAD_MORE_COUNT , people?.length || 0));
       if (visibleCount + LOAD_MORE_COUNT >= (people?.length || 0)) {
         setShowAll(true);
       }
