@@ -10,6 +10,8 @@ import { StaffAttendeeID, NightShiftID, AttendeeID } from '@/types/sessionTypes'
 import { getFullName } from '@/utils/personUtils'; // ADDED: Import name utility
 
 import moment from 'moment';
+import useAttendeesBySessionId from '@/hooks/attendees/useAttendeesBySessionId';
+import useNightShiftsBySessionId from '@/hooks/nightShifts/useNightShiftsBySessionId';
 
 interface NightScheduleTableProps {
   sessionId: string;
@@ -28,7 +30,10 @@ interface TableRow {
 export default function NightScheduleTable(props: NightScheduleTableProps) {
   const { sessionId } = props;
 
-  const { nightShifts, attendeeList, isLoading, error } = useNightScheduleData(sessionId);
+  const { data: attendeeList, isLoading: isAttendeesLoading } = useAttendeesBySessionId(sessionId);
+  const { data: nightShifts, isLoading: isNightShiftsLoading } = useNightShiftsBySessionId(sessionId);
+
+  const isLoading = isAttendeesLoading || isNightShiftsLoading;
 
   const staffAttendees: StaffAttendeeID[] = useMemo(() => {
     if (!attendeeList) return [];
