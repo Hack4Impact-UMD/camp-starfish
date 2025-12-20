@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getAllAttendeesBySessionId } from "@/data/firestore/attendees";
 import { AttendeeID } from "@/types/sessionTypes";
 
-export function useAttendees(sessionId: string) {
+export default function useAttendeesBySessionId(sessionId: string) {
     return useQuery<AttendeeID[]>({
         queryKey: ['sessions', sessionId, 'attendees'],
         queryFn: () => getAllAttendeesBySessionId(sessionId), 

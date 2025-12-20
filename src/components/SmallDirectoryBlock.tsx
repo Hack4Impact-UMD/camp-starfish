@@ -12,9 +12,9 @@ import {
   IconChevronDown,
   IconChevronUp,
   IconArrowsVertical,
-  IconAlertCircle
+  IconAlertCircle,
 } from "@tabler/icons-react";
-import { useAttendees } from "@/hooks/attendees/useAttendees";
+import useAttendeesBySessionId from "@/hooks/attendees/useAttendeesBySessionId";
 import Profile from "@/assets/icons/Profile.svg";
 import Image from "next/image";
 //import { useRouter } from "next/navigation";
@@ -28,9 +28,11 @@ const LOAD_MORE_COUNT = 3;
 
 export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
   ///const router = useRouter();
-  const { data: people, isLoading, error } = useAttendees(sessionId);
+  const { data: people, isLoading, error } = useAttendeesBySessionId(sessionId);
   const [searchQuery, setSearchQuery] = useState("");
-  const [roleFilter, setRoleFilter] = useState<"CAMPER" | "STAFF" | "ADMIN">("CAMPER");
+  const [roleFilter, setRoleFilter] = useState<"CAMPER" | "STAFF" | "ADMIN">(
+    "CAMPER"
+  );
   const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBILE_COUNT);
   const [showAll, setShowAll] = useState(false);
 
@@ -85,7 +87,9 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
       setShowAll(false);
       setVisibleCount(INITIAL_VISIBILE_COUNT);
     } else {
-      setVisibleCount((prev) => Math.min(prev + LOAD_MORE_COUNT , people?.length || 0));
+      setVisibleCount((prev) =>
+        Math.min(prev + LOAD_MORE_COUNT, people?.length || 0)
+      );
       if (visibleCount + LOAD_MORE_COUNT >= (people?.length || 0)) {
         setShowAll(true);
       }
@@ -118,7 +122,9 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
 
       <RadioGroup
         value={roleFilter}
-        onChange={(value) => setRoleFilter(value as "CAMPER" | "STAFF" | "ADMIN")}
+        onChange={(value) =>
+          setRoleFilter(value as "CAMPER" | "STAFF" | "ADMIN")
+        }
       >
         {/* radio options to choose */}
         <div className="flex gap-4 mt-4">
@@ -132,11 +138,17 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
         {filteredPeople.map((person) => (
           <div key={person.id}>
             <div className="flex items-center gap-[32px]">
-              <Image className="flex-shrink-0 w-[32px] h-[32px]" src={Profile} alt="Profile" />
+              <Image
+                className="flex-shrink-0 w-[32px] h-[32px]"
+                src={Profile}
+                alt="Profile"
+              />
               <div>
                 <p className="text-sm font-bold text-primary-5">
                   {person.name.firstName} {person.name.lastName}
-                  {'bunk' in person && person.bunk !== undefined && ` (${person.bunk})`}
+                  {"bunk" in person &&
+                    person.bunk !== undefined &&
+                    ` (${person.bunk})`}
                 </p>
               </div>
             </div>
