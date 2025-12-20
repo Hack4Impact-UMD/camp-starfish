@@ -15,9 +15,6 @@ const checkWhitelist = onCall(async (req) => {
       resolve(`User with uid ${uid} has been given ADMIN role and permission to access production environment`);
       return;
     }
-
-    await adminAuth.setCustomUserClaims(uid, { role: "ADMIN" });
-    resolve(`User with uid ${uid} has been given ADMIN role`);
   });
 });
 
