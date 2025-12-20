@@ -3,16 +3,16 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    function isStaffOrAdmin() {
+    function isAuthenticated() {
       return request.auth != null;
     }
     
     function isAdmin() {
-      return request.auth.token.role == "ADMIN"
+      return isAuthenticated() && request.auth.token.role == "ADMIN";
     }
 
     function isStaff() {
-      return request.auth.token.role == "STAFF"
+      return isAuthenticated() && request.auth.token.role == "STAFF";
     }
 
     function isStaffOrAdmin() {
