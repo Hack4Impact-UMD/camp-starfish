@@ -11,7 +11,7 @@ import {
   NightShiftID,
   AttendeeID,
 } from "@/types/sessionTypes";
-import { getFullName } from "@/utils/personUtils"; // ADDED: Import name utility
+import { getFullName } from "@/utils/personUtils";
 
 import moment from "moment";
 import useAttendeesBySessionId from "@/hooks/attendees/useAttendeesBySessionId";
@@ -253,7 +253,6 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
             highlightOnHover
             withTableBorder
             withColumnBorders
-            // REPLACED: style={{ borderCollapse: 'collapse' }}
             className="border-collapse"
           >
             <Table.Thead>
@@ -262,7 +261,6 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
                   {headerGroup.headers.map((header) => (
                     <Table.Th
                       key={header.id}
-                      // ALREADY TAILWIND
                       className="text-center bg-gray-200 py-3 px-2 border border-gray-300 font-semibold"
                     >
                       {header.isPlaceholder
@@ -283,16 +281,14 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
                 return (
                   <Table.Tr key={row.id}>
                     {row.getVisibleCells().map((cell, cellIndex) => {
-                      // Handle the DAY column with rowSpan
                       if (cellIndex === 0) {
                         if (!isFirstPositionInDay) {
-                          return null; // Skip rendering for non-first positions
+                          return null;
                         }
                         return (
                           <Table.Td
                             key={cell.id}
                             rowSpan={positions.length}
-                            // REPLACED INLINE STYLE WITH TAILWIND
                             className="text-center align-middle font-semibold bg-gray-200 border border-gray-300"
                           >
                             {flexRender(
@@ -303,12 +299,10 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
                         );
                       }
 
-                      // Handle POSITION column
                       if (cellIndex === 1) {
                         return (
                           <Table.Td
                             key={cell.id}
-                            // REPLACED INLINE STYLE WITH TAILWIND
                             className="text-center font-medium border border-gray-300"
                           >
                             {flexRender(
@@ -319,11 +313,9 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
                         );
                       }
 
-                      // Handle bunk columns
                       return (
                         <Table.Td
                           key={cell.id}
-                          // REPLACED INLINE STYLE WITH TAILWIND
                           className="text-center border border-gray-300 overflow-hidden text-ellipsis whitespace-nowrap"
                         >
                           {flexRender(
