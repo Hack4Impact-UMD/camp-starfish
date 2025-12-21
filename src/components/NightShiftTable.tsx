@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { Box, Container, Flex, Table } from "@mantine/core";
 import {
   useReactTable,
@@ -6,11 +6,7 @@ import {
   ColumnDef,
   flexRender,
 } from "@tanstack/react-table";
-import {
-  StaffAttendeeID,
-  NightShiftID,
-  AttendeeID,
-} from "@/types/sessionTypes";
+import { NightShiftID, AttendeeID } from "@/types/sessionTypes";
 import { getFullName } from "@/utils/personUtils";
 
 import moment from "moment";
@@ -33,7 +29,7 @@ interface TableRow {
   dayNumber: number;
   date: string;
   position: Position;
-  [key: string]: string | number; // Dynamic bunk columns
+  [key: string]: string | number;
 }
 
 export default function NightScheduleTable(props: NightScheduleTableProps) {
@@ -44,13 +40,10 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
   const { data: nightShifts, status: nightShiftsStatus } =
     useNightShiftsBySessionId(sessionId);
 
-  const { staff, admins } = useMemo(() => {
-    return {
-      staff: attendees?.filter((att: AttendeeID) => att.role === "STAFF") ?? [],
-      admins:
-        attendees?.filter((att: AttendeeID) => att.role === "ADMIN") ?? [],
-    };
-  }, [attendees]);
+  const staff = useMemo(
+    () => attendees?.filter((att: AttendeeID) => att.role === "STAFF") ?? [],
+    [attendees]
+  );
 
   if (attendeesStatus === "pending" || nightShiftsStatus === "pending")
     return <LoadingPage />;
@@ -59,7 +52,9 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
 
   const attendeesById = getAttendeesById(attendees);
   const staffByBunk = groupAttendeesByBunk(staff);
-  const bunkNumbers = Object.keys(staffByBunk).sort((a, b) => Number(a) - Number(b));
+  const bunkNumbers = Object.keys(staffByBunk).sort(
+    (a, b) => Number(a) - Number(b)
+  );
 
   const formatDate = (isoDate: string) => {
     const date = moment(isoDate);
@@ -67,7 +62,6 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
     return formatted;
   };
 
-  // Get staff name by ID
   const getStaffName = (staffId: number): string => {
     const staff = attendeesById[staffId];
     if (!staff) return `Unknown (${staffId})`;
@@ -75,7 +69,6 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
     return getFullName(staff);
   };
 
-  // Get staff for a specific position in a bunk on a date
   const getStaffForPosition = (
     nightShift: NightShiftID,
     bunkNum: number,
@@ -104,9 +97,8 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
         return staffIds[1] ? getStaffName(staffIds[1]) : "-";
       }
       case "DAY OFF": {
-        // Find staff in this bunk who have this date off
         const staffInBunk: number[] = Array.from(
-          staffByBunk[bunkNum].map(att => att.id) || []
+          staffByBunk[bunkNum].map((att) => att.id) || []
         );
         const staffOff = staffInBunk.filter((staffId: number) => {
           const staff = attendees[staffId];
@@ -115,9 +107,8 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
         return staffOff.map((id: number) => getStaffName(id)).join(", ") || "-";
       }
       case "ROVER": {
-        // Get all staff in bunk, exclude NBD, COD, and Day Off
         const allStaffInBunk: number[] = Array.from(
-          staffByBunk[bunkNum].map(att => att.id) || []
+          staffByBunk[bunkNum].map((att) => att.id) || []
         );
         const assignedStaff = new Set([
           ...bunkData.nightBunkDuty,
@@ -149,7 +140,6 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
     "DAY OFF",
   ];
 
-  // Build table data
   const data: TableRow[] = useMemo(() => {
     const rows: TableRow[] = [];
 
@@ -162,7 +152,6 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
           position: position,
         };
 
-        // Add columns for each bunk
         bunkNumbers.forEach((bunkNum: number) => {
           const staffValue = getStaffForPosition(nightShift, bunkNum, position);
           row[`bunk${bunkNum}`] = staffValue;
@@ -175,7 +164,6 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
     return rows;
   }, [nightShifts, bunkNumbers]);
 
-  // Define columns dynamically based on bunks
   const columns = useMemo<ColumnDef<TableRow>[]>(() => {
     const cols: ColumnDef<TableRow>[] = [
       {
@@ -200,7 +188,6 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
       },
     ];
 
-    // Add columns for each bunk
     bunkNumbers.forEach((bunkNum: number) => {
       cols.push({
         accessorKey: `bunk${bunkNum}`,
