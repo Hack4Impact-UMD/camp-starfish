@@ -16,7 +16,10 @@ import { getFullName } from "@/utils/personUtils";
 import moment from "moment";
 import useAttendeesBySessionId from "@/hooks/attendees/useAttendeesBySessionId";
 import useNightShiftsBySessionId from "@/hooks/nightShifts/useNightShiftsBySessionId";
-import { getAttendeesById } from "@/features/scheduling/generation/schedulingUtils";
+import {
+  getAttendeesById,
+  groupAttendeesByBunk,
+} from "@/features/scheduling/generation/schedulingUtils";
 import LoadingPage from "@/app/loading";
 
 interface NightScheduleTableProps {
@@ -55,38 +58,8 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
     return <p>Error loading data</p>;
 
   const attendeesById = getAttendeesById(attendees);
-
-  useEffect(() => {
-    if (staff && staff.length > 0) {
-      const map = new Map<number, StaffAttendeeID>();
-      staff.forEach((attendee: StaffAttendeeID) => {
-        map.set(attendee.id, attendee);
-      });
-    }
-  }, [staff]);
-
-  // Get staff by bunk for rover calculation
-  const staffByBunk = useMemo(() => {
-    if (!staff) return new Map();
-    const map = new Map<number, Set<number>>();
-    staff.forEach((att: StaffAttendeeID) => {
-      if (!map.has(att.bunk)) {
-        map.set(att.bunk, new Set());
-      }
-      map.get(att.bunk)!.add(att.id);
-    });
-    return map;
-  }, [staff]);
-
-  // Get all unique bunk numbers sorted
-  const bunkNumbers = useMemo(() => {
-    if (!staff) return [];
-    const bunks = new Set<number>();
-    staff.forEach((att: StaffAttendeeID) => {
-      bunks.add(att.bunk);
-    });
-    return Array.from(bunks).sort((a, b) => a - b);
-  }, [staff]);
+  const staffByBunk = groupAttendeesByBunk(staff);
+  const bunkNumbers = Object.keys(staffByBunk).sort((a, b) => Number(a) - Number(b));
 
   const formatDate = (isoDate: string) => {
     const date = moment(isoDate);
@@ -96,7 +69,7 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
 
   // Get staff name by ID
   const getStaffName = (staffId: number): string => {
-    const staff = attendees[staffId];
+    const staff = attendeesById[staffId];
     if (!staff) return `Unknown (${staffId})`;
 
     return getFullName(staff);
@@ -133,7 +106,7 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
       case "DAY OFF": {
         // Find staff in this bunk who have this date off
         const staffInBunk: number[] = Array.from(
-          staffByBunk.get(bunkNum) || []
+          staffByBunk[bunkNum].map(att => att.id) || []
         );
         const staffOff = staffInBunk.filter((staffId: number) => {
           const staff = attendees[staffId];
@@ -144,7 +117,7 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
       case "ROVER": {
         // Get all staff in bunk, exclude NBD, COD, and Day Off
         const allStaffInBunk: number[] = Array.from(
-          staffByBunk.get(bunkNum) || []
+          staffByBunk[bunkNum].map(att => att.id) || []
         );
         const assignedStaff = new Set([
           ...bunkData.nightBunkDuty,

@@ -1,4 +1,4 @@
-import { AttendeeID, BundleActivity, BunkAssignments, Freeplay, IndividualAssignments, JamboreeActivity } from "@/types/sessionTypes";
+import { AttendeeID, BundleActivity, BunkAssignments, CamperAttendee, CamperAttendeeID, Freeplay, IndividualAssignments, JamboreeActivity, StaffAttendeeID } from "@/types/sessionTypes";
 
 export function doesConflictExist(attendee: AttendeeID, otherAttendeeIds: number[]) {
   if (attendee.role === "CAMPER") {
@@ -40,8 +40,19 @@ export function isBunkAssignments(assignments: IndividualAssignments | BunkAssig
   return 'bunkNums' in assignments;
 }
 
-export function getAttendeesById(attendees: AttendeeID[]): Record<number, AttendeeID> {
-  const attendeesById: Record<number, AttendeeID> = {};
+export function getAttendeesById<T extends AttendeeID>(attendees: T[]): Record<number, T> {
+  const attendeesById: Record<number, T> = {};
   attendees.forEach(attendee => attendeesById[attendee.id] = attendee);
   return attendeesById;
+}
+
+export function groupAttendeesByBunk<T extends StaffAttendeeID | CamperAttendeeID>(attendees: T[]): Record<number, T[]> {
+  const attendeesByBunk: Record<number, T[]> = {};
+  attendees.forEach(attendee => {
+    if (!attendeesByBunk[attendee.bunk]) {
+      attendeesByBunk[attendee.bunk] = [];
+    }
+    attendeesByBunk[attendee.bunk].push(attendee);
+  });
+  return attendeesByBunk;
 }
