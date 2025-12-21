@@ -40,21 +40,18 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
   const { data: nightShifts, status: nightShiftsStatus } =
     useNightShiftsBySessionId(sessionId);
 
-  const staff = useMemo(
-    () => attendees?.filter((att: AttendeeID) => att.role === "STAFF") ?? [],
-    [attendees]
-  );
+  const { staff, staffById, staffByBunk, bunkNums } = useMemo(() => {
+    const staff = attendees?.filter((att: AttendeeID) => att.role === "STAFF") || [];
+    const staffById = getAttendeesById(staff);
+    const staffByBunk = groupAttendeesByBunk(staff);
+    const bunkNums = Object.keys(staffByBunk).map(bunkNum => Number(bunkNum)).sort((a, b) => a - b);
+    return { staff, staffById, staffByBunk, bunkNums};
+  }, [attendees]);
 
   if (attendeesStatus === "pending" || nightShiftsStatus === "pending")
     return <LoadingPage />;
   if (attendeesStatus === "error" || nightShiftsStatus === "error")
     return <p>Error loading data</p>;
-
-  const attendeesById = getAttendeesById(attendees);
-  const staffByBunk = groupAttendeesByBunk(staff);
-  const bunkNumbers = Object.keys(staffByBunk)
-    .map((bunkNum) => Number(bunkNum))
-    .sort((a, b) => a - b);
 
   const formatDate = (isoDate: string) => {
     const date = moment(isoDate);
@@ -63,7 +60,7 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
   };
 
   const getStaffName = (staffId: number): string => {
-    const staff = attendeesById[staffId];
+    const staff = staffById[staffId];
     if (!staff) return `Unknown (${staffId})`;
 
     return getFullName(staff);
@@ -152,7 +149,7 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
           position: position,
         };
 
-        bunkNumbers.forEach((bunkNum: number) => {
+        bunkNums.forEach((bunkNum: number) => {
           const staffValue = getStaffForPosition(nightShift, bunkNum, position);
           row[`bunk${bunkNum}`] = staffValue;
         });
@@ -162,7 +159,7 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
     });
 
     return rows;
-  }, [nightShifts, bunkNumbers]);
+  }, [nightShifts, bunkNums]);
 
   const columns = useMemo<ColumnDef<TableRow>[]>(() => {
     const cols: ColumnDef<TableRow>[] = [
@@ -188,7 +185,7 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
       },
     ];
 
-    bunkNumbers.forEach((bunkNum: number) => {
+    bunkNums.forEach((bunkNum: number) => {
       cols.push({
         accessorKey: `bunk${bunkNum}`,
         header: `BUNK ${bunkNum}`,
@@ -196,7 +193,7 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
     });
 
     return cols;
-  }, [bunkNumbers]);
+  }, [bunkNums]);
 
   const table = useReactTable({
     columns,
