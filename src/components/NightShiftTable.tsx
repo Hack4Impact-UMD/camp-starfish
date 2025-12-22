@@ -35,23 +35,18 @@ interface TableRow {
 export default function NightScheduleTable(props: NightScheduleTableProps) {
   const { sessionId } = props;
 
-  const { data: attendees, status: attendeesStatus } =
+  const { data: attendees = [], status: attendeesStatus } =
     useAttendeesBySessionId(sessionId);
-  const { data: nightShifts, status: nightShiftsStatus } =
+  const { data: nightShifts = [], status: nightShiftsStatus } =
     useNightShiftsBySessionId(sessionId);
 
-  const { staff, staffById, staffByBunk, bunkNums } = useMemo(() => {
+  const { staff = [], staffById = {}, staffByBunk = {}, bunkNums = [] } = useMemo(() => {
     const staff = attendees?.filter((att: AttendeeID) => att.role === "STAFF") || [];
     const staffById = getAttendeesById(staff);
     const staffByBunk = groupAttendeesByBunk(staff);
     const bunkNums = Object.keys(staffByBunk).map(bunkNum => Number(bunkNum)).sort((a, b) => a - b);
-    return { staff, staffById, staffByBunk, bunkNums};
+    return { staff, staffById, staffByBunk, bunkNums };
   }, [attendees]);
-
-  if (attendeesStatus === "pending" || nightShiftsStatus === "pending")
-    return <LoadingPage />;
-  if (attendeesStatus === "error" || nightShiftsStatus === "error")
-    return <p>Error loading data</p>;
 
   const formatDate = (isoDate: string) => {
     const date = moment(isoDate);
@@ -98,8 +93,8 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
           staffByBunk[bunkNum].map((att) => att.id) || []
         );
         const staffOff = staffInBunk.filter((staffId: number) => {
-          const staff = attendees[staffId];
-          return staff?.daysOff.includes(date);
+          const staff = staffById[staffId];
+          return staff.daysOff.includes(date);
         });
         return staffOff.map((id: number) => getStaffName(id)).join(", ") || "-";
       }
@@ -114,7 +109,7 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
 
         const roverStaff = allStaffInBunk.filter((staffId: number) => {
           if (assignedStaff.has(staffId)) return false;
-          const staff = attendees[staffId];
+          const staff = staffById[staffId];
           if (staff?.daysOff.includes(date)) return false;
           return true;
         });
@@ -139,7 +134,7 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
 
   const data: TableRow[] = useMemo(() => {
     const rows: TableRow[] = [];
-
+    console.log('night shifts', nightShifts)
     nightShifts.forEach((nightShift: NightShiftID, dayIndex: number) => {
       positions.forEach((position: Position) => {
         const row: TableRow = {
@@ -200,6 +195,12 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
     data,
     getCoreRowModel: getCoreRowModel(),
   });
+
+
+  if (attendeesStatus === "pending" || nightShiftsStatus === "pending")
+    return <LoadingPage />;
+  if (attendeesStatus === "error" || nightShiftsStatus === "error")
+    return <p>Error loading data</p>;
 
   return (
     <Container>
