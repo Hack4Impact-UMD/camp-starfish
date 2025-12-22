@@ -78,19 +78,19 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
 
     switch (position) {
       case "NBD1": {
-        const staffIds = bunkData["NIGHT-BUNK-DUTY"];
+        const staffIds = bunkData.nightBunkDuty;
         return staffIds[0] ? getStaffName(staffIds[0]) : "-";
       }
       case "NBD2": {
-        const staffIds = bunkData["NIGHT-BUNK-DUTY"];
+        const staffIds = bunkData.nightBunkDuty;
         return staffIds[1] ? getStaffName(staffIds[1]) : "-";
       }
       case "COD1": {
-        const staffIds = bunkData["COUNSELOR-ON-DUTY"];
+        const staffIds = bunkData.counselorsOnDuty;
         return staffIds[0] ? getStaffName(staffIds[0]) : "-";
       }
       case "COD2": {
-        const staffIds = bunkData["COUNSELOR-ON-DUTY"];
+        const staffIds = bunkData.counselorsOnDuty;
         return staffIds[1] ? getStaffName(staffIds[1]) : "-";
       }
       case "DAY OFF": {
@@ -108,8 +108,8 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
           staffByBunk[bunkNum].map((att) => att.id) || []
         );
         const assignedStaff = new Set([
-          ...bunkData["NIGHT-BUNK-DUTY"],
-          ...bunkData["COUNSELOR-ON-DUTY"],
+          ...bunkData.nightBunkDuty,
+          ...bunkData.counselorsOnDuty,
         ]);
 
         const roverStaff = allStaffInBunk.filter((staffId: number) => {
