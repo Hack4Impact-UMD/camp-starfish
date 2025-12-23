@@ -41,13 +41,9 @@ export type AdminAttendee = Pick<Admin, 'name' | 'gender' | 'nonoList' | 'yesyes
 export interface AdminAttendeeID extends AdminAttendee, ID<number> { sessionId: string; };
 
 export interface NightShift {
-  [bunkId: number]: {
-    counselorsOnDuty: number[];
-    nightBunkDuty: number[];
-  }
+  [bunkId: number]: Record<NightSchedulePosition, number[]>
 }
 export interface NightShiftID extends NightShift, ID<string> { sessionId: string; };
-
 export type NightSchedulePosition = "COUNSELOR-ON-DUTY" | "NIGHT-BUNK-DUTY" | "ROVER";
 
 export type SectionType = 'COMMON' | SchedulingSectionType;
