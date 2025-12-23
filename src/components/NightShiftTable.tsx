@@ -29,7 +29,6 @@ interface TableRow {
   dayNumber: number;
   date: string;
   position: Position;
-  [key: string]: string | number;
 }
 
 export default function NightScheduleTable(props: NightScheduleTableProps) {
@@ -40,12 +39,12 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
   const { data: nightShifts = [], status: nightShiftsStatus } =
     useNightShiftsBySessionId(sessionId);
 
-  const { staff = [], staffById = {}, staffByBunk = {}, bunkNums = [] } = useMemo(() => {
+  const { staffById = {}, staffByBunk = {}, bunkNums = [] } = useMemo(() => {
     const staff = attendees?.filter((att: AttendeeID) => att.role === "STAFF") || [];
     const staffById = getAttendeesById(staff);
     const staffByBunk = groupAttendeesByBunk(staff);
     const bunkNums = Object.keys(staffByBunk).map(bunkNum => Number(bunkNum)).sort((a, b) => a - b);
-    return { staff, staffById, staffByBunk, bunkNums };
+    return { staffById, staffByBunk, bunkNums };
   }, [attendees]);
 
   const formatDate = (isoDate: string) => {
@@ -134,7 +133,6 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
 
   const data: TableRow[] = useMemo(() => {
     const rows: TableRow[] = [];
-    console.log('night shifts', nightShifts)
     nightShifts.forEach((nightShift: NightShiftID, dayIndex: number) => {
       positions.forEach((position: Position) => {
         const row: TableRow = {
@@ -172,6 +170,7 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
             </div>
           </div>
         ),
+        accessorFn: 
       },
       {
         accessorKey: "position",
@@ -196,7 +195,8 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
     getCoreRowModel: getCoreRowModel(),
   });
 
-
+  console.log(table.getCoreRowModel())
+  
   if (attendeesStatus === "pending" || nightShiftsStatus === "pending")
     return <LoadingPage />;
   if (attendeesStatus === "error" || nightShiftsStatus === "error")
