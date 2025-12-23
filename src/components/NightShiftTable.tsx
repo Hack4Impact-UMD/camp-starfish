@@ -170,7 +170,6 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
             </div>
           </div>
         ),
-        accessorFn: 
       },
       {
         accessorKey: "position",
