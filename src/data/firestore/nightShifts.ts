@@ -26,7 +26,7 @@ export async function getNightShiftById(id: string, sessionId: string, transacti
   return await getDoc<NightShiftID, NightShift>(doc(db, Collection.SESSIONS, sessionId, SessionsSubcollection.NIGHT_SHIFTS, id) as DocumentReference<NightShiftID, NightShift>, nightShiftFirestoreConverter, transaction);
 };
 
-export async function getAllNightShiftsBySessionId(sessionId: string): Promise<NightShiftID[]> {
+export async function getNightShiftsBySessionId(sessionId: string): Promise<NightShiftID[]> {
   return await executeQuery<NightShiftID, NightShift>(collection(db, Collection.SESSIONS, sessionId, SessionsSubcollection.NIGHT_SHIFTS) as CollectionReference<NightShiftID, NightShift>, nightShiftFirestoreConverter);
 }
 
