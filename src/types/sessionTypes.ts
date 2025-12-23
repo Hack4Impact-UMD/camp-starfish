@@ -48,7 +48,7 @@ export interface NightShift {
 }
 export interface NightShiftID extends NightShift, ID<string> { sessionId: string; };
 
-export type NightSchedulePosition = "COUNSELOR-ON-DUTY" | "NIGHT-BUNK-DUTY" | "ROVER";
+export type NightSchedulePosition = "COUNSELOR-ON-DUTY" | "NIGHT-BUNK-DUTY" | "ROVER" | "DAY OFF";
 
 export type SectionType = 'COMMON' | SchedulingSectionType;
 export type SchedulingSectionType = "BUNDLE" | "BUNK-JAMBO" | "NON-BUNK-JAMBO";

@@ -6,9 +6,13 @@ import {
   ColumnDef,
   flexRender,
 } from "@tanstack/react-table";
-import { NightShiftID, AttendeeID } from "@/types/sessionTypes";
+import {
+  NightShiftID,
+  AttendeeID,
+  NightSchedulePosition,
+  StaffAttendeeID,
+} from "@/types/sessionTypes";
 import { getFullName } from "@/utils/personUtils";
-
 import moment from "moment";
 import useAttendeesBySessionId from "@/hooks/attendees/useAttendeesBySessionId";
 import useNightShiftsBySessionId from "@/hooks/nightShifts/useNightShiftsBySessionId";
@@ -17,18 +21,18 @@ import {
   groupAttendeesByBunk,
 } from "@/features/scheduling/generation/schedulingUtils";
 import LoadingPage from "@/app/loading";
+import { nightSchedulePositions } from "@/utils/nightShiftUtils";
 
 interface NightScheduleTableProps {
   sessionId: string;
 }
 
-type Position = "NBD1" | "NBD2" | "COD1" | "COD2" | "ROVER" | "DAY OFF";
-
 interface TableRow {
   day: string;
   dayNumber: number;
   date: string;
-  position: Position;
+  position: NightSchedulePosition;
+  bunks: Record<number, StaffAttendeeID[]>;
 }
 
 export default function NightScheduleTable(props: NightScheduleTableProps) {
@@ -39,11 +43,18 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
   const { data: nightShifts = [], status: nightShiftsStatus } =
     useNightShiftsBySessionId(sessionId);
 
-  const { staffById = {}, staffByBunk = {}, bunkNums = [] } = useMemo(() => {
-    const staff = attendees?.filter((att: AttendeeID) => att.role === "STAFF") || [];
+  const {
+    staffById = {},
+    staffByBunk = {},
+    bunkNums = [],
+  } = useMemo(() => {
+    const staff =
+      attendees?.filter((att: AttendeeID) => att.role === "STAFF") || [];
     const staffById = getAttendeesById(staff);
     const staffByBunk = groupAttendeesByBunk(staff);
-    const bunkNums = Object.keys(staffByBunk).map(bunkNum => Number(bunkNum)).sort((a, b) => a - b);
+    const bunkNums = Object.keys(staffByBunk)
+      .map((bunkNum) => Number(bunkNum))
+      .sort((a, b) => a - b);
     return { staffById, staffByBunk, bunkNums };
   }, [attendees]);
 
@@ -53,39 +64,21 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
     return formatted;
   };
 
-  const getStaffName = (staffId: number): string => {
-    const staff = staffById[staffId];
-    if (!staff) return `Unknown (${staffId})`;
-
-    return getFullName(staff);
-  };
-
   const getStaffForPosition = (
     nightShift: NightShiftID,
     bunkNum: number,
-    position: Position
-  ): string => {
+    position: NightSchedulePosition
+  ): StaffAttendeeID[] => {
     const bunkData = nightShift[bunkNum];
-    if (!bunkData) return "-";
 
     const date = nightShift.id;
 
     switch (position) {
-      case "NBD1": {
-        const staffIds = bunkData.nightBunkDuty;
-        return staffIds[0] ? getStaffName(staffIds[0]) : "-";
+      case "NIGHT-BUNK-DUTY": {
+        return bunkData.nightBunkDuty.map((staffId) => staffById[staffId]);
       }
-      case "NBD2": {
-        const staffIds = bunkData.nightBunkDuty;
-        return staffIds[1] ? getStaffName(staffIds[1]) : "-";
-      }
-      case "COD1": {
-        const staffIds = bunkData.counselorsOnDuty;
-        return staffIds[0] ? getStaffName(staffIds[0]) : "-";
-      }
-      case "COD2": {
-        const staffIds = bunkData.counselorsOnDuty;
-        return staffIds[1] ? getStaffName(staffIds[1]) : "-";
+      case "COUNSELOR-ON-DUTY": {
+        return bunkData.nightBunkDuty.map((staffId) => staffById[staffId]);
       }
       case "DAY OFF": {
         const staffInBunk: number[] = Array.from(
@@ -95,7 +88,7 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
           const staff = staffById[staffId];
           return staff.daysOff.includes(date);
         });
-        return staffOff.map((id: number) => getStaffName(id)).join(", ") || "-";
+        return staffOff.map((staffId: number) => staffById[staffId]);
       }
       case "ROVER": {
         const allStaffInBunk: number[] = Array.from(
@@ -114,37 +107,29 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
         });
 
         return (
-          roverStaff.map((id: number) => getStaffName(id)).join(", ") || "-"
+          roverStaff.map((staffId: number) => staffById[staffId])
         );
       }
       default:
-        return "-";
+        return [];
     }
   };
-
-  const positions: Position[] = [
-    "NBD1",
-    "NBD2",
-    "COD1",
-    "COD2",
-    "ROVER",
-    "DAY OFF",
-  ];
 
   const data: TableRow[] = useMemo(() => {
     const rows: TableRow[] = [];
     nightShifts.forEach((nightShift: NightShiftID, dayIndex: number) => {
-      positions.forEach((position: Position) => {
+      nightSchedulePositions.forEach((position: NightSchedulePosition) => {
         const row: TableRow = {
           day: `Day ${dayIndex + 1}`,
           dayNumber: dayIndex + 1,
           date: formatDate(nightShift.id),
           position: position,
+          bunks: {},
         };
 
         bunkNums.forEach((bunkNum: number) => {
           const staffValue = getStaffForPosition(nightShift, bunkNum, position);
-          row[`bunk${bunkNum}`] = staffValue;
+          row.bunks[bunkNum] = staffValue;
         });
 
         rows.push(row);
@@ -194,8 +179,8 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
     getCoreRowModel: getCoreRowModel(),
   });
 
-  console.log(table.getCoreRowModel())
-  
+  console.log(table.getCoreRowModel());
+
   if (attendeesStatus === "pending" || nightShiftsStatus === "pending")
     return <LoadingPage />;
   if (attendeesStatus === "error" || nightShiftsStatus === "error")
@@ -233,7 +218,8 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
             </Table.Thead>
             <Table.Tbody>
               {table.getRowModel().rows.map((row) => {
-                const isFirstPositionInDay = row.original.position === "NBD1";
+                const isFirstPositionInDay =
+                  row.original.position === "NIGHT-BUNK-DUTY";
 
                 return (
                   <Table.Tr key={row.id}>
@@ -245,7 +231,7 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
                         return (
                           <Table.Td
                             key={cell.id}
-                            rowSpan={positions.length}
+                            rowSpan={nightSchedulePositions.length}
                             className="text-center align-middle font-semibold bg-gray-200 border border-gray-300"
                           >
                             {flexRender(
