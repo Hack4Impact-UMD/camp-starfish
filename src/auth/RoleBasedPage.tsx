@@ -1,6 +1,7 @@
 import { Role } from "@/types/personTypes";
 import { JSX } from "react";
 import { useAuth } from "./useAuth";
+import { PermissionDeniedError } from "@/utils/errors/PermissionDeniedError";
 
 interface RoleBasedPageProps {
   rolePages: Partial<Record<Role, JSX.Element>>;
@@ -17,5 +18,5 @@ export default function RoleBasedPage(props: RoleBasedPageProps) {
   } else if (rolePages[role]) {
     return rolePages[role];
   }
-  throw Error("You do not have permission to access this page.")
+  throw new PermissionDeniedError("You do not have permission to access this page.")
 }

@@ -1,7 +1,7 @@
 import { auth, functions } from "@/config/firebase";
 import { httpsCallable } from "firebase/functions";
 import { CamperAttendeeID, BundleActivityWithAssignments, BunkJamboreeActivityWithAssignments, NonBunkJamboreeActivityWithAssignments } from "@/types/sessionTypes";
-
+import { PermissionDeniedError } from "@/utils/errors/PermissionDeniedError";
 /**  
  * Calls an Apps Script function via Firebase callable.  
  * @warning The returned data is not validated against type T at runtime.  
@@ -13,7 +13,7 @@ async function callAppsScript<T = unknown>(
 ): Promise<T> {  
   const user = auth.currentUser;  
   if (!user) {  
-    throw new Error("You must be logged in to access this feature.");  
+    throw new PermissionDeniedError("You must be logged in to access this feature.");  
   }  
   return (await httpsCallable(functions, 'appsScriptEndpoint')({  
     functionName,  

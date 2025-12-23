@@ -1,14 +1,17 @@
 import { auth } from "@/config/firebase";
+import { CampStarfishError } from "@/utils/errors/CampStarfishErrors";
+import { PermissionDeniedError } from "@/utils/errors/PermissionDeniedError";
+import { InvalidArgumentsError } from "@/utils/errors/InvalidArgumentsError";
 import { getFunctionsURL } from "@/utils/firebaseUtils";
 
 export async function startGoogleOAuth2Flow(scopes: string[]) {
   const user = auth.currentUser;
   if (!user) {
-    throw new Error("You must be logged in to access this feature.");
+    throw new PermissionDeniedError("You must be logged in to access this feature.");
   }
 
   if (scopes.length === 0) {
-    throw new Error("At least one scope must be provided.");
+    throw new InvalidArgumentsError("No scopes provided");
   }
   const scope = scopes.join(' ');
 

@@ -1,4 +1,6 @@
 import { storage } from "@/config/firebase";
+import { CampStarfishError } from "@/utils/errors/CampStarfishErrors";
+import { InvalidArgumentsError } from "@/utils/errors/InvalidArgumentsError";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 
 export async function uploadFile(file: File, path: string) {
@@ -8,7 +10,7 @@ export async function uploadFile(file: File, path: string) {
 
 export async function uploadFiles(files: File[], paths: string[]) {
   if (files.length !== paths.length) {
-    throw new Error("Number of images must be equal to the number of paths");
+    throw new InvalidArgumentsError("Files and paths must have the same length");
   }
   const uploadPromises = files.map((file, i) => {
     return uploadFile(file, paths[i]);
