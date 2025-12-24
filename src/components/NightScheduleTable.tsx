@@ -25,13 +25,14 @@ import {
   getNightSchedulePositionAbbreviation,
   nightSchedulePositions,
 } from "@/utils/nightShiftUtils";
+import useSession from "@/hooks/sessions/useSession";
+import { getDayNumOfSession } from "@/utils/sessionUtils";
 
 interface NightScheduleTableProps {
   sessionId: string;
 }
 
 interface NightScheduleTableRow {
-  dayNum: number;
   date: string;
   position: NightSchedulePosition;
   bunks: Record<number, StaffAttendeeID[]>;
@@ -40,6 +41,7 @@ interface NightScheduleTableRow {
 export default function NightScheduleTable(props: NightScheduleTableProps) {
   const { sessionId } = props;
 
+  const { data: session, status: sessionStatus } = useSession(sessionId);
   const { data: attendees = [], status: attendeesStatus } =
     useAttendeesBySessionId(sessionId);
   const { data: nightShifts = [], status: nightShiftsStatus } =
@@ -114,7 +116,6 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
     nightShifts.forEach((nightShift: NightShiftID, dayIndex: number) => {
       nightSchedulePositions.forEach((position: NightSchedulePosition) => {
         const row: NightScheduleTableRow = {
-          dayNum: dayIndex + 1,
           date: nightShift.id,
           position: position,
           bunks: bunkNums.map((bunkNum) =>
@@ -136,7 +137,7 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
         cell: ({ row }) => (
           <div>
             <Text className="text-sm font-semibold">
-              Day {row.original.dayNum}
+              Day {getDayNumOfSession(row.original.date, session)}
             </Text>
             <Text className="text-xs font-semibold text-[#868e96]">
               {moment(row.original.date).format("MMM D, YYYY")}
@@ -169,9 +170,9 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
     getCoreRowModel: getCoreRowModel(),
   });
 
-  if (attendeesStatus === "pending" || nightShiftsStatus === "pending")
+  if (attendeesStatus === "pending" || nightShiftsStatus === "pending" || sessionStatus === 'pending')
     return <LoadingPage />;
-  if (attendeesStatus === "error" || nightShiftsStatus === "error")
+  if (attendeesStatus === "error" || nightShiftsStatus === "error" || sessionStatus === 'error')
     return <p>Error loading data</p>;
 
   return (
