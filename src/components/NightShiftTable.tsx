@@ -27,7 +27,7 @@ interface NightScheduleTableProps {
   sessionId: string;
 }
 
-interface TableRow {
+interface NightScheduleTableRow {
   dayNum: number;
   date: string;
   position: NightSchedulePosition;
@@ -106,11 +106,11 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
     }
   };
 
-  const data: TableRow[] = useMemo(() => {
-    const rows: TableRow[] = [];
+  const data: NightScheduleTableRow[] = useMemo(() => {
+    const rows: NightScheduleTableRow[] = [];
     nightShifts.forEach((nightShift: NightShiftID, dayIndex: number) => {
       nightSchedulePositions.forEach((position: NightSchedulePosition) => {
-        const row: TableRow = {
+        const row: NightScheduleTableRow = {
           dayNum: dayIndex + 1,
           date: nightShift.id,
           position: position,
@@ -125,8 +125,8 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
     return rows;
   }, [nightShifts, bunkNums]);
 
-  const columns = useMemo<ColumnDef<TableRow>[]>(() => {
-    const cols: ColumnDef<TableRow>[] = [
+  const columns = useMemo<ColumnDef<NightScheduleTableRow>[]>(() => {
+    const cols: ColumnDef<NightScheduleTableRow>[] = [
       {
         accessorKey: "day",
         header: "DAY",
@@ -151,7 +151,7 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
 
     bunkNums.forEach((bunkNum: number) => {
       cols.push({
-        accessorFn: (row: TableRow) =>
+        accessorFn: (row: NightScheduleTableRow) =>
           row.bunks[bunkNum].map((staff) => getFullName(staff)),
         header: `BUNK ${bunkNum}`,
       });
