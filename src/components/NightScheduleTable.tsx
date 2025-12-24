@@ -156,7 +156,7 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
       cols.push({
         accessorFn: (row: NightScheduleTableRow) =>
           row.bunks[bunkNum] &&
-          row.bunks[bunkNum].map((staff) => getFullName(staff)),
+          row.bunks[bunkNum].map((staff) => getFullName(staff)).join(', '),
         header: `BUNK ${bunkNum}`,
       });
     });
