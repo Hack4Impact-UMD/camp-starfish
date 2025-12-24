@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { Box, Container, Flex, Table } from "@mantine/core";
+import { Table, Text } from "@mantine/core";
 import {
   useReactTable,
   getCoreRowModel,
@@ -124,7 +124,6 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
         rows.push(row);
       });
     });
-
     return rows;
   }, [nightShifts, bunkNums]);
 
@@ -136,12 +135,12 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
         size: 120,
         cell: ({ row }) => (
           <div>
-            <div style={{ fontSize: "0.875rem", fontWeight: 600 }}>
+            <Text className="text-sm font-semibold">
               Day {row.original.dayNum}
-            </div>
-            <div style={{ fontSize: "0.75rem", color: "#868e96" }}>
+            </Text>
+            <Text className="text-xs font-semibold text-[#868e96]">
               {moment(row.original.date).format("MMM D, YYYY")}
-            </div>
+            </Text>
           </div>
         ),
       },
