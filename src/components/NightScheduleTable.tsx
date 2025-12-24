@@ -191,12 +191,10 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
                 key={header.id}
                 className="text-center bg-gray-200 py-3 px-2 border border-gray-300 font-semibold"
               >
-                {header.isPlaceholder
-                  ? null
-                  : flexRender(
-                      header.column.columnDef.header,
-                      header.getContext()
-                    )}
+                {flexRender(
+                  header.column.columnDef.header,
+                  header.getContext()
+                )}
               </Table.Th>
             ))}
           </Table.Tr>
