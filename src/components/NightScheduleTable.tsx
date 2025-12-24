@@ -11,6 +11,7 @@ import {
   AttendeeID,
   NightSchedulePosition,
   StaffAttendeeID,
+  SessionID,
 } from "@/types/sessionTypes";
 import { getFullName } from "@/utils/personUtils";
 import moment from "moment";
@@ -32,12 +33,6 @@ interface NightScheduleTableProps {
   sessionId: string;
 }
 
-interface NightScheduleTableRow {
-  date: string;
-  position: NightSchedulePosition;
-  bunks: Record<number, StaffAttendeeID[]>;
-}
-
 export default function NightScheduleTable(props: NightScheduleTableProps) {
   const { sessionId } = props;
 
@@ -46,6 +41,34 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
     useAttendeesBySessionId(sessionId);
   const { data: nightShifts = [], status: nightShiftsStatus } =
     useNightShiftsBySessionId(sessionId);
+
+  if (sessionStatus === 'error' || attendeesStatus === 'error' || nightShiftsStatus === 'error') {
+    return <p>Error loading session data</p>;
+  } else if (sessionStatus === 'pending' || attendeesStatus === 'pending' || nightShiftsStatus === 'pending') {
+    return <LoadingPage />;
+  }
+
+  return <NightScheduleTableContent
+    session={session}
+    attendees={attendees}
+    nightShifts={nightShifts}
+  />
+}
+
+interface NightScheduleTableContentProps {
+  session: SessionID;
+  attendees: AttendeeID[];
+  nightShifts: NightShiftID[];
+}
+
+interface NightScheduleTableRow {
+  date: string;
+  position: NightSchedulePosition;
+  bunks: Record<number, StaffAttendeeID[]>;
+}
+
+function NightScheduleTableContent(props: NightScheduleTableContentProps) {
+  const { session, attendees, nightShifts } = props;
 
   const {
     staffById = {},
@@ -169,11 +192,6 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
     data,
     getCoreRowModel: getCoreRowModel(),
   });
-
-  if (attendeesStatus === "pending" || nightShiftsStatus === "pending" || sessionStatus === 'pending')
-    return <LoadingPage />;
-  if (attendeesStatus === "error" || nightShiftsStatus === "error" || sessionStatus === 'error')
-    return <p>Error loading data</p>;
 
   return (
     <Table
