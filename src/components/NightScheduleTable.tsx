@@ -21,7 +21,10 @@ import {
   groupAttendeesByBunk,
 } from "@/features/scheduling/generation/schedulingUtils";
 import LoadingPage from "@/app/loading";
-import { getNightSchedulePositionAbbreviation, nightSchedulePositions } from "@/utils/nightShiftUtils";
+import {
+  getNightSchedulePositionAbbreviation,
+  nightSchedulePositions,
+} from "@/utils/nightShiftUtils";
 
 interface NightScheduleTableProps {
   sessionId: string;
@@ -152,6 +155,7 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
     bunkNums.forEach((bunkNum: number) => {
       cols.push({
         accessorFn: (row: NightScheduleTableRow) =>
+          row.bunks[bunkNum] &&
           row.bunks[bunkNum].map((staff) => getFullName(staff)),
         header: `BUNK ${bunkNum}`,
       });
@@ -172,94 +176,85 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
     return <p>Error loading data</p>;
 
   return (
-    <Container>
-      <Flex direction={"column"}>
-        <Box>
-          <Table
-            striped
-            highlightOnHover
-            withTableBorder
-            withColumnBorders
-            className="border-collapse"
-          >
-            <Table.Thead>
-              {table.getHeaderGroups().map((headerGroup) => (
-                <Table.Tr key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => (
-                    <Table.Th
-                      key={header.id}
-                      className="text-center bg-gray-200 py-3 px-2 border border-gray-300 font-semibold"
+    <Table
+      striped
+      highlightOnHover
+      withTableBorder
+      withColumnBorders
+      className="border-collapse"
+    >
+      <Table.Thead>
+        {table.getHeaderGroups().map((headerGroup) => (
+          <Table.Tr key={headerGroup.id}>
+            {headerGroup.headers.map((header) => (
+              <Table.Th
+                key={header.id}
+                className="text-center bg-gray-200 py-3 px-2 border border-gray-300 font-semibold"
+              >
+                {header.isPlaceholder
+                  ? null
+                  : flexRender(
+                      header.column.columnDef.header,
+                      header.getContext()
+                    )}
+              </Table.Th>
+            ))}
+          </Table.Tr>
+        ))}
+      </Table.Thead>
+      <Table.Tbody>
+        {table.getRowModel().rows.map((row) => {
+          const isFirstPositionInDay =
+            row.original.position === "COUNSELOR-ON-DUTY";
+
+          return (
+            <Table.Tr key={row.id}>
+              {row.getVisibleCells().map((cell, cellIndex) => {
+                if (cellIndex === 0) {
+                  if (!isFirstPositionInDay) {
+                    return null;
+                  }
+                  return (
+                    <Table.Td
+                      key={cell.id}
+                      rowSpan={nightSchedulePositions.length}
+                      className="text-center align-middle font-semibold bg-gray-200 border border-gray-300"
                     >
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </Table.Th>
-                  ))}
-                </Table.Tr>
-              ))}
-            </Table.Thead>
-            <Table.Tbody>
-              {table.getRowModel().rows.map((row) => {
-                const isFirstPositionInDay =
-                  row.original.position === "COUNSELOR-ON-DUTY";
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </Table.Td>
+                  );
+                }
+
+                if (cellIndex === 1) {
+                  return (
+                    <Table.Td
+                      key={cell.id}
+                      className="text-center font-medium border border-gray-300"
+                    >
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </Table.Td>
+                  );
+                }
 
                 return (
-                  <Table.Tr key={row.id}>
-                    {row.getVisibleCells().map((cell, cellIndex) => {
-                      if (cellIndex === 0) {
-                        if (!isFirstPositionInDay) {
-                          return null;
-                        }
-                        return (
-                          <Table.Td
-                            key={cell.id}
-                            rowSpan={nightSchedulePositions.length}
-                            className="text-center align-middle font-semibold bg-gray-200 border border-gray-300"
-                          >
-                            {flexRender(
-                              cell.column.columnDef.cell,
-                              cell.getContext()
-                            )}
-                          </Table.Td>
-                        );
-                      }
-
-                      if (cellIndex === 1) {
-                        return (
-                          <Table.Td
-                            key={cell.id}
-                            className="text-center font-medium border border-gray-300"
-                          >
-                            {flexRender(
-                              cell.column.columnDef.cell,
-                              cell.getContext()
-                            )}
-                          </Table.Td>
-                        );
-                      }
-
-                      return (
-                        <Table.Td
-                          key={cell.id}
-                          className="text-center border border-gray-300 overflow-hidden text-ellipsis whitespace-nowrap"
-                        >
-                          {flexRender(
-                            cell.column.columnDef.cell,
-                            cell.getContext()
-                          )}
-                        </Table.Td>
-                      );
-                    })}
-                  </Table.Tr>
+                  <Table.Td
+                    key={cell.id}
+                    className="text-center border border-gray-300 overflow-hidden text-ellipsis whitespace-nowrap"
+                  >
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </Table.Td>
                 );
               })}
-            </Table.Tbody>
-          </Table>
-        </Box>
-      </Flex>
-    </Container>
+            </Table.Tr>
+          );
+        })}
+      </Table.Tbody>
+    </Table>
   );
 }
