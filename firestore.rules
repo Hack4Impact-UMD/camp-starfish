@@ -2,110 +2,108 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // TEMPORARY: Allow all for testing with emulators
-    // TODO: Re-enable authentication checks before deploying to production
+
     function isAuthenticated() {
-      return true; // Temporarily allow all
-      // return request.auth != null;
+      return request.auth != null;
     }
     
+    function isAdmin() {
+      return isAuthenticated() && request.auth.token.role == "ADMIN";
+    }
+
+    function isStaff() {
+      return isAuthenticated() && request.auth.token.role == "STAFF";
+    }
+
     function isStaffOrAdmin() {
-      return true; // Temporarily allow all
-      // return isAuthenticated() && 
-      //        (exists(/databases/$(database)/documents/staff/$(request.auth.uid)) || 
-      //         exists(/databases/$(database)/documents/admins/$(request.auth.uid)));
+      return isStaff() || isAdmin();
     }
 
     // Sessions collection
     match /sessions/{sessionId} {
-      allow read: if isAuthenticated();
+      allow read: if isStaffOrAdmin();
       allow write: if isStaffOrAdmin();
       
       // Sections subcollection
       match /sections/{sectionId} {
-        allow read: if isAuthenticated();
+        allow read: if isStaffOrAdmin();
         allow create, update, delete: if isStaffOrAdmin();
         
         // Section schedules subcollection
         match /schedule/{scheduleId} {
-          allow read: if isAuthenticated();
+          allow read: if isStaffOrAdmin();
           allow create, update, delete: if isStaffOrAdmin();
         }
       }
       
       // Other subcollections
       match /attendees/{attendeeId} {
-        allow read: if isAuthenticated();
+        allow read: if isStaffOrAdmin();
         allow write: if isStaffOrAdmin();
       }
       
       match /bunks/{bunkId} {
-        allow read: if isAuthenticated();
+        allow read: if isStaffOrAdmin();
         allow write: if isStaffOrAdmin();
       }
       
       match /night_shifts/{shiftId} {
-        allow read: if isAuthenticated();
+        allow read: if isStaffOrAdmin();
         allow write: if isStaffOrAdmin();
       }
       
       match /freeplays/{freeplayId} {
-        allow read: if isAuthenticated();
+        allow read: if isStaffOrAdmin();
         allow write: if isStaffOrAdmin();
       }
     }
     
     // Albums collection
     match /albums/{albumId} {
-      allow read: if isAuthenticated();
+      allow read: if isStaffOrAdmin();
       allow write: if isStaffOrAdmin();
       
       match /image_metadatas/{imageId} {
-        allow read: if isAuthenticated();
+        allow read: if isStaffOrAdmin();
         allow write: if isStaffOrAdmin();
       }
     }
     
     // User collections
     match /campers/{camperId} {
-      allow read: if isAuthenticated();
+      allow read: if isStaffOrAdmin();
       allow write: if isStaffOrAdmin();
     }
     
     match /parents/{parentId} {
-      allow read: if isAuthenticated();
+      allow read: if isStaffOrAdmin();
       allow write: if isStaffOrAdmin();
     }
     
     match /staff/{staffId} {
-      allow read: if isAuthenticated();
+      allow read: if isStaffOrAdmin();
       allow write: if isStaffOrAdmin();
     }
     
     match /admins/{adminId} {
-      allow read: if isAuthenticated();
+      allow read: if isStaffOrAdmin();
       allow write: if isStaffOrAdmin();
     }
     
     match /photographers/{photographerId} {
-      allow read: if isAuthenticated();
+      allow read: if isStaffOrAdmin();
       allow write: if isStaffOrAdmin();
     }
     
     // Shared resources
     match /program_areas/{areaId} {
-      allow read: if isAuthenticated();
+      allow read: if isStaffOrAdmin();
       allow write: if isStaffOrAdmin();
     }
     
     match /posts/{postId} {
-      allow read: if isAuthenticated();
+      allow read: if isStaffOrAdmin();
       allow write: if isStaffOrAdmin();
-    }
-    
-    // Default deny all
-    match /{document=**} {
-      allow read, write: if false;
     }
   }
 }

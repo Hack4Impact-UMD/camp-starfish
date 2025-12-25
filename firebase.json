@@ -16,8 +16,12 @@
         "*.local"
       ],
       "predeploy": [
+        "(cp .env.production functions/.env || :)",
         "npm --prefix \"$RESOURCE_DIR\" run lint",
         "npm --prefix \"$RESOURCE_DIR\" run build"
+      ],
+      "postdeploy": [
+        "(rm functions/.env || :)"
       ]
     }
   ],
@@ -46,7 +50,7 @@
       "port": 8080
     },
     "hosting": {
-      "port": 5002
+      "port": 5000
     },
     "storage": {
       "port": 9199
