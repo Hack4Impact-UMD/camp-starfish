@@ -109,7 +109,7 @@ interface ProgramAreaGridProps {
 }
 
 // ---------- Component ----------
-export function ProgramAreaGrid({
+export default function ProgramAreaGrid({
   schedule,
   sectionName,
 }: ProgramAreaGridProps) {

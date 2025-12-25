@@ -12,7 +12,7 @@ import {
 import CamperGrid from "@/features/scheduling/exporting/CamperGrid";
 import BlockRatiosGrid from "@/features/scheduling/exporting/BlockRatiosGrid";
 import EmployeeGrid from "@/features/scheduling/exporting/EmployeeGrid";
-import { ProgramAreaGrid } from "@/features/scheduling/ProgramAreaGrid";
+import ProgramAreaGrid from "@/features/scheduling/ProgramAreaGrid";
 
 interface CombinedPDFProps {
   schedule: SectionScheduleID<SchedulingSectionType>;
