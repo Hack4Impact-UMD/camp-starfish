@@ -136,7 +136,7 @@ function NightScheduleTableContent(props: NightScheduleTableContentProps) {
 
   const data: NightScheduleTableRow[] = useMemo(() => {
     const rows: NightScheduleTableRow[] = [];
-    nightShifts.forEach((nightShift: NightShiftID, dayIndex: number) => {
+    nightShifts.forEach((nightShift: NightShiftID) => {
       nightSchedulePositions.forEach((position: NightSchedulePosition) => {
         const row: NightScheduleTableRow = {
           date: nightShift.id,
@@ -149,7 +149,7 @@ function NightScheduleTableContent(props: NightScheduleTableContentProps) {
       });
     });
     return rows;
-  }, [nightShifts, bunkNums]);
+  }, [nightShifts, bunkNums, getStaffForPosition]);
 
   const columns = useMemo<ColumnDef<NightScheduleTableRow>[]>(() => {
     const cols: ColumnDef<NightScheduleTableRow>[] = [
@@ -185,7 +185,7 @@ function NightScheduleTableContent(props: NightScheduleTableContentProps) {
     });
 
     return cols;
-  }, [bunkNums]);
+  }, [bunkNums, session]);
 
   const table = useReactTable({
     columns,

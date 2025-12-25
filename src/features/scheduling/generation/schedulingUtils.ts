@@ -1,4 +1,4 @@
-import { AttendeeID, BundleActivity, BunkAssignments, CamperAttendee, CamperAttendeeID, Freeplay, IndividualAssignments, JamboreeActivity, StaffAttendeeID } from "@/types/sessionTypes";
+import { AttendeeID, BundleActivity, BunkAssignments, CamperAttendeeID, Freeplay, IndividualAssignments, JamboreeActivity, StaffAttendeeID } from "@/types/sessionTypes";
 
 export function doesConflictExist(attendee: AttendeeID, otherAttendeeIds: number[]) {
   if (attendee.role === "CAMPER") {

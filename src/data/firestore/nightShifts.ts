@@ -1,5 +1,5 @@
 import { db } from "@/config/firebase";
-import { AttendeeID, Attendee, NightShiftID, NightShift } from "@/types/sessionTypes";
+import { NightShiftID, NightShift } from "@/types/sessionTypes";
 import {
   doc,
   Transaction,
