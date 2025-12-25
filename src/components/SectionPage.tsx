@@ -1,8 +1,6 @@
 "use client";
 import { Button } from "@mantine/core";
-import { useParams } from "next/navigation";
-import { getSessionById } from "@/data/firestore/sessions";
-import { Freeplay, SessionID } from "@/types/sessionTypes";
+import { Freeplay } from "@/types/sessionTypes";
 import LoadingPage from "@/app/loading";
 import React from "react";
 import { CombinedPDF } from "@/features/scheduling/CombinedExportPDF";
@@ -12,17 +10,12 @@ import { useSectionPageData } from "@/hooks/sections/useSectionPageData";
 import moment from "moment";
 
 interface SectionPageProps {
-  sessionId?: string;
-  fetchSession?: (sessionId: string) => Promise<SessionID>;
+  sessionId: string;
+  sectionId: string;
 }
 
-function SectionPage({
-  sessionId: propSessionId,
-  fetchSession = getSessionById,
-}: SectionPageProps) {
-  const params = useParams();
-  const sessionId = propSessionId || (params?.sessionId as string);
-  const sectionId = (params?.sectionId as string) || undefined;
+export default function SectionPage(props: SectionPageProps) {
+  const { sessionId, sectionId } = props;
 
   const publishMutation = usePublishSectionSchedule();
   const {
@@ -39,7 +32,6 @@ function SectionPage({
   } = useSectionPageData({
     sessionId,
     sectionId,
-    fetchSession,
   });
 
   if (isLoading) {
@@ -135,5 +127,3 @@ function SectionPage({
     </div>
   );
 }
-
-export default SectionPage;
