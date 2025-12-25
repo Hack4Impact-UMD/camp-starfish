@@ -8,8 +8,8 @@ import React from "react";
 import { CombinedPDF } from "@/features/scheduling/CombinedExportPDF";
 import { usePublishSectionSchedule } from "@/features/scheduling/publishing/publishSectionSchedule";
 import ReactPDF from '@react-pdf/renderer';
-import { useBuildInfo } from "@/hooks/sections/useBuildInfo";
 import { useSectionPageData } from "@/hooks/sections/useSectionPageData";
+import moment from "moment";
 
 interface SectionPageProps {
   sessionId?: string;
@@ -24,7 +24,6 @@ function SectionPage({
   const sessionId = propSessionId || (params?.sessionId as string);
   const sectionId = (params?.sectionId as string) || undefined;
 
-  const buildInfo = useBuildInfo();
   const publishMutation = usePublishSectionSchedule();
   const {
     session,
@@ -74,11 +73,7 @@ function SectionPage({
           <div>
             <h1 className="text-2xl mb-2 font-bold">{session.name}</h1>
             <p className="text-sm text-gray-500 mb-4 italic">
-              {buildInfo
-                ? `Last generated: ${buildInfo.formattedDate}${
-                    buildInfo.version ? ` • v${buildInfo.version}` : ""
-                  }`
-                : "Last generated information unavailable"}
+              {`Last generated: ${section && section.scheduleLastGenerated ? moment(section.scheduleLastGenerated).format("MM/DD/YYYY hh:mm:ss A") : "N/A"}`}
             </p>
           </div>
           <div className="flex gap-2">
