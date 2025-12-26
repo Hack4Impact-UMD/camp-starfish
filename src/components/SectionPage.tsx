@@ -63,13 +63,15 @@ export default function SectionPage(props: SectionPageProps) {
     return <LoadingPage />;
   }
 
-  return <SectionPageContent
-    session={session}
-    section={section}
-    schedule={schedule}
-    freeplay={freeplay}
-    attendees={attendees}
-  />;
+  return (
+    <SectionPageContent
+      session={session}
+      section={section}
+      schedule={schedule}
+      freeplay={freeplay}
+      attendees={attendees}
+    />
+  );
 }
 
 interface SectionPageContentProps {
@@ -83,11 +85,14 @@ interface SectionPageContentProps {
 function SectionPageContent(props: SectionPageContentProps) {
   const { session, section, schedule, freeplay, attendees } = props;
 
-  const { campers, staff, admins } = useMemo(() => ({
-    campers: attendees.filter((a) => a.role === "CAMPER"),
-    staff: attendees.filter((a) => a.role === "STAFF"),
-    admins: attendees.filter((a) => a.role === "ADMIN"),
-  }), [attendees]);
+  const { campers, staff, admins } = useMemo(
+    () => ({
+      campers: attendees.filter((a) => a.role === "CAMPER"),
+      staff: attendees.filter((a) => a.role === "STAFF"),
+      admins: attendees.filter((a) => a.role === "ADMIN"),
+    }),
+    [attendees]
+  );
 
   const publishMutation = usePublishSectionSchedule();
 
@@ -113,7 +118,10 @@ function SectionPageContent(props: SectionPageContentProps) {
               radius="xl"
               className="px-8 min-w-[130px] bg-[#06A759] text-white"
               onClick={() => {
-                  publishMutation.mutate({ sessionId: session.id, sectionId: section.id });
+                publishMutation.mutate({
+                  sessionId: session.id,
+                  sectionId: section.id,
+                });
               }}
             >
               PUBLISH
