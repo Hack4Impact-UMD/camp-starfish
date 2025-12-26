@@ -11,7 +11,7 @@ import {
 } from "@/types/sessionTypes";
 import LoadingPage from "@/app/loading";
 import React, { useMemo } from "react";
-import { CombinedPDF } from "@/features/scheduling/CombinedExportPDF";
+import DaySchedulePDF from "@/features/scheduling/exporting/DaySchedulePDF";
 import { usePublishSectionSchedule } from "@/features/scheduling/publishing/publishSectionSchedule";
 import ReactPDF from "@react-pdf/renderer";
 import moment from "moment";
@@ -141,7 +141,7 @@ function SectionPageContent(props: SectionPageContentProps) {
                     buddies: freeplay.buddies,
                   };
                   const pdfDoc = (
-                    <CombinedPDF
+                    <DaySchedulePDF
                       schedule={schedule}
                       freeplay={freeplayData}
                       campers={campers}
