@@ -1,13 +1,25 @@
 "use client";
 import { Button } from "@mantine/core";
-import { Freeplay } from "@/types/sessionTypes";
+import {
+  AttendeeID,
+  Freeplay,
+  FreeplayID,
+  SchedulingSectionType,
+  SectionID,
+  SectionScheduleID,
+  SessionID,
+} from "@/types/sessionTypes";
 import LoadingPage from "@/app/loading";
-import React from "react";
+import React, { useMemo } from "react";
 import { CombinedPDF } from "@/features/scheduling/CombinedExportPDF";
 import { usePublishSectionSchedule } from "@/features/scheduling/publishing/publishSectionSchedule";
-import ReactPDF from '@react-pdf/renderer';
-import { useSectionPageData } from "@/hooks/sections/useSectionPageData";
+import ReactPDF from "@react-pdf/renderer";
 import moment from "moment";
+import useSession from "@/hooks/sessions/useSession";
+import useSection from "@/hooks/sections/useSection";
+import useSectionSchedule from "@/hooks/schedules/useSectionSchedule";
+import useFreeplay from "@/hooks/freeplays/useFreeplay";
+import useAttendeesBySessionId from "@/hooks/attendees/useAttendeesBySessionId";
 
 interface SectionPageProps {
   sessionId: string;
@@ -17,46 +29,67 @@ interface SectionPageProps {
 export default function SectionPage(props: SectionPageProps) {
   const { sessionId, sectionId } = props;
 
-  const publishMutation = usePublishSectionSchedule();
-  const {
-    session,
-    section,
-    schedule,
-    freeplay,
-    campers,
-    staff,
-    admins,
-    isLoading,
-    isError,
-    error,
-  } = useSectionPageData({
+  const { data: session, status: sessionStatus } = useSession(sessionId);
+  const { data: section, status: sectionStatus } = useSection(
     sessionId,
-    sectionId,
-  });
+    sectionId
+  );
+  const { data: schedule, status: scheduleStatus } = useSectionSchedule(
+    sessionId,
+    sectionId
+  );
+  const { data: freeplay, status: freeplayStatus } = useFreeplay(
+    sessionId,
+    section?.startDate
+  );
+  const { data: attendees, status: attendeesStatus } =
+    useAttendeesBySessionId(sessionId);
 
-  if (isLoading) {
-    return (
-      <div>
-        <LoadingPage />
-      </div>
-    );
+  if (
+    sessionStatus === "error" ||
+    sectionStatus === "error" ||
+    scheduleStatus === "error" ||
+    freeplayStatus === "error" ||
+    attendeesStatus === "error"
+  ) {
+    return <p>Error loading session data</p>;
+  } else if (
+    sessionStatus === "pending" ||
+    sectionStatus === "pending" ||
+    scheduleStatus === "pending" ||
+    freeplayStatus === "pending" ||
+    attendeesStatus === "pending"
+  ) {
+    return <LoadingPage />;
   }
 
-  if (isError || !session) {
+  return <SectionPageContent
+    session={session}
+    section={section}
+    schedule={schedule}
+    freeplay={freeplay}
+    attendees={attendees}
+  />;
+}
 
-    return (
-      <div>
-        <div className="p-4">
-          <h1 className="text-2xl mb-4 text-red-600">Error loading session</h1>
-          <p className="text-gray-600">
-            {error instanceof Error
-              ? error.message
-              : "Failed to load session data"}
-          </p>
-        </div>
-      </div>
-    );
-  }
+interface SectionPageContentProps {
+  session: SessionID;
+  section: SectionID;
+  schedule: SectionScheduleID<SchedulingSectionType>;
+  freeplay: FreeplayID;
+  attendees: AttendeeID[];
+}
+
+function SectionPageContent(props: SectionPageContentProps) {
+  const { session, section, schedule, freeplay, attendees } = props;
+
+  const { campers, staff, admins } = useMemo(() => ({
+    campers: attendees.filter((a) => a.role === "CAMPER"),
+    staff: attendees.filter((a) => a.role === "STAFF"),
+    admins: attendees.filter((a) => a.role === "ADMIN"),
+  }), [attendees]);
+
+  const publishMutation = usePublishSectionSchedule();
 
   return (
     <div>
@@ -65,7 +98,13 @@ export default function SectionPage(props: SectionPageProps) {
           <div>
             <h1 className="text-2xl mb-2 font-bold">{session.name}</h1>
             <p className="text-sm text-gray-500 mb-4 italic">
-              {`Last generated: ${section && section.scheduleLastGenerated ? moment(section.scheduleLastGenerated).format("MM/DD/YYYY hh:mm:ss A") : "N/A"}`}
+              {`Last generated: ${
+                section && section.scheduleLastGenerated
+                  ? moment(section.scheduleLastGenerated).format(
+                      "MM/DD/YYYY hh:mm:ss A"
+                    )
+                  : "N/A"
+              }`}
             </p>
           </div>
           <div className="flex gap-2">
@@ -74,9 +113,7 @@ export default function SectionPage(props: SectionPageProps) {
               radius="xl"
               className="px-8 min-w-[130px] bg-[#06A759] text-white"
               onClick={() => {
-                if (sessionId && sectionId) {
-                  publishMutation.mutate({ sessionId, sectionId });
-                }
+                  publishMutation.mutate({ sessionId: session.id, sectionId: section.id });
               }}
             >
               PUBLISH
