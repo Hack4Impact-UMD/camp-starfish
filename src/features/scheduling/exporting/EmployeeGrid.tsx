@@ -145,7 +145,7 @@ interface EmployeeGridProps<T extends SchedulingSectionType> {
   schedule: SectionScheduleID<T>;
   freeplay: Freeplay;
   campers: CamperAttendeeID[];
-  employees: AdminAttendeeID[] | StaffAttendeeID[]; 
+  employees: AdminAttendeeID[] | StaffAttendeeID[];
 }
 
 export default function EmployeeGrid<T extends SchedulingSectionType>(
@@ -153,93 +153,102 @@ export default function EmployeeGrid<T extends SchedulingSectionType>(
 ) {
   const { schedule, freeplay, campers, employees } = props;
   return (
-    <Document>
-      <Page size="A4" style={styles.page}>
-        <Text style={styles.sectionTitle}>{employees.length === 0 ? "Employee" : employees[0].role === "ADMIN" ? "Admin" : "Staff"} Assignments</Text>
-        <View style={styles.table}>
-          <View style={styles.headerRow}>
-            <Text style={styles.headerCell}>NAME</Text>
-            {Object.keys(schedule.blocks).map((blockId) => (
-              <Text key={blockId} style={styles.headerCell}>
-                {blockId}
-              </Text>
-            ))}
-            <Text style={styles.headerCell}>APO</Text>
-            <Text style={styles.headerCell}>AM/PM FP</Text>
-          </View>
-
-          {employees.map((employee) => {
-            const fpBuddyIds = getFreeplayAssignmentId(freeplay, employee.id);
-            const fpBuddies = fpBuddyIds ? (fpBuddyIds as number[]).map(id => campers.find(c => c.id === id)) : [];
-
-            let apoText: string = '-';
-            for (const period of Object.keys(schedule.alternatePeriodsOff)) {
-              if (schedule.alternatePeriodsOff[period].includes(employee.id)) {
-                apoText = period;
-                break;
-              }
-            }
-
-            return (
-              <View key={employee.id} style={styles.row}>
-                {/* Name column - Use dataCell style */}
-                <View style={styles.dataCell}>
-                  <Text>
-                    {employee.name.firstName} {employee.name.lastName[0]}.
-                  </Text>
-                </View>
-
-                {/* Block assignments - Use dataCell style */}
-                {Object.entries(schedule.blocks).map(([blockId, block]) => {
-                  let activityText;
-                  if (block.periodsOff.includes(employee.id)) {
-                    activityText = "OFF";
-                  } else if (employee.role === "STAFF") {
-                    const activity = block.activities.find((act) =>
-                      isIndividualAssignments(act.assignments)
-                        ? act.assignments.staffIds.includes(employee.id)
-                        : act.assignments.bunkNums.includes(employee.bunk)
-                    );
-                    activityText = activity
-                      ? isBundleActivity(activity)
-                        ? activity.programArea.id
-                        : activity.name
-                      : "-";
-                  } else {
-                    const activity = block.activities.find((act) =>
-                      act.assignments.adminIds.includes(employee.id)
-                    );
-                    activityText = activity
-                      ? isBundleActivity(activity)
-                        ? activity.programArea.id
-                        : activity.name
-                      : "-";
-                  }
-
-                  return (
-                    <View key={blockId} style={styles.cell}>
-                      <Text>{activityText}</Text>
-                    </View>
-                  );
-                })}
-
-                <View style={styles.dataCell}>
-                  <Text>
-                    {apoText}
-                  </Text>
-                </View>
-
-                {/* Freeplay assignment - Use dataCell style */}
-                <View style={styles.dataCell}>
-                  <Text>
-                    {fpBuddies.map(fpBuddy => fpBuddy ? getFullName(fpBuddy) : "").join(", ")}
-                  </Text>
-                </View>
-              </View>
-            );
-          })}
+    <View style={styles.page}>
+      <Text style={styles.sectionTitle}>
+        {employees.length === 0
+          ? "Employee"
+          : employees[0].role === "ADMIN"
+          ? "Admin"
+          : "Staff"}{" "}
+        Assignments
+      </Text>
+      <View style={styles.table}>
+        <View style={styles.headerRow}>
+          <Text style={styles.headerCell}>NAME</Text>
+          {Object.keys(schedule.blocks).map((blockId) => (
+            <Text key={blockId} style={styles.headerCell}>
+              {blockId}
+            </Text>
+          ))}
+          <Text style={styles.headerCell}>APO</Text>
+          <Text style={styles.headerCell}>AM/PM FP</Text>
         </View>
-      </Page>
-    </Document>
+
+        {employees.map((employee) => {
+          const fpBuddyIds = getFreeplayAssignmentId(freeplay, employee.id);
+          const fpBuddies = fpBuddyIds
+            ? (fpBuddyIds as number[]).map((id) =>
+                campers.find((c) => c.id === id)
+              )
+            : [];
+
+          let apoText: string = "-";
+          for (const period of Object.keys(schedule.alternatePeriodsOff)) {
+            if (schedule.alternatePeriodsOff[period].includes(employee.id)) {
+              apoText = period;
+              break;
+            }
+          }
+
+          return (
+            <View key={employee.id} style={styles.row}>
+              {/* Name column - Use dataCell style */}
+              <View style={styles.dataCell}>
+                <Text>
+                  {employee.name.firstName} {employee.name.lastName[0]}.
+                </Text>
+              </View>
+
+              {/* Block assignments - Use dataCell style */}
+              {Object.entries(schedule.blocks).map(([blockId, block]) => {
+                let activityText;
+                if (block.periodsOff.includes(employee.id)) {
+                  activityText = "OFF";
+                } else if (employee.role === "STAFF") {
+                  const activity = block.activities.find((act) =>
+                    isIndividualAssignments(act.assignments)
+                      ? act.assignments.staffIds.includes(employee.id)
+                      : act.assignments.bunkNums.includes(employee.bunk)
+                  );
+                  activityText = activity
+                    ? isBundleActivity(activity)
+                      ? activity.programArea.id
+                      : activity.name
+                    : "-";
+                } else {
+                  const activity = block.activities.find((act) =>
+                    act.assignments.adminIds.includes(employee.id)
+                  );
+                  activityText = activity
+                    ? isBundleActivity(activity)
+                      ? activity.programArea.id
+                      : activity.name
+                    : "-";
+                }
+
+                return (
+                  <View key={blockId} style={styles.cell}>
+                    <Text>{activityText}</Text>
+                  </View>
+                );
+              })}
+
+              <View style={styles.dataCell}>
+                <Text>{apoText}</Text>
+              </View>
+
+              {/* Freeplay assignment - Use dataCell style */}
+              <View style={styles.dataCell}>
+                <Text>
+                  {fpBuddies
+                    .map((fpBuddy) => (fpBuddy ? getFullName(fpBuddy) : ""))
+                    .join(", ")}
+                </Text>
+              </View>
+            </View>
+          );
+        })}
+      </View>
+    </View>
   );
 }

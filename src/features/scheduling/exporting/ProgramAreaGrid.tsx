@@ -220,13 +220,9 @@ export default function ProgramAreaGrid({
   );
 
   return (
-    <Document>
-      <Page size="A4" style={styles.page}>
+      <View style={styles.page}>
         <Text style={styles.title}>{sectionName} Program Area Grid</Text>
-
-        {/* Render multiple tables */}
         {areaChunks.map((areas, index) => renderTable(areas, index))}
-      </Page>
-    </Document>
+      </View>
   );
 }
