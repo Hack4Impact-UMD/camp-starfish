@@ -68,6 +68,7 @@ export type SchedulingSection = Omit<CommonSection, 'type'> & {
   type: SchedulingSectionType;
   numBlocks: number;
   isPublished: boolean;
+  scheduleLastGenerated?: string;
 }
 export interface SchedulingSectionID extends SchedulingSection, ID<string> { sessionId: string; };
 

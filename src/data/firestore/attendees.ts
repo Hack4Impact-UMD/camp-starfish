@@ -27,7 +27,7 @@ export async function getAttendeeById(campminderId: number, sessionId: string, t
     return await getDoc<AttendeeID, Attendee>(doc(db, Collection.SESSIONS, sessionId, SessionsSubcollection.ATTENDEES, String(campminderId)) as DocumentReference<AttendeeID, Attendee>, attendeeFirestoreConverter, transaction);
 };
 
-export async function getAllAttendeesBySessionId(sessionId: string): Promise<AttendeeID[]> {
+export async function getAttendeesBySessionId(sessionId: string): Promise<AttendeeID[]> {
   return await executeQuery<AttendeeID, Attendee>(collection(db, Collection.SESSIONS, sessionId, SessionsSubcollection.ATTENDEES) as CollectionReference<AttendeeID, Attendee>, attendeeFirestoreConverter);
 }
 
