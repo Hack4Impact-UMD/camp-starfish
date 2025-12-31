@@ -163,71 +163,71 @@ export default function CamperGrid<T extends SchedulingSectionType>(
   });
 
   return (
-      <View>
-        <Text style={styles.sectionTitle}>Camper Grid</Text>
-        <View style={styles.compactTable}>
-          <View style={styles.headerRow}>
-            <Text style={styles.compactHeaderCell}>BUNK</Text>
-            <Text style={styles.compactHeaderCell}>NAME</Text>
-            {Object.keys(schedule.blocks).map((blockId) => (
-              <Text key={blockId} style={styles.compactHeaderCell}>
-                {blockId}
-              </Text>
-            ))}
-            <Text style={styles.compactHeaderCell}>+</Text>
-            <Text style={styles.compactHeaderCell}>FP</Text>
-          </View>
-
-          {campers.map((camper) => {
-            const blocksArray = Object.values(schedule.blocks);
-            const fpBuddyId = getFreeplayAssignmentId(freeplay, camper.id);
-            const fpBuddyObj = staff.find((staff) => staff.id === fpBuddyId);
-            const fpBuddyName = fpBuddyObj ? getFullName(fpBuddyObj) : "N/A";
-
-            return (
-              <View key={camper.id} style={styles.row}>
-                <View style={styles.compactBunkCell}>
-                  <Text>{camper.bunk}</Text>
-                </View>
-
-                <View style={styles.compactDataCell}>
-                  <Text>{getFullName(camper)}</Text>
-                </View>
-
-                {blocksArray.map((block, i) => {
-                  const activity = block.activities.find((act) =>
-                    isIndividualAssignments(act.assignments)
-                      ? act.assignments.camperIds.includes(camper.id)
-                      : act.assignments.bunkNums.includes(camper.bunk)
-                  );
-
-                  let activityText;
-                  if (!activity) {
-                    activityText = "-";
-                  } else if (isBundleActivity(activity)) {
-                    activityText = activity.programArea.id;
-                  } else {
-                    activityText = activity.name;
-                  }
-
-                  return (
-                    <View key={i} style={styles.compactDataCell}>
-                      <Text>{activityText}</Text>
-                    </View>
-                  );
-                })}
-
-                <View style={styles.compactDataCell}>
-                  <Text>-</Text>
-                </View>
-
-                <View style={styles.compactDataCell}>
-                  <Text>{fpBuddyName}</Text>
-                </View>
-              </View>
-            );
-          })}
+    <View>
+      <Text style={styles.sectionTitle}>Camper Grid</Text>
+      <View style={styles.compactTable}>
+        <View style={styles.headerRow}>
+          <Text style={styles.compactHeaderCell}>BUNK</Text>
+          <Text style={styles.compactHeaderCell}>NAME</Text>
+          {Object.keys(schedule.blocks).map((blockId) => (
+            <Text key={blockId} style={styles.compactHeaderCell}>
+              {blockId}
+            </Text>
+          ))}
+          <Text style={styles.compactHeaderCell}>+</Text>
+          <Text style={styles.compactHeaderCell}>FP</Text>
         </View>
+
+        {campers.map((camper) => {
+          const blocksArray = Object.values(schedule.blocks);
+          const fpBuddyId = getFreeplayAssignmentId(freeplay, camper.id);
+          const fpBuddyObj = staff.find((staff) => staff.id === fpBuddyId);
+          const fpBuddyName = fpBuddyObj ? getFullName(fpBuddyObj) : "N/A";
+
+          return (
+            <View key={camper.id} style={styles.row}>
+              <View style={styles.compactBunkCell}>
+                <Text>{camper.bunk}</Text>
+              </View>
+
+              <View style={styles.compactDataCell}>
+                <Text>{getFullName(camper)}</Text>
+              </View>
+
+              {blocksArray.map((block, i) => {
+                const activity = block.activities.find((act) =>
+                  isIndividualAssignments(act.assignments)
+                    ? act.assignments.camperIds.includes(camper.id)
+                    : act.assignments.bunkNums.includes(camper.bunk)
+                );
+
+                let activityText;
+                if (!activity) {
+                  activityText = "-";
+                } else if (isBundleActivity(activity)) {
+                  activityText = activity.programArea.id;
+                } else {
+                  activityText = activity.name;
+                }
+
+                return (
+                  <View key={i} style={styles.compactDataCell}>
+                    <Text>{activityText}</Text>
+                  </View>
+                );
+              })}
+
+              <View style={styles.compactDataCell}>
+                <Text>-</Text>
+              </View>
+
+              <View style={styles.compactDataCell}>
+                <Text>{fpBuddyName}</Text>
+              </View>
+            </View>
+          );
+        })}
       </View>
+    </View>
   );
 }
