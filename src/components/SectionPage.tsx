@@ -29,47 +29,37 @@ interface SectionPageProps {
 export default function SectionPage(props: SectionPageProps) {
   const { sessionId, sectionId } = props;
 
-  const { data: session, status: sessionStatus } = useSession(sessionId);
-  const { data: section, status: sectionStatus } = useSection(
-    sessionId,
-    sectionId
-  );
-  const { data: schedule, status: scheduleStatus } = useSectionSchedule(
-    sessionId,
-    sectionId
-  );
-  const { data: freeplay, status: freeplayStatus } = useFreeplay(
-    sessionId,
-    section?.startDate
-  );
-  const { data: attendees, status: attendeesStatus } =
-    useAttendeesBySessionId(sessionId);
+  const sessionQuery = useSession(sessionId);
+  const sectionQuery = useSection(sessionId, sectionId);
+  const scheduleQuery = useSectionSchedule(sessionId, sectionId);
+  const freeplayQuery = useFreeplay(sessionId, sectionQuery.data?.startDate);
+  const attendeesQuery = useAttendeesBySessionId(sessionId);
 
   if (
-    sessionStatus === "error" ||
-    sectionStatus === "error" ||
-    scheduleStatus === "error" ||
-    freeplayStatus === "error" ||
-    attendeesStatus === "error"
+    sessionQuery.status === "error" ||
+    sectionQuery.status === "error" ||
+    scheduleQuery.status === "error" ||
+    freeplayQuery.status === "error" ||
+    attendeesQuery.status === "error"
   ) {
     return <p>Error loading session data</p>;
   } else if (
-    sessionStatus === "pending" ||
-    sectionStatus === "pending" ||
-    scheduleStatus === "pending" ||
-    freeplayStatus === "pending" ||
-    attendeesStatus === "pending"
+    sessionQuery.status === "pending" ||
+    sectionQuery.status === "pending" ||
+    scheduleQuery.status === "pending" ||
+    freeplayQuery.status === "pending" ||
+    attendeesQuery.status === "pending"
   ) {
     return <LoadingPage />;
   }
 
   return (
     <SectionPageContent
-      session={session}
-      section={section}
-      schedule={schedule}
-      freeplay={freeplay}
-      attendees={attendees}
+      session={sessionQuery.data}
+      section={sectionQuery.data}
+      schedule={scheduleQuery.data}
+      freeplay={freeplayQuery.data}
+      attendees={attendeesQuery.data}
     />
   );
 }
