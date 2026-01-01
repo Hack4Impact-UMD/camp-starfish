@@ -1,10 +1,9 @@
 import { getFreeplayById } from "@/data/firestore/freeplays";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, skipToken } from "@tanstack/react-query";
 
-export default function useFreeplay(sessionId: string, freeplayId: string) {
+export default function useFreeplay(sessionId: string | undefined, freeplayId: string | undefined) {
   return useQuery({
     queryKey: ["sessions", sessionId, "freeplays", freeplayId],
-    queryFn: () => getFreeplayById(sessionId, freeplayId),
-    enabled: !!sessionId && !!freeplayId
+    queryFn: sessionId && freeplayId ? () => getFreeplayById(sessionId, freeplayId) : skipToken,
   })
 }
