@@ -18,7 +18,7 @@ import {
 import { Button } from "@mantine/core";
 import useNotifications from "@/features/notifications/useNotifications";
 
-const generateButton = <Button color="aqua">GENERATE</Button>;
+const baseExportButton = <Button color="aqua">EXPORT</Button>;
 
 interface DownloadDaySchedulePDFButtonProps {
   sessionId: string;
@@ -44,7 +44,7 @@ export default function DownloadDaySchedulePDFButton(
     sectionQuery.status === "error" ||
     scheduleQuery.status === "error"
   ) {
-    return cloneElement(generateButton, {
+    return cloneElement(baseExportButton, {
       onClick: () =>
         notifications.error("Failed to generate PDF. Please try again later."),
     });
@@ -54,7 +54,7 @@ export default function DownloadDaySchedulePDFButton(
     sectionQuery.status === "pending" ||
     scheduleQuery.status === "pending"
   ) {
-    return cloneElement(generateButton, { loading: true });
+    return cloneElement(baseExportButton, { loading: true });
   }
   return (
     <DownloadDaySchedulePDFButtonContent
@@ -101,7 +101,7 @@ function DownloadDaySchedulePDFButtonContent(
       }
       fileName={`${section.name}.pdf`}
     >
-      {generateButton}
+      {baseExportButton}
     </PDFDownloadLink>
   );
 }
