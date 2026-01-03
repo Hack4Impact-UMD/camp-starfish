@@ -16,8 +16,12 @@
         "*.local"
       ],
       "predeploy": [
+        "(cp .env.production functions/.env || :)",
         "npm --prefix \"$RESOURCE_DIR\" run lint",
         "npm --prefix \"$RESOURCE_DIR\" run build"
+      ],
+      "postdeploy": [
+        "(rm functions/.env || :)"
       ]
     }
   ],

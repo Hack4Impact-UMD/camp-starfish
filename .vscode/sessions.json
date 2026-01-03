@@ -12,18 +12,14 @@
           "icon": "database",
           "color": "terminal.ansiBrightRed",
           "autoExecuteCommands": true,
-          "commands": [
-            "firebase emulators:start"
-          ]
+          "commands": ["firebase emulators:start --import ./test/emulatorData"]
         },
         {
           "name": "app",
           "icon": "vm",
           "color": "terminal.ansiBrightWhite",
           "autoExecuteCommands": true,
-          "commands": [
-            "npm run dev"
-          ]
+          "commands": ["npm run dev"]
         }
       ],
       {
@@ -31,27 +27,21 @@
         "icon": "github",
         "color": "terminal.ansiGreen",
         "autoExecuteCommands": true,
-        "commands": [
-          "git fetch"
-        ]
+        "commands": ["git fetch"]
       },
       {
         "name": "functions",
         "icon": "server",
         "color": "terminal.ansiBrightYellow",
         "autoExecuteCommands": true,
-        "commands": [
-          "cd functions && npm run build"
-        ]
+        "commands": ["cd functions && npm run build"]
       },
       {
         "name": "apps-script",
         "icon": "arrow-swap",
         "color": "terminal.ansiBrightBlue",
         "autoExecuteCommands": true,
-        "commands": [
-          "cd apps-script"
-        ]
+        "commands": ["cd apps-script"]
       }
     ]
   }
