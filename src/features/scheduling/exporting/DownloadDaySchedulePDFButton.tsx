@@ -17,8 +17,9 @@ import {
 } from "@/types/sessionTypes";
 import { Button } from "@mantine/core";
 import useNotifications from "@/features/notifications/useNotifications";
+import { MdOpenInNew } from "react-icons/md";
 
-const baseExportButton = <Button color="aqua">EXPORT</Button>;
+const baseExportButton = <Button rightSection={<MdOpenInNew />}>EXPORT</Button>;
 
 interface DownloadDaySchedulePDFButtonProps {
   sessionId: string;
