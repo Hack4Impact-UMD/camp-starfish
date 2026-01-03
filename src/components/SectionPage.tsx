@@ -1,25 +1,18 @@
 "use client";
 import { Button } from "@mantine/core";
 import {
-  AttendeeID,
-  Freeplay,
   FreeplayID,
-  SchedulingSectionType,
   SectionID,
-  SectionScheduleID,
   SessionID,
 } from "@/types/sessionTypes";
 import LoadingPage from "@/app/loading";
-import React, { useMemo } from "react";
-import DaySchedulePDF from "@/features/scheduling/exporting/DaySchedulePDF";
+import React from "react";
 import { usePublishSectionSchedule } from "@/features/scheduling/publishing/publishSectionSchedule";
-import ReactPDF from "@react-pdf/renderer";
 import moment from "moment";
 import useSession from "@/hooks/sessions/useSession";
 import useSection from "@/hooks/sections/useSection";
-import useSectionSchedule from "@/hooks/schedules/useSectionSchedule";
 import useFreeplay from "@/hooks/freeplays/useFreeplay";
-import useAttendeesBySessionId from "@/hooks/attendees/useAttendeesBySessionId";
+import DownloadDaySchedulePDFButton from "@/features/scheduling/exporting/DownloadDaySchedulePDFButton";
 
 interface SectionPageProps {
   sessionId: string;
@@ -31,24 +24,14 @@ export default function SectionPage(props: SectionPageProps) {
 
   const sessionQuery = useSession(sessionId);
   const sectionQuery = useSection(sessionId, sectionId);
-  const scheduleQuery = useSectionSchedule(sessionId, sectionId);
   const freeplayQuery = useFreeplay(sessionId, sectionQuery.data?.startDate);
-  const attendeesQuery = useAttendeesBySessionId(sessionId);
 
-  if (
-    sessionQuery.status === "error" ||
-    sectionQuery.status === "error" ||
-    scheduleQuery.status === "error" ||
-    freeplayQuery.status === "error" ||
-    attendeesQuery.status === "error"
-  ) {
+  if (sessionQuery.isError || sectionQuery.isError || freeplayQuery.isError) {
     return <p>Error loading session data</p>;
   } else if (
-    sessionQuery.status === "pending" ||
-    sectionQuery.status === "pending" ||
-    scheduleQuery.status === "pending" ||
-    freeplayQuery.status === "pending" ||
-    attendeesQuery.status === "pending"
+    sessionQuery.isPending ||
+    sectionQuery.isPending ||
+    freeplayQuery.isPending
   ) {
     return <LoadingPage />;
   }
@@ -57,9 +40,7 @@ export default function SectionPage(props: SectionPageProps) {
     <SectionPageContent
       session={sessionQuery.data}
       section={sectionQuery.data}
-      schedule={scheduleQuery.data}
       freeplay={freeplayQuery.data}
-      attendees={attendeesQuery.data}
     />
   );
 }
@@ -67,22 +48,11 @@ export default function SectionPage(props: SectionPageProps) {
 interface SectionPageContentProps {
   session: SessionID;
   section: SectionID;
-  schedule: SectionScheduleID<SchedulingSectionType>;
   freeplay: FreeplayID;
-  attendees: AttendeeID[];
 }
 
 function SectionPageContent(props: SectionPageContentProps) {
-  const { session, section, schedule, freeplay, attendees } = props;
-
-  const { campers, staff, admins } = useMemo(
-    () => ({
-      campers: attendees.filter((a) => a.role === "CAMPER"),
-      staff: attendees.filter((a) => a.role === "STAFF"),
-      admins: attendees.filter((a) => a.role === "ADMIN"),
-    }),
-    [attendees]
-  );
+  const { session, section, freeplay } = props;
 
   const publishMutation = usePublishSectionSchedule();
 
@@ -116,46 +86,11 @@ function SectionPageContent(props: SectionPageContentProps) {
             >
               PUBLISH
             </Button>
-            <Button
-              variant="default"
-              radius="xl"
-              className="px-8 min-w-[130px] bg-[#1f3a48] text-white"
-              onClick={async () => {
-                try {
-                  if (!schedule || !freeplay) {
-                    console.error("No schedule or freeplay data available.");
-                    return;
-                  }
-                  const freeplayData: Freeplay = {
-                    posts: freeplay.posts,
-                    buddies: freeplay.buddies,
-                  };
-                  const pdfDoc = (
-                    <DaySchedulePDF
-                      schedule={schedule}
-                      freeplay={freeplayData}
-                      campers={campers}
-                      staff={staff}
-                      admins={admins}
-                      sectionName={section?.name as string}
-                    />
-                  );
-                  const blob = await ReactPDF.pdf(pdfDoc).toBlob();
-                  const url = URL.createObjectURL(blob);
-                  const link = document.createElement("a");
-                  link.href = url;
-                  link.download = `${session?.name || "schedule"}-export.pdf`;
-                  document.body.appendChild(link);
-                  link.click();
-                  document.body.removeChild(link);
-                  URL.revokeObjectURL(url);
-                } catch (error) {
-                  console.error("Failed to generate PDF:", error);
-                }
-              }}
-            >
-              EXPORT
-            </Button>
+            <DownloadDaySchedulePDFButton
+              sectionId={section.id}
+              sessionId={session.id}
+              date={freeplay.id}
+            />
           </div>
         </div>
       </div>
