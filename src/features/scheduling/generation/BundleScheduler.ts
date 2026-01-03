@@ -2,6 +2,7 @@ import { StaffAttendeeID, CamperAttendeeID, AdminAttendeeID, SectionSchedule, Se
 import { doesConflictExist } from "./schedulingUtils";
 import moment from "moment";
 import { MAX } from "uuid";
+import { a } from "framer-motion/dist/types.d-BJcRxCew";
 
 export class BundleScheduler {
   bundleNum: number = -1;
@@ -48,42 +49,33 @@ export class BundleScheduler {
     given block. Refer back to the scheduling data to see where each camper should be placed
   */
   assignOCPChats(): void {
-    this.campers
-      .filter(camper => camper.ageGroup === 'OCP')
-      .forEach(camper => {
-        const candidateBlocks = this.blocksToAssign.filter(bId =>
-          ['C', 'D', 'E'].includes(bId) &&
-          this.schedule.blocks[bId]?.activities.some(act => act.programArea.id === 'TC')
-        );
 
-        if (candidateBlocks.length === 0) return;
+    // OCP Campers
+    let ocp_campers = this.campers.filter(c => c.ageGroup === 'OCP');
 
-        const blockId = candidateBlocks[Math.floor(Math.random() * candidateBlocks.length)];
+    // Calculates the max capacity for each teen chat activity
+    const MAX_CAPACITY_OCP = Math.ceil(ocp_campers.length / 3) // Divides by three because there are 3 teen chat blocks
+    let added = false
+
+    // Goes through each ocp camper and assigns them to a teen chat activity
+    ocp_campers.forEach(camper => {
+      added = false
+      const ocpChatBlocks = this.blocksToAssign.filter(bId =>
+        this.schedule.blocks[bId]?.activities.some(act => act.programArea.id === 'TC')
+      );
+
+      if (ocpChatBlocks.length === 0) return;
+
+      ocpChatBlocks.forEach(blockId => {
         const block = this.schedule.blocks[blockId];
-        const teenChatActivity = block.activities.find(act => act.programArea.id === 'TC');
-
-        // First, clear this camper from every Teen Chat in all candidate blocks
-        this.blocksToAssign.forEach(candidateBlockId => {
-          const candidateBlock = this.schedule.blocks[candidateBlockId];
-          candidateBlock?.activities
-            ?.filter(activity => activity.programArea.id === 'TC')
-            .forEach(activity => {
-              activity.assignments.camperIds = activity.assignments.camperIds.filter(
-                id => id !== camper.id
-              );
-            });
-        });
-        // Then, clean out this camper from all activities in the currently selected block
-        block.activities.forEach(activity => {
-          activity.assignments.camperIds = activity.assignments.camperIds.filter(
-            id => id !== camper.id
-          );
-        });
-        // Finally, assign the camper to the Teen Chat in the chosen block
-        if (teenChatActivity) {
-          teenChatActivity.assignments.camperIds.push(camper.id);
+        const activity = block?.activities.find(act => act.programArea.id === "TC" );
+        if (activity && activity.assignments.camperIds.length < MAX_CAPACITY_OCP && !added) {
+          activity.assignments.camperIds.push(camper.id);
+          added = true;
         }
       });
+    })
+
   }
 
   /*
