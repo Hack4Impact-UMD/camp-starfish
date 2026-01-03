@@ -1,6 +1,7 @@
 import { StaffAttendeeID, CamperAttendeeID, AdminAttendeeID, SectionSchedule, SectionPreferences, ProgramAreaID, BundleActivity } from "@/types/sessionTypes";
 import { doesConflictExist } from "./schedulingUtils";
 import moment from "moment";
+import { MAX } from "uuid";
 
 export class BundleScheduler {
   bundleNum: number = -1;
@@ -93,66 +94,82 @@ export class BundleScheduler {
   assignSwimmingBlock(): void {
     const WATERFRONT_AREA_ID = 'WF';
 
-    this.campers.forEach(camper => {
+    // NAV Campers
+    const nav_campers = this.campers.filter(c => c.ageGroup === 'NAV');
+
+    // OCP Campers for first bundle (includes all)
+    let ocp_campers = this.campers.filter(c => c.ageGroup === 'OCP');
+
+    // OCP Campers for any other bundle besides first (excludes swim opt outs)
+    let ocp_campers_filtered = ocp_campers.filter(c => c.swimOptOut === false);
+
+    // Calculates the max capacity for each waterfront activity based on the number of campers
+    const MAX_CAPACITY_NAV = Math.ceil(nav_campers.length / 3); // Divides by three beacuse there are 3 waterfront activities for nav campers 
+    let MAX_CAPACITY_OCP = Math.ceil(ocp_campers.length / 2); // Divides by two because there are 2 waterfront activities for ocp campers
+
+    let added = false;
+
+    // Goes through each nav camper and assigns them to a waterfront activity
+    nav_campers.forEach(camper => {
+      added = false;
       const swimBlocks = this.blocksToAssign.filter(bId =>
         this.schedule.blocks[bId]?.activities.some(
-          act => act.programArea.id === WATERFRONT_AREA_ID
+          act => act.ageGroup === camper.ageGroup && act.programArea.id === WATERFRONT_AREA_ID
+        )
+      );
+
+      swimBlocks.forEach(blockId => {
+        const block = this.schedule.blocks[blockId];
+        const activity = block?.activities.find(act => act.programArea.id === WATERFRONT_AREA_ID );
+        if (activity && activity.assignments.camperIds.length < MAX_CAPACITY_NAV && !added) {
+          activity.assignments.camperIds.push(camper.id);
+          added = true;
+        }
+      });
+    });
+    
+    // Goes through each ocp camper and assigns them to a waterfront activity
+    ocp_campers.forEach(camper => {
+      added = false;
+      const swimBlocks = this.blocksToAssign.filter(bId =>
+        this.schedule.blocks[bId]?.activities.some(
+          act => act.ageGroup === camper.ageGroup && act.programArea.id === WATERFRONT_AREA_ID
         )
       );
 
       let requiredBlocks: string[] = [];
 
-      if (camper.ageGroup === 'NAV') {
-        // NAV campers swim in all blocks that include Waterfront
+      // Checks if bundle number is one and if it is, then camper could be assigned to any block
+      if (this.bundleNum === 1) {
         requiredBlocks = swimBlocks;
-      } else if (camper.ageGroup === 'OCP') {
-        if (this.bundleNum === 1) {
-          // First bundle: All OCP campers swim
+
+        // Uses original ocp campers list to calculate max capacity for even distribution
+        MAX_CAPACITY_OCP = Math.ceil(ocp_campers.length / 2);
+      } 
+
+      // If bundleNum, not one, then level and swim opt out must be checked
+      else {
+        if (camper.level <= 3 || !camper.swimOptOut) {
           requiredBlocks = swimBlocks;
-        } else {
-          // After first bundle: based on level and opt-out preference
-          if (camper.level <= 3 || !camper.swimOptOut) {
-            requiredBlocks = swimBlocks;
-          }
+
+          // Uses new filtered ocp campers list to calculate max capacity for even distribution
+          MAX_CAPACITY_OCP = Math.ceil(ocp_campers_filtered.length / 2);
         }
       }
 
+      // Assigns camper to one waterfront activity if they need it
       requiredBlocks.forEach(blockId => {
         const block = this.schedule.blocks[blockId];
-        if (!block) return;
-
-        // Remove camper from all other activities in this block
-        block.activities.forEach(activity => {
-          if (activity.assignments?.camperIds) {
-            activity.assignments.camperIds = activity.assignments.camperIds.filter(
-              id => id !== camper.id
-            );
-          }
-        });
-
-        // Find or create the Waterfront activity by Program Area ID
-        let waterfrontActivity = block.activities.find(
-          act => act.programArea.id === WATERFRONT_AREA_ID
-        );
-
-        // If Waterfront activity doesn't exist (failsafe)
-        if (!waterfrontActivity) {
-          waterfrontActivity = {
-            name: 'Waterfront',
-            description: 'Swimming block',
-            programArea: { id: WATERFRONT_AREA_ID, name: 'Waterfront', isDeleted: false },
-            ageGroup: camper.ageGroup,
-            assignments: { camperIds: [], staffIds: [], adminIds: [] }
-          };
-          block.activities.push(waterfrontActivity);
-        }
-
-        // Add camper to the Waterfront activity
-        if (!waterfrontActivity.assignments.camperIds.includes(camper.id)) {
-          waterfrontActivity.assignments.camperIds.push(camper.id);
+        const activity = block?.activities.find(act => act.programArea.id === WATERFRONT_AREA_ID);
+        if (activity && activity.assignments.camperIds.length < MAX_CAPACITY_OCP && !added) {
+          activity.assignments.camperIds.push(camper.id);
+          added = true;
+          
         }
       });
+
     });
+
   }
 
 	// Assigns campers to their Bundle activities for all blocks in the bundle
