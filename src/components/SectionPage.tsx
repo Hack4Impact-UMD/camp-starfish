@@ -2,7 +2,7 @@
 import { Button } from "@mantine/core";
 import {
   FreeplayID,
-  SectionID,
+  SchedulingSectionID,
   SessionID,
 } from "@/types/sessionTypes";
 import LoadingPage from "@/app/loading";
@@ -13,6 +13,7 @@ import useSession from "@/hooks/sessions/useSession";
 import useSection from "@/hooks/sections/useSection";
 import useFreeplay from "@/hooks/freeplays/useFreeplay";
 import DownloadDaySchedulePDFButton from "@/features/scheduling/exporting/DownloadDaySchedulePDFButton";
+import { isCommonSection } from "@/types/sectionTypeGuards";
 
 interface SectionPageProps {
   sessionId: string;
@@ -36,6 +37,8 @@ export default function SectionPage(props: SectionPageProps) {
     return <LoadingPage />;
   }
 
+  if (isCommonSection(sectionQuery.data)) return <p>Common Section provided</p>;
+
   return (
     <SectionPageContent
       session={sessionQuery.data}
@@ -47,7 +50,7 @@ export default function SectionPage(props: SectionPageProps) {
 
 interface SectionPageContentProps {
   session: SessionID;
-  section: SectionID;
+  section: SchedulingSectionID;
   freeplay: FreeplayID;
 }
 
