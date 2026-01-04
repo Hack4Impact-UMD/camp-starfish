@@ -6,14 +6,11 @@ import useFreeplay from "@/hooks/freeplays/useFreeplay";
 import { cloneElement, useMemo } from "react";
 import useSectionSchedule from "@/hooks/schedules/useSectionSchedule";
 import {
-  AdminAttendeeID,
   AttendeeID,
-  CamperAttendeeID,
   FreeplayID,
   SchedulingSectionType,
   SectionID,
   SectionScheduleID,
-  StaffAttendeeID,
 } from "@/types/sessionTypes";
 import { Button } from "@mantine/core";
 import useNotifications from "@/features/notifications/useNotifications";

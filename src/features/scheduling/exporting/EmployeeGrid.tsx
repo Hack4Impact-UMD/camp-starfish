@@ -6,7 +6,7 @@ import {
   SectionScheduleID,
   StaffAttendeeID,
 } from "@/types/sessionTypes";
-import { Document, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
+import { StyleSheet, Text, View } from "@react-pdf/renderer";
 import {
   getFreeplayAssignmentId,
   isBundleActivity,
