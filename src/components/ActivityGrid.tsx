@@ -17,14 +17,9 @@ import {
   ScrollArea,
   Select,
   Table,
-  Text,
   TextInput,
   useMantineTheme,
 } from "@mantine/core";
-
-type BlockWithId<T extends SchedulingSectionType> = Block<T> & {
-  id: string;
-};
 
 interface ActivityGridProps {
   sectionSchedule: SectionScheduleID<SchedulingSectionType>;
@@ -108,7 +103,15 @@ export const ActivityGrid: React.FC<ActivityGridProps> = ({
               }}
             >
               <Table.Tbody>
-
+                {Object.entries(sectionSchedule)
+                  .sort((a, b) => a[0].localeCompare(b[0]))
+                  .map(([blockId, block]) => (
+                    <ActivityGridCell
+                      key={blockId}
+                      id={blockId}
+                      block={block}
+                    />
+                  ))}
               </Table.Tbody>
             </Table>
           </ScrollArea>
