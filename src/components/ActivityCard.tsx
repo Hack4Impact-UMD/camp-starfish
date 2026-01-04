@@ -1,37 +1,24 @@
 "use client";
 
 import { Box, Table } from "@mantine/core";
-import { useMantineTheme } from "@mantine/core";
 import {
   IndividualAssignments,
   BunkAssignments,
+  ActivityWithAssignments,
 } from "@/types/sessionTypes";
+import { isBunkAssignments, isIndividualAssignments } from "@/features/scheduling/generation/schedulingUtils";
 
-type AnyAssignments = IndividualAssignments | BunkAssignments;
+type ActivityAssignments = IndividualAssignments | BunkAssignments;
 
 interface ActivityCardProps {
-  id: number;
-  activity: {
-    name: string;
-    description: string;
-    assignments: AnyAssignments;
-  };
+  activity: ActivityWithAssignments
 }
 
-function isIndividual(
-  assignments: AnyAssignments
-): assignments is IndividualAssignments {
-  return "camperIds" in assignments;
-}
-
-function isBunk(assignments: AnyAssignments): assignments is BunkAssignments {
-  return "bunkNums" in assignments;
-}
-
-export function ActivityCard({ id, activity }: ActivityCardProps) {
+export function ActivityCard(props: ActivityCardProps) {
+  const { activity } = props;
   const assignments = activity.assignments;
 
-  const maxRows = isIndividual(assignments)
+  const maxRows = isIndividualAssignments(assignments)
     ? Math.max(assignments.staffIds.length, assignments.camperIds.length)
     : Math.max(assignments.bunkNums.length, assignments.adminIds.length);
 
@@ -56,7 +43,7 @@ export function ActivityCard({ id, activity }: ActivityCardProps) {
             className="bg-[#ECECEC] sticky top-0 z-20"
           >
             <Table.Tr>
-              {isIndividual(assignments) && (
+              {isIndividualAssignments(assignments) && (
                 <>
                   <Table.Th className="font-bold bg-[#DEE1E3] px-2 py-1 text-center border border-[#001B2A]">
                     STAFF
@@ -67,7 +54,7 @@ export function ActivityCard({ id, activity }: ActivityCardProps) {
                 </>
               )}
 
-              {isBunk(assignments) && (
+              {isBunkAssignments(assignments) && (
                 <>
                   <Table.Th className="font-bold bg-[#DEE1E3] px-2 py-1 text-center border border-[#001B2A]">
                     BUNKS
@@ -85,13 +72,13 @@ export function ActivityCard({ id, activity }: ActivityCardProps) {
             {Array.from({ length: maxRows }).map((_, index) => (
               <Table.Tr key={index}>
                 <Table.Td className="px-2 py-1 text-[0.9rem] text-center border border-[#001B2A]">
-                  {isIndividual(assignments)
+                  {isIndividualAssignments(assignments)
                     ? assignments.staffIds[index] ?? ""
                     : assignments.bunkNums[index] ?? ""}
                 </Table.Td>
 
                 <Table.Td className="px-2 py-2 text-[0.9rem] text-center border border-[#001B2A]">
-                  {isIndividual(assignments)
+                  {isIndividualAssignments(assignments)
                     ? assignments.camperIds[index] ?? ""
                     : assignments.adminIds[index] ?? ""}
                 </Table.Td>
