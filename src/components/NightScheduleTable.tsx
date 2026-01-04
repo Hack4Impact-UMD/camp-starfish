@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { Table, Text } from "@mantine/core";
 import {
   useReactTable,
@@ -85,7 +85,7 @@ function NightScheduleTableContent(props: NightScheduleTableContentProps) {
     return { staffById, staffByBunk, bunkNums };
   }, [attendees]);
 
-  const getStaffForPosition = (
+  const getStaffForPosition = useCallback((
     nightShift: NightShiftID,
     bunkNum: number,
     position: NightSchedulePosition
@@ -132,7 +132,7 @@ function NightScheduleTableContent(props: NightScheduleTableContentProps) {
       default:
         return [];
     }
-  };
+  }, [staffByBunk, staffById]);
 
   const data: NightScheduleTableRow[] = useMemo(() => {
     const rows: NightScheduleTableRow[] = [];
