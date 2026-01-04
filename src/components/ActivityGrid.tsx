@@ -103,13 +103,13 @@ export const ActivityGrid: React.FC<ActivityGridProps> = ({
               }}
             >
               <Table.Tbody>
-                {Object.entries(sectionSchedule)
+                {Object.keys(sectionSchedule.blocks)
                   .sort((a, b) => a[0].localeCompare(b[0]))
-                  .map(([blockId, block]) => (
+                  .map((blockId) => (
                     <ActivityGridCell
                       key={blockId}
                       id={blockId}
-                      block={block}
+                      block={sectionSchedule.blocks[blockId]}
                     />
                   ))}
               </Table.Tbody>
