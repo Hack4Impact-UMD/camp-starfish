@@ -25,15 +25,10 @@ export default function SectionPage(props: SectionPageProps) {
 
   const sessionQuery = useSession(sessionId);
   const sectionQuery = useSection(sessionId, sectionId);
-  const freeplayQuery = useFreeplay(sessionId, sectionQuery.data?.startDate);
 
-  if (sessionQuery.isError || sectionQuery.isError || freeplayQuery.isError) {
+  if (sessionQuery.isError || sectionQuery.isError) {
     return <p>Error loading session data</p>;
-  } else if (
-    sessionQuery.isPending ||
-    sectionQuery.isPending ||
-    freeplayQuery.isPending
-  ) {
+  } else if (sessionQuery.isPending || sectionQuery.isPending) {
     return <LoadingPage />;
   }
 
@@ -43,7 +38,6 @@ export default function SectionPage(props: SectionPageProps) {
     <SectionPageContent
       session={sessionQuery.data}
       section={sectionQuery.data}
-      freeplay={freeplayQuery.data}
     />
   );
 }
@@ -51,11 +45,10 @@ export default function SectionPage(props: SectionPageProps) {
 interface SectionPageContentProps {
   session: SessionID;
   section: SchedulingSectionID;
-  freeplay: FreeplayID;
 }
 
 function SectionPageContent(props: SectionPageContentProps) {
-  const { session, section, freeplay } = props;
+  const { session, section } = props;
 
   const publishMutation = usePublishSectionSchedule();
 
@@ -92,7 +85,7 @@ function SectionPageContent(props: SectionPageContentProps) {
             <DownloadDaySchedulePDFButton
               sectionId={section.id}
               sessionId={session.id}
-              date={freeplay.id}
+              date={section.startDate}
             />
           </div>
         </div>
