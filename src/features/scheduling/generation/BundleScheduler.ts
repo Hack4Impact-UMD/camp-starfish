@@ -90,10 +90,10 @@ export class BundleScheduler {
     const nav_campers = this.campers.filter(c => c.ageGroup === 'NAV');
 
     // OCP Campers for first bundle (includes all)
-    let ocp_campers = this.campers.filter(c => c.ageGroup === 'OCP');
+    const ocp_campers = this.campers.filter(c => c.ageGroup === 'OCP');
 
     // OCP Campers for any other bundle besides first (excludes swim opt outs)
-    let ocp_campers_filtered = ocp_campers.filter(c => c.swimOptOut === false);
+    const ocp_campers_filtered = ocp_campers.filter(c => c.swimOptOut === false);
 
     // Calculates the max capacity for each waterfront activity based on the number of campers
     const MAX_CAPACITY_NAV = Math.ceil(nav_campers.length / 3); // Divides by three beacuse there are 3 waterfront activities for nav campers 
@@ -167,8 +167,12 @@ export class BundleScheduler {
 	// Assigns campers to their Bundle activities for all blocks in the bundle
   assignCampers() {
 
+    this.assignSwimmingBlock();
+    this.assignOCPChats();
+
     for (const blockID of this.blocksToAssign) {
 
+      // Check if block exists
       if (!this.schedule.blocks[blockID]) throw new Error("Invalid block");
 
       const activities = this.schedule.blocks[blockID].activities;

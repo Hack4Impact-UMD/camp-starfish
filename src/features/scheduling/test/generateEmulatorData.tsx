@@ -4,7 +4,8 @@ import { CamperAttendeeID, StaffAttendeeID, AdminAttendeeID, AgeGroup, SectionSc
   ProgramArea, SectionPreferences, BunkID, BunkJamboreeActivityWithAssignments,NonBunkJamboreeActivityWithAssignments, Freeplay, 
   PostID, Bunk, SectionID, SessionID, NightShiftID, 
   SectionScheduleID, FreeplayID,
-  ProgramAreaID} from "@/types/sessionTypes";
+  ProgramAreaID,
+  BundleActivity} from "@/types/sessionTypes";
 import { Camper } from "@/types/personTypes";
 import { BundleScheduler, } from "../generation/BundleScheduler";
 import { BunkJamboreeScheduler } from "../generation/BunkJamboreeScheduler";
@@ -514,25 +515,42 @@ function generatePosts(totalPosts: number): PostID[] {
 
 
 /* GENERATE PREFERENCES */
-function generatePrefs(assignees: CamperAttendeeID[] | BunkID[], schedule: SectionSchedule<'BUNDLE' | 'NON-BUNK-JAMBO' | 'BUNK-JAMBO'>): SectionPreferences {
+function generatePrefs(assignees: CamperAttendeeID[] | BunkID[], schedule: SectionSchedule<'BUNDLE' | 'NON-BUNK-JAMBO' | 'BUNK-JAMBO'>, type : 'BUNDLE' | 'NON-BUNK-JAMBO' | 'BUNK-JAMBO'): SectionPreferences {
   const sectionPrefs: SectionPreferences = {};
 
   for (const blockId in schedule.blocks) {
     sectionPrefs[blockId] = {};
 
     const block = schedule.blocks[blockId];
-    const activities = block.activities;
 
-    // TODO: Add filter to activties to remove OCP and Swimming
+    let activities;
+    if (type == "BUNDLE") {
+      activities = block.activities.filter((activity) => {
+        const a = activity as BundleActivityWithAssignments;
+        return a.programArea.id !== "WF" && a.programArea.id !== "TC";
+      });
+    } else {
+      activities = block.activities;
+    }
+    
     assignees.forEach(assignee => {
 
+      let chosen; 
 
-      // TODO: Check age group of assignee and filter activities based on age group. Then use the filtered list to rank preferences
+      if (type === "BUNDLE" && "ageGroup" in assignee) {
+        chosen = activities.filter((activity) => {
+          const a = activity as BundleActivityWithAssignments;
+          return a.ageGroup === assignee.ageGroup; 
+        })
+        .sort(() => Math.random() - 0.5).slice(0, 5);
+      }
+      else {
+        chosen = block.activities.sort(() => Math.random() - 0.5).slice(0, 5);
 
+      }
 
-      // Randomly choose 5 activities
-      const chosen = activities.sort(() => Math.random() - 0.5).slice(0, 5);
-
+      
+      chosen = chosen.sort(() => Math.random() - 0.5)
       const activityRankings: { [activityId: string]: number } = {};
       chosen.forEach((a, index) => {
         activityRankings[a.name] = index + 1;
@@ -550,7 +568,7 @@ export function generateBundleSchedule(numBlocks: number, bundleNum: number, cam
 
   const blocksToAssign: string[] = generateBlockIDs(5);
   const schedule: SectionSchedule<'BUNDLE'> = generateBundleBlockSchedule(blocksToAssign);
-  const camperPrefs: SectionPreferences = generatePrefs(campers, schedule);
+  const camperPrefs: SectionPreferences = generatePrefs(campers, schedule, "BUNDLE");
   generateProgramCounselors(staff, schedule);
   generateNonoLists(campers, staff, admins);
   generateYesyesLists(staff, admins);
@@ -565,10 +583,10 @@ export function generateBundleSchedule(numBlocks: number, bundleNum: number, cam
   .forBlocks(blocksToAssign);
 
   //scheduler.assignPeriodsOff()
-  scheduler.assignOCPChats()
-  scheduler.assignSwimmingBlock()
+  // scheduler.assignOCPChats()
+  // scheduler.assignSwimmingBlock()
 
-  // scheduler.assignCampers()
+  scheduler.assignCampers()
   // scheduler.assignStaff()
   // scheduler.assignAdmin()
 
