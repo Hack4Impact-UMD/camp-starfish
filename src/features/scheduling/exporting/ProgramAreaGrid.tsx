@@ -1,5 +1,5 @@
 import React from "react";
-import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
+import { Text, View, StyleSheet } from "@react-pdf/renderer";
 import {
   SectionSchedule,
   BundleActivity,
@@ -109,7 +109,7 @@ interface ProgramAreaGridProps {
 }
 
 // ---------- Component ----------
-export function ProgramAreaGrid({
+export default function ProgramAreaGrid({
   schedule,
   sectionName,
 }: ProgramAreaGridProps) {
@@ -220,13 +220,9 @@ export function ProgramAreaGrid({
   );
 
   return (
-    <Document>
-      <Page size="A4" style={styles.page}>
+      <View style={styles.page}>
         <Text style={styles.title}>{sectionName} Program Area Grid</Text>
-
-        {/* Render multiple tables */}
         {areaChunks.map((areas, index) => renderTable(areas, index))}
-      </Page>
-    </Document>
+      </View>
   );
 }

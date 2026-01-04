@@ -6,7 +6,7 @@ import {
   StaffAttendeeID,
 } from "@/types/sessionTypes";
 import { getFullName } from "@/utils/personUtils";
-import { StyleSheet, View, Text, Document, Page } from "@react-pdf/renderer";
+import { StyleSheet, View, Text } from "@react-pdf/renderer";
 import {
   getFreeplayAssignmentId,
   isBundleActivity,
@@ -163,8 +163,7 @@ export default function CamperGrid<T extends SchedulingSectionType>(
   });
 
   return (
-    <Document>
-      <Page size="A4">
+    <View>
       <Text style={styles.sectionTitle}>Camper Grid</Text>
       <View style={styles.compactTable}>
         <View style={styles.headerRow}>
@@ -229,7 +228,6 @@ export default function CamperGrid<T extends SchedulingSectionType>(
           );
         })}
       </View>
-      </Page>
-    </Document>
+    </View>
   );
 }

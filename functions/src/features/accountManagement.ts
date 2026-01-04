@@ -11,13 +11,10 @@ const checkWhitelist = onCall(async (req) => {
 
     const devAndNpoEmails = [process.env.DEV_EMAILS?.split(',') || [], process.env.NPO_EMAILS?.split(',') || []].flat();
     if (devAndNpoEmails.includes(req.auth?.token.email ?? '') || process.env.NODE_ENV === 'development') {
-      await adminAuth.setCustomUserClaims(uid, { role: "ADMIN", hasDatabaseAccess: true });
+      await adminAuth.setCustomUserClaims(uid, { role: "ADMIN" });
       resolve(`User with uid ${uid} has been given ADMIN role and permission to access production environment`);
       return;
     }
-
-    await adminAuth.setCustomUserClaims(uid, { role: "ADMIN" });
-    resolve(`User with uid ${uid} has been given ADMIN role`);
   });
 });
 
