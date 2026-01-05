@@ -173,7 +173,7 @@ export default function page() {
         <Flex direction={"column"}>
           <Box
             style={{
-              background: theme.colors["blue-0"][0],
+              background: theme.colors["blue"][0],
               borderRadius: 8,
               border: "1px solid #bcd2e8",
             }}
