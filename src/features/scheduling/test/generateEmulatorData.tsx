@@ -5,7 +5,8 @@ import { CamperAttendeeID, StaffAttendeeID, AdminAttendeeID, AgeGroup, SectionSc
   PostID, Bunk, SectionID, SessionID, NightShiftID, 
   SectionScheduleID, FreeplayID,
   ProgramAreaID,
-  BundleActivity} from "@/types/sessionTypes";
+  BundleActivity,
+  SchedulingSectionID} from "@/types/sessionTypes";
 import { Camper } from "@/types/personTypes";
 import { BundleScheduler, } from "../generation/BundleScheduler";
 import { BunkJamboreeScheduler } from "../generation/BunkJamboreeScheduler";
@@ -569,7 +570,7 @@ function generatePrefs(assignees: CamperAttendeeID[] | BunkID[], schedule: Secti
 }
 
 /* GENERATE SCHEDULES */
-export function generateBundleSchedule(numBlocks: number, bundleNum: number, campers: CamperAttendeeID[], staff: StaffAttendeeID[], admins: AdminAttendeeID[]){
+export function generateBundleSchedule(numBlocks: number, bundleNum: number, campers: CamperAttendeeID[], staff: StaffAttendeeID[], admins: AdminAttendeeID[], section: SectionID): BundleScheduler {
 
   const blocksToAssign: string[] = generateBlockIDs(5);
   const schedule: SectionSchedule<'BUNDLE'> = generateBundleBlockSchedule(blocksToAssign);
@@ -579,6 +580,7 @@ export function generateBundleSchedule(numBlocks: number, bundleNum: number, cam
   generateYesyesLists(staff, admins);
 
   const scheduler = new BundleScheduler()
+  .withSectionID(section as SchedulingSectionID)
   .withBundleNum(bundleNum)
   .withSchedule(schedule)
   .withCampers(campers)
@@ -775,9 +777,9 @@ export function generateSession() {
   // sessionScheduler.assignDaysOff(session, counselors);
   // sessionScheduler.assignNightShifts(session, staff);
 
-  const bundleScheduler1 = generateBundleSchedule(5, 1, campers, staff, admins);
-  const bundleScheduler2 = generateBundleSchedule(5, 2, campers, staff, admins);
-  const bundleScheduler3 = generateBundleSchedule(5, 3, campers, staff, admins);
+  const bundleScheduler1 = generateBundleSchedule(5, 1, campers, staff, admins, sections[1]);
+  const bundleScheduler2 = generateBundleSchedule(5, 2, campers, staff, admins, sections[2]);
+  const bundleScheduler3 = generateBundleSchedule(5, 3, campers, staff, admins, sections[3]);
   // const bunkJamboreeScheduler = generateBunkJamboreeSchedule(5, campers, staff, admins);
   // const nonBunkJamboreeScheduler = generateNonBunkJamboreeSchedule(5, campers, staff, admins);
   // const freeplayScheduler1A = generateFreeplaySchedule(campers, staff, admins);
