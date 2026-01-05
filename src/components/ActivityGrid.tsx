@@ -16,6 +16,7 @@ import {
   Flex,
   ScrollArea,
   Select,
+  SimpleGrid,
   Table,
   TextInput,
   useMantineTheme,
@@ -29,10 +30,6 @@ export const ActivityGrid: React.FC<ActivityGridProps> = ({
   sectionSchedule,
 }) => {
   const theme = useMantineTheme();
-
-  // -------------------------
-  // Component State
-  // -------------------------
   const [view, setView] = useState<string | null>(null);
   const [sortFilter, setSortFilter] = useState<string | null>(null);
   const [globalFilter, setGlobalFilter] = useState("");
@@ -51,13 +48,9 @@ export const ActivityGrid: React.FC<ActivityGridProps> = ({
 
   const filtersActive = !!view || !!sortFilter || !!globalFilter;
 
-  // -------------------------
-  // Render
-  // -------------------------
   return (
     <Container style={{ border: `1px solid ${theme.colors["neutral"][5]}` }}>
       <Flex direction="column" mt="md">
-        {/* Toolbar */}
         <Box style={{ backgroundColor: theme.colors["neutral"][3] }}>
           <Flex direction="row" gap="md" p="md" align="center">
             <Select
@@ -92,29 +85,18 @@ export const ActivityGrid: React.FC<ActivityGridProps> = ({
           </Flex>
         </Box>
 
-        {/* Table */}
         <Box>
-          <ScrollArea className="border-red-500 border-4">
-            <Table
-              style={{
-                width: "100%",
-                tableLayout: "fixed",
-                borderCollapse: "collapse",
-              }}
-            >
-              <Table.Tbody>
-                {Object.keys(sectionSchedule.blocks)
-                  .sort((a, b) => a[0].localeCompare(b[0]))
-                  .map((blockId) => (
-                    <ActivityGridCell
-                      key={blockId}
-                      id={blockId}
-                      block={sectionSchedule.blocks[blockId]}
-                    />
-                  ))}
-              </Table.Tbody>
-            </Table>
-          </ScrollArea>
+          <SimpleGrid className="grid-cols-[minmax(20px,60px)_20px_minmax(0px,_3fr)_20px] gap-0">
+            {Object.keys(sectionSchedule.blocks)
+              .sort((a, b) => a[0].localeCompare(b[0]))
+              .map((blockId) => (
+                <ActivityGridCell
+                  key={blockId}
+                  id={blockId}
+                  block={sectionSchedule.blocks[blockId]}
+                />
+              ))}
+          </SimpleGrid>
         </Box>
       </Flex>
     </Container>

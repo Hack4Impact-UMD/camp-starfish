@@ -38,83 +38,39 @@ export const ActivityGridCell: React.FC<ActivityGridCellProps> = ({
   };
 
   return (
-    <Box
-
-    >
-      <Flex align="stretch">
-        <Box
-          style={{
-            minWidth: 80,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            border: `1px solid ${theme.colors["neutral"][5]}`,
-            backgroundColor: theme.colors["neutral"][2],
-          }}
-        >
-          <Text fw={600} size="sm">
-            Block {id}
-          </Text>
-        </Box>
-
-        <Flex align="center">
-          <ActionIcon
-            onClick={handlePrevPage}
-            disabled={currentPage === 0}
-            variant="subtle"
-            size="xs"
-            style={{
-              height: "100%",
-              borderRadius: 0,
-              backgroundColor: "#FFFFFF",
-              border: `1px solid ${theme.colors["neutral"][5]}`,
-
-            }}
-          >
-            <IconChevronLeft size={24} />
-          </ActionIcon>
+    <>
+      <Text className="flex justify-center items-center w-full h-full p-0 border-[1px] border-solid border-neutral-5 bg-neutral-2 text-sm font-semibold">
+        Block {id}
+      </Text>
+      <ActionIcon
+        classNames={{
+          root: "w-full h-full rounded-none border-[1px] border-solid border-neutral-5",
+        }}
+        onClick={handlePrevPage}
+        variant="subtle"
+        size="xs"
+      >
+        <IconChevronLeft size={24} />
+      </ActionIcon>
+      <ScrollArea className="w-full">
+        <Flex>
+          {currentActivities.map((activity, i) => (
+            <Box key={startIndex + i} style={{ minWidth: 200, maxWidth: 200 }}>
+              <ActivityCard id={startIndex + i + 1} activity={activity} />
+            </Box>
+          ))}
         </Flex>
-
-        <ScrollArea
-          style={{
-            flex: 1,
-          }}
-          styles={{
-            scrollbar: {
-              display: "none",
-            },
-          }}
-        >
-          <Flex wrap="nowrap">
-            {currentActivities.map((activity, i) => (
-              <Box
-                key={startIndex + i}
-                style={{ minWidth: 200, maxWidth: 200 }}
-              >
-                <ActivityCard id={startIndex + i + 1} activity={activity}/>
-              </Box>
-            ))}
-          </Flex>
-        </ScrollArea>
-
-        <Flex align="center">
-          <ActionIcon
-            onClick={handleNextPage}
-            disabled={currentPage === totalPages - 1}
-            variant="subtle"
-            size="xs"
-            style={{
-              height: "100%",
-              borderRadius: 0,
-              backgroundColor: "#FFFFFF",
-              border: `1px solid ${theme.colors["neutral"][5]}`,
-
-            }}
-          >
-            <IconChevronRight size={24} />
-          </ActionIcon>
-        </Flex>
-      </Flex>
-    </Box>
+      </ScrollArea>
+      <ActionIcon
+        classNames={{
+          root: "w-full h-full rounded-none border-[1px] border-solid border-neutral-5",
+        }}
+        onClick={handlePrevPage}
+        variant="subtle"
+        size="xs"
+      >
+        <IconChevronRight size={24} />
+      </ActionIcon>
+    </>
   );
 };
