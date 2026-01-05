@@ -1,8 +1,10 @@
-import { StaffAttendeeID, CamperAttendeeID, AdminAttendeeID, SectionSchedule, SectionPreferences, ProgramAreaID, BundleActivity } from "@/types/sessionTypes";
+import { StaffAttendeeID, CamperAttendeeID, AdminAttendeeID, SectionSchedule, SectionPreferences, ProgramAreaID, BundleActivity, ActivityAssignments, BundleActivityWithAssignments } from "@/types/sessionTypes";
 import { doesConflictExist } from "./schedulingUtils";
 import moment from "moment";
 import { MAX } from "uuid";
 import { a } from "framer-motion/dist/types.d-BJcRxCew";
+import { min } from "moment";
+import { ac } from "@faker-js/faker/dist/airline-CLphikKp";
 
 export class BundleScheduler {
   bundleNum: number = -1;
@@ -166,130 +168,237 @@ export class BundleScheduler {
 
 	// Assigns campers to their Bundle activities for all blocks in the bundle
   assignCampers() {
-
     this.assignSwimmingBlock();
     this.assignOCPChats();
 
-    for (const blockID of this.blocksToAssign) {
+    const MAX_CAPACITY = 9;
+    const MIN_CAPCITY = 4;
 
-      // Check if block exists
-      if (!this.schedule.blocks[blockID]) throw new Error("Invalid block");
+    const navCampers = this.campers
+      .filter(c => c.ageGroup === "NAV")
+      .sort((a, b) => moment(a.dateOfBirth).diff(moment(b.dateOfBirth)));
 
-      const activities = this.schedule.blocks[blockID].activities;
-      if (!activities || activities.length === 0) throw new Error("Block has no activities");
+    const ocpCampers = this.campers
+      .filter(c => c.ageGroup === "OCP")
+      .sort((a, b) => moment(a.dateOfBirth).diff(moment(b.dateOfBirth)));
 
-      // Calculate the average number of campers per activity
-      const lenNAV = this.campers.filter(c => c.ageGroup === 'NAV').length;
-      const lenOCP = this.campers.length - lenNAV;
-      const avgCampersNAV = Math.ceil(lenNAV / activities.length);
-      const avgCampersOCP = Math.ceil(lenOCP / activities.length);
+    // ---- shared helpers ----
 
-      // Sort campers by age, oldest first
-      const sortedCampers = [...this.campers].sort((a, b) =>
-        moment(a.dateOfBirth).diff(moment(b.dateOfBirth))
-      );
+    // Tries to assign camper to activity. Returns true if successful. Returns false if conflict exists or activity is full
+    const tryAssign = (
+      camper: CamperAttendeeID,
+      activity: BundleActivityWithAssignments,
+      cap = MAX_CAPACITY
+    ) => {
+      if (activity.assignments.camperIds.length >= cap) return false;
+      if (doesConflictExist(camper, activity.assignments.camperIds)) return false;
+      activity.assignments.camperIds.push(camper.id);
+      return true;
+    };
 
-      // Assign campers to activities based on preferences and availability
-      for (const camper of sortedCampers) {
+    // Assigns a group of campers to activities
+    const assignGroup = (
+      blockID: string,
+      campers: CamperAttendeeID[],
+      activities: BundleActivityWithAssignments[],
+      specials: BundleActivityWithAssignments[],
+      label: "OCP" | "NAV"
+    ) => {
+      const assigned = new Set<number>();
 
-        const camperPrefsForBlock = this.camperPrefs[blockID]?.[camper.id];
-        if (!camperPrefsForBlock) continue;
+      for (const camper of campers) {
+        if (specials.some(a => a.assignments.camperIds.includes(camper.id))) {
+          assigned.add(camper.id);
+          continue;
+        }
 
-        const avgCampersPerActivity = camper.ageGroup === 'NAV' ? avgCampersNAV : avgCampersOCP;
+        const prefs = this.camperPrefs[blockID]?.[camper.id];
+        if (!prefs) continue;
 
-        // Sort activities by preference score (lower score = higher preference)
-        const activityIDsByPref = Object.entries(camperPrefsForBlock)
-          .sort(([, scoreA], [, scoreB]) => scoreA - scoreB)
-          .map(([activityId]) => activityId);
+        const sortedPrefs = Object.entries(prefs).sort(([, a], [, b]) => a - b);
 
-        // Assign the camper to their highest-preference available activity
-        for (const activityId of activityIDsByPref) {
-          
-          // TODO cannot find activity name to ID mapping
-          const activity = activities.find(act => act.name === activityId && act.ageGroup === camper.ageGroup);
-          if (!activity || activity.assignments.camperIds.length >= avgCampersPerActivity || doesConflictExist(camper, [...activity.assignments.camperIds, ...activity.assignments.staffIds, ...activity.assignments.adminIds])) {
-            continue;
+        // First attempt at assigning through preferences
+        for (const [name] of sortedPrefs) {
+          const activity = activities.find(a => a.name === name);
+          if (activity && tryAssign(camper, activity)) {
+            assigned.add(camper.id);
+            break;
           }
-          activity.assignments.camperIds.push(camper.id);
-          break; // Assigned successfully, move to next camper
+        }
+
+        if (assigned.has(camper.id)) continue;
+
+        // If preferences didn't work, try to assign to any activity that has min capacity
+        const candidates = activities
+          .filter(a => !doesConflictExist(camper, a.assignments.camperIds))
+          .sort((a, b) => a.assignments.camperIds.length - b.assignments.camperIds.length);
+
+        for (const activity of candidates) {
+          if (tryAssign(camper, activity)) {
+            assigned.add(camper.id);
+            break;
+          }
         }
       }
+
+      // Assigns to any underfilled activities
+      const underfilled = activities.filter(
+        a => a.assignments.camperIds.length < MIN_CAPCITY
+      );
+
+
+      // For each undefilled activity, while activity is still underfilled, take from max capacity activities
+
+      for (const target of underfilled) {
+
+        while (target.assignments.camperIds.length < MIN_CAPCITY) {
+          const donors = activities
+            .filter(a => a !== target && a.assignments.camperIds.length > MIN_CAPCITY)
+            .sort((a, b) => b.assignments.camperIds.length - a.assignments.camperIds.length);
+
+          let moved = false;
+
+          // Goes through each donor and tries to find a camper to move
+          for (const donor of donors) {
+            for (let i = donor.assignments.camperIds.length - 1; i >= 0; i--) {
+              const camperId = donor.assignments.camperIds[i];
+              if (target.assignments.camperIds.includes(camperId)) continue;
+
+              const camper = campers.find(c => c.id === camperId);
+              if (!camper) continue;
+              if (doesConflictExist(camper, target.assignments.camperIds)) continue;
+
+              donor.assignments.camperIds.splice(i, 1);
+              target.assignments.camperIds.push(camperId);
+              moved = true;
+              break;
+            }
+            if (moved) break;
+          }
+
+          if (!moved) break;
+        }
+      }
+
+      // warn if any unassigned. Will allow the user to assign them manually
+      const notAssigned = campers.filter(c => !assigned.has(c.id));
+      if (notAssigned.length) {
+        console.warn(`[${blockID}] ${label}: ${notAssigned.length} campers unassigned`);
+      }
+
+      return { assigned, notAssigned };
+    };
+
+    // ---- Main ----
+    // For each block assign activities
+    for (const blockID of this.blocksToAssign) {
+      const block = this.schedule.blocks[blockID];
+      if (!block) throw new Error("Invalid block");
+
+      const acts = block.activities;
+
+      const navActs = acts.filter(a => a.ageGroup === "NAV" && a.programArea.id !== "WF");
+      const ocpActs = acts.filter(
+        a => a.ageGroup === "OCP" && a.programArea.id !== "WF" && a.programArea.id !== "TC"
+      );
+
+      if (!navActs.length || !ocpActs.length) {
+        throw new Error("Block has no activities");
+      }
+
+      assignGroup(
+        blockID,
+        ocpCampers,
+        ocpActs,
+        acts.filter(a => a.ageGroup === "OCP" && ["WF", "TC"].includes(a.programArea.id)),
+        "OCP"
+      );
+
+      assignGroup(
+        blockID,
+        navCampers,
+        navActs,
+        acts.filter(a => a.ageGroup === "NAV" && a.programArea.id === "WF"),
+        "NAV"
+      );
     }
   }
 
-  // Assigns staff randomly to each activity in the given block, aiming for a 1:1 ratio
+
+
+    // Assigns staff randomly to each activity in the given block, aiming for a 1:1 ratio
   assignStaff(){
 
-    for (const blockID of this.blocksToAssign) {
+      for (const blockID of this.blocksToAssign) {
 
-      if (!this.schedule.blocks[blockID]) throw new Error("Invalid block");
-      
-      const activities = this.schedule.blocks[blockID].activities;
-      if (!activities || activities.length === 0) throw new Error("Block has no activities");
+        if (!this.schedule.blocks[blockID]) throw new Error("Invalid block");
+        
+        const activities = this.schedule.blocks[blockID].activities;
+        if (!activities || activities.length === 0) throw new Error("Block has no activities");
 
-      // Assign program area counselors first; collect remaining available staff
-      const availableStaff = this.staff.filter(staff => {
-        const isOff = this.schedule.blocks[blockID].periodsOff.includes(staff.id);
-        if (isOff) return false;
+        // Assign program area counselors first; collect remaining available staff
+        const availableStaff = this.staff.filter(staff => {
+          const isOff = this.schedule.blocks[blockID].periodsOff.includes(staff.id);
+          if (isOff) return false;
 
-        const areaName = staff.programCounselor?.name; // TODO cannot find program area name to ID mapping
-        const activity = areaName && activities.find(act => act.name === areaName);
+          const areaName = staff.programCounselor?.name; // TODO cannot find program area name to ID mapping
+          const activity = areaName && activities.find(act => act.name === areaName);
 
-        if (activity) {
-          activity.assignments.staffIds.push(staff.id);
-          return false;
-        }
-
-        return true;
-      });
-
-      // Shuffle staff
-      for (let i = availableStaff.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [availableStaff[i], availableStaff[j]] = [availableStaff[j], availableStaff[i]];
-      }
-
-      // Aim for 1:1 ratio of staff to campers
-      const targetStaffCount: number[] = activities.map(act => act.assignments.camperIds.length);
-
-      const unassignedStaff: StaffAttendeeID[] = [];
-
-      // Place staff in activities
-      for (const staff of availableStaff) {
-        const activity = activities.find((a, i) =>
-          a.assignments.staffIds.length < targetStaffCount[i] &&
-          !doesConflictExist(staff, [...a.assignments.camperIds, ...a.assignments.staffIds, ...a.assignments.adminIds])
-        );
-
-        if (activity) activity.assignments.staffIds.push(staff.id);
-        else unassignedStaff.push(staff);
-      }
-
-      // Distribute remaining staff to any non-conflicting activities
-      let activityIndex = 0;
-
-      while (unassignedStaff.length) {
-        const staff = unassignedStaff.pop()!;
-        const startIdx = activityIndex;
-
-        const activity = activities.find((_, i) => {
-          const idx = (i + startIdx) % activities.length;
-          if (!doesConflictExist(
-            staff,
-            [...activities[idx].assignments.camperIds,
-            ...activities[idx].assignments.staffIds,
-            ...activities[idx].assignments.adminIds]
-          )) {
-            activityIndex = (idx + 1) % activities.length;
-            return true;
+          if (activity) {
+            activity.assignments.staffIds.push(staff.id);
+            return false;
           }
-          return false;
+
+          return true;
         });
 
-        if (activity) activity.assignments.staffIds.push(staff.id);
-        else console.warn(`Could not assign staff ${staff.id} due to conflicts.`);
+        // Shuffle staff
+        for (let i = availableStaff.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [availableStaff[i], availableStaff[j]] = [availableStaff[j], availableStaff[i]];
+        }
+
+        // Aim for 1:1 ratio of staff to campers
+        const targetStaffCount: number[] = activities.map(act => act.assignments.camperIds.length);
+
+        const unassignedStaff: StaffAttendeeID[] = [];
+
+        // Place staff in activities
+        for (const staff of availableStaff) {
+          const activity = activities.find((a, i) =>
+            a.assignments.staffIds.length < targetStaffCount[i] &&
+            !doesConflictExist(staff, [...a.assignments.camperIds, ...a.assignments.staffIds, ...a.assignments.adminIds])
+          );
+
+          if (activity) activity.assignments.staffIds.push(staff.id);
+          else unassignedStaff.push(staff);
+        }
+
+        // Distribute remaining staff to any non-conflicting activities
+        let activityIndex = 0;
+
+        while (unassignedStaff.length) {
+          const staff = unassignedStaff.pop()!;
+          const startIdx = activityIndex;
+
+          const activity = activities.find((_, i) => {
+            const idx = (i + startIdx) % activities.length;
+            if (!doesConflictExist(
+              staff,
+              [...activities[idx].assignments.camperIds,
+              ...activities[idx].assignments.staffIds,
+              ...activities[idx].assignments.adminIds]
+            )) {
+              activityIndex = (idx + 1) % activities.length;
+              return true;
+            }
+            return false;
+          });
+
+          if (activity) activity.assignments.staffIds.push(staff.id);
+          else console.warn(`Could not assign staff ${staff.id} due to conflicts.`);
+        }
       }
-    }
   }
 
   // Assigns admin staff randomly to each activity in the given block

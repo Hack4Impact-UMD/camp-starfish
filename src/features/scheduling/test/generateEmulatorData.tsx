@@ -390,64 +390,69 @@ function generateBundleActivities(totalActivities: number, blockID: string): Bun
     { id: "OC",  name: "Outdoor Cooking", isDeleted: false },
     { id: "ANI", name: "Small Animals", isDeleted: false },
     { id: "XPL", name: "Xplore!", isDeleted: false },
-    { id: "TC",  name: "Teens", isDeleted: false },      // Teen Chat program area
+    { id: "TC",  name: "Teens", isDeleted: false },
     { id: "WF",  name: "Waterfront", isDeleted: false },
   ];
 
-  let hasAddedWaterfrontOCP = false;
-  let hasAddedWaterfrontNAV = false;
-  let hasAddedTeenChat = false; // <-- NEW: track if we added Teen Chat for this block
+  const filteredProgramAreas = possibleProgramAreas.filter(p => p.id !== "WF" && p.id !== "TC");
 
-  for (let i = 0; i < totalActivities; i++) {
-    let name: string;
-    let description: string;
-    let programArea: ProgramAreaID;
-    let ageGroup: AgeGroup;
+  // Aim for an even split
+  const targetNAV = Math.floor(totalActivities / 2);
+  const targetOCP = totalActivities - targetNAV;
 
-    // Priority: add Teen Chat for C/D/E blocks (OCP chats) once
-    if ((["C","D","E"].includes(blockID)) && !hasAddedTeenChat) {
-      programArea = possibleProgramAreas.find(p => p.id === "TC")!;
-      name = "Teen Chat";
-      description = "OCP group chat";
-      ageGroup = "OCP";
-      hasAddedTeenChat = true;
-    }
-    // Add one Waterfront activity for OCP or NAV (as before)
-    else if ((blockID === "A" || blockID === "B") && !hasAddedWaterfrontOCP) {
-      programArea = possibleProgramAreas.find(p => p.id === "WF")!;
-      name = "Swim-I (OCP)";
-      description = "OCP Waterfront Activity";
-      ageGroup = "OCP";
-      hasAddedWaterfrontOCP = true;
-    } else if ((blockID === "C" || blockID === "D" || blockID === "E") && !hasAddedWaterfrontNAV) {
-      programArea = possibleProgramAreas.find(p => p.id === "WF")!;
-      name = "Swim-I (NAV)";
-      description = "NAV Waterfront Activity";
-      ageGroup = "NAV";
-      hasAddedWaterfrontNAV = true;
-    } else {
-      const filteredProgramAreas = possibleProgramAreas.filter(p => p.id !== "WF" && p.id !== "TC");
-      programArea = faker.helpers.arrayElement(filteredProgramAreas);
-      name = faker.lorem.words(2);
-      description = faker.lorem.sentence();
-      ageGroup = faker.helpers.arrayElement(["NAV", "OCP"]);
-    }
+  let navCount = 0;
+  let ocpCount = 0;
 
+  const pushActivity = (name: string, description: string, programArea: ProgramAreaID, ageGroup: AgeGroup) => {
     activities.push({
       name,
       description,
       programArea,
       ageGroup,
-      assignments: {
-        camperIds: [],
-        staffIds: [],
-        adminIds: []
-      }
+      assignments: { camperIds: [], staffIds: [], adminIds: [] }
     });
+    if (ageGroup === "NAV") navCount++;
+    else ocpCount++;
+  };
+
+  // --- Special activities first (so balancing accounts for them) ---
+
+  // Priority: add Teen Chat for C/D/E blocks (OCP chats) once
+  if (["C", "D", "E"].includes(blockID) && activities.length < totalActivities) {
+    const programArea = possibleProgramAreas.find(p => p.id === "TC")!;
+    pushActivity("Teen Chat", "OCP group chat", programArea, "OCP");
+  }
+
+  // Add one Waterfront activity for OCP or NAV (as before)
+  if ((blockID === "A" || blockID === "B") && activities.length < totalActivities) {
+    const programArea = possibleProgramAreas.find(p => p.id === "WF")!;
+    pushActivity("Swim-I (OCP)", "OCP Waterfront Activity", programArea, "OCP");
+  }
+
+  if ((blockID === "C" || blockID === "D" || blockID === "E") && activities.length < totalActivities) {
+    const programArea = possibleProgramAreas.find(p => p.id === "WF")!;
+    pushActivity("Swim-I (NAV)", "NAV Waterfront Activity", programArea, "NAV");
+  }
+
+  // --- Fill remaining slots with balanced age groups ---
+
+  while (activities.length < totalActivities) {
+    // choose the age group that is currently under target
+    let ageGroup: AgeGroup;
+    if (navCount < targetNAV) ageGroup = "NAV";
+    else if (ocpCount < targetOCP) ageGroup = "OCP";
+    else ageGroup = faker.helpers.arrayElement(["NAV", "OCP"]); // fallback (should rarely hit)
+
+    const programArea = faker.helpers.arrayElement(filteredProgramAreas);
+    const name = faker.lorem.words(2);
+    const description = faker.lorem.sentence();
+
+    pushActivity(name, description, programArea, ageGroup);
   }
 
   return activities;
 }
+
 
 
 
