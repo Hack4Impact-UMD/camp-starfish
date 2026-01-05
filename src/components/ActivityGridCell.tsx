@@ -20,22 +20,6 @@ export const ActivityGridCell: React.FC<ActivityGridCellProps> = ({
   block,
   id,
 }) => {
-  const theme = useMantineTheme();
-  const [currentPage, setCurrentPage] = useState(0);
-  const cardsPerPage = 7;
-
-  const totalPages = Math.ceil(block.activities.length / cardsPerPage);
-  const startIndex = currentPage * cardsPerPage;
-  const endIndex = Math.min(startIndex + cardsPerPage, block.activities.length);
-  const currentActivities = block.activities.slice(startIndex, endIndex);
-
-  const handlePrevPage = () => {
-    setCurrentPage((prev) => Math.max(0, prev - 1));
-  };
-
-  const handleNextPage = () => {
-    setCurrentPage((prev) => Math.min(totalPages - 1, prev + 1));
-  };
 
   return (
     <>
@@ -46,7 +30,6 @@ export const ActivityGridCell: React.FC<ActivityGridCellProps> = ({
         classNames={{
           root: "w-full h-full rounded-none border-[1px] border-solid border-neutral-5",
         }}
-        onClick={handlePrevPage}
         variant="subtle"
         size="xs"
       >
@@ -54,9 +37,9 @@ export const ActivityGridCell: React.FC<ActivityGridCellProps> = ({
       </ActionIcon>
       <ScrollArea className="w-full">
         <Flex>
-          {currentActivities.map((activity, i) => (
-            <Box key={startIndex + i} style={{ minWidth: 200, maxWidth: 200 }}>
-              <ActivityCard id={startIndex + i + 1} activity={activity} />
+          {block.activities.map((activity, i) => (
+            <Box key={i} style={{ minWidth: 200, maxWidth: 200 }}>
+              <ActivityCard activity={activity} />
             </Box>
           ))}
         </Flex>
@@ -65,7 +48,6 @@ export const ActivityGridCell: React.FC<ActivityGridCellProps> = ({
         classNames={{
           root: "w-full h-full rounded-none border-[1px] border-solid border-neutral-5",
         }}
-        onClick={handlePrevPage}
         variant="subtle"
         size="xs"
       >
