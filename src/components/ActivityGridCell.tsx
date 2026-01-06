@@ -1,55 +1,52 @@
-import { Block, SchedulingSectionType } from "@/types/sessionTypes";
-import {
-  Text,
-  ActionIcon,
-  ScrollArea,
-} from "@mantine/core";
-import React from "react";
-import { ActivityCard } from "./ActivityCard";
-import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
+"use client";
+
+import { Badge, Box } from "@mantine/core";
+import { ActivityWithAssignments } from "@/types/sessionTypes";
+import { isIndividualAssignments } from "@/features/scheduling/generation/schedulingUtils";
 
 interface ActivityGridCellProps {
-  block: Block<SchedulingSectionType>;
-  id: string;
+  activity: ActivityWithAssignments;
 }
 
-export const ActivityGridCell: React.FC<ActivityGridCellProps> = ({
-  block,
-  id,
-}) => {
+export default function ActivityGridCell(props: ActivityGridCellProps) {
+  const { activity } = props;
+  const assignments = activity.assignments;
 
   return (
     <>
-      <Text className="flex justify-center items-center w-full h-full p-0 border-[1px] border-solid border-neutral-5 bg-neutral-2 text-sm font-semibold">
-        Block {id}
-      </Text>
-      <ActionIcon
-        classNames={{
-          root: "w-full h-full rounded-none border-[1px] border-solid border-neutral-5",
-        }}
-        variant="subtle"
-        size="xs"
-      >
-        <IconChevronLeft size={24} />
-      </ActionIcon>
-      <ScrollArea type="scroll" className="w-full">
-        <div className="grid gap-0" style={{ gridColumn: 2 * block.activities.length }}>
-          {block.activities.map((activity, i) => (
-            <div key={i} className="grid grid-cols-subgrid grid-rows-subgrid row-start-1 row-end-4" style={{ gridColumnStart: 2 * i + 1, gridColumnEnd: 2 * i + 3 }}>
-              <ActivityCard activity={activity} />
-            </div>
+      <Box className="col-start-1 col-end-3 text-center font-bold bg-[#FFF7D5] p-[6px] text-[0.9rem] tracking-[0.3px] border border-[#001B2A]">
+        {activity.name}
+      </Box>
+      <div className="font-bold bg-[#DEE1E3] px-2 py-1 text-center border border-[#001B2A]">
+        {isIndividualAssignments(assignments) ? "CAMPERS" : "BUNKS"}
+      </div>
+      <div className="font-bold bg-[#DEE1E3] px-2 py-1 text-center border border-[#001B2A]">
+        {isIndividualAssignments(assignments) ? "STAFF" : "ADMIN"}
+      </div>
+      <div className="px-2 py-1 text-[0.9rem] text-center border border-[#001B2A]">
+        <ul>
+          {(isIndividualAssignments(assignments)
+            ? assignments.camperIds
+            : assignments.bunkNums
+          ).map((id) => (
+            <li>
+              <Badge>{id}</Badge>
+            </li>
           ))}
-        </div>
-      </ScrollArea>
-      <ActionIcon
-        classNames={{
-          root: "w-full h-full rounded-none border-[1px] border-solid border-neutral-5",
-        }}
-        variant="subtle"
-        size="xs"
-      >
-        <IconChevronRight size={24} />
-      </ActionIcon>
+        </ul>
+      </div>
+      <div className="px-2 py-1 text-[0.9rem] text-center border border-[#001B2A]">
+        <ul>
+          {(isIndividualAssignments(assignments)
+            ? [...assignments.staffIds, ...assignments.adminIds]
+            : assignments.adminIds
+          ).map((id) => (
+            <li>
+              <Badge>{id}</Badge>
+            </li>
+          ))}
+        </ul>
+      </div>
     </>
   );
-};
+}
