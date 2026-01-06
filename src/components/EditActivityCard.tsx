@@ -7,7 +7,7 @@ import {
 } from "@/types/sessionTypes";
 import { useState } from "react";
 
-import { ChevronDown, User } from "lucide-react";
+import { User } from "lucide-react";
 import { Box, Button, Container, Select, Text, Title } from "@mantine/core";
 
 type BlockWithId<T extends SchedulingSectionType> = Block<T> & {
@@ -30,8 +30,6 @@ export const EditActivityCard: React.FC<EditActivityCardProps> = ({
   const [activity, setActivity] = useState<
     BundleActivity | JamboreeActivity | null
   >(selectedActivity ?? null);
-
-  const handleConfirm = () => {};
 
   return (
     <Container className="max-w-md mx-auto bg-gray-100 rounded-2xl shadow-md p-8">

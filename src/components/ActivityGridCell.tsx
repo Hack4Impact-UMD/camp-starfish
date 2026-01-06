@@ -30,7 +30,7 @@ export default function ActivityGridCell(props: ActivityGridCellProps) {
             ? assignments.camperIds
             : assignments.bunkNums
           ).map((id) => (
-            <li>
+            <li key={id}>
               <Badge>{id}</Badge>
             </li>
           ))}
@@ -42,7 +42,7 @@ export default function ActivityGridCell(props: ActivityGridCellProps) {
             ? [...assignments.staffIds, ...assignments.adminIds]
             : assignments.adminIds
           ).map((id) => (
-            <li>
+            <li key={id}>
               <Badge>{id}</Badge>
             </li>
           ))}

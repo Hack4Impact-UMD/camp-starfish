@@ -25,7 +25,7 @@ interface ActivityGridContentProps {
   schedule: SectionScheduleID<SchedulingSectionType>;
 }
 
-function ActivityGridContent(props: ActivityGridContentProps) {
+export function ActivityGridContent(props: ActivityGridContentProps) {
   const { schedule } = props;
 
   return (
