@@ -3,6 +3,7 @@
 import { Badge, Box } from "@mantine/core";
 import { ActivityWithAssignments } from "@/types/sessionTypes";
 import { isIndividualAssignments } from "@/features/scheduling/generation/schedulingUtils";
+import { getActivityName } from "@/utils/activityUtils";
 
 interface ActivityGridCellProps {
   activity: ActivityWithAssignments;
@@ -15,7 +16,7 @@ export default function ActivityGridCell(props: ActivityGridCellProps) {
   return (
     <>
       <Box className="col-start-1 col-end-3 text-center font-bold bg-[#FFF7D5] p-[6px] text-[0.9rem] tracking-[0.3px] border border-[#001B2A]">
-        {activity.name}
+        {getActivityName(activity)}
       </Box>
       <div className="font-bold bg-[#DEE1E3] px-2 py-1 text-center border border-[#001B2A]">
         {isIndividualAssignments(assignments) ? "CAMPERS" : "BUNKS"}
