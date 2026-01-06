@@ -1,7 +1,7 @@
 import { Block, SchedulingSectionType } from "@/types/sessionTypes";
 import { Text, ActionIcon, ScrollArea } from "@mantine/core";
 import ActivityGridCell from "./ActivityGridCell";
-import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
+import { MdChevronLeft, MdChevronRight } from "react-icons/md";
 
 interface ActivityGridRowProps {
   block: Block<SchedulingSectionType>;
@@ -22,7 +22,7 @@ export default function ActivityGridRow(props: ActivityGridRowProps) {
         variant="subtle"
         size="xs"
       >
-        <IconChevronLeft size={24} />
+        <MdChevronLeft size={40} />
       </ActionIcon>
       <ScrollArea type="scroll" className="w-full">
         <div
@@ -47,7 +47,7 @@ export default function ActivityGridRow(props: ActivityGridRowProps) {
         variant="subtle"
         size="xs"
       >
-        <IconChevronRight size={24} />
+        <MdChevronRight size={40} />
       </ActionIcon>
     </>
   );
