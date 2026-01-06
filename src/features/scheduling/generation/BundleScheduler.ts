@@ -517,79 +517,118 @@ export class BundleScheduler {
 
 
   // Assigns staff randomly to each activity in the given block, aiming for a 1:1 ratio
-  assignStaff(){
+  assignStaff() {
+    for (const blockID of this.blocksToAssign) {
+      if (!this.schedule.blocks[blockID]) throw new Error("Invalid block");
 
-      for (const blockID of this.blocksToAssign) {
+      const activities = this.schedule.blocks[blockID].activities;
+      if (!activities || activities.length === 0) throw new Error("Block has no activities");
 
-        if (!this.schedule.blocks[blockID]) throw new Error("Invalid block");
-        
-        const activities = this.schedule.blocks[blockID].activities;
-        if (!activities || activities.length === 0) throw new Error("Block has no activities");
+      const nonWFActivities = activities.filter(a => a.programArea.id !== "WF");
 
-        // Assign program area counselors first; collect remaining available staff
-        const availableStaff = this.staff.filter(staff => {
-          const isOff = this.schedule.blocks[blockID].periodsOff.includes(staff.id);
-          if (isOff) return false;
+      const availableStaff = this.staff.filter(
+        s =>
+          !this.schedule.blocks[blockID].periodsOff.includes(s.id) &&
+          !s.daysOff.includes(this.sectionID.id) && 
+          !s.programCounselor
+      );
 
-          const areaName = staff.programCounselor?.name; // TODO cannot find program area name to ID mapping
-          const activity = areaName && activities.find(act => act.name === areaName);
+      // shuffle
+      for (let i = availableStaff.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [availableStaff[i], availableStaff[j]] = [availableStaff[j], availableStaff[i]];
+      }
 
-          if (activity) {
-            activity.assignments.staffIds.push(staff.id);
-            return false;
-          }
+      const targetStaffCount = nonWFActivities.map(a => a.assignments.camperIds.length);
+      const unassignedStaff: StaffAttendeeID[] = [];
 
-          return true;
-        });
+      for (const staff of availableStaff) {
+        const activity = nonWFActivities.find((a, i) =>
+          a.assignments.staffIds.length < targetStaffCount[i] &&
+          !doesConflictExist(staff, [...a.assignments.camperIds, ...a.assignments.staffIds, ...a.assignments.adminIds])
+        );
 
-        // Shuffle staff
-        for (let i = availableStaff.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [availableStaff[i], availableStaff[j]] = [availableStaff[j], availableStaff[i]];
+        if (activity) activity.assignments.staffIds.push(staff.id);
+        else unassignedStaff.push(staff);
+      }
+
+      while (unassignedStaff.length) {
+        const staff = unassignedStaff.pop()!;
+
+        let min_activity = nonWFActivities.find(activity =>
+          !doesConflictExist(staff, [...activity.assignments.camperIds, ...activity.assignments.staffIds, ...activity.assignments.adminIds])
+        );
+
+        if (!min_activity) {
+          console.warn(`Staff ${staff.id} conflicts with everyone in block ${blockID}. Skipping.`);
+          continue;
         }
 
-        // Aim for 1:1 ratio of staff to campers
-        const targetStaffCount: number[] = activities.map(act => act.assignments.camperIds.length);
+        for (const activity of nonWFActivities) {
+          if (doesConflictExist(staff, [...activity.assignments.camperIds, ...activity.assignments.staffIds, ...activity.assignments.adminIds])) continue;
 
-        const unassignedStaff: StaffAttendeeID[] = [];
+          if (activity.assignments.staffIds.length < min_activity.assignments.staffIds.length) {
+            min_activity = activity;
+          }
+        }
 
-        // Place staff in activities
-        for (const staff of availableStaff) {
-          const activity = activities.find((a, i) =>
-            a.assignments.staffIds.length < targetStaffCount[i] &&
-            !doesConflictExist(staff, [...a.assignments.camperIds, ...a.assignments.staffIds, ...a.assignments.adminIds])
+        min_activity.assignments.staffIds.push(staff.id);
+      }
+
+      const diff = (a: any) => a.assignments.camperIds.length - a.assignments.staffIds.length;
+
+      // tries to rebalance so receiver diff gets smaller by moving 1 staff from a donor
+      const rebalanceOnce = (maxAllowedDonorDiffAfterDonate: number) => {
+        const needsStaff = nonWFActivities.filter(a => diff(a) > 1);
+
+        const canDonate = nonWFActivities
+          .filter(a => a.assignments.staffIds.length > 0)
+          .sort((a, b) => diff(a) - diff(b)); // most overstaffed first (most negative diff)
+
+        for (const receiver of needsStaff) {
+          const donor = canDonate.find(d =>
+            // donor can give 1 staff and still not be "too understaffed"
+            diff(d) <= maxAllowedDonorDiffAfterDonate - 1
+            // equivalently: diff(d) + 1 <= maxAllowedDonorDiffAfterDonate
           );
 
-          if (activity) activity.assignments.staffIds.push(staff.id);
-          else unassignedStaff.push(staff);
+          if (!donor) break;
+
+          const staffId = donor.assignments.staffIds.pop();
+          if (staffId == null) continue;
+
+          const staffObj = this.staff.find(s => s.id === staffId);
+
+          if (
+            staffObj &&
+            doesConflictExist(staffObj, [
+              ...receiver.assignments.camperIds,
+              ...receiver.assignments.staffIds,
+              ...receiver.assignments.adminIds,
+            ])
+          ) {
+            donor.assignments.staffIds.push(staffId); // put back
+            continue;
+          }
+
+          receiver.assignments.staffIds.push(staffId);
         }
+      };
 
-        // Distribute remaining staff to any non-conflicting activities
-        let activityIndex = 0;
+      // First pass: try to balance 1:1 ratio. Aim for diff <= 1
+      rebalanceOnce(1);
 
-        while (unassignedStaff.length) {
-          const staff = unassignedStaff.pop()!;
-          const startIdx = activityIndex;
+      // Check again
+      const ratioStillNotMet = nonWFActivities.some(a => diff(a) > 1);
 
-          const activity = activities.find((_, i) => {
-            const idx = (i + startIdx) % activities.length;
-            if (!doesConflictExist(
-              staff,
-              [...activities[idx].assignments.camperIds,
-              ...activities[idx].assignments.staffIds,
-              ...activities[idx].assignments.adminIds]
-            )) {
-              activityIndex = (idx + 1) % activities.length;
-              return true;
-            }
-            return false;
-          });
-
-          if (activity) activity.assignments.staffIds.push(staff.id);
-          else console.warn(`Could not assign staff ${staff.id} due to conflicts.`);
-        }
+      // Second pass: try to balance 1:1 ratio. Aim for diff <= 2
+      if (ratioStillNotMet) {
+        rebalanceOnce(2);
       }
+
+    }
   }
+
 
   // Assigns admin staff randomly to each activity in the given block
   assignAdmin(){

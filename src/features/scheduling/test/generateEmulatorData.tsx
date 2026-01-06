@@ -267,7 +267,6 @@ function generateBunks(totalBunks: number, campers: CamperAttendeeID[], staff: S
 
 function generateProgramCounselors(
   staff: StaffAttendeeID[],
-  schedule: SectionSchedule<"BUNDLE">,
   numBunks: number
 ) {
   const assignedStaff = new Set<StaffAttendeeID["id"]>();
@@ -615,7 +614,6 @@ export function generateBundleSchedule(numBlocks: number, bundleNum: number, cam
   const blocksToAssign: string[] = generateBlockIDs(5);
   const schedule: SectionSchedule<'BUNDLE'> = generateBundleBlockSchedule(blocksToAssign);
   const camperPrefs: SectionPreferences = generatePrefs(campers, schedule, "BUNDLE");
-  generateProgramCounselors(staff, schedule, TOTAL_BUNKS);
   generateNonoLists(campers, staff, admins);
   generateYesyesLists(staff, admins);
 
@@ -634,8 +632,8 @@ export function generateBundleSchedule(numBlocks: number, bundleNum: number, cam
   // scheduler.assignSwimmingBlock()
 
   scheduler.assignCampers()
-  // scheduler.assignStaff()
-  // scheduler.assignAdmin()
+  scheduler.assignStaff()
+  scheduler.assignAdmin()
 
 
 
@@ -718,6 +716,7 @@ export function generateSession() {
 
   const campers: CamperAttendeeID[] = generateCampers(TOTAL_CAMPERS, TOTAL_BUNKS);
   const staff: StaffAttendeeID[] = generateStaff(TOTAL_STAFF, TOTAL_BUNKS);
+  generateProgramCounselors(staff, TOTAL_BUNKS);
   const admins: AdminAttendeeID[] = generateAdmins(TOTAL_ADMIN);
 
   const session: SessionID = {
