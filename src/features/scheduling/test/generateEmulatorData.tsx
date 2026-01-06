@@ -266,30 +266,68 @@ function generateBunks(totalBunks: number, campers: CamperAttendeeID[], staff: S
 }
 
 function generateProgramCounselors(
-  staff: StaffAttendeeID[], 
-  schedule: SectionSchedule<"BUNDLE">
+  staff: StaffAttendeeID[],
+  schedule: SectionSchedule<"BUNDLE">,
+  numBunks: number
 ) {
-  const assignedStaff = new Set<number>();
+  const assignedStaff = new Set<StaffAttendeeID["id"]>();
 
-  for (const blockId in schedule.blocks) {
-    const block = schedule.blocks[blockId];
+  const possibleProgramAreas: ProgramAreaID[] = [
+    { id: "ACV", name: "Activate", isDeleted: false },
+    { id: "ART", name: "Arts & Crafts", isDeleted: false },
+    { id: "ATH", name: "Athletics", isDeleted: false },
+    { id: "BOA", name: "Boating", isDeleted: false },
+    { id: "CHL", name: "Challenge", isDeleted: false },
+    { id: "DAN", name: "Dance", isDeleted: false },
+    { id: "DRA", name: "Drama", isDeleted: false },
+    { id: "DSC", name: "Discovery", isDeleted: false },
+    { id: "TAW", name: "Teen Adventure Week", isDeleted: false },
+    { id: "LC", name: "Learning Center", isDeleted: false },
+    { id: "MUS", name: "Music", isDeleted: false },
+    { id: "OC", name: "Outdoor Cooking", isDeleted: false },
+    { id: "ANI", name: "Small Animals", isDeleted: false },
+    { id: "XPL", name: "Xplore!", isDeleted: false },
+    { id: "TC", name: "Teens", isDeleted: false },
+    { id: "WF", name: "Waterfront", isDeleted: false },
+  ];
 
-    for (const activity of block.activities) {
-      const availableStaff = staff.filter(s => !assignedStaff.has(s.id));
+  for (const programArea of possibleProgramAreas) {
+    try {
+      // fresh pool of currently-available staff for this program area
+      const availablePool = staff.filter(p => !assignedStaff.has(p.id));
 
-      if (availableStaff.length === 0) {
-        console.warn("No available staff left to assign!");
-        continue; // skip if no staff are left
+      const picksNeeded = programArea.id === "WF" ? numBunks : 1;
+
+      for (let pick = 0; pick < picksNeeded; pick++) {
+        if (availablePool.length === 0) {
+          console.warn(
+            `[ProgramCounselors] No available staff left for ${programArea.name}`
+          );
+          break;
+        }
+
+        const idx = Math.floor(Math.random() * availablePool.length);
+        const chosen = availablePool.splice(idx, 1)[0];
+
+        if (!chosen) {
+          throw new Error("Failed to select staff member from pool");
+        }
+
+        // Assign program counselor
+        chosen.programCounselor = programArea;
+        assignedStaff.add(chosen.id);
       }
-
-      const randomStaff = availableStaff[Math.floor(Math.random() * availableStaff.length)];
-
-      randomStaff.programCounselor = activity.programArea;
-
-      assignedStaff.add(randomStaff.id);
+    } catch (err) {
+      console.error(
+        `[ProgramCounselors] Error assigning ${programArea.name}`,
+        err
+      );
+      // continue to next program area instead of crashing
     }
   }
 }
+
+
 
 
 /* BLOCK SCHEDULES */
@@ -297,6 +335,8 @@ function generateProgramCounselors(
 function generateBundleBlockSchedule(blockIDs: string[]) {
 
   const schedule: SectionSchedule<'BUNDLE'> = { blocks: {}, alternatePeriodsOff: {} };
+
+  schedule.alternatePeriodsOff["RH"] = [];
 
 
   for(let i = 0; i < blockIDs.length; i++)
@@ -575,7 +615,7 @@ export function generateBundleSchedule(numBlocks: number, bundleNum: number, cam
   const blocksToAssign: string[] = generateBlockIDs(5);
   const schedule: SectionSchedule<'BUNDLE'> = generateBundleBlockSchedule(blocksToAssign);
   const camperPrefs: SectionPreferences = generatePrefs(campers, schedule, "BUNDLE");
-  generateProgramCounselors(staff, schedule);
+  generateProgramCounselors(staff, schedule, TOTAL_BUNKS);
   generateNonoLists(campers, staff, admins);
   generateYesyesLists(staff, admins);
 
@@ -589,7 +629,7 @@ export function generateBundleSchedule(numBlocks: number, bundleNum: number, cam
   .withCampersPrefs(camperPrefs)
   .forBlocks(blocksToAssign);
 
-  //scheduler.assignPeriodsOff()
+  scheduler.assignPeriodsOff()
   // scheduler.assignOCPChats()
   // scheduler.assignSwimmingBlock()
 

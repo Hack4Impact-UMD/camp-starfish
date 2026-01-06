@@ -2,9 +2,10 @@ import { StaffAttendeeID, CamperAttendeeID, AdminAttendeeID, SectionSchedule, Se
 import { doesConflictExist } from "./schedulingUtils";
 import moment from "moment";
 import { MAX } from "uuid";
-import { a } from "framer-motion/dist/types.d-BJcRxCew";
+import { A, a } from "framer-motion/dist/types.d-BJcRxCew";
 import { min } from "moment";
 import { ac } from "@faker-js/faker/dist/airline-CLphikKp";
+import { Program } from "typescript";
 
 export class BundleScheduler {
   bundleNum: number = -1;
@@ -52,97 +53,188 @@ export class BundleScheduler {
     staffID.programCounselor = programArea;
   }
 
+  /* Each staff and admin have to be assigned to WF and Program activities as counselors before periods off*/
+  assignPrelimActivities(): void {
+    try {
+      if (!this.admins.length) throw new Error("No admins available");
+
+      const random_admin_wf = this.admins[Math.floor(Math.random() * this.admins.length)];
+
+      for (const blockId of this.blocksToAssign) {
+        // TODO: FIX ERRORS IN 
+        try {
+          const block = this.schedule.blocks?.[blockId];
+          if (!block) throw new Error("Invalid block");
+
+          const activities = block.activities;
+          if (!Array.isArray(activities)) throw new Error("Block activities missing");
+
+          const wf_counselors = this.staff.filter(s => s.programCounselor?.id === "WF");
+
+          const wf_activity = activities.find(a => a.programArea?.id === "WF");
+          if (!wf_activity) throw new Error("WF activity not found");
+
+          // Ensure arrays exist before pushing
+          wf_activity.assignments ??= { staffIds: [], adminIds: [], camperIds: [] as any }; // camperIds if you have it
+          wf_activity.assignments.staffIds ??= [];
+          wf_activity.assignments.adminIds ??= [];
+
+          for (const wf_counselor of wf_counselors) {
+            wf_activity.assignments.staffIds.push(wf_counselor.id);
+          }
+          wf_activity.assignments.adminIds.push(random_admin_wf.id);
+
+          const filteredActivities = activities.filter(a => a.programArea?.id !== "WF");
+
+          for (const activity of filteredActivities) {
+            activity.assignments ??= { staffIds: [], adminIds: [], camperIds: [] as any };
+            activity.assignments.staffIds ??= [];
+
+            const found_staff = this.staff.find(
+              s => s.programCounselor?.id === activity.programArea?.id
+            );
+
+            if (!found_staff) {
+              throw new Error(`Program Counselor not found for ${activity.programArea?.name ?? "unknown program area"}`);
+            }
+
+            activity.assignments.staffIds.push(found_staff.id);
+          }
+        } catch (err) {
+          console.error(`[assignPrelimActivities] Error in block ${blockId}`, err);
+          // continue to next block
+        }
+      }
+    } catch (err) {
+      console.error("[assignPrelimActivities] Fatal error", err);
+    }
+  }
+
+
   /* Each staff member and admin needs to have 1 period off per day */
-  assignPeriodsOff() { 
+  assignPeriodsOff() {
+    this.assignPrelimActivities();
 
-    const allStaffAndAdmins = [...this.staff, ...this.admins];
-
-    // Filter out all staff and admin that have day OFF
-    allStaffAndAdmins.filter(s => !s.daysOff.includes(this.sectionID.id));
+    // Filter out all staff/admin that have the day OFF 
+    const eligibleStaff = this.staff.filter(s => !s.daysOff.includes(this.sectionID.id));
+    const eligibleAdmins = this.admins.filter(a => !a.daysOff.includes(this.sectionID.id));
+    const allStaffAndAdmins = [...eligibleStaff, ...eligibleAdmins];
 
     const notAssigned = new Set<StaffAttendeeID | AdminAttendeeID>(allStaffAndAdmins);
 
     const TOTAL_POSSIBLE_REST_BLOCKS =
-      this.blocksToAssign.length +
-      Object.keys(this.schedule.alternatePeriodsOff).length;
+      this.blocksToAssign.length + Object.keys(this.schedule.alternatePeriodsOff).length;
 
-    const MAX_CAPACITY = allStaffAndAdmins.length/TOTAL_POSSIBLE_REST_BLOCKS;
+    const MAX_CAPACITY = allStaffAndAdmins.length / TOTAL_POSSIBLE_REST_BLOCKS;
 
+    // Fill blocks firs tbefore moving onto alternate periods off
     for (const blockId of this.blocksToAssign) {
-
       if (!this.schedule.blocks[blockId]) throw new Error("Invalid block");
 
       const block = this.schedule.blocks[blockId];
-      
       const activities = block.activities;
-      
 
-      while (block.periodsOff.length < MAX_CAPACITY) {
-        for(const person of allStaffAndAdmins) {
+      const isBusy = (id: number) =>
+        activities.some(
+          act =>
+            act.assignments.staffIds.includes(id) ||
+            act.assignments.adminIds.includes(id)
+        );
 
-          if (activities.some(act => act.assignments.staffIds.includes(person.id)) || activities.some(act => act.assignments.adminIds.includes(person.id))) {
-            continue;
+      // Alternate preference per successful assignment
+      let pickAdminNext = true;
+
+      const tryAssignPerson = (person: StaffAttendeeID | AdminAttendeeID) => {
+        if (!notAssigned.has(person)) return false;
+        if (isBusy(person.id)) return false;
+
+        // Assigns the staff/admin member to the block for period off
+        block.periodsOff.push(person.id);
+        notAssigned.delete(person);
+
+        // If there is still space in the block for periods off, then assign a yesyes
+        if (block.periodsOff.length < MAX_CAPACITY) {
+          // Filters out yesyesList that are already assigned to an activity or have a day off
+          let filteredYesyesList = person.yesyesList
+            .filter((id: number) => allStaffAndAdmins.some(p => p.id === id));
+          filteredYesyesList = filteredYesyesList
+            .filter((id: number) => !isBusy(id));
+
+          // Assigns the yesyes to the block
+          for (const yesyes of filteredYesyesList) {
+            if (block.periodsOff.length >= MAX_CAPACITY) break;
+
+            const yesyesPerson = allStaffAndAdmins.find(p => p.id === yesyes);
+            if (!yesyesPerson) continue;
+
+            if (!notAssigned.has(yesyesPerson)) continue;
+
+            block.periodsOff.push(yesyes);
+            notAssigned.delete(yesyesPerson);
+            break; // only assign one yesyes
           }
+        }
 
-          if (notAssigned.has(person)) {
+        return true;
+      };
 
-            // Assigns the staff member to the block for period off
-            block.periodsOff.push(person.id);
-            notAssigned.delete(person);
+      // Fill block up to capacity, alternating staff/admin
+      while (block.periodsOff.length < MAX_CAPACITY && notAssigned.size > 0) {
+        const primary = pickAdminNext ? eligibleAdmins : eligibleStaff;
+        const secondary = pickAdminNext ? eligibleStaff : eligibleAdmins;
 
-            // If there is still space in the block for periods off, then assign a yesyes
-            if (block.periodsOff.length < MAX_CAPACITY) {
+        let assigned = false;
 
-              // Filters out yesyesList that are already assigned to an activity or have a day off
-              let filteredYesyesList = person.yesyesList.filter(id => allStaffAndAdmins.find(p => p.id === id))
-              filteredYesyesList = filteredYesyesList.filter(id => !activities.some(act => act.assignments.staffIds.includes(id) || act.assignments.adminIds.includes(id)))
-            
-              // Assigns the yesyes to the block
-              for(const yesyes of filteredYesyesList) {
-                if (block.periodsOff.length >= MAX_CAPACITY) break;
-                const yesyesPerson = allStaffAndAdmins.find(p => p.id === yesyes);
-                if (!yesyesPerson) continue;
-                block.periodsOff.push(yesyes);
-                notAssigned.delete(yesyesPerson);
-                break;
-              }
+        // Try primary group first
+        for (const person of primary) {
+          if (tryAssignPerson(person)) {
+            assigned = true;
+            pickAdminNext = !pickAdminNext; // flip ONLY after success
+            break;
+          }
+        }
+
+        // If none found, try the other group
+        if (!assigned) {
+          for (const person of secondary) {
+            if (tryAssignPerson(person)) {
+              assigned = true;
+              pickAdminNext = !pickAdminNext;
+              break;
             }
           }
-            
-
         }
+
+        // Prevent infinite loop if nobody eligible can be assigned
+        if (!assigned) break;
       }
-
-      // Calculates the max capacity for each APOS
-      const MAX_CAPACITY_APOS = notAssigned.size/(TOTAL_POSSIBLE_REST_BLOCKS - this.blocksToAssign.length);
-
-      // The remaining people in not assigned are distributed among the APOS
-      while (notAssigned.size > 0) {
-        for (const apo of Object.keys(this.schedule.alternatePeriodsOff)) {
-          while (
-            this.schedule.alternatePeriodsOff[apo].length < MAX_CAPACITY_APOS &&
-            notAssigned.size > 0
-          ) {
-            const iter = notAssigned.values().next();
-            if (iter.done) break;
-
-            const next = iter.value;
-            this.schedule.alternatePeriodsOff[apo].push(next.id);
-            notAssigned.delete(next);
-          }
-        }
-      }
-
-
     }
-      
+
+    // Assign alternate periods off
+    const remainingRestBlocks = TOTAL_POSSIBLE_REST_BLOCKS - this.blocksToAssign.length;
+
+    if (remainingRestBlocks <= 0) return;
+
+    const MAX_CAPACITY_APOS = notAssigned.size / remainingRestBlocks;
+
+    // The remaining people in notAssigned are distributed among the APOS
+    while (notAssigned.size > 0) {
+      for (const apo of Object.keys(this.schedule.alternatePeriodsOff)) {
+        while (
+          this.schedule.alternatePeriodsOff[apo].length < MAX_CAPACITY_APOS &&
+          notAssigned.size > 0
+        ) {
+          const iter = notAssigned.values().next();
+          if (iter.done) break;
+
+          const next = iter.value;
+          this.schedule.alternatePeriodsOff[apo].push(next.id);
+          notAssigned.delete(next);
+        }
+      }
+    }
   }
 
-
-
-
-
-  
 
   /*
     Assign a camper (CamperAttendeeID) to the "Teen Chat" activity in the given block.
@@ -424,8 +516,7 @@ export class BundleScheduler {
   }
 
 
-
-    // Assigns staff randomly to each activity in the given block, aiming for a 1:1 ratio
+  // Assigns staff randomly to each activity in the given block, aiming for a 1:1 ratio
   assignStaff(){
 
       for (const blockID of this.blocksToAssign) {
