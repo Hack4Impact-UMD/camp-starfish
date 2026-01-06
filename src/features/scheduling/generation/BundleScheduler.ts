@@ -52,6 +52,7 @@ export class BundleScheduler {
   /* Each staff and admin have to be assigned to WF and Program activities as counselors before periods off*/
   assignPrelimActivities(): void {
 
+    const WF_ID = "WF";
     if (!this.admins.length) throw new Error("No admins available");
 
     const random_admin_wf = this.admins[Math.floor(Math.random() * this.admins.length)];
@@ -64,9 +65,9 @@ export class BundleScheduler {
         const activities = block.activities;
         if (!Array.isArray(activities)) throw new Error("Block activities missing");
 
-        const wf_counselors = this.staff.filter(s => s.programCounselor?.id === "WF");
+        const wf_counselors = this.staff.filter(s => s.programCounselor?.id === WF_ID);
 
-        const wf_activity = activities.find(a => a.programArea?.id === "WF");
+        const wf_activity = activities.find(a => a.programArea?.id === WF_ID);
         if (!wf_activity) throw new Error("WF activity not found");
 
         // Ensure arrays exist before pushing
@@ -79,10 +80,10 @@ export class BundleScheduler {
         }
         wf_activity.assignments.adminIds.push(random_admin_wf.id);
 
-        const filteredActivities = activities.filter(a => a.programArea?.id !== "WF");
+        const filteredActivities = activities.filter(a => a.programArea?.id !== WF_ID);
 
         for (const activity of filteredActivities) {
-          activity.assignments ??= { staffIds: [], adminIds: [], camperIds: [] as any };
+          activity.assignments ??= { staffIds: [], adminIds: [], camperIds: [] };
           activity.assignments.staffIds ??= [];
 
           const found_staff = this.staff.find(
