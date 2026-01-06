@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, Table } from "@mantine/core";
+import { Badge, Box, Table } from "@mantine/core";
 import {
   IndividualAssignments,
   BunkAssignments,
@@ -42,7 +42,7 @@ export function ActivityCard(props: ActivityCardProps) {
             ? assignments.camperIds
             : assignments.bunkNums
           ).map((id) => (
-            <li>{id}</li>
+            <li><Badge>{id}</Badge></li>
           ))}
         </ul>
       </div>
@@ -52,7 +52,7 @@ export function ActivityCard(props: ActivityCardProps) {
             ? [...assignments.staffIds, ...assignments.adminIds]
             : assignments.adminIds
           ).map((id) => (
-            <li>{id}</li>
+            <li><Badge>{id}</Badge></li>
           ))}
         </ul>
       </div>
