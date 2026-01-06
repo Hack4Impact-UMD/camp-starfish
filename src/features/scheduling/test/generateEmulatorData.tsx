@@ -1,21 +1,12 @@
-import { db, storage } from "@/config/firebase"; // your config file
-import { doc, setDoc } from "firebase/firestore";
 import { CamperAttendeeID, StaffAttendeeID, AdminAttendeeID, AgeGroup, SectionSchedule, BundleActivityWithAssignments, 
-  ProgramArea, SectionPreferences, BunkID, BunkJamboreeActivityWithAssignments,NonBunkJamboreeActivityWithAssignments, Freeplay, 
-  PostID, Bunk, SectionID, SessionID, NightShiftID, 
-  SectionScheduleID, FreeplayID,
+ SectionPreferences, BunkID, BunkJamboreeActivityWithAssignments,NonBunkJamboreeActivityWithAssignments, Freeplay, 
+  PostID, SectionID, SessionID, NightShiftID, 
   ProgramAreaID,
-  BundleActivity,
   SchedulingSectionID} from "@/types/sessionTypes";
-import { Camper } from "@/types/personTypes";
 import { BundleScheduler, } from "../generation/BundleScheduler";
-import { BunkJamboreeScheduler } from "../generation/BunkJamboreeScheduler";
-import { NonBunkJamboreeScheduler } from "../generation//NonBunkJamboreeScheduler";
-import { FreeplayScheduler } from "../generation/FreeplayScheduler";
-import { SessionScheduler } from "../generation/SessionScheduler";
-import { S } from "framer-motion/dist/types.d-B50aGbjN";
+
 import moment from "moment";
-import { faker, fr } from '@faker-js/faker';
+import { faker } from '@faker-js/faker';
 
 
 const TOTAL_BUNKS = 10

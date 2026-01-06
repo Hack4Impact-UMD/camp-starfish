@@ -56,7 +56,6 @@ export class BundleScheduler {
       const random_admin_wf = this.admins[Math.floor(Math.random() * this.admins.length)];
 
       for (const blockId of this.blocksToAssign) {
-        // TODO: FIX ERRORS IN 
         try {
           const block = this.schedule.blocks?.[blockId];
           if (!block) throw new Error("Invalid block");
@@ -70,7 +69,7 @@ export class BundleScheduler {
           if (!wf_activity) throw new Error("WF activity not found");
 
           // Ensure arrays exist before pushing
-          wf_activity.assignments ??= { staffIds: [], adminIds: [], camperIds: [] as any }; // camperIds if you have it
+          wf_activity.assignments ??= { staffIds: [], adminIds: [], camperIds: []  }; // camperIds if you have it
           wf_activity.assignments.staffIds ??= [];
           wf_activity.assignments.adminIds ??= [];
 
@@ -570,7 +569,7 @@ export class BundleScheduler {
         min_activity.assignments.staffIds.push(staff.id);
       }
 
-      const diff = (a: any) => a.assignments.camperIds.length - a.assignments.staffIds.length;
+      const diff = (a: BundleActivityWithAssignments) => a.assignments.camperIds.length - a.assignments.staffIds.length;
 
       // helper: can this staffId be moved?
       const isDonatableStaffId = (id: number) => {
@@ -630,14 +629,14 @@ export class BundleScheduler {
       rebalanceOnce(1);
 
       // Check again
-      let ratioStillNotMet = nonWFActivities.some(a => diff(a) > 1);
+      const ratioStillNotMet = nonWFActivities.some(a => diff(a) > 1);
 
       // Second pass: try to balance 1:1 ratio. Aim for diff <= 2
       if (ratioStillNotMet) {
         rebalanceOnce(2);
       }
 
-      let ratioStillNotMet2 = nonWFActivities.some(a => diff(a) > 2);
+      const ratioStillNotMet2 = nonWFActivities.some(a => diff(a) > 2);
 
       // TODO: Warn users for manual changes if ratio still not met.
       if (ratioStillNotMet2) {
@@ -675,13 +674,12 @@ export class BundleScheduler {
       }
 
       // Assign admins to activities, avoiding conflicts and balancing distribution
-      let activityIndex = 0;
 
       const unassignedAdmin: AdminAttendeeID[] = [];
 
       const MAX_CAPACITY_ADMINS = availableAdmins.length/nonWFActivities.length;
       for (const admin of availableAdmins) {
-        const activity = nonWFActivities.find((a, i) =>
+        const activity = nonWFActivities.find((a) =>
           a.assignments.adminIds.length < MAX_CAPACITY_ADMINS &&
           !doesConflictExist(admin, [...a.assignments.camperIds, ...a.assignments.staffIds, ...a.assignments.adminIds])
         );
