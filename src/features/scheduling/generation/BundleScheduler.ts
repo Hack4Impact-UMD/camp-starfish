@@ -1,11 +1,6 @@
 import { StaffAttendeeID, CamperAttendeeID, AdminAttendeeID, SectionSchedule, SectionPreferences, ProgramAreaID, SchedulingSectionID, BundleActivityWithAssignments } from "@/types/sessionTypes";
 import { doesConflictExist } from "./schedulingUtils";
 import moment from "moment";
-import { MAX } from "uuid";
-import { A, a } from "framer-motion/dist/types.d-BJcRxCew";
-import { min } from "moment";
-import { ac } from "@faker-js/faker/dist/airline-CLphikKp";
-import { Program } from "typescript";
 
 export class BundleScheduler {
   bundleNum: number = -1;
@@ -695,7 +690,7 @@ export class BundleScheduler {
         else unassignedAdmin.push(admin);
       }
 
-      if (unassignedAdmin.length > 0) console.warn("Unassigned admins: ", unassignedAdmin);
+      if (unassignedAdmin.length > 0) console.warn(blockID, "Unassigned admins: ", unassignedAdmin);
 
       
     }
