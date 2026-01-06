@@ -240,7 +240,7 @@ export class BundleScheduler {
     const TC_ID = 'TC';
 
     // OCP Campers
-    let ocp_campers = this.campers.filter(c => c.ageGroup === OCP_ID);
+    const ocp_campers = this.campers.filter(c => c.ageGroup === OCP_ID);
 
     // Calculates the max capacity for each teen chat activity
     const MAX_CAPACITY_OCP = Math.ceil(ocp_campers.length / 3) // Divides by three because there are 3 teen chat blocks
