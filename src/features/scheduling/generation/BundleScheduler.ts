@@ -626,6 +626,11 @@ export class BundleScheduler {
         rebalanceOnce(2);
       }
 
+      // TODO: Warn users for manual changes if ratio still not met.
+      if (ratioStillNotMet) {
+        console.warn("Could not balance 1:1 ratio. Manual changes may be required.");
+      }
+
     }
   }
 
