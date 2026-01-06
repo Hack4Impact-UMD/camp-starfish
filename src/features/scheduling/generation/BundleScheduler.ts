@@ -577,28 +577,42 @@ export class BundleScheduler {
 
       const diff = (a: any) => a.assignments.camperIds.length - a.assignments.staffIds.length;
 
-      // tries to rebalance so receiver diff gets smaller by moving 1 staff from a donor
+      // helper: can this staffId be moved?
+      const isDonatableStaffId = (id: number) => {
+        const staffObj = this.staff.find(s => s.id === id);
+        return !!staffObj && !staffObj.programCounselor; // ✅ don't donate program counselors
+      };
+
       const rebalanceOnce = (maxAllowedDonorDiffAfterDonate: number) => {
         const needsStaff = nonWFActivities.filter(a => diff(a) > 1);
 
         const canDonate = nonWFActivities
-          .filter(a => a.assignments.staffIds.length > 0)
-          .sort((a, b) => diff(a) - diff(b)); // most overstaffed first (most negative diff)
+          .filter(a =>
+            // must have at least 2 staff AND at least 1 of them is donatable
+            a.assignments.staffIds.length > 1 &&
+            a.assignments.staffIds.some(isDonatableStaffId)
+          )
+          .sort((a, b) => diff(a) - diff(b));
 
         for (const receiver of needsStaff) {
           const donor = canDonate.find(d =>
-            // donor can give 1 staff and still not be "too understaffed"
+            d.assignments.staffIds.length > 1 &&
+            d.assignments.staffIds.some(isDonatableStaffId) &&
             diff(d) <= maxAllowedDonorDiffAfterDonate - 1
-            // equivalently: diff(d) + 1 <= maxAllowedDonorDiffAfterDonate
           );
 
           if (!donor) break;
 
-          const staffId = donor.assignments.staffIds.pop();
+          // ✅ choose a donatable staff member (not a program counselor)
+          const donateIdx = donor.assignments.staffIds.findIndex(isDonatableStaffId);
+          if (donateIdx === -1) continue;
+
+          const staffId = donor.assignments.staffIds.splice(donateIdx, 1)[0];
           if (staffId == null) continue;
 
           const staffObj = this.staff.find(s => s.id === staffId);
 
+          // conflict check with receiver
           if (
             staffObj &&
             doesConflictExist(staffObj, [
@@ -615,20 +629,24 @@ export class BundleScheduler {
         }
       };
 
+
+
       // First pass: try to balance 1:1 ratio. Aim for diff <= 1
       rebalanceOnce(1);
 
       // Check again
-      const ratioStillNotMet = nonWFActivities.some(a => diff(a) > 1);
+      let ratioStillNotMet = nonWFActivities.some(a => diff(a) > 1);
 
       // Second pass: try to balance 1:1 ratio. Aim for diff <= 2
       if (ratioStillNotMet) {
         rebalanceOnce(2);
       }
 
+      let ratioStillNotMet2 = nonWFActivities.some(a => diff(a) > 2);
+
       // TODO: Warn users for manual changes if ratio still not met.
-      if (ratioStillNotMet) {
-        console.warn("Could not balance 1:1 ratio. Manual changes may be required.");
+      if (ratioStillNotMet2) {
+        console.warn(blockID, "Could not balance 1:1 ratio. Manual changes may be required.");
       }
 
     }
@@ -647,8 +665,13 @@ export class BundleScheduler {
       
       // Build array of available admins
       const availableAdmins = this.admins.filter(
-        admin => !this.schedule.blocks[blockID].periodsOff.includes(admin.id)
+        admin => !this.schedule.blocks[blockID].periodsOff.includes(admin.id) && 
+        !admin.daysOff.includes(this.sectionID.id) &&
+        !activities.some(activity => activity.assignments.adminIds.includes(admin.id))
       );
+      
+      const nonWFActivities = activities.filter(a => a.programArea.id !== "WF");
+
 
       // Shuffle admins
       for (let i = availableAdmins.length - 1; i > 0; i--) {
@@ -659,29 +682,22 @@ export class BundleScheduler {
       // Assign admins to activities, avoiding conflicts and balancing distribution
       let activityIndex = 0;
 
-      while (availableAdmins.length) {
-        const admin = availableAdmins.pop()!;
-        const startIdx = activityIndex;
+      const unassignedAdmin: AdminAttendeeID[] = [];
 
-        // Find the first activity where the admin has no conflicts
-        const activity = activities.find((_, i) => {
-          const idx = (startIdx + i) % activities.length;
-          const conflictsWith = [
-            ...activities[idx].assignments.camperIds,
-            ...activities[idx].assignments.staffIds,
-            ...activities[idx].assignments.adminIds,
-          ];
-
-          if (!doesConflictExist(admin, conflictsWith)) {
-            activityIndex = (idx + 1) % activities.length;
-            return true;
-          }
-          return false;
-        });
+      const MAX_CAPACITY_ADMINS = availableAdmins.length/nonWFActivities.length;
+      for (const admin of availableAdmins) {
+        const activity = nonWFActivities.find((a, i) =>
+          a.assignments.adminIds.length < MAX_CAPACITY_ADMINS &&
+          !doesConflictExist(admin, [...a.assignments.camperIds, ...a.assignments.staffIds, ...a.assignments.adminIds])
+        );
 
         if (activity) activity.assignments.adminIds.push(admin.id);
-        else console.warn(`Could not assign admin ${admin.id} to any activity.`);
+        else unassignedAdmin.push(admin);
       }
+
+      if (unassignedAdmin.length > 0) console.warn("Unassigned admins: ", unassignedAdmin);
+
+      
     }
   }
 }
