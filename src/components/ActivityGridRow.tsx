@@ -27,7 +27,7 @@ export default function ActivityGridRow(props: ActivityGridRowProps) {
       <ScrollArea type="scroll" className="w-full">
         <div
           className="grid gap-0"
-          style={{ gridColumn: 2 * block.activities.length }}
+          style={{ gridTemplateColumns: `repeat(${2 * block.activities.length}, max-content)` }}
         >
           {block.activities.map((activity, i) => (
             <div
