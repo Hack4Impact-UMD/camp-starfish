@@ -1,6 +1,5 @@
 import { Block, SchedulingSectionType } from "@/types/sessionTypes";
 import { Text, ActionIcon, ScrollArea } from "@mantine/core";
-import React from "react";
 import ActivityGridCell from "./ActivityGridCell";
 import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 
