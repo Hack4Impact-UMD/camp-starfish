@@ -39,6 +39,7 @@ export class BundleScheduler {
   withCampersPrefs(campersPrefs: SectionPreferences): BundleScheduler { this.camperPrefs = campersPrefs; return this; }
 
   forBlocks(blockIds: string[]): BundleScheduler { this.blocksToAssign = blockIds; return this; }
+  
 
   /*
     Each `programArea` needs a staff member (`StaffAttendeeID`) to be in charge.
@@ -50,58 +51,56 @@ export class BundleScheduler {
 
   /* Each staff and admin have to be assigned to WF and Program activities as counselors before periods off*/
   assignPrelimActivities(): void {
-    try {
-      if (!this.admins.length) throw new Error("No admins available");
 
-      const random_admin_wf = this.admins[Math.floor(Math.random() * this.admins.length)];
+    if (!this.admins.length) throw new Error("No admins available");
 
-      for (const blockId of this.blocksToAssign) {
-        try {
-          const block = this.schedule.blocks?.[blockId];
-          if (!block) throw new Error("Invalid block");
+    const random_admin_wf = this.admins[Math.floor(Math.random() * this.admins.length)];
 
-          const activities = block.activities;
-          if (!Array.isArray(activities)) throw new Error("Block activities missing");
+    for (const blockId of this.blocksToAssign) {
+      try {
+        const block = this.schedule.blocks?.[blockId];
+        if (!block) throw new Error("Invalid block");
 
-          const wf_counselors = this.staff.filter(s => s.programCounselor?.id === "WF");
+        const activities = block.activities;
+        if (!Array.isArray(activities)) throw new Error("Block activities missing");
 
-          const wf_activity = activities.find(a => a.programArea?.id === "WF");
-          if (!wf_activity) throw new Error("WF activity not found");
+        const wf_counselors = this.staff.filter(s => s.programCounselor?.id === "WF");
 
-          // Ensure arrays exist before pushing
-          wf_activity.assignments ??= { staffIds: [], adminIds: [], camperIds: []  }; // camperIds if you have it
-          wf_activity.assignments.staffIds ??= [];
-          wf_activity.assignments.adminIds ??= [];
+        const wf_activity = activities.find(a => a.programArea?.id === "WF");
+        if (!wf_activity) throw new Error("WF activity not found");
 
-          for (const wf_counselor of wf_counselors) {
-            wf_activity.assignments.staffIds.push(wf_counselor.id);
-          }
-          wf_activity.assignments.adminIds.push(random_admin_wf.id);
+        // Ensure arrays exist before pushing
+        wf_activity.assignments ??= { staffIds: [], adminIds: [], camperIds: []  }; // camperIds if you have it
+        wf_activity.assignments.staffIds ??= [];
+        wf_activity.assignments.adminIds ??= [];
 
-          const filteredActivities = activities.filter(a => a.programArea?.id !== "WF");
-
-          for (const activity of filteredActivities) {
-            activity.assignments ??= { staffIds: [], adminIds: [], camperIds: [] as any };
-            activity.assignments.staffIds ??= [];
-
-            const found_staff = this.staff.find(
-              s => s.programCounselor?.id === activity.programArea?.id
-            );
-
-            if (!found_staff) {
-              throw new Error(`Program Counselor not found for ${activity.programArea?.name ?? "unknown program area"}`);
-            }
-
-            activity.assignments.staffIds.push(found_staff.id);
-          }
-        } catch (err) {
-          console.error(`[assignPrelimActivities] Error in block ${blockId}`, err);
-          // continue to next block
+        for (const wf_counselor of wf_counselors) {
+          wf_activity.assignments.staffIds.push(wf_counselor.id);
         }
+        wf_activity.assignments.adminIds.push(random_admin_wf.id);
+
+        const filteredActivities = activities.filter(a => a.programArea?.id !== "WF");
+
+        for (const activity of filteredActivities) {
+          activity.assignments ??= { staffIds: [], adminIds: [], camperIds: [] as any };
+          activity.assignments.staffIds ??= [];
+
+          const found_staff = this.staff.find(
+            s => s.programCounselor?.id === activity.programArea?.id
+          );
+
+          if (!found_staff) {
+            throw new Error(`Program Counselor not found for ${activity.programArea?.name ?? "unknown program area"}`);
+          }
+
+          activity.assignments.staffIds.push(found_staff.id);
+        }
+      } catch (err) {
+        console.error(`[assignPrelimActivities] Error in block ${blockId}`, err);
+        // continue to next block
       }
-    } catch (err) {
-      console.error("[assignPrelimActivities] Fatal error", err);
     }
+    
   }
 
 
@@ -237,8 +236,11 @@ export class BundleScheduler {
   */
   assignOCPChats(): void {
 
+    const OCP_ID = 'OCP';
+    const TC_ID = 'TC';
+
     // OCP Campers
-    let ocp_campers = this.campers.filter(c => c.ageGroup === 'OCP');
+    let ocp_campers = this.campers.filter(c => c.ageGroup === OCP_ID);
 
     // Calculates the max capacity for each teen chat activity
     const MAX_CAPACITY_OCP = Math.ceil(ocp_campers.length / 3) // Divides by three because there are 3 teen chat blocks
@@ -248,15 +250,15 @@ export class BundleScheduler {
     ocp_campers.forEach(camper => {
       added = false
       const ocpChatBlocks = this.blocksToAssign.filter(bId =>
-        this.schedule.blocks[bId]?.activities.some(act => act.programArea.id === 'TC')
+        this.schedule.blocks[bId]?.activities.some(act => act.programArea.id === TC_ID)
       );
 
       if (ocpChatBlocks.length === 0) return;
 
       ocpChatBlocks.forEach(blockId => {
         const block = this.schedule.blocks[blockId];
-        const activity = block?.activities.find(act => act.programArea.id === "TC" );
-        if (activity && activity.assignments.camperIds.length < MAX_CAPACITY_OCP && !added) {
+        const activity = block?.activities.find(act => act.programArea.id === TC_ID);
+        if (activity && activity.assignments.camperIds.length < MAX_CAPACITY_OCP && !added && !doesConflictExist(camper, activity.assignments.camperIds)) {
           activity.assignments.camperIds.push(camper.id);
           added = true;
         }
@@ -271,13 +273,16 @@ export class BundleScheduler {
     given block. Refer back to the scheduling data to see where each camper should be placed
   */
   assignSwimmingBlock(): void {
-    const WATERFRONT_AREA_ID = 'WF';
+    const WF_ID = 'WF';
+    const NAV_ID = 'NAV';
+    const OCP_ID = 'OCP';
+
 
     // NAV Campers
-    const nav_campers = this.campers.filter(c => c.ageGroup === 'NAV');
+    const nav_campers = this.campers.filter(c => c.ageGroup === NAV_ID);
 
     // OCP Campers for first bundle (includes all)
-    const ocp_campers = this.campers.filter(c => c.ageGroup === 'OCP');
+    const ocp_campers = this.campers.filter(c => c.ageGroup === OCP_ID);
 
     // OCP Campers for any other bundle besides first (excludes swim opt outs)
     const ocp_campers_filtered = ocp_campers.filter(c => c.swimOptOut === false);
@@ -293,14 +298,14 @@ export class BundleScheduler {
       added = false;
       const swimBlocks = this.blocksToAssign.filter(bId =>
         this.schedule.blocks[bId]?.activities.some(
-          act => act.ageGroup === camper.ageGroup && act.programArea.id === WATERFRONT_AREA_ID
+          act => act.ageGroup === camper.ageGroup && act.programArea.id === WF_ID
         )
       );
 
       swimBlocks.forEach(blockId => {
         const block = this.schedule.blocks[blockId];
-        const activity = block?.activities.find(act => act.programArea.id === WATERFRONT_AREA_ID );
-        if (activity && activity.assignments.camperIds.length < MAX_CAPACITY_NAV && !added) {
+        const activity = block?.activities.find(act => act.programArea.id === WF_ID );
+        if (activity && activity.assignments.camperIds.length < MAX_CAPACITY_NAV && !added && !doesConflictExist(camper, activity.assignments.camperIds)) {
           activity.assignments.camperIds.push(camper.id);
           added = true;
         }
@@ -312,7 +317,7 @@ export class BundleScheduler {
       added = false;
       const swimBlocks = this.blocksToAssign.filter(bId =>
         this.schedule.blocks[bId]?.activities.some(
-          act => act.ageGroup === camper.ageGroup && act.programArea.id === WATERFRONT_AREA_ID
+          act => act.ageGroup === camper.ageGroup && act.programArea.id === WF_ID
         )
       );
 
@@ -339,7 +344,7 @@ export class BundleScheduler {
       // Assigns camper to one waterfront activity if they need it
       requiredBlocks.forEach(blockId => {
         const block = this.schedule.blocks[blockId];
-        const activity = block?.activities.find(act => act.programArea.id === WATERFRONT_AREA_ID);
+        const activity = block?.activities.find(act => act.programArea.id === WF_ID);
         if (activity && activity.assignments.camperIds.length < MAX_CAPACITY_OCP && !added) {
           activity.assignments.camperIds.push(camper.id);
           added = true;
@@ -357,14 +362,19 @@ export class BundleScheduler {
     this.assignOCPChats();
 
     const MAX_CAPACITY = 9;
-    const MIN_CAPCITY = 4;
+    const MIN_CAPACITY = 4;
+
+    const NAV_ID = "NAV";
+    const OCP_ID = "OCP";
+    const WF_ID = "WF";
+    const TC_ID = "TC";
 
     const navCampers = this.campers
-      .filter(c => c.ageGroup === "NAV")
+      .filter(c => c.ageGroup === NAV_ID)
       .sort((a, b) => moment(a.dateOfBirth).diff(moment(b.dateOfBirth)));
 
     const ocpCampers = this.campers
-      .filter(c => c.ageGroup === "OCP")
+      .filter(c => c.ageGroup === OCP_ID)
       .sort((a, b) => moment(a.dateOfBirth).diff(moment(b.dateOfBirth)));
 
     // ---- shared helpers ----
@@ -428,7 +438,7 @@ export class BundleScheduler {
 
       // Assigns to any underfilled activities
       const underfilled = activities.filter(
-        a => a.assignments.camperIds.length < MIN_CAPCITY
+        a => a.assignments.camperIds.length < MIN_CAPACITY
       );
 
 
@@ -436,9 +446,9 @@ export class BundleScheduler {
 
       for (const target of underfilled) {
 
-        while (target.assignments.camperIds.length < MIN_CAPCITY) {
+        while (target.assignments.camperIds.length < MIN_CAPACITY) {
           const donors = activities
-            .filter(a => a !== target && a.assignments.camperIds.length > MIN_CAPCITY)
+            .filter(a => a !== target && a.assignments.camperIds.length > MIN_CAPACITY)
             .sort((a, b) => b.assignments.camperIds.length - a.assignments.camperIds.length);
 
           let moved = false;
@@ -482,9 +492,9 @@ export class BundleScheduler {
 
       const acts = block.activities;
 
-      const navActs = acts.filter(a => a.ageGroup === "NAV" && a.programArea.id !== "WF");
+      const navActs = acts.filter(a => a.ageGroup === NAV_ID && a.programArea.id !== WF_ID);
       const ocpActs = acts.filter(
-        a => a.ageGroup === "OCP" && a.programArea.id !== "WF" && a.programArea.id !== "TC"
+        a => a.ageGroup === OCP_ID && a.programArea.id !== WF_ID && a.programArea.id !== TC_ID
       );
 
       if (!navActs.length || !ocpActs.length) {
@@ -495,16 +505,16 @@ export class BundleScheduler {
         blockID,
         ocpCampers,
         ocpActs,
-        acts.filter(a => a.ageGroup === "OCP" && ["WF", "TC"].includes(a.programArea.id)),
-        "OCP"
+        acts.filter(a => a.ageGroup === OCP_ID && [WF_ID, TC_ID].includes(a.programArea.id)),
+        OCP_ID
       );
 
       assignGroup(
         blockID,
         navCampers,
         navActs,
-        acts.filter(a => a.ageGroup === "NAV" && a.programArea.id === "WF"),
-        "NAV"
+        acts.filter(a => a.ageGroup === NAV_ID && a.programArea.id === WF_ID),
+        NAV_ID
       );
     }
   }
@@ -574,7 +584,7 @@ export class BundleScheduler {
       // helper: can this staffId be moved?
       const isDonatableStaffId = (id: number) => {
         const staffObj = this.staff.find(s => s.id === id);
-        return !!staffObj && !staffObj.programCounselor; // ✅ don't donate program counselors
+        return !!staffObj && !staffObj.programCounselor; // don't donate program counselors
       };
 
       const rebalanceOnce = (maxAllowedDonorDiffAfterDonate: number) => {
@@ -597,7 +607,7 @@ export class BundleScheduler {
 
           if (!donor) break;
 
-          // ✅ choose a donatable staff member (not a program counselor)
+          // choose a donatable staff member (not a program counselor)
           const donateIdx = donor.assignments.staffIds.findIndex(isDonatableStaffId);
           if (donateIdx === -1) continue;
 
@@ -623,8 +633,6 @@ export class BundleScheduler {
         }
       };
 
-
-
       // First pass: try to balance 1:1 ratio. Aim for diff <= 1
       rebalanceOnce(1);
 
@@ -636,9 +644,10 @@ export class BundleScheduler {
         rebalanceOnce(2);
       }
 
+      // Check again
       const ratioStillNotMet2 = nonWFActivities.some(a => diff(a) > 2);
 
-      // TODO: Warn users for manual changes if ratio still not met.
+      // Warn users for manual changes if ratio still not met.
       if (ratioStillNotMet2) {
         console.warn(blockID, "Could not balance 1:1 ratio. Manual changes may be required.");
       }
@@ -649,6 +658,8 @@ export class BundleScheduler {
 
   // Assigns admin staff randomly to each activity in the given block
   assignAdmin(){
+
+    const WF_ID = 'WF';
 
     for (const blockID of this.blocksToAssign) {
 
@@ -664,7 +675,7 @@ export class BundleScheduler {
         !activities.some(activity => activity.assignments.adminIds.includes(admin.id))
       );
       
-      const nonWFActivities = activities.filter(a => a.programArea.id !== "WF");
+      const nonWFActivities = activities.filter(a => a.programArea.id !== WF_ID);
 
 
       // Shuffle admins
