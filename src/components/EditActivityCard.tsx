@@ -71,7 +71,6 @@ export const EditActivityCard: React.FC<EditActivityCardProps> = ({
         </Box>
 
         <Button
-          onClick={handleConfirm}
           className="w-full bg-green-500 hover:bg-green-600 text-white font-semibold text-base uppercase tracking-wide rounded-full py-4 transition-colors duration-200"
         >
           Confirm Changes
