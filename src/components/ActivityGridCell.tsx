@@ -1,14 +1,10 @@
 import { Block, SchedulingSectionType } from "@/types/sessionTypes";
 import {
-  Box,
-  Flex,
   Text,
-  useMantineTheme,
   ActionIcon,
   ScrollArea,
-  SimpleGrid,
 } from "@mantine/core";
-import React, { useState } from "react";
+import React from "react";
 import { ActivityCard } from "./ActivityCard";
 import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 
@@ -36,8 +32,8 @@ export const ActivityGridCell: React.FC<ActivityGridCellProps> = ({
       >
         <IconChevronLeft size={24} />
       </ActionIcon>
-      <ScrollArea className="w-full">
-        <div className="grid gap-0" style={{ gridColumn: 2 * block.activities.length}}>
+      <ScrollArea type="scroll" className="w-full">
+        <div className="grid gap-0" style={{ gridColumn: 2 * block.activities.length }}>
           {block.activities.map((activity, i) => (
             <div key={i} className="grid grid-cols-subgrid grid-rows-subgrid row-start-1 row-end-4" style={{ gridColumnStart: 2 * i + 1, gridColumnEnd: 2 * i + 3 }}>
               <ActivityCard activity={activity} />
