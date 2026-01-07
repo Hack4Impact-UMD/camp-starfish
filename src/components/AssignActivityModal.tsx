@@ -7,7 +7,7 @@ import {
 } from "@/types/sessionTypes";
 import { useState } from "react";
 
-import { User } from "lucide-react";
+import { MdAccountCircle } from "react-icons/md";
 import { Box, Button, Container, Select, Text, Title } from "@mantine/core";
 
 type BlockWithId<T extends SchedulingSectionType> = Block<T> & {
@@ -37,7 +37,7 @@ export default function AssignActivityModal(props: AssignActivityModalProps) {
 
         <Box className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-full bg-white border-2 border-gray-800 flex items-center justify-center">
-            <User className="w-6 h-6 text-gray-800" />
+            <MdAccountCircle className="w-6 h-6 text-gray-800" />
           </div>
           <h3 className="text-xl font-semibold text-blue-900">{author}</h3>
         </Box>
