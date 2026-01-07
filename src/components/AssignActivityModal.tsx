@@ -9,6 +9,7 @@ import { useState } from "react";
 
 import { MdAccountCircle } from "react-icons/md";
 import { Box, Button, Container, Select, Text, Title } from "@mantine/core";
+import { modals } from "@mantine/modals";
 
 type BlockWithId<T extends SchedulingSectionType> = Block<T> & {
   id: string;
@@ -73,4 +74,15 @@ export default function AssignActivityModal(props: AssignActivityModalProps) {
       </Box>
     </Container>
   );
+}
+
+export function openAssignActivityModal(props: AssignActivityModalProps) {
+  return modals.open({
+    title: "Assign Activity Modal",
+    children: <AssignActivityModal {...props} />,
+    classNames: {
+      content: "rounded-none border-2 border-black",
+      body: "p-0",
+    },
+  });
 }
