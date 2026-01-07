@@ -6,10 +6,6 @@ import { Box, Button, Container, Select, Text, Title } from "@mantine/core";
 import { getFullName } from "@/utils/personUtils";
 import { modals } from "@mantine/modals";
 
-type BlockWithId<T extends SchedulingSectionType> = Block<T> & {
-  id: string;
-};
-
 interface AssignActivityModalProps {
   participant: AttendeeID;
   block: Block<SchedulingSectionType>;
