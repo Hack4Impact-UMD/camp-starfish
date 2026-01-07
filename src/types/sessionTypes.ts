@@ -27,7 +27,7 @@ export interface CamperAttendeeID extends CamperAttendee, ID<number> { sessionId
 
 export type StaffAttendee = Pick<Staff, 'name' | 'gender' | 'nonoList' | 'yesyesList'> & {
   role: "STAFF";
-  programCounselor?: ProgramArea;
+  programCounselor?: ProgramAreaID;
   bunk: number;
   leadBunkCounselor: boolean;
   daysOff: string[] // ISO-8601
@@ -48,6 +48,8 @@ export interface NightShift {
 }
 export interface NightShiftID extends NightShift, ID<string> { sessionId: string; };
 
+export type NightSchedulePosition = "COUNSELOR-ON-DUTY" | "NIGHT-BUNK-DUTY" | "ROVER" | "DAY OFF";
+
 export type SectionType = 'COMMON' | SchedulingSectionType;
 export type SchedulingSectionType = "BUNDLE" | "BUNK-JAMBO" | "NON-BUNK-JAMBO";
 
@@ -65,6 +67,8 @@ export interface CommonSectionID extends CommonSection, ID<string> { sessionId: 
 export type SchedulingSection = Omit<CommonSection, 'type'> & {
   type: SchedulingSectionType;
   numBlocks: number;
+  isPublished: boolean;
+  scheduleLastGenerated?: string;
 }
 export interface SchedulingSectionID extends SchedulingSection, ID<string> { sessionId: string; };
 
@@ -82,13 +86,9 @@ export type NonBunkJamboree = SectionSchedule<'NON-BUNK-JAMBO'>;
 export type NonBunkJamboreeID = SectionScheduleID<'NON-BUNK-JAMBO'>;
 
 export type Block<T> = {
-  activities: T extends 'BUNDLE' ? BundleBlockActivities : T extends 'BUNK-JAMBO' ? BunkJamboreeBlockActivities : NonBunkJamboreeBlockActivities;
+  activities: T extends 'BUNDLE' ? BundleActivityWithAssignments[] : T extends 'BUNK-JAMBO' ? BunkJamboreeActivityWithAssignments[] : NonBunkJamboreeActivityWithAssignments[];
   periodsOff: number[];
 }
-
-export type BundleBlockActivities = (BundleActivity & { assignments: IndividualAssignments })[];
-export type BunkJamboreeBlockActivities = (JamboreeActivity & { assignments: BunkAssignments })[];
-export type NonBunkJamboreeBlockActivities = (JamboreeActivity & { assignments: IndividualAssignments })[];
 
 export interface ProgramArea {
   name: string;
@@ -102,9 +102,15 @@ export interface JamboreeActivity {
 }
 
 export interface BundleActivity extends JamboreeActivity {
-  programArea: ProgramArea;
+  programArea: ProgramAreaID;
   ageGroup: AgeGroup;
 }
+
+export type Activity = JamboreeActivity | BundleActivity;
+
+export type BlockActivities<T extends SchedulingSectionType> = {
+  [blockId: string]: T extends 'BUNDLE' ? BundleActivity[] : JamboreeActivity[];
+};
 
 export interface IndividualAssignments {
   camperIds: number[];
@@ -113,9 +119,16 @@ export interface IndividualAssignments {
 }
 
 export interface BunkAssignments {
-  bunk: number;
+  bunkNums: number[];
   adminIds: number[];
 }
+
+export type ActivityAssignments = IndividualAssignments | BunkAssignments;
+
+export type BundleActivityWithAssignments = BundleActivity & { assignments: IndividualAssignments };
+export type BunkJamboreeActivityWithAssignments = JamboreeActivity & { assignments: BunkAssignments };
+export type NonBunkJamboreeActivityWithAssignments = JamboreeActivity & { assignments: IndividualAssignments };
+export type ActivityWithAssignments = BundleActivityWithAssignments | BunkJamboreeActivityWithAssignments | NonBunkJamboreeActivityWithAssignments;
 
 export interface Bunk {
   leadCounselor: number;
