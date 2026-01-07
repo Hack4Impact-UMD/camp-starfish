@@ -14,19 +14,16 @@ type BlockWithId<T extends SchedulingSectionType> = Block<T> & {
   id: string;
 };
 
-interface EditActivityCardProps {
+interface AssignActivityModalProps {
   author: string;
   block: BlockWithId<SchedulingSectionType>;
   activities: BundleBlockActivities;
   selectedActivity?: BundleActivity | JamboreeActivity;
 }
 
-export const EditActivityCard: React.FC<EditActivityCardProps> = ({
-  author,
-  block,
-  activities,
-  selectedActivity,
-}) => {
+export default function AssignActivityModal(props: AssignActivityModalProps) {
+  const { author, block, activities, selectedActivity } = props;
+
   const [activity, setActivity] = useState<
     BundleActivity | JamboreeActivity | null
   >(selectedActivity ?? null);
@@ -54,28 +51,26 @@ export const EditActivityCard: React.FC<EditActivityCardProps> = ({
             Activity
           </Text>
 
-            <Select
-              value={activity? activity.name : "no selected activity"}
-              onChange={(value) => {
-                const selectedActivityObj = activities.find(
-                  (a) => a.name === value
-                );
-                setActivity(selectedActivityObj ?? null);
-              }}
-              data={activities.map((activity) => ({
-                value: activity.name,
-                label: activity.name,
-              }))}
-              className="w-full appearance-none bg-gray-300 rounded-lg px-4 py-3 pr-10 text-base text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500 cursor-pointer"
-            ></Select>
+          <Select
+            value={activity ? activity.name : "no selected activity"}
+            onChange={(value) => {
+              const selectedActivityObj = activities.find(
+                (a) => a.name === value
+              );
+              setActivity(selectedActivityObj ?? null);
+            }}
+            data={activities.map((activity) => ({
+              value: activity.name,
+              label: activity.name,
+            }))}
+            className="w-full appearance-none bg-gray-300 rounded-lg px-4 py-3 pr-10 text-base text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500 cursor-pointer"
+          ></Select>
         </Box>
 
-        <Button
-          className="w-full bg-green-500 hover:bg-green-600 text-white font-semibold text-base uppercase tracking-wide rounded-full py-4 transition-colors duration-200"
-        >
+        <Button className="w-full bg-green-500 hover:bg-green-600 text-white font-semibold text-base uppercase tracking-wide rounded-full py-4 transition-colors duration-200">
           Confirm Changes
         </Button>
       </Box>
     </Container>
   );
-};
+}
