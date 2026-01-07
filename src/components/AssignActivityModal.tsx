@@ -63,7 +63,7 @@ export default function AssignActivityModal(props: AssignActivityModalProps) {
           />
         </Box>
 
-        <Button color="green">CONFIRM CHANGES</Button>
+        <Button color="green" className="w-full">CONFIRM CHANGES</Button>
       </Box>
     </Container>
   );
