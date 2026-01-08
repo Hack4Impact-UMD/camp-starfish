@@ -46,68 +46,66 @@ export default function SessionsPage({ sessions }: SessionsPageProps) {
       {/* Top bar */}
       <Group justify="space-between" align="center">
         <Title order={2}>Sessions</Title>
-        <RequireAuth
-          authCases={[
-            {
-              authFn: () => token?.claims.role === "ADMIN",
-              component: (
-                <Group gap="sm">
-                  {/* Edit / Done button */}
-                  <Button
-                    size="lg"
-                    color="primary"
-                    radius="xl"
-                    leftSection={
-                      <Image
-                        src={pencilIcon}
-                        alt="Edit"
-                        width={18}
-                        height={18}
-                        style={{
-                          filter:
-                            "invert(100%) sepia(100%) saturate(0%) hue-rotate(180deg)",
-                        }}
-                      />
-                    }
-                    onClick={() => setEditMode((prev) => !prev)}
-                  >
-                    {editMode ? "Done" : "Edit"}
-                  </Button>
+        <Group gap="sm">
+          {/* Edit / Done button */}
+          <Button
+            size="lg"
+            radius="xl"
+            leftSection={
+              <Image
+                src={pencilIcon}
+                alt="Edit"
+                width={18}
+                height={18}
+                style={{
+                  filter:
+                    "invert(100%) sepia(100%) saturate(0%) hue-rotate(180deg)",
+                }}
+              />
+            }
+            onClick={() => setEditMode((prev) => !prev)}
+          >
+            {editMode ? "Done" : "Edit"}
+          </Button>
 
-                  {/* Create Session Dropdown */}
-                  <Menu shadow="md" width={200} position="bottom-end">
-                    <Menu.Target>
-                      <Button size="lg" color="secondary-green" radius="xl">
-                        Create Session
-                      </Button>
-                    </Menu.Target>
+          {/* Create Session Dropdown */}
+          <Menu shadow="md" width={200} position="bottom-end">
+            <Menu.Target>
+              <Button size="lg" color="green" radius="xl">
+                Create Session
+              </Button>
+            </Menu.Target>
 
-                    <Menu.Dropdown>
-                      <Menu.Item
-                        leftSection={
-                          <Image src={pencilIcon} alt="Standard" width={16} height={16} />
-                        }
-                        onClick={openCreateSessionModal}
-                      >
-                        Standard Session
-                      </Menu.Item>
-                      <Menu.Item
-                        leftSection={
-                          <Image src={pencilIcon} alt="Customized" width={16} height={16} />
-                        }
-                        onClick={openCreateSessionModal}
-                      >
-                        Customized Session
-                      </Menu.Item>
-                    </Menu.Dropdown>
-                  </Menu>
-                </Group>
-              )
-            },
-            // Fallback case: render nothing for non-admin users (no error)
-            { authFn: () => true, component: <></> },
-          ]}
-        /> 
+            <Menu.Dropdown>
+              <Menu.Item
+                leftSection={
+                  <Image
+                    src={pencilIcon}
+                    alt="Standard"
+                    width={16}
+                    height={16}
+                  />
+                }
+                onClick={openCreateSessionModal}
+              >
+                Standard Session
+              </Menu.Item>
+              <Menu.Item
+                leftSection={
+                  <Image
+                    src={pencilIcon}
+                    alt="Customized"
+                    width={16}
+                    height={16}
+                  />
+                }
+                onClick={openCreateSessionModal}
+              >
+                Customized Session
+              </Menu.Item>
+            </Menu.Dropdown>
+          </Menu>
+        </Group>
       </Group>
 
       {/* Current Sessions */}
