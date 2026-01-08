@@ -46,7 +46,7 @@ export default function CamperModal({ camper }: CamperModalProps) {
     }));
   };
 
-  const { bunk, level, healthInfo, nonoList } = isEditMode
+  const { bunk, level, healthInfo } = isEditMode
     ? editedCamper
     : camper;
 
