@@ -22,6 +22,7 @@ export type CamperAttendee = Pick<
   level: number;
   bunk: number;
   swimOptOut: boolean;
+  healthInfo?: string;
 };
 export interface CamperAttendeeID extends CamperAttendee, ID<number> { sessionId: string; };
 
