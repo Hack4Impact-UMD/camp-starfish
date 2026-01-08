@@ -18,6 +18,8 @@ jobs:
       GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
       NEXT_PUBLIC_MICROSOFT_CLIENT_ID: ${{ secrets.NEXT_PUBLIC_MICROSOFT_CLIENT_ID }}
       MICROSOFT_CLIENT_SECRET: ${{ secrets.MICROSOFT_CLIENT_SECRET }}
+      DEV_EMAILS: ${{ secrets.DEV_EMAILS }}
+      NPO_EMAILS: ${{ secrets.NPO_EMAILS }}
     steps:
       - uses: actions/checkout@v4
       - run: npm install --include=optional sharp
@@ -36,6 +38,8 @@ jobs:
       GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
       NEXT_PUBLIC_MICROSOFT_CLIENT_ID: ${{ secrets.NEXT_PUBLIC_MICROSOFT_CLIENT_ID }}
       MICROSOFT_CLIENT_SECRET: ${{ secrets.MICROSOFT_CLIENT_SECRET }}
+      DEV_EMAILS: ${{ secrets.DEV_EMAILS }}
+      NPO_EMAILS: ${{ secrets.NPO_EMAILS }}
     steps:
       - uses: actions/checkout@v4
       - run: npm install --include=optional sharp

@@ -3,89 +3,111 @@ import { useState } from "react";
 import {
   TextInput,
   Radio,
-  Group,
-  Text,
-  Box,
-  Stack,
   Button,
   ActionIcon,
-  Divider,
   RadioGroup,
 } from "@mantine/core";
 import {
   IconSearch,
   IconChevronDown,
   IconChevronUp,
-  IconUserCircle,
   IconArrowsVertical,
+  IconAlertCircle,
 } from "@tabler/icons-react";
-import { UserRole, CamperID, StaffID, AdminID } from "../types/personTypes";
-
-// types displayed in directory
-type CamperWithBunk = CamperID & { bunk?: number };
-type DirectoryPersonType = CamperWithBunk | StaffID | AdminID;
+import useAttendeesBySessionId from "@/hooks/attendees/useAttendeesBySessionId";
+import Profile from "@/assets/icons/Profile.svg";
+import Image from "next/image";
+//import { useRouter } from "next/navigation";
 
 type SmallDirectoryBlockProps = {
-  people: DirectoryPersonType[];
-  onExpand?: () => void;
-  initialVisibleCount?: number;
-  loadMoreCount?: number;
+  sessionId: string;
 };
 
-export function SmallDirectoryBlock({
-  people,
-  onExpand,
-  initialVisibleCount = 4,
-  loadMoreCount = 3,
-}: SmallDirectoryBlockProps) {
+const INITIAL_VISIBILE_COUNT = 3;
+const LOAD_MORE_COUNT = 3;
+
+export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
+  ///const router = useRouter();
+  const { data: people, isLoading, error } = useAttendeesBySessionId(sessionId);
   const [searchQuery, setSearchQuery] = useState("");
-  const [roleFilter, setRoleFilter] = useState<UserRole | "CAMPER">("CAMPER");
-  const [visibleCount, setVisibleCount] = useState(initialVisibleCount);
+  const [roleFilter, setRoleFilter] = useState<"CAMPER" | "STAFF" | "ADMIN">(
+    "CAMPER"
+  );
+  const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBILE_COUNT);
   const [showAll, setShowAll] = useState(false);
 
-  //filtering the people based on role in search
-  //calulate filtered people before slicing
-  const filteredBeforeSlice = people.filter((person) => {
-    const fullName =
-      `${person.name.firstName} ${person.name.lastName}`.toLowerCase();
+  // loading state
+  if (isLoading) {
     return (
-      person.role === roleFilter && fullName.includes(searchQuery.toLowerCase())
+      <div className="max-w-[400px] m-[50px] border-[1.3px] border-black p-4 bg-neutral-2">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-black">DIRECTORY</h2>
+        </div>
+        <div className="flex flex-col items-center justify-center min-h-[200px]">
+          <p className="text-neutral-5 text-sm">Loading directory...</p>
+        </div>
+      </div>
     );
-  });
-  const filteredCount = filteredBeforeSlice.length;
-  const filteredPeople = filteredBeforeSlice.slice(
-    0,
-    showAll ? undefined : visibleCount
-  );
+  }
+
+  // error state
+  if (error) {
+    return (
+      <div className="max-w-[400px] m-[50px] border-[1.3px] border-black p-4 bg-neutral-2">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-black">DIRECTORY</h2>
+        </div>
+        <div className="flex items-start gap-3 p-3 bg-error-0 border border-error-5 rounded-md">
+          <IconAlertCircle size={16} className="text-error-5 mt-0.5" />
+          <div>
+            <p className="font-semibold text-error-5 mb-1">Error</p>
+            <p className="text-sm text-error-5">
+              {error instanceof Error
+                ? error.message
+                : "Failed to load directory data"}
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // filtering the people based on role in search
+  const filteredPeople = (people || [])
+    .filter(
+      (person) =>
+        person.role === roleFilter &&
+        person.name.firstName.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    .slice(0, showAll ? people?.length : visibleCount);
+
   // view more button that displays (all) people when clicked
   const handleViewMore = () => {
     if (showAll) {
       setShowAll(false);
-      setVisibleCount(initialVisibleCount);
+      setVisibleCount(INITIAL_VISIBILE_COUNT);
     } else {
-      setVisibleCount((prev) => Math.min(prev + loadMoreCount, filteredCount));
-      if (visibleCount + loadMoreCount >= filteredCount) {
+      setVisibleCount((prev) => Math.min(prev + LOAD_MORE_COUNT , people?.length || 0));
+      if (visibleCount + LOAD_MORE_COUNT >= (people?.length || 0)) {
         setShowAll(true);
       }
     }
   };
 
   return (
-    <Box className="max-w-[400px] m-[50px] border border-black p-4 bg-[#FAFAFB]">
+    <div className="max-w-[344px] m-[50px] border-[1.3px] border-black p-4 bg-neutral-2">
       {/* header with directory and expand button */}
-      <Group justify="space-between" mb="md">
-        <Text size="xlg" fw={900}>
-          DIRECTORY
-        </Text>
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-xl font-black">DIRECTORY</h2>
         <ActionIcon
           variant="transparent"
           size="md"
-          onClick={onExpand}
+          onClick={() => console.log("Redirect to expanded directory view")}
           aria-label="Expand directory view"
         >
           <IconArrowsVertical size={25} className="rotate-45" />
         </ActionIcon>
-      </Group>
+      </div>
 
       {/* search bar */}
       <TextInput
@@ -98,46 +120,47 @@ export function SmallDirectoryBlock({
 
       <RadioGroup
         value={roleFilter}
-        onChange={(value) => setRoleFilter(value as UserRole | "CAMPER")}
+        onChange={(value) =>
+          setRoleFilter(value as "CAMPER" | "STAFF" | "ADMIN")
+        }
       >
         {/* radio options to choose */}
-        <Group mt="lg">
+        <div className="flex gap-4 mt-4">
           <Radio value="CAMPER" label="Campers" />
           <Radio value="STAFF" label="Staff" />
           <Radio value="ADMIN" label="Admin" />
-        </Group>
+        </div>
       </RadioGroup>
 
-      <Stack gap="lg" mt="lg">
+      <div className="flex flex-col gap-4 mt-7">
         {filteredPeople.map((person) => (
-          <Box key={person.id}>
-            <Group wrap="nowrap" gap="sm">
-              <IconUserCircle size={32} />
+          <div key={person.id}>
+            <div className="flex items-center gap-[32px]">
+              <Image
+                className="flex-shrink-0 w-[32px] h-[32px]"
+                src={Profile}
+                alt="Profile"
+              />
               <div>
-                <Text size="sm" fw={700}>
-                  {/* display bunk number for campers if available */}
-                  {`${person.name.firstName} ${person.name.lastName}`}
-                  {person.role === 'CAMPER' && 'bunk' in person && person.bunk !== undefined && (
-                    <Text span ml={8}>
-                      ({person.bunk})
-                    </Text>
-                  )}
-                </Text>
+                <p className="text-sm font-bold text-primary-5">
+                  {person.name.firstName} {person.name.lastName}
+                  {"bunk" in person &&
+                    person.bunk !== undefined &&
+                    ` (${person.bunk})`}
+                </p>
               </div>
-            </Group>
-            <Divider mt="sm" />
-          </Box>
+            </div>
+            <hr className="mt-2 border-neutral-3" />
+          </div>
         ))}
-      </Stack>
+      </div>
 
       {filteredPeople.length === 0 && (
-        <Text c="dimmed" ta="center" my="md">
-          No people found
-        </Text>
+        <p className="text-neutral-5 text-center my-4">No people found</p>
       )}
 
       {/* bottom button */}
-      {filteredCount > initialVisibleCount && (
+      {(people?.length || 0) > INITIAL_VISIBILE_COUNT && (
         <Button
           variant="subtle"
           size="sm"
@@ -155,6 +178,6 @@ export function SmallDirectoryBlock({
           {showAll ? "Show less" : "View more"}
         </Button>
       )}
-    </Box>
+    </div>
   );
 }

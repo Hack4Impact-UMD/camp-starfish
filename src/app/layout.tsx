@@ -1,13 +1,17 @@
-import type { Metadata } from "next";
+import "@mantine/core/styles.css";
+import "@mantine/notifications/styles.css";
+import "@mantine/dates/styles.css";
 import "./globals.css";
+
+import type { Metadata } from "next";
 import Navbar from "../components/Navbar"; // Adjust the path as needed
 import Footer from "../components/Footer";
-import "@mantine/core/styles.css";
-import "@mantine/notifications/styles.css"
 import localFont from "next/font/local";
 import { NextFontWithVariable } from "next/dist/compiled/@next/font";
 import { CampStarfishFont, campStarfishFonts } from "@/styles/fonts";
 import Providers from "@/components/Providers";
+import { TanStackDevtools } from "@tanstack/react-devtools";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 const lato = localFont({
   src: [
@@ -152,15 +156,21 @@ export default function RootLayout({
           .join(" ")} antialiased w-full min-h-screen flex flex-col`}
       >
         <Providers>
-          <>
-            <div className="w-full">
-              <Navbar />
-            </div>
-            <div className="flex-grow w-full">{children}</div>
-            <div className="w-full">
-              <Footer />
-            </div>
-          </>
+          <div className="w-full">
+            <Navbar />
+          </div>
+          <div className="flex-grow w-full">{children}</div>
+          <div className="w-full">
+            <Footer />
+          </div>
+          <TanStackDevtools
+            plugins={[
+              {
+                name: "Query",
+                render: <ReactQueryDevtools />,
+              },
+            ]}
+          />
         </Providers>
       </body>
     </html>

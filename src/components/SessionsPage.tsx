@@ -1,19 +1,13 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import {
-  Button,
-  Group,
-  Stack,
-  Title,
-  Menu,
-  Text,
-} from "@mantine/core";
+import { Button, Group, Stack, Title, Menu, Text } from "@mantine/core";
 import moment from "moment";
 import Image from "next/image";
 import { SessionID } from "@/types/sessionTypes";
 import pencilIcon from "@/assets/icons/pencilIcon.svg";
 import SessionCard from "@/components/SessionCard";
+import { openCreateSessionModal } from "@/components/CreateSessionModal";
 
 interface SessionsPageProps {
   sessions: SessionID[];
@@ -44,24 +38,15 @@ export default function SessionsPage({ sessions }: SessionsPageProps) {
     return { current, future, past };
   }, [sessions]);
 
-  // --- Handlers ---
-  const handleCreateSession = (type: "standard" | "customized") => {
-    console.log("Creating session:", type);
-    // Add your session creation logic here
-    // For example: navigate to create session page or open modal
-  };
-
   return (
     <Stack gap={36} p="md">
       {/* Top bar */}
       <Group justify="space-between" align="center">
         <Title order={2}>Sessions</Title>
-
         <Group gap="sm">
           {/* Edit / Done button */}
           <Button
             size="lg"
-            color="primary"
             radius="xl"
             leftSection={
               <Image
@@ -83,7 +68,7 @@ export default function SessionsPage({ sessions }: SessionsPageProps) {
           {/* Create Session Dropdown */}
           <Menu shadow="md" width={200} position="bottom-end">
             <Menu.Target>
-              <Button size="lg" color="secondary-green" radius="xl">
+              <Button size="lg" color="green" radius="xl">
                 Create Session
               </Button>
             </Menu.Target>
@@ -91,17 +76,27 @@ export default function SessionsPage({ sessions }: SessionsPageProps) {
             <Menu.Dropdown>
               <Menu.Item
                 leftSection={
-                  <Image src={pencilIcon} alt="Standard" width={16} height={16} />
+                  <Image
+                    src={pencilIcon}
+                    alt="Standard"
+                    width={16}
+                    height={16}
+                  />
                 }
-                onClick={() => handleCreateSession("standard")}
+                onClick={openCreateSessionModal}
               >
                 Standard Session
               </Menu.Item>
               <Menu.Item
                 leftSection={
-                  <Image src={pencilIcon} alt="Customized" width={16} height={16} />
+                  <Image
+                    src={pencilIcon}
+                    alt="Customized"
+                    width={16}
+                    height={16}
+                  />
                 }
-                onClick={() => handleCreateSession("customized")}
+                onClick={openCreateSessionModal}
               >
                 Customized Session
               </Menu.Item>
@@ -119,7 +114,8 @@ export default function SessionsPage({ sessions }: SessionsPageProps) {
               <SessionCard
                 key={session.id}
                 session={session}
-                editMode={editMode}              />
+                editMode={editMode}
+              />
             ))
           ) : (
             <Text c="dimmed">No current session</Text>
@@ -131,14 +127,13 @@ export default function SessionsPage({ sessions }: SessionsPageProps) {
       <Stack gap={12}>
         <Title order={3}>Non-Current Session</Title>
 
-        {/* Future */}
         <Stack gap={4}>
           <Title order={4}>Future Sessions</Title>
           <Group justify="flex-start" wrap="wrap" gap="md">
             {future.length ? (
               future.map((session) => (
                 <SessionCard
-                  key={session.name}
+                  key={session.id}
                   session={session}
                   editMode={editMode}
                 />
@@ -149,14 +144,13 @@ export default function SessionsPage({ sessions }: SessionsPageProps) {
           </Group>
         </Stack>
 
-        {/* Past */}
         <Stack gap={4} mt="md">
           <Title order={4}>Past Sessions</Title>
           <Group justify="flex-start" wrap="wrap" gap="md">
             {past.length ? (
               past.map((session) => (
                 <SessionCard
-                  key={session.name}
+                  key={session.id}
                   session={session}
                   editMode={editMode}
                 />

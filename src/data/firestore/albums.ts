@@ -3,7 +3,7 @@ import { Album, AlbumID } from "@/types/albumTypes";
 import { v4 as uuid } from "uuid";
 import { Collection } from "./utils";
 import { setDoc, deleteDoc, getDoc, updateDoc } from "./firestoreClientOperations";
-import { doc, DocumentReference, FirestoreDataConverter, QueryDocumentSnapshot, Transaction, WithFieldValue, WriteBatch } from "firebase/firestore";
+import { doc, DocumentReference, FirestoreDataConverter, QueryDocumentSnapshot, Transaction, UpdateData, WithFieldValue, WriteBatch } from "firebase/firestore";
 
 const albumFirestoreConverter: FirestoreDataConverter<AlbumID, Album> = {
   toFirestore: (album: WithFieldValue<AlbumID>): WithFieldValue<Album> => {
@@ -23,7 +23,7 @@ export async function setAlbum(album: Album, instance?: Transaction | WriteBatch
   return albumId;
 }
 
-export async function updateAlbum(id: string, updates: Partial<Album>, instance?: Transaction | WriteBatch): Promise<void> {
+export async function updateAlbum(id: string, updates: UpdateData<Album>, instance?: Transaction | WriteBatch): Promise<void> {
   await updateDoc<AlbumID, Album>(doc(db, Collection.ALBUMS, id) as DocumentReference<AlbumID, Album>, updates, albumFirestoreConverter, instance);
 }
 

@@ -6,7 +6,7 @@ import {
   SectionScheduleID,
   StaffAttendeeID,
 } from "@/types/sessionTypes";
-import { Document, Page, Text} from "@react-pdf/renderer";
+import { Document, Page, Text } from "@react-pdf/renderer";
 import {
   getFreeplayAssignmentId,
   isBundleActivity,
@@ -20,7 +20,7 @@ interface EmployeeGridProps<T extends SchedulingSectionType> {
   schedule: SectionScheduleID<T>;
   freeplay: Freeplay;
   campers: CamperAttendeeID[];
-  employees: AdminAttendeeID[] | StaffAttendeeID[]; 
+  employees: AdminAttendeeID[] | StaffAttendeeID[];
 }
 
 export default function EmployeeGrid<T extends SchedulingSectionType>(
@@ -30,40 +30,67 @@ export default function EmployeeGrid<T extends SchedulingSectionType>(
   return (
     <Document>
       <Page size="A4">
-        <Table style={ [tw("p-[15px] text-[8px]"),{ fontFamily: "Helvetica" }]}>
-        <Text style={tw("text-[12px] my-[6px] font-bold")}>{employees.length === 0 ? "Employee" : employees[0].role === "ADMIN" ? "Admin" : "Staff"} Assignments</Text>
-      <TH style={tw("mb-[8px] border border-black")}>  
-         <TR style={tw("flex-row bg-black")}>  
-           <TD>  
-             <Text style={tw("flex-1 text-center text-[8px] font-bold text-white border border-black p-[1px] bg-black justify-center items-center")}>  
-               NAME  
-             </Text>  
-           </TD>  
-           {Object.keys(schedule.blocks).map((blockId) => (  
-             <TD key={blockId}>  
-               <Text style={tw("flex-1 text-center text-[8px] font-bold text-white border border-black p-[1px] bg-black justify-center items-center")}>  
-                 {blockId}  
-               </Text>  
-             </TD>  
-           ))}  
-           <TD>  
-             <Text style={tw("flex-1 text-center text-[8px] font-bold text-white border border-black p-[1px] bg-black justify-center items-center")}>  
-               APO  
-             </Text>  
-           </TD>  
-           <TD>  
-             <Text style={tw("flex-1 text-center text-[8px] font-bold text-white border border-black p-[1px] bg-black justify-center items-center")}>  
-               AM/PM FP  
-             </Text>  
-           </TD>  
-         </TR>  
-       </TH>  
+        <Table style={[tw("p-[15px] text-[8px]"), { fontFamily: "Helvetica" }]}>
+          <Text style={tw("text-[12px] my-[6px] font-bold")}>
+            {employees.length === 0
+              ? "Employee"
+              : employees[0].role === "ADMIN"
+              ? "Admin"
+              : "Staff"}{" "}
+            Assignments
+          </Text>
+          <TH style={tw("mb-[8px] border border-black")}>
+            <TR style={tw("flex-row bg-black")}>
+              <TD>
+                <Text
+                  style={tw(
+                    "flex-1 text-center text-[8px] font-bold text-white border border-black p-[1px] bg-black justify-center items-center"
+                  )}
+                >
+                  NAME
+                </Text>
+              </TD>
+              {Object.keys(schedule.blocks).map((blockId) => (
+                <TD key={blockId}>
+                  <Text 
+                    style={tw(
+                      "flex-1 text-center text-[8px] font-bold text-white border border-black p-[1px] bg-black justify-center items-center"
+                    )}
+                  >
+                    {blockId}
+                  </Text>
+                </TD>
+              ))}
+              <TD>
+                <Text
+                  style={tw(
+                    "flex-1 text-center text-[8px] font-bold text-white border border-black p-[1px] bg-black justify-center items-center"
+                  )}
+                >
+                  APO
+                </Text>
+              </TD>
+              <TD>
+                <Text
+                  style={tw(
+                    "flex-1 text-center text-[8px] font-bold text-white border border-black p-[1px] bg-black justify-center items-center"
+                  )}
+                >
+                  AM/PM FP
+                </Text>
+              </TD>
+            </TR>
+          </TH>
 
           {employees.map((employee) => {
             const fpBuddyIds = getFreeplayAssignmentId(freeplay, employee.id);
-            const fpBuddies = fpBuddyIds ? (fpBuddyIds as number[]).map(id => campers.find(c => c.id === id)) : [];
+            const fpBuddies = fpBuddyIds
+              ? (fpBuddyIds as number[]).map((id) =>
+                  campers.find((c) => c.id === id)
+                )
+              : [];
 
-            let apoText: string = '-';
+            let apoText: string = "-";
             for (const period of Object.keys(schedule.alternatePeriodsOff)) {
               if (schedule.alternatePeriodsOff[period].includes(employee.id)) {
                 apoText = period;
@@ -72,9 +99,13 @@ export default function EmployeeGrid<T extends SchedulingSectionType>(
             }
 
             return (
-              <TR key={employee.id} style={ tw("flex-row")}>
+              <TR key={employee.id} style={tw("flex-row")}>
                 {/* Name column - Use dataCell style */}
-                <TD style={ tw("flex-1 p-[1px] border border-black bg-white justify-center items-center text-[7px]")}>
+                <TD
+                  style={tw(
+                    "flex-1 p-[1px] border border-black bg-white justify-center items-center text-[7px]"
+                  )}
+                >
                   <Text>
                     {employee.name.firstName} {employee.name.lastName[0]}.
                   </Text>
@@ -108,29 +139,42 @@ export default function EmployeeGrid<T extends SchedulingSectionType>(
                   }
 
                   return (
-                    <TD key={blockId} style={tw("flex-1 p-[1px] border border-black bg-white justify-center items-center")}>
+                    <TD
+                      key={blockId}
+                      style={tw(
+                        "flex-1 p-[1px] border border-black bg-white justify-center items-center"
+                      )}
+                    >
                       <Text>{activityText}</Text>
                     </TD>
                   );
                 })}
 
-                <TD style={ tw("flex-1 p-[1px] border border-black bg-white justify-center items-center text-[7px]")}>
-                  <Text>
-                    {apoText}
-                  </Text>
+                <TD
+                  style={tw(
+                    "flex-1 p-[1px] border border-black bg-white justify-center items-center text-[7px]"
+                  )}
+                >
+                  <Text>{apoText}</Text>
                 </TD>
 
                 {/* Freeplay assignment - Use dataCell style */}
-                <TD style={ tw("flex-1 p-[1px] border border-black bg-white justify-center items-center text-[7px]")}>
+                <TD
+                  style={tw(
+                    "flex-1 p-[1px] border border-black bg-white justify-center items-center text-[7px]"
+                  )}
+                >
                   <Text>
-                    {fpBuddies.map(fpBuddy => fpBuddy ? getFullName(fpBuddy) : "").join(", ")}
+                    {fpBuddies
+                      .map((fpBuddy) => (fpBuddy ? getFullName(fpBuddy) : ""))
+                      .join(", ")}
                   </Text>
                 </TD>
               </TR>
             );
           })}
         </Table>
-        </Page>
-      </Document>
+      </Page>
+    </Document>
   );
-};
+}

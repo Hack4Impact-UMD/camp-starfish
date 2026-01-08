@@ -14,9 +14,9 @@ const appsScriptEndpoint = onCall(async (req) => {
 
   const credentials = await getGoogleCredentialsByUid(uid);
   const oAuth2Client = new OAuth2Client({
-    client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
-    client_secret: process.env.GOOGLE_CLIENT_SECRET,
-    redirect_uris: [getFunctionsURL("handleOAuth2Code")],
+    clientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    redirectUri: getFunctionsURL("handleOAuth2Code"),
     credentials: credentials,
   });
 

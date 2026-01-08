@@ -1,26 +1,26 @@
 "use client";
 
-import { Role } from "@/types/personTypes";
-import { useAuth } from "./useAuth";
-import { redirect } from "next/navigation";
-import { JSX } from "react";
+import ErrorPage from "@/app/error";
+
+interface AuthCase {
+  authFn: () => boolean;
+  component: React.ReactNode;
+}
 
 interface RequireAuthProps {
-  children: JSX.Element;
-  allowedRoles: Role[];
-  allowUnauthenticated?: boolean;
+  authCases: AuthCase[];
+  fallbackComponent?: React.ReactNode;
 }
 
 export default function RequireAuth(props: RequireAuthProps) {
-  const { children, allowedRoles, allowUnauthenticated = false } = props;
-  const { token } = useAuth();
-
-  if (
-    allowedRoles.some((role: Role) => token?.claims.role === role) ||
-    (allowUnauthenticated && !token)
-  ) {
-    return children;
+  const {
+    authCases,
+    fallbackComponent = <ErrorPage error={Error("You do not have permission to access this page.")} />,
+  } = props;
+  for (const authCase of authCases) {
+    if (authCase.authFn()) {
+      return authCase.component;
+    }
   }
-
-  redirect('/');
+  return fallbackComponent;
 }

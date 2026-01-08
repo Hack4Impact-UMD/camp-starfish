@@ -14,7 +14,7 @@ interface ProgramAreaGridProps {
 }
 
 // ---------- Component ----------
-export function ProgramAreaGrid({
+export default function ProgramAreaGrid({
   schedule,
   sectionName,
 }: ProgramAreaGridProps) {
@@ -114,15 +114,9 @@ export function ProgramAreaGrid({
   };
 
   return (
-    <Document>
-      <Page size="A4" style={[tw("p-[20px] text-[9px]"), { fontFamily: "Helvetica" }]}>
-        <Text style={tw("text-[18px] mb-[20px] text-center font-bold text-gray-900")}>
-          {sectionName} Program Area Grid
-        </Text>
-
-        {/* Render multiple tables */}
+      <View style={[tw("p-[20px] text-[9px]"), { fontFamily: "Helvetica" }]}>
+        <Text stylstyle={tw("text-[18px] mb-[20px] text-center font-bold text-gray-900")}>{sectionName} Program Area Grid</Text>
         {areaChunks.map((areas, index) => renderTable(areas, index))}
-      </Page>
-    </Document>
+      </View>
   );
 }
