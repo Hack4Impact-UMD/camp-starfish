@@ -40,7 +40,7 @@ export default function CamperModal({ camper }: CamperModalProps) {
     }));
   };
 
-  const { name, bunk, level, emergencyMedication, nonoList } = isEditMode
+  const { name, bunk, level, healthInfo, nonoList } = isEditMode
     ? editedCamper
     : camper;
 
@@ -118,14 +118,14 @@ export default function CamperModal({ camper }: CamperModalProps) {
             {isEditMode ? (
               <input
                 type="text"
-                value={editedCamper.emergencyMedication || ""}
+                value={editedCamper.healthInfo || ""}
                 onChange={(e) =>
-                  handleFieldChange("emergencyMedication", e.target.value)
+                  handleFieldChange("healthInfo", e.target.value)
                 }
                 className="border border-gray-300 px-2 py-1 rounded"
               />
             ) : (
-              <span>{emergencyMedication?.trim() || "None reported"}</span>
+              <span>{healthInfo?.trim() || "None reported"}</span>
             )}
           </div>
 
