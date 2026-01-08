@@ -7,7 +7,6 @@ import Image from "next/image";
 import { SessionID } from "@/types/sessionTypes";
 import pencilIcon from "@/assets/icons/pencilIcon.svg";
 import SessionCard from "@/components/SessionCard";
-import RequireAuth from "@/auth/RequireAuth";
 import { useAuth } from "@/auth/useAuth";
 import { openCreateSessionModal } from "@/components/CreateSessionModal";
 
@@ -17,7 +16,6 @@ interface SessionsPageProps {
 
 export default function SessionsPage({ sessions }: SessionsPageProps) {
   const [editMode, setEditMode] = useState(false);
-  const { token } = useAuth();
 
   // --- Categorize sessions ---
   const { current, future, past } = useMemo(() => {
