@@ -1,14 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import {
-  Button,
-  Group,
-  Stack,
-  Title,
-  Menu,
-  Text,
-} from "@mantine/core";
+import { Button, Group, Stack, Title, Menu, Text } from "@mantine/core";
 import moment from "moment";
 import Image from "next/image";
 import { SessionID } from "@/types/sessionTypes";
@@ -16,6 +9,7 @@ import pencilIcon from "@/assets/icons/pencilIcon.svg";
 import SessionCard from "@/components/SessionCard";
 import RequireAuth from "@/auth/RequireAuth";
 import { useAuth } from "@/auth/useAuth";
+import { openCreateSessionModal } from "@/components/CreateSessionModal";
 
 interface SessionsPageProps {
   sessions: SessionID[];
@@ -46,13 +40,6 @@ export default function SessionsPage({ sessions }: SessionsPageProps) {
 
     return { current, future, past };
   }, [sessions]);
-
-  // --- Handlers ---
-  const handleCreateSession = (type: "standard" | "customized") => {
-    console.log("Creating session:", type);
-    // Add your session creation logic here
-    // For example: navigate to create session page or open modal
-  };
 
   return (
     <Stack gap={36} p="md">
@@ -100,7 +87,7 @@ export default function SessionsPage({ sessions }: SessionsPageProps) {
                         leftSection={
                           <Image src={pencilIcon} alt="Standard" width={16} height={16} />
                         }
-                        onClick={() => handleCreateSession("standard")}
+                        onClick={openCreateSessionModal}
                       >
                         Standard Session
                       </Menu.Item>
@@ -108,7 +95,7 @@ export default function SessionsPage({ sessions }: SessionsPageProps) {
                         leftSection={
                           <Image src={pencilIcon} alt="Customized" width={16} height={16} />
                         }
-                        onClick={() => handleCreateSession("customized")}
+                        onClick={openCreateSessionModal}
                       >
                         Customized Session
                       </Menu.Item>
@@ -145,14 +132,13 @@ export default function SessionsPage({ sessions }: SessionsPageProps) {
       <Stack gap={12}>
         <Title order={3}>Non-Current Session</Title>
 
-        {/* Future */}
         <Stack gap={4}>
           <Title order={4}>Future Sessions</Title>
           <Group justify="flex-start" wrap="wrap" gap="md">
             {future.length ? (
               future.map((session) => (
                 <SessionCard
-                  key={session.name}
+                  key={session.id}
                   session={session}
                   editMode={editMode}
                 />
@@ -163,14 +149,13 @@ export default function SessionsPage({ sessions }: SessionsPageProps) {
           </Group>
         </Stack>
 
-        {/* Past */}
         <Stack gap={4} mt="md">
           <Title order={4}>Past Sessions</Title>
           <Group justify="flex-start" wrap="wrap" gap="md">
             {past.length ? (
               past.map((session) => (
                 <SessionCard
-                  key={session.name}
+                  key={session.id}
                   session={session}
                   editMode={editMode}
                 />
