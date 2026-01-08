@@ -7,7 +7,6 @@ import Image from "next/image";
 import { SessionID } from "@/types/sessionTypes";
 import pencilIcon from "@/assets/icons/pencilIcon.svg";
 import SessionCard from "@/components/SessionCard";
-import { useAuth } from "@/auth/useAuth";
 import { openCreateSessionModal } from "@/components/CreateSessionModal";
 
 interface SessionsPageProps {
