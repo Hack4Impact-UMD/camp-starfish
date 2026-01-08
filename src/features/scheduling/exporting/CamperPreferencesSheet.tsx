@@ -1,5 +1,5 @@
 import React from "react";
-import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
+import { Document, Page, Text, View} from "@react-pdf/renderer";
 import {
   SectionSchedule,
   BundleActivity,
@@ -7,8 +7,9 @@ import {
   AgeGroup,
 } from "@/types/sessionTypes";
 import { isBundleActivity } from "../generation/schedulingUtils";
+import { tw } from "@/utils/reactPdfTailwind";
 
-const styles = StyleSheet.create({
+/*const styles = StyleSheet.create({
   page: { padding: 40, fontSize: 12, fontFamily: "Helvetica" },
   title: {
     fontSize: 18,
@@ -33,7 +34,7 @@ const styles = StyleSheet.create({
   activityInfo: {},
   activityName: { fontWeight: "bold" },
   activityDesc: { fontSize: 11 },
-});
+}); */
 
 type CamperPreferencesSheetProps<T extends SchedulingSectionType> = {
   schedule: SectionSchedule<T>;
@@ -50,13 +51,13 @@ export function CamperPreferencesSheet<T extends SchedulingSectionType = Schedul
 }: CamperPreferencesSheetProps<T>) {
   return (
     <Document>
-      <Page size="A4" style={styles.page}>
-        <View style={styles.nameRow}>
+      <Page size="A4" style={[tw("p-[40px] text-[12px]"), { fontFamily: "Helvetica" }]}>
+        <View style={tw("flex-row justify-between mb-[10px]")}>
           {sectionType !== "NON-BUNK-JAMBO" && <Text>Name: ____________________________</Text>}
           <Text>Bunk: ___________</Text>
         </View>
 
-        <Text style={styles.title}>
+        <Text style={tw("text-[18px] text-center mb-[16px] font-bold")}>
           {`${sectionName} Preference Sheet${ageGroup ? ` - ${ageGroup}` : ""}`}
         </Text>
 
@@ -68,16 +69,16 @@ export function CamperPreferencesSheet<T extends SchedulingSectionType = Schedul
             : block.activities;
           if (activities.length === 0) return null;
           return (
-            <View key={blockId} style={styles.block}>
-              <Text style={styles.blockTitle}>Block {blockId}</Text>
+            <View key={blockId} style={ tw("mt-[12px]")}>
+              <Text style={tw("text-[14px] font-bold mb-[4px]")}>Block {blockId}</Text>
               {activities.map((activity, idx) => (
-                <View key={`${blockId}-${idx}`} style={styles.activity}>
-                  <View style={styles.activityInfo}>
-                    <Text style={styles.activityName}>
+                <View key={`${blockId}-${idx}`} style={tw("ml-[10px] mb-[6px] flex flex-row justify-between")}>
+                  <View>
+                    <Text style={tw("font-bold")}>
                       {`${isBundleActivity(activity) ? `${activity.programArea.name}: ` : ""}${activity.name}`}
                     </Text>
                     {activity.description && (
-                      <Text style={styles.activityDesc}>
+                      <Text style={tw("text-[11px]")}>
                         {activity.description}
                       </Text>
                     )}
