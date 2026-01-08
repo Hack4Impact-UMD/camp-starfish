@@ -43,12 +43,10 @@ export default function SessionsPage({ sessions }: SessionsPageProps) {
       {/* Top bar */}
       <Group justify="space-between" align="center">
         <Title order={2}>Sessions</Title>
-
         <Group gap="sm">
           {/* Edit / Done button */}
           <Button
             size="lg"
-            color="primary"
             radius="xl"
             leftSection={
               <Image
@@ -89,7 +87,6 @@ export default function SessionsPage({ sessions }: SessionsPageProps) {
               >
                 Standard Session
               </Menu.Item>
-
               <Menu.Item
                 leftSection={
                   <Image
