@@ -8,6 +8,7 @@ import { useAuth } from "@/auth/useAuth";
 import { signInWithGooglePopup } from "@/auth/authN";
 import Image from "next/image";
 import { signInWithMicrosoftPopup } from "@/auth/authN";
+import { generateSession } from "@/features/scheduling/test/generateEmulatorData";
 
 export default function LoginPage() {
   const [error, setError] = useState<string>("");
@@ -27,6 +28,16 @@ export default function LoginPage() {
   const signInWithMicrosoft = async () => {
     try {
       await signInWithMicrosoftPopup();
+    }
+    catch {
+      setError("An error occurred while trying to sign in. Please try again.");
+    }
+  }
+
+  const generateTestSession = async () => {
+    try {
+      const data = await generateSession();
+      console.log(data);
     }
     catch {
       setError("An error occurred while trying to sign in. Please try again.");
@@ -67,6 +78,13 @@ export default function LoginPage() {
           Sign in with Microsoft
         </button>
 
+        <button
+          onClick={generateTestSession}
+          className="flex flex-row justify-around items-center w-5/6 max-w-[344px] bg-white 
+                    mt-5 py-4 px-12 rounded-full shadow-[0_4px_4px_-1px_rgba(0,0,0,0.2)] font-lato text-xl text-gray-600">
+          <Image src={MicrosoftIcon.src} alt="Microsoft" width={32} height={32} />
+          Generate Test
+        </button>
 
         {/* Error Message */}
         {errorDisplay && (

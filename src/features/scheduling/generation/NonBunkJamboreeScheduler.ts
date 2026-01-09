@@ -7,8 +7,10 @@ import {
   SectionPreferences,
   JamboreeActivity,
   IndividualAssignments,
+  NonBunkJamboreeActivityWithAssignments
 } from "@/types/sessionTypes";
 import { doesConflictExist } from "./schedulingUtils";
+import moment from "moment";
 
 // activity size constraints
 const MIN_CAMPERS_PER_ACTIVITY = 4; // minimum
@@ -170,76 +172,121 @@ export class NonBunkJamboreeScheduler {
    assigns campers to activities while maintaining 1:1 staff-to-camper ratio
    ensures we never have more campers than available staff in any block
    */
-  assignCampers(): NonBunkJamboreeScheduler {
-    if (!this.guardBlocks()) return this;
+  assignCampers() {
+    const MAX_CAPACITY = 9;
+    const MIN_CAPACITY = 4;
 
-    for (const blockId of this.blocksToAssign) {
-      const block = this.schedule.blocks[blockId];
-      if (!block) continue;
+    // Sort all campers by date of birth
+    const sortedCampers = this.campers.sort((a, b) =>
+      moment(a.dateOfBirth).diff(moment(b.dateOfBirth))
+    );
 
-      const blockPrefs = this.camperPrefs[blockId] || {};
+    // ---- shared helpers ----
 
-      // get unassigned campers sorted by their highest preference
-      const unassignedCampers = this.campers
-        .filter(
-          (c) =>
-            !block.activities.some((a) =>
-              a.assignments.camperIds.includes(c.id)
-            )
-        )
-        .sort(
-          (a, b) =>
-            Math.max(0, ...Object.values(blockPrefs[b.id] || {})) -
-            Math.max(0, ...Object.values(blockPrefs[a.id] || {}))
-        );
+    // Tries to assign camper to activity. Returns true if successful. False if full or conflict
+    const tryAssign = (
+      camper: CamperAttendeeID,
+      activity: NonBunkJamboreeActivityWithAssignments,
+      cap = MAX_CAPACITY
+    ) => {
+      if (activity.assignments.camperIds.length >= cap) return false;
+      if (doesConflictExist(camper, activity.assignments.camperIds)) return false;
+      activity.assignments.camperIds.push(camper.id);
+      return true;
+    };
 
-      // ensure minimum campers per activity (4)
-      for (const activity of block.activities) {
-        while (
-          activity.assignments.camperIds.length < MIN_CAMPERS_PER_ACTIVITY &&
-          unassignedCampers.length > 0
-        ) {
-          const camper = unassignedCampers.shift()!;
-          if (this.canAssignCamperToActivity(camper, activity)) {
-            activity.assignments.camperIds.push(camper.id);
+    // Assigns a group of campers to a block's activities
+    const assignGroup = (
+      blockID: string,
+      campers: CamperAttendeeID[],
+      activities: NonBunkJamboreeActivityWithAssignments[],
+    ) => {
+      const assigned = new Set<number>();
+
+      // First pass: assign campers based on preferences
+      for (const camper of campers) {
+
+        const prefs = this.camperPrefs[blockID]?.[camper.id];
+        if (!prefs) continue;
+
+        // Sort preferences: lowest number = highest preference
+        const sortedPrefs = Object.entries(prefs).sort(([, a], [, b]) => a - b);
+
+        for (const [name] of sortedPrefs) {
+          const activity = activities.find(a => a.name === name);
+          if (activity && tryAssign(camper, activity)) {
+            assigned.add(camper.id);
+            break;
           }
         }
       }
 
-      // distribute remaining campers
-      for (const camper of unassignedCampers) {
-        // find activities that aren't full between the range
-        const availableActivities = block.activities.filter(
-          (a) => a.assignments.camperIds.length < MAX_CAMPERS_PER_ACTIVITY
-        );
+      // Second pass: assign unassigned campers to any available activity
+      for (const camper of campers) {
+        if (assigned.has(camper.id)) continue;
 
-        // 1. try to fill activities below ideal minimum (4)
-        let targetActivity = availableActivities.find(
-          (a) => a.assignments.camperIds.length < IDEAL_MIN_CAMPERS
-        );
+        const candidates = activities
+          .filter(a => !doesConflictExist(camper, a.assignments.camperIds))
+          .sort((a, b) => a.assignments.camperIds.length - b.assignments.camperIds.length);
 
-        // 2. if none, find activity with highest preference that's not full
-        if (!targetActivity) {
-          targetActivity = [...availableActivities].sort((a, b) => {
-            // sort by preference, then by fewest campers
-            const aPref = blockPrefs[camper.id]?.[a.name] || 0;
-            const bPref = blockPrefs[camper.id]?.[b.name] || 0;
-            return (
-              bPref - aPref ||
-              a.assignments.camperIds.length - b.assignments.camperIds.length
-            );
-          })[0];
-        }
-        if (
-          targetActivity &&
-          this.canAssignCamperToActivity(camper, targetActivity)
-        ) {
-          targetActivity.assignments.camperIds.push(camper.id);
+        for (const activity of candidates) {
+          if (tryAssign(camper, activity)) {
+            assigned.add(camper.id);
+            break;
+          }
         }
       }
+
+      // Rebalance underfilled activities
+      const underfilled = activities.filter(a => a.assignments.camperIds.length < MIN_CAPACITY);
+
+      for (const target of underfilled) {
+        while (target.assignments.camperIds.length < MIN_CAPACITY) {
+          const donors = activities
+            .filter(a => a !== target && a.assignments.camperIds.length > MIN_CAPACITY)
+            .sort((a, b) => b.assignments.camperIds.length - a.assignments.camperIds.length);
+
+          let moved = false;
+
+          for (const donor of donors) {
+            for (let i = donor.assignments.camperIds.length - 1; i >= 0; i--) {
+              const camperId = donor.assignments.camperIds[i];
+              if (target.assignments.camperIds.includes(camperId)) continue;
+
+              const camper = campers.find(c => c.id === camperId);
+              if (!camper) continue;
+              if (doesConflictExist(camper, target.assignments.camperIds)) continue;
+
+              donor.assignments.camperIds.splice(i, 1);
+              target.assignments.camperIds.push(camperId);
+              moved = true;
+              break;
+            }
+            if (moved) break;
+          }
+
+          if (!moved) break;
+        }
+      }
+
+      // Warn if any campers remain unassigned
+      const notAssigned = campers.filter(c => !assigned.has(c.id));
+      if (notAssigned.length) {
+        console.warn(`[${blockID}]: ${notAssigned.length} campers unassigned`);
+      }
+
+      return { assigned, notAssigned };
+    };
+
+    // Assign campers to each block
+    for (const blockId of this.blocksToAssign) {
+      const block = this.schedule.blocks[blockId];
+      if (!block) continue;
+
+      assignGroup(blockId, sortedCampers, block.activities);
     }
-    return this;
   }
+
 
   //assign counselors to activities
   assignCounselors(): NonBunkJamboreeScheduler {
