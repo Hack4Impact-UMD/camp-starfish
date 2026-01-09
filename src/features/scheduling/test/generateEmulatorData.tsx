@@ -345,7 +345,7 @@ function generateBunkJamboBlockSchedule(blockIDs: string[]) {
 
   const schedule: SectionSchedule<'BUNK-JAMBO'> = { blocks: {}, alternatePeriodsOff: {} };
 
-
+  schedule.alternatePeriodsOff["RH"] = []
   for(let i = 0; i < blockIDs.length; i++)
   {
     const activities: BunkJamboreeActivityWithAssignments[] = generateBunkJamboActivities(TOTAL_ACTIVITIES_PER_DAY, blockIDs[i]);
@@ -361,7 +361,7 @@ function generateNonBunkJamboBlockSchedule(blockIDs: string[]) {
 
   const schedule: SectionSchedule<'NON-BUNK-JAMBO'> = { blocks: {}, alternatePeriodsOff: {} };
 
-
+  schedule.alternatePeriodsOff["RH"] = []
   for(let i = 0; i < blockIDs.length; i++)
   {
     const activities: NonBunkJamboreeActivityWithAssignments[] = generateNonBunkJamboActivities(TOTAL_ACTIVITIES_PER_DAY, blockIDs[i]);
@@ -660,7 +660,7 @@ function generatePrefs(assignees: CamperAttendeeID[] | BunkID[], schedule: Secti
 //   return scheduler;
 // }
 
-export function generateNonBunkJamboreeSchedule(numBlocks:number, campers: CamperAttendeeID[], staff: StaffAttendeeID[], admins: AdminAttendeeID[]) {
+export function generateNonBunkJamboreeSchedule(numBlocks:number, campers: CamperAttendeeID[], staff: StaffAttendeeID[], admins: AdminAttendeeID[], section: SectionID) {
   const blocksToAssign: string[] = generateBlockIDs(numBlocks);
   const schedule: SectionSchedule<'NON-BUNK-JAMBO'> = generateNonBunkJamboBlockSchedule(blocksToAssign);
   const camperPrefs: SectionPreferences = generatePrefs(campers, schedule, "NON-BUNK-JAMBO");
@@ -673,9 +673,10 @@ export function generateNonBunkJamboreeSchedule(numBlocks:number, campers: Campe
   .withStaff(staff)
   .withAdmins(admins)
   .withCamperPrefs(camperPrefs)
-  .forBlocks(blocksToAssign);
+  .forBlocks(blocksToAssign)
+  .withSectionID(section as SchedulingSectionID)
 
-  //scheduler.assignPeriodsOff()
+  scheduler.assignPeriodsOff()
   scheduler.assignCampers()
   //scheduler.assignCounselors()
   //scheduler.assignAdmins()
@@ -812,7 +813,7 @@ export function generateSession() {
   // const bundleScheduler2 = generateBundleSchedule(5, 2, campers, staff, admins, sections[2]);
   // const bundleScheduler3 = generateBundleSchedule(5, 3, campers, staff, admins, sections[3]);
   // const bunkJamboreeScheduler = generateBunkJamboreeSchedule(5, campers, staff, admins);
-  const nonBunkJamboreeScheduler = generateNonBunkJamboreeSchedule(5, campers, staff, admins);
+  const nonBunkJamboreeScheduler = generateNonBunkJamboreeSchedule(5, campers, staff, admins, sections[4]);
   // const freeplayScheduler1A = generateFreeplaySchedule(campers, staff, admins);
   // const freeplayScheduler1B = generateFreeplaySchedule(campers, staff, admins);
   // freeplayScheduler1B.withOtherFreeplays([freeplayScheduler1A.schedule]);
