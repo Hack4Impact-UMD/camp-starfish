@@ -1,4 +1,4 @@
-import { AdminAttendeeID, SectionSchedule, SectionPreferences, Bunk, BunkID } from "@/types/sessionTypes";
+import { AdminAttendeeID, SectionSchedule, SectionPreferences, BunkID } from "@/types/sessionTypes";
 
 export class BunkJamboreeScheduler {
   schedule: SectionSchedule<"BUNK-JAMBO"> = { blocks: {}, alternatePeriodsOff: {} };
