@@ -5,21 +5,12 @@ import {
   CamperAttendeeID,
   SectionSchedule,
   SectionPreferences,
-  JamboreeActivity,
-  IndividualAssignments,
   NonBunkJamboreeActivityWithAssignments,
   SchedulingSectionID
 } from "@/types/sessionTypes";
 import { doesConflictExist } from "./schedulingUtils";
 import moment from "moment";
-import { a } from "framer-motion/dist/types.d-BJcRxCew";
-import { ac } from "@faker-js/faker/dist/airline-CLphikKp";
 
-// activity size constraints
-const MIN_CAMPERS_PER_ACTIVITY = 4; // minimum
-const MAX_CAMPERS_PER_ACTIVITY = 9; // maximum
-const IDEAL_MIN_CAMPERS = 5; // preferred minimum
-const IDEAL_MAX_CAMPERS = 8; // preferred maximum
 
 export class NonBunkJamboreeScheduler {
   schedule: SectionSchedule<"NON-BUNK-JAMBO"> = {
@@ -43,9 +34,6 @@ export class NonBunkJamboreeScheduler {
     isPublished: false,
     sessionId: ""
   };
-  //relationships more generic to include staff/admin, staff/staff, admin/admin, camper/camper, camper/staff, camper/admin
-  private relationships: Array<{ attendeeOneId: number; attendeeTwoId: number;}> = [];
-
   constructor() {}
 
   withSchedule(
@@ -81,13 +69,10 @@ export class NonBunkJamboreeScheduler {
     return this;
   }
 
-  private guardBlocks(): boolean {
-    //checking length of blocks as a guard clause, called in every assignment function
-    if (this.blocksToAssign.length === 0) {
-      this.blocksToAssign = Object.keys(this.schedule.blocks);
-    }
-    return this.blocksToAssign.length > 0;
+  getSchedule(): SectionSchedule<"NON-BUNK-JAMBO"> {
+    return this.schedule;
   }
+
 
   assignPeriodsOff() {
 
@@ -103,7 +88,7 @@ export class NonBunkJamboreeScheduler {
 
     const MAX_CAPACITY = allStaffAndAdmins.length / TOTAL_POSSIBLE_REST_BLOCKS;
 
-    // Fill blocks firs tbefore moving onto alternate periods off
+    // Fill blocks first before moving onto alternate periods off
     for (const blockId of this.blocksToAssign) {
       if (!this.schedule.blocks[blockId]) throw new Error("Invalid block");
 
@@ -472,10 +457,6 @@ export class NonBunkJamboreeScheduler {
   }
 
 
-
-  getSchedule(): SectionSchedule<"NON-BUNK-JAMBO"> {
-    return this.schedule;
-  }
   //assigning admins to activity blocks
   assignAdmin(){
 
@@ -518,7 +499,7 @@ export class NonBunkJamboreeScheduler {
 
       const stillUnassigned = new Set<number>(unassignedAdmin.map(a => a.id));
 
-      // One pass to assign the rest of admins to activities that have the largest camper, staff bg-blend-difference
+      // One pass to assign the rest of admins to activities that have the largest camper, staff difference
       for (const admin of unassignedAdmin) {
         const activity = activities
           .sort((a, b) => b.assignments.camperIds.length - a.assignments.camperIds.length)
