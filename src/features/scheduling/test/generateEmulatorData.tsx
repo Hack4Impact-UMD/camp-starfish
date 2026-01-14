@@ -678,8 +678,8 @@ export function generateNonBunkJamboreeSchedule(numBlocks:number, campers: Campe
 
   scheduler.assignPeriodsOff()
   scheduler.assignCampers()
-  //scheduler.assignCounselors()
-  //scheduler.assignAdmins()
+  scheduler.assignCounselors()
+  scheduler.assignAdmin()
 
   return scheduler;
 }
