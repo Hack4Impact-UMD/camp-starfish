@@ -1,10 +1,9 @@
-import { AdminAttendeeID, StaffAttendeeID, CamperAttendeeID, SectionSchedule, SectionPreferences, BunkID, Block, BlockPreferences, JamboreeActivity, BunkAssignments } from "@/types/sessionTypes";
+import { AdminAttendeeID, StaffAttendeeID, CamperAttendeeID, SectionSchedule, SectionPreferences, BunkID, Block, BlockPreferences, JamboreeActivity, BunkAssignments, SchedulingSectionID } from "@/types/sessionTypes";
 import { doesConflictExist } from "./schedulingUtils";
 
 export class BunkJamboreeScheduler {
   schedule: SectionSchedule<"BUNK-JAMBO"> = { blocks: {}, alternatePeriodsOff: {} };
 
-  bunks: BunkID[] = [];
   bunks: BunkID[] = [];
   admins: AdminAttendeeID[] = [];
   staff: StaffAttendeeID[] = [];
@@ -13,6 +12,18 @@ export class BunkJamboreeScheduler {
   preferences: SectionPreferences = {};
 
   blocksToAssign: string[] = [];
+
+
+  sectionID: SchedulingSectionID = {
+    id: "",
+    name: `Bunk Jamboree`,
+    type: "BUNK-JAMBO",
+    startDate: "",          // ISO-8601 string (e.g. "2026-01-05")
+    endDate: "",            // ISO-8601 string
+    numBlocks: 0,
+    isPublished: false,
+    sessionId: ""
+  };
 
   constructor() { }
 
@@ -28,163 +39,310 @@ export class BunkJamboreeScheduler {
 
   withPreferences(preferences: SectionPreferences): BunkJamboreeScheduler { this.preferences = preferences; return this; }
 
+  withSectionID(sectionID: SchedulingSectionID): BunkJamboreeScheduler { this.sectionID = sectionID; return this; }
+
   forBlocks(blockIds: string[]): BunkJamboreeScheduler { this.blocksToAssign = blockIds; return this; }
 
+
+
   /* Each staff member & admin must have 1 period off per day */
-  assignPeriodsOff(): BunkJamboreeScheduler {
-    // Get all yesyes relationships
-    const relationships = this.getYesYesRelationships();
-    
-    // Get all available staff and admin IDs
-    const allAttendees = [
-      ...this.staff.map(s => ({ id: s.id, role: 'STAFF' as const })),
-      ...this.admins.map(a => ({ id: a.id, role: 'ADMIN' as const }))
-    ];
-    
-    // Track who has been assigned periods off
-    const assignedPeriodsOff = new Set<number>();
-    
-    // Initialize all blocks if they don't exist
-    this.blocksToAssign.forEach(blockId => {
-      if (!this.schedule.blocks[blockId]) {
-        this.schedule.blocks[blockId] = { activities: [], periodsOff: [] };
-      }
-    });
-    
-    // Continue until all attendees have been assigned a period off
-    while (assignedPeriodsOff.size < allAttendees.length) {
-      // Get unassigned attendees
-      const unassignedAttendees = allAttendees.filter(attendee => 
-        !assignedPeriodsOff.has(attendee.id)
-      );
-      
-      if (unassignedAttendees.length === 0) break;
-      
-      // Pick a random unassigned attendee
-      const randomAttendee = unassignedAttendees[
-        Math.floor(Math.random() * unassignedAttendees.length)
-      ];
-      
-      // Find the block with the least staff members on break
-      const blockWithLeastBreaks = this.findBlockWithLeastBreaks();
-      
-      // Assign the random attendee to this block
-      this.schedule.blocks[blockWithLeastBreaks].periodsOff.push(randomAttendee.id);
-      assignedPeriodsOff.add(randomAttendee.id);
-      
-      // Assign all people in yesyes relationship with this attendee to the same block
-      const relatedPeople = relationships.get(randomAttendee.id) || [];
-      relatedPeople.forEach(relatedPerson => {
-        if (!assignedPeriodsOff.has(relatedPerson.id)) {
-          this.schedule.blocks[blockWithLeastBreaks].periodsOff.push(relatedPerson.id);
-          assignedPeriodsOff.add(relatedPerson.id);
+  assignPeriodsOff() {
+
+    // Filter out all staff/admin that have the day OFF 
+    const eligibleStaff = this.staff.filter(s => !s.daysOff.includes(this.sectionID.id));
+    const eligibleAdmins = this.admins.filter(a => !a.daysOff.includes(this.sectionID.id));
+    const allStaffAndAdmins = [...eligibleStaff, ...eligibleAdmins];
+
+    let ogMapDiff = new Map<number, number>();
+    let mapDiff = new Map<number, number>();
+
+    for (const bunk of this.bunks) {
+
+      let totalStaff = 0
+      for (const staff of bunk.staffIds) {
+
+        if (eligibleStaff.some(s => s.id === staff)) {
+          totalStaff += 1
         }
-      });
+      }
+
+      ogMapDiff.set(bunk.id, bunk.camperIds.length - totalStaff)
     }
-    
-    return this;
-  }
 
-  /**
-   * Finds the block with the least number of staff members currently on break
-   */
-  private findBlockWithLeastBreaks(): string {
-    let minBreaks = Infinity;
-    let blockWithMinBreaks = this.blocksToAssign[0];
-    
-    this.blocksToAssign.forEach(blockId => {
-      const currentBreaks = this.schedule.blocks[blockId]?.periodsOff.length || 0;
-      if (currentBreaks < minBreaks) {
-        minBreaks = currentBreaks;
-        blockWithMinBreaks = blockId;
-      }
-    });
-    
-    return blockWithMinBreaks;
-  }
+    const notAssigned = new Set<StaffAttendeeID | AdminAttendeeID>(allStaffAndAdmins);
 
-  assignAdminsToActivities(): BunkJamboreeScheduler {
-    this.blocksToAssign.forEach(blockId => {
+    const TOTAL_POSSIBLE_REST_BLOCKS =
+      this.blocksToAssign.length + Object.keys(this.schedule.alternatePeriodsOff).length;
+
+    const MAX_CAPACITY = allStaffAndAdmins.length / TOTAL_POSSIBLE_REST_BLOCKS;
+    console.log(allStaffAndAdmins.length);
+
+    // Fill blocks first before moving onto alternate periods off
+    for (const blockId of this.blocksToAssign) {
+      if (!this.schedule.blocks[blockId]) throw new Error("Invalid block");
+
+
+      mapDiff = new Map(ogMapDiff);
       const block = this.schedule.blocks[blockId];
-      
-      if (block) {
-        this.assignAdminsToActivitiesHelper(block);
+      const activities = block.activities;
+
+      const isBusy = (id: number) =>
+        activities.some(
+          act =>
+            act.assignments.adminIds.includes(id)
+        );
+
+      // Alternate preference per successful assignment
+      let pickAdminNext = true;
+
+      const tryAssignPerson = (person: StaffAttendeeID | AdminAttendeeID) => {
+        if (!notAssigned.has(person)) return false;
+        if (isBusy(person.id)) return false;
+
+        if ('bunk' in person && mapDiff) {
+          const diff = mapDiff.get(person.bunk) ?? 100; // default to 0 if undefined
+          if (diff + 1 > 2) {
+            return false
+          }
+        }
+
+        // Assigns the staff/admin member to the block for period off
+        block.periodsOff.push(person.id);
+        notAssigned.delete(person);
+        if ('bunk' in person && mapDiff) 
+        {
+          const diff = mapDiff.get(person.bunk) ?? 100;
+          mapDiff.set(person.bunk, diff + 1);
+        }
+
+        // If there is still space in the block for periods off, then assign a yesyes
+        if (block.periodsOff.length < MAX_CAPACITY) {
+          // Filters out yesyesList that are already assigned to an activity or have a day off
+          let filteredYesyesList = person.yesyesList
+            .filter((id: number) => allStaffAndAdmins.some(p => p.id === id));
+          filteredYesyesList = filteredYesyesList
+            .filter((id: number) => !isBusy(id));
+
+          // Assigns the yesyes to the block
+          for (const yesyes of filteredYesyesList) {
+            if (block.periodsOff.length >= MAX_CAPACITY) break;
+
+            const yesyesPerson = allStaffAndAdmins.find(p => p.id === yesyes);
+            if (!yesyesPerson) continue;
+
+            if (!notAssigned.has(yesyesPerson)) continue;
+            if ('bunk' in yesyesPerson && mapDiff) {
+              const diff = mapDiff.get(yesyesPerson.bunk) ?? 100; // default to 0 if undefined
+              if (diff + 1 > 2) {
+                continue
+              }
+            }
+
+
+            block.periodsOff.push(yesyes);
+            notAssigned.delete(yesyesPerson);
+            if ('bunk' in yesyesPerson && mapDiff) 
+            {
+              const diff = mapDiff.get(yesyesPerson.bunk) ?? 100;
+              mapDiff.set(yesyesPerson.bunk, diff + 1);
+            }
+            break; // only assign one yesyes
+          }
+        }
+
+        return true;
+      };
+
+      // Fill block up to capacity, alternating staff/admin
+      while (block.periodsOff.length < MAX_CAPACITY && notAssigned.size > 0) {
+        const primary = pickAdminNext ? eligibleAdmins : eligibleStaff;
+        const secondary = pickAdminNext ? eligibleStaff : eligibleAdmins;
+
+        let assigned = false;
+
+        // Try primary group first
+        for (const person of primary) {
+          if (tryAssignPerson(person)) {
+            assigned = true;
+            pickAdminNext = !pickAdminNext; // flip ONLY after success
+            break;
+          }
+        }
+
+        // If none found, try the other group
+        if (!assigned) {
+          for (const person of secondary) {
+            if (tryAssignPerson(person)) {
+              assigned = true;
+              pickAdminNext = !pickAdminNext;
+              break;
+            }
+          }
+        }
+
+        // Prevent infinite loop if nobody eligible can be assigned
+        if (!assigned) break;
       }
-    });
-    
-    return this;
+    }
+
+    // Assign alternate periods off
+    const remainingRestBlocks = TOTAL_POSSIBLE_REST_BLOCKS - this.blocksToAssign.length;
+
+    if (remainingRestBlocks <= 0) return;
+
+    const MAX_CAPACITY_APOS = notAssigned.size / remainingRestBlocks;
+
+    // The remaining people in notAssigned are distributed among the APOS
+    while (notAssigned.size > 0) {
+      for (const apo of Object.keys(this.schedule.alternatePeriodsOff)) {
+        while (
+          this.schedule.alternatePeriodsOff[apo].length < MAX_CAPACITY_APOS &&
+          notAssigned.size > 0
+        ) {
+          const iter = notAssigned.values().next();
+          if (iter.done) break;
+
+          const next = iter.value;
+          this.schedule.alternatePeriodsOff[apo].push(next.id);
+          notAssigned.delete(next);
+        }
+      }
+    }
   }
 
-  private assignAdminsToActivitiesHelper(block: Block<"BUNK-JAMBO">): void {
-    // Get all available admin IDs (excluding those on period off)
-    const availableAdmins = this.admins
-      .filter(admin => !block.periodsOff.includes(admin.id))
-      .map(admin => admin.id);
-    
-    // Create a map to track how many admins are assigned to each activity
-    const activityAdminCounts = new Map<string, number>();
-    block.activities.forEach(activity => {
-      activityAdminCounts.set(activity.name, activity.assignments.adminIds.length);
-    });
-    
-    // Shuffle admins for fairness in assignment order
-    const shuffledAdmins = [...availableAdmins].sort(() => Math.random() - 0.5);
-    
-    // Assign each admin to exactly one activity
-    shuffledAdmins.forEach(adminId => {
-      // Find the admin object to access nono list
-      const admin = this.admins.find(a => a.id === adminId);
-      if (!admin) return;
+
+
+
+
+
+
+  //assigning admins to activity blocks
+  assignAdmin(){
+
+
+    for (const blockID of this.blocksToAssign) {
+
+      if (!this.schedule.blocks[blockID]) throw new Error("Invalid block");
+
+      const activities = this.schedule.blocks[blockID].activities;
+      if (!activities || activities.length === 0) throw new Error("Block has no activities");
       
-      // Find activities that don't have conflicts with this admin's nono list
-      const compatibleActivities = block.activities.filter(activity => {
-        // Get all camper IDs in bunks assigned to this activity
-        const camperIdsInActivity = activity.assignments.bunk.flatMap(bunkId => {
-          const bunk = this.bunks.find(b => b.id === bunkId);
-          return bunk ? bunk.camperIds : [];
+      // Build array of available admins
+      const availableAdmins = this.admins.filter(
+        admin => !this.schedule.blocks[blockID].periodsOff.includes(admin.id) && 
+        !admin.daysOff.includes(this.sectionID.id) &&
+        !activities.some(activity => activity.assignments.adminIds.includes(admin.id))
+      );      
+
+
+      // Shuffle admins
+      for (let i = availableAdmins.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [availableAdmins[i], availableAdmins[j]] = [availableAdmins[j], availableAdmins[i]];
+      }
+
+      // Assign admins to activities, avoiding conflicts and balancing distribution
+
+      const unassignedAdmin: AdminAttendeeID[] = [];
+
+      const MAX_CAPACITY_ADMINS = Math.floor(availableAdmins.length/activities.length);
+      for (const admin of availableAdmins) {
+        const activity = activities.find((a) => {
+          // Check max capacity for admins
+          if (a.assignments.adminIds.length >= MAX_CAPACITY_ADMINS) return false;
+
+          // Check for conflicts with campers, staff, or other admins
+          for (const bunk of a.assignments.bunkNums) {
+
+            const bunkId = this.bunks.find(b => b.id === bunk);
+
+            if (!bunkId) continue;
+
+            for (const camper of bunkId.camperIds) {
+              if (doesConflictExist(admin, [camper])) return false;
+            }
+
+            for (const staffer of bunkId.staffIds) {
+              if (doesConflictExist(admin, [staffer])) return false;
+            }
+
+            for (const otherAdmin of a.assignments.adminIds) {
+              if (doesConflictExist(admin, [otherAdmin])) return false;
+            }
+
+          }
+
+          // All checks passed
+          return true;
         });
-        
-        // Check if any campers in this activity are in the admin's nono list
-        const hasConflict = admin.nonoList.some(nonoId => 
-          camperIdsInActivity.includes(nonoId)
-        );
-        
-        return !hasConflict;
-      });
-      
-      // If no compatible activities, skip this admin (they'll remain unassigned)
-      if (compatibleActivities.length === 0) {
-        return;
+
+        if (activity) {
+          activity.assignments.adminIds.push(admin.id);
+        } else {
+          unassignedAdmin.push(admin);
+        }
+      }
+
+
+      const stillUnassigned = new Set<number>(unassignedAdmin.map(a => a.id));
+
+      // One pass to assign the rest of admins to activities that have the lowest number of admins
+
+      for (const admin of stillUnassigned) {
+        activities.sort((a, b) => a.assignments.adminIds.length - b.assignments.adminIds.length);
+
+        const actualAdmin = this.admins.find(a => a.id === admin);
+
+        if (!actualAdmin) continue;
+
+        const activity = activities.find((a) => {
+
+          // Check for conflicts with campers, staff, or other admins
+          for (const bunk of a.assignments.bunkNums) {
+
+            const bunkId = this.bunks.find(b => b.id === bunk);
+
+            if (!bunkId) continue;
+
+            for (const camper of bunkId.camperIds) {
+              if (doesConflictExist(actualAdmin, [camper])) return false;
+            }
+
+            for (const staffer of bunkId.staffIds) {
+              if (doesConflictExist(actualAdmin, [staffer])) return false;
+            }
+
+            for (const otherAdmin of a.assignments.adminIds) {
+              if (doesConflictExist(actualAdmin, [otherAdmin])) return false;
+            }
+
+          }
+
+          // All checks passed
+          return true;
+        });
+
+        if (activity) {
+          activity.assignments.adminIds.push(actualAdmin.id);
+          stillUnassigned.delete(actualAdmin.id);
+        }
+
       }
       
-      // Find the minimum number of admins assigned to any compatible activity
-      const minAdminCount = Math.min(
-        ...compatibleActivities.map(activity => 
-          activityAdminCounts.get(activity.name)!
-        )
-      );
+      if (stillUnassigned.size > 0) console.warn(blockID, "Unassigned admins: ", stillUnassigned);
+
+
+      // Check if there's at least one admin assigned to each activity
+      const missingAdmins = this.schedule.blocks[blockID].activities.some((activity) => activity.assignments.adminIds.length === 0);
+      if (missingAdmins) console.warn(blockID, "No admin assigned to activity");  
       
-      // Find all compatible activities with the minimum number of admins
-      const activitiesWithMinAdmins = compatibleActivities.filter(activity => 
-        activityAdminCounts.get(activity.name) === minAdminCount
-      );
-      
-      // If there's only one activity with minimum admins, assign to it
-      if (activitiesWithMinAdmins.length === 1) {
-        const activity = activitiesWithMinAdmins[0];
-        activity.assignments.adminIds.push(adminId);
-        activityAdminCounts.set(activity.name, activityAdminCounts.get(activity.name)! + 1);
-        return;
-      }
-      
-      // Multiple activities with same minimum admin count - pick randomly
-      const randomActivity = activitiesWithMinAdmins[
-        Math.floor(Math.random() * activitiesWithMinAdmins.length)
-      ];
-      randomActivity.assignments.adminIds.push(adminId);
-      activityAdminCounts.set(randomActivity.name, activityAdminCounts.get(randomActivity.name)! + 1);
-    });
+    }
+
+
+
   }
+
+
 
   assignBunksToActivities(): BunkJamboreeScheduler {
     this.blocksToAssign.forEach(blockId => {
@@ -209,7 +367,7 @@ export class BunkJamboreeScheduler {
     // Create a map to track how many bunks are assigned to each activity
     const activityBunkCounts = new Map<string, number>();
     block.activities.forEach(activity => {
-      activityBunkCounts.set(activity.name, activity.assignments.bunk.length);
+      activityBunkCounts.set(activity.name, activity.assignments.bunkNums.length);
     });
     
     // Shuffle bunks for fairness in assignment order
@@ -228,7 +386,7 @@ export class BunkJamboreeScheduler {
       // If there's only one activity with minimum bunks, assign to it
       if (activitiesWithMinBunks.length === 1) {
         const activity = activitiesWithMinBunks[0];
-        activity.assignments.bunk.push(bunkId);
+        activity.assignments.bunkNums.push(bunkId);
         activityBunkCounts.set(activity.name, activityBunkCounts.get(activity.name)! + 1);
         return;
       }
@@ -250,7 +408,7 @@ export class BunkJamboreeScheduler {
       // If there's only one activity with max preference, assign to it
       if (activitiesWithMaxPreference.length === 1) {
         const activity = activitiesWithMaxPreference[0];
-        activity.assignments.bunk.push(bunkId);
+        activity.assignments.bunkNums.push(bunkId);
         activityBunkCounts.set(activity.name, activityBunkCounts.get(activity.name)! + 1);
         return;
       }
@@ -259,87 +417,9 @@ export class BunkJamboreeScheduler {
       const randomActivity = activitiesWithMaxPreference[
         Math.floor(Math.random() * activitiesWithMaxPreference.length)
       ];
-      randomActivity.assignments.bunk.push(bunkId);
+      randomActivity.assignments.bunkNums.push(bunkId);
       activityBunkCounts.set(randomActivity.name, activityBunkCounts.get(randomActivity.name)! + 1);
     });
   }
 
-  /**
-   * Gets all "yesyes" relationships between admins and staff members.
-   * Returns a map where each key is an attendee ID and the value is a set of related attendee IDs
-   * that they have positive relationships with, along with role information.
-   */
-  getYesYesRelationships(): Map<number, { id: number; role: 'STAFF' | 'ADMIN' }[]> {
-    const relationships = new Map<number, { id: number; role: 'STAFF' | 'ADMIN' }[]>();
-    
-    // Process admin relationships
-    this.admins.forEach(admin => {
-      if (admin.yesyesList && admin.yesyesList.length > 0) {
-        // Initialize the array for this admin if it doesn't exist
-        if (!relationships.has(admin.id)) {
-          relationships.set(admin.id, []);
-        }
-        
-        // Add relationships to other admins
-        admin.yesyesList.forEach(relatedId => {
-          // Check if the related ID is an admin
-          if (this.admins.some(a => a.id === relatedId)) {
-            relationships.get(admin.id)!.push({ id: relatedId, role: 'ADMIN' });
-            
-            // Add bidirectional relationship
-            if (!relationships.has(relatedId)) {
-              relationships.set(relatedId, []);
-            }
-            relationships.get(relatedId)!.push({ id: admin.id, role: 'ADMIN' });
-          }
-          // Check if the related ID is a staff member
-          else if (this.staff.some(s => s.id === relatedId)) {
-            relationships.get(admin.id)!.push({ id: relatedId, role: 'STAFF' });
-            
-            // Add bidirectional relationship
-            if (!relationships.has(relatedId)) {
-              relationships.set(relatedId, []);
-            }
-            relationships.get(relatedId)!.push({ id: admin.id, role: 'ADMIN' });
-          }
-        });
-      }
-    });
-    
-    // Process staff relationships
-    this.staff.forEach(staff => {
-      if (staff.yesyesList && staff.yesyesList.length > 0) {
-        // Initialize the array for this staff member if it doesn't exist
-        if (!relationships.has(staff.id)) {
-          relationships.set(staff.id, []);
-        }
-        
-        // Add relationships to other staff members
-        staff.yesyesList.forEach(relatedId => {
-          // Check if the related ID is a staff member
-          if (this.staff.some(s => s.id === relatedId)) {
-            relationships.get(staff.id)!.push({ id: relatedId, role: 'STAFF' });
-            
-            // Add bidirectional relationship
-            if (!relationships.has(relatedId)) {
-              relationships.set(relatedId, []);
-            }
-            relationships.get(relatedId)!.push({ id: staff.id, role: 'STAFF' });
-          }
-          // Check if the related ID is an admin
-          else if (this.admins.some(a => a.id === relatedId)) {
-            relationships.get(staff.id)!.push({ id: relatedId, role: 'ADMIN' });
-            
-            // Add bidirectional relationship
-            if (!relationships.has(relatedId)) {
-              relationships.set(relatedId, []);
-            }
-            relationships.get(relatedId)!.push({ id: staff.id, role: 'STAFF' });
-          }
-        });
-      }
-    });
-    
-    return relationships;
-  }  
 }
