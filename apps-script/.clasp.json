@@ -1,0 +1,10 @@
+{
+  "scriptId": "1ThDMAsWg0rFYk_Qolo3T_h6e0h7ynTGyf9dm95UJCxTJuNso0fRiioJM",
+  "rootDir": "dist",
+  "scriptExtensions": [".js", ".gs", ".ts"],
+  "htmlExtensions": [".html"],
+  "jsonExtensions": [".json"],
+  "filePushOrder": [],
+  "skipSubdirectories": false,
+  "projectId": "camp-starfish"
+}

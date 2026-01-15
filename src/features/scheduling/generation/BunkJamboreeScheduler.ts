@@ -5,6 +5,7 @@ export class BunkJamboreeScheduler {
   schedule: SectionSchedule<"BUNK-JAMBO"> = { blocks: {}, alternatePeriodsOff: {} };
 
   bunks: BunkID[] = [];
+  bunks: BunkID[] = [];
   admins: AdminAttendeeID[] = [];
   staff: StaffAttendeeID[] = [];
   campers: CamperAttendeeID[] = [];
