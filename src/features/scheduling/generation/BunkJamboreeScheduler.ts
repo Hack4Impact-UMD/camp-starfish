@@ -344,82 +344,46 @@ export class BunkJamboreeScheduler {
 
 
 
-  assignBunksToActivities(): BunkJamboreeScheduler {
-    this.blocksToAssign.forEach(blockId => {
-      const block = this.schedule.blocks[blockId];
-      const blockPreferences = this.preferences[blockId];
-      
-      if (block && blockPreferences) {
-        this.assignBunksToActivitiesHelper(block, blockPreferences);
-      }
-    });
+  assignBunksToActivities() {
     
-    return this;
-  }
+    // Go through each activity in block
+    // For each activity, find a bunk that has it as first priority. Assign that bunk to the activity if it's available
+    // Add bunk to assigned bunks set
+    for (const blockID of this.blocksToAssign) {
+      if (!this.schedule.blocks[blockID]) throw new Error("Invalid block");
 
-  private assignBunksToActivitiesHelper(
-    block: Block<"BUNK-JAMBO">, 
-    preferences: BlockPreferences
-  ): void {
-    // Get all available bunk IDs
-    const availableBunks = this.bunks.map(bunk => bunk.id);
-    
-    // Create a map to track how many bunks are assigned to each activity
-    const activityBunkCounts = new Map<string, number>();
-    block.activities.forEach(activity => {
-      activityBunkCounts.set(activity.name, activity.assignments.bunkNums.length);
-    });
-    
-    // Shuffle bunks for fairness in assignment order
-    const shuffledBunks = [...availableBunks].sort(() => Math.random() - 0.5);
-    
-    // Assign each bunk to exactly one activity
-    shuffledBunks.forEach(bunkId => {
-      // Find the minimum number of bunks assigned to any activity
-      const minBunkCount = Math.min(...Array.from(activityBunkCounts.values()));
+      const activities = this.schedule.blocks[blockID].activities;
+      if (!activities || activities.length === 0) throw new Error("Block has no activities");
       
-      // Find all activities with the minimum number of bunks
-      const activitiesWithMinBunks = block.activities.filter(activity => 
-        activityBunkCounts.get(activity.name) === minBunkCount
-      );
-      
-      // If there's only one activity with minimum bunks, assign to it
-      if (activitiesWithMinBunks.length === 1) {
-        const activity = activitiesWithMinBunks[0];
-        activity.assignments.bunkNums.push(bunkId);
-        activityBunkCounts.set(activity.name, activityBunkCounts.get(activity.name)! + 1);
-        return;
-      }
-      
-      // Multiple activities with minimum bunks - use preferences to break ties
-      const activityPreferences = activitiesWithMinBunks.map(activity => ({
-        activity,
-        preference: preferences[bunkId]?.[activity.name] || 0
-      }));
-      
-      // Find the maximum preference score
-      const maxPreference = Math.max(...activityPreferences.map(ap => ap.preference));
-      
-      // Filter to activities with the maximum preference
-      const activitiesWithMaxPreference = activityPreferences
-        .filter(ap => ap.preference === maxPreference)
-        .map(ap => ap.activity);
-      
-      // If there's only one activity with max preference, assign to it
-      if (activitiesWithMaxPreference.length === 1) {
-        const activity = activitiesWithMaxPreference[0];
-        activity.assignments.bunkNums.push(bunkId);
-        activityBunkCounts.set(activity.name, activityBunkCounts.get(activity.name)! + 1);
-        return;
-      }
-      
-      // Multiple activities with same max preference - pick randomly
-      const randomActivity = activitiesWithMaxPreference[
-        Math.floor(Math.random() * activitiesWithMaxPreference.length)
-      ];
-      randomActivity.assignments.bunkNums.push(bunkId);
-      activityBunkCounts.set(randomActivity.name, activityBunkCounts.get(randomActivity.name)! + 1);
-    });
-  }
+      const unassignedBunks = new Set<number>(this.bunks.map(b => b.id));
 
+      const MAX_CAPACITY_BUNKS = Math.floor(this.bunks.length/activities.length);
+
+      for (let i = 1; i <= activities.length; i++) {
+
+        for (const activity of activities) {
+
+
+          // Find bunks that have the activity as ith priority
+          let bunkPrefs = this.bunks.filter(b => this.preferences[blockID][b.id][activity.name] == i);
+
+
+          while (activity.assignments.bunkNums.length <= MAX_CAPACITY_BUNKS && bunkPrefs.length > 0) {
+            const idx = Math.floor(Math.random() * bunkPrefs.length);
+            const randomBunk = bunkPrefs[idx];
+            bunkPrefs.splice(idx, 1);
+
+            if (!(unassignedBunks.has(randomBunk.id))) continue;
+            activity.assignments.bunkNums.push(randomBunk.id);
+            unassignedBunks.delete(randomBunk.id);
+
+          }
+        }
+      }
+
+      if (unassignedBunks.size > 0){
+        console.warn(blockID, "Unassigned bunks: ", unassignedBunks);
+      }
+    }
+  }
 }

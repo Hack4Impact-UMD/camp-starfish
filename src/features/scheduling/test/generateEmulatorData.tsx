@@ -658,8 +658,9 @@ export function generateBunkJamboreeSchedule(numBlocks: number, campers: CamperA
   .withCampers(campers)
   .withSectionID(section as SchedulingSectionID)
   scheduler.assignPeriodsOff()
-  scheduler.assignAdmin()
-  //scheduler.assignBunksToActivities()
+  scheduler.assignBunksToActivities()
+    scheduler.assignAdmin()
+
 
 
   return scheduler;
