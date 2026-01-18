@@ -1,12 +1,30 @@
 import { Moment } from "moment";
 
 interface Session {
-
+  id: string;
+  name: string;
+  startDate: Moment;
+  endDate: Moment;
+  albumId?: string;
+  driveFolderId: string;
 }
 
-interface Section {
+type SectionType = "BUNDLE" | "BUNK-JAMBO" | "NON-BUNK-JAMBO" | "COMMON";
 
+interface BaseSection {
+  id: string;
+  sessionId: string;
+  type: SectionType;
+  startDate: Moment;
+  endDate: Moment;
 }
+
+interface CommonSection extends BaseSection { type: "COMMON" }
+interface SchedulingSection extends BaseSection {
+  isSchedulePublished: boolean;
+  isScheduleOutdated: boolean;
+}
+type Section = CommonSection | SchedulingSection;
 
 interface BaseAttendee {
   attendeeId: string;
