@@ -9,7 +9,8 @@ interface Session {
   driveFolderId: string;
 }
 
-type SectionType = "BUNDLE" | "BUNK-JAMBO" | "NON-BUNK-JAMBO" | "COMMON";
+export type SchedulingSectionType = "BUNDLE" | "BUNK-JAMBO" | "NON-BUNK-JAMBO";
+export type SectionType = SchedulingSectionType | "COMMON";
 
 interface BaseSection {
   id: string;
@@ -21,6 +22,7 @@ interface BaseSection {
 
 interface CommonSection extends BaseSection { type: "COMMON" }
 interface SchedulingSection extends BaseSection {
+  type: SchedulingSectionType;
   isSchedulePublished: boolean;
   isScheduleOutdated: boolean;
 }
