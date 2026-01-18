@@ -45,6 +45,7 @@ export interface NonBunkJamboreeActivityWithAssignments {
 export type ActivityWithAssignments = BundleActivityWithAssignments | BunkJamboreeActivityWithAssignments | NonBunkJamboreeActivityWithAssignments;
 
 interface BaseActivity {
+  id: string;
   name: string;
   description: string;
 }
@@ -71,3 +72,13 @@ export interface BunkActivityAssignments {
   adminIds: number[];
 }
 export type ActivityAssignments = IndividualActivityAssignments | BunkActivityAssignments;
+
+export interface SectionActivityPreferences {
+  sessionId: string;
+  sectionId: string;
+  blocks: { [blockId: string]: BlockActivityPreferences }
+}
+
+export interface BlockActivityPreferences {
+  [camperId: number]: { [activityId: string]: number; };
+}
