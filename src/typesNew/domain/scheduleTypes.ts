@@ -7,6 +7,19 @@ interface BaseSectionSchedule {
   blocks: { [blockId: string]: Block };
   alternatePeriodsOff: { [periodId: string]: number[] };
 }
+interface BundleSectionSchedule extends BaseSectionSchedule {
+  type: "BUNDLE",
+  block: { [blockId: string]: BundleBlock };
+}
+interface BunkJamboreeSectionSchedule extends BaseSectionSchedule {
+  type: "BUNK-JAMBO",
+  block: { [blockId: string]: BunkJamboreeBlock };
+}
+interface NonBunkJamboreeSectionSchedule extends BaseSectionSchedule {
+  type: "NON-BUNK-JAMBO",
+  block: { [blockId: string]: NonBunkJamboreeBlock };
+}
+type SectionSchedule = BundleSectionSchedule | BunkJamboreeSectionSchedule | NonBunkJamboreeSectionSchedule;
 
 interface BaseBlock {
   activities: ActivityWithAssignments[];
