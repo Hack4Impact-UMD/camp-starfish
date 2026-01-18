@@ -1,6 +1,6 @@
 import { Moment } from "moment";
 
-interface BaseUser {
+interface User {
   id: number;
   uid: string;
   email: string;
@@ -12,26 +12,38 @@ interface BaseUser {
   role: Role;
   gender: Gender;
   dateOfBirth: Moment;
-
 }
 
 type Role = "CAMPER" | "PARENT" | "STAFF" | "PHOTOGRAPHER" | "ADMIN";
 type Gender = "Male" | "Female" | "Other";
+
 type PhotoPermissions = "PUBLIC" | "PRIVATE";
-
-
-interface Camper extends BaseUser {
+interface Camper extends User {
   role: "CAMPER";
   photoPermissions: PhotoPermissions;
   parentIds: number[];
   nonoListIds: number[];
 }
 
-interface Parent extends BaseUser {
+interface Parent extends User {
   role: "PARENT";
   camperIds: number[];
 }
 
-interface Photographer extends BaseUser {
+interface Photographer extends User {
   role: "PHOTOGRAPHER";
+}
+
+interface Counselor extends User {
+  role: "STAFF" | "ADMIN";
+  nonoListIds: number[];
+  yesyesListIds: number[];
+}
+
+interface Staff extends Counselor {
+  role: "STAFF"
+}
+
+interface Admin extends Counselor {
+  role: "ADMIN"
 }
