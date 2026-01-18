@@ -76,3 +76,17 @@ export interface NightSchedule {
     [bunkNum: number]: Record<NightSchedulePosition, number[]>
   }
 }
+
+export interface Freeplay {
+  sessionId: string;
+  date: Moment;
+  posts: { [postId: string]: number[]; };
+  buddies: Record<number, number[]>;
+}
+
+export interface Post {
+  id: string;
+  name: string;
+  description?: string;
+  requiresAdminSupervision: boolean;
+}
