@@ -7,67 +7,67 @@ interface BaseSectionSchedule {
   blocks: { [blockId: string]: Block };
   alternatePeriodsOff: { [periodId: string]: number[] };
 }
-interface BundleSectionSchedule extends BaseSectionSchedule {
+export interface BundleSectionSchedule extends BaseSectionSchedule {
   type: "BUNDLE",
   block: { [blockId: string]: BundleBlock };
 }
-interface BunkJamboreeSectionSchedule extends BaseSectionSchedule {
+export interface BunkJamboreeSectionSchedule extends BaseSectionSchedule {
   type: "BUNK-JAMBO",
   block: { [blockId: string]: BunkJamboreeBlock };
 }
-interface NonBunkJamboreeSectionSchedule extends BaseSectionSchedule {
+export interface NonBunkJamboreeSectionSchedule extends BaseSectionSchedule {
   type: "NON-BUNK-JAMBO",
   block: { [blockId: string]: NonBunkJamboreeBlock };
 }
-type SectionSchedule = BundleSectionSchedule | BunkJamboreeSectionSchedule | NonBunkJamboreeSectionSchedule;
+export type SectionSchedule = BundleSectionSchedule | BunkJamboreeSectionSchedule | NonBunkJamboreeSectionSchedule;
 
 interface BaseBlock {
   activities: ActivityWithAssignments[];
   periodsOff: number[];
 }
-interface BundleBlock extends BaseBlock { activities: BundleActivityWithAssignments[]; }
-interface BunkJamboreeBlock extends BaseBlock { activities: BunkJamboreeActivityWithAssignments[]; }
-interface NonBunkJamboreeBlock extends BaseBlock { activities: NonBunkJamboreeActivityWithAssignments[]; }
-type Block = BundleBlock | BunkJamboreeBlock | NonBunkJamboreeBlock;
+export interface BundleBlock extends BaseBlock { activities: BundleActivityWithAssignments[]; }
+export interface BunkJamboreeBlock extends BaseBlock { activities: BunkJamboreeActivityWithAssignments[]; }
+export interface NonBunkJamboreeBlock extends BaseBlock { activities: NonBunkJamboreeActivityWithAssignments[]; }
+export type Block = BundleBlock | BunkJamboreeBlock | NonBunkJamboreeBlock;
 
-interface BundleActivityWithAssignments {
+export interface BundleActivityWithAssignments {
   activity: BundleActivity;
   aassignments: IndividualActivityAssignments;
 }
-interface BunkJamboreeActivityWithAssignments {
+export interface BunkJamboreeActivityWithAssignments {
   activity: JamboreeActivity;
   assignments: BunkActivityAssignments;
 }
-interface NonBunkJamboreeActivityWithAssignments {
+export interface NonBunkJamboreeActivityWithAssignments {
   activity: JamboreeActivity;
   assignments: IndividualActivityAssignments;
 }
-type ActivityWithAssignments = BundleActivityWithAssignments | BunkJamboreeActivityWithAssignments | NonBunkJamboreeActivityWithAssignments;
+export type ActivityWithAssignments = BundleActivityWithAssignments | BunkJamboreeActivityWithAssignments | NonBunkJamboreeActivityWithAssignments;
 
 interface BaseActivity {
   name: string;
   description: string;
 }
-type JamboreeActivity = BaseActivity;
-interface BundleActivity extends BaseActivity {
+export type JamboreeActivity = BaseActivity;
+export interface BundleActivity extends BaseActivity {
   programAreaId: string;
   ageGroup: AgeGroup;
 }
-interface ProgramArea {
+export interface ProgramArea {
   id: string;
   name: string;
   description?: string;
   isDeleted: boolean;
 }
-type Activity = BundleActivity | JamboreeActivity;
+export type Activity = BundleActivity | JamboreeActivity;
 
-interface IndividualActivityAssignments {
+export interface IndividualActivityAssignments {
   camperIds: number[];
   staffIds: number[];
   adminIds: number[];
 }
-interface BunkActivityAssignments {
+export interface BunkActivityAssignments {
   bunkNums: number[];
   adminIds: number[];
 }
-type ActivityAssignments = IndividualActivityAssignments | BunkActivityAssignments;
+export type ActivityAssignments = IndividualActivityAssignments | BunkActivityAssignments;

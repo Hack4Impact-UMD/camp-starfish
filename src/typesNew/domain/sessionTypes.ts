@@ -1,7 +1,7 @@
 import { Moment } from "moment";
 import { Gender, Role } from "./userTypes";
 
-interface Session {
+export interface Session {
   id: string;
   name: string;
   startDate: Moment;
@@ -20,14 +20,13 @@ interface BaseSection {
   startDate: Moment;
   endDate: Moment;
 }
-
-interface CommonSection extends BaseSection { type: "COMMON" }
-interface SchedulingSection extends BaseSection {
+export interface CommonSection extends BaseSection { type: "COMMON" }
+export interface SchedulingSection extends BaseSection {
   type: SchedulingSectionType;
   isSchedulePublished: boolean;
   isScheduleOutdated: boolean;
 }
-type Section = CommonSection | SchedulingSection;
+export type Section = CommonSection | SchedulingSection;
 
 interface BaseAttendee {
   attendeeId: string;
@@ -45,24 +44,24 @@ interface BaseAttendee {
 }
 
 export type AgeGroup = "OCP" | "NAV";
-interface CamperAttendee extends BaseAttendee {
+export interface CamperAttendee extends BaseAttendee {
   ageGroup: AgeGroup;
   level: number;
   bunk: number;
   isOptedOutFromSwim: boolean;
 }
-interface StaffAttendee extends BaseAttendee {
+export interface StaffAttendee extends BaseAttendee {
   programCounselor?: string;
   bunk: number;
   leadBunkCounselor: boolean;
   daysOff: Moment[];
 }
-interface AdminAttendee extends BaseAttendee {
+export interface AdminAttendee extends BaseAttendee {
   daysOff: Moment[]; 
 }
 export type Attendee = CamperAttendee | StaffAttendee | AdminAttendee;
 
-interface Bunk {
+export interface Bunk {
   bunkNum: number;
   leadCounselorId: number;
   employeeIds: number[];
@@ -70,7 +69,7 @@ interface Bunk {
 }
 
 export type NightSchedulePosition = "COUNSELOR-ON-DUTY" | "NIGHT-BUNK-DUTY" | "ROVER";
-interface NightSchedule {
+export interface NightSchedule {
   sessionId: string;
   date: Moment;
   bunks: {
