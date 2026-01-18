@@ -1,6 +1,6 @@
 import { Moment } from "moment";
 
-interface User {
+interface BaseUser {
   id: number;
   uid?: string;
   email: string;
@@ -18,23 +18,23 @@ export type Role = "CAMPER" | "PARENT" | "STAFF" | "PHOTOGRAPHER" | "ADMIN";
 export type Gender = "Male" | "Female" | "Other";
 
 export type PhotoPermissions = "PUBLIC" | "PRIVATE";
-export interface Camper extends User {
+export interface Camper extends BaseUser {
   role: "CAMPER";
   photoPermissions: PhotoPermissions;
   parentIds: number[];
   nonoListIds: number[];
 }
 
-export interface Parent extends User {
+export interface Parent extends BaseUser {
   role: "PARENT";
   camperIds: number[];
 }
 
-export interface Photographer extends User {
+export interface Photographer extends BaseUser {
   role: "PHOTOGRAPHER";
 }
 
-export interface Counselor extends User {
+export interface Counselor extends BaseUser {
   role: "STAFF" | "ADMIN";
   nonoListIds: number[];
   yesyesListIds: number[];
@@ -47,3 +47,5 @@ export interface Staff extends Counselor {
 export interface Admin extends Counselor {
   role: "ADMIN"
 }
+
+export type User = Camper | Parent | Photographer | Staff | Admin;
