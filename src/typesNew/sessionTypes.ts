@@ -69,6 +69,11 @@ interface Bunk {
   camperIds: number[];
 }
 
+export type NightSchedulePosition = "COUNSELOR-ON-DUTY" | "NIGHT-BUNK-DUTY" | "ROVER";
 interface NightSchedule {
-
+  sessionId: string;
+  date: Moment;
+  bunks: {
+    [bunkNum: number]: Record<NightSchedulePosition, number[]>
+  }
 }
