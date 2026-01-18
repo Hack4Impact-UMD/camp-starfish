@@ -4,6 +4,8 @@
 
 Welcome to the official repository for the **Camp Starfish Photo & Scheduling App**, developed by **Hack4Impact-UMD**! 🎉
 
+This project is a web application designed to streamline photo management and scheduling operations for Camp Starfish. It provides an intuitive interface for managing camp activities, photos, and administrative tasks.
+
 This repository contains everything you need code, documentation, and setup guides to effectively contribute to the Camp Starfish app. Follow the setup guide below to get started quickly. Feel free to reach out to the team if you have any questions!
 
 ---
@@ -14,7 +16,22 @@ This repository contains everything you need code, documentation, and setup guid
 - [Project Structure](#project-structure)
 - [Team Contacts](#team-contacts)
 
----
+## 🛠️ Tech Stack
+### **Frontend**
+- **Next.js**
+- **React**
+- **TypeScript**
+- **Tailwind CSS**
+- **Mantine UI**
+- **TanStack**
+  
+### **Backend**
+- Firebase 11.10
+     - Firestore (NoSQL database)
+     - Authentication
+     - Cloud Storage
+     - Cloud Functions
+- Google Apps Script
 
 ## ⚙️ Environment Setup
 
@@ -74,8 +91,6 @@ npm run build
 
 ⚠️ **Use the Firebase Emulators for local testing only.**
 
----
-
 ## 🏗️ System Design
 
 Here's how the project directories are structured:
@@ -83,18 +98,32 @@ Here's how the project directories are structured:
 ```
 camp-starfish/
 │── .next/
-│── functions/
+├── functions/              # Firebase Cloud Functions
+│   ├── src/                # Function source code
+│   ├── package.json        # Functions dependencies
+│   └── tsconfig.json       # TypeScript config for functions
+├── apps-script/            # Google Apps Script code
 │── node_modules/
 │── public/
 │── src/
-│   ├── app/                # Next.js App Router
+│   ├── app/                # Next.js App Router pages
+│   │   ├── layout.tsx      # Root layout
+│   │   ├── page.tsx        # Home page
+│   │   └── [routes]/       # Dynamic routes
 │   ├── assets/             # Images and static files
 │   ├── auth/               # Authentication modules
 │   ├── components/         # UI components
+│   │   ├── common/         # Shared components
+│   │   └── [feature]/      # Feature-specific components
 │   ├── config/             # App configurations
 │   ├── data/               # Data operations
 |   ├── features/           # Individual app features
+│   ├── hooks/              # Custom React hooks
+│   ├── styles/             # Global styles and themes
 │   ├── types/              # Type definitions
+│   └── utils/              # Utility functions and helpers
+├── test/                   # Test files and test data
+│   └── testData/           # Firebase emulator test data
 │── .env
 │── .firebaserc
 │── .gitignore
@@ -106,11 +135,32 @@ camp-starfish/
 │── package-lock.json
 │── package.json
 │── postcss.config.mjs
-│── README.md
 │── storage.rules
 │── tailwind.config.ts
 │── tsconfig.json
+└── README.md               # This file
 ```
+
+## 🔀 Pull Request Guidelines
+
+Before submitting a PR, please ensure it meets the following criteria:
+### **PR Checklist**
+- [ ] Code follows project style guidelines
+- [ ] All tests pass locally
+- [ ] Branch is up to date with `main`
+- [ ] Commit messages are clear and descriptive
+- [ ] No console.logs or debugging code left behind
+- [ ] Proper comments where necessary
+- [ ] TypeScript types are properly defined
+- [ ] Tested in Firebase Emulator environment
+- [ ] Corresponding issue is linked to PR
+
+### **PR Instructions**
+- Create a pull request
+- Request and assign tech leads as reviewers
+- Review and address comments by making requested changes
+- Once approved, tech leads will merge your PR
+- Delete your feature branch after merge
 
 ---
 
@@ -121,6 +171,7 @@ camp-starfish/
 | **Nitin Kanchinadam**| Tech Lead           | nitin.kanchinadam@gmail.com      |
 | **Esha Vigneswaran** | Tech Lead           | eshav@terpmail.umd.edu           |
 
+## 👥 Meet the Team
 
 ---
 
