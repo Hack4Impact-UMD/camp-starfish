@@ -14,8 +14,8 @@ interface User {
   dateOfBirth: Moment;
 }
 
-type Role = "CAMPER" | "PARENT" | "STAFF" | "PHOTOGRAPHER" | "ADMIN";
-type Gender = "Male" | "Female" | "Other";
+export type Role = "CAMPER" | "PARENT" | "STAFF" | "PHOTOGRAPHER" | "ADMIN";
+export type Gender = "Male" | "Female" | "Other";
 
 type PhotoPermissions = "PUBLIC" | "PRIVATE";
 interface Camper extends User {

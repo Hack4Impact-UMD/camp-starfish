@@ -1,4 +1,5 @@
 import { Moment } from "moment";
+import { Gender, Role } from "./userTypes";
 
 interface Session {
   id: string;
@@ -31,17 +32,35 @@ type Section = CommonSection | SchedulingSection;
 interface BaseAttendee {
   attendeeId: string;
   sessionId: string;
+  snapshot: {
+    name: {
+      firstName: string;
+      middleName?: string;
+      lastName: string;
+    },
+    gender: Gender;
+    age: number;
+  };
+  role: Role;
 }
 
-interface Attendee extends BaseAttendee {
-
-  ageAtSessionStart: number;
+export type AgeGroup = "OCP" | "NAV";
+interface CamperAttendee extends BaseAttendee {
   ageGroup: AgeGroup;
   level: number;
   bunk: number;
+  isOptedOutFromSwim: boolean;
 }
-
-type AgeGroup = "OCP" | "NAV";
+interface StaffAttendee extends BaseAttendee {
+  programCounselor?: string;
+  bunk: number;
+  leadBunkCounselor: boolean;
+  daysOff: Moment[];
+}
+interface AdminAttendee extends BaseAttendee {
+  daysOff: Moment[]; 
+}
+export type Attendee = CamperAttendee | StaffAttendee | AdminAttendee;
 
 interface Bunk {
   bunkNum: number;
