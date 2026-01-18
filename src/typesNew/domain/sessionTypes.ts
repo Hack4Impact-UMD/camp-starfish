@@ -57,7 +57,7 @@ export interface StaffAttendee extends BaseAttendee {
   daysOff: Moment[];
 }
 export interface AdminAttendee extends BaseAttendee {
-  daysOff: Moment[]; 
+  daysOff: Moment[];
 }
 export type Attendee = CamperAttendee | StaffAttendee | AdminAttendee;
 
