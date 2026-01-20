@@ -1,9 +1,5 @@
-<<<<<<< HEAD:src/features/scheduling/FreeplayScheduler.ts
 import { Staff } from "@/types/personTypes";
-import { StaffAttendeeID, AdminAttendeeID, CamperAttendeeID, Freeplay, PostID } from "../../types/sessionTypes";
-=======
-import { StaffAttendeeID, AdminAttendeeID, CamperAttendeeID, Freeplay } from "../../../types/sessionTypes";
->>>>>>> main:src/features/scheduling/generation/FreeplayScheduler.ts
+import { StaffAttendeeID, AdminAttendeeID, CamperAttendeeID, Freeplay, PostID } from "@/types/sessionTypes";
 
 export class FreeplayScheduler {
   /* The current freeplay schedule */
@@ -40,7 +36,6 @@ export class FreeplayScheduler {
   getPostByID = (id: string) => this.posts.find(p => p.name === id);
 
   // withOtherFreeplays should build the previousFreeplayBuddies object
-<<<<<<< HEAD:src/features/scheduling/FreeplayScheduler.ts
   withOtherFreeplays(otherFreeplays: Freeplay[]): FreeplayScheduler {
     for (const freeplay of otherFreeplays) {
       for (const buddieIDStr in freeplay.buddies) {
@@ -64,10 +59,6 @@ export class FreeplayScheduler {
 
     return this;
   }
-=======
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  withOtherFreeplays(otherFreeplays: Freeplay[]): FreeplayScheduler { return this; }
->>>>>>> main:src/features/scheduling/generation/FreeplayScheduler.ts
 
   /* Assigns ADMINs to all posts that require ADMINs and either STAFF or ADMINs to all other posts */
   assignPosts() {
