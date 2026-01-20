@@ -1,15 +1,16 @@
-import type { Metadata } from "next";
-import "./globals.css";
-import Navbar from "../components/Navbar"; // Adjust the path as needed
-import AuthProvider from "@/auth/AuthProvider";
-import Footer from "../components/Footer";
 import "@mantine/core/styles.css";
-import { MantineProvider } from "@mantine/core";
+import "@mantine/notifications/styles.css"
+import "@mantine/dates/styles.css";
+import "./globals.css";
+
+import type { Metadata } from "next";
+import Navbar from "../components/Navbar"; // Adjust the path as needed
+import Footer from "../components/Footer";
 import localFont from "next/font/local";
-import { theme } from "../styles/theme";
 import { NextFontWithVariable } from "next/dist/compiled/@next/font";
 import { CampStarfishFont, campStarfishFonts } from "@/styles/fonts";
- 
+import Providers from "@/components/Providers";
+
 const lato = localFont({
   src: [
     {
@@ -63,7 +64,7 @@ const lato = localFont({
       style: "italic",
     },
   ],
-  variable: '--font-Lato',
+  variable: "--font-Lato",
 });
 
 const newSpirit = localFont({
@@ -130,9 +131,9 @@ const besteam = localFont({
 });
 
 const fontObjs: Record<CampStarfishFont, NextFontWithVariable> = {
-  'Lato': lato,
-  'NewSpirit': newSpirit,
-  'Besteam': besteam
+  Lato: lato,
+  NewSpirit: newSpirit,
+  Besteam: besteam,
 };
 
 export const metadata: Metadata = {
@@ -148,21 +149,21 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${campStarfishFonts.map((font) => fontObjs[font].variable).join(' ')} antialiased w-full min-h-screen flex flex-col`}
+        className={`${campStarfishFonts
+          .map((font) => fontObjs[font].variable)
+          .join(" ")} antialiased w-full min-h-screen flex flex-col`}
       >
-        <MantineProvider theme={theme}>
-          <AuthProvider>
-            <>
-              <div className="w-full">
-                <Navbar />
-              </div>
-              <div className="flex-grow w-full">{children}</div>
-              <div className="w-full">
-                <Footer />
-              </div>
-            </>
-          </AuthProvider>
-        </MantineProvider>
+        <Providers>
+          <>
+            <div className="w-full">
+              <Navbar />
+            </div>
+            <div className="flex-grow w-full">{children}</div>
+            <div className="w-full">
+              <Footer />
+            </div>
+          </>
+        </Providers>
       </body>
     </html>
   );
