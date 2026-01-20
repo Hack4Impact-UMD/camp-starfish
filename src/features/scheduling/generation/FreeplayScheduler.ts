@@ -218,9 +218,14 @@ export class FreeplayScheduler {
 
     let assigned = false;
 
+
     for (const staffer of allAssignedStaffers) {
 
-      if (doesConflictExist(staffer, [camper.id])) {
+
+      const prevBuddies = this.otherFreeplayBuddies[staffer.id] || []
+      const hasConflict = prevBuddies.includes(camper.id) || doesConflictExist(staffer, [camper.id]);
+
+      if (hasConflict) {
         continue;
       }
       const alreadyAssigned = this.schedule.buddies[staffer.id] || [];
