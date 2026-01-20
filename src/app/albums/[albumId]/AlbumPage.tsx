@@ -6,7 +6,7 @@ import ImageCard from "@/components/ImageCard";
 import CardGallery from "@/components/CardGallery";
 import { ImageID } from "@/types/albumTypes";
 import FileUploadModal from "@/components/FileUploadModal";
-import { uploadFiles } from "@/data/storage/fileOperations";
+import { uploadFiles } from "@/data/storage/storageClientOperations";
 import { v4 as uuidv4 } from "uuid";
 import Image from "next/image";
 
