@@ -1,4 +1,8 @@
 import { StaffAttendeeID, AdminAttendeeID, NightShiftID, SessionID, SectionID, NightShift } from "@/types/sessionTypes";
+import { da } from "@faker-js/faker/.";
+import { w } from "@faker-js/faker/dist/airline-CLphikKp";
+import { em } from "@mantine/core";
+import { max } from "moment";
 import { Moment } from "moment";
 import moment from "moment";
 
@@ -18,217 +22,151 @@ export class SessionScheduler {
 
   withNightShifts(nightShifts: NightShiftID[]): SessionScheduler { this.nightShifts = nightShifts; return this; }
 
-
-
-  private shuffleArray<T>(arr: T[]): T[] {
-    return arr
-      .map(value => ({ value, sort: Math.random() }))
-      .sort((a, b) => a.sort - b.sort)
-      .map(({ value }) => value);
+  private shuffleArray<T>(arr: T[]): T[] { 
+    return arr .map(value => ({ value, sort: Math.random() })) 
+    .sort((a, b) => a.sort - b.sort) 
+    .map(({ value }) => value); 
   }
-
-  private getDateRange(startDate: Moment, endDate: Moment) {
-    let fromDate = startDate
-    let toDate = endDate
-    let diff = toDate.diff(fromDate, "day")
-    let range = []
-    for (let i = 0; i < diff; i++) {
-      range.push(moment(startDate).add(i, "day"))
-    }
-    return range
-  }
-
-  private isDateEligible(date: Moment, eligibleDates: Set<Moment>): boolean {
-    for (const eligibleDate of eligibleDates) {
-      if (eligibleDate.isSame(date, 'day')) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  //Convert moment string to iso string
-  private toISODate(date: Moment): string {
+  private toISO(date: Moment): string {
     return date.format("YYYY-MM-DD");
   }
 
-  // Helper function to check if a date is a Jamboree day
-  private isJamboreeDay(date: Moment, sections: SectionID[]): boolean {
-    const dateStr = this.toISODate(date);
+  private getDateStringsInRange(start: Moment, end: Moment): string[] {
+    const dates: string[] = [];
+    const curr = start.clone();
+    while (curr.isSameOrBefore(end)) {
+      dates.push(this.toISO(curr));
+      curr.add(1, "day");
+    }
+    return dates;
+  }
+
+  private isJamboreeISO(dateISO: string, sections: SectionID[]): boolean {
+    const date = moment(dateISO);
     return sections.some(section => {
-      if (!('type' in section)) {
-        return false;
-      }
-      const sectionStart = moment(section.startDate);
-      const sectionEnd = moment(section.endDate).subtract(1, 'day');
+      if (!('type' in section)) return false;
+      const s = moment(section.startDate);
+      const e = moment(section.endDate).subtract(1, "day");
       return (
-        (section.type === 'BUNK-JAMBO' || section.type === 'NON-BUNK-JAMBO') &&
-        date.isSameOrAfter(sectionStart) &&
-        date.isSameOrBefore(sectionEnd)
+        (section.type === "BUNK-JAMBO" || section.type === "NON-BUNK-JAMBO") &&
+        date.isSameOrAfter(s) &&
+        date.isSameOrBefore(e)
       );
     });
   }
 
 
-
-  private assignDaysOffForWeek(
-    weekStart: Moment,
-    weekEnd: Moment,
-    eligibleDates: Set<Moment>,
-    employees: (StaffAttendeeID | AdminAttendeeID)[],
-    employeesNeedingDayOff: Set<StaffAttendeeID | AdminAttendeeID>,
-    maxStaffOffPerDay: number
-  ): void {
-    // Get all eligible dates in this week
-    const datesInWeek: Moment[] = [];
-    const currentDate = weekStart.clone();
-
-    // Add all the dates that are in this week to the list
-    while (currentDate.isSameOrBefore(weekEnd)) {
-      if (this.isDateEligible(currentDate, eligibleDates)) {
-        datesInWeek.push(currentDate.clone());
-      }
-      currentDate.add(1, 'day');
-    }
-
-    if (datesInWeek.length === 0) return; // invalid start and end date
-
-    // Track days off assigned per day
-    const daysOffCount = new Map<string, number>();
-    datesInWeek.forEach(date => daysOffCount.set(this.toISODate(date), 0));
-
-    // Separate Program Counselors and others
-    const programCounselors = Array.from(employeesNeedingDayOff).filter(e =>
-      'programCounselor' in e && e.programCounselor
-    );
-    const otherEmployees = Array.from(employeesNeedingDayOff).filter(e =>
-      !('programCounselor' in e && e.programCounselor)
-    );
-
-    // Assign Program Counselors first, prioritizing Jamboree days
-    for (const employee of this.shuffleArray(programCounselors)) {
-      const jamboreeeDates = datesInWeek.filter(date =>
-        this.isJamboreeDay(date, this.sections) // get all jamboree dates for this section in the week
-      );
-      const preferredDates = jamboreeeDates.length > 0 ? jamboreeeDates : datesInWeek;
-
-      // Assign day off
-      if (this.assignDayOffToEmployee(employee, preferredDates, daysOffCount, maxStaffOffPerDay, employees)) {
-        employeesNeedingDayOff.delete(employee);
-      }
-    }
-
-    // Assign other employees
-    for (const employee of this.shuffleArray(otherEmployees)) {
-      if (this.assignDayOffToEmployee(employee, datesInWeek, daysOffCount, maxStaffOffPerDay, employees)) {
-        employeesNeedingDayOff.delete(employee);
-      }
-    }
-  }
-
-  private assignDayOffToEmployee(
+  private assignOneDayOff(
     employee: StaffAttendeeID | AdminAttendeeID,
-    availableDates: Moment[],
-    daysOffCount: Map<string, number>,
-    maxStaffOffPerDay: number,
-    allEmployees: (StaffAttendeeID | AdminAttendeeID)[]
+    candidateDates: string[],
+    dayCounts: Map<string, number>,
+    allEmployees: (StaffAttendeeID | AdminAttendeeID)[],
+    maxStaffOffPerDay: number
   ): boolean {
 
+    for (const date of candidateDates) {
+    if ((dayCounts.get(date) ?? 0) >= maxStaffOffPerDay) continue;
+    // bunk constraint (HARD)
+      if ('bunk' in employee && maxStaffOffPerDay !== Infinity) {
+        const bunkConflict = allEmployees.some(e =>
+          'bunk' in e &&
+          e.bunk === employee.bunk &&
+          e.daysOff.includes(date)
+        );
 
-    // gets all the dates from available dates that dont have the max staff off per day.
-    const unfilledDates = availableDates.filter((date) => {
-      const dateStr = this.toISODate(date);
-      const currentCount = daysOffCount.get(dateStr) || 0;
-      return currentCount < maxStaffOffPerDay && !employee.daysOff.includes(dateStr);
-    })
-
-    // sort the unfilledDates by unfilledDates[0] being the date where the most number of available employees in a bunk
-    // need a day off
-
-    unfilledDates.sort((date1: Moment, date2: Moment) => {
-      const dateStrA = this.toISODate(date1);
-      const dateStrB = this.toISODate(date2);
-      const countA = daysOffCount.get(dateStrA) || 0;
-      const countB = daysOffCount.get(dateStrB) || 0;
-
-      // sorts the array so that the dates with the least amoutnt of employees off appear first.
-      if (countA !== countB) {
-        return countA - countB;
+        if (bunkConflict) continue;
       }
 
-      // for equal counts of employees off on two dates, sort by the bunks with the least amount of employees off
-      else {
-        let bunk = null;
-        if ('bunk' in employee) {
-          bunk = employee.bunk
-        }
-        if (bunk) {
-          // gets the number of people off on dateStrA in the employee bunk
-          const numOffBunkA = allEmployees.filter(e =>
-            'bunk' in e && e.bunk === bunk && e.daysOff.includes(dateStrA)
-          ).length;
-          // gets the number of people off on dateStrB in the employee bunk
-          const numBunkOffB = allEmployees.filter(e =>
-            'bunk' in e && e.bunk === bunk && e.daysOff.includes(dateStrB)
-          ).length;
-          // If dateA already has an employee off in the same bunk, put dateB before dateA. Otherwise,
-          // put dateA before dateB.
-          if (numOffBunkA > numBunkOffB) return 1;
-          if (numOffBunkA < numBunkOffB) return -1;
-        }
+      // assign
+      employee.daysOff.push(date);
+      dayCounts.set(date, (dayCounts.get(date) ?? 0) + 1);
+      return true;
+    }
 
-      }
-      return 0; // equal dates, and both dates have someone off on that bunk.
-    })
+    
 
-    // At the end of this sorting algorithm, unfilledDates will include all of the dates that are not
-    // filled with the max number of staff with days off allowed in the session, and will be sorted on 
-    // two keys: 
-    // 1. Dates with less employees off on that day will appear first
-    // 2. Dates with less bunk members off on that day will appear first
-
-    if (unfilledDates.length === 0) return false; // if no dates are avaiable due to our criteria. 
-
-    const selectedDate = unfilledDates[0]; // first element will have most optimal day off to assign
-    const dateStr = this.toISODate(selectedDate);
-
-    employee.daysOff.push(dateStr); // assign date to employee
-    daysOffCount.set(dateStr, (daysOffCount.get(dateStr) || 0) + 1);
-
-    return true;
-
-
+    return false;
   }
+
 
 
   assignDaysOff(session: SessionID, employees: (StaffAttendeeID | AdminAttendeeID)[]): SessionScheduler {
-    const start = moment(session.startDate);  // ISO 8601 string
-    const end = moment(session.endDate).subtract(1, 'day');
+    try {
+      const start = moment(session.startDate);
 
-    const NUM_WEEKS = Math.ceil(end.diff(start, "week", true));
-    const NUM_DAYS = (end.diff(start, "day")) + 1
-    const MAX_STAFF_OFF_PER_DAY = Math.ceil(employees.length / NUM_DAYS);
-    const employeesNeedingDayOff = new Set(employees);
+      // Define windows (days 2–6 and 7–12)
+      const window1 = this.getDateStringsInRange(start.clone().add(1, "day"), start.clone().add(5, "day"));
+      const window2 = this.getDateStringsInRange(start.clone().add(6, "day"), start.clone().add(11, "day"));
 
-    let currDate = start;
-    // Need a future implementation for this date range to only include dates that allow for a day off.
-    const sessionDateRange: Set<Moment> = new Set(this.getDateRange(start, end))
+      const allDates = [...window1, ...window2];
+      let maxStaffOffPerDay = Math.ceil(employees.length / allDates.length);
 
-    for (let i = 0; i < NUM_WEEKS; i++) {
-      if (currDate.clone().add(1, "week").isBefore(end)) {
-        this.assignDaysOffForWeek(currDate, currDate.clone().add(6, "day"), sessionDateRange, employees, employeesNeedingDayOff, MAX_STAFF_OFF_PER_DAY)
-        currDate.add(6, "day")
+      const dayCounts = new Map<string, number>();
+      allDates.forEach(d => dayCounts.set(d, 0));
+
+      // ---- Separate program counselors ----
+      const nonWFProgramCounselors = employees.filter(
+        e => 'programCounselor' in e && e.programCounselor && e.programCounselor.id !== "WF"
+      );
+      const WFProgramCounselors = employees.filter(
+        e => 'programCounselor' in e && e.programCounselor && e.programCounselor.id === "WF"
+      );
+      const otherEmployees = employees.filter(
+        e => !('programCounselor' in e && e.programCounselor)
+      );
+
+      // ---- Choose exact number of WF counselors for Jamboree ----
+      const numWFWindow1 = Math.ceil(WFProgramCounselors.length/window1.length); // example: 3 WF on Jamboree in window1
+      const numWFWindow2 = Math.ceil(WFProgramCounselors.length/window2.length); // example: 2 WF on Jamboree in window2
+
+      const shuffledWF = this.shuffleArray(WFProgramCounselors);
+      const selectedWFWindow1 = shuffledWF.slice(0, numWFWindow1);
+      const selectedWFWindow2 = shuffledWF.slice(numWFWindow1, numWFWindow1 + numWFWindow2);
+      const remainingWF = shuffledWF.filter(e => !selectedWFWindow1.includes(e) && !selectedWFWindow2.includes(e));
+
+      // ---- Build Jamboree sets ----
+      const jamboreeWindow1 = new Set([...nonWFProgramCounselors, ...selectedWFWindow1]);
+      const jamboreeWindow2 = new Set([...nonWFProgramCounselors, ...selectedWFWindow2]);
+
+      // ---- PASS 1: window1 ----
+      for (const employee of employees) {
+        const dates =
+          'programCounselor' in employee && jamboreeWindow1.has(employee)
+            ? window1.filter(d => this.isJamboreeISO(d, this.sections))
+            : window1;
+
+        if (dates.length === 1){
+          // set maxStaffOffPerDay to Infinity
+          maxStaffOffPerDay = Infinity;
+        };
+
+        if (!this.assignOneDayOff(employee, dates, dayCounts, employees, maxStaffOffPerDay)) {
+          console.warn(`Failed to assign window-1 day off for ${employee.id}`);
+        }
       }
-      else {
-        this.assignDaysOffForWeek(currDate, end, sessionDateRange, employees, employeesNeedingDayOff, MAX_STAFF_OFF_PER_DAY)
-        currDate = end
+
+      // ---- PASS 2: window2 ----
+      for (const employee of employees) {
+        const dates =
+          'programCounselor' in employee && jamboreeWindow2.has(employee)
+            ? window2.filter(d => this.isJamboreeISO(d, this.sections))
+            : window2;
+
+        if (dates.length === 1){
+
+          maxStaffOffPerDay = Infinity;
+        };
+
+        if (!this.assignOneDayOff(employee, dates, dayCounts, employees, maxStaffOffPerDay)) {
+          console.warn(`Failed to assign window-2 day off for ${employee.id}`);
+        }
       }
 
+    } catch (e) {
+      console.error(e);
     }
 
     return this;
-
-
   }
 
 
@@ -251,7 +189,7 @@ export class SessionScheduler {
     while (currDate.isSameOrBefore(endDate)) {
       const shift: NightShiftID = {
         sessionId: session.id,
-        id: `night-${this.toISODate(currDate)}`
+        id: `night-${this.toISO(currDate)}`
       };
       // looping through all unique bunks that the employees have
       for (const bunkNumber of bunks) {
@@ -272,8 +210,8 @@ export class SessionScheduler {
           const nextDate = currDate.clone().add(1, 'day');
 
           const hasAdjacentDayOff =
-            employee.daysOff.includes(this.toISODate(prevDate)) ||
-            employee.daysOff.includes(this.toISODate(nextDate));
+            employee.daysOff.includes(this.toISO(prevDate)) ||
+            employee.daysOff.includes(this.toISO(nextDate));
 
           // If no adjacent day off, eligible for COD
           // Otherwise, assign to NBD

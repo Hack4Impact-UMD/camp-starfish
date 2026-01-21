@@ -48,6 +48,8 @@ export interface NightShift {
 }
 export interface NightShiftID extends NightShift, ID<string> { sessionId: string; };
 
+export type NightSchedulePosition = "COUNSELOR-ON-DUTY" | "NIGHT-BUNK-DUTY" | "ROVER" | "DAY OFF";
+
 export type SectionType = 'COMMON' | SchedulingSectionType;
 export type SchedulingSectionType = "BUNDLE" | "BUNK-JAMBO" | "NON-BUNK-JAMBO";
 
@@ -59,7 +61,6 @@ export interface CommonSection {
   type: 'COMMON';
   startDate: string; // ISO-8601
   endDate: string; // ISO-8601, exclusive
-  hasDaysOff: boolean;
 }
 export interface CommonSectionID extends CommonSection, ID<string> { sessionId: string; };
 
@@ -67,6 +68,7 @@ export type SchedulingSection = Omit<CommonSection, 'type'> & {
   type: SchedulingSectionType;
   numBlocks: number;
   isPublished: boolean;
+  scheduleLastGenerated?: string;
 }
 export interface SchedulingSectionID extends SchedulingSection, ID<string> { sessionId: string; };
 
