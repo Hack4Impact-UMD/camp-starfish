@@ -26,3 +26,7 @@ export enum SessionsSubcollection {
 export enum SectionsSubcollection {
   SCHEDULE = "schedule", // id: one doc, id same as collection
 }
+
+export enum ImageSubcollection {
+  REPORTS = "reports", // id: uuid
+}
