@@ -65,7 +65,10 @@ export class SessionScheduler {
   ): boolean {
 
     for (const date of candidateDates) {
-    if ((dayCounts.get(date) ?? 0) >= maxStaffOffPerDay) continue;
+    if ((dayCounts.get(date) ?? 0) >= maxStaffOffPerDay){
+      console.log("Max staff off per day reached");
+      continue;
+    };
     // bunk constraint (HARD)
       if ('bunk' in employee && maxStaffOffPerDay !== Infinity) {
         const bunkConflict = allEmployees.some(e =>
@@ -94,7 +97,7 @@ export class SessionScheduler {
     try {
       const start = moment(session.startDate);
 
-      // Define windows (days 2–6 and 7–12)
+      // Define windows (days 2–6 and 7–12) (TEMP Set for default session. Need to change to handle multiple sessions)
       const window1 = this.getDateStringsInRange(start.clone().add(1, "day"), start.clone().add(5, "day"));
       const window2 = this.getDateStringsInRange(start.clone().add(6, "day"), start.clone().add(11, "day"));
 
@@ -104,17 +107,13 @@ export class SessionScheduler {
       const dayCounts = new Map<string, number>();
       allDates.forEach(d => dayCounts.set(d, 0));
 
-      // ---- Separate program counselors ----
+      // Separate program counselors
       const nonWFProgramCounselors = employees.filter(
         e => 'programCounselor' in e && e.programCounselor && e.programCounselor.id !== "WF"
       );
       const WFProgramCounselors = employees.filter(
         e => 'programCounselor' in e && e.programCounselor && e.programCounselor.id === "WF"
       );
-      const otherEmployees = employees.filter(
-        e => !('programCounselor' in e && e.programCounselor)
-      );
-
       // ---- Choose exact number of WF counselors for Jamboree ----
       const numWFWindow1 = Math.ceil(WFProgramCounselors.length/window1.length); // example: 3 WF on Jamboree in window1
       const numWFWindow2 = Math.ceil(WFProgramCounselors.length/window2.length); // example: 2 WF on Jamboree in window2
@@ -122,7 +121,6 @@ export class SessionScheduler {
       const shuffledWF = this.shuffleArray(WFProgramCounselors);
       const selectedWFWindow1 = shuffledWF.slice(0, numWFWindow1);
       const selectedWFWindow2 = shuffledWF.slice(numWFWindow1, numWFWindow1 + numWFWindow2);
-      const remainingWF = shuffledWF.filter(e => !selectedWFWindow1.includes(e) && !selectedWFWindow2.includes(e));
 
       // ---- Build Jamboree sets ----
       const jamboreeWindow1 = new Set([...nonWFProgramCounselors, ...selectedWFWindow1]);
@@ -130,6 +128,7 @@ export class SessionScheduler {
 
       // ---- PASS 1: window1 ----
       for (const employee of employees) {
+        maxStaffOffPerDay = Math.ceil(employees.length / window1.length);
         const dates =
           'programCounselor' in employee && jamboreeWindow1.has(employee)
             ? window1.filter(d => this.isJamboreeISO(d, this.sections))
@@ -147,6 +146,8 @@ export class SessionScheduler {
 
       // ---- PASS 2: window2 ----
       for (const employee of employees) {
+        maxStaffOffPerDay = Math.ceil(employees.length / window2.length);
+
         const dates =
           'programCounselor' in employee && jamboreeWindow2.has(employee)
             ? window2.filter(d => this.isJamboreeISO(d, this.sections))
