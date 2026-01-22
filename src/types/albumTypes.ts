@@ -16,6 +16,7 @@ export interface ImageMetadata {
   dateTaken: string; // ISO-8601
   inReview: boolean;
   tags: ImageTags;
+  marketingAllowed: boolean; // true if all tagged campers have PUBLIC photoPermissions
 }
 export interface ImageMetadataID extends ImageMetadata, ID<string> { albumId: string; };
 
