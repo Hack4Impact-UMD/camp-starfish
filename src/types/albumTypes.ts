@@ -35,3 +35,16 @@ export type ImageTags = 'ALL' | {
 // INTERNAL: photo can not be used publicly, but other Camp Starfish parents can see it if their child is also in the photo
 // PRIVATE: only the child's parents can see the photo
 export type PhotoPermissions = 'PUBLIC' | 'INTERNAL' | 'PRIVATE';
+
+export type ReportStatus = 'PENDING' | 'RESOLVED';
+
+export interface ImageReport {
+  reporterId: number; // Parent ID
+  reason: string;
+  status: ReportStatus;
+  reportedAt: string; // ISO-8601
+  resolvedAt?: string; // ISO-8601, optional
+  resolvedBy?: number; // Admin ID, optional
+}
+
+export interface ImageReportID extends ImageReport, ID<string> { imageId: string; albumId: string; }
