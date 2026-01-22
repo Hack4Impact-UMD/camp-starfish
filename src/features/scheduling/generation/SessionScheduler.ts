@@ -1,8 +1,4 @@
 import { StaffAttendeeID, AdminAttendeeID, NightShiftID, SessionID, SectionID, NightShift } from "@/types/sessionTypes";
-import { da } from "@faker-js/faker/.";
-import { w } from "@faker-js/faker/dist/airline-CLphikKp";
-import { em } from "@mantine/core";
-import { max } from "moment";
 import { Moment } from "moment";
 import moment from "moment";
 
@@ -185,7 +181,7 @@ export class SessionScheduler {
 
 
 
-    let currDate = startDate;
+    const currDate = startDate;
 
     // Create a night bunk object for each night
     while (currDate.isSameOrBefore(endDate)) {
@@ -219,10 +215,6 @@ export class SessionScheduler {
           const hasAdjacentDayOff =
             employee.daysOff.includes(this.toISO(prevDate)) ||
             employee.daysOff.includes(this.toISO(nextDate));
-
-
-
-          
 
           if (!hasAdjacentDayOff && shift[bunkNumber].counselorsOnDuty.length + 1 < PER_SPLIT ) {
             shift[bunkNumber].counselorsOnDuty.push(employee.id);
