@@ -3,7 +3,7 @@ import { Moment } from "moment";
 interface BaseUser {
   id: number;
   uid?: string;
-  email: string;
+  email?: string;
   name: {
     firstName: string;
     middleName?: string;
