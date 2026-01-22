@@ -285,41 +285,29 @@ function generateProgramCounselors(
     { id: "WF", name: "Waterfront", isDeleted: false },
   ];
 
-  for (const programArea of possibleProgramAreas) {
-    try {
-      // fresh pool of currently-available staff for this program area
-      const availablePool = staff.filter(p => !assignedStaff.has(p.id));
+  for (let bunk = 1; bunk <= numBunks; bunk++) {
+    // Get pool of staff not already assigned as a program counselor
+    const availablePool = staff.filter(p => !assignedStaff.has(p.id));
 
-      const picksNeeded = programArea.id === "WF" ? numBunks : 1;
-
-      for (let pick = 0; pick < picksNeeded; pick++) {
-        if (availablePool.length === 0) {
-          console.warn(
-            `[ProgramCounselors] No available staff left for ${programArea.name}`
-          );
-          break;
-        }
-
-        const idx = Math.floor(Math.random() * availablePool.length);
-        const chosen = availablePool.splice(idx, 1)[0];
-
-        if (!chosen) {
-          throw new Error("Failed to select staff member from pool");
-        }
-
-        // Assign program counselor
-        chosen.programCounselor = programArea;
-        assignedStaff.add(chosen.id);
-      }
-    } catch (err) {
-      console.error(
-        `[ProgramCounselors] Error assigning ${programArea.name}`,
-        err
-      );
-      // continue to next program area instead of crashing
+    if (availablePool.length === 0) {
+      console.warn(`[ProgramCounselors] No available staff left for bunk ${bunk}`);
+      continue;
     }
+
+    // Pick one staff randomly
+    const idx = Math.floor(Math.random() * availablePool.length);
+    const chosen = availablePool[idx];
+
+    // Assign a random program area (or pick your default)
+    const programIdx = Math.floor(Math.random() * possibleProgramAreas.length);
+    chosen.programCounselor = possibleProgramAreas[programIdx];
+
+    // Mark as assigned
+    assignedStaff.add(chosen.id);
+
   }
 }
+
 
 
 

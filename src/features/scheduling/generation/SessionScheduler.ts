@@ -177,6 +177,7 @@ export class SessionScheduler {
     const endDate = moment(session.endDate).subtract(1, 'day');
     const startDate = moment(session.startDate);
 
+
     // Collect unique bunks
     for (let i = 0; i < employees.length; i++) {
       bunks.add(employees[i].bunk);
@@ -202,11 +203,16 @@ export class SessionScheduler {
 
         // choosing 4 employees
         const employeesInBunk = employees.filter((e) => e.bunk === bunkNumber);
-        if (employeesInBunk.length === 0) continue;
-        const shuffled = this.shuffleArray(employeesInBunk);
-        const selected = shuffled.slice(0, 4);
+        const PER_SPLIT = Math.ceil(employeesInBunk.length / 2);
 
-        for (const employee of selected) {
+        if (employeesInBunk.length === 0) continue;
+        let selected: StaffAttendeeID[] = []
+        
+        for (const employee of employeesInBunk) {
+
+          if (employee.daysOff.includes(this.toISO(currDate))) {
+            continue;
+          }
           const prevDate = currDate.clone().subtract(1, 'day');
           const nextDate = currDate.clone().add(1, 'day');
 
@@ -214,15 +220,21 @@ export class SessionScheduler {
             employee.daysOff.includes(this.toISO(prevDate)) ||
             employee.daysOff.includes(this.toISO(nextDate));
 
-          // If no adjacent day off, eligible for COD
-          // Otherwise, assign to NBD
-          if (!hasAdjacentDayOff) {
+
+
+          
+
+          if (!hasAdjacentDayOff && shift[bunkNumber].counselorsOnDuty.length + 1 < PER_SPLIT ) {
             shift[bunkNumber].counselorsOnDuty.push(employee.id);
-          } else {
-            shift[bunkNumber].nightBunkDuty.push(employee.id);
+            selected.push(employee);
           }
 
+          else {
+            shift[bunkNumber].nightBunkDuty.push(employee.id);
+            selected.push(employee);
+          }
         }
+        
       }
       // Save the shift object
       this.nightShifts.push(shift);
