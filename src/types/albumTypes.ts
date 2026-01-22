@@ -39,14 +39,12 @@ export type PhotoPermissions = 'PUBLIC' | 'INTERNAL' | 'PRIVATE';
 export type ReportStatus = 'PENDING' | 'RESOLVED';
 
 export interface ImageReport {
-  imageId: string;
-  albumId: string;
   reporterId: number; // Parent ID
   reason: string;
   status: ReportStatus;
   reportedAt: string; // ISO-8601
   resolvedAt?: string; // ISO-8601, optional
-  resolvedBy?: number; // Admin ID, optional}
+  resolvedBy?: number; // Admin ID, optional
 }
 
-export interface ImageReportID extends ImageReport, ID<string> { }
+export interface ImageReportID extends ImageReport, ID<string> { imageId: string; albumId: string; }

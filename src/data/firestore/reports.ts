@@ -17,11 +17,11 @@ import { v4 as uuid } from "uuid";
 
 const reportFirestoreConverter: FirestoreDataConverter<ImageReportID, ImageReport> = {
   toFirestore: (report: WithFieldValue<ImageReportID>): WithFieldValue<ImageReport> => {
-    const { id, ...dto } = report;
+    const { id, imageId, albumId, ...dto } = report;
     return dto;
   },
   fromFirestore: (snapshot: QueryDocumentSnapshot<ImageReport, ImageReport>): ImageReportID => {
-    return ({ ...snapshot.data() } as ImageReportID);
+    return ({ id: snapshot.ref.id, imageId: snapshot.ref.parent.parent!.id, albumId: snapshot.ref.parent.parent!.parent.parent!.id, ...snapshot.data() } as ImageReportID);
   }
 };
 
