@@ -1,6 +1,4 @@
-import { Staff } from "@/types/personTypes";
 import { StaffAttendeeID, AdminAttendeeID, CamperAttendeeID, Freeplay, PostID, FreeplayID } from "@/types/sessionTypes";
-import { a } from "framer-motion/dist/types.d-BJcRxCew";
 import { doesConflictExist } from "./schedulingUtils";
 
 export class FreeplayScheduler {
