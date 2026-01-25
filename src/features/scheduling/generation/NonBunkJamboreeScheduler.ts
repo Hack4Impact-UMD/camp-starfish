@@ -34,6 +34,9 @@ export class NonBunkJamboreeScheduler {
     isPublished: false,
     sessionId: ""
   };
+
+  currDate: string = "";
+
   constructor() {}
 
   withSchedule(
@@ -73,12 +76,17 @@ export class NonBunkJamboreeScheduler {
     return this.schedule;
   }
 
+  setCurrDate() {
+    this.currDate = moment(this.sectionID.startDate)
+      .format("YYYY-MM-DD");
+  }
+
 
   assignPeriodsOff() {
 
     // Filter out all staff/admin that have the day OFF 
-    const eligibleStaff = this.staff.filter(s => !s.daysOff.includes(this.sectionID.id));
-    const eligibleAdmins = this.admins.filter(a => !a.daysOff.includes(this.sectionID.id));
+    const eligibleStaff = this.staff.filter(s => !s.daysOff.includes(this.currDate));
+    const eligibleAdmins = this.admins.filter(a => !a.daysOff.includes(this.currDate));
     const allStaffAndAdmins = [...eligibleStaff, ...eligibleAdmins];
 
     const notAssigned = new Set<StaffAttendeeID | AdminAttendeeID>(allStaffAndAdmins);
@@ -328,7 +336,7 @@ export class NonBunkJamboreeScheduler {
       const availableStaff = this.staff.filter(
         s =>
           !this.schedule.blocks[blockID].periodsOff.includes(s.id) &&
-          !s.daysOff.includes(this.sectionID.id) 
+          !s.daysOff.includes(this.currDate) 
       );
 
       // shuffle
@@ -471,7 +479,7 @@ export class NonBunkJamboreeScheduler {
       // Build array of available admins
       const availableAdmins = this.admins.filter(
         admin => !this.schedule.blocks[blockID].periodsOff.includes(admin.id) && 
-        !admin.daysOff.includes(this.sectionID.id) &&
+        !admin.daysOff.includes(this.currDate) &&
         !activities.some(activity => activity.assignments.adminIds.includes(admin.id))
       );      
 
