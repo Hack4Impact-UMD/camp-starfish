@@ -1,7 +1,7 @@
 import { Timestamp } from "firebase/firestore";
 import { Gender, PhotoPermissions, Role } from "../domain/userTypes";
 
-interface PublicUserDoc {
+interface BasePublicUserDoc {
   name: {
     firstName: string;
     middleName?: string;
@@ -11,12 +11,12 @@ interface PublicUserDoc {
   gender: Gender;
 }
 
-interface PrivateUserDoc {
+interface BasePrivateUserDoc {
   email?: string;
   dateOfBirth: Timestamp;
 }
 
-interface UserMetadataDoc {
+interface BaseUserMetadataDoc {
   uid?: string;
   createdAt: Timestamp;
 }
