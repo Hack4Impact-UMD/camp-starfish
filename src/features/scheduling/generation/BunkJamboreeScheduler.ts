@@ -1,5 +1,6 @@
-import { AdminAttendeeID, StaffAttendeeID, CamperAttendeeID, SectionSchedule, SectionPreferences, BunkID, Block, BlockPreferences, JamboreeActivity, BunkAssignments, SchedulingSectionID } from "@/types/sessionTypes";
+import { AdminAttendeeID, StaffAttendeeID, CamperAttendeeID, SectionSchedule, SectionPreferences, BunkID, SchedulingSectionID } from "@/types/sessionTypes";
 import { doesConflictExist } from "./schedulingUtils";
+import moment from "moment";
 
 export class BunkJamboreeScheduler {
   schedule: SectionSchedule<"BUNK-JAMBO"> = { blocks: {}, alternatePeriodsOff: {} };
@@ -25,6 +26,8 @@ export class BunkJamboreeScheduler {
     sessionId: ""
   };
 
+  currDate: string = "";
+
   constructor() { }
 
   withSchedule(schedule: SectionSchedule<"BUNK-JAMBO">): BunkJamboreeScheduler { this.schedule = schedule; return this; }
@@ -43,14 +46,17 @@ export class BunkJamboreeScheduler {
 
   forBlocks(blockIds: string[]): BunkJamboreeScheduler { this.blocksToAssign = blockIds; return this; }
 
-
+  setCurrDate() {
+    this.currDate = moment(this.sectionID.startDate)
+      .format("YYYY-MM-DD");
+  }
 
   /* Each staff member & admin must have 1 period off per day */
   assignPeriodsOff() {
 
     // Filter out all staff/admin that have the day OFF 
-    const eligibleStaff = this.staff.filter(s => !s.daysOff.includes(this.sectionID.id));
-    const eligibleAdmins = this.admins.filter(a => !a.daysOff.includes(this.sectionID.id));
+    const eligibleStaff = this.staff.filter(s => !s.daysOff.includes(this.currDate));
+    const eligibleAdmins = this.admins.filter(a => !a.daysOff.includes(this.currDate));
     const allStaffAndAdmins = [...eligibleStaff, ...eligibleAdmins];
 
     let ogMapDiff = new Map<number, number>();
@@ -230,7 +236,7 @@ export class BunkJamboreeScheduler {
       // Build array of available admins
       const availableAdmins = this.admins.filter(
         admin => !this.schedule.blocks[blockID].periodsOff.includes(admin.id) && 
-        !admin.daysOff.includes(this.sectionID.id) &&
+        !admin.daysOff.includes(this.currDate) &&
         !activities.some(activity => activity.assignments.adminIds.includes(admin.id))
       );      
 
