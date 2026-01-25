@@ -1,6 +1,5 @@
-import { StaffAttendeeID, AdminAttendeeID, NightShiftID, SessionID, SectionID, NightShift } from "@/types/sessionTypes";
-import { Moment } from "moment";
-import moment from "moment";
+import { StaffAttendeeID, AdminAttendeeID, NightShiftID, SessionID, SectionID } from "@/types/sessionTypes";
+import moment, { Moment } from "moment";
 
 export class SessionScheduler {
   session: SessionID | undefined;
@@ -197,12 +196,12 @@ export class SessionScheduler {
           nightBunkDuty: [],
         };
 
-        // choosing 4 employees
+        // choosing employees for night shift
         const employeesInBunk = employees.filter((e) => e.bunk === bunkNumber);
         const PER_SPLIT = Math.ceil(employeesInBunk.length / 2);
 
         if (employeesInBunk.length === 0) continue;
-        let selected: StaffAttendeeID[] = []
+        const selected: StaffAttendeeID[] = []
         
         for (const employee of employeesInBunk) {
 
