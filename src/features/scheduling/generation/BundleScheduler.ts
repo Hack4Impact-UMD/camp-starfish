@@ -21,6 +21,7 @@ export class BundleScheduler {
     sessionId: ""
   };
 
+  currDate: string =  "";
 
   constructor() { }
 
@@ -40,6 +41,11 @@ export class BundleScheduler {
 
   forBlocks(blockIds: string[]): BundleScheduler { this.blocksToAssign = blockIds; return this; }
   
+  setCurrDate() {
+    this.currDate = moment(this.sectionID.startDate)
+      .add(this.bundleNum - 1, "day")
+      .format("YYYY-MM-DD");
+  }
 
   /*
     Each `programArea` needs a staff member (`StaffAttendeeID`) to be in charge.
@@ -107,11 +113,12 @@ export class BundleScheduler {
 
   /* Each staff member and admin needs to have 1 period off per day */
   assignPeriodsOff() {
+    
     this.assignPrelimActivities();
 
     // Filter out all staff/admin that have the day OFF 
-    const eligibleStaff = this.staff.filter(s => !s.daysOff.includes(this.sectionID.id));
-    const eligibleAdmins = this.admins.filter(a => !a.daysOff.includes(this.sectionID.id));
+    const eligibleStaff = this.staff.filter(s => !s.daysOff.includes(this.currDate));
+    const eligibleAdmins = this.admins.filter(a => !a.daysOff.includes(this.currDate));
     const allStaffAndAdmins = [...eligibleStaff, ...eligibleAdmins];
 
     const notAssigned = new Set<StaffAttendeeID | AdminAttendeeID>(allStaffAndAdmins);
@@ -534,7 +541,7 @@ export class BundleScheduler {
       const availableStaff = this.staff.filter(
         s =>
           !this.schedule.blocks[blockID].periodsOff.includes(s.id) &&
-          !s.daysOff.includes(this.sectionID.id) && 
+          !s.daysOff.includes(this.currDate) && 
           !s.programCounselor
       );
 
@@ -672,7 +679,7 @@ export class BundleScheduler {
       // Build array of available admins
       const availableAdmins = this.admins.filter(
         admin => !this.schedule.blocks[blockID].periodsOff.includes(admin.id) && 
-        !admin.daysOff.includes(this.sectionID.id) &&
+        !admin.daysOff.includes(this.currDate) &&
         !activities.some(activity => activity.assignments.adminIds.includes(admin.id))
       );
       
