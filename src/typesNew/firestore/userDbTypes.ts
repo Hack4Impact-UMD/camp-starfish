@@ -16,27 +16,43 @@ interface BasePrivateUserDoc {
   dateOfBirth: Timestamp;
 }
 
+interface BaseInternalUserDoc {}
+
 interface BaseUserMetadataDoc {
   uid?: string;
   createdAt: Timestamp;
 }
-interface PublicCamperDoc extends PublicUserDoc {
+
+interface PublicCamperDoc extends BasePublicUserDoc {
   role: "CAMPER";
   photoPermissions: PhotoPermissions;
   parentIds: number[];
   nonoListIds: number[];
 }
 
-interface ParentDoc extends PublicUserDoc {
+interface PrivateCamperDoc extends BasePrivateUserDoc {
+  parentIds: number[];
+  photoPermissions: PhotoPermissions;
+}
+
+interface InternalCamperDoc extends BaseInternalUserDoc {
+  nonoListIds: number[];
+}
+
+interface MetadataCamperDoc extends BaseUserMetadataDoc {}
+
+
+
+interface PublicParentDoc extends BasePublicUserDoc {
   role: "PARENT";
   camperIds: number[];
 }
 
-interface PhotographerDoc extends PublicUserDoc {
+interface PhotographerDoc extends BasePublicUserDoc {
   role: "PHOTOGRAPHER";
 }
 
-interface CounselorDoc extends PublicUserDoc {
+interface CounselorDoc extends BasePublicUserDoc {
   role: "STAFF" | "ADMIN";
   nonoListIds: number[];
   yesyesListIds: number[];
