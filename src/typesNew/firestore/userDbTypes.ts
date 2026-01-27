@@ -10,14 +10,11 @@ interface BasePublicUserDoc {
   role: Role;
   gender: Gender;
 }
-
 interface BasePrivateUserDoc {
   email?: string;
   dateOfBirth: Timestamp;
 }
-
 interface BaseInternalUserDoc {}
-
 interface BaseUserMetadataDoc {
   uid?: string;
   createdAt: Timestamp;
@@ -29,19 +26,14 @@ interface PublicCamperDoc extends BasePublicUserDoc {
   parentIds: number[];
   nonoListIds: number[];
 }
-
 interface PrivateCamperDoc extends BasePrivateUserDoc {
   parentIds: number[];
   photoPermissions: PhotoPermissions;
 }
-
 interface InternalCamperDoc extends BaseInternalUserDoc {
   nonoListIds: number[];
 }
-
 interface MetadataCamperDoc extends BaseUserMetadataDoc {}
-
-
 
 interface PublicParentDoc extends BasePublicUserDoc {
   role: "PARENT";
@@ -59,26 +51,22 @@ interface PrivatePhotographerDoc extends BasePrivateUserDoc {}
 interface InternalPhotographerDoc extends BaseInternalUserDoc {}
 interface MetadataPhotographerDoc extends BaseUserMetadataDoc {}
 
-interface PublicCounselorDoc extends BasePublicUserDoc {
-  role: "STAFF" | "ADMIN";
-}
-interface PrivateCounselorDoc extends BasePrivateUserDoc {}
-interface InternalCounselorDoc extends BaseInternalUserDoc {
-  nonoListIds: number[];
-  yesyesListIds: number[];
-}
-interface MetadataCounselorDoc extends BaseUserMetadataDoc {}
-
-interface PublicStaffDoc extends PublicCounselorDoc {
+interface PublicStaffDoc extends BasePublicUserDoc {
   role: "STAFF";
 }
-type PrivateStaffDoc = PrivateCounselorDoc;
-type InternalStaffDoc = InternalCounselorDoc;
-type MetadataStaffDoc = MetadataCounselorDoc;
+type PrivateStaffDoc = BasePrivateUserDoc;
+interface InternalStaffDoc extends BaseInternalUserDoc {
+  nonoListIds: number[];
+  yesyesListIds: number[];
+};
+type MetadataStaffDoc = BaseUserMetadataDoc;
 
-interface AdminDoc extends PublicCounselorDoc {
+interface AdminDoc extends BasePublicUserDoc {
   role: "ADMIN";
 }
-type PrivateAdminDoc = PrivateCounselorDoc;
-type InternalAdminDoc = InternalCounselorDoc;
-type MetadataAdminDoc = MetadataCounselorDoc;
+type PrivateAdminDoc = BasePrivateUserDoc;
+interface InternalAdminDoc extends BaseInternalUserDoc {
+  nonoListIds: number[];
+  yesyesListIds: number[];
+};
+type MetadataAdminDoc = BaseUserMetadataDoc;
