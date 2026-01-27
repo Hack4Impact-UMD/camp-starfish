@@ -20,52 +20,52 @@ interface BaseUserMetadataDoc {
   createdAt: Timestamp;
 }
 
-interface PublicCamperDoc extends BasePublicUserDoc {
+export interface PublicCamperDoc extends BasePublicUserDoc {
   role: "CAMPER";
   photoPermissions: PhotoPermissions;
   parentIds: number[];
   nonoListIds: number[];
 }
-interface PrivateCamperDoc extends BasePrivateUserDoc {
+export interface PrivateCamperDoc extends BasePrivateUserDoc {
   parentIds: number[];
   photoPermissions: PhotoPermissions;
 }
-interface InternalCamperDoc extends BaseInternalUserDoc {
+export interface InternalCamperDoc extends BaseInternalUserDoc {
   nonoListIds: number[];
 }
-interface MetadataCamperDoc extends BaseUserMetadataDoc {}
+export interface MetadataCamperDoc extends BaseUserMetadataDoc {}
 
-interface PublicParentDoc extends BasePublicUserDoc {
+export interface PublicParentDoc extends BasePublicUserDoc {
   role: "PARENT";
 }
-interface PrivateParentDoc extends BasePrivateUserDoc {
+export interface PrivateParentDoc extends BasePrivateUserDoc {
   camperIds: number[];
 }
-interface InternalParentDoc extends BaseInternalUserDoc {}
-interface MetadataParentDoc extends BaseUserMetadataDoc {}
+export interface InternalParentDoc extends BaseInternalUserDoc {}
+export interface MetadataParentDoc extends BaseUserMetadataDoc {}
 
-interface PublicPhotographerDoc extends BasePublicUserDoc {
+export interface PublicPhotographerDoc extends BasePublicUserDoc {
   role: "PHOTOGRAPHER";
 }
-interface PrivatePhotographerDoc extends BasePrivateUserDoc {}
-interface InternalPhotographerDoc extends BaseInternalUserDoc {}
-interface MetadataPhotographerDoc extends BaseUserMetadataDoc {}
+export interface PrivatePhotographerDoc extends BasePrivateUserDoc {}
+export interface InternalPhotographerDoc extends BaseInternalUserDoc {}
+export interface MetadataPhotographerDoc extends BaseUserMetadataDoc {}
 
-interface PublicStaffDoc extends BasePublicUserDoc {
+export interface PublicStaffDoc extends BasePublicUserDoc {
   role: "STAFF";
 }
 type PrivateStaffDoc = BasePrivateUserDoc;
-interface InternalStaffDoc extends BaseInternalUserDoc {
+export interface InternalStaffDoc extends BaseInternalUserDoc {
   nonoListIds: number[];
   yesyesListIds: number[];
 };
 type MetadataStaffDoc = BaseUserMetadataDoc;
 
-interface AdminDoc extends BasePublicUserDoc {
+export interface AdminDoc extends BasePublicUserDoc {
   role: "ADMIN";
 }
 type PrivateAdminDoc = BasePrivateUserDoc;
-interface InternalAdminDoc extends BaseInternalUserDoc {
+export interface InternalAdminDoc extends BaseInternalUserDoc {
   nonoListIds: number[];
   yesyesListIds: number[];
 };
