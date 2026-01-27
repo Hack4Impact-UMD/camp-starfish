@@ -45,23 +45,40 @@ interface MetadataCamperDoc extends BaseUserMetadataDoc {}
 
 interface PublicParentDoc extends BasePublicUserDoc {
   role: "PARENT";
+}
+interface PrivateParentDoc extends BasePrivateUserDoc {
   camperIds: number[];
 }
+interface InternalParentDoc extends BaseInternalUserDoc {}
+interface MetadataParentDoc extends BaseUserMetadataDoc {}
 
-interface PhotographerDoc extends BasePublicUserDoc {
+interface PublicPhotographerDoc extends BasePublicUserDoc {
   role: "PHOTOGRAPHER";
 }
+interface PrivatePhotographerDoc extends BasePrivateUserDoc {}
+interface InternalPhotographerDoc extends BaseInternalUserDoc {}
+interface MetadataPhotographerDoc extends BaseUserMetadataDoc {}
 
-interface CounselorDoc extends BasePublicUserDoc {
+interface PublicCounselorDoc extends BasePublicUserDoc {
   role: "STAFF" | "ADMIN";
+}
+interface PrivateCounselorDoc extends BasePrivateUserDoc {}
+interface InternalCounselorDoc extends BaseInternalUserDoc {
   nonoListIds: number[];
   yesyesListIds: number[];
 }
+interface MetadataCounselorDoc extends BaseUserMetadataDoc {}
 
-interface StaffDoc extends CounselorDoc {
+interface PublicStaffDoc extends PublicCounselorDoc {
   role: "STAFF";
 }
+type PrivateStaffDoc = PrivateCounselorDoc;
+type InternalStaffDoc = InternalCounselorDoc;
+type MetadataStaffDoc = MetadataCounselorDoc;
 
-interface AdminDoc extends CounselorDoc {
+interface AdminDoc extends PublicCounselorDoc {
   role: "ADMIN";
 }
+type PrivateAdminDoc = PrivateCounselorDoc;
+type InternalAdminDoc = InternalCounselorDoc;
+type MetadataAdminDoc = MetadataCounselorDoc;
