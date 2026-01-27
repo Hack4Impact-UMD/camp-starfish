@@ -1,4 +1,4 @@
-import { AgeGroup, SchedulingSectionType } from "./sessionTypes";
+import { AgeGroup, SchedulingSectionType } from "../sessions/sessionTypes";
 
 interface BaseSectionSchedule {
   sessionId: string;

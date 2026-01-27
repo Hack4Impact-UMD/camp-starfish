@@ -1,4 +1,4 @@
-import { Gender, Role } from "./userTypes";
+import { Gender, Role } from "../users/userTypes";
 
 export interface Session {
   id: string;
