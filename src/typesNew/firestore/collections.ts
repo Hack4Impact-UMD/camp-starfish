@@ -6,11 +6,6 @@ export const enum Collection {
   POSTS = "posts"
 }
 
-export const enum UsersSubcollection {
-  ADMIN_ONLY = "admin_only",
-  PARENT_ONLY = "parent_only"
-}
-
 export const enum AlbumsSubcollection {
   IMAGES = "images"
 }
