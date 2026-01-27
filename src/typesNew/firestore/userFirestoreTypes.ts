@@ -14,7 +14,7 @@ interface BasePrivateUserDoc {
   email?: string;
   dateOfBirth: Timestamp;
 }
-interface BaseInternalUserDoc {}
+interface BaseInternalUserDoc { }
 interface BaseUserMetadataDoc {
   uid?: string;
   createdAt: Timestamp;
@@ -33,7 +33,7 @@ export interface PrivateCamperDoc extends BasePrivateUserDoc {
 export interface InternalCamperDoc extends BaseInternalUserDoc {
   nonoListIds: number[];
 }
-export interface MetadataCamperDoc extends BaseUserMetadataDoc {}
+export interface MetadataCamperDoc extends BaseUserMetadataDoc { }
 
 export interface PublicParentDoc extends BasePublicUserDoc {
   role: "PARENT";
@@ -41,32 +41,32 @@ export interface PublicParentDoc extends BasePublicUserDoc {
 export interface PrivateParentDoc extends BasePrivateUserDoc {
   camperIds: number[];
 }
-export interface InternalParentDoc extends BaseInternalUserDoc {}
-export interface MetadataParentDoc extends BaseUserMetadataDoc {}
+export interface InternalParentDoc extends BaseInternalUserDoc { }
+export interface MetadataParentDoc extends BaseUserMetadataDoc { }
 
 export interface PublicPhotographerDoc extends BasePublicUserDoc {
   role: "PHOTOGRAPHER";
 }
-export interface PrivatePhotographerDoc extends BasePrivateUserDoc {}
-export interface InternalPhotographerDoc extends BaseInternalUserDoc {}
-export interface MetadataPhotographerDoc extends BaseUserMetadataDoc {}
+export interface PrivatePhotographerDoc extends BasePrivateUserDoc { }
+export interface InternalPhotographerDoc extends BaseInternalUserDoc { }
+export interface MetadataPhotographerDoc extends BaseUserMetadataDoc { }
 
 export interface PublicStaffDoc extends BasePublicUserDoc {
   role: "STAFF";
 }
-type PrivateStaffDoc = BasePrivateUserDoc;
+export interface PrivateStaffDoc extends BasePrivateUserDoc { };
 export interface InternalStaffDoc extends BaseInternalUserDoc {
   nonoListIds: number[];
   yesyesListIds: number[];
 };
-type MetadataStaffDoc = BaseUserMetadataDoc;
+export interface MetadataStaffDoc extends BaseUserMetadataDoc { };
 
 export interface AdminDoc extends BasePublicUserDoc {
   role: "ADMIN";
 }
-type PrivateAdminDoc = BasePrivateUserDoc;
+export interface PrivateAdminDoc extends BasePrivateUserDoc { };
 export interface InternalAdminDoc extends BaseInternalUserDoc {
   nonoListIds: number[];
   yesyesListIds: number[];
 };
-type MetadataAdminDoc = BaseUserMetadataDoc;
+export interface MetadataAdminDoc extends BaseUserMetadataDoc { };
