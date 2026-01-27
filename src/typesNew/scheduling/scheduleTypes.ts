@@ -32,7 +32,7 @@ export type Block = BundleBlock | BunkJamboreeBlock | NonBunkJamboreeBlock;
 
 export interface BundleActivityWithAssignments {
   activity: BundleActivity;
-  aassignments: IndividualActivityAssignments;
+  assignments: IndividualActivityAssignments;
 }
 export interface BunkJamboreeActivityWithAssignments {
   activity: JamboreeActivity;
