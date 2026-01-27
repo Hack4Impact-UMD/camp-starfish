@@ -1,5 +1,3 @@
-import { Moment } from "moment";
-
 interface BaseUser {
   id: number;
   uid?: string;
@@ -11,7 +9,7 @@ interface BaseUser {
   };
   role: Role;
   gender: Gender;
-  dateOfBirth: Moment;
+  dateOfBirth: string;
 }
 
 export type Role = "CAMPER" | "PARENT" | "STAFF" | "PHOTOGRAPHER" | "ADMIN";

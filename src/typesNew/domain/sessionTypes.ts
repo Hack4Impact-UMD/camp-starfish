@@ -1,11 +1,10 @@
-import { Moment } from "moment";
 import { Gender, Role } from "./userTypes";
 
 export interface Session {
   id: string;
   name: string;
-  startDate: Moment;
-  endDate: Moment;
+  startDate: string;
+  endDate: string;
   albumId?: string;
   driveFolderId: string;
 }
@@ -17,8 +16,8 @@ interface BaseSection {
   id: string;
   sessionId: string;
   type: SectionType;
-  startDate: Moment;
-  endDate: Moment;
+  startDate: string;
+  endDate: string;
 }
 export interface CommonSection extends BaseSection { type: "COMMON" }
 export interface SchedulingSection extends BaseSection {
@@ -54,10 +53,10 @@ export interface StaffAttendee extends BaseAttendee {
   programCounselor?: string;
   bunk: number;
   leadBunkCounselor: boolean;
-  daysOff: Moment[];
+  daysOff: string[];
 }
 export interface AdminAttendee extends BaseAttendee {
-  daysOff: Moment[];
+  daysOff: string[];
 }
 export type Attendee = CamperAttendee | StaffAttendee | AdminAttendee;
 
@@ -71,7 +70,7 @@ export interface Bunk {
 export type NightSchedulePosition = "COUNSELOR-ON-DUTY" | "NIGHT-BUNK-DUTY" | "ROVER";
 export interface NightSchedule {
   sessionId: string;
-  date: Moment;
+  date: string;
   bunks: {
     [bunkNum: number]: Record<NightSchedulePosition, number[]>
   }
@@ -79,7 +78,7 @@ export interface NightSchedule {
 
 export interface Freeplay {
   sessionId: string;
-  date: Moment;
+  date: string;
   posts: { [postId: string]: number[]; };
   buddies: Record<number, number[]>;
 }

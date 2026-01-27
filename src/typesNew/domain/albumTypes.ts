@@ -1,10 +1,8 @@
-import { Moment } from "moment";
-
 export interface Album {
   id: string;
   name: string;
-  startDate: Moment;
-  endDate: Moment;
+  startDate: string;
+  endDate: string;
   hasThumbnail: boolean;
   numPhotos: number;
   linkedSessionId?: string;
