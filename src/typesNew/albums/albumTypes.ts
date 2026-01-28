@@ -14,7 +14,10 @@ export interface Image {
   name: string;
   dateTaken: string;
   inReview: boolean;
-  tagIds: number[];
+  tagIds: {
+    approved: number[];
+    inReview: number[];
+  }
 }
 
 export type PhotoPermissions = "PUBLIC" | "PRIVATE"
