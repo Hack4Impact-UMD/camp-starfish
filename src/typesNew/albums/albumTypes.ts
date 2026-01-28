@@ -1,8 +1,8 @@
 export interface Album {
   id: string;
-  name: string;
-  startDate: string;
-  endDate: string;
+  name: string; // same as Session name if a corresponding Session exists
+  startDate: string; // ISO-8601
+  endDate: string; // ISO-8601
   hasThumbnail: boolean;
   numPhotos: number;
   linkedSessionId?: string;
@@ -12,7 +12,7 @@ export interface Image {
   id: string;
   albumId: string;
   name: string;
-  dateTaken: string;
+  dateTaken: string; // ISO-8601
   inReview: boolean;
   tagIds: {
     approved: number[];
