@@ -49,7 +49,7 @@ interface BaseActivity {
   name: string;
   description: string;
 }
-export interface JamboreeActivity extends BaseActivity {};
+export type JamboreeActivity = BaseActivity;
 export interface BundleActivity extends BaseActivity {
   programAreaId: string;
   ageGroup: AgeGroup;
