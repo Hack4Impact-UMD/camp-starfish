@@ -9,17 +9,21 @@ import { Role } from "@/types/personTypes";
 import Image from "next/image";
 
 const navbarLinks: { name: string; href: string; roles: Role[] }[] = [
+  { name: "Home", href: "/", roles: ["STAFF", "ADMIN", "PARENT"] },
+  { name: "Scheduling", href: "/sessions", roles: ["ADMIN"] },
+    {
+    name: "Albums",
+    href: "/albums",
+    roles: ["STAFF", "ADMIN", "PHOTOGRAPHER", "PARENT"],
+  },
+
   { name: "Programs", href: "/programs", roles: ["STAFF", "ADMIN"] },
   {
     name: "Campers",
     href: "/campers",
     roles: ["STAFF", "ADMIN", "PARENT"],
   },
-  {
-    name: "Albums",
-    href: "/albums",
-    roles: ["STAFF", "ADMIN", "PHOTOGRAPHER", "PARENT"],
-  },
+
 ];
 
 const Navbar: React.FC = () => {
@@ -27,7 +31,7 @@ const Navbar: React.FC = () => {
   const role: Role = auth.token?.claims.role as Role;
 
   return (
-    <nav className="w-full h-full bg-camp-primary px-32 flex items-center justify-between gap-20">
+    <nav className="w-full h-full py-[12px] bg-blue-6 px-32 flex items-center justify-between gap-20">
       {/* Logo on the left */}
       <div className="flex-none">
         <Link href="/" className="min-h-[50px]">

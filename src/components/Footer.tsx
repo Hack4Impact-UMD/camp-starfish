@@ -9,7 +9,7 @@ import Image from "next/image";
 
 export default function Footer() {
   return (
-    <div className="w-full h-[280px] bg-camp-primary">
+    <div className="w-full h-[280px] bg-blue-6">
       <div className="flex pb-[34px] justify-around items-end h-full flex-wrap font-lato">
         <div className="flex flex-col w-[208px] gap-[24px]">
           <Image src={darkBgLogo.src} className="h-[148px]" alt="Logo" width={222} height={214.37} />
@@ -28,7 +28,7 @@ export default function Footer() {
             </Link>
           </div>
         </div>
-        <div className="flex flex-col w-[208px]">
+        <div className="flex flex-col w-[208px] text-white">
           <p className="mb-[24px] font-bold">Year-Round Office</p>
           <p className="mb-[24px]">
             873 Main St. Suite 1<br></br>Ashby, MA 01431
@@ -49,7 +49,7 @@ export default function Footer() {
             </a>
           </p>
         </div>
-        <div className="flex flex-col w-[208px]">
+        <div className="flex flex-col w-[208px] text-white">
           <p className="mb-[24px] font-bold">Summer Office</p>
           <p className="mb-[24px]">
             12 Camp Monomonac Rd.,<br></br>Rindge, NH 03461
@@ -71,7 +71,7 @@ export default function Footer() {
           </p>
         </div>
         <Link href="https://umd.hack4impact.org/ourwork/camp-starfish" target="_blank">
-          <div className="flex flex-row justify-center items-end gap-[12px]">
+          <div className="flex flex-row justify-center items-end gap-[12px] text-white">
             <p>
               Built By<br></br>Hack4Impact-UMD
             </p>{" "}
