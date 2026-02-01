@@ -2,6 +2,7 @@
   "compilerOptions": {
     "lib": ["es2017"],
     "module": "commonjs",
+    "composite": true,
     "esModuleInterop": true,
     "noImplicitReturns": true,
     "noUnusedLocals": true,

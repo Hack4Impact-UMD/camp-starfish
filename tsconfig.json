@@ -23,5 +23,9 @@
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules", "functions", "apps-script"]
+  "exclude": ["node_modules", "functions", "apps-script"],
+  "references": [
+    { "path": "./functions/tsconfig.json" },
+    { "path": "./apps-script/tsconfig.json" }
+  ]
 }
