@@ -4,6 +4,8 @@ import { FlatCompat } from "@eslint/eslintrc";
 import tsPlugin from "@typescript-eslint/eslint-plugin";
 import tsParser from "@typescript-eslint/parser";
 import importPlugin from "eslint-plugin-import";
+import nextVitals from "eslint-config-next/core-web-vitals";
+import nextTs from "eslint-config-next/typescript";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -13,9 +15,11 @@ const compat = new FlatCompat({
 });
 
 const eslintConfig = [
-  ...compat.extends("next/core-web-vitals", "next/typescript").map(config => ({
+  ...[...nextVitals, ...nextTs].map(config => ({
     ...config,
-    files: ["./src/**/*.{ts,tsx}"]
+    files: [
+      "./src/**/*.{ts,tsx}",
+    ],
   })),
   {
     files: [
@@ -61,7 +65,6 @@ const eslintConfig = [
       "import/no-unresolved": 'error',
     }
   },
-
 ]
 
 export default eslintConfig;
