@@ -51,7 +51,7 @@ export default function SessionCard({ session, editMode }: SessionCardProps) {
           {session.name}
         </Title>
 
-        <Stack gap={0} align="center" className = "py-[5px]">
+        <Stack gap={0} align="left" className = "py-[5px]">
           <Text size="md">
             <strong>From:</strong> {formatDate(session.startDate)}
           </Text>
