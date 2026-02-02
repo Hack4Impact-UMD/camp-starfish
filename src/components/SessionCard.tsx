@@ -22,14 +22,14 @@ export default function SessionCard({ session, editMode }: SessionCardProps) {
   const formatDate = (date: string) => moment(date).format("dddd, MMMM Do");
 
   return (
-    <Card
-      key={session.id}
-      shadow="md"
-      radius="lg"
-      classNames={{
-        root: "relative w-[260px] bg-neutral-1",
-      }}
-    >
+<Card
+  key={session.id}
+  radius="lg"
+  classNames={{
+    root: "relative bg-white w-[295px] shadow-[0_0px_12px_rgba(0,0,0,0.12)]",
+  }}
+>
+
       {/* Trash Icon wrapper */}
       {editMode && (
         <div className="absolute top-2.5 right-2.5 z-10">
@@ -46,16 +46,16 @@ export default function SessionCard({ session, editMode }: SessionCardProps) {
         </div>
       )}
 
-      <Stack align="center" gap="sm" p="sm">
-        <Title order={4} c="primary">
+      <Stack align="center" gap="sm" p="md" className = "bg-white p-[40px] h-full flex justify-center items-center">
+        <Title order={4} c="primary" className="uppercase text-blue-6 text-[32px]">
           {session.name}
         </Title>
 
-        <Stack gap={0} align="center">
-          <Text size="sm">
+        <Stack gap={0} align="left" className = "py-[5px]">
+          <Text size="md">
             <strong>From:</strong> {formatDate(session.startDate)}
           </Text>
-          <Text size="sm">
+          <Text size="md">
             <strong>To:</strong> {formatDate(session.endDate)}
           </Text>
         </Stack>
@@ -64,10 +64,13 @@ export default function SessionCard({ session, editMode }: SessionCardProps) {
           mt="sm"
           color="green"
           radius="xl"
+          fw = {700}
           onClick={() => router.push(`/sessions/${session.id}`)}
+          
         >
           GO TO SCHEDULE
         </Button>
+
       </Stack>
     </Card>
   );

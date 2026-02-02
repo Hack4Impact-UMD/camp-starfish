@@ -1,13 +1,6 @@
 import React, { useState } from "react";
 import { DatePicker, DatesRangeValue } from "@mantine/dates";
-import {
-  Button,
-  TextInput,
-  Stack,
-  Group,
-  Text,
-  Box,
-} from "@mantine/core";
+import { Button, TextInput, Stack, Group, Text, Box } from "@mantine/core";
 import moment from "moment";
 import { Session } from "@/types/sessionTypes";
 import useCreateSession from "@/hooks/sessions/useCreateSession";
@@ -36,68 +29,70 @@ export default function CreateSessionModal() {
   };
 
   return (
-    <Box className="bg-white max-w-full mx-auto overflow-hidden gap-xl">
+    <Box className="bg-white max-w-full mx-auto overflow-hidden gap-xl pt-8">
       <Stack className="gap-xl">
-        <TextInput
-          label="Session Name"
-          placeholder="Enter name..."
-          value={sessionName}
-          onChange={(e) => setSessionName(e.currentTarget.value)}
-          className="w-full"
-        />
+        <Group className="items-center gap-sm">
+          <Text fw="bold" c="#002d45"> Enter Session Name:</Text>
+          <TextInput
+            placeholder="Enter Session Name"
+            value={sessionName}
+            onChange={(e) => setSessionName(e.currentTarget.value)}
+            className="w-1/2"
+          />
+        </Group>
 
         {/* Date Picker */}
         <Stack className="items-center gap-lg">
           <Group className="w-full items-center gap-[5px]">
+            <Text fw="bold" c="#002d45">Select Session Dates:</Text>
             <TextInput
-              label="Start Date"
+              disabled
               placeholder="Start Date"
               className="w-1/4"
               value={
                 dateRange[0] ? moment(dateRange[0]).format("MMM D, YYYY") : ""
               }
-              disabled
               classNames={{
                 root: "flex-grow",
               }}
             />
 
-            <Text>To</Text>
+            <Text c="#002d45">to</Text>
 
             <TextInput
-              label="End Date"
+              disabled
               placeholder="End Date"
               className="w-1/4 placeholder:text-neutral-400"
               value={
                 dateRange[1] ? moment(dateRange[1]).format("MMM D, YYYY") : ""
               }
-              disabled
               classNames={{
                 root: "flex-grow",
               }}
             />
           </Group>
 
-          <DatePicker
-            type="range"
-            value={dateRange}
-            onChange={setDateRange}
-            numberOfColumns={1}
-            size="md"
-            withCellSpacing={false}
-          />
+          <Box className="border border-[#002d45] p-4">
+            <DatePicker
+              type="range"
+              value={dateRange}
+              onChange={setDateRange}
+              numberOfColumns={1}
+              size="md"
+              withCellSpacing={false}
+            />
+          </Box>
         </Stack>
 
         <Group className="justify-center gap-md">
           <Button
             color="neutral"
-            className=" "
             onClick={() => modals.closeAll()}
           >
             CANCEL
           </Button>
 
-          <Button color="green" className="w-[100px]" onClick={handleGenerate}>
+          <Button color="#4ba565" className="w-[100px]" onClick={handleGenerate}>
             DONE
           </Button>
         </Group>
@@ -108,7 +103,12 @@ export default function CreateSessionModal() {
 
 export function openCreateSessionModal() {
   modals.open({
-    title: "Create Session",
+    title: "CREATE SESSION",
     children: <CreateSessionModal />,
+    radius: 0,
+    classNames: {
+      header: "bg-[#002d45]",
+      title: "text-white font-bold",
+    },
   });
 }

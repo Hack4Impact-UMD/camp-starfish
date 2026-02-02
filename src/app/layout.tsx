@@ -147,18 +147,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" className="h-full">
       <body
         className={`${campStarfishFonts
           .map((font) => fontObjs[font].variable)
-          .join(" ")} antialiased w-full min-h-screen flex flex-col`}
+          .join(" ")} antialiased w-full h-full flex flex-col`}
       >
         <Providers>
           <>
             <div className="w-full">
               <Navbar />
             </div>
-            <div className="flex-grow w-full">{children}</div>
+            <div className="flex-grow w-full flex">{children}</div>
             <div className="w-full">
               <Footer />
             </div>
