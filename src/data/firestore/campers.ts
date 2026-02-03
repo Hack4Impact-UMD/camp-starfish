@@ -1,5 +1,5 @@
 import { db } from "@/config/firebase";
-import { Camper, CamperID } from "@/types/personTypes";
+import { Camper, CamperID } from "@/types/userTypes";
 import { doc, Transaction, WriteBatch, QueryDocumentSnapshot, FirestoreDataConverter, WithFieldValue, DocumentReference } from "firebase/firestore";
 import { setDoc, deleteDoc, getDoc, updateDoc } from "./firestoreClientOperations";
 import { Collection } from "./utils";

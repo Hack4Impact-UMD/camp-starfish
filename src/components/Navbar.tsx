@@ -5,7 +5,7 @@ import Link from "next/link";
 import darkBgLogo from "../assets/logos/darkBgLogo.png";
 import profile from "../assets/logos/Profile.png";
 import { useAuth } from "@/auth/useAuth";
-import { Role } from "@/types/personTypes";
+import { Role } from "@/types/userTypes";
 import Image from "next/image";
 
 const navbarLinks: { name: string; href: string; roles: Role[] }[] = [
@@ -64,7 +64,8 @@ const Navbar: React.FC = () => {
               className="w-[62px] h-[62px] flex-none cursor-pointer"
               src={profile.src}
               alt="Profile"
-              width={50} height={50}
+              width={50}
+              height={50}
             />
           </Link>
         </div>
