@@ -8,7 +8,7 @@ export interface Album {
   linkedSessionId?: string;
 }
 
-export interface Image {
+export interface AlbumItem {
   id: string;
   albumId: string;
   name: string;
