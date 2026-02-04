@@ -25,9 +25,9 @@ import LoadingPage from "@/app/loading";
 import {
   getNightSchedulePositionAbbreviation,
   nightSchedulePositions,
-} from "@/utils/nightShiftUtils";
+} from "@/types/sessions/nightScheduleUtils";
 import useSession from "@/hooks/sessions/useSession";
-import { getDayNumOfSession } from "@/utils/sessionUtils";
+import { getDayNumOfSession } from "@/types/sessions/sessionUtils";
 
 interface NightScheduleTableProps {
   sessionId: string;
