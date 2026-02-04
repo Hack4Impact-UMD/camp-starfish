@@ -1,5 +1,5 @@
 import { db } from "@/config/firebase";
-import { Album, AlbumID } from "@/types/albumTypes";
+import { Album, AlbumID } from "@/types/albums/albumTypes";
 import { v4 as uuid } from "uuid";
 import { Collection } from "./utils";
 import { setDoc, deleteDoc, getDoc, updateDoc } from "./firestoreClientOperations";

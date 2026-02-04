@@ -1,5 +1,5 @@
 import { db } from "@/config/firebase";
-import { Parent, ParentID } from "@/types/userTypes";
+import { Parent, ParentID } from "@/types/users/userTypes";
 import {
   doc,
   query,

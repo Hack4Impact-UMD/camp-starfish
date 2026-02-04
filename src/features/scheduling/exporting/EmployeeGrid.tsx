@@ -5,7 +5,7 @@ import {
   SchedulingSectionType,
   SectionScheduleID,
   StaffAttendeeID,
-} from "@/types/sessionTypes";
+} from "@/types/sessions/sessionTypes";
 import { StyleSheet, Text, View } from "@react-pdf/renderer";
 import {
   getFreeplayAssignmentId,
@@ -149,7 +149,7 @@ interface EmployeeGridProps<T extends SchedulingSectionType> {
 }
 
 export default function EmployeeGrid<T extends SchedulingSectionType>(
-  props: EmployeeGridProps<T>
+  props: EmployeeGridProps<T>,
 ) {
   const { schedule, freeplay, campers, employees } = props;
   return (
@@ -158,8 +158,8 @@ export default function EmployeeGrid<T extends SchedulingSectionType>(
         {employees.length === 0
           ? "Employee"
           : employees[0].role === "ADMIN"
-          ? "Admin"
-          : "Staff"}{" "}
+            ? "Admin"
+            : "Staff"}{" "}
         Assignments
       </Text>
       <View style={styles.table}>
@@ -178,7 +178,7 @@ export default function EmployeeGrid<T extends SchedulingSectionType>(
           const fpBuddyIds = getFreeplayAssignmentId(freeplay, employee.id);
           const fpBuddies = fpBuddyIds
             ? (fpBuddyIds as number[]).map((id) =>
-                campers.find((c) => c.id === id)
+                campers.find((c) => c.id === id),
               )
             : [];
 
@@ -208,7 +208,7 @@ export default function EmployeeGrid<T extends SchedulingSectionType>(
                   const activity = block.activities.find((act) =>
                     isIndividualAssignments(act.assignments)
                       ? act.assignments.staffIds.includes(employee.id)
-                      : act.assignments.bunkNums.includes(employee.bunk)
+                      : act.assignments.bunkNums.includes(employee.bunk),
                   );
                   activityText = activity
                     ? isBundleActivity(activity)
@@ -217,7 +217,7 @@ export default function EmployeeGrid<T extends SchedulingSectionType>(
                     : "-";
                 } else {
                   const activity = block.activities.find((act) =>
-                    act.assignments.adminIds.includes(employee.id)
+                    act.assignments.adminIds.includes(employee.id),
                   );
                   activityText = activity
                     ? isBundleActivity(activity)

@@ -1,4 +1,4 @@
-import { AlbumID } from "@/types/albumTypes";
+import { AlbumID } from "@/types/albums/albumTypes";
 import Link from "next/link";
 import Image from "next/image";
 

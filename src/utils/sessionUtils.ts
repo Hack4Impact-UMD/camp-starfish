@@ -1,4 +1,4 @@
-import { SessionID } from "@/types/sessionTypes";
+import { SessionID } from "@/types/sessions/sessionTypes";
 import moment from "moment";
 
 export function getDayNumOfSession(date: string, session: SessionID) {

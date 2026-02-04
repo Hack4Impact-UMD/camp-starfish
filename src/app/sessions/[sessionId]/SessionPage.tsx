@@ -1,4 +1,4 @@
-import { SessionID } from "@/types/sessionTypes";
+import { SessionID } from "@/types/sessions/sessionTypes";
 import { Container, Flex, Title, Text } from "@mantine/core";
 import moment from "moment";
 import SessionCalendar from "./SessionCalendar";

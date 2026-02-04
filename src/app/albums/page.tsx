@@ -2,7 +2,7 @@
 import RequireAuth from "@/auth/RequireAuth";
 import AlbumsPage from "./AlbumsPage";
 import { useAuth } from "@/auth/useAuth";
-import { Role } from "@/types/userTypes";
+import { Role } from "@/types/users/userTypes";
 
 export default function Page() {
   const { token } = useAuth();

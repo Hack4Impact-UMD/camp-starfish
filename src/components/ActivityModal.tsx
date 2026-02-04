@@ -7,7 +7,7 @@ import {
   AdminAttendeeID,
   SectionID,
   ActivityWithAssignments,
-} from "@/types/sessionTypes";
+} from "@/types/sessions/sessionTypes";
 import { modals } from "@mantine/modals";
 import moment from "moment";
 import {
@@ -34,18 +34,18 @@ export default function ActivityModal(props: ActivityModalProps) {
     const attendeesById = getAttendeesById([...campers, ...staff, ...admins]);
     const assignments = activity.assignments;
     const adminNames = assignments.adminIds.map((adminId) =>
-      getFullName(attendeesById[adminId])
+      getFullName(attendeesById[adminId]),
     );
     if (isIndividualAssignments(assignments)) {
       return {
         staffNames: [
           ...assignments.staffIds.map((staffId) =>
-            getFullName(attendeesById[staffId])
+            getFullName(attendeesById[staffId]),
           ),
           ...adminNames,
         ],
         camperNames: assignments.camperIds.map((camperId) =>
-          getFullName(attendeesById[camperId])
+          getFullName(attendeesById[camperId]),
         ),
       };
     }
@@ -54,12 +54,12 @@ export default function ActivityModal(props: ActivityModalProps) {
       staffNames: assignments.bunkNums.flatMap((bunkNum) =>
         staff
           .filter((staff) => staff.bunk === bunkNum)
-          .map((staff) => getFullName(staff))
+          .map((staff) => getFullName(staff)),
       ),
       camperNames: assignments.bunkNums.flatMap((bunkNum) =>
         campers
           .filter((camper) => camper.bunk === bunkNum)
-          .map((camper) => getFullName(camper))
+          .map((camper) => getFullName(camper)),
       ),
     };
   }, [campers, staff, admins, activity]);
@@ -67,10 +67,12 @@ export default function ActivityModal(props: ActivityModalProps) {
   return (
     <div className="grid grid-cols-2">
       <div className="col-span-2 flex flex-col justify-center items-center bg-[#D6EAF8] rounded-none border-black border-y-2 py-2 w-full">
-        <Title order={2} className="mb-2">{section.name}</Title>
+        <Title order={2} className="mb-2">
+          {section.name}
+        </Title>
         <Text className="text-lg">
           {`${moment(section.startDate).format("dddd M/D")} - ${moment(
-            section.endDate
+            section.endDate,
           ).format("dddd M/D")}`}
         </Text>
       </div>

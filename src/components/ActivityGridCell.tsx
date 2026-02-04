@@ -1,7 +1,7 @@
 "use client";
 
 import { Badge, Box } from "@mantine/core";
-import { ActivityWithAssignments } from "@/types/sessionTypes";
+import { ActivityWithAssignments } from "@/types/sessions/sessionTypes";
 import { isIndividualAssignments } from "@/features/scheduling/generation/schedulingUtils";
 import { getActivityName } from "@/utils/activityUtils";
 

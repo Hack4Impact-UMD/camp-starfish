@@ -4,7 +4,7 @@ import {
   SchedulingSectionType,
   SectionScheduleID,
   StaffAttendeeID,
-} from "@/types/sessionTypes";
+} from "@/types/sessions/sessionTypes";
 import { getFullName } from "@/utils/personUtils";
 import { StyleSheet, View, Text } from "@react-pdf/renderer";
 import {
@@ -148,7 +148,7 @@ interface CamperGridProps<T extends SchedulingSectionType> {
 }
 
 export default function CamperGrid<T extends SchedulingSectionType>(
-  props: CamperGridProps<T>
+  props: CamperGridProps<T>,
 ) {
   const { schedule, freeplay, campers, staff } = props;
 
@@ -198,7 +198,7 @@ export default function CamperGrid<T extends SchedulingSectionType>(
                 const activity = block.activities.find((act) =>
                   isIndividualAssignments(act.assignments)
                     ? act.assignments.camperIds.includes(camper.id)
-                    : act.assignments.bunkNums.includes(camper.bunk)
+                    : act.assignments.bunkNums.includes(camper.bunk),
                 );
 
                 let activityText;

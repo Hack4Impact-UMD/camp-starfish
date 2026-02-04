@@ -5,7 +5,7 @@ import {
   BundleActivity,
   SchedulingSectionType,
   AgeGroup,
-} from "@/types/sessionTypes";
+} from "@/types/sessions/sessionTypes";
 import { isBundleActivity } from "../generation/schedulingUtils";
 
 const styles = StyleSheet.create({
@@ -40,19 +40,23 @@ type CamperPreferencesSheetProps<T extends SchedulingSectionType> = {
   sectionType: T;
   sectionName: string;
   ageGroup?: T extends "BUNDLE" ? AgeGroup : never;
-}
+};
 
-export function CamperPreferencesSheet<T extends SchedulingSectionType = SchedulingSectionType>({
+export function CamperPreferencesSheet<
+  T extends SchedulingSectionType = SchedulingSectionType,
+>({
   schedule,
   sectionType,
   sectionName,
-  ageGroup
+  ageGroup,
 }: CamperPreferencesSheetProps<T>) {
   return (
     <Document>
       <Page size="A4" style={styles.page}>
         <View style={styles.nameRow}>
-          {sectionType !== "NON-BUNK-JAMBO" && <Text>Name: ____________________________</Text>}
+          {sectionType !== "NON-BUNK-JAMBO" && (
+            <Text>Name: ____________________________</Text>
+          )}
           <Text>Bunk: ___________</Text>
         </View>
 
@@ -61,11 +65,12 @@ export function CamperPreferencesSheet<T extends SchedulingSectionType = Schedul
         </Text>
 
         {Object.entries(schedule.blocks).map(([blockId, block]) => {
-          const activities = sectionType === "BUNDLE"
-            ? (block.activities as BundleActivity[]).filter(
-                (act) => !ageGroup || act.ageGroup === ageGroup
-              )
-            : block.activities;
+          const activities =
+            sectionType === "BUNDLE"
+              ? (block.activities as BundleActivity[]).filter(
+                  (act) => !ageGroup || act.ageGroup === ageGroup,
+                )
+              : block.activities;
           if (activities.length === 0) return null;
           return (
             <View key={blockId} style={styles.block}>

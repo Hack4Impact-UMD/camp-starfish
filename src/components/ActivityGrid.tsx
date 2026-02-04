@@ -1,6 +1,9 @@
 "use client";
 
-import { SchedulingSectionType, SectionScheduleID } from "@/types/sessionTypes";
+import {
+  SchedulingSectionType,
+  SectionScheduleID,
+} from "@/types/sessions/sessionTypes";
 import React from "react";
 import ActivityGridRow from "./ActivityGridRow";
 import { Box, SimpleGrid } from "@mantine/core";
@@ -16,9 +19,9 @@ export default function ActivityGrid(props: ActivityGridProps) {
   const { sessionId, sectionId } = props;
   const scheduleQuery = useSectionSchedule(sessionId, sectionId);
 
-  if (scheduleQuery.isError) return <p>Error loading schedule</p>
+  if (scheduleQuery.isError) return <p>Error loading schedule</p>;
   else if (scheduleQuery.isPending) return <LoadingPage />;
-  return <ActivityGridContent schedule={scheduleQuery.data} />
+  return <ActivityGridContent schedule={scheduleQuery.data} />;
 }
 
 interface ActivityGridContentProps {

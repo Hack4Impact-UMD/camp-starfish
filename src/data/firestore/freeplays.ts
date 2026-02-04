@@ -1,5 +1,5 @@
 import { db } from "@/config/firebase";
-import { Freeplay, FreeplayID } from "@/types/sessionTypes";
+import { Freeplay, FreeplayID } from "@/types/sessions/sessionTypes";
 import { doc, Transaction, WriteBatch, QueryDocumentSnapshot, FirestoreDataConverter, WithFieldValue, DocumentReference } from "firebase/firestore";
 import { setDoc, deleteDoc, getDoc, updateDoc } from "./firestoreClientOperations";
 import { Collection, SessionsSubcollection } from "./utils";

@@ -6,7 +6,7 @@ import {
   SchedulingSectionType,
   SectionScheduleID,
   StaffAttendeeID,
-} from "@/types/sessionTypes";
+} from "@/types/sessions/sessionTypes";
 import CamperGrid from "@/features/scheduling/exporting/CamperGrid";
 import BlockRatiosGrid from "@/features/scheduling/exporting/BlockRatiosGrid";
 import EmployeeGrid from "@/features/scheduling/exporting/EmployeeGrid";

@@ -5,7 +5,7 @@ import Link from "next/link";
 import darkBgLogo from "../assets/logos/darkBgLogo.png";
 import profile from "../assets/logos/Profile.png";
 import { useAuth } from "@/auth/useAuth";
-import { Role } from "@/types/userTypes";
+import { Role } from "@/types/users/userTypes";
 import Image from "next/image";
 
 const navbarLinks: { name: string; href: string; roles: Role[] }[] = [

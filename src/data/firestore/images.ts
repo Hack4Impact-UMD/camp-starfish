@@ -1,5 +1,5 @@
 import { db } from "@/config/firebase";
-import { ImageMetadata, ImageMetadataID } from "@/types/albumTypes";
+import { ImageMetadata, ImageMetadataID } from "@/types/albums/albumTypes";
 import { doc, Transaction, WriteBatch, FirestoreDataConverter, WithFieldValue, QueryDocumentSnapshot, DocumentReference } from "firebase/firestore";
 import { getDoc, setDoc, updateDoc, deleteDoc } from "./firestoreClientOperations"
 import { AlbumsSubcollection, Collection } from "./utils";

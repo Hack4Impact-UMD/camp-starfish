@@ -4,7 +4,7 @@ import {
   CamperAttendeeID,
   SectionSchedule,
   SectionPreferences,
-} from "@/types/sessionTypes";
+} from "@/types/sessions/sessionTypes";
 
 export class NonBunkJamboreeScheduler {
   schedule: SectionSchedule<"NON-BUNK-JAMBO"> = { blocks: {}, alternatePeriodsOff: {} };

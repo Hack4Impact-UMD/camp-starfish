@@ -20,7 +20,7 @@ import {
   SchedulingSection,
   CommonSection,
   SectionType,
-} from "@/types/sessionTypes";
+} from "@/types/sessions/sessionTypes";
 import useSection from "@/hooks/sections/useSection";
 import { modals } from "@mantine/modals";
 
@@ -39,18 +39,18 @@ export default function EditSectionModal({
 }: EditSectionModalProps) {
   const { data: section, isLoading: isLoadingSection } = useSection(
     sessionId,
-    sectionId || ""
+    sectionId || "",
   );
   const isEditMode = !!sectionId;
 
   const [startDate, setStartDate] = useState<Moment | null>(
-    (isEditMode ? moment(section?.startDate) : selectedStartDate) ?? null
+    (isEditMode ? moment(section?.startDate) : selectedStartDate) ?? null,
   );
   const [endDate, setEndDate] = useState<Moment | null>(
-    (isEditMode ? moment(section?.endDate) : selectedEndDate) ?? null
+    (isEditMode ? moment(section?.endDate) : selectedEndDate) ?? null,
   );
   const [scheduleType, setScheduleType] = useState<SectionType | null>(
-    section?.type ?? null
+    section?.type ?? null,
   );
   const [name, setName] = useState<string>(section?.name ?? "");
 
@@ -94,14 +94,14 @@ export default function EditSectionModal({
         { sessionId, sectionId, updates: sectionData },
         {
           onSuccess: () => modals.closeAll(),
-        }
+        },
       );
     } else {
       createMutation.mutate(
         { sessionId, section: sectionData },
         {
           onSuccess: () => modals.closeAll(),
-        }
+        },
       );
     }
   };

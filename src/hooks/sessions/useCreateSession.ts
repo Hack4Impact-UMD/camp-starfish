@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { setSession } from '@/data/firestore/sessions';
-import { Session } from '../../types/sessionTypes';
+import { Session } from '../../types/sessions/sessionTypes';
 import useNotifications from '@/features/notifications/useNotifications';
 
 export default function useCreateSession() {

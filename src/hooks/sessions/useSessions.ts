@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { getAllSessions } from "@/data/firestore/sessions";
-import { SessionID } from "@/types/sessionTypes";
+import { SessionID } from "@/types/sessions/sessionTypes";
 
 export function useSessions() {
     return useQuery<SessionID[]>({

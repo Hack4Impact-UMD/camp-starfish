@@ -1,6 +1,6 @@
 "use client";
 import { Button, Text, Title } from "@mantine/core";
-import { SchedulingSectionID, SessionID } from "@/types/sessionTypes";
+import { SchedulingSectionID, SessionID } from "@/types/sessions/sessionTypes";
 import LoadingPage from "@/app/loading";
 import React from "react";
 import { usePublishSectionSchedule } from "@/features/scheduling/publishing/publishSectionSchedule";
@@ -57,7 +57,7 @@ function SectionPageContent(props: SectionPageContentProps) {
           {`Last generated: ${
             section && section.scheduleLastGenerated
               ? moment(section.scheduleLastGenerated).format(
-                  "MM/DD/YYYY hh:mm:ss A"
+                  "MM/DD/YYYY hh:mm:ss A",
                 )
               : "N/A"
           }`}

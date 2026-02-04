@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { Button, Group, Stack, Title, Menu, Text } from "@mantine/core";
 import moment from "moment";
 import Image from "next/image";
-import { SessionID } from "@/types/sessionTypes";
+import { SessionID } from "@/types/sessions/sessionTypes";
 import pencilIcon from "@/assets/icons/pencilIcon.svg";
 import SessionCard from "@/components/SessionCard";
 import { openCreateSessionModal } from "@/components/CreateSessionModal";

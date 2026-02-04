@@ -1,4 +1,8 @@
-import { Block, SchedulingSectionType, AttendeeID } from "@/types/sessionTypes";
+import {
+  Block,
+  SchedulingSectionType,
+  AttendeeID,
+} from "@/types/sessions/sessionTypes";
 import { useState } from "react";
 
 import { MdAccountCircle } from "react-icons/md";
@@ -59,7 +63,9 @@ export default function AssignActivityModal(props: AssignActivityModalProps) {
           />
         </Box>
 
-        <Button color="green" className="w-full">CONFIRM CHANGES</Button>
+        <Button color="green" className="w-full">
+          CONFIRM CHANGES
+        </Button>
       </Box>
     </Container>
   );

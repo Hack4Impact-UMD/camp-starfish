@@ -12,7 +12,7 @@ import {
   NightSchedulePosition,
   StaffAttendeeID,
   SessionID,
-} from "@/types/sessionTypes";
+} from "@/types/sessions/sessionTypes";
 import { getFullName } from "@/utils/personUtils";
 import moment from "moment";
 import useAttendeesBySessionId from "@/hooks/attendees/useAttendeesBySessionId";
@@ -42,17 +42,27 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
   const { data: nightShifts = [], status: nightShiftsStatus } =
     useNightShiftsBySessionId(sessionId);
 
-  if (sessionStatus === 'error' || attendeesStatus === 'error' || nightShiftsStatus === 'error') {
+  if (
+    sessionStatus === "error" ||
+    attendeesStatus === "error" ||
+    nightShiftsStatus === "error"
+  ) {
     return <p>Error loading session data</p>;
-  } else if (sessionStatus === 'pending' || attendeesStatus === 'pending' || nightShiftsStatus === 'pending') {
+  } else if (
+    sessionStatus === "pending" ||
+    attendeesStatus === "pending" ||
+    nightShiftsStatus === "pending"
+  ) {
     return <LoadingPage />;
   }
 
-  return <NightScheduleTableContent
-    session={session}
-    attendees={attendees}
-    nightShifts={nightShifts}
-  />
+  return (
+    <NightScheduleTableContent
+      session={session}
+      attendees={attendees}
+      nightShifts={nightShifts}
+    />
+  );
 }
 
 interface NightScheduleTableContentProps {
@@ -85,54 +95,57 @@ function NightScheduleTableContent(props: NightScheduleTableContentProps) {
     return { staffById, staffByBunk, bunkNums };
   }, [attendees]);
 
-  const getStaffForPosition = useCallback((
-    nightShift: NightShiftID,
-    bunkNum: number,
-    position: NightSchedulePosition
-  ): StaffAttendeeID[] => {
-    const bunkData = nightShift[bunkNum];
+  const getStaffForPosition = useCallback(
+    (
+      nightShift: NightShiftID,
+      bunkNum: number,
+      position: NightSchedulePosition,
+    ): StaffAttendeeID[] => {
+      const bunkData = nightShift[bunkNum];
 
-    const date = nightShift.id;
+      const date = nightShift.id;
 
-    switch (position) {
-      case "NIGHT-BUNK-DUTY": {
-        return bunkData.nightBunkDuty.map((staffId) => staffById[staffId]);
-      }
-      case "COUNSELOR-ON-DUTY": {
-        return bunkData.nightBunkDuty.map((staffId) => staffById[staffId]);
-      }
-      case "DAY OFF": {
-        const staffInBunk: number[] = Array.from(
-          staffByBunk[bunkNum].map((att) => att.id) || []
-        );
-        const staffOff = staffInBunk.filter((staffId: number) => {
-          const staff = staffById[staffId];
-          return staff.daysOff.includes(date);
-        });
-        return staffOff.map((staffId: number) => staffById[staffId]);
-      }
-      case "ROVER": {
-        const allStaffInBunk: number[] = Array.from(
-          staffByBunk[bunkNum].map((att) => att.id) || []
-        );
-        const assignedStaff = new Set([
-          ...bunkData.nightBunkDuty,
-          ...bunkData.counselorsOnDuty,
-        ]);
+      switch (position) {
+        case "NIGHT-BUNK-DUTY": {
+          return bunkData.nightBunkDuty.map((staffId) => staffById[staffId]);
+        }
+        case "COUNSELOR-ON-DUTY": {
+          return bunkData.nightBunkDuty.map((staffId) => staffById[staffId]);
+        }
+        case "DAY OFF": {
+          const staffInBunk: number[] = Array.from(
+            staffByBunk[bunkNum].map((att) => att.id) || [],
+          );
+          const staffOff = staffInBunk.filter((staffId: number) => {
+            const staff = staffById[staffId];
+            return staff.daysOff.includes(date);
+          });
+          return staffOff.map((staffId: number) => staffById[staffId]);
+        }
+        case "ROVER": {
+          const allStaffInBunk: number[] = Array.from(
+            staffByBunk[bunkNum].map((att) => att.id) || [],
+          );
+          const assignedStaff = new Set([
+            ...bunkData.nightBunkDuty,
+            ...bunkData.counselorsOnDuty,
+          ]);
 
-        const roverStaff = allStaffInBunk.filter((staffId: number) => {
-          if (assignedStaff.has(staffId)) return false;
-          const staff = staffById[staffId];
-          if (staff.daysOff.includes(date)) return false;
-          return true;
-        });
+          const roverStaff = allStaffInBunk.filter((staffId: number) => {
+            if (assignedStaff.has(staffId)) return false;
+            const staff = staffById[staffId];
+            if (staff.daysOff.includes(date)) return false;
+            return true;
+          });
 
-        return roverStaff.map((staffId: number) => staffById[staffId]);
+          return roverStaff.map((staffId: number) => staffById[staffId]);
+        }
+        default:
+          return [];
       }
-      default:
-        return [];
-    }
-  }, [staffByBunk, staffById]);
+    },
+    [staffByBunk, staffById],
+  );
 
   const data: NightScheduleTableRow[] = useMemo(() => {
     const rows: NightScheduleTableRow[] = [];
@@ -142,7 +155,7 @@ function NightScheduleTableContent(props: NightScheduleTableContentProps) {
           date: nightShift.id,
           position: position,
           bunks: bunkNums.map((bunkNum) =>
-            getStaffForPosition(nightShift, bunkNum, position)
+            getStaffForPosition(nightShift, bunkNum, position),
           ),
         };
         rows.push(row);
@@ -211,7 +224,7 @@ function NightScheduleTableContent(props: NightScheduleTableContentProps) {
               >
                 {flexRender(
                   header.column.columnDef.header,
-                  header.getContext()
+                  header.getContext(),
                 )}
               </Table.Th>
             ))}
@@ -238,7 +251,7 @@ function NightScheduleTableContent(props: NightScheduleTableContentProps) {
                     >
                       {flexRender(
                         cell.column.columnDef.cell,
-                        cell.getContext()
+                        cell.getContext(),
                       )}
                     </Table.Td>
                   );
@@ -252,7 +265,7 @@ function NightScheduleTableContent(props: NightScheduleTableContentProps) {
                     >
                       {flexRender(
                         cell.column.columnDef.cell,
-                        cell.getContext()
+                        cell.getContext(),
                       )}
                     </Table.Td>
                   );

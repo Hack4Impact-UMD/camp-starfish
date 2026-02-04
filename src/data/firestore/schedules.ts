@@ -1,4 +1,4 @@
-import { SchedulingSectionType, SectionSchedule, SectionScheduleID } from "@/types/sessionTypes";
+import { SchedulingSectionType, SectionSchedule, SectionScheduleID } from "@/types/sessions/sessionTypes";
 import { doc, DocumentReference, FirestoreDataConverter, QueryDocumentSnapshot, Transaction, WithFieldValue } from "firebase/firestore";
 import { getDoc } from "./firestoreClientOperations";
 import { db } from "@/config/firebase";

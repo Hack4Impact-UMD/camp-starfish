@@ -1,5 +1,5 @@
 import { db } from "@/config/firebase";
-import { Session, SessionID } from "@/types/sessionTypes";
+import { Session, SessionID } from "@/types/sessions/sessionTypes";
 import { v4 as uuid } from "uuid";
 import {
   doc,

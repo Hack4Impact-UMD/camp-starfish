@@ -4,7 +4,7 @@ import { Card, Stack, Title, Text, Button, ActionIcon } from "@mantine/core";
 import Image from "next/image";
 import moment from "moment";
 import trashIcon from "@/assets/icons/trashIcon.svg";
-import { SessionID } from "@/types/sessionTypes";
+import { SessionID } from "@/types/sessions/sessionTypes";
 import { useRouter } from "next/navigation";
 import { useDeleteSession } from "@/hooks/sessions/useDeleteSession";
 import ConfirmationModal from "./ConfirmationModal";
@@ -33,7 +33,11 @@ export default function SessionCard({ session, editMode }: SessionCardProps) {
       {/* Trash Icon wrapper */}
       {editMode && (
         <div className="absolute top-2.5 right-2.5 z-10">
-          <ConfirmationModal text={`Are you sure you want to delete the session "${session.name}"`} cannotUndo onConfirm={() => deleteSession.mutate(session.id)}>
+          <ConfirmationModal
+            text={`Are you sure you want to delete the session "${session.name}"`}
+            cannotUndo
+            onConfirm={() => deleteSession.mutate(session.id)}
+          >
             <ActionIcon
               variant="transparent"
               radius="xl"

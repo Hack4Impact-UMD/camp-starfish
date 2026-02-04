@@ -1,6 +1,10 @@
 import { flexRender } from "@tanstack/react-table";
 import { useCallback, useMemo, useState } from "react";
-import { AttendeeID, CamperAttendeeID, StaffAttendeeID } from "@/types/sessionTypes";
+import {
+  AttendeeID,
+  CamperAttendeeID,
+  StaffAttendeeID,
+} from "@/types/sessions/sessionTypes";
 import {
   Button,
   Container,
@@ -36,7 +40,11 @@ type LargeDirectoryBlockProps = {
 export default function DirectoryTableView({
   sessionId,
 }: LargeDirectoryBlockProps) {
-  const { data: attendeeList, isLoading, isError } = useAttendeesBySessionId(sessionId);
+  const {
+    data: attendeeList,
+    isLoading,
+    isError,
+  } = useAttendeesBySessionId(sessionId);
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
   const [sortNameOption, setSortNameOption] = useState<string | null>(null);
 
@@ -61,11 +69,16 @@ export default function DirectoryTableView({
         const bLast = b.name.lastName.toLowerCase();
 
         switch (sortNameOption) {
-          case "firstNameAZ": return aFirst.localeCompare(bFirst);
-          case "firstNameZA": return bFirst.localeCompare(aFirst);
-          case "lastNameAZ": return aLast.localeCompare(bLast);
-          case "lastNameZA": return bLast.localeCompare(aLast);
-          default: return 0;
+          case "firstNameAZ":
+            return aFirst.localeCompare(bFirst);
+          case "firstNameZA":
+            return bFirst.localeCompare(aFirst);
+          case "lastNameAZ":
+            return aLast.localeCompare(bLast);
+          case "lastNameZA":
+            return bLast.localeCompare(aLast);
+          default:
+            return 0;
         }
       });
     }
@@ -75,15 +88,17 @@ export default function DirectoryTableView({
 
   const getNameFromId = useCallback(
     (id: number) => {
-      const person = attendeeList?.find(a => a.id === id);
+      const person = attendeeList?.find((a) => a.id === id);
       if (!person) return null;
       return `${person.name.firstName} ${person.name.lastName[0]}.`;
     },
-    [attendeeList]
+    [attendeeList],
   );
 
   const columns = useMemo<ColumnDef<AttendeeID>[]>(() => {
-    const render = (v: unknown) => <DirectoryTableCell data={v != null ? String(v) : "N/A"} />;
+    const render = (v: unknown) => (
+      <DirectoryTableCell data={v != null ? String(v) : "N/A"} />
+    );
 
     const renderIdListAsNames = (ids: number[]) => {
       if (!ids || ids.length === 0) return render("N/A");
@@ -204,7 +219,7 @@ export default function DirectoryTableView({
             const dates = info.getValue<string[]>();
             if (!dates || dates.length === 0) return render("N/A");
             return render(
-              dates.map((d) => moment(d).format("MM-YYYY")).join(", ")
+              dates.map((d) => moment(d).format("MM-YYYY")).join(", "),
             );
           },
         },
@@ -248,7 +263,7 @@ export default function DirectoryTableView({
             const dates = info.getValue<string[]>();
             if (!dates || dates.length === 0) return render("N/A");
             return render(
-              dates.map((d) => moment(d).format("MM-YYYY")).join(", ")
+              dates.map((d) => moment(d).format("MM-YYYY")).join(", "),
             );
           },
         },
@@ -279,8 +294,9 @@ export default function DirectoryTableView({
     setGlobalFilter("");
   };
 
-  const filtersActive = !!selectedRole || !!sortNameOption || !!table.getState().globalFilter;
-  
+  const filtersActive =
+    !!selectedRole || !!sortNameOption || !!table.getState().globalFilter;
+
   if (isLoading) {
     return <LoadingPage />;
   }
@@ -364,7 +380,7 @@ export default function DirectoryTableView({
                       >
                         {flexRender(
                           header.column.columnDef.header,
-                          header.getContext()
+                          header.getContext(),
                         )}
                       </th>
                     ))}
@@ -382,7 +398,7 @@ export default function DirectoryTableView({
                       >
                         {flexRender(
                           cell.column.columnDef.cell,
-                          cell.getContext()
+                          cell.getContext(),
                         )}
                       </td>
                     ))}

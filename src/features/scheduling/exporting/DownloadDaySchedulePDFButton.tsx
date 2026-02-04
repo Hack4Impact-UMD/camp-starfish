@@ -11,7 +11,7 @@ import {
   SchedulingSectionType,
   SectionID,
   SectionScheduleID,
-} from "@/types/sessionTypes";
+} from "@/types/sessions/sessionTypes";
 import { Button } from "@mantine/core";
 import useNotifications from "@/features/notifications/useNotifications";
 import { MdOpenInNew } from "react-icons/md";
@@ -25,7 +25,7 @@ interface DownloadDaySchedulePDFButtonProps {
 }
 
 export default function DownloadDaySchedulePDFButton(
-  props: DownloadDaySchedulePDFButtonProps
+  props: DownloadDaySchedulePDFButtonProps,
 ) {
   const { sessionId, sectionId, date } = props;
 
@@ -72,7 +72,7 @@ interface DownloadDaySchedulePDFButtonContentProps {
 }
 
 function DownloadDaySchedulePDFButtonContent(
-  props: DownloadDaySchedulePDFButtonContentProps
+  props: DownloadDaySchedulePDFButtonContentProps,
 ) {
   const { attendees, section, schedule, freeplay } = props;
 
@@ -82,7 +82,7 @@ function DownloadDaySchedulePDFButtonContent(
       staff: attendees.filter((att) => att.role === "STAFF"),
       campers: attendees.filter((att) => att.role === "CAMPER"),
     }),
-    [attendees]
+    [attendees],
   );
 
   return (

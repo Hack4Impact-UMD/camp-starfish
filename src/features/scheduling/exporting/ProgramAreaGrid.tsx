@@ -4,7 +4,7 @@ import {
   SectionSchedule,
   BundleActivity,
   ProgramAreaID,
-} from "@/types/sessionTypes";
+} from "@/types/sessions/sessionTypes";
 
 // ---------- Styles ----------
 const styles = StyleSheet.create({
@@ -117,8 +117,8 @@ export default function ProgramAreaGrid({
   const programAreaMap: Record<string, ProgramAreaID> = {};
   Object.values(schedule.blocks).flatMap((block) =>
     block.activities.forEach(
-      (a) => (programAreaMap[a.programArea.id] = a.programArea)
-    )
+      (a) => (programAreaMap[a.programArea.id] = a.programArea),
+    ),
   );
   const allAreas = Object.entries(programAreaMap)
     .sort((a, b) => a[0].localeCompare(b[0]))
@@ -196,7 +196,7 @@ export default function ProgramAreaGrid({
               {/* Area Cells */}
               {areas.map((area) => {
                 const areaActivities = activities.filter(
-                  (a) => a.programArea.id === area.id
+                  (a) => a.programArea.id === area.id,
                 );
 
                 const isEmpty = areaActivities.length === 0;
@@ -220,9 +220,9 @@ export default function ProgramAreaGrid({
   );
 
   return (
-      <View style={styles.page}>
-        <Text style={styles.title}>{sectionName} Program Area Grid</Text>
-        {areaChunks.map((areas, index) => renderTable(areas, index))}
-      </View>
+    <View style={styles.page}>
+      <Text style={styles.title}>{sectionName} Program Area Grid</Text>
+      {areaChunks.map((areas, index) => renderTable(areas, index))}
+    </View>
   );
 }

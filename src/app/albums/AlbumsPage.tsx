@@ -7,7 +7,7 @@ import filterIcon from "@/assets/icons/filterIcon.svg";
 import testPicture from "@/assets/images/PolaroidPhotos1.png";
 import EditAlbumModal from "@/components/EditAlbumModal";
 import CardGallery from "@/components/CardGallery";
-import { AlbumID } from "@/types/albumTypes";
+import { AlbumID } from "@/types/albums/albumTypes";
 import Image from "next/image";
 
 const AlbumsPage: React.FC = () => {
@@ -55,7 +55,9 @@ const AlbumsPage: React.FC = () => {
         </div>
         <CardGallery<AlbumID>
           items={albums}
-          renderItem={(album: AlbumID) => <AlbumCard album={album} thumbnail="" />}
+          renderItem={(album: AlbumID) => (
+            <AlbumCard album={album} thumbnail="" />
+          )}
         />
       </div>
     </div>
