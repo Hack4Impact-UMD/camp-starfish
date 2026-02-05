@@ -1,4 +1,4 @@
-import { Gender, Role } from "../users/userTypes";
+import { Gender, Name, Role } from "../users/userTypes";
 
 export interface Session {
   id: string;
@@ -14,6 +14,7 @@ export type SectionType = SchedulingSectionType | "COMMON";
 
 interface BaseSection {
   id: string;
+  name: string;
   sessionId: string;
   type: SectionType;
   startDate: string;
@@ -40,18 +41,21 @@ interface BaseAttendee {
 
 export type AgeGroup = "OCP" | "NAV";
 export interface CamperAttendee extends BaseAttendee {
+  role: "CAMPER";
   ageGroup: AgeGroup;
   level: number;
   bunk: number;
   isOptedOutFromSwim: boolean;
 }
 export interface StaffAttendee extends BaseAttendee {
+  role: "STAFF";
   programCounselor?: string;
   bunk: number;
   leadBunkCounselor: boolean;
   daysOff: string[];
 }
 export interface AdminAttendee extends BaseAttendee {
+  role: "ADMIN";
   daysOff: string[];
 }
 export type Attendee = CamperAttendee | StaffAttendee | AdminAttendee;
