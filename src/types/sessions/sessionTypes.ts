@@ -31,11 +31,7 @@ interface BaseAttendee {
   attendeeId: string;
   sessionId: string;
   snapshot: {
-    name: {
-      firstName: string;
-      middleName?: string;
-      lastName: string;
-    },
+    name: Name
     gender: Gender;
     age: number;
   };

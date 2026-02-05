@@ -2,14 +2,16 @@ interface BaseUser {
   id: number;
   uid?: string;
   email?: string;
-  name: {
-    firstName: string;
-    middleName?: string;
-    lastName: string;
-  };
+  name: Name;
   role: Role;
   gender: Gender;
   dateOfBirth: string;
+}
+
+export interface Name {
+  firstName: string;
+  middleName?: string;
+  lastName: string;
 }
 
 export type Role = "CAMPER" | "PARENT" | "STAFF" | "PHOTOGRAPHER" | "ADMIN";
