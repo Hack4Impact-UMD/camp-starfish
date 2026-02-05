@@ -49,7 +49,7 @@ export interface CamperAttendee extends BaseAttendee {
 }
 export interface StaffAttendee extends BaseAttendee {
   role: "STAFF";
-  programCounselor?: string;
+  programCounselorFor?: string;
   bunk: number;
   leadBunkCounselor: boolean;
   daysOff: string[];
