@@ -28,7 +28,7 @@ export interface SchedulingSection extends BaseSection {
 export type Section = CommonSection | SchedulingSection;
 
 interface BaseAttendee {
-  attendeeId: string;
+  attendeeId: number;
   sessionId: string;
   snapshot: {
     name: Name
