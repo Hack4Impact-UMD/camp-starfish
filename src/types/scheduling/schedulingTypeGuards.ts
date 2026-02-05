@@ -11,9 +11,9 @@ export function isNonBunkJamboreeBlock(block: Block): block is NonBunkJamboreeBl
 export function isBundleActivity(activity: Activity): activity is BundleActivity { return 'programArea' in activity };
 export function isJamboreeActivity(activity: Activity): activity is JamboreeActivity { return !('programArea' in activity); }
 
-export function isBundleActivityWithAssignments(activityWithAssignments: ActivityWithAssignments): activityWithAssignments is BundleActivityWithAssignments { return isBundleActivity(activityWithAssignments.activity); }
-export function isBunkJamboreeActivityWithAssignments(activityWithAssignments: ActivityWithAssignments): activityWithAssignments is BunkJamboreeActivityWithAssignments { return isJamboreeActivity(activityWithAssignments.activity) && isBunkActivityAssignments(activityWithAssignments.assignments); }
-export function isNonBunkJamboreeActivityWithAssignments(activityWithAssignments: ActivityWithAssignments): activityWithAssignments is NonBunkJamboreeActivityWithAssignments { return isJamboreeActivity(activityWithAssignments.activity) && isIndividualActivityAssignments(activityWithAssignments.assignments); }
+export function isBundleActivityWithAssignments(activityWithAssignments: ActivityWithAssignments): activityWithAssignments is BundleActivityWithAssignments { return isBundleActivity(activityWithAssignments); }
+export function isBunkJamboreeActivityWithAssignments(activityWithAssignments: ActivityWithAssignments): activityWithAssignments is BunkJamboreeActivityWithAssignments { return isJamboreeActivity(activityWithAssignments) && isBunkActivityAssignments(activityWithAssignments); }
+export function isNonBunkJamboreeActivityWithAssignments(activityWithAssignments: ActivityWithAssignments): activityWithAssignments is NonBunkJamboreeActivityWithAssignments { return isJamboreeActivity(activityWithAssignments) && isIndividualActivityAssignments(activityWithAssignments); }
 
 export function isIndividualActivityAssignments(activityAssignments: ActivityAssignments): activityAssignments is IndividualActivityAssignments { return 'camperIds' in activityAssignments; };
 export function isBunkActivityAssignments(activityAssignments: ActivityAssignments): activityAssignments is BunkActivityAssignments { return 'bunkNums' in activityAssignments; };

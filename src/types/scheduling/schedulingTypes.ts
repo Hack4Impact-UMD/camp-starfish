@@ -30,18 +30,9 @@ export interface BunkJamboreeBlock extends BaseBlock { activities: BunkJamboreeA
 export interface NonBunkJamboreeBlock extends BaseBlock { activities: NonBunkJamboreeActivityWithAssignments[]; }
 export type Block = BundleBlock | BunkJamboreeBlock | NonBunkJamboreeBlock;
 
-export interface BundleActivityWithAssignments {
-  activity: BundleActivity;
-  assignments: IndividualActivityAssignments;
-}
-export interface BunkJamboreeActivityWithAssignments {
-  activity: JamboreeActivity;
-  assignments: BunkActivityAssignments;
-}
-export interface NonBunkJamboreeActivityWithAssignments {
-  activity: JamboreeActivity;
-  assignments: IndividualActivityAssignments;
-}
+export type BundleActivityWithAssignments = BundleActivity & IndividualActivityAssignments;
+export type BunkJamboreeActivityWithAssignments = JamboreeActivity & BunkActivityAssignments;
+export type NonBunkJamboreeActivityWithAssignments = JamboreeActivity & IndividualActivityAssignments;
 export type ActivityWithAssignments = BundleActivityWithAssignments | BunkJamboreeActivityWithAssignments | NonBunkJamboreeActivityWithAssignments;
 
 interface BaseActivity {
