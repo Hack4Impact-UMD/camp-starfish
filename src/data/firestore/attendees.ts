@@ -1,5 +1,6 @@
 import { db } from "@/config/firebase";
-import { AttendeeID, Attendee } from "@/types/sessions/sessionTypes";
+import { Attendee } from "@/types/sessions/sessionTypes";
+import { AttendeeDoc } from "./types/documents";
 import {
   doc,
   Transaction,
@@ -12,31 +13,30 @@ import {
   CollectionReference
 } from "firebase/firestore";
 import { setDoc, getDoc, updateDoc, executeQuery } from "./firestoreClientOperations";
-import { Collection, SessionsSubcollection } from "./utils";
+import { Collection, SessionsSubcollection } from "./types/collections";
 
-const attendeeFirestoreConverter: FirestoreDataConverter<AttendeeID, Attendee> = {
-  toFirestore: (attendee: WithFieldValue<AttendeeID>) => {
-    const { id, sessionId, ...dto } = attendee;
-    return dto as WithFieldValue<AttendeeID>;
+const attendeeFirestoreConverter: FirestoreDataConverter<Attendee, AttendeeDoc> = {
+  toFirestore: (attendee: WithFieldValue<Attendee>) => {
+    const { attendeeId, sessionId, ...dto } = attendee;
+    return dto as WithFieldValue<Attendee>;
   },
-  fromFirestore: (snapshot: QueryDocumentSnapshot<Attendee, Attendee>): AttendeeID => ({ id: Number(snapshot.ref.id), sessionId: snapshot.ref.parent.parent!.id, ...snapshot.data() })
+  fromFirestore: (snapshot: QueryDocumentSnapshot<AttendeeDoc, AttendeeDoc>): Attendee => ({ attendeeId: Number(snapshot.ref.id), sessionId: snapshot.ref.parent.parent!.id, ...snapshot.data(), })
 };
 
-// Get attendee by id
-export async function getAttendeeById(campminderId: number, sessionId: string, transaction?: Transaction): Promise<AttendeeID> {
-  return await getDoc<AttendeeID, Attendee>(doc(db, Collection.SESSIONS, sessionId, SessionsSubcollection.ATTENDEES, String(campminderId)) as DocumentReference<AttendeeID, Attendee>, attendeeFirestoreConverter, transaction);
+export async function getAttendeeById(campminderId: number, sessionId: string, transaction?: Transaction): Promise<Attendee> {
+  return await getDoc<Attendee, AttendeeDoc>(doc(db, Collection.SESSIONS, sessionId, SessionsSubcollection.ATTENDEES, String(campminderId)) as DocumentReference<Attendee, AttendeeDoc>, attendeeFirestoreConverter, transaction);
 };
 
-export async function getAttendeesBySessionId(sessionId: string): Promise<AttendeeID[]> {
-  return await executeQuery<AttendeeID, Attendee>(collection(db, Collection.SESSIONS, sessionId, SessionsSubcollection.ATTENDEES) as CollectionReference<AttendeeID, Attendee>, attendeeFirestoreConverter);
+export async function getAttendeesBySessionId(sessionId: string): Promise<Attendee[]> {
+  return await executeQuery<Attendee, AttendeeDoc>(collection(db, Collection.SESSIONS, sessionId, SessionsSubcollection.ATTENDEES) as CollectionReference<Attendee, AttendeeDoc>, attendeeFirestoreConverter);
 }
 
-export async function setAttendee(campminderId: number, sessionId: string, attendee: Attendee, instance?: Transaction | WriteBatch): Promise<number> {
+export async function setAttendee(campminderId: number, sessionId: string, attendee: AttendeeDoc, instance?: Transaction | WriteBatch): Promise<number> {
   const attendeeId = campminderId;
-  await setDoc<AttendeeID, Attendee>(doc(db, Collection.SESSIONS, sessionId, SessionsSubcollection.ATTENDEES, String(campminderId)) as DocumentReference<AttendeeID, Attendee>, { id: attendeeId, sessionId: sessionId, ...attendee }, attendeeFirestoreConverter, instance);
+  await setDoc<Attendee, AttendeeDoc>(doc(db, Collection.SESSIONS, sessionId, SessionsSubcollection.ATTENDEES, String(campminderId)) as DocumentReference<Attendee, AttendeeDoc>, { attendeeId, sessionId: sessionId, ...attendee }, attendeeFirestoreConverter, instance);
   return attendeeId;
 }
 
-export async function updateAttendee(campminderId: number, sessionId: string, updates: Partial<Attendee>, instance?: Transaction | WriteBatch): Promise<void> {
-  await updateDoc<AttendeeID, Attendee>(doc(db, Collection.SESSIONS, sessionId, SessionsSubcollection.ATTENDEES, String(campminderId)) as DocumentReference<AttendeeID, Attendee>, updates, attendeeFirestoreConverter, instance);
+export async function updateAttendee(campminderId: number, sessionId: string, updates: Partial<AttendeeDoc>, instance?: Transaction | WriteBatch): Promise<void> {
+  await updateDoc<Attendee, AttendeeDoc>(doc(db, Collection.SESSIONS, sessionId, SessionsSubcollection.ATTENDEES, String(campminderId)) as DocumentReference<Attendee, AttendeeDoc>, updates, attendeeFirestoreConverter, instance);
 }
