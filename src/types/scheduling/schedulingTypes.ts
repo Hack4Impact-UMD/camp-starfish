@@ -9,15 +9,15 @@ interface BaseSectionSchedule {
 }
 export interface BundleSectionSchedule extends BaseSectionSchedule {
   type: "BUNDLE",
-  block: { [blockId: string]: BundleBlock };
+  blocks: { [blockId: string]: BundleBlock };
 }
 export interface BunkJamboreeSectionSchedule extends BaseSectionSchedule {
   type: "BUNK-JAMBO",
-  block: { [blockId: string]: BunkJamboreeBlock };
+  blocks: { [blockId: string]: BunkJamboreeBlock };
 }
 export interface NonBunkJamboreeSectionSchedule extends BaseSectionSchedule {
   type: "NON-BUNK-JAMBO",
-  block: { [blockId: string]: NonBunkJamboreeBlock };
+  blocks: { [blockId: string]: NonBunkJamboreeBlock };
 }
 export type SectionSchedule = BundleSectionSchedule | BunkJamboreeSectionSchedule | NonBunkJamboreeSectionSchedule;
 
