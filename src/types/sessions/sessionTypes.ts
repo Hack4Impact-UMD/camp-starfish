@@ -5,7 +5,7 @@ export interface Session {
   name: string;
   startDate: string;
   endDate: string;
-  albumId?: string;
+  linkedAlbumId?: string;
   driveFolderId: string;
 }
 
