@@ -10,10 +10,6 @@ export const enum AlbumsSubcollection {
   IMAGES = "images"
 }
 
-export const enum ImagesSubcollection {
-  METADATA = "metadata"
-}
-
 export const enum SessionsSubcollection {
   ATTENDEES = "attendees",
   SECTIONS = "sections",
