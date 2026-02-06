@@ -1,6 +1,7 @@
 import { auth, functions } from "@/config/firebase";
 import { httpsCallable } from "firebase/functions";
-import { CamperAttendeeID, BundleActivityWithAssignments, BunkJamboreeActivityWithAssignments, NonBunkJamboreeActivityWithAssignments } from "@/types/sessions/sessionTypes";
+import { CamperAttendee } from "@/types/sessions/sessionTypes";
+import { BundleActivityWithAssignments, BunkJamboreeActivityWithAssignments, NonBunkJamboreeActivityWithAssignments } from "@/types/scheduling/schedulingTypes";  
 
 /**  
  * Calls an Apps Script function via Firebase callable.  
@@ -25,7 +26,7 @@ async function callAppsScript<T = unknown>(
 
 //function for bundle sheet creation
 export async function createBundleSheet(
-  campers: CamperAttendeeID[],
+  campers: CamperAttendee[],
   blockActivities: { [blockId: string]: BundleActivityWithAssignments[] },
   bundleLetter: string,
   spreadsheetId?: string
@@ -45,7 +46,7 @@ export async function createBunkJamboreeSheet(
 // function for non-bunk jamboree sheet creation (by campers, not limited to bunk)
 
 export async function createNonBunkJamboreeSheet(
-  campers: CamperAttendeeID[],
+  campers: CamperAttendee[],
   blockActivities: { [blockId: string]: NonBunkJamboreeActivityWithAssignments[] },
   spreadsheetId?: string
 ): Promise<string> {
