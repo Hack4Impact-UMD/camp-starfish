@@ -62,8 +62,9 @@ export type Attendee = CamperAttendee | StaffAttendee | AdminAttendee;
 
 export interface Bunk {
   bunkNum: number;
+  sessionId: string;
   leadCounselorId: number;
-  employeeIds: number[];
+  counselorIds: number[];
   camperIds: number[];
 }
 
