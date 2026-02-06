@@ -1,18 +1,15 @@
-import {
-  Block,
-  SchedulingSectionType,
-  AttendeeID,
-} from "@/types/sessions/sessionTypes";
+import { Block } from "@/types/scheduling/schedulingTypes";
+import { Attendee } from "@/types/sessions/sessionTypes";
 import { useState } from "react";
 
 import { MdAccountCircle } from "react-icons/md";
 import { Box, Button, Container, Select, Text, Title } from "@mantine/core";
-import { getFullName } from "@/utils/personUtils";
+import { getFullName } from "@/types/users/userUtils";
 import { modals } from "@mantine/modals";
 
 interface AssignActivityModalProps {
-  participant: AttendeeID;
-  block: Block<SchedulingSectionType>;
+  participant: Attendee;
+  block: Block;
   blockId: string;
   initialActivityName: string;
 }
@@ -36,7 +33,7 @@ export default function AssignActivityModal(props: AssignActivityModalProps) {
             <MdAccountCircle className="w-6 h-6 text-gray-800" />
           </div>
           <h3 className="text-xl font-semibold text-blue-900">
-            {getFullName(participant)}
+            {getFullName(participant.snapshot.name)}
           </h3>
         </Box>
 

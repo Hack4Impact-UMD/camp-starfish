@@ -1,9 +1,9 @@
-import { AlbumID } from "@/types/albums/albumTypes";
+import { Album } from "@/types/albums/albumTypes";
 import Link from "next/link";
 import Image from "next/image";
 
 interface AlbumCardProps {
-  album: AlbumID;
+  album: Album;
   thumbnail: string;
 }
 

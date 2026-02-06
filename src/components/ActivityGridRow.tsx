@@ -1,10 +1,10 @@
-import { Block, SchedulingSectionType } from "@/types/sessions/sessionTypes";
+import { Block } from "@/types/scheduling/schedulingTypes";
 import { Text, ActionIcon, ScrollArea } from "@mantine/core";
 import ActivityGridCell from "./ActivityGridCell";
 import { MdChevronLeft, MdChevronRight } from "react-icons/md";
 
 interface ActivityGridRowProps {
-  block: Block<SchedulingSectionType>;
+  block: Block;
   id: string;
 }
 

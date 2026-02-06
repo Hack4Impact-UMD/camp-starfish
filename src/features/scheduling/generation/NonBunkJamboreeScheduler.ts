@@ -1,35 +1,34 @@
 import {
-  AdminAttendeeID,
-  StaffAttendeeID,
-  CamperAttendeeID,
-  SectionSchedule,
-  SectionPreferences,
+  AdminAttendee,
+  StaffAttendee,
+  CamperAttendee,
 } from "@/types/sessions/sessionTypes";
+import { SectionSchedule, SectionActivityPreferences, NonBunkJamboreeSectionSchedule } from "@/types/scheduling/schedulingTypes";
 
 export class NonBunkJamboreeScheduler {
-  schedule: SectionSchedule<"NON-BUNK-JAMBO"> = { blocks: {}, alternatePeriodsOff: {} };
+  schedule: NonBunkJamboreeSectionSchedule = { blocks: {}, alternatePeriodsOff: {} };
 
-  campers: CamperAttendeeID[] = [];
-  staff: StaffAttendeeID[] = [];
-  admins: AdminAttendeeID[] = [];
+  campers: CamperAttendee[] = [];
+  staff: StaffAttendee[] = [];
+  admins: AdminAttendee[] = [];
 
-  camperPrefs: SectionPreferences = {};
+  camperPrefs: SectionActivityPreferences = {};
 
   blocksToAssign: string[] = [];
 
   constructor() { }
 
-  withSchedule(schedule: SectionSchedule<"NON-BUNK-JAMBO">): NonBunkJamboreeScheduler { this.schedule = schedule; return this; }
+  withSchedule(schedule: NonBunkJamboreeSectionSchedule): NonBunkJamboreeScheduler { this.schedule = schedule; return this; }
 
-  withCampers(campers: CamperAttendeeID[]): NonBunkJamboreeScheduler { this.campers = campers; return this; }
+  withCampers(campers: CamperAttendee[]): NonBunkJamboreeScheduler { this.campers = campers; return this; }
 
-  withStaff(staff: StaffAttendeeID[]): NonBunkJamboreeScheduler { this.staff = staff; return this; }
+  withStaff(staff: StaffAttendee[]): NonBunkJamboreeScheduler { this.staff = staff; return this; }
 
-  withAdmins(admins: AdminAttendeeID[]): NonBunkJamboreeScheduler { this.admins = admins; return this; }
+  withAdmins(admins: AdminAttendee[]): NonBunkJamboreeScheduler { this.admins = admins; return this; }
 
-  withCamperPrefs(camperPrefs: SectionPreferences): NonBunkJamboreeScheduler { this.camperPrefs = camperPrefs; return this; }
+  withCamperPrefs(camperPrefs: SectionActivityPreferences): NonBunkJamboreeScheduler { this.camperPrefs = camperPrefs; return this; }
 
-  forBlocks(blockIds: string[]): NonBunkJamboreeScheduler { this.blocksToAssign = blockIds; return this; }
+  forBlocks(blocks: string[]): NonBunkJamboreeScheduler { this.blocksToAssign = blocks; return this; }
 
   /* Each staff member & admin must have 1 period off per day */
   assignPeriodsOff(): NonBunkJamboreeScheduler { return this; }
@@ -38,5 +37,5 @@ export class NonBunkJamboreeScheduler {
 
   assignCounselors(): NonBunkJamboreeScheduler { return this; }
 
-  getSchedule(): SectionSchedule<"NON-BUNK-JAMBO"> { return this.schedule; }
+  getSchedule(): NonBunkJamboreeSectionSchedule { return this.schedule; }
 }

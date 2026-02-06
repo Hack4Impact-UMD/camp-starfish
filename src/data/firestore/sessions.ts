@@ -43,7 +43,8 @@ export async function getAllSessions(): Promise<Session[]> {
   return await executeQuery<Session, SessionDoc>(collection(db, Collection.SESSIONS) as CollectionReference<Session, SessionDoc>, sessionFirestoreConverter);
 }
 
-export async function setSession(session: SessionDoc, instance?: Transaction | WriteBatch): Promise<string> {
+export type CreateSessionDTO = SessionDoc;
+export async function setSession(session: CreateSessionDTO, instance?: Transaction | WriteBatch): Promise<string> {
   const sessionId = uuid();
   await setDoc<Session, SessionDoc>(doc(db, Collection.SESSIONS, sessionId) as DocumentReference<Session, SessionDoc>, { id: sessionId, ...session }, sessionFirestoreConverter, instance);
   return sessionId;

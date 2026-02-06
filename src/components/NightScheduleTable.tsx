@@ -7,13 +7,13 @@ import {
   flexRender,
 } from "@tanstack/react-table";
 import {
-  NightShiftID,
-  AttendeeID,
+  NightSchedule,
+  Attendee,
   NightSchedulePosition,
-  StaffAttendeeID,
-  SessionID,
+  StaffAttendee,
+  Session,
 } from "@/types/sessions/sessionTypes";
-import { getFullName } from "@/utils/personUtils";
+import { getFullName } from "@/types/users/userUtils";
 import moment from "moment";
 import useAttendeesBySessionId from "@/hooks/attendees/useAttendeesBySessionId";
 import useNightShiftsBySessionId from "@/hooks/nightShifts/useNightShiftsBySessionId";
@@ -66,27 +66,26 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
 }
 
 interface NightScheduleTableContentProps {
-  session: SessionID;
-  attendees: AttendeeID[];
-  nightShifts: NightShiftID[];
+  session: Session;
+  attendees: Attendee[];
+  nightShifts: NightSchedule[];
 }
 
 interface NightScheduleTableRow {
   date: string;
   position: NightSchedulePosition;
-  bunks: Record<number, StaffAttendeeID[]>;
+  bunks: Record<number, StaffAttendee[]>;
 }
 
 function NightScheduleTableContent(props: NightScheduleTableContentProps) {
   const { session, attendees, nightShifts } = props;
 
   const {
-    staffById = {},
-    staffByBunk = {},
-    bunkNums = [],
+    staffById,
+    staffByBunk,
+    bunkNums,
   } = useMemo(() => {
-    const staff =
-      attendees?.filter((att: AttendeeID) => att.role === "STAFF") || [];
+    const staff = attendees.filter((att: Attendee) => att.role === "STAFF");
     const staffById = getAttendeesById(staff);
     const staffByBunk = groupAttendeesByBunk(staff);
     const bunkNums = Object.keys(staffByBunk)
@@ -97,20 +96,20 @@ function NightScheduleTableContent(props: NightScheduleTableContentProps) {
 
   const getStaffForPosition = useCallback(
     (
-      nightShift: NightShiftID,
+      nightShift: NightSchedule,
       bunkNum: number,
       position: NightSchedulePosition,
-    ): StaffAttendeeID[] => {
-      const bunkData = nightShift[bunkNum];
+    ): StaffAttendee[] => {
+      const bunkData = nightShift.bunks[bunkNum];
 
-      const date = nightShift.id;
+      const date = nightShift.date;
 
       switch (position) {
         case "NIGHT-BUNK-DUTY": {
-          return bunkData.nightBunkDuty.map((staffId) => staffById[staffId]);
+          return bunkData["NIGHT-BUNK-DUTY"].map((staffId) => staffById[staffId]);
         }
         case "COUNSELOR-ON-DUTY": {
-          return bunkData.nightBunkDuty.map((staffId) => staffById[staffId]);
+          return bunkData["NIGHT-BUNK-DUTY"].map((staffId) => staffById[staffId]);
         }
         case "DAY OFF": {
           const staffInBunk: number[] = Array.from(

@@ -2,7 +2,7 @@ import { updateSection } from "@/data/firestore/sections";
 import { useMutation } from "@tanstack/react-query";
 
 export async function publishSectionSchedule(sessionId: string, sectionId: string): Promise<void> {
-  await updateSection(sectionId, sessionId, { isPublished: true });
+  await updateSection(sectionId, sessionId, { isSchedulePublished: true });
 }
 
 interface PublishSectionSecheduleParams {

@@ -1,9 +1,6 @@
 "use client";
 
-import {
-  SchedulingSectionType,
-  SectionScheduleID,
-} from "@/types/sessions/sessionTypes";
+import { SectionSchedule } from "@/types/scheduling/schedulingTypes";
 import React from "react";
 import ActivityGridRow from "./ActivityGridRow";
 import { Box, SimpleGrid } from "@mantine/core";
@@ -25,7 +22,7 @@ export default function ActivityGrid(props: ActivityGridProps) {
 }
 
 interface ActivityGridContentProps {
-  schedule: SectionScheduleID<SchedulingSectionType>;
+  schedule: SectionSchedule;
 }
 
 export function ActivityGridContent(props: ActivityGridContentProps) {

@@ -2,14 +2,14 @@ import { Moment, weekdaysShort } from "moment";
 
 import React, { useState } from "react";
 import { SimpleGrid, Text, Box } from "@mantine/core";
-import { SessionID } from "@/types/sessions/sessionTypes";
+import { Session } from "@/types/sessions/sessionTypes";
 import moment from "moment";
 import classNames from "classnames";
 import { modals } from "@mantine/modals";
 import EditSectionModal from "@/components/EditSectionModal";
 
 interface SessionCalendarProps {
-  session: SessionID;
+  session: Session;
 }
 
 export default function SessionCalendar({ session }: SessionCalendarProps) {

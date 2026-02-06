@@ -14,7 +14,7 @@ import moment, { Moment } from "moment";
 import useCreateSection from "@/hooks/sections/useCreateSection";
 import useUpdateSection from "@/hooks/sections/useUpdateSection";
 import useDeleteSection from "@/hooks/sections/useDeleteSection";
-import { isSchedulingSectionType } from "@/utils/sections";
+import { isSchedulingSectionType } from "@/types/sessions/sessionTypeGuards";
 import {
   Section,
   SchedulingSection,
@@ -77,10 +77,13 @@ export default function EditSectionModal({
     let sectionData: Section;
     if (isSchedulingSectionType(scheduleType)) {
       sectionData = {
-        ...baseSectionData,
+        name,
+        startDate: startDate.toISOString(),
+        endDate: endDate.toISOString(),
         type: scheduleType,
-        numBlocks: 5,
-        isPublished: false,
+        isSchedulePublished: false,
+        isScheduleOutdated: false,
+        
       } satisfies SchedulingSection;
     } else {
       sectionData = {

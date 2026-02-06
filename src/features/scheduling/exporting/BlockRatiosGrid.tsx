@@ -12,7 +12,7 @@ import {
   isBundleActivity,
   isIndividualAssignments,
 } from "../generation/schedulingUtils";
-import { getFullName } from "@/utils/personUtils";
+import { getFullName } from "@/types/users/userUtils";
 
 interface BlockRatiosGridProps<
   T extends SchedulingSectionType = SchedulingSectionType,

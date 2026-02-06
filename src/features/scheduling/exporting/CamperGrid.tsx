@@ -5,7 +5,7 @@ import {
   SectionScheduleID,
   StaffAttendeeID,
 } from "@/types/sessions/sessionTypes";
-import { getFullName } from "@/utils/personUtils";
+import { getFullName } from "@/types/users/userUtils";
 import { StyleSheet, View, Text } from "@react-pdf/renderer";
 import {
   getFreeplayAssignmentId,

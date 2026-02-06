@@ -1,10 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import { ImageID } from "@/types/albums/albumTypes";
+import { AlbumItem } from "@/types/albums/albumTypes";
 
 interface ImageCardProps {
-  image: ImageID;
+  image: AlbumItem;
   isSelected: boolean;
 }
 

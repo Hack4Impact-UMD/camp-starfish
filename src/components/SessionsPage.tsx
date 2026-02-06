@@ -4,13 +4,13 @@ import { useMemo, useState } from "react";
 import { Button, Group, Stack, Title, Menu, Text } from "@mantine/core";
 import moment from "moment";
 import Image from "next/image";
-import { SessionID } from "@/types/sessions/sessionTypes";
+import { Session } from "@/types/sessions/sessionTypes";
 import pencilIcon from "@/assets/icons/pencilIcon.svg";
 import SessionCard from "@/components/SessionCard";
 import { openCreateSessionModal } from "@/components/CreateSessionModal";
 
 interface SessionsPageProps {
-  sessions: SessionID[];
+  sessions: Session[];
 }
 
 export default function SessionsPage({ sessions }: SessionsPageProps) {
@@ -19,9 +19,9 @@ export default function SessionsPage({ sessions }: SessionsPageProps) {
   // --- Categorize sessions ---
   const { current, future, past } = useMemo(() => {
     const now = moment();
-    const current: SessionID[] = [];
-    const future: SessionID[] = [];
-    const past: SessionID[] = [];
+    const current: Session[] = [];
+    const future: Session[] = [];
+    const past: Session[] = [];
 
     for (const s of sessions) {
       const start = moment(s.startDate);

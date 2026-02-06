@@ -4,13 +4,13 @@ import { Card, Stack, Title, Text, Button, ActionIcon } from "@mantine/core";
 import Image from "next/image";
 import moment from "moment";
 import trashIcon from "@/assets/icons/trashIcon.svg";
-import { SessionID } from "@/types/sessions/sessionTypes";
+import { Session } from "@/types/sessions/sessionTypes";
 import { useRouter } from "next/navigation";
 import { useDeleteSession } from "@/hooks/sessions/useDeleteSession";
 import ConfirmationModal from "./ConfirmationModal";
 
 interface SessionCardProps {
-  session: SessionID;
+  session: Session;
   editMode: boolean;
 }
 

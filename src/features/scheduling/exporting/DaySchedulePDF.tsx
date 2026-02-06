@@ -1,23 +1,22 @@
 import { Document, Page } from "@react-pdf/renderer";
 import {
-  AdminAttendeeID,
-  CamperAttendeeID,
+  AdminAttendee,
+  CamperAttendee,
   Freeplay,
-  SchedulingSectionType,
-  SectionScheduleID,
-  StaffAttendeeID,
+  StaffAttendee,
 } from "@/types/sessions/sessionTypes";
+import { SectionSchedule } from "@/types/scheduling/schedulingTypes";
 import CamperGrid from "@/features/scheduling/exporting/CamperGrid";
 import BlockRatiosGrid from "@/features/scheduling/exporting/BlockRatiosGrid";
 import EmployeeGrid from "@/features/scheduling/exporting/EmployeeGrid";
 import ProgramAreaGrid from "@/features/scheduling/exporting/ProgramAreaGrid";
 
 interface DaySchedulePDFProps {
-  schedule: SectionScheduleID<SchedulingSectionType>;
+  schedule: SectionSchedule;
   freeplay: Freeplay;
-  campers: CamperAttendeeID[];
-  staff: StaffAttendeeID[];
-  admins: AdminAttendeeID[];
+  campers: CamperAttendee[];
+  staff: StaffAttendee[];
+  admins: AdminAttendee[];
   sectionName: string;
 }
 

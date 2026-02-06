@@ -4,7 +4,7 @@ import filterIcon from "@/assets/icons/filterIcon.svg";
 import TestPicture from "@/assets/images/PolaroidPhotos1.png"; // Replace with actual image URL
 import ImageCard from "@/components/ImageCard";
 import CardGallery from "@/components/CardGallery";
-import { ImageID } from "@/types/albums/albumTypes";
+import { AlbumItem } from "@/types/albums/albumTypes";
 import FileUploadModal from "@/components/FileUploadModal";
 import { uploadFiles } from "@/data/storage/storageClientOperations";
 import { v4 as uuidv4 } from "uuid";
@@ -19,12 +19,15 @@ const AlbumPage: React.FC = () => {
     "Fri, June 21",
   ];
 
-  const images: ImageID[] = [];
+  const images: AlbumItem[] = [];
   for (let i = 0; i < 10; i++) {
     images.push({
       src: TestPicture.src,
       name: "Image " + i,
-      tags: "ALL",
+      tagIds: {
+        approved: [],
+        inReview: [],
+      },
       dateTaken: dates[i % 5],
       inReview: false,
       id: i.toString(),
@@ -80,15 +83,15 @@ const AlbumPage: React.FC = () => {
         </div>
 
         {/* Content */}
-        <CardGallery<ImageID>
+        <CardGallery<AlbumItem>
           items={images}
-          renderItem={(image: ImageID, isSelected: boolean) => (
+          renderItem={(image: AlbumItem, isSelected: boolean) => (
             <ImageCard image={image} isSelected={isSelected} />
           )}
           groups={{
             groupLabels: dates,
             defaultGroupLabel: "Date Unknown",
-            groupFunc: (image: ImageID) => image.dateTaken,
+            groupFunc: (image: AlbumItem) => image.dateTaken,
           }}
         />
       </div>

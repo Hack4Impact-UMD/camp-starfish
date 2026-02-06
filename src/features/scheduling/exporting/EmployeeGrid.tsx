@@ -1,18 +1,18 @@
 import {
-  AdminAttendeeID,
-  CamperAttendeeID,
+  AdminAttendee,
+  CamperAttendee,
   Freeplay,
   SchedulingSectionType,
-  SectionScheduleID,
-  StaffAttendeeID,
+  StaffAttendee,
 } from "@/types/sessions/sessionTypes";
+import { SectionSchedule } from "@/types/scheduling/schedulingTypes";
 import { StyleSheet, Text, View } from "@react-pdf/renderer";
 import {
   getFreeplayAssignmentId,
   isBundleActivity,
   isIndividualAssignments,
 } from "../generation/schedulingUtils";
-import { getFullName } from "@/utils/personUtils";
+import { getFullName } from "@/types/users/userUtils";
 
 const styles = StyleSheet.create({
   page: {
@@ -142,10 +142,10 @@ const styles = StyleSheet.create({
 });
 
 interface EmployeeGridProps<T extends SchedulingSectionType> {
-  schedule: SectionScheduleID<T>;
+  schedule: SectionSchedule<T>;
   freeplay: Freeplay;
-  campers: CamperAttendeeID[];
-  employees: AdminAttendeeID[] | StaffAttendeeID[];
+  campers: CamperAttendee[];
+  employees: AdminAttendee[] | StaffAttendee[];
 }
 
 export default function EmployeeGrid<T extends SchedulingSectionType>(

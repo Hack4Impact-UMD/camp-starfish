@@ -2,29 +2,27 @@
 
 import React, { useMemo } from "react";
 import {
-  CamperAttendeeID,
-  StaffAttendeeID,
-  AdminAttendeeID,
-  SectionID,
-  ActivityWithAssignments,
+  CamperAttendee,
+  StaffAttendee,
+  AdminAttendee,
+  Section,
 } from "@/types/sessions/sessionTypes";
+import { ActivityWithAssignments } from "@/types/scheduling/schedulingTypes";
 import { modals } from "@mantine/modals";
 import moment from "moment";
-import {
-  getAttendeesById,
-  isIndividualAssignments,
-} from "@/features/scheduling/generation/schedulingUtils";
-import { getActivityName } from "@/utils/activityUtils";
-import { getFullName } from "@/utils/personUtils";
+import { isIndividualActivityAssignments } from "@/types/scheduling/schedulingTypeGuards";
+import { getAttendeesById } from "@/features/scheduling/generation/schedulingUtils";
+import { getActivityName } from "@/types/scheduling/schedulingUtils";
+import { getFullName } from "@/types/users/userUtils";
 import { Title, Text } from "@mantine/core";
 
 interface ActivityModalProps {
-  section: SectionID;
+  section: Section;
   blockId: string;
   activity: ActivityWithAssignments;
-  campers: CamperAttendeeID[];
-  staff: StaffAttendeeID[];
-  admins: AdminAttendeeID[];
+  campers: CamperAttendee[];
+  staff: StaffAttendee[];
+  admins: AdminAttendee[];
 }
 
 export default function ActivityModal(props: ActivityModalProps) {
@@ -32,34 +30,33 @@ export default function ActivityModal(props: ActivityModalProps) {
 
   const { staffNames, camperNames } = useMemo(() => {
     const attendeesById = getAttendeesById([...campers, ...staff, ...admins]);
-    const assignments = activity.assignments;
-    const adminNames = assignments.adminIds.map((adminId) =>
-      getFullName(attendeesById[adminId]),
+    const adminNames = activity.adminIds.map((adminId) =>
+      getFullName(attendeesById[adminId].snapshot.name),
     );
-    if (isIndividualAssignments(assignments)) {
+    if (isIndividualActivityAssignments(activity)) {
       return {
         staffNames: [
-          ...assignments.staffIds.map((staffId) =>
-            getFullName(attendeesById[staffId]),
+          ...activity.staffIds.map((staffId) =>
+            getFullName(attendeesById[staffId].snapshot.name),
           ),
           ...adminNames,
         ],
-        camperNames: assignments.camperIds.map((camperId) =>
-          getFullName(attendeesById[camperId]),
+        camperNames: activity.camperIds.map((camperId) =>
+          getFullName(attendeesById[camperId].snapshot.name),
         ),
       };
     }
 
     return {
-      staffNames: assignments.bunkNums.flatMap((bunkNum) =>
+      staffNames: activity.bunkNums.flatMap((bunkNum) =>
         staff
           .filter((staff) => staff.bunk === bunkNum)
-          .map((staff) => getFullName(staff)),
+          .map((staff) => getFullName(staff.snapshot.name)),
       ),
-      camperNames: assignments.bunkNums.flatMap((bunkNum) =>
+      camperNames: activity.bunkNums.flatMap((bunkNum) =>
         campers
           .filter((camper) => camper.bunk === bunkNum)
-          .map((camper) => getFullName(camper)),
+          .map((camper) => getFullName(camper.snapshot.name)),
       ),
     };
   }, [campers, staff, admins, activity]);
@@ -82,7 +79,9 @@ export default function ActivityModal(props: ActivityModalProps) {
         </Title>
       </div>
       <div className="col-span-2 flex flex-col justify-center items-center bg-white rounded-none border-black border-b-2 py-2 w-full">
-        <Text className="text-md text-center">{activity.description}</Text>
+        <Text className="text-md text-center">
+          {activity.description}
+        </Text>
       </div>
       <Text className="text-lg font-bold mb-2 border-black border-b-2 border-r-2 w-full h-full text-center align-middle">
         Staff
