@@ -7,7 +7,7 @@ export const enum Collection {
 }
 
 export const enum AlbumsSubcollection {
-  IMAGES = "images"
+  ALBUM_ITEMS = "album_items"
 }
 
 export const enum SessionsSubcollection {
