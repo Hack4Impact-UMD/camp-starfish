@@ -77,18 +77,19 @@ export default function EditSectionModal({
     let sectionData: Section;
     if (isSchedulingSectionType(scheduleType)) {
       sectionData = {
-        name,
-        startDate: startDate.toISOString(),
-        endDate: endDate.toISOString(),
+        ...baseSectionData,
         type: scheduleType,
-        isSchedulePublished: false,
         isScheduleOutdated: false,
-        
+        isSchedulePublished: false,
+        id: sectionId || "",
+        sessionId
       } satisfies SchedulingSection;
     } else {
       sectionData = {
         ...baseSectionData,
         type: "COMMON",
+        id: sectionId || "",
+        sessionId        
       } satisfies CommonSection;
     }
 
