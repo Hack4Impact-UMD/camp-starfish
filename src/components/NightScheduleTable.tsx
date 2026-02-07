@@ -191,7 +191,7 @@ function NightScheduleTableContent(props: NightScheduleTableContentProps) {
       cols.push({
         accessorFn: (row: NightScheduleTableRow) =>
           row.bunks[bunkNum] &&
-          row.bunks[bunkNum].map((staff) => getFullName(staff)).join(", "),
+          row.bunks[bunkNum].map((staff) => getFullName(staff.snapshot.name)).join(", "),
         header: `BUNK ${bunkNum}`,
       });
     });
