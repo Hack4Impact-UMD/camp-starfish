@@ -25,14 +25,14 @@ export function getFreeplayAssignmentId(freeplay: Freeplay, id: number): number[
   return null;
 }
 
-export function getAttendeesById(attendees: Attendee[]): Record<number, Attendee> {
-  const attendeesById: Record<number, Attendee> = {};
+export function getAttendeesById<T extends Attendee>(attendees: T[]): Record<number, T> {
+  const attendeesById: Record<number, T> = {};
   attendees.forEach(attendee => attendeesById[attendee.attendeeId] = attendee);
   return attendeesById;
 }
 
-export function groupAttendeesByBunk(attendees: Attendee[]): Record<number, Attendee[]> {
-  const attendeesByBunk: Record<number, Attendee[]> = {};
+export function groupAttendeesByBunk<T extends Attendee>(attendees: T[]): Record<number, T[]> {
+  const attendeesByBunk: Record<number, T[]> = {};
   attendees.forEach(attendee => {
     if (isAdminAttendee(attendee)) {
       if (!attendeesByBunk[-1]) {

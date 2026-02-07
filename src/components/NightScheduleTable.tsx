@@ -113,7 +113,7 @@ function NightScheduleTableContent(props: NightScheduleTableContentProps) {
         }
         case "DAY OFF": {
           const staffInBunk: number[] = Array.from(
-            staffByBunk[bunkNum].map((att) => att.id) || [],
+            staffByBunk[bunkNum].map((att) => att.attendeeId) || [],
           );
           const staffOff = staffInBunk.filter((staffId: number) => {
             const staff = staffById[staffId];
@@ -123,11 +123,11 @@ function NightScheduleTableContent(props: NightScheduleTableContentProps) {
         }
         case "ROVER": {
           const allStaffInBunk: number[] = Array.from(
-            staffByBunk[bunkNum].map((att) => att.id) || [],
+            staffByBunk[bunkNum].map((att) => att.attendeeId) || [],
           );
           const assignedStaff = new Set([
-            ...bunkData.nightBunkDuty,
-            ...bunkData.counselorsOnDuty,
+            ...bunkData["NIGHT-BUNK-DUTY"],
+            ...bunkData["COUNSELOR-ON-DUTY"],
           ]);
 
           const roverStaff = allStaffInBunk.filter((staffId: number) => {
@@ -148,10 +148,10 @@ function NightScheduleTableContent(props: NightScheduleTableContentProps) {
 
   const data: NightScheduleTableRow[] = useMemo(() => {
     const rows: NightScheduleTableRow[] = [];
-    nightShifts.forEach((nightShift: NightShiftID) => {
+    nightShifts.forEach((nightShift: NightSchedule) => {
       nightSchedulePositions.forEach((position: NightSchedulePosition) => {
         const row: NightScheduleTableRow = {
-          date: nightShift.id,
+          date: nightShift.date,
           position: position,
           bunks: bunkNums.map((bunkNum) =>
             getStaffForPosition(nightShift, bunkNum, position),
