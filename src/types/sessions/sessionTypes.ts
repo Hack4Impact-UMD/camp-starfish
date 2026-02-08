@@ -35,6 +35,7 @@ interface BaseAttendee {
     name: Name
     gender: Gender;
     age: number;
+    nonoList: number[];
   };
   role: Role;
 }
@@ -53,10 +54,12 @@ export interface StaffAttendee extends BaseAttendee {
   bunk: number;
   leadBunkCounselor: boolean;
   daysOff: string[];
+  snapshot: BaseAttendee['snapshot'] & { yesyesList: number[] };
 }
 export interface AdminAttendee extends BaseAttendee {
   role: "ADMIN";
   daysOff: string[];
+  snapshot: BaseAttendee['snapshot'] & { yesyesList: number[] };
 }
 export type Attendee = CamperAttendee | StaffAttendee | AdminAttendee;
 

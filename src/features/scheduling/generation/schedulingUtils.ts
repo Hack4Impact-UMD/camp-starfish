@@ -1,11 +1,11 @@
 import { isAdminAttendee, isCamperAttendee } from "@/types/sessions/sessionTypeGuards";
-import { Attendee, CamperAttendee, Freeplay, StaffAttendee } from "@/types/sessions/sessionTypes";
+import { Attendee, Freeplay } from "@/types/sessions/sessionTypes";
 
 export function doesConflictExist(attendee: Attendee, otherAttendeeIds: number[]) {
   if (isCamperAttendee(attendee)) {
-    return attendee.nonoList.some((id) => otherAttendeeIds.includes(id))
+    return attendee.snapshot.nonoList.some((id) => otherAttendeeIds.includes(id))
   }
-  return attendee.nonoList.some((id) => otherAttendeeIds.includes(id)) && attendee.yesyesList.some((id) => otherAttendeeIds.includes(id));
+  return attendee.snapshot.nonoList.some((id) => otherAttendeeIds.includes(id)) && attendee.snapshot.yesyesList.some((id) => otherAttendeeIds.includes(id));
 }
 
 export function getFreeplayAssignmentId(freeplay: Freeplay, id: number): number[] | number | string | null {
