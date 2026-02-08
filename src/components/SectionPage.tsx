@@ -55,8 +55,8 @@ function SectionPageContent(props: SectionPageContentProps) {
         </Title>
         <Text className="text-sm text-primary-5 mb-4 italic">
           {`Last generated: ${
-            section && section.scheduleLastGenerated
-              ? moment(section.scheduleLastGenerated).format(
+            section && section.publishedAt
+              ? moment(section.publishedAt).format(
                   "MM/DD/YYYY hh:mm:ss A",
                 )
               : "N/A"
