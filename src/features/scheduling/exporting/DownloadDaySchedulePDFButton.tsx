@@ -5,13 +5,8 @@ import useSection from "@/hooks/sections/useSection";
 import useFreeplay from "@/hooks/freeplays/useFreeplay";
 import { cloneElement, useMemo } from "react";
 import useSectionSchedule from "@/hooks/schedules/useSectionSchedule";
-import {
-  AttendeeID,
-  FreeplayID,
-  SchedulingSectionType,
-  SectionID,
-  SectionScheduleID,
-} from "@/types/sessions/sessionTypes";
+import { Attendee, Freeplay, Section } from "@/types/sessions/sessionTypes";
+import { SectionSchedule } from "@/types/scheduling/schedulingTypes";
 import { Button } from "@mantine/core";
 import useNotifications from "@/features/notifications/useNotifications";
 import { MdOpenInNew } from "react-icons/md";
@@ -65,10 +60,10 @@ export default function DownloadDaySchedulePDFButton(
 }
 
 interface DownloadDaySchedulePDFButtonContentProps {
-  attendees: AttendeeID[];
-  section: SectionID;
-  schedule: SectionScheduleID<SchedulingSectionType>;
-  freeplay: FreeplayID;
+  attendees: Attendee[];
+  section: Section;
+  schedule: SectionSchedule;
+  freeplay: Freeplay;
 }
 
 function DownloadDaySchedulePDFButtonContent(

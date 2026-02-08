@@ -1,26 +1,23 @@
 import React from "react";
 import { View, Text, StyleSheet } from "@react-pdf/renderer";
 import {
-  StaffAttendeeID,
-  CamperAttendeeID,
-  AdminAttendeeID,
-  SectionSchedule,
-  SchedulingSectionType,
+  StaffAttendee,
+  CamperAttendee,
+  AdminAttendee,
 } from "@/types/sessions/sessionTypes";
+import { SectionSchedule } from "@/types/scheduling/schedulingTypes";
+import { getAttendeesById } from "../generation/schedulingUtils";
 import {
-  getAttendeesById,
   isBundleActivity,
-  isIndividualAssignments,
-} from "../generation/schedulingUtils";
+  isIndividualActivityAssignments,
+} from "@/types/scheduling/schedulingTypeGuards";
 import { getFullName } from "@/types/users/userUtils";
 
-interface BlockRatiosGridProps<
-  T extends SchedulingSectionType = SchedulingSectionType,
-> {
-  schedule: SectionSchedule<T>;
-  campers: CamperAttendeeID[];
-  staff: StaffAttendeeID[];
-  admins: AdminAttendeeID[];
+interface BlockRatiosGridProps {
+  schedule: SectionSchedule;
+  campers: CamperAttendee[];
+  staff: StaffAttendee[];
+  admins: AdminAttendee[];
 }
 
 const styles = StyleSheet.create({
@@ -83,12 +80,12 @@ const styles = StyleSheet.create({
   },
 });
 
-export default function BlockRatiosGrid<T extends SchedulingSectionType>({
+export default function BlockRatiosGrid({
   schedule,
   campers,
   staff,
   admins,
-}: BlockRatiosGridProps<T>) {
+}: BlockRatiosGridProps) {
   const blockIds = Object.keys(schedule.blocks).sort();
   const blocks = blockIds.map((blockId) => schedule.blocks[blockId]);
 
@@ -134,7 +131,7 @@ export default function BlockRatiosGrid<T extends SchedulingSectionType>({
                   );
                 const headerText = activity
                   ? isBundleActivity(activity)
-                    ? `${activity.programArea.id}: ${activity.name}`
+                    ? `${activity.programAreaId}: ${activity.name}`
                     : activity.name
                   : "";
                 return (
@@ -164,19 +161,17 @@ export default function BlockRatiosGrid<T extends SchedulingSectionType>({
                     />
                   );
 
-                const camperOrBunkIds = isIndividualAssignments(
-                  activity.assignments,
+                const camperOrBunkIds = isIndividualActivityAssignments(
+                  activity,
                 )
-                  ? activity.assignments.camperIds
-                  : activity.assignments.bunkNums;
-                const employeeIds = isIndividualAssignments(
-                  activity.assignments,
-                )
+                  ? activity.camperIds
+                  : activity.bunkNums;
+                const employeeIds = isIndividualActivityAssignments(activity)
                   ? [
-                      ...activity.assignments.staffIds,
-                      ...activity.assignments.adminIds,
+                      ...activity.staffIds,
+                      ...activity.adminIds,
                     ]
-                  : activity.assignments.adminIds;
+                  : activity.adminIds;
 
                 return (
                   <View
@@ -191,8 +186,8 @@ export default function BlockRatiosGrid<T extends SchedulingSectionType>({
                     >
                       {camperOrBunkIds.map((camperOrBunkId) => (
                         <Text key={camperOrBunkId}>
-                          {isIndividualAssignments(activity.assignments)
-                            ? getFullName(attendeesById[camperOrBunkId])
+                          {isIndividualActivityAssignments(activity)
+                            ? getFullName(attendeesById[camperOrBunkId].snapshot.name)
                             : `Bunk ${camperOrBunkId}`}
                         </Text>
                       ))}
@@ -212,7 +207,7 @@ export default function BlockRatiosGrid<T extends SchedulingSectionType>({
                               : {}
                           }
                         >
-                          {getFullName(attendeesById[employeeId])}
+                          {getFullName(attendeesById[employeeId].snapshot.name)}
                         </Text>
                       ))}
                     </View>

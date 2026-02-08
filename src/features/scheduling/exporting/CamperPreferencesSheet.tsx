@@ -1,12 +1,14 @@
 import React from "react";
 import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
+import { SchedulingSectionType, AgeGroup } from "@/types/sessions/sessionTypes";
 import {
   SectionSchedule,
   BundleActivity,
-  SchedulingSectionType,
-  AgeGroup,
-} from "@/types/sessions/sessionTypes";
-import { isBundleActivity } from "../generation/schedulingUtils";
+  BundleSectionSchedule,
+  BunkJamboreeSectionSchedule,
+  NonBunkJamboreeSectionSchedule,
+} from "@/types/scheduling/schedulingTypes";
+import { isBundleActivity, isBundleSectionSchedule, isNonBunkJamboreeSectionSchedule } from "@/types/scheduling/schedulingTypeGuards";
 
 const styles = StyleSheet.create({
   page: { padding: 40, fontSize: 12, fontFamily: "Helvetica" },
@@ -35,39 +37,32 @@ const styles = StyleSheet.create({
   activityDesc: { fontSize: 11 },
 });
 
-type CamperPreferencesSheetProps<T extends SchedulingSectionType> = {
-  schedule: SectionSchedule<T>;
-  sectionType: T;
+type CamperPreferencesSheetProps = {
+  schedule: BundleSectionSchedule;
   sectionName: string;
-  ageGroup?: T extends "BUNDLE" ? AgeGroup : never;
-};
+  ageGroup?: AgeGroup;
+}
 
-export function CamperPreferencesSheet<
-  T extends SchedulingSectionType = SchedulingSectionType,
->({
-  schedule,
-  sectionType,
-  sectionName,
-  ageGroup,
-}: CamperPreferencesSheetProps<T>) {
+export function CamperPreferencesSheet(props: CamperPreferencesSheetProps) {
+  const { schedule, sectionName, ageGroup = undefined } = props;
   return (
     <Document>
       <Page size="A4" style={styles.page}>
         <View style={styles.nameRow}>
-          {sectionType !== "NON-BUNK-JAMBO" && (
+          {!isNonBunkJamboreeSectionSchedule(schedule) && (
             <Text>Name: ____________________________</Text>
           )}
           <Text>Bunk: ___________</Text>
         </View>
 
         <Text style={styles.title}>
-          {`${sectionName} Preference Sheet${ageGroup ? ` - ${ageGroup}` : ""}`}
+          {`${sectionName} Preference Sheet${isBundleSectionSchedule(schedule) ? ` - ${props.ageGroup}` : ""}`}
         </Text>
 
         {Object.entries(schedule.blocks).map(([blockId, block]) => {
           const activities =
-            sectionType === "BUNDLE"
-              ? (block.activities as BundleActivity[]).filter(
+            isBundleSectionSchedule(schedule)
+              ? block.activities.filter(
                   (act) => !ageGroup || act.ageGroup === ageGroup,
                 )
               : block.activities;
@@ -79,7 +74,7 @@ export function CamperPreferencesSheet<
                 <View key={`${blockId}-${idx}`} style={styles.activity}>
                   <View style={styles.activityInfo}>
                     <Text style={styles.activityName}>
-                      {`${isBundleActivity(activity) ? `${activity.programArea.name}: ` : ""}${activity.name}`}
+                      {`${isBundleActivity(activity) ? `${activity.programAreaId}: ` : ""}${activity.name}`}
                     </Text>
                     {activity.description && (
                       <Text style={styles.activityDesc}>
