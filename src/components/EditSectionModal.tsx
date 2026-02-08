@@ -80,7 +80,6 @@ export default function EditSectionModal({
         ...baseSectionData,
         type: scheduleType,
         isScheduleOutdated: false,
-        isSchedulePublished: false,
         id: sectionId || "",
         sessionId
       } satisfies SchedulingSection;

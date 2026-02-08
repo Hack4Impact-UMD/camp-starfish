@@ -23,7 +23,7 @@ interface BaseSection {
 export interface CommonSection extends BaseSection { type: "COMMON" }
 export interface SchedulingSection extends BaseSection {
   type: SchedulingSectionType;
-  isSchedulePublished: boolean;
+  publishedAt?: string; // ISO-8601
   isScheduleOutdated: boolean;
 }
 export type Section = CommonSection | SchedulingSection;
