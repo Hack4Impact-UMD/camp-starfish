@@ -10,6 +10,7 @@ import CamperGrid from "@/features/scheduling/exporting/CamperGrid";
 import BlockRatiosGrid from "@/features/scheduling/exporting/BlockRatiosGrid";
 import EmployeeGrid from "@/features/scheduling/exporting/EmployeeGrid";
 import ProgramAreaGrid from "@/features/scheduling/exporting/ProgramAreaGrid";
+import { isBundleSectionSchedule } from "@/types/scheduling/schedulingTypeGuards";
 
 interface DaySchedulePDFProps {
   schedule: SectionSchedule;
@@ -44,7 +45,7 @@ export default function DaySchedulePDF(props: DaySchedulePDFProps) {
           campers={campers}
           employees={staff}
         />
-        <ProgramAreaGrid schedule={schedule} sectionName={sectionName} />
+        {isBundleSectionSchedule(schedule) && <ProgramAreaGrid schedule={schedule} sectionName={sectionName} />}
       </Page>
     </Document>
   );
