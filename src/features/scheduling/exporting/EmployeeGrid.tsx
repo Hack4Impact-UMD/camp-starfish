@@ -7,12 +7,15 @@ import {
 } from "@/types/sessions/sessionTypes";
 import { SectionSchedule } from "@/types/scheduling/schedulingTypes";
 import { StyleSheet, Text, View } from "@react-pdf/renderer";
+import { getFreeplayAssignmentId } from "../generation/schedulingUtils";
 import {
-  getFreeplayAssignmentId,
   isBundleActivity,
-  isIndividualAssignments,
-} from "../generation/schedulingUtils";
+  isBundleSectionSchedule,
+  isBunkJamboreeSectionSchedule,
+  isIndividualActivityAssignments,
+} from "@/types/scheduling/schedulingTypeGuards";
 import { getFullName } from "@/types/users/userUtils";
+import { isStaffAttendee } from "@/types/sessions/sessionTypeGuards";
 
 const styles = StyleSheet.create({
   page: {
@@ -141,16 +144,14 @@ const styles = StyleSheet.create({
   },
 });
 
-interface EmployeeGridProps<T extends SchedulingSectionType> {
-  schedule: SectionSchedule<T>;
+interface EmployeeGridProps {
+  schedule: SectionSchedule;
   freeplay: Freeplay;
   campers: CamperAttendee[];
   employees: AdminAttendee[] | StaffAttendee[];
 }
 
-export default function EmployeeGrid<T extends SchedulingSectionType>(
-  props: EmployeeGridProps<T>,
-) {
+export default function EmployeeGrid(props: EmployeeGridProps) {
   const { schedule, freeplay, campers, employees } = props;
   return (
     <View style={styles.page}>
@@ -175,63 +176,98 @@ export default function EmployeeGrid<T extends SchedulingSectionType>(
         </View>
 
         {employees.map((employee) => {
-          const fpBuddyIds = getFreeplayAssignmentId(freeplay, employee.id);
+          const fpBuddyIds = getFreeplayAssignmentId(
+            freeplay,
+            employee.attendeeId,
+          );
           const fpBuddies = fpBuddyIds
             ? (fpBuddyIds as number[]).map((id) =>
-                campers.find((c) => c.id === id),
+                campers.find((c) => c.attendeeId === id),
               )
             : [];
 
           let apoText: string = "-";
           for (const period of Object.keys(schedule.alternatePeriodsOff)) {
-            if (schedule.alternatePeriodsOff[period].includes(employee.id)) {
+            if (
+              schedule.alternatePeriodsOff[period].includes(employee.attendeeId)
+            ) {
               apoText = period;
               break;
             }
           }
 
           return (
-            <View key={employee.id} style={styles.row}>
+            <View key={employee.attendeeId} style={styles.row}>
               {/* Name column - Use dataCell style */}
               <View style={styles.dataCell}>
                 <Text>
-                  {employee.name.firstName} {employee.name.lastName[0]}.
+                  {employee.snapshot.name.firstName}{" "}
+                  {employee.snapshot.name.lastName[0]}.
                 </Text>
               </View>
 
-              {/* Block assignments - Use dataCell style */}
-              {Object.entries(schedule.blocks).map(([blockId, block]) => {
-                let activityText;
-                if (block.periodsOff.includes(employee.id)) {
-                  activityText = "OFF";
-                } else if (employee.role === "STAFF") {
-                  const activity = block.activities.find((act) =>
-                    isIndividualAssignments(act.assignments)
-                      ? act.assignments.staffIds.includes(employee.id)
-                      : act.assignments.bunkNums.includes(employee.bunk),
-                  );
-                  activityText = activity
-                    ? isBundleActivity(activity)
-                      ? activity.programArea.id
-                      : activity.name
-                    : "-";
-                } else {
-                  const activity = block.activities.find((act) =>
-                    act.assignments.adminIds.includes(employee.id),
-                  );
-                  activityText = activity
-                    ? isBundleActivity(activity)
-                      ? activity.programArea.id
-                      : activity.name
-                    : "-";
-                }
-
-                return (
-                  <View key={blockId} style={styles.cell}>
-                    <Text>{activityText}</Text>
-                  </View>
-                );
-              })}
+              {isBundleSectionSchedule(schedule)
+                ? Object.entries(schedule.blocks).map(([blockId, block]) => {
+                    let activityText;
+                    if (block.periodsOff.includes(employee.attendeeId)) {
+                      activityText = "OFF";
+                    } else {
+                      const activity = isStaffAttendee(employee)
+                        ? block.activities.find((act) =>
+                            act.staffIds.includes(employee.attendeeId),
+                          )
+                        : block.activities.find((act) =>
+                            act.adminIds.includes(employee.attendeeId),
+                          );
+                      activityText = activity ? activity.programAreaId : "-";
+                    }
+                    return (
+                      <View key={blockId} style={styles.cell}>
+                        <Text>{activityText}</Text>
+                      </View>
+                    );
+                  })
+                : isBunkJamboreeSectionSchedule(schedule)
+                  ? Object.entries(schedule.blocks).map(([blockId, block]) => {
+                      let activityText;
+                      if (block.periodsOff.includes(employee.attendeeId)) {
+                        activityText = "OFF";
+                      } else {
+                        const activity = isStaffAttendee(employee)
+                          ? block.activities.find((act) =>
+                              act.bunkNums.includes(employee.bunk),
+                            )
+                          : block.activities.find((act) =>
+                              act.adminIds.includes(employee.attendeeId),
+                            );
+                        activityText = activity ? activity.name : "-";
+                      }
+                      return (
+                        <View key={blockId} style={styles.cell}>
+                          <Text>{activityText}</Text>
+                        </View>
+                      );
+                    })
+                  : Object.entries(schedule.blocks).map(([blockId, block]) => {
+                      let activityText;
+                      if (block.periodsOff.includes(employee.attendeeId)) {
+                        activityText = "OFF";
+                      } else {
+                        const activity = isStaffAttendee(employee)
+                          ? block.activities.find((act) =>
+                              act.staffIds.includes(employee.bunk),
+                            )
+                          : block.activities.find((act) =>
+                              act.adminIds.includes(employee.attendeeId),
+                            );
+                        activityText = activity ? activity.name : "-";
+                      }
+                      return (
+                        <View key={blockId} style={styles.cell}>
+                          <Text>{activityText}</Text>
+                        </View>
+                      );
+                    })}
 
               <View style={styles.dataCell}>
                 <Text>{apoText}</Text>
@@ -241,7 +277,9 @@ export default function EmployeeGrid<T extends SchedulingSectionType>(
               <View style={styles.dataCell}>
                 <Text>
                   {fpBuddies
-                    .map((fpBuddy) => (fpBuddy ? getFullName(fpBuddy) : ""))
+                    .map((fpBuddy) =>
+                      fpBuddy ? getFullName(fpBuddy.snapshot.name) : "",
+                    )
                     .join(", ")}
                 </Text>
               </View>
