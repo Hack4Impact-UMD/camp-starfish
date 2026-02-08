@@ -1,26 +1,23 @@
-import { StaffAttendeeID, AdminAttendeeID, CamperAttendeeID, Freeplay } from "../../../types/sessions/sessionTypes";
+import { StaffAttendee, AdminAttendee, CamperAttendee, Freeplay } from "../../../types/sessions/sessionTypes";
 
 export class FreeplayScheduler {
-  /* The current freeplay schedule */
-  schedule: Freeplay = { posts: {}, buddies: {} };
+  schedule: Freeplay | null = null;
 
-  /* The session attendees that still need to be assigned */
-  campers: CamperAttendeeID[] = [];
-  staff: StaffAttendeeID[] = [];
-  admins: AdminAttendeeID[] = [];
+  campers: CamperAttendee[] = [];
+  staff: StaffAttendee[] = [];
+  admins: AdminAttendee[] = [];
 
-  /* The freeplay buddies from other freeplays in this session */
   otherFreeplayBuddies: { [attendeeId: number]: number[] } = {};
 
   constructor() { }
 
   withSchedule(schedule: Freeplay): FreeplayScheduler { this.schedule = schedule; return this; }
 
-  withCampers(campers: CamperAttendeeID[]): FreeplayScheduler { this.campers = campers; return this; }
+  withCampers(campers: CamperAttendee[]): FreeplayScheduler { this.campers = campers; return this; }
 
-  withStaff(staff: StaffAttendeeID[]): FreeplayScheduler { this.staff = staff; return this; }
+  withStaff(staff: StaffAttendee[]): FreeplayScheduler { this.staff = staff; return this; }
 
-  withAdmins(admins: AdminAttendeeID[]): FreeplayScheduler { this.admins = admins; return this; }
+  withAdmins(admins: AdminAttendee[]): FreeplayScheduler { this.admins = admins; return this; }
 
   // withOtherFreeplays should build the previousFreeplayBuddies object
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

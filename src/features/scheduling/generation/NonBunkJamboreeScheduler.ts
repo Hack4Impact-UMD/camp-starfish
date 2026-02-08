@@ -3,16 +3,16 @@ import {
   StaffAttendee,
   CamperAttendee,
 } from "@/types/sessions/sessionTypes";
-import { SectionSchedule, SectionActivityPreferences, NonBunkJamboreeSectionSchedule } from "@/types/scheduling/schedulingTypes";
+import { SectionActivityPreferences, NonBunkJamboreeSectionSchedule } from "@/types/scheduling/schedulingTypes";
 
 export class NonBunkJamboreeScheduler {
-  schedule: NonBunkJamboreeSectionSchedule = { blocks: {}, alternatePeriodsOff: {} };
+  schedule: NonBunkJamboreeSectionSchedule | null = null;
 
   campers: CamperAttendee[] = [];
   staff: StaffAttendee[] = [];
   admins: AdminAttendee[] = [];
 
-  camperPrefs: SectionActivityPreferences = {};
+  camperPrefs: SectionActivityPreferences | null = null;
 
   blocksToAssign: string[] = [];
 
@@ -37,5 +37,10 @@ export class NonBunkJamboreeScheduler {
 
   assignCounselors(): NonBunkJamboreeScheduler { return this; }
 
-  getSchedule(): NonBunkJamboreeSectionSchedule { return this.schedule; }
+  getSchedule(): NonBunkJamboreeSectionSchedule {
+    if (!this.schedule) {
+      throw new Error("Schedule not set");
+    }
+    return this.schedule;
+  }
 }

@@ -1,14 +1,15 @@
-import { StaffAttendeeID, CamperAttendeeID, AdminAttendeeID, SectionSchedule, SectionPreferences } from "@/types/sessions/sessionTypes";
+import { StaffAttendee, CamperAttendee, AdminAttendee } from "@/types/sessions/sessionTypes";
+import { BundleSectionSchedule, SectionActivityPreferences } from "@/types/scheduling/schedulingTypes";
 
 export class BundleScheduler {
   bundleNum: number = -1;
-  schedule: SectionSchedule<'BUNDLE'> = { blocks: {}, alternatePeriodsOff: {} };
+  schedule: BundleSectionSchedule | null = null;
 
-  campers: CamperAttendeeID[] = [];
-  staff: StaffAttendeeID[] = [];
-  admins: AdminAttendeeID[] = [];
+  campers: CamperAttendee[] = [];
+  staff: StaffAttendee[] = [];
+  admins: AdminAttendee[] = [];
 
-  camperPrefs: SectionPreferences = {};
+  camperPrefs: SectionActivityPreferences | null = null;
 
   blocksToAssign: string[] = [];
 
@@ -16,15 +17,15 @@ export class BundleScheduler {
 
   withBundleNum(bundleNum: number): BundleScheduler { this.bundleNum = bundleNum; return this; }
 
-  withSchedule(schedule: SectionSchedule<'BUNDLE'>): BundleScheduler { this.schedule = schedule; return this; }
+  withSchedule(schedule: BundleSectionSchedule): BundleScheduler { this.schedule = schedule; return this; }
 
-  withCampers(campers: CamperAttendeeID[]): BundleScheduler { this.campers = campers; return this; }
+  withCampers(campers: CamperAttendee[]): BundleScheduler { this.campers = campers; return this; }
 
-  withStaff(staff: StaffAttendeeID[]): BundleScheduler { this.staff = staff; return this; }
+  withStaff(staff: StaffAttendee[]): BundleScheduler { this.staff = staff; return this; }
 
-  withAdmins(admins: AdminAttendeeID[]): BundleScheduler { this.admins = admins; return this; }
+  withAdmins(admins: AdminAttendee[]): BundleScheduler { this.admins = admins; return this; }
 
-  withCampersPrefs(campersPrefs: SectionPreferences): BundleScheduler { this.camperPrefs = campersPrefs; return this; }
+  withCampersPrefs(campersPrefs: SectionActivityPreferences): BundleScheduler { this.camperPrefs = campersPrefs; return this; }
 
   forBlocks(blockIds: string[]): BundleScheduler { this.blocksToAssign = blockIds; return this; }
 
