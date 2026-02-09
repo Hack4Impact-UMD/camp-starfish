@@ -1,108 +1,13 @@
 import React from "react";
-import { Text, View, StyleSheet } from "@react-pdf/renderer";
+import { Document, Page, Text, View } from "@react-pdf/renderer";
 import {
   SectionSchedule,
   BundleActivity,
   ProgramAreaID,
 } from "@/types/sessionTypes";
+import { tw } from "@/utils/reactPdfTailwind";
+import { Table, TR, TD } from '@ag-media/react-pdf-table';
 
-// ---------- Styles ----------
-const styles = StyleSheet.create({
-  page: {
-    padding: 20,
-    fontSize: 9,
-    fontFamily: "Helvetica",
-  },
-  title: {
-    fontSize: 18,
-    textAlign: "center",
-    marginBottom: 20,
-    fontWeight: "bold",
-    color: "#333",
-  },
-  table: {
-    borderStyle: "solid",
-    borderWidth: 1,
-    borderColor: "#000",
-    borderRightWidth: 0,
-    borderBottomWidth: 0,
-    marginBottom: 0,
-    alignSelf: "flex-start",
-  },
-  row: {
-    flexDirection: "row",
-    minHeight: 40,
-    flexWrap: "nowrap",
-    alignSelf: "flex-start",
-  },
-  cell: {
-    width: 60,
-    flexGrow: 0,
-    flexBasis: 60,
-    borderStyle: "solid",
-    borderColor: "#000",
-    borderRightWidth: 1,
-    borderBottomWidth: 1,
-    padding: 4,
-    minHeight: 40,
-    justifyContent: "center",
-    alignItems: "center",
-    flexWrap: "wrap",
-    overflow: "hidden",
-  },
-  blockCell: {
-    width: 80,
-    flexGrow: 0,
-    flexBasis: 80,
-    borderStyle: "solid",
-    borderColor: "#000",
-    borderRightWidth: 1,
-    borderBottomWidth: 1,
-    padding: 4,
-    minHeight: 40,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#f8f9fa",
-  },
-  headerCell: {
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#b8b8b8",
-    fontWeight: "bold",
-    textAlign: "center",
-    fontSize: 8,
-    color: "#495057",
-  },
-  blockLabel: {
-    fontWeight: "bold",
-    textAlign: "center",
-    fontSize: 8,
-    color: "#495057",
-    backgroundColor: "#b8b8b8",
-  },
-  activityText: {
-    fontSize: 5,
-    textAlign: "center",
-    lineHeight: 1.1,
-    wordWrap: "normal",
-    maxWidth: "100%",
-    hyphens: "none",
-    marginBottom: 1,
-    whiteSpace: "pre-line",
-    overflowWrap: "normal",
-    wordBreak: "normal",
-  },
-  emptyCell: {
-    backgroundColor: "#f8f9fa",
-  },
-  tableContainer: {
-    marginBottom: 0,
-  },
-});
-
-// ---------- Props ----------
 interface ProgramAreaGridProps {
   schedule: SectionSchedule<"BUNDLE">;
   sectionName: string;
@@ -134,94 +39,83 @@ export default function ProgramAreaGrid({
     areaChunks.push(allAreas.slice(i, i + maxAreasPerTable));
   }
 
-  // Helper function to render activity text
+  // function to render activity text (only first activity)
   const renderActivityText = (activities: BundleActivity[]) => {
     if (activities.length === 0) {
       return null;
     }
 
-    return activities.map((activity, index) => (
-      <View
-        key={index}
-        style={{
-          marginBottom: index < activities.length - 1 ? 2 : 0,
-          width: "100%",
-          alignItems: "center",
-          justifyContent: "center",
-          paddingHorizontal: 1,
-          paddingVertical: 0.5,
-        }}
-      >
-        <Text style={styles.activityText}>
-          {`${activity.name} (${activity.ageGroup})`}
-        </Text>
-      </View>
-    ));
+    //  show the first activity
+    const activity = activities[0];
+    return (
+      <Text style={tw("text-[6px] text-center leading-[1.1] max-w-full")}>
+        {`${activity.name} (${activity.ageGroup})`}
+      </Text>
+    );
   };
 
-  // Helper function to render a single table
-  const renderTable = (areas: ProgramAreaID[], tableIndex: number) => (
-    <View
-      key={tableIndex}
-      style={[
-        styles.tableContainer,
-        tableIndex < areaChunks.length - 1 ? { marginBottom: 20 } : {},
-      ]}
-    >
-      <View style={styles.table}>
-        {/* Table Header */}
-        <View style={styles.row}>
-          <View style={[styles.blockCell, styles.headerCell]}>
-            <Text>BLOCKS</Text>
-          </View>
-          {areas.map((area) => (
-            <View key={area.id} style={[styles.cell, styles.headerCell]}>
-              <Text>{`${area.name} (${area.id})`}</Text>
-            </View>
-          ))}
-        </View>
+  //  render a single table
+  const renderTable = (areas: ProgramAreaID[], tableIndex: number) => {
+    return (
+      <View
+        key={tableIndex}
+        style={[
+          tw("mb-0"),
+          tableIndex < areaChunks.length - 1 ? tw("mb-[20px]") : {},
+        ]}
+      >
+        <Table>
+          {/* Table Header does not align, try using rows*/}
+          <TR>
+            <TD style={tw("bg-black p-[3px] text-center min-h-[13px] border border-black w-[50px]")}>
+            </TD>
+            {areas.map((area) => (
+              <TD
+                key={area.id}
+                style={tw("bg-gray-400 font-bold text-center text-[7px] text-black p-[3px] min-h-[13px] border border-black w-[80px]")}
+              >
+                <Text style={tw("text-center")}>{area.name}</Text>
+              </TD>
+            ))}
+          </TR>
 
-        {/* Table Rows */}
-        {blockIds.map((blockId) => {
-          const block = schedule.blocks[blockId];
-          const activities = block.activities as BundleActivity[];
+          {/* Table Rows */}
+          {blockIds.map((blockId) => {
+            const block = schedule.blocks[blockId];
+            const activities = block.activities as BundleActivity[];
 
-          return (
-            <View key={blockId} style={styles.row}>
-              {/* Block Label */}
-              <View style={[styles.blockCell, styles.blockLabel]}>
-                <Text>{`BLOCK ${blockId}`}</Text>
-              </View>
+            return (
+              <TR key={blockId}>
+                {/* Block Label */}
+                <TD style={tw("bg-gray-400 font-bold text-center text-[7px] text-black p-[3px] min-h-[13px] border border-black w-[50px]")}>
+                  <Text style={tw("text-center")}>BLOCK {blockId}</Text>
+                </TD>
 
-              {/* Area Cells */}
-              {areas.map((area) => {
-                const areaActivities = activities.filter(
-                  (a) => a.programArea.id === area.id
-                );
-
-                const isEmpty = areaActivities.length === 0;
-
-                return (
-                  <View
-                    key={`${blockId}-${area}`}
-                    style={
-                      isEmpty ? [styles.cell, styles.emptyCell] : styles.cell
-                    }
-                  >
-                    {renderActivityText(areaActivities)}
-                  </View>
-                );
-              })}
-            </View>
-          );
-        })}
+                {/* Area Cells */}
+                {areas.map((area) => {
+                  const areaActivities = activities.filter(
+                    (a) => a.programArea.id === area.id
+                  );
+                  return (
+                    <TD
+                      key={`${blockId}-${area.id}`}
+                      style={tw("bg-white p-[2px] min-h-[13px] text-center border border-black w-[80px]")}  
+                    >
+                      {renderActivityText(areaActivities)}
+                    </TD>
+                  );
+                })}
+              </TR>
+            );
+          })}
+        </Table>
       </View>
-    </View>
-  );
+    );
+  };
 
   return (
-      <View style={styles.page}>
-        <Text style={styles.title}>{sectionName} Program Area Grid</Text>
+      <View style={[tw("p-[20px] text-[9px]"), { fontFamily: "Helvetica" }]}>
+        <Text stylstyle={tw("text-[18px] mb-[20px] text-center font-bold text-gray-900")}>{sectionName} Program Area Grid</Text>
         {areaChunks.map((areas, index) => renderTable(areas, index))}
       </View>
   );
