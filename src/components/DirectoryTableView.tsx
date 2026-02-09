@@ -2,7 +2,6 @@ import { flexRender } from "@tanstack/react-table";
 import { useCallback, useMemo, useState } from "react";
 import {
   Attendee,
-  CamperAttendee,
   StaffAttendee,
 } from "@/types/sessions/sessionTypes";
 import {

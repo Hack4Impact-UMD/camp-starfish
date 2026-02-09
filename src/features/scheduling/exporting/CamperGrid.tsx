@@ -1,7 +1,6 @@
 import {
   CamperAttendee,
   Freeplay,
-  SchedulingSectionType,
   StaffAttendee,
 } from "@/types/sessions/sessionTypes";
 import { SectionSchedule } from "@/types/scheduling/schedulingTypes";
@@ -140,15 +139,15 @@ const styles = StyleSheet.create({
   },
 });
 
-interface CamperGridProps<T extends SchedulingSectionType> {
+interface CamperGridProps {
   schedule: SectionSchedule;
   freeplay: Freeplay;
   campers: CamperAttendee[];
   staff: StaffAttendee[];
 }
 
-export default function CamperGrid<T extends SchedulingSectionType>(
-  props: CamperGridProps<T>,
+export default function CamperGrid(
+  props: CamperGridProps,
 ) {
   const { schedule, freeplay, campers, staff } = props;
 
@@ -185,7 +184,6 @@ export default function CamperGrid<T extends SchedulingSectionType>(
         </View>
 
         {campers.map((camper) => {
-          const blocksArray = Object.values(schedule.blocks);
           const fpBuddyId = getFreeplayAssignmentId(
             freeplay,
             camper.attendeeId,

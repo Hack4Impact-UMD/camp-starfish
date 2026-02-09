@@ -1,14 +1,12 @@
 import React from "react";
 import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
-import { SchedulingSectionType, AgeGroup } from "@/types/sessions/sessionTypes";
+import { AgeGroup } from "@/types/sessions/sessionTypes";
+import { BundleSectionSchedule } from "@/types/scheduling/schedulingTypes";
 import {
-  SectionSchedule,
-  BundleActivity,
-  BundleSectionSchedule,
-  BunkJamboreeSectionSchedule,
-  NonBunkJamboreeSectionSchedule,
-} from "@/types/scheduling/schedulingTypes";
-import { isBundleActivity, isBundleSectionSchedule, isNonBunkJamboreeSectionSchedule } from "@/types/scheduling/schedulingTypeGuards";
+  isBundleActivity,
+  isBundleSectionSchedule,
+  isNonBunkJamboreeSectionSchedule,
+} from "@/types/scheduling/schedulingTypeGuards";
 
 const styles = StyleSheet.create({
   page: { padding: 40, fontSize: 12, fontFamily: "Helvetica" },
@@ -41,7 +39,7 @@ type CamperPreferencesSheetProps = {
   schedule: BundleSectionSchedule;
   sectionName: string;
   ageGroup?: AgeGroup;
-}
+};
 
 export function CamperPreferencesSheet(props: CamperPreferencesSheetProps) {
   const { schedule, sectionName, ageGroup = undefined } = props;
@@ -60,12 +58,11 @@ export function CamperPreferencesSheet(props: CamperPreferencesSheetProps) {
         </Text>
 
         {Object.entries(schedule.blocks).map(([blockId, block]) => {
-          const activities =
-            isBundleSectionSchedule(schedule)
-              ? block.activities.filter(
-                  (act) => !ageGroup || act.ageGroup === ageGroup,
-                )
-              : block.activities;
+          const activities = isBundleSectionSchedule(schedule)
+            ? block.activities.filter(
+                (act) => !ageGroup || act.ageGroup === ageGroup,
+              )
+            : block.activities;
           if (activities.length === 0) return null;
           return (
             <View key={blockId} style={styles.block}>

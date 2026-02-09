@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { DatePicker, DatesRangeValue } from "@mantine/dates";
 import { Button, TextInput, Stack, Group, Text, Box } from "@mantine/core";
 import moment from "moment";
-import { Session } from "@/types/sessions/sessionTypes";
 import useCreateSession from "@/hooks/sessions/useCreateSession";
 import { modals } from "@mantine/modals";
 import { CreateSessionDTO } from "@/data/firestore/sessions";
