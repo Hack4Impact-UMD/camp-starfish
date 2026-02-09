@@ -36,6 +36,7 @@ interface BaseAttendee {
     gender: Gender;
     age: number;
     nonoList: number[];
+    dateOfBirth: string; // ISO-8601, may be temporary since "dateOfBirth" field already exists on User type and can't change
   };
   role: Role;
 }

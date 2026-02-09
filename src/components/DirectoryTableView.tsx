@@ -148,7 +148,7 @@ export default function DirectoryTableView({
         },
 
         {
-          accessorFn: (row) => (row as CamperAttendee).dateOfBirth,
+          accessorFn: (row) => row.snapshot.dateOfBirth,
           header: "DOB",
           cell: (info) => {
             const dob = info.getValue<string>();
