@@ -6,7 +6,7 @@ import {
   QueryDocumentSnapshot,
   DocumentReference,
 } from "firebase-admin/firestore";
-import { Collection } from "./utils";
+import { Collection } from "@/data/firestore/types/collections";
 import { setDoc, deleteDoc, getDoc, updateDoc } from "./firestoreAdminOperations";
 import { adminDb } from "../../config/firebaseAdminConfig";
 import { Credentials } from "google-auth-library";

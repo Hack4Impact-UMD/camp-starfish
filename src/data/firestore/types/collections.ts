@@ -3,7 +3,8 @@ export const enum Collection {
   ALBUMS = "albums",
   SESSIONS = "sessions",
   PROGRAM_AREAS = "program_areas",
-  POSTS = "posts"
+  POSTS = "posts",
+  GOOGLE_OAUTH2_TOKENS = "googleOAuth2Tokens",
 }
 
 export const enum AlbumsSubcollection {
