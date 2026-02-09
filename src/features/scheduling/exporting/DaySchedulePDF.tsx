@@ -5,7 +5,7 @@ import {
   Freeplay,
   StaffAttendee,
 } from "@/types/sessions/sessionTypes";
-import { SectionSchedule } from "@/types/scheduling/schedulingTypes";
+import { ProgramArea, SectionSchedule } from "@/types/scheduling/schedulingTypes";
 import CamperGrid from "@/features/scheduling/exporting/CamperGrid";
 import BlockRatiosGrid from "@/features/scheduling/exporting/BlockRatiosGrid";
 import EmployeeGrid from "@/features/scheduling/exporting/EmployeeGrid";
@@ -18,11 +18,12 @@ interface DaySchedulePDFProps {
   campers: CamperAttendee[];
   staff: StaffAttendee[];
   admins: AdminAttendee[];
+  programAreas?: ProgramArea[];
   sectionName: string;
 }
 
 export default function DaySchedulePDF(props: DaySchedulePDFProps) {
-  const { schedule, freeplay, campers, staff, admins, sectionName } = props;
+  const { schedule, freeplay, campers, staff, admins, sectionName, programAreas } = props;
 
   return (
     <Document>
@@ -45,7 +46,7 @@ export default function DaySchedulePDF(props: DaySchedulePDFProps) {
           campers={campers}
           employees={staff}
         />
-        {isBundleSectionSchedule(schedule) && <ProgramAreaGrid schedule={schedule} sectionName={sectionName} />}
+        {isBundleSectionSchedule(schedule) && programAreas && <ProgramAreaGrid schedule={schedule} sectionName={sectionName} programAreas={programAreas} />}
       </Page>
     </Document>
   );

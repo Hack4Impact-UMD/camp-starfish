@@ -3,8 +3,10 @@ import { Text, View, StyleSheet } from "@react-pdf/renderer";
 import {
   SectionSchedule,
   BundleActivity,
-  ProgramAreaID,
-} from "@/types/sessions/sessionTypes";
+  ProgramArea,
+  BundleSectionSchedule,
+} from "@/types/scheduling/schedulingTypes";
+import { toRecord } from "@/utils/data/toRecord";
 
 // ---------- Styles ----------
 const styles = StyleSheet.create({
@@ -104,25 +106,21 @@ const styles = StyleSheet.create({
 
 // ---------- Props ----------
 interface ProgramAreaGridProps {
-  schedule: SectionSchedule<"BUNDLE">;
+  schedule: BundleSectionSchedule;
+  programAreas: ProgramArea[];
   sectionName: string;
 }
 
 // ---------- Component ----------
 export default function ProgramAreaGrid({
   schedule,
+  programAreas,
   sectionName,
 }: ProgramAreaGridProps) {
-  // Identify program areas from bundle activities
-  const programAreaMap: Record<string, ProgramAreaID> = {};
-  Object.values(schedule.blocks).flatMap((block) =>
-    block.activities.forEach(
-      (a) => (programAreaMap[a.programArea.id] = a.programArea),
-    ),
-  );
-  const allAreas = Object.entries(programAreaMap)
-    .sort((a, b) => a[0].localeCompare(b[0]))
-    .map((a) => a[1]);
+  const sortedProgramAreaIds = programAreas
+    .map((area) => area.id)
+    .sort((a, b) => a.localeCompare(b));
+  const programAreasById = toRecord(programAreas, (a) => a.id);
 
   // Sort blocks alphabetically
   const blockIds = Object.keys(schedule.blocks).sort();
@@ -130,21 +128,16 @@ export default function ProgramAreaGrid({
   // Split areas into chunks for multiple tables (max 8 areas per table to fit on page)
   const maxAreasPerTable = 8;
   const areaChunks = [];
-  for (let i = 0; i < allAreas.length; i += maxAreasPerTable) {
-    areaChunks.push(allAreas.slice(i, i + maxAreasPerTable));
+  for (let i = 0; i < sortedProgramAreaIds.length; i += maxAreasPerTable) {
+    areaChunks.push(sortedProgramAreaIds.slice(i, i + maxAreasPerTable));
   }
 
   // Helper function to render activity text
-  const renderActivityText = (activities: BundleActivity[]) => {
-    if (activities.length === 0) {
-      return null;
-    }
-
-    return activities.map((activity, index) => (
+  const renderActivityText = (activity: BundleActivity) => {
+    return (
       <View
-        key={index}
         style={{
-          marginBottom: index < activities.length - 1 ? 2 : 0,
+          marginBottom: 0,
           width: "100%",
           alignItems: "center",
           justifyContent: "center",
@@ -156,11 +149,11 @@ export default function ProgramAreaGrid({
           {`${activity.name} (${activity.ageGroup})`}
         </Text>
       </View>
-    ));
+    );
   };
 
   // Helper function to render a single table
-  const renderTable = (areas: ProgramAreaID[], tableIndex: number) => (
+  const renderTable = (areas: ProgramArea[], tableIndex: number) => (
     <View
       key={tableIndex}
       style={[
@@ -184,7 +177,10 @@ export default function ProgramAreaGrid({
         {/* Table Rows */}
         {blockIds.map((blockId) => {
           const block = schedule.blocks[blockId];
-          const activities = block.activities as BundleActivity[];
+          const blockActivitiesByProgramArea = toRecord(
+            block.activities,
+            (a) => a.programAreaId,
+          );
 
           return (
             <View key={blockId} style={styles.row}>
@@ -195,20 +191,16 @@ export default function ProgramAreaGrid({
 
               {/* Area Cells */}
               {areas.map((area) => {
-                const areaActivities = activities.filter(
-                  (a) => a.programArea.id === area.id,
-                );
-
-                const isEmpty = areaActivities.length === 0;
-
                 return (
                   <View
                     key={`${blockId}-${area}`}
                     style={
-                      isEmpty ? [styles.cell, styles.emptyCell] : styles.cell
+                      blockActivitiesByProgramArea[area.id]
+                        ? [styles.cell, styles.emptyCell]
+                        : styles.cell
                     }
                   >
-                    {renderActivityText(areaActivities)}
+                    {renderActivityText(blockActivitiesByProgramArea[area.id])}
                   </View>
                 );
               })}
@@ -222,7 +214,12 @@ export default function ProgramAreaGrid({
   return (
     <View style={styles.page}>
       <Text style={styles.title}>{sectionName} Program Area Grid</Text>
-      {areaChunks.map((areas, index) => renderTable(areas, index))}
+      {areaChunks.map((areas, index) =>
+        renderTable(
+          areas.map((a) => programAreasById[a]),
+          index,
+        ),
+      )}
     </View>
   );
 }
