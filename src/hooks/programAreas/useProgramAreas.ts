@@ -1,5 +1,5 @@
 import { getProgramAreasByIds } from "@/data/firestore/programAreas";
-import { useQuery, useQueryClient, UseQueryOptions } from "@tanstack/react-query";
+import { skipToken, useQuery, useQueryClient, UseQueryOptions } from "@tanstack/react-query";
 
 export default function useProgramAreas(ids: string[]) {
   const queryClient = useQueryClient();
@@ -8,6 +8,7 @@ export default function useProgramAreas(ids: string[]) {
     queryFn: async () => {
       const programAreas = await getProgramAreasByIds(ids);
       programAreas.forEach(programArea => queryClient.setQueryData(['programAreas', programArea.id], programArea));
+      return programAreas;
     },
     enabled: !!ids.length
   })
