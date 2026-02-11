@@ -14,13 +14,13 @@ import moment, { Moment } from "moment";
 import useCreateSection from "@/hooks/sections/useCreateSection";
 import useUpdateSection from "@/hooks/sections/useUpdateSection";
 import useDeleteSection from "@/hooks/sections/useDeleteSection";
-import { isSchedulingSectionType } from "@/utils/sections";
+import { isSchedulingSectionType } from "@/types/sessions/sessionTypeGuards";
 import {
   Section,
   SchedulingSection,
   CommonSection,
   SectionType,
-} from "@/types/sessionTypes";
+} from "@/types/sessions/sessionTypes";
 import useSection from "@/hooks/sections/useSection";
 import { modals } from "@mantine/modals";
 
@@ -39,18 +39,18 @@ export default function EditSectionModal({
 }: EditSectionModalProps) {
   const { data: section, isLoading: isLoadingSection } = useSection(
     sessionId,
-    sectionId || ""
+    sectionId || "",
   );
   const isEditMode = !!sectionId;
 
   const [startDate, setStartDate] = useState<Moment | null>(
-    (isEditMode ? moment(section?.startDate) : selectedStartDate) ?? null
+    (isEditMode ? moment(section?.startDate) : selectedStartDate) ?? null,
   );
   const [endDate, setEndDate] = useState<Moment | null>(
-    (isEditMode ? moment(section?.endDate) : selectedEndDate) ?? null
+    (isEditMode ? moment(section?.endDate) : selectedEndDate) ?? null,
   );
   const [scheduleType, setScheduleType] = useState<SectionType | null>(
-    section?.type ?? null
+    section?.type ?? null,
   );
   const [name, setName] = useState<string>(section?.name ?? "");
 
@@ -79,13 +79,16 @@ export default function EditSectionModal({
       sectionData = {
         ...baseSectionData,
         type: scheduleType,
-        numBlocks: 5,
-        isPublished: false,
+        isScheduleOutdated: false,
+        id: sectionId || "",
+        sessionId
       } satisfies SchedulingSection;
     } else {
       sectionData = {
         ...baseSectionData,
         type: "COMMON",
+        id: sectionId || "",
+        sessionId        
       } satisfies CommonSection;
     }
 
@@ -94,14 +97,14 @@ export default function EditSectionModal({
         { sessionId, sectionId, updates: sectionData },
         {
           onSuccess: () => modals.closeAll(),
-        }
+        },
       );
     } else {
       createMutation.mutate(
         { sessionId, section: sectionData },
         {
           onSuccess: () => modals.closeAll(),
-        }
+        },
       );
     }
   };

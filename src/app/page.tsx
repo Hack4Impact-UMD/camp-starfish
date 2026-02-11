@@ -5,7 +5,7 @@ import LoginPage from "./LoginPage";
 import EmployeeHomePage from "./EmployeeHomePage";
 import ParentHomePage from "./ParentHomePage";
 import { useAuth } from "@/auth/useAuth";
-import { Role } from "@/types/personTypes";
+import { Role } from "@/types/users/userTypes";
 
 export default function HomePage() {
   const { token } = useAuth();
@@ -23,7 +23,8 @@ export default function HomePage() {
           component: <ParentHomePage />,
         },
         {
-          authFn: () => role === "ADMIN" || role === "PHOTOGRAPHER" || role === "STAFF",
+          authFn: () =>
+            role === "ADMIN" || role === "PHOTOGRAPHER" || role === "STAFF",
           component: <EmployeeHomePage />,
         },
       ]}

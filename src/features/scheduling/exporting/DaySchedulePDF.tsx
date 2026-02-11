@@ -1,28 +1,29 @@
 import { Document, Page } from "@react-pdf/renderer";
 import {
-  AdminAttendeeID,
-  CamperAttendeeID,
+  AdminAttendee,
+  CamperAttendee,
   Freeplay,
-  SchedulingSectionType,
-  SectionScheduleID,
-  StaffAttendeeID,
-} from "@/types/sessionTypes";
+  StaffAttendee,
+} from "@/types/sessions/sessionTypes";
+import { ProgramArea, SectionSchedule } from "@/types/scheduling/schedulingTypes";
 import CamperGrid from "@/features/scheduling/exporting/CamperGrid";
 import BlockRatiosGrid from "@/features/scheduling/exporting/BlockRatiosGrid";
 import EmployeeGrid from "@/features/scheduling/exporting/EmployeeGrid";
 import ProgramAreaGrid from "@/features/scheduling/exporting/ProgramAreaGrid";
+import { isBundleSectionSchedule } from "@/types/scheduling/schedulingTypeGuards";
 
 interface DaySchedulePDFProps {
-  schedule: SectionScheduleID<SchedulingSectionType>;
+  schedule: SectionSchedule;
   freeplay: Freeplay;
-  campers: CamperAttendeeID[];
-  staff: StaffAttendeeID[];
-  admins: AdminAttendeeID[];
+  campers: CamperAttendee[];
+  staff: StaffAttendee[];
+  admins: AdminAttendee[];
+  programAreas?: ProgramArea[];
   sectionName: string;
 }
 
 export default function DaySchedulePDF(props: DaySchedulePDFProps) {
-  const { schedule, freeplay, campers, staff, admins, sectionName } = props;
+  const { schedule, freeplay, campers, staff, admins, sectionName, programAreas } = props;
 
   return (
     <Document>
@@ -45,7 +46,7 @@ export default function DaySchedulePDF(props: DaySchedulePDFProps) {
           campers={campers}
           employees={staff}
         />
-        <ProgramAreaGrid schedule={schedule} sectionName={sectionName} />
+        {isBundleSectionSchedule(schedule) && programAreas && <ProgramAreaGrid schedule={schedule} sectionName={sectionName} programAreas={programAreas} />}
       </Page>
     </Document>
   );

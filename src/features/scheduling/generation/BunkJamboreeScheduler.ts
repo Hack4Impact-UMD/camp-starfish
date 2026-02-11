@@ -1,24 +1,25 @@
-import { AdminAttendeeID, SectionSchedule, SectionPreferences, BunkID } from "@/types/sessionTypes";
+import { AdminAttendee, Bunk } from "@/types/sessions/sessionTypes";
+import { BunkJamboreeSectionSchedule, SectionActivityPreferences } from "@/types/scheduling/schedulingTypes";
 
 export class BunkJamboreeScheduler {
-  schedule: SectionSchedule<"BUNK-JAMBO"> = { blocks: {}, alternatePeriodsOff: {} };
+  schedule: BunkJamboreeSectionSchedule | null = null;
 
-  bunks: BunkID[] = [];
-  admins: AdminAttendeeID[] = [];
+  bunks: Bunk[] = [];
+  admins: AdminAttendee[] = [];
 
-  preferences: SectionPreferences = {};
+  preferences: SectionActivityPreferences | null = null;
 
   blocksToAssign: string[] = [];
 
   constructor() { }
 
-  withSchedule(schedule: SectionSchedule<"BUNK-JAMBO">): BunkJamboreeScheduler { this.schedule = schedule; return this; }
+  withSchedule(schedule: BunkJamboreeSectionSchedule): BunkJamboreeScheduler { this.schedule = schedule; return this; }
 
-  withBunks(bunks: BunkID[]): BunkJamboreeScheduler { this.bunks = bunks; return this; }
+  withBunks(bunks: Bunk[]): BunkJamboreeScheduler { this.bunks = bunks; return this; }
 
-  withAdmins(admins: AdminAttendeeID[]): BunkJamboreeScheduler { this.admins = admins; return this; }
+  withAdmins(admins: AdminAttendee[]): BunkJamboreeScheduler { this.admins = admins; return this; }
 
-  withPreferences(preferences: SectionPreferences): BunkJamboreeScheduler { this.preferences = preferences; return this; }
+  withPreferences(preferences: SectionActivityPreferences): BunkJamboreeScheduler { this.preferences = preferences; return this; }
 
   forBlocks(blockIds: string[]): BunkJamboreeScheduler { this.blocksToAssign = blockIds; return this; }
 

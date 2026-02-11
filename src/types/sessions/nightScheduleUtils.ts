@@ -1,4 +1,4 @@
-import { NightSchedulePosition } from "@/types/sessionTypes";
+import { NightSchedulePosition } from "@/types/sessions/sessionTypes";
 
 export const nightSchedulePositions: NightSchedulePosition[] = ["COUNSELOR-ON-DUTY", "NIGHT-BUNK-DUTY", "ROVER", "DAY OFF"];
 

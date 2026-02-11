@@ -1,10 +1,10 @@
-import { Block, SchedulingSectionType } from "@/types/sessionTypes";
+import { Block } from "@/types/scheduling/schedulingTypes";
 import { Text, ActionIcon, ScrollArea } from "@mantine/core";
 import ActivityGridCell from "./ActivityGridCell";
 import { MdChevronLeft, MdChevronRight } from "react-icons/md";
 
 interface ActivityGridRowProps {
-  block: Block<SchedulingSectionType>;
+  block: Block;
   id: string;
 }
 
@@ -27,7 +27,9 @@ export default function ActivityGridRow(props: ActivityGridRowProps) {
       <ScrollArea type="scroll" className="w-full">
         <div
           className="grid gap-0"
-          style={{ gridTemplateColumns: `repeat(${2 * block.activities.length}, max-content)` }}
+          style={{
+            gridTemplateColumns: `repeat(${2 * block.activities.length}, max-content)`,
+          }}
         >
           {block.activities.map((activity, i) => (
             <div
