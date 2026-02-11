@@ -5,7 +5,7 @@ export function doesConflictExist(attendee: Attendee, otherAttendeeIds: number[]
   if (isCamperAttendee(attendee)) {
     return attendee.snapshot.nonoList.some((id) => otherAttendeeIds.includes(id))
   }
-  return attendee.snapshot.nonoList.some((id) => otherAttendeeIds.includes(id)) && attendee.snapshot.yesyesList.some((id) => otherAttendeeIds.includes(id));
+  return attendee.snapshot.nonoList.some((id) => otherAttendeeIds.includes(id)) || attendee.snapshot.yesyesList.some((id) => otherAttendeeIds.includes(id));
 }
 
 export function getFreeplayAssignmentId(freeplay: Freeplay, id: number): number[] | number | string | null {
