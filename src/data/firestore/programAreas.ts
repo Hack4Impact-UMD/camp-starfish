@@ -13,7 +13,8 @@ import {
   where,
   query,
   Query,
-  UpdateData
+  UpdateData,
+  documentId
 } from "firebase/firestore";
 import { setDoc, getDoc, updateDoc, executeQuery, deleteDoc } from "./firestoreClientOperations";
 import { Collection } from "./types/collections";
@@ -31,7 +32,7 @@ export async function getProgramAreaById(id: string, transaction?: Transaction):
 };
 
 export async function getProgramAreasByIds(ids: string[]): Promise<ProgramArea[]> {
-  return await executeQuery<ProgramArea, ProgramAreaDoc>(query(collection(db, Collection.PROGRAM_AREAS), where("id", "in", ids)) as Query<ProgramArea, ProgramAreaDoc>, programAreaFirestoreConverter);
+  return await executeQuery<ProgramArea, ProgramAreaDoc>(query(collection(db, Collection.PROGRAM_AREAS), where(documentId(), "in", ids)) as Query<ProgramArea, ProgramAreaDoc>, programAreaFirestoreConverter);
 }
 
 export async function setProgramArea(id: string, programArea: ProgramAreaDoc, instance?: Transaction | WriteBatch): Promise<void> {
