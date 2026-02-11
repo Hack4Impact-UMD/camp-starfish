@@ -15,7 +15,7 @@ import { adminDb } from "../../config/firebaseAdminConfig";
 const userFirestoreConverter: FirestoreDataConverter<User, UserDoc> = {
   toFirestore: (user: WithFieldValue<User>) => {
     const { id, ...dto } = user;
-    return dto as WithFieldValue<User>;
+    return dto;
   },
   fromFirestore: (snapshot: QueryDocumentSnapshot<UserDoc, UserDoc>): User => ({ id: Number(snapshot.ref.id), ...snapshot.data() })
 };
