@@ -16,7 +16,7 @@ import {
 import { getFullName } from "@/types/users/userUtils";
 import moment from "moment";
 import useAttendeesBySessionId from "@/hooks/attendees/useAttendeesBySessionId";
-import useNightShiftsBySessionId from "@/hooks/nightShifts/useNightShiftsBySessionId";
+import useNightSchedulesBySessionId from "@/hooks/nightSchedules/useNightSchedulesBySessionId";
 import {
   getAttendeesById,
   groupAttendeesByBunk,
@@ -40,7 +40,7 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
   const { data: attendees = [], status: attendeesStatus } =
     useAttendeesBySessionId(sessionId);
   const { data: nightShifts = [], status: nightShiftsStatus } =
-    useNightShiftsBySessionId(sessionId);
+    useNightSchedulesBySessionId(sessionId);
 
   if (
     sessionStatus === "error" ||
@@ -80,11 +80,7 @@ interface NightScheduleTableRow {
 function NightScheduleTableContent(props: NightScheduleTableContentProps) {
   const { session, attendees, nightShifts } = props;
 
-  const {
-    staffById,
-    staffByBunk,
-    bunkNums,
-  } = useMemo(() => {
+  const { staffById, staffByBunk, bunkNums } = useMemo(() => {
     const staff = attendees.filter((att: Attendee) => att.role === "STAFF");
     const staffById = getAttendeesById(staff);
     const staffByBunk = groupAttendeesByBunk(staff);
@@ -106,10 +102,14 @@ function NightScheduleTableContent(props: NightScheduleTableContentProps) {
 
       switch (position) {
         case "NIGHT-BUNK-DUTY": {
-          return bunkData["NIGHT-BUNK-DUTY"].map((staffId) => staffById[staffId]);
+          return bunkData["NIGHT-BUNK-DUTY"].map(
+            (staffId) => staffById[staffId],
+          );
         }
         case "COUNSELOR-ON-DUTY": {
-          return bunkData["COUNSELOR-ON-DUTY"].map((staffId) => staffById[staffId]);
+          return bunkData["COUNSELOR-ON-DUTY"].map(
+            (staffId) => staffById[staffId],
+          );
         }
         case "DAY OFF": {
           const staffInBunk: number[] = Array.from(
@@ -191,7 +191,9 @@ function NightScheduleTableContent(props: NightScheduleTableContentProps) {
       cols.push({
         accessorFn: (row: NightScheduleTableRow) =>
           row.bunks[bunkNum] &&
-          row.bunks[bunkNum].map((staff) => getFullName(staff.snapshot.name)).join(", "),
+          row.bunks[bunkNum]
+            .map((staff) => getFullName(staff.snapshot.name))
+            .join(", "),
         header: `BUNK ${bunkNum}`,
       });
     });
