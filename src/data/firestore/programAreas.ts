@@ -32,7 +32,12 @@ export async function getProgramAreaById(id: string, transaction?: Transaction):
 };
 
 export async function getProgramAreasByIds(ids: string[]): Promise<ProgramArea[]> {
-  return await executeQuery<ProgramArea, ProgramAreaDoc>(query(collection(db, Collection.PROGRAM_AREAS), where(documentId(), "in", ids)) as Query<ProgramArea, ProgramAreaDoc>, programAreaFirestoreConverter);
+  const idBatches = [];
+  for (let i = 0; i < ids.length; i += 30) {
+    idBatches.push(ids.slice(i, i + 30));
+  }
+  const responses = await Promise.all(idBatches.flatMap(idBatch => executeQuery<ProgramArea, ProgramAreaDoc>(query(collection(db, Collection.PROGRAM_AREAS), where(documentId(), "in", idBatch)) as Query<ProgramArea, ProgramAreaDoc>, programAreaFirestoreConverter)));
+  return responses.flatMap(response => response)
 }
 
 export async function setProgramArea(id: string, programArea: ProgramAreaDoc, instance?: Transaction | WriteBatch): Promise<void> {

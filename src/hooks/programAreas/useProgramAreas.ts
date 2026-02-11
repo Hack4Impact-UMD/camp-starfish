@@ -6,9 +6,10 @@ export default function useProgramAreas(ids: string[]) {
   return useQuery({
     queryKey: ['programAreas', ids],
     queryFn: async () => {
-      const programAreas = await getProgramAreasByIds(ids);
+      const queryIds = ids.filter(id => !queryClient.getQueryData(['programAreas', id]));
+      const programAreas = await getProgramAreasByIds(queryIds);
       programAreas.forEach(programArea => queryClient.setQueryData(['programAreas', programArea.id], programArea));
-      return programAreas;
+      return ids.map(id => queryClient.getQueryData(['programAreas', id]));
     },
     enabled: !!ids.length
   })
