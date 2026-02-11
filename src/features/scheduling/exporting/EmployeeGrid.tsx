@@ -252,7 +252,7 @@ export default function EmployeeGrid(props: EmployeeGridProps) {
                       } else {
                         const activity = isStaffAttendee(employee)
                           ? block.activities.find((act) =>
-                              act.staffIds.includes(employee.bunk),
+                              act.staffIds.includes(employee.attendeeId),
                             )
                           : block.activities.find((act) =>
                               act.adminIds.includes(employee.attendeeId),
