@@ -1,6 +1,6 @@
 import { setSection } from "@/data/firestore/sections";
 import useNotifications from "@/features/notifications/useNotifications";
-import { Section } from "@/types/sessionTypes";
+import { Section } from "@/types/sessions/sessionTypes";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 interface UseCreateSectionVariables {

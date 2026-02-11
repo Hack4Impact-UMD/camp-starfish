@@ -1,7 +1,8 @@
 // google apps script that creates preference spreadsheets for jamborees and bundles
 // importing necessary types to use in spreadsheet
-import { BlockActivities, CamperAttendeeID, SchedulingSectionID } from "../../../../src/types/sessionTypes";
-import { getFullName } from "@/utils/personUtils";
+import { CamperAttendee, SchedulingSection } from "@/types/sessions/sessionTypes";
+import { BundleActivity, JamboreeActivity } from "@/types/scheduling/schedulingTypes";
+import { getFullName } from "@/types/users/userUtils";
 
 // color blocks to use for different blocks on the sheet for design
 const BLOCK_COLORS: { [key: string]: string } = {
@@ -28,7 +29,7 @@ function createPreferencesSpreadsheet(sessionName: string): string {
 }
 globalThis.createPreferencesSpreadsheet = createPreferencesSpreadsheet;
 
-function getSheetIndexFromSectionIndex(sections: SchedulingSectionID[], sectionIndex: number): number {
+function getSheetIndexFromSectionIndex(sections: SchedulingSection[], sectionIndex: number): number {
   let index = 0;
   for (let i = 0; i < sectionIndex; i++) {
     index += sections[i].type === "BUNDLE" ? 2 : 1;
@@ -36,7 +37,7 @@ function getSheetIndexFromSectionIndex(sections: SchedulingSectionID[], sectionI
   return index;
 }
 
-function addSectionPreferencesSheet(spreadsheetId: string, section: SchedulingSectionID): void {
+function addSectionPreferencesSheet(spreadsheetId: string, section: SchedulingSection): void {
   if (section.type !== 'BUNDLE' && section.type !== 'BUNK-JAMBO' && section.type !== 'NON-BUNK-JAMBO') { throw Error("Invalid section type"); }
 
   const spreadsheet = SpreadsheetApp.openById(spreadsheetId);
@@ -74,11 +75,11 @@ function addSectionPreferencesSheet(spreadsheetId: string, section: SchedulingSe
 }
 globalThis.addSectionPreferencesSheet = addSectionPreferencesSheet;
 
-function populateCamperAttendeeColumns_(sheet: GoogleAppsScript.Spreadsheet.Sheet, attendees: CamperAttendeeID[]) {
+function populateCamperAttendeeColumns_(sheet: GoogleAppsScript.Spreadsheet.Sheet, attendees: CamperAttendee[]) {
   sheet.getRange("A1").setValue("Bunk");
   sheet.getRange("B1").setValue("Camper");
 
-  const campersByBunk: { [bunkNum: number]: CamperAttendeeID[] } = {};
+  const campersByBunk: { [bunkNum: number]: CamperAttendee[] } = {};
   for (const attendee of attendees) {
     if (!campersByBunk[attendee.bunk]) {
       campersByBunk[attendee.bunk] = [];
@@ -89,15 +90,15 @@ function populateCamperAttendeeColumns_(sheet: GoogleAppsScript.Spreadsheet.Shee
   let row = 3;
   for (const bunkNum of Object.keys(campersByBunk).map(bunkNum => Number(bunkNum)).sort()) {
     const bunkCampers = campersByBunk[bunkNum].sort((a, b) => {
-      const compareNameResult = getFullName(a).localeCompare(getFullName(b));
+      const compareNameResult = getFullName(a.snapshot.name).localeCompare(getFullName(b.snapshot.name));
       if (compareNameResult === 0) {
-        return a.id - b.id;
+        return a.attendeeId - b.attendeeId;
       }
       return compareNameResult;
     });
     sheet.getRange(row, 1, bunkCampers.length, 1).merge().setValue(`Bunk ${bunkNum}`)
     bunkCampers.forEach((camper, i) => {
-      sheet.getRange(`B${row + i}`).setValue(`${getFullName(camper)} (ID: ${camper.id})`);
+      sheet.getRange(`B${row + i}`).setValue(`${getFullName(camper.snapshot.name)} (ID: ${camper.attendeeId})`);
     })
     row += bunkCampers.length;
   }
@@ -112,7 +113,7 @@ function populateBunkAttendeeColumns_(sheet: GoogleAppsScript.Spreadsheet.Sheet,
 }
 globalThis.populateBunkAttendeeColumns_ = populateBunkAttendeeColumns_;
 
-function populateBundlePreferencesSheet(campers: CamperAttendeeID[], blockActivities: BlockActivities<'BUNDLE'>, spreadsheetId: string, sheetId: number) {
+function populateBundlePreferencesSheet(campers: CamperAttendee[], blockActivities: { [blockId: string]: BundleActivity[] }, spreadsheetId: string, sheetId: number) {
   const sheet = SpreadsheetApp.openById(spreadsheetId).getSheetById(sheetId);
   if (!sheet) {
     throw Error("Specified sheet doesn't exist");
@@ -135,7 +136,7 @@ function populateBundlePreferencesSheet(campers: CamperAttendeeID[], blockActivi
     // activity headers
     for (let i = 0; i < activities.length; i++) {
       const activity = activities[i];
-      sheet.getRange(2, colIndex).setValue(`${activity.programArea.name}: ${activity.name}`);
+      sheet.getRange(2, colIndex).setValue(`${activity.programAreaId}: ${activity.name}`);
       colIndex++;
     }
 
@@ -151,7 +152,7 @@ function populateBundlePreferencesSheet(campers: CamperAttendeeID[], blockActivi
 }
 globalThis.populateBundlePreferencesSheet = populateBundlePreferencesSheet;
 
-function populateBunkJamboreePreferencesSheet(bunks: number[], blockActivities: BlockActivities<'BUNK-JAMBO'>, spreadsheetId: string, sheetId: number) {
+function populateBunkJamboreePreferencesSheet(bunks: number[], blockActivities: { [blockId: string]: JamboreeActivity[] }, spreadsheetId: string, sheetId: number) {
   const sheet = SpreadsheetApp.openById(spreadsheetId).getSheetById(sheetId);
   if (!sheet) {
     throw Error("Specified sheet doesn't exist");
@@ -192,7 +193,7 @@ function populateBunkJamboreePreferencesSheet(bunks: number[], blockActivities: 
 }
 globalThis.populateBunkJamboreePreferencesSheet = populateBunkJamboreePreferencesSheet;
 
-function populateNonBunkJamboreePreferencesSheet(campers: CamperAttendeeID[], blockActivities: BlockActivities<'NON-BUNK-JAMBO'>, spreadsheetId: string, sheetId: number) {
+function populateNonBunkJamboreePreferencesSheet(campers: CamperAttendee[], blockActivities: { [blockId: string]: JamboreeActivity[] }, spreadsheetId: string, sheetId: number) {
   const sheet = SpreadsheetApp.openById(spreadsheetId).getSheetById(sheetId);
   if (!sheet) {
     throw Error("Specified sheet doesn't exist");

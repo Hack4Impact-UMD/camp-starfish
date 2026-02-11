@@ -7,12 +7,12 @@ import filterIcon from "@/assets/icons/filterIcon.svg";
 import testPicture from "@/assets/images/PolaroidPhotos1.png";
 import EditAlbumModal from "@/components/EditAlbumModal";
 import CardGallery from "@/components/CardGallery";
-import { AlbumID } from "@/types/albumTypes";
+import { Album } from "@/types/albums/albumTypes";
 import Image from "next/image";
 
 const AlbumsPage: React.FC = () => {
   // Sample data for albums, get data from Firebase
-  const albums: AlbumID[] = Array(100).fill({
+  const albums: Album[] = Array(100).fill({
     title: "Program 1",
     date: "June 2024",
     photoCount: 156,
@@ -53,9 +53,11 @@ const AlbumsPage: React.FC = () => {
             />
           </div>
         </div>
-        <CardGallery<AlbumID>
+        <CardGallery<Album>
           items={albums}
-          renderItem={(album: AlbumID) => <AlbumCard album={album} thumbnail="" />}
+          renderItem={(album: Album) => (
+            <AlbumCard album={album} thumbnail="" />
+          )}
         />
       </div>
     </div>

@@ -1,18 +1,18 @@
 import { updateSection } from "@/data/firestore/sections";
 import useNotifications from "@/features/notifications/useNotifications";
-import { Section } from "@/types/sessionTypes";
+import { Section } from "@/types/sessions/sessionTypes";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 interface UseUpdateSectionVariables {
   sessionId: string;
   sectionId: string;
-  updates: Partial<Section>; 
+  updates: Partial<Section>;
 }
 
 export default function useUpdateSection() {
   const queryClient = useQueryClient();
   const notifications = useNotifications();
-  
+
   return useMutation({
     mutationFn: ({ sessionId, sectionId, updates }: UseUpdateSectionVariables) =>
       updateSection(sessionId, sectionId, updates),
