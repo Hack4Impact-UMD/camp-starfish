@@ -109,7 +109,7 @@ function NightScheduleTableContent(props: NightScheduleTableContentProps) {
           return bunkData["NIGHT-BUNK-DUTY"].map((staffId) => staffById[staffId]);
         }
         case "COUNSELOR-ON-DUTY": {
-          return bunkData["NIGHT-BUNK-DUTY"].map((staffId) => staffById[staffId]);
+          return bunkData["COUNSELOR-ON-DUTY"].map((staffId) => staffById[staffId]);
         }
         case "DAY OFF": {
           const staffInBunk: number[] = Array.from(
