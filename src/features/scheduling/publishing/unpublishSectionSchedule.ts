@@ -3,7 +3,7 @@ import { useMutation } from "@tanstack/react-query";
 import { deleteField } from "firebase/firestore";
 
 export async function unpublishSectionSchedule(sessionId: string, sectionId: string): Promise<void> {
-  await updateSection(sectionId, sessionId, { publishedAt: deleteField() });
+  await updateSection(sessionId, sectionId, { publishedAt: deleteField() });
 }
 
 interface UnpublishSectionSecheduleParams {

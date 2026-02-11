@@ -3,7 +3,7 @@ import { useMutation } from "@tanstack/react-query";
 import moment from "moment";
 
 export async function publishSectionSchedule(sessionId: string, sectionId: string): Promise<void> {
-  await updateSection(sectionId, sessionId, { publishedAt: moment().toISOString() });
+  await updateSection(sessionId, sectionId, { publishedAt: moment().toISOString() });
 }
 
 interface PublishSectionSecheduleParams {
