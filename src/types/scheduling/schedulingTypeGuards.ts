@@ -8,8 +8,8 @@ export function isBundleBlock(block: Block): block is BundleBlock { return block
 export function isBunkJamboreeBlock(block: Block): block is BunkJamboreeBlock { return block.activities.length > 0 && isBunkJamboreeActivityWithAssignments(block.activities[0]); };
 export function isNonBunkJamboreeBlock(block: Block): block is NonBunkJamboreeBlock { return block.activities.length > 0 && isNonBunkJamboreeActivityWithAssignments(block.activities[0]); };
 
-export function isBundleActivity(activity: Activity): activity is BundleActivity { return 'programArea' in activity };
-export function isJamboreeActivity(activity: Activity): activity is JamboreeActivity { return !('programArea' in activity); }
+export function isBundleActivity(activity: Activity): activity is BundleActivity { return 'programAreaId' in activity };
+export function isJamboreeActivity(activity: Activity): activity is JamboreeActivity { return !('programAreaId' in activity); }
 
 export function isBundleActivityWithAssignments(activityWithAssignments: ActivityWithAssignments): activityWithAssignments is BundleActivityWithAssignments { return isBundleActivity(activityWithAssignments); }
 export function isBunkJamboreeActivityWithAssignments(activityWithAssignments: ActivityWithAssignments): activityWithAssignments is BunkJamboreeActivityWithAssignments { return isJamboreeActivity(activityWithAssignments) && isBunkActivityAssignments(activityWithAssignments); }
