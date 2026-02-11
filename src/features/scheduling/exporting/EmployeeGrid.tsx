@@ -8,7 +8,9 @@ import { SectionSchedule } from "@/types/scheduling/schedulingTypes";
 import { StyleSheet, Text, View } from "@react-pdf/renderer";
 import { getFreeplayAssignmentId } from "../generation/schedulingUtils";
 import {
+  isBundleActivity,
   isBundleSectionSchedule,
+  isBunkJamboreeBlock,
   isBunkJamboreeSectionSchedule,
 } from "@/types/scheduling/schedulingTypeGuards";
 import { getFullName } from "@/types/users/userUtils";
@@ -202,70 +204,35 @@ export default function EmployeeGrid(props: EmployeeGridProps) {
                   {employee.snapshot.name.lastName[0]}.
                 </Text>
               </View>
-
-              {isBundleSectionSchedule(schedule)
-                ? Object.entries(schedule.blocks).map(([blockId, block]) => {
-                    let activityText;
-                    if (block.periodsOff.includes(employee.attendeeId)) {
-                      activityText = "OFF";
-                    } else {
-                      const activity = isStaffAttendee(employee)
-                        ? block.activities.find((act) =>
-                            act.staffIds.includes(employee.attendeeId),
-                          )
-                        : block.activities.find((act) =>
-                            act.adminIds.includes(employee.attendeeId),
-                          );
-                      activityText = activity ? activity.programAreaId : "-";
-                    }
-                    return (
-                      <View key={blockId} style={styles.cell}>
-                        <Text>{activityText}</Text>
-                      </View>
-                    );
-                  })
-                : isBunkJamboreeSectionSchedule(schedule)
-                  ? Object.entries(schedule.blocks).map(([blockId, block]) => {
-                      let activityText;
-                      if (block.periodsOff.includes(employee.attendeeId)) {
-                        activityText = "OFF";
-                      } else {
-                        const activity = isStaffAttendee(employee)
-                          ? block.activities.find((act) =>
-                              act.bunkNums.includes(employee.bunk),
-                            )
-                          : block.activities.find((act) =>
-                              act.adminIds.includes(employee.attendeeId),
-                            );
-                        activityText = activity ? activity.name : "-";
-                      }
-                      return (
-                        <View key={blockId} style={styles.cell}>
-                          <Text>{activityText}</Text>
-                        </View>
+              {Object.keys(schedule.blocks).map((blockId) => {
+                const block = schedule.blocks[blockId];
+                let activityText;
+                if (block.periodsOff.includes(employee.attendeeId)) {
+                  activityText = "OFF";
+                } else {
+                  const activity = isStaffAttendee(employee)
+                    ? isBunkJamboreeBlock(block)
+                      ? block.activities.find((act) =>
+                          act.bunkNums.includes(employee.bunk),
+                        )
+                      : block.activities.find((act) =>
+                          act.staffIds.includes(employee.attendeeId),
+                        )
+                    : block.activities.find((act) =>
+                        act.adminIds.includes(employee.attendeeId),
                       );
-                    })
-                  : Object.entries(schedule.blocks).map(([blockId, block]) => {
-                      let activityText;
-                      if (block.periodsOff.includes(employee.attendeeId)) {
-                        activityText = "OFF";
-                      } else {
-                        const activity = isStaffAttendee(employee)
-                          ? block.activities.find((act) =>
-                              act.staffIds.includes(employee.attendeeId),
-                            )
-                          : block.activities.find((act) =>
-                              act.adminIds.includes(employee.attendeeId),
-                            );
-                        activityText = activity ? activity.name : "-";
-                      }
-                      return (
-                        <View key={blockId} style={styles.cell}>
-                          <Text>{activityText}</Text>
-                        </View>
-                      );
-                    })}
-
+                  activityText = activity
+                    ? isBundleActivity(activity)
+                      ? activity.programAreaId
+                      : activity.name
+                    : "-";
+                }
+                return (
+                  <View key={blockId} style={styles.cell}>
+                    <Text>{activityText}</Text>
+                  </View>
+                );
+              })}
               <View style={styles.dataCell}>
                 <Text>{apoText}</Text>
               </View>

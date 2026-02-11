@@ -8,8 +8,11 @@ import { getFullName } from "@/types/users/userUtils";
 import { StyleSheet, View, Text } from "@react-pdf/renderer";
 import { getFreeplayAssignmentId } from "../generation/schedulingUtils";
 import {
+  isBundleActivity,
   isBundleSectionSchedule,
+  isBunkJamboreeBlock,
   isBunkJamboreeSectionSchedule,
+  isIndividualActivityAssignments,
 } from "@/types/scheduling/schedulingTypeGuards";
 
 const styles = StyleSheet.create({
@@ -146,9 +149,7 @@ interface CamperGridProps {
   staff: StaffAttendee[];
 }
 
-export default function CamperGrid(
-  props: CamperGridProps,
-) {
+export default function CamperGrid(props: CamperGridProps) {
   const { schedule, freeplay, campers, staff } = props;
 
   campers.sort((a, b) => {
@@ -204,40 +205,27 @@ export default function CamperGrid(
               <View style={styles.compactDataCell}>
                 <Text>{getFullName(camper.snapshot.name)}</Text>
               </View>
-              {isBundleSectionSchedule(schedule)
-                ? Object.values(schedule.blocks).map((block, i) => {
-                    const activity = block.activities.find((act) =>
+              {Object.keys(schedule.blocks).map((blockId, i) => {
+                const block = schedule.blocks[blockId];
+                const activity = isBunkJamboreeBlock(block)
+                  ? block.activities.find((act) =>
+                      act.bunkNums.includes(camper.bunk),
+                    )
+                  : block.activities.find((act) =>
                       act.camperIds.includes(camper.attendeeId),
-                    ); 
-                    return (
-                      <View key={i} style={styles.compactDataCell}>
-                        <Text>{activity ? activity.programAreaId : "-"}</Text>
-                      </View>
                     );
-                  })
-                : isBunkJamboreeSectionSchedule(schedule)
-                  ? Object.values(schedule.blocks).map((block, i) => {
-                      const activity = block.activities.find((act) =>
-                        act.bunkNums.includes(camper.bunk),
-                      );
-                      return (
-                        <View key={i} style={styles.compactDataCell}>
-                          <Text>{activity ? activity.name : "-"}</Text>
-                        </View>
-                      );
-                    })
-                  : Object.values(schedule.blocks).map((block, i) => {
-                      const activity = block.activities.find((act) =>
-                        act.camperIds.includes(camper.attendeeId),
-                      );
-                      return (
-                        <View key={i} style={styles.compactDataCell}>
-                          <Text>{activity ? activity.name : "-"}</Text>
-                        </View>
-                      );
-                    })
-              }
-
+                return (
+                  <View key={i} style={styles.compactDataCell}>
+                    <Text>
+                      {activity
+                        ? isBundleActivity(activity)
+                          ? activity.programAreaId
+                          : activity.name
+                        : "-"}
+                    </Text>
+                  </View>
+                );
+              })}
               <View style={styles.compactDataCell}>
                 <Text>-</Text>
               </View>
