@@ -10,7 +10,8 @@ import {
   WithFieldValue,
   DocumentReference,
   collection,
-  CollectionReference
+  CollectionReference,
+  UpdateData
 } from "firebase/firestore";
 import { setDoc, getDoc, updateDoc, executeQuery, deleteDoc } from "./firestoreClientOperations";
 import { Collection, SessionsSubcollection } from "./types/collections";
@@ -35,7 +36,7 @@ export async function setNightSchedule(date: string, sessionId: string, nightShi
   await setDoc<NightSchedule, NightScheduleDoc>(doc(db, Collection.SESSIONS, sessionId, SessionsSubcollection.NIGHT_SCHEDULES, date) as DocumentReference<NightSchedule, NightScheduleDoc>, { date, sessionId, ...nightShift }, nightScheduleFirestoreConverter, instance);
 }
 
-export async function updateNightSchedule(id: string, sessionId: string, updates: Partial<NightScheduleDoc>, instance?: Transaction | WriteBatch): Promise<void> {
+export async function updateNightSchedule(id: string, sessionId: string, updates: UpdateData<NightScheduleDoc>, instance?: Transaction | WriteBatch): Promise<void> {
   await updateDoc<NightSchedule, NightScheduleDoc>(doc(db, Collection.SESSIONS, sessionId, SessionsSubcollection.NIGHT_SCHEDULES, id) as DocumentReference<NightSchedule, NightScheduleDoc>, updates, nightScheduleFirestoreConverter, instance);
 }
 
