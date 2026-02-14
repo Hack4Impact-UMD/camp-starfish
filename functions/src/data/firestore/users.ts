@@ -7,7 +7,7 @@ import {
   FirestoreDataConverter,
   WithFieldValue,
   DocumentReference,
-  CollectionReference,
+  Query,
 } from "firebase-admin/firestore";
 import { setDoc, getDoc, updateDoc, deleteDoc, executeQuery } from "./firestoreAdminOperations";
 import { Collection } from "@/data/firestore/types/collections";
@@ -25,8 +25,8 @@ export async function getUserById(id: number, transaction?: Transaction): Promis
   return await getDoc<User, UserDoc>(adminDb.collection(Collection.USERS).doc(String(id)) as DocumentReference<User, UserDoc>, userFirestoreConverter, transaction);
 };
 
-export async function getUserByEmail(email: string, trnasaction?: Transaction): Promise<User> {
-  const users = await executeQuery<User, UserDoc>(adminDb.collection(Collection.USERS).where('email', '==', email).limit(1) as CollectionReference<User, UserDoc>, userFirestoreConverter, trnasaction);
+export async function getUserByEmail(email: string, transaction?: Transaction): Promise<User> {
+  const users = await executeQuery<User, UserDoc>(adminDb.collection(Collection.USERS).where('email', '==', email).limit(1) as Query<User, UserDoc>, userFirestoreConverter, transaction);
   if (users.length === 0) {
     throw new Error("No user with email found");
   }
