@@ -2,7 +2,7 @@ import { HttpsError } from "firebase-functions/https";
 import { beforeUserCreated } from "firebase-functions/v2/identity";
 import { getUserByEmail } from "../data/firestore/users";
 
-const checkWhitelist = beforeUserCreated(async (event) => {
+const checkAllowlist = beforeUserCreated(async (event) => {
   const email = event.data?.email;
   if (!email) {
     throw new HttpsError("failed-precondition", "User has no email address");
@@ -33,5 +33,5 @@ const checkWhitelist = beforeUserCreated(async (event) => {
 });
 
 export const accountManagementCloudFunctions = {
-  checkWhitelist,
+  checkAllowlist,
 };
