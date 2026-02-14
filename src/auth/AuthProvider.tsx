@@ -17,7 +17,7 @@ export const AuthContext = createContext<AuthContextType>(null!);
 export default function AuthProvider({
   children,
 }: {
-  children: JSX.Element;
+  children: React.ReactNode;
 }): JSX.Element {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<IdTokenResult | null>(null);

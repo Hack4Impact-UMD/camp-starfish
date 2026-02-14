@@ -1,13 +1,19 @@
 import { HttpsError, onCall } from "firebase-functions/https";
 import { adminAuth, adminDb } from "../config/firebaseAdminConfig";
-import { Collection } from "../data/firestore/utils";
-import { UserRole } from "@/types/personTypes";
+import { Collection } from "@/data/firestore/types/collections";
+import { Role } from "@/types/users/userTypes";
 
 const checkWhitelist = onCall(async (req) => {
   // Validate authentication
   const uid = req.auth?.uid;
   if (!uid) {
     throw new HttpsError("failed-precondition", "Unauthenticated");
+  }
+
+  const devAndNpoEmails = [process.env.DEV_EMAILS?.split(',') || [], process.env.NPO_EMAILS?.split(',') || []].flat();
+  if (devAndNpoEmails.includes(req.auth?.token.email ?? '') || process.env.NODE_ENV === 'development') {
+    await adminAuth.setCustomUserClaims(uid, { role: "ADMIN" });
+    return `User with uid ${uid} has been given ADMIN role and permission to access production environment`;
   }
 
   // Get user email from Firebase Auth
@@ -31,7 +37,7 @@ const checkWhitelist = onCall(async (req) => {
   }
 
   // Define collections to check with their corresponding roles
-  const collectionsToCheck: Array<{ collection: string; role: UserRole }> = [
+  const collectionsToCheck: Array<{ collection: string; role: Role }> = [
     { collection: Collection.PARENTS, role: "PARENT" },
     { collection: Collection.PHOTOGRAPHERS, role: "PHOTOGRAPHER" },
     { collection: Collection.STAFF, role: "STAFF" },
@@ -89,6 +95,7 @@ const checkWhitelist = onCall(async (req) => {
     "permission-denied",
     "User not found in whitelist. Account has been deleted."
   );
+
 });
 
 export const accountManagementCloudFunctions = {
