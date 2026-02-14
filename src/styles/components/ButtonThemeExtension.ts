@@ -1,6 +1,6 @@
 import { Button } from "@mantine/core"
 
-export const ButtonThemeExtension = Button.extend({
+const ButtonThemeExtension = Button.extend({
   defaultProps: {
     radius: "xl",
     size: "md",
@@ -11,3 +11,5 @@ export const ButtonThemeExtension = Button.extend({
     }
   }
 })
+
+export default ButtonThemeExtension;

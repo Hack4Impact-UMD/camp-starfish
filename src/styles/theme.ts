@@ -1,6 +1,6 @@
 import { MantineTheme, MantineThemeOverride, NotificationProps } from "@mantine/core";
 import { campStarfishFonts } from "./fonts";
-import { ButtonThemeExtension } from "./components/ButtonThemeExtension";
+import ButtonThemeExtension from "./components/ButtonThemeExtension";
 
 export const theme: MantineThemeOverride = {
   colors: {
