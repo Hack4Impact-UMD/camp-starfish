@@ -9,10 +9,7 @@ import { StyleSheet, View, Text } from "@react-pdf/renderer";
 import { getFreeplayAssignmentId } from "../generation/schedulingUtils";
 import {
   isBundleActivity,
-  isBundleSectionSchedule,
   isBunkJamboreeBlock,
-  isBunkJamboreeSectionSchedule,
-  isIndividualActivityAssignments,
 } from "@/types/scheduling/schedulingTypeGuards";
 
 const styles = StyleSheet.create({
