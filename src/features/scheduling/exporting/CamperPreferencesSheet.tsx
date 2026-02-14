@@ -6,7 +6,6 @@ import {
   isBundleActivity,
   isBundleBlock,
   isBundleSectionSchedule,
-  isBunkJamboreeSectionSchedule,
   isNonBunkJamboreeSectionSchedule,
 } from "@/types/scheduling/schedulingTypeGuards";
 
