@@ -1,8 +1,9 @@
-import { MantineTheme, MantineThemeOverride, NotificationProps } from "@mantine/core";
+import { MantineThemeOverride } from "@mantine/core";
 import { campStarfishFonts } from "./fonts";
 import ButtonThemeExtension from "./components/ButtonThemeExtension";
 import TitleThemeExtension from "./components/TitleThemeExtension";
 import TextThemeExtension from "./components/TextThemeExtension";
+import NotificationThemeExtension from "./components/NotificationThemeExtension";
 
 export const theme: MantineThemeOverride = {
   colors: {
@@ -137,45 +138,7 @@ export const theme: MantineThemeOverride = {
 
       }
     },
-    Notification: {
-      styles: (theme: MantineTheme, props: NotificationProps) => {
-        const { variant = 'success' } = props;
-        const accent = theme.colors[variant][4];
-        return {
-          root: {
-            backgroundColor: theme.white,
-            border: `1px solid ${theme.colors.neutral[3]}`,
-            borderRadius: theme.radius.md,
-            boxShadow: '0 2px 6px rgba(0, 0, 0, 0.15)',
-            padding: '20px 16px',
-            height: 90,
-          },
-          title: {
-            fontWeight: 700,
-            color: accent,
-            fontSize: 18,
-          },
-          icon: {
-            color: variant
-          },
-          description: {
-            color: theme.colors.neutral[5],
-            fontWeight: 500,
-            fontSize: 14,
-          },
-          closeButton: {
-            color: theme.colors.neutral[6],
-          },
-        };
-      },
-      defaultProps: {
-        withCloseButton: true,
-        withBorder: false,
-        closeButtonProps: {
-          iconSize: 90
-        }
-      },
-    },
+    Notification: NotificationThemeExtension,
     TextInput: {
       classNames: {
         input: "bg-primary-0 rounded-md border-none px-3 py-2 text-sm text-neutral-5 placeholder:text-neutral-5 "

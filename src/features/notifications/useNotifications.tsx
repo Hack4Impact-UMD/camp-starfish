@@ -1,13 +1,13 @@
 import { notifications } from '@mantine/notifications';
-import NotificationIcon from './NotificationIcon';
+import { MdCheckCircle, MdError } from 'react-icons/md';
 
 export default function useNotifications() {
   const success = (message: React.ReactNode, title = 'Success') => {
     return notifications.show({
       title,
       message,
-      color: 'success',
-      icon: <NotificationIcon variant="success" />, 
+      variant: 'success',
+      icon: <MdCheckCircle size={100} className="text-success" />, 
     });
   };
 
@@ -15,8 +15,8 @@ export default function useNotifications() {
     return notifications.show({
       title,
       message,
-      color: 'error',
-      icon: <NotificationIcon variant="error" />,
+      variant: 'error',
+      icon: <MdError size={100} className="text-error" />,
     });
   };
 
