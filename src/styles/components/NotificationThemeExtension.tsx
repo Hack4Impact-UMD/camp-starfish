@@ -1,5 +1,6 @@
 import { MantineTheme, Notification, NotificationProps } from "@mantine/core";
 import classNames from "classnames";
+import { MdCheckCircle } from "react-icons/md";
 
 const NotificationThemeExtension = Notification.extend({
   classNames: (theme: MantineTheme, props: NotificationProps) => {
@@ -17,6 +18,8 @@ const NotificationThemeExtension = Notification.extend({
   },
   defaultProps: {
     withCloseButton: true,
+    variant: 'success',
+    icon: <MdCheckCircle size={100} className="text-success" />
   }
 });
 
