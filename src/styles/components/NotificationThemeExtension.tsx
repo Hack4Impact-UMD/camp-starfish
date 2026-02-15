@@ -13,13 +13,13 @@ const NotificationThemeExtension = Notification.extend({
       }),
       icon: 'p-0 bg-white',
       description: 'font-medium text-sm text-neutral-5',
-      closeButton: 'text-neutral-6 size-24',
+      closeButton: 'text-neutral-6 scale-150',
     }
   },
   defaultProps: {
     withCloseButton: true,
     variant: 'success',
-    icon: <MdCheckCircle size={100} className="text-success" />
+    icon: <MdCheckCircle size={100} className="text-success" />,
   }
 });
 
