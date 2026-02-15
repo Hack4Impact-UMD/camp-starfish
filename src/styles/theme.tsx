@@ -1,119 +1,12 @@
 import { MantineThemeOverride } from "@mantine/core";
-import { campStarfishFonts } from "./fonts";
+import globalTheme from "./globalTheme";
 import ButtonThemeExtension from "./components/ButtonThemeExtension";
 import TitleThemeExtension from "./components/TitleThemeExtension";
 import TextThemeExtension from "./components/TextThemeExtension";
 import NotificationThemeExtension from "./components/NotificationThemeExtension";
 
-export const theme: MantineThemeOverride = {
-  colors: {
-    neutral: [
-      "#FFFFFF",
-      "#FAFAFB",
-      "#F0F3F5",
-      "#DEE1E3",
-      "#C0C6C9",
-      "#3B4E57",
-      "#2F424C",
-      "#1D323D",
-      "#1A80D8",
-      "#1460A3",
-    ],
-    blue: [
-      "#E6EAEC",
-      "#BDC9CF",
-      "#9DAFB8",
-      "#718A98",
-      "#557484",
-      "#2B5165",
-      "#274A5C",
-      "#1F3A48",
-      "#182D38",
-      "#12222A",
-    ],
-    orange: [
-      "#FEF3E9",
-      "#FCD9BA",
-      "#FACCA3",
-      "#F8AC69",
-      "#F69C4C",
-      "#F4831F",
-      "#DE771C",
-      "#AB5C16",
-      "#864811",
-      "#66370D",
-    ],
-    green: [
-      "#E6F8EF",
-      "#B2E9CE",
-      "#99E2BF",
-      "#59CF96",
-      "#39C681",
-      "#07B862",
-      "#06A759",
-      "#058145",
-      "#046536",
-      "#034D29",
-    ],
-    aqua: [
-      "#EAF9FB",
-      "#BDECF2",
-      "#9DE3EC",
-      "#6BD5E3",
-      "#55CEDE",
-      "#2BC2D6",
-      "#27B1CE",
-      "#007F90",
-      "#186B76",
-      "#12515A",
-    ],
-    success: [
-      "#E9F4EC",
-      "#B9DCC3",
-      "#98CBA6",
-      "#68B37E",
-      "#4BA565",
-      "#1E8E3E",
-      "#1B8138",
-      "#15632B",
-      "#114E22",
-      "#0D3C1A",
-    ],
-    error: [
-      "#FBEAEA",
-      "#F1BFBF",
-      "#EB9F9F",
-      "#E27474",
-      "#DC5959",
-      "#D32F2F",
-      "#C02B2B",
-      "#942121",
-      "#741A1A",
-      "#591414",
-    ],
-    warning: [
-      "#FDF7E6",
-      "#FAE6B0",
-      "#F8DA8A",
-      "#F4C954",
-      "#F2BF33",
-      "#EFAF00",
-      "#D99F00",
-      "#A77A00",
-      "#836000",
-      "#644A00",
-    ],
-  },
-  primaryShade: 5,
-  primaryColor: "blue",
-  fontFamily: `${campStarfishFonts.join(', ')}, sans-serif`,
-  headings: {
-    fontFamily: `Lato, sans-serif`,
-    fontWeight: '500'
-  },
-  defaultRadius: "xl",
-  cursorType: "pointer",
-
+const theme: MantineThemeOverride = {
+  ...globalTheme,
   components: {
     DatePicker: {
       defaultProps: {
@@ -215,3 +108,5 @@ export const theme: MantineThemeOverride = {
 
   },
 };
+
+export default theme;

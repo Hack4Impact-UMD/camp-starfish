@@ -2,7 +2,7 @@
 
 import AuthProvider from "@/auth/AuthProvider";
 import { queryClient } from "@/config/query";
-import { theme } from "@/styles/theme";
+import theme from "@/styles/theme";
 import { MantineProvider } from "@mantine/core";
 import { ModalsProvider } from "@mantine/modals";
 import { Notifications } from "@mantine/notifications";
