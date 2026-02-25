@@ -47,7 +47,7 @@ function FileComponent({
 }) {
   return (
     <div
-      className="w-[35rem] my-1 py-3 px-3 bg-camp-background-formField text-camp-text-headingBody rounded-md flex flex-row items-center justify-between"
+      className="w-140 my-1 py-3 px-3 bg-camp-background-formField text-camp-text-headingBody rounded-md flex flex-row items-center justify-between"
       key={file.name}
     >
       <span className="text-camp-text-headingBody text-sm">{file.name}</span>
@@ -162,7 +162,7 @@ function UploadedFilesView({
 }) {
   return (
     <>
-      <div className="h-[20rem] overflow-y-scroll">
+      <div className="h-80 overflow-y-scroll">
         {files
           .filter((e) => e.state == "success")
           .map((fileState) => (

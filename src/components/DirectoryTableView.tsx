@@ -306,7 +306,7 @@ export default function DirectoryTableView({
 
   return (
     <div className="border border-black bg-[#F7F7F7] w-[80%] mx-auto py-[20px]">
-      <Title order={3} className="text-center !font-bold !mb-10">
+      <Title order={3} className="text-center font-bold! mb-10!">
         DIRECTORY
       </Title>
 
@@ -319,7 +319,7 @@ export default function DirectoryTableView({
               onChange={(e) => setGlobalFilter(e.target.value)}
               classNames={{
                 input:
-                  "w-[342px] !bg-white !border !border-neutral-4 text-neutral-7",
+                  "w-[342px] bg-white! border! border-neutral-4! text-neutral-7",
               }}
               leftSection={
                 <IconSearch size={16} stroke={1.5} className="text-neutral-5" />
@@ -367,7 +367,7 @@ export default function DirectoryTableView({
             <Table
               striped
               highlightOnHover
-              className="w-[100%] border-collapse"
+              className="w-full border-collapse"
             >
               <thead>
                 {table.getHeaderGroups().map((hg) => (
@@ -393,7 +393,7 @@ export default function DirectoryTableView({
                     {row.getVisibleCells().map((cell) => (
                       <td
                         key={cell.id}
-                        className="text-center border border-black p-1 whitespace-normal break-words bg-white"
+                        className="text-center border border-black p-1 whitespace-normal wrap-break-word bg-white"
                       >
                         {flexRender(
                           cell.column.columnDef.cell,

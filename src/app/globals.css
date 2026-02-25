@@ -1,3 +1,199 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+
+@theme {
+  --color-neutral-0: #ffffff;
+  --color-neutral-1: #fafafb;
+  --color-neutral-2: #f0f3f5;
+  --color-neutral-3: #dee1e3;
+  --color-neutral-4: #c0c6c9;
+  --color-neutral-5: #3b4e57;
+  --color-neutral-6: #2f424c;
+  --color-neutral-7: #1d323d;
+  --color-neutral-8: #1a80d8;
+  --color-neutral-9: #1460a3;
+  --color-neutral: #3b4e57;
+
+  --color-blue-0: #e6eaec;
+  --color-blue-1: #bdc9cf;
+  --color-blue-2: #9dafb8;
+  --color-blue-3: #718a98;
+  --color-blue-4: #557484;
+  --color-blue-5: #2b5165;
+  --color-blue-6: #274a5c;
+  --color-blue-7: #1f3a48;
+  --color-blue-8: #182d38;
+  --color-blue-9: #12222a;
+  --color-blue: #2b5165;
+
+  --color-orange-0: #fef3e9;
+  --color-orange-1: #fcd9ba;
+  --color-orange-2: #facca3;
+  --color-orange-3: #f8ac69;
+  --color-orange-4: #f69c4c;
+  --color-orange-5: #f4831f;
+  --color-orange-6: #de771c;
+  --color-orange-7: #ab5c16;
+  --color-orange-8: #864811;
+  --color-orange-9: #66370d;
+  --color-orange: #f4831f;
+
+  --color-green-0: #e6f8ef;
+  --color-green-1: #b2e9ce;
+  --color-green-2: #99e2bf;
+  --color-green-3: #59cf96;
+  --color-green-4: #39c681;
+  --color-green-5: #07b862;
+  --color-green-6: #06a759;
+  --color-green-7: #058145;
+  --color-green-8: #046536;
+  --color-green-9: #034d29;
+  --color-green: #07b862;
+
+  --color-aqua-0: #eaf9fb;
+  --color-aqua-1: #bdecf2;
+  --color-aqua-2: #9de3ec;
+  --color-aqua-3: #6bd5e3;
+  --color-aqua-4: #55cede;
+  --color-aqua-5: #2bc2d6;
+  --color-aqua-6: #27b1ce;
+  --color-aqua-7: #007f90;
+  --color-aqua-8: #186b76;
+  --color-aqua-9: #12515a;
+  --color-aqua: #2bc2d6;
+
+  --color-success-0: #e9f4ec;
+  --color-success-1: #b9dcc3;
+  --color-success-2: #98cba6;
+  --color-success-3: #68b37e;
+  --color-success-4: #4ba565;
+  --color-success-5: #1e8e3e;
+  --color-success-6: #1b8138;
+  --color-success-7: #15632b;
+  --color-success-8: #114e22;
+  --color-success-9: #0d3c1a;
+  --color-success: #1e8e3e;
+
+  --color-error-0: #fbeaea;
+  --color-error-1: #f1bfbf;
+  --color-error-2: #eb9f9f;
+  --color-error-3: #e27474;
+  --color-error-4: #dc5959;
+  --color-error-5: #d32f2f;
+  --color-error-6: #c02b2b;
+  --color-error-7: #942121;
+  --color-error-8: #741a1a;
+  --color-error-9: #591414;
+  --color-error: #d32f2f;
+
+  --color-warning-0: #fdf7e6;
+  --color-warning-1: #fae6b0;
+  --color-warning-2: #f8da8a;
+  --color-warning-3: #f4c954;
+  --color-warning-4: #f2bf33;
+  --color-warning-5: #efaf00;
+  --color-warning-6: #d99f00;
+  --color-warning-7: #a77a00;
+  --color-warning-8: #836000;
+  --color-warning-9: #644a00;
+  --color-warning: #efaf00;
+
+  --font-Lato: var(--font-Lato);
+  --font-NewSpirit: var(--font-NewSpirit);
+  --font-Besteam: var(--font-Besteam);
+
+  --text-xs: calc(0.75rem * var(--mantine-scale));
+  --text-sm: calc(0.875rem * var(--mantine-scale));
+  --text-md: calc(1rem * var(--mantine-scale));
+  --text-lg: calc(1.125rem * var(--mantine-scale));
+  --text-xl: calc(1.25rem * var(--mantine-scale));
+
+  --leading-xs: 1.4;
+  --leading-sm: 1.45;
+  --leading-md: 1.55;
+  --leading-lg: 1.6;
+  --leading-xl: 1.65;
+
+  --spacing-xs: calc(0.625rem * var(--mantine-scale));
+  --spacing-sm: calc(0.75rem * var(--mantine-scale));
+  --spacing-md: calc(1rem * var(--mantine-scale));
+  --spacing-lg: calc(1.25rem * var(--mantine-scale));
+  --spacing-xl: calc(2rem * var(--mantine-scale));
+
+  --radius-xs: calc(0.125rem * var(--mantine-scale));
+  --radius-sm: calc(0.25rem * var(--mantine-scale));
+  --radius-md: calc(0.5rem * var(--mantine-scale));
+  --radius-lg: calc(1rem * var(--mantine-scale));
+  --radius-xl: calc(2rem * var(--mantine-scale));
+
+  --shadow-xs:
+    0 calc(0.0625rem * var(--mantine-scale))
+      calc(0.1875rem * var(--mantine-scale)) rgba(0, 0, 0, 0.05),
+    0 calc(0.0625rem * var(--mantine-scale))
+      calc(0.125rem * var(--mantine-scale)) rgba(0, 0, 0, 0.1);
+  --shadow-sm:
+    0 calc(0.0625rem * var(--mantine-scale))
+      calc(0.1875rem * var(--mantine-scale)) rgba(0, 0, 0, 0.05),
+    rgba(0, 0, 0, 0.05) 0 calc(0.625rem * var(--mantine-scale))
+      calc(0.9375rem * var(--mantine-scale))
+      calc(-0.3125rem * var(--mantine-scale)),
+    rgba(0, 0, 0, 0.04) 0 calc(0.4375rem * var(--mantine-scale))
+      calc(0.4375rem * var(--mantine-scale))
+      calc(-0.3125rem * var(--mantine-scale));
+  --shadow-md:
+    0 calc(0.0625rem * var(--mantine-scale))
+      calc(0.1875rem * var(--mantine-scale)) rgba(0, 0, 0, 0.05),
+    rgba(0, 0, 0, 0.05) 0 calc(1.25rem * var(--mantine-scale))
+      calc(1.5625rem * var(--mantine-scale))
+      calc(-0.3125rem * var(--mantine-scale)),
+    rgba(0, 0, 0, 0.04) 0 calc(0.625rem * var(--mantine-scale))
+      calc(0.625rem * var(--mantine-scale))
+      calc(-0.3125rem * var(--mantine-scale));
+  --shadow-lg:
+    0 calc(0.0625rem * var(--mantine-scale))
+      calc(0.1875rem * var(--mantine-scale)) rgba(0, 0, 0, 0.05),
+    rgba(0, 0, 0, 0.05) 0 calc(1.75rem * var(--mantine-scale))
+      calc(1.4375rem * var(--mantine-scale))
+      calc(-0.4375rem * var(--mantine-scale)),
+    rgba(0, 0, 0, 0.04) 0 calc(0.75rem * var(--mantine-scale))
+      calc(0.75rem * var(--mantine-scale))
+      calc(-0.4375rem * var(--mantine-scale));
+  --shadow-xl:
+    0 calc(0.0625rem * var(--mantine-scale))
+      calc(0.1875rem * var(--mantine-scale)) rgba(0, 0, 0, 0.05),
+    rgba(0, 0, 0, 0.05) 0 calc(2.25rem * var(--mantine-scale))
+      calc(1.75rem * var(--mantine-scale))
+      calc(-0.4375rem * var(--mantine-scale)),
+    rgba(0, 0, 0, 0.04) 0 calc(1.0625rem * var(--mantine-scale))
+      calc(1.0625rem * var(--mantine-scale))
+      calc(-0.4375rem * var(--mantine-scale));
+
+  --breakpoint-xs: 36em;
+  --breakpoint-sm: 48em;
+  --breakpoint-md: 62em;
+  --breakpoint-lg: 75em;
+  --breakpoint-xl: 88em;
+
+  --blur-xs: calc(0.125rem * var(--mantine-scale));
+  --blur-sm: calc(0.25rem * var(--mantine-scale));
+  --blur-md: calc(0.5rem * var(--mantine-scale));
+  --blur-lg: calc(1rem * var(--mantine-scale));
+  --blur-xl: calc(2rem * var(--mantine-scale));
+}
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+}

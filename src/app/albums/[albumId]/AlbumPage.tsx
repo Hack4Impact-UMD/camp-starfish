@@ -57,7 +57,7 @@ const AlbumPage: React.FC = () => {
             <input
               type="text"
               placeholder="Search Tags..."
-              className="px-10 py-2 text-sm border text-black border-gray-500 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-camp-primary"
+              className="px-10 py-2 text-sm border text-black border-gray-500 rounded-full shadow-sm focus:outline-hidden focus:ring-2 focus:ring-camp-primary"
             />
             <Image
               className="w-[72px] h-[72px] flex-none cursor-pointer"

@@ -132,7 +132,7 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
           <div key={person.attendeeId}>
             <div className="flex items-center gap-[32px]">
               <Image
-                className="flex-shrink-0 w-[32px] h-[32px]"
+                className="shrink-0 w-[32px] h-[32px]"
                 src={Profile}
                 alt="Profile"
               />
