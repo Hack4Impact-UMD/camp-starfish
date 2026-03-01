@@ -1,7 +1,7 @@
-import { MantineTheme, MantineThemeOverride, NotificationProps } from "@mantine/core";
+import { createTheme, MantineTheme, MantineThemeOverride, NotificationProps } from "@mantine/core";
 import { campStarfishFonts } from "./fonts";
 
-export const theme: MantineThemeOverride = {
+const theme: MantineThemeOverride = createTheme({
   colors: {
     neutral: [
       "#FFFFFF",
@@ -268,4 +268,6 @@ export const theme: MantineThemeOverride = {
     },
 
   },
-};
+});
+
+export default theme;
