@@ -18,20 +18,26 @@ This repository contains everything you need code, documentation, and setup guid
 
 ## 🛠️ Tech Stack
 ### **Frontend**
-- **Next.js**
-- **React**
-- **TypeScript**
-- **Tailwind CSS**
-- **Mantine UI**
-- **TanStack**
+- Framework: **Next.js**
+- Language: **TypeScript**
+- Styling: **Tailwind CSS**
+- UI Components: **Mantine UI**
+- Data Fetching: **Tanstack Query**
+- Tables: **Tanstack Table**
+- Forms: **Tanstack Form**
+- Schema Validation: **Zod**
   
 ### **Backend**
-- Firebase 11.10
-     - Firestore (NoSQL database)
-     - Authentication
-     - Cloud Storage
-     - Cloud Functions
-- Google Apps Script
+- Runtime: **Node.js**
+- Cloud Provider: **Firebase**
+  - Firestore Database
+  - Authentication
+  - Cloud Functions
+  - Cloud Storage
+  - Hosting
+- Google Drive Integration: **Google Apps Script**
+- Language: **TypeScript**
+- Schema Validation: **Zod**
 
 ## ⚙️ Environment Setup
 
