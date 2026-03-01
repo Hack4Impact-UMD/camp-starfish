@@ -159,10 +159,10 @@ Before submitting a PR, please ensure it meets the following criteria:
 - [ ] Proper comments where necessary
 - [ ] TypeScript types are properly defined
 - [ ] Tested in Firebase Emulator environment
-- [ ] Corresponding issue is linked to PR
 
 ### **PR Instructions**
 - Create a pull request
+- Link your PR to the corresponding GitHub Issue
 - Request and assign tech leads as reviewers
 - Review and address comments by making requested changes
 - Once approved, tech leads will merge your PR
