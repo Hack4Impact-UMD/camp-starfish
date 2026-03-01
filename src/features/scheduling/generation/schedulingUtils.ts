@@ -1,18 +1,11 @@
-import { AttendeeID, BundleActivity, BunkAssignments, CamperAttendeeID, Freeplay, IndividualAssignments, JamboreeActivity, StaffAttendeeID } from "@/types/sessionTypes";
+import { isAdminAttendee, isCamperAttendee } from "@/types/sessions/sessionTypeGuards";
+import { Attendee, Freeplay } from "@/types/sessions/sessionTypes";
 
-export function doesConflictExist(attendee: AttendeeID, otherAttendeeIds: number[]) {
-  if (attendee.role === "CAMPER") {
-    return attendee.nonoList.some((id) => otherAttendeeIds.includes(id))
+export function doesConflictExist(attendee: Attendee, otherAttendeeIds: number[]) {
+  if (isCamperAttendee(attendee)) {
+    return attendee.snapshot.nonoList.some((id) => otherAttendeeIds.includes(id))
   }
-  return attendee.nonoList.some((id) => otherAttendeeIds.includes(id)) && attendee.yesyesList.some((id) => otherAttendeeIds.includes(id));
-}
-
-export function isBundleActivity(activity: BundleActivity | JamboreeActivity): activity is BundleActivity {
-  return 'programArea' in activity && 'ageGroup' in activity;
-}
-
-export function isJamboreeActivity(activity: BundleActivity | JamboreeActivity): activity is JamboreeActivity {
-  return !('programArea' in activity) && !('ageGroup' in activity);
+  return attendee.snapshot.nonoList.some((id) => otherAttendeeIds.includes(id)) || attendee.snapshot.yesyesList.some((id) => otherAttendeeIds.includes(id));
 }
 
 export function getFreeplayAssignmentId(freeplay: Freeplay, id: number): number[] | number | string | null {
@@ -32,23 +25,22 @@ export function getFreeplayAssignmentId(freeplay: Freeplay, id: number): number[
   return null;
 }
 
-export function isIndividualAssignments(assignments: IndividualAssignments | BunkAssignments): assignments is IndividualAssignments {
-  return 'camperIds' in assignments;
-}
-
-export function isBunkAssignments(assignments: IndividualAssignments | BunkAssignments): assignments is BunkAssignments {
-  return 'bunkNums' in assignments;
-}
-
-export function getAttendeesById<T extends AttendeeID>(attendees: T[]): Record<number, T> {
+export function getAttendeesById<T extends Attendee>(attendees: T[]): Record<number, T> {
   const attendeesById: Record<number, T> = {};
-  attendees.forEach(attendee => attendeesById[attendee.id] = attendee);
+  attendees.forEach(attendee => attendeesById[attendee.attendeeId] = attendee);
   return attendeesById;
 }
 
-export function groupAttendeesByBunk<T extends StaffAttendeeID | CamperAttendeeID>(attendees: T[]): Record<number, T[]> {
+export function groupAttendeesByBunk<T extends Attendee>(attendees: T[]): Record<number, T[]> {
   const attendeesByBunk: Record<number, T[]> = {};
   attendees.forEach(attendee => {
+    if (isAdminAttendee(attendee)) {
+      if (!attendeesByBunk[-1]) {
+        attendeesByBunk[-1] = [];
+      }
+      attendeesByBunk[-1].push(attendee);
+      return;
+    }
     if (!attendeesByBunk[attendee.bunk]) {
       attendeesByBunk[attendee.bunk] = [];
     }

@@ -1,8 +1,8 @@
 import { ParsedToken } from "firebase/auth";
-import { UserRole } from "@/types/personTypes";
+import { Role } from "@/types/users/userTypes";
 
 export interface CustomClaims {
-  role?: UserRole;
+  role?: Role;
 }
 
 export type ParsedTokenWithCustomClaims = ParsedToken & CustomClaims;

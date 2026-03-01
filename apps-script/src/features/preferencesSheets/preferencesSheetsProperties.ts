@@ -1,7 +1,7 @@
-import { SchedulingSectionID } from "@/types/sessionTypes";
+import { SchedulingSection } from "@/types/sessions/sessionTypes";
 
 export interface PreferencesSpreadsheetProperties {
-  sections: SchedulingSectionID[];
+  sections: SchedulingSection[];
   sheets: {
     [sheetId: number]: {
       lastModified: string;

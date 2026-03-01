@@ -1,6 +1,9 @@
 import { flexRender } from "@tanstack/react-table";
 import { useCallback, useMemo, useState } from "react";
-import { AttendeeID, CamperAttendeeID, StaffAttendeeID } from "@/types/sessionTypes";
+import {
+  Attendee,
+  StaffAttendee,
+} from "@/types/sessions/sessionTypes";
 import {
   Button,
   Container,
@@ -36,7 +39,11 @@ type LargeDirectoryBlockProps = {
 export default function DirectoryTableView({
   sessionId,
 }: LargeDirectoryBlockProps) {
-  const { data: attendeeList, isLoading, isError } = useAttendeesBySessionId(sessionId);
+  const {
+    data: attendeeList,
+    isLoading,
+    isError,
+  } = useAttendeesBySessionId(sessionId);
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
   const [sortNameOption, setSortNameOption] = useState<string | null>(null);
 
@@ -44,7 +51,7 @@ export default function DirectoryTableView({
   const [globalFilter, setGlobalFilter] = useState("");
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 });
 
-  const data: AttendeeID[] = useMemo(() => {
+  const data: Attendee[] = useMemo(() => {
     if (!attendeeList) return [];
 
     let attendeeArr = [...attendeeList];
@@ -55,17 +62,22 @@ export default function DirectoryTableView({
 
     if (sortNameOption) {
       attendeeArr.sort((a, b) => {
-        const aFirst = a.name.firstName.toLowerCase();
-        const bFirst = b.name.firstName.toLowerCase();
-        const aLast = a.name.lastName.toLowerCase();
-        const bLast = b.name.lastName.toLowerCase();
+        const aFirst = a.snapshot.name.firstName.toLowerCase();
+        const bFirst = b.snapshot.name.firstName.toLowerCase();
+        const aLast = a.snapshot.name.lastName.toLowerCase();
+        const bLast = b.snapshot.name.lastName.toLowerCase();
 
         switch (sortNameOption) {
-          case "firstNameAZ": return aFirst.localeCompare(bFirst);
-          case "firstNameZA": return bFirst.localeCompare(aFirst);
-          case "lastNameAZ": return aLast.localeCompare(bLast);
-          case "lastNameZA": return bLast.localeCompare(aLast);
-          default: return 0;
+          case "firstNameAZ":
+            return aFirst.localeCompare(bFirst);
+          case "firstNameZA":
+            return bFirst.localeCompare(aFirst);
+          case "lastNameAZ":
+            return aLast.localeCompare(bLast);
+          case "lastNameZA":
+            return bLast.localeCompare(aLast);
+          default:
+            return 0;
         }
       });
     }
@@ -75,15 +87,17 @@ export default function DirectoryTableView({
 
   const getNameFromId = useCallback(
     (id: number) => {
-      const person = attendeeList?.find(a => a.id === id);
+      const person = attendeeList?.find((a) => a.attendeeId === id);
       if (!person) return null;
-      return `${person.name.firstName} ${person.name.lastName[0]}.`;
+      return `${person.snapshot.name.firstName} ${person.snapshot.name.lastName[0]}.`;
     },
-    [attendeeList]
+    [attendeeList],
   );
 
-  const columns = useMemo<ColumnDef<AttendeeID>[]>(() => {
-    const render = (v: unknown) => <DirectoryTableCell data={v != null ? String(v) : "N/A"} />;
+  const columns = useMemo<ColumnDef<Attendee>[]>(() => {
+    const render = (v: unknown) => (
+      <DirectoryTableCell data={v != null ? String(v) : "N/A"} />
+    );
 
     const renderIdListAsNames = (ids: number[]) => {
       if (!ids || ids.length === 0) return render("N/A");
@@ -96,12 +110,12 @@ export default function DirectoryTableView({
     if (selectedRole === "CAMPER") {
       return [
         {
-          accessorFn: (row) => row.name.firstName,
+          accessorFn: (row) => row.snapshot.name.firstName,
           header: "FIRST NAME",
           cell: (info) => render(info.getValue()),
         },
         {
-          accessorFn: (row) => row.name.lastName,
+          accessorFn: (row) => row.snapshot.name.lastName,
           header: "LAST NAME",
           cell: (info) => render(info.getValue()),
         },
@@ -133,7 +147,7 @@ export default function DirectoryTableView({
         },
 
         {
-          accessorFn: (row) => (row as CamperAttendeeID).dateOfBirth,
+          accessorFn: (row) => row.snapshot.dateOfBirth,
           header: "DOB",
           cell: (info) => {
             const dob = info.getValue<string>();
@@ -152,12 +166,12 @@ export default function DirectoryTableView({
     if (selectedRole === "STAFF") {
       return [
         {
-          accessorFn: (row) => row.name.firstName,
+          accessorFn: (row) => row.snapshot.name.firstName,
           header: "FIRST NAME",
           cell: (info) => render(info.getValue()),
         },
         {
-          accessorFn: (row) => row.name.lastName,
+          accessorFn: (row) => row.snapshot.name.lastName,
           header: "LAST NAME",
           cell: (info) => render(info.getValue()),
         },
@@ -185,7 +199,7 @@ export default function DirectoryTableView({
         },
 
         {
-          accessorFn: (row) => (row as StaffAttendeeID).programCounselor?.name,
+          accessorFn: (row) => (row as StaffAttendee).programCounselorFor,
           header: "Program Counselor",
           cell: (info) => render(info.getValue()),
         },
@@ -204,7 +218,7 @@ export default function DirectoryTableView({
             const dates = info.getValue<string[]>();
             if (!dates || dates.length === 0) return render("N/A");
             return render(
-              dates.map((d) => moment(d).format("MM-YYYY")).join(", ")
+              dates.map((d) => moment(d).format("MM-YYYY")).join(", "),
             );
           },
         },
@@ -214,12 +228,12 @@ export default function DirectoryTableView({
     if (selectedRole === "ADMIN") {
       return [
         {
-          accessorFn: (row) => row.name.firstName,
+          accessorFn: (row) => row.snapshot.name.firstName,
           header: "FIRST NAME",
           cell: (info) => render(info.getValue()),
         },
         {
-          accessorFn: (row) => row.name.lastName,
+          accessorFn: (row) => row.snapshot.name.lastName,
           header: "LAST NAME",
           cell: (info) => render(info.getValue()),
         },
@@ -248,7 +262,7 @@ export default function DirectoryTableView({
             const dates = info.getValue<string[]>();
             if (!dates || dates.length === 0) return render("N/A");
             return render(
-              dates.map((d) => moment(d).format("MM-YYYY")).join(", ")
+              dates.map((d) => moment(d).format("MM-YYYY")).join(", "),
             );
           },
         },
@@ -279,8 +293,9 @@ export default function DirectoryTableView({
     setGlobalFilter("");
   };
 
-  const filtersActive = !!selectedRole || !!sortNameOption || !!table.getState().globalFilter;
-  
+  const filtersActive =
+    !!selectedRole || !!sortNameOption || !!table.getState().globalFilter;
+
   if (isLoading) {
     return <LoadingPage />;
   }
@@ -364,7 +379,7 @@ export default function DirectoryTableView({
                       >
                         {flexRender(
                           header.column.columnDef.header,
-                          header.getContext()
+                          header.getContext(),
                         )}
                       </th>
                     ))}
@@ -382,7 +397,7 @@ export default function DirectoryTableView({
                       >
                         {flexRender(
                           cell.column.columnDef.cell,
-                          cell.getContext()
+                          cell.getContext(),
                         )}
                       </td>
                     ))}

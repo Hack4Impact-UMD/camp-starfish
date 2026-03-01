@@ -14,12 +14,12 @@ export default async function unlinkAlbumAndSession(albumId: string, sessionId: 
     const session = await getSessionById(sessionId, transaction);
     const album = await getAlbumById(albumId, transaction);
 
-    if (session.albumId !== albumId || album.sessionId !== sessionId) {
+    if (session.linkedAlbumId !== albumId || album.linkedSessionId !== sessionId) {
       throw Error(`Session ${sessionId} and Album ${albumId} are not linked to each other`);
     }
 
-    await updateSession(sessionId, { albumId: deleteField() }, transaction);
-    await updateAlbum(albumId, { sessionId: deleteField() }, transaction);
+    await updateSession(sessionId, { linkedAlbumId: deleteField() }, transaction);
+    await updateAlbum(albumId, { linkedSessionId: deleteField() }, transaction);
   });
 }
 
