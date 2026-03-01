@@ -114,6 +114,7 @@ camp-starfish/
 │   ├── .clasp.json         # Configuration for the CLASP command line tool
 │   ├── package.json        # Apps Script dependencies
 │   └── tsconfig.json       # Apps Script TypeScript configuration
+├── docs/                   # Documentation
 ├── functions/              # Firebase Cloud Functions
 │   ├── src/                # Cloud Functions source code
 │   ├── package.json        # Functions dependencies
