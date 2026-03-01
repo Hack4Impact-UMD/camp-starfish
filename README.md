@@ -103,47 +103,55 @@ Here's how the project directories are structured:
 
 ```
 camp-starfish/
-│── .next/
+├── ./github/workflows      # Automated GitHub Workflows
+├── .vscode/                # Developer settings for VSCode
+├── apps-script
+│   ├── src/                # Apps Script source code
+│   │   ├── features/       # Feature-specific Apps Script code
+│   │   ├── utils/          # Helper functions for Apps Script
+│   │   ├── appsscript.json # Apps Script configuration file
+│   │   └── globals.d.ts    # Apps Script function definitions for TypeScript intellisense
+│   ├── .clasp.json         # Configuration for the CLASP command line tool
+│   ├── package.json        # Apps Script dependencies
+│   └── tsconfig.json       # Apps Script TypeScript configuration
 ├── functions/              # Firebase Cloud Functions
-│   ├── src/                # Function source code
+│   ├── src/                # Cloud Functions source code
 │   ├── package.json        # Functions dependencies
 │   └── tsconfig.json       # TypeScript config for functions
-├── apps-script/            # Google Apps Script code
 │── node_modules/
 │── public/
+│   └── fonts/              # Font files
 │── src/
 │   ├── app/                # Next.js App Router pages
 │   │   ├── layout.tsx      # Root layout
 │   │   ├── page.tsx        # Home page
-│   │   └── [routes]/       # Dynamic routes
+│   │   └── [routes]/       # All application routes
 │   ├── assets/             # Images and static files
 │   ├── auth/               # Authentication modules
-│   ├── components/         # UI components
-│   │   ├── common/         # Shared components
-│   │   └── [feature]/      # Feature-specific components
+│   ├── components/         # Reusable application-specific components
 │   ├── config/             # App configurations
 │   ├── data/               # Data operations
 |   ├── features/           # Individual app features
 │   ├── hooks/              # Custom React hooks
-│   ├── styles/             # Global styles and themes
+│   ├── styles/             # Global styles and theming
 │   ├── types/              # Type definitions
 │   └── utils/              # Utility functions and helpers
 ├── test/                   # Test files and test data
-│   └── testData/           # Firebase emulator test data
+│   └── emulatorData/       # Firebase emulator test data
 │── .env
 │── .firebaserc
 │── .gitignore
 │── eslint.config.mjs
 │── firebase.json
 │── firestore.indexes.json
-│── firestore.rules
+│── firestore.rules         # Firestore Security Rules
 │── next.config.ts
-│── package-lock.json
-│── package.json
+│── package-lock.json       # Details for dependencies across all project modules
+│── package.json            # Next.js app dependencies
 │── postcss.config.mjs
-│── storage.rules
+│── storage.rules           # Cloud Storage Security Rules
 │── tailwind.config.ts
-│── tsconfig.json
+│── tsconfig.json           # Next.js App TypeScript configuration
 └── README.md               # This file
 ```
 
