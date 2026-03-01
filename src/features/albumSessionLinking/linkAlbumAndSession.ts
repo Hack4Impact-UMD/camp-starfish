@@ -9,16 +9,16 @@ export default async function linkAlbumAndSession(albumId: string, sessionId: st
     const session = await getSessionById(sessionId, transaction);
     const album = await getAlbumById(albumId, transaction);
 
-    if (session.albumId === albumId && album.sessionId === sessionId) {
+    if (session.linkedAlbumId === albumId && album.linkedSessionId === sessionId) {
       return;
-    } else if (session.albumId && session.albumId !== albumId) {
-      throw Error(`Session ${sessionId} is already linked to album ${session.albumId}`);
-    } else if (album.sessionId && album.sessionId !== sessionId) {
-      throw Error(`Album ${albumId} is already linked to session ${album.sessionId}`);
+    } else if (session.linkedAlbumId && session.linkedAlbumId !== albumId) {
+      throw Error(`Session ${sessionId} is already linked to album ${session.linkedAlbumId}`);
+    } else if (album.linkedSessionId && album.linkedSessionId !== sessionId) {
+      throw Error(`Album ${albumId} is already linked to session ${album.linkedSessionId}`);
     }
 
-    await updateSession(sessionId, { albumId }, transaction);
-    await updateAlbum(albumId, { sessionId }, transaction);
+    await updateSession(sessionId, { linkedAlbumId: albumId }, transaction);
+    await updateAlbum(albumId, { linkedSessionId: sessionId }, transaction);
   });
 }
 
