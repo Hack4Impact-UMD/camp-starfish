@@ -2,7 +2,7 @@ import { MantineThemeOverride } from "@mantine/core";
 import { campStarfishFonts } from "./fonts";
 
 const globalTheme: MantineThemeOverride = {
-    colors: {
+  colors: {
     neutral: [
       "#FFFFFF",
       "#FAFAFB",
