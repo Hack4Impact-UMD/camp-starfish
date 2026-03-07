@@ -29,8 +29,8 @@ export function ActivityGridContent(props: ActivityGridContentProps) {
   const { schedule } = props;
 
   return (
-    <SimpleGrid className="grid-cols-[minmax(20px,60px)_20px_minmax(0px,_3fr)_20px] gap-0 border-[1px] border-netural-5">
-      <Box className="col-start-1 col-end-5 bg-neutral-3 border-[1px] border-neutral-5">
+    <SimpleGrid className="grid-cols-[minmax(20px,60px)_20px_minmax(0px,3fr)_20px] gap-0 border border-netural-5">
+      <Box className="col-start-1 col-end-5 bg-neutral-3 border border-neutral-5">
         Options
       </Box>
       {Object.keys(schedule.blocks)

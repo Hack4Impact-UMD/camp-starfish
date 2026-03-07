@@ -51,7 +51,7 @@ export default function CreateSessionModal() {
               }
               disabled
               classNames={{
-                root: "flex-grow",
+                root: "grow",
               }}
             />
 
@@ -66,7 +66,7 @@ export default function CreateSessionModal() {
               }
               disabled
               classNames={{
-                root: "flex-grow",
+                root: "grow",
               }}
             />
           </Group>

@@ -160,7 +160,7 @@ export default function RootLayout({
           <div className="w-full">
             <Navbar />
           </div>
-          <div className="flex-grow w-full">{children}</div>
+          <div className="grow w-full">{children}</div>
           <div className="w-full">
             <Footer />
           </div>

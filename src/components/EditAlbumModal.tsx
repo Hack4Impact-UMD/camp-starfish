@@ -80,7 +80,7 @@ const EditAlbumModal: React.FC<EditAlbumModalProps> = ({ trigger, mode }) => {
                   value={albumName}
                   placeholder="Album title"
                   onChange={(e) => setAlbumName(e.target.value)}
-                  className="w-full text-center bg-[#E6EAEC] text-bg-camp-buttons-neutral border-none outline-none text-lg py-2 placeholder:text-bg-camp-buttons-neutral rounded-md"
+                  className="w-full text-center bg-[#E6EAEC] text-bg-camp-buttons-neutral border-none outline-hidden text-lg py-2 placeholder:text-bg-camp-buttons-neutral rounded-md"
                 />
               </div>
             </div>

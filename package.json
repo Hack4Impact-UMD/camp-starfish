@@ -7,7 +7,8 @@
     "build": "next build",
     "compile": "npx tsc --noEmit",
     "start": "next start",
-    "lint": "eslint src"
+    "lint": "eslint src",
+    "generate:theme": "npx tailwind-preset-mantine ./src/styles/theme.ts -o ./src/styles/theme.css && npx tsx scripts/generate-theme-override.ts"
   },
   "workspaces": [
     "functions",
@@ -42,6 +43,7 @@
     "react-dom": "^19.2.0",
     "react-dropzone": "^14.3.8",
     "react-icons": "^5.5.0",
+    "tailwind-preset-mantine": "^3.0.3",
     "tanstack": "^1.0.3",
     "tsc-alias": "^1.8.16",
     "uuid": "^11.1.0",
@@ -49,6 +51,7 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^9.9.0",
+    "@tailwindcss/postcss": "^4.2.1",
     "@tanstack/react-devtools": "^0.9.0",
     "@tanstack/react-form-devtools": "^0.2.11",
     "@tanstack/react-query-devtools": "^5.91.2",
@@ -62,7 +65,7 @@
     "eslint-config-next": "^16.1.6",
     "jiti": "^2.6.1",
     "postcss": "^8",
-    "tailwindcss": "^3.4.1",
+    "tailwindcss": "^4.2.1",
     "typescript": "^5.9.3"
   }
 }
