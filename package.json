@@ -26,6 +26,7 @@
     "@radix-ui/react-dialog": "^1.1.6",
     "@react-pdf/renderer": "^4.3.1",
     "@tabler/icons-react": "^3.35.0",
+    "@tanstack/react-form": "^1.27.7",
     "@tanstack/react-query": "^5.90.6",
     "@tanstack/react-table": "^8.21.3",
     "classnames": "^2.5.1",
@@ -45,12 +46,14 @@
     "tailwind-preset-mantine": "^3.0.3",
     "tanstack": "^1.0.3",
     "tsc-alias": "^1.8.16",
-    "uuid": "^11.1.0"
+    "uuid": "^11.1.0",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@faker-js/faker": "^9.9.0",
     "@tailwindcss/postcss": "^4.2.1",
     "@tanstack/react-devtools": "^0.9.0",
+    "@tanstack/react-form-devtools": "^0.2.11",
     "@tanstack/react-query-devtools": "^5.91.2",
     "@tanstack/react-table-devtools": "^8.21.3",
     "@types/google-apps-script": "^2.0.5",
