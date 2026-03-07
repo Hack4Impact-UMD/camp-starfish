@@ -12,4 +12,4 @@ for (const [color, shades] of Object.entries(colors)) {
   }
 }
 css += "}\n";
-appendFileSync("./src/app/theme.css", css);
+appendFileSync("./src/styles/theme.css", css);
