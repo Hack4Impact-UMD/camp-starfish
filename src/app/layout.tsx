@@ -12,6 +12,7 @@ import { CampStarfishFont, campStarfishFonts } from "@/styles/fonts";
 import Providers from "@/components/Providers";
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { FormDevtoolsPanel } from "@tanstack/react-form-devtools";
 
 const lato = localFont({
   src: [
@@ -159,7 +160,7 @@ export default function RootLayout({
           <div className="w-full">
             <Navbar />
           </div>
-          <div className="flex-grow w-full">{children}</div>
+          <div className="grow w-full">{children}</div>
           <div className="w-full">
             <Footer />
           </div>
@@ -168,6 +169,10 @@ export default function RootLayout({
               {
                 name: "Query",
                 render: <ReactQueryDevtools />,
+              },
+              {
+                name: "Form",
+                render: <FormDevtoolsPanel />
               },
             ]}
           />

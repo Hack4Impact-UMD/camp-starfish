@@ -56,7 +56,7 @@ export default function AssignActivityModal(props: AssignActivityModalProps) {
               value: activity.name,
               label: activity.name,
             }))}
-            className="w-full appearance-none bg-gray-300 rounded-lg px-4 py-3 pr-10 text-base text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500 cursor-pointer"
+            className="w-full appearance-none bg-gray-300 rounded-lg px-4 py-3 pr-10 text-base text-gray-800 focus:outline-hidden focus:ring-2 focus:ring-green-500 cursor-pointer"
           />
         </Box>
 
