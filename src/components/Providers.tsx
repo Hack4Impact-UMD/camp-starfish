@@ -17,7 +17,7 @@ export default function Providers(props: ProvidersProps) {
   const { children } = props;
   return (
     <QueryClientProvider client={queryClient}>
-      <MantineProvider theme={theme} withCssVariables>
+      <MantineProvider theme={theme}>
         <Notifications />
         <ModalsProvider>
           <AuthProvider>{children}</AuthProvider>
