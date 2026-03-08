@@ -8,7 +8,7 @@
     "compile": "npx tsc --noEmit",
     "start": "next start",
     "lint": "eslint src",
-    "generate:theme": "npx tailwind-preset-mantine ./src/styles/theme.ts -o ./src/styles/theme.css && npx tsx scripts/generate-theme-override.ts"
+    "generate:theme": "npx tailwind-preset-mantine ./src/styles/theme.tsx -o ./src/styles/theme.css && npx tsx scripts/generate-theme-override.ts"
   },
   "workspaces": [
     "functions",
