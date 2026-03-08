@@ -6,6 +6,7 @@ import TextThemeExtension from "./components/TextThemeExtension";
 import NotificationThemeExtension from "./components/NotificationThemeExtension";
 import TextInputThemeExtension from "./components/TextInputThemeExtension";
 import DatePickerThemeExtension from "./components/DatePickerThemeExtension";
+import DatePickerInputThemeExtension from "./components/DatePickerInput";
 
 const theme: MantineThemeOverride = {
   ...globalTheme,
@@ -13,43 +14,7 @@ const theme: MantineThemeOverride = {
     DatePicker: DatePickerThemeExtension,
     Notification: NotificationThemeExtension,
     TextInput: TextInputThemeExtension,
-    DatePickerInput: {
-      defaultProps: {
-        styles: {
-          input: {
-            backgroundColor: "#C0C6C9", // neutral.4 (matching TextInput)
-            border: 'none', // Remove borders for all date inputs
-          },
-          // Calendar dropdown styling
-          calendarHeaderControl: {
-            width: 28,
-            height: 28,
-            fontSize: 14,
-          },
-          calendarHeader: {
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            paddingLeft: 8,
-          },
-          calendarHeaderLevel: {
-            fontWeight: 600,
-            fontSize: "15px",
-            textAlign: "center" as const,
-            flex: 1,
-          },
-          day: {
-            fontVariantNumeric: "tabular-nums",
-            fontFeatureSettings: "'tnum' 1",
-            fontFamily: "Inter, sans-serif",
-            width: 32,
-            height: 32,
-            lineHeight: "32px",
-            textAlign: "center" as const,
-          },
-        },
-      },
-    },
+    DatePickerInput: DatePickerInputThemeExtension,
     Button: ButtonThemeExtension,
     Title: TitleThemeExtension,
     Text: TextThemeExtension,
