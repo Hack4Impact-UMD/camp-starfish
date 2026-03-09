@@ -7,6 +7,7 @@ import NotificationThemeExtension from "./components/NotificationThemeExtension"
 import TextInputThemeExtension from "./components/TextInputThemeExtension";
 import DatePickerThemeExtension from "./components/DatePickerThemeExtension";
 import DatePickerInputThemeExtension from "./components/DatePickerInput";
+import RadioThemeExtension from "./components/RadioThemeExtension";
 
 const theme: MantineThemeOverride = {
   ...globalTheme,
@@ -18,26 +19,8 @@ const theme: MantineThemeOverride = {
     Button: ButtonThemeExtension,
     Title: TitleThemeExtension,
     Text: TextThemeExtension,
-    Radio: {
-      defaultProps: {
-        styles: {
-          radio: {
-            width: 16,
-            height: 16,
-            marginTop: 2,
-            '&:checked': {
-              backgroundColor: 'var(--mantine-color-blue-filled)',
-              borderColor: 'var(--mantine-color-blue-filled)',
-            }
-          },
-          icon: {
-            display: 'none' // Hide default white dot for solid bullets
-          }
-        },
-      },
-    },
-
-  },
+    Radio: RadioThemeExtension,
+  }
 };
 
 export default theme;
