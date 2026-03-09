@@ -9,9 +9,9 @@ let css = "@theme {\n";
 for (const [color, shades] of Object.entries(colors)) {
   if (!shades) continue;
   for (let i = 0; i < shades.length; i++) {
-    css += `--color-${color}-${i}: ${shades[i]};\n`
+    css += `\t--color-${color}-${i}: ${shades[i]};\n`
   }
-  css += `--color-${color}: ${shades[primaryShade]};\n`
+  css += `\t--color-${color}: ${shades[primaryShade]};\n`
 }
 css += "}\n";
 appendFileSync("./src/styles/theme.css", css);
