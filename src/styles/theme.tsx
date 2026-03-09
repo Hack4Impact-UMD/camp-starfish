@@ -6,7 +6,7 @@ import TextThemeExtension from "./components/TextThemeExtension";
 import NotificationThemeExtension from "./components/NotificationThemeExtension";
 import TextInputThemeExtension from "./components/TextInputThemeExtension";
 import DatePickerThemeExtension from "./components/DatePickerThemeExtension";
-import DatePickerInputThemeExtension from "./components/DatePickerInput";
+import DatePickerInputThemeExtension from "./components/DatePickerInputThemeExtension";
 import RadioThemeExtension from "./components/RadioThemeExtension";
 import MenuThemeExtension from "./components/MenuThemeExtension";
 
