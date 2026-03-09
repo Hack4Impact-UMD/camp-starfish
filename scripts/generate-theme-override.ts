@@ -1,8 +1,8 @@
-import theme from "../src/styles/theme";
+import globalTheme from "../src/styles/globalTheme";
 import { DEFAULT_THEME, mergeThemeOverrides } from "@mantine/core";
 import { appendFileSync } from "fs";
 
-const mergedTheme = mergeThemeOverrides(DEFAULT_THEME, theme);
+const mergedTheme = mergeThemeOverrides(DEFAULT_THEME, globalTheme);
 const colors = mergedTheme.colors || {};
 const primaryShade = typeof mergedTheme.primaryShade === 'number' ? mergedTheme.primaryShade : mergedTheme.primaryShade?.light ?? 5;
 let css = "@theme {\n";
