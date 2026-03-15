@@ -2,7 +2,7 @@ import { db } from "@/config/firebase";
 import { Album } from "@/types/albums/albumTypes";
 import { AlbumDoc } from "./types/documents";
 import { v4 as uuid } from "uuid";
-import { Collection } from "./utils";
+import { Collection } from "./types/collections";
 import { setDoc, deleteDoc, getDoc, updateDoc, executeQuery } from "./firestoreClientOperations";
 import { collection, CollectionReference, doc, DocumentReference, FirestoreDataConverter, QueryDocumentSnapshot, Transaction, UpdateData, WithFieldValue, WriteBatch } from "firebase/firestore";
 
