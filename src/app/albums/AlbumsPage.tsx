@@ -4,22 +4,24 @@ import React from "react";
 import AlbumCard from "../../components/AlbumCard";
 import plusIcon from "@/assets/icons/plusIcon.svg";
 import filterIcon from "@/assets/icons/filterIcon.svg";
-import testPicture from "@/assets/images/PolaroidPhotos1.png";
 import EditAlbumModal from "@/components/EditAlbumModal";
 import CardGallery from "@/components/CardGallery";
 import { Album } from "@/types/albums/albumTypes";
 import Image from "next/image";
+import useAlbums from "@/hooks/albums/useAlbums";
+import ErrorPage from "../error";
+import LoadingPage from "../loading";
 
 const AlbumsPage: React.FC = () => {
-  // Sample data for albums, get data from Firebase
-  const albums: Album[] = Array(100).fill({
-    title: "Program 1",
-    date: "June 2024",
-    photoCount: 156,
-    imageUrl: testPicture.src, // Replace with actual image URL
-    id: "album-1",
-  });
+  const albumsQuery = useAlbums();
+  
+  if (albumsQuery.isError) {
+    return <ErrorPage error={albumsQuery.error} />
+  } else if (albumsQuery.isPending) {
+    return <LoadingPage />;
+  }
 
+  const albums = albumsQuery.data;
   return (
     <div className="w-full min-h-full bg-gray-100">
       <div className="container mx-auto px-4 py-6">
