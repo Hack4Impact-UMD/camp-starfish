@@ -31,20 +31,20 @@ const AlbumsPage: React.FC = () => {
           </h1>
           <div className="flex items-center gap-4 ml-auto">
             <Image
-              className="w-[72px] h-[72px] flex-none cursor-pointer"
+              className="w-18 h-18 flex-none cursor-pointer"
               src={filterIcon.src}
               alt="Filter"
               width={48}
               height={48}
             />
-            <button className="border-2 border-camp-primary text-lg py-2 px-4 rounded-3xl w-[252px] h-[48px] font-lato font-bold text-camp-text-modalTitle">
+            <button className="border-2 border-camp-primary text-lg py-2 px-4 rounded-3xl w-64 h-12 font-lato font-bold text-camp-text-modalTitle">
               SELECT ALL
             </button>
             {/* Wrap plus icon with modal trigger */}
             <EditAlbumModal
               trigger={
                 <Image
-                  className="w-[72px] h-[72px] flex-none cursor-pointer"
+                  className="w-18 h-18 flex-none cursor-pointer"
                   src={plusIcon.src}
                   alt="Plus"
                   width={48}
