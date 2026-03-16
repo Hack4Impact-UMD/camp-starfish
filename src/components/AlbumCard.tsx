@@ -11,7 +11,7 @@ const AlbumCard: React.FC<AlbumCardProps> = ({
   album,
   thumbnail,
 }: AlbumCardProps) => {
-  const { name, startDate, endDate, numPhotos, id } = album;
+  const { name, startDate, endDate, numItems, id } = album;
   return (
     <Link href={`/albums/${id}`}>
       <div className="bg-white shadow-md hover:shadow-lg transition-shadow duration-300 p-4">
@@ -27,7 +27,7 @@ const AlbumCard: React.FC<AlbumCardProps> = ({
             {name}
           </h3>
           <p className="text-sm font-lato text-camp-text-subheading">
-            {startDate} - {endDate} • {numPhotos} photos
+            {startDate} - {endDate} • {numItems} photos
           </p>
         </div>
       </div>
