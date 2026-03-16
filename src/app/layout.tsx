@@ -161,7 +161,7 @@ export default function RootLayout({
           <div className="w-full">
             <Footer />
           </div>
-          <TanStackDevtools
+          {process.env.NODE_ENV !== 'production' && <TanStackDevtools
             plugins={[
               {
                 name: "Query",
@@ -172,7 +172,7 @@ export default function RootLayout({
                 render: <FormDevtoolsPanel />
               },
             ]}
-          />
+          />}
         </Providers>
       </body>
     </html>
