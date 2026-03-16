@@ -11,6 +11,7 @@ import Image from "next/image";
 import useAlbums from "@/hooks/albums/useAlbums";
 import ErrorPage from "../error";
 import LoadingPage from "../loading";
+import { Title } from "@mantine/core";
 
 const AlbumsPage: React.FC = () => {
   const albumsQuery = useAlbums();
@@ -26,9 +27,7 @@ const AlbumsPage: React.FC = () => {
     <div className="w-full min-h-full bg-gray-100">
       <div className="container mx-auto px-4 py-6">
         <div className="flex items-center justify-between">
-          <h1 className="text-5xl font-newSpirit font-bold text-camp-primary">
-            Albums
-          </h1>
+          <Title order={1}>Albums</Title>
           <div className="flex items-center gap-4 ml-auto">
             <Image
               className="w-18 h-18 flex-none cursor-pointer"
