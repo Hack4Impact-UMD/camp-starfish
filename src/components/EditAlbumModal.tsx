@@ -9,7 +9,8 @@ interface EditAlbumModalProps {
   mode: "CREATE" | "EDIT";
 }
 
-const EditAlbumModal: React.FC<EditAlbumModalProps> = ({ mode }) => {
+export default function EditAlbumModal(props: EditAlbumModalProps) {
+  const { mode } = props;
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [albumName, setAlbumName] = useState("");
 
@@ -97,8 +98,6 @@ const EditAlbumModal: React.FC<EditAlbumModalProps> = ({ mode }) => {
       </div>
   );
 };
-
-export default EditAlbumModal;
 
 export function openEditAlbumModal() {
   modals.open({
