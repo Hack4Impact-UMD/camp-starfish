@@ -2,7 +2,9 @@
 
 import React from "react";
 import AlbumCard from "../../components/AlbumCard";
-import EditAlbumModal, { openEditAlbumModal } from "@/components/EditAlbumModal";
+import EditAlbumModal, {
+  openEditAlbumModal,
+} from "@/components/EditAlbumModal";
 import CardGallery from "@/components/CardGallery";
 import { Album } from "@/types/albums/albumTypes";
 import useAlbums from "@/hooks/albums/useAlbums";
@@ -10,6 +12,7 @@ import ErrorPage from "../error";
 import LoadingPage from "../loading";
 import { ActionIcon, Button, Indicator, Title } from "@mantine/core";
 import { MdAdd, MdPendingActions } from "react-icons/md";
+import Link from "next/link";
 
 const AlbumsPage: React.FC = () => {
   const albumsQuery = useAlbums();
@@ -28,11 +31,13 @@ const AlbumsPage: React.FC = () => {
           <Title order={1}>Albums</Title>
           <div className="flex items-center gap-4 ml-auto">
             <Button>SELECT ALL</Button>
-            <Indicator color="error" offset={7}>
-              <ActionIcon variant="outline">
-                <MdPendingActions size={30} />
-              </ActionIcon>
-            </Indicator>
+            <Link href="/albums/pending">
+              <Indicator color="error" offset={7}>
+                <ActionIcon variant="outline">
+                  <MdPendingActions size={30} />
+                </ActionIcon>
+              </Indicator>
+            </Link>
             <ActionIcon color="orange" onClick={() => openEditAlbumModal()}>
               <MdAdd size={40} />
             </ActionIcon>
