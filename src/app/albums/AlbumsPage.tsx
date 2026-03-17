@@ -11,13 +11,14 @@ import Image from "next/image";
 import useAlbums from "@/hooks/albums/useAlbums";
 import ErrorPage from "../error";
 import LoadingPage from "../loading";
-import { Title } from "@mantine/core";
+import { ActionIcon, Button, Title } from "@mantine/core";
+import { Md10K, MdAdd } from "react-icons/md";
 
 const AlbumsPage: React.FC = () => {
   const albumsQuery = useAlbums();
-  
+
   if (albumsQuery.isError) {
-    return <ErrorPage error={albumsQuery.error} />
+    return <ErrorPage error={albumsQuery.error} />;
   } else if (albumsQuery.isPending) {
     return <LoadingPage />;
   }
@@ -29,26 +30,12 @@ const AlbumsPage: React.FC = () => {
         <div className="flex items-center justify-between">
           <Title order={1}>Albums</Title>
           <div className="flex items-center gap-4 ml-auto">
-            <Image
-              className="w-18 h-18 flex-none cursor-pointer"
-              src={filterIcon.src}
-              alt="Filter"
-              width={48}
-              height={48}
-            />
-            <button className="border-2 border-camp-primary text-lg py-2 px-4 rounded-3xl w-64 h-12 font-lato font-bold text-camp-text-modalTitle">
-              SELECT ALL
-            </button>
-            {/* Wrap plus icon with modal trigger */}
+            <Button>SELECT ALL</Button>
             <EditAlbumModal
               trigger={
-                <Image
-                  className="w-18 h-18 flex-none cursor-pointer"
-                  src={plusIcon.src}
-                  alt="Plus"
-                  width={48}
-                  height={48}
-                />
+                <ActionIcon color="orange">
+                  <MdAdd size={40} />
+                </ActionIcon>
               }
               mode="CREATE"
             />
