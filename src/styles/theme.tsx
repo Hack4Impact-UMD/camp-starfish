@@ -10,6 +10,7 @@ import RadioThemeExtension from "./components/RadioThemeExtension";
 import TextInputThemeExtension from "./components/TextInputThemeExtension";
 import TextThemeExtension from "./components/TextThemeExtension";
 import TitleThemeExtension from "./components/TitleThemeExtension";
+import ModalThemeExtension from "./components/ModalThemeExtension";
 
 const theme: MantineThemeOverride = {
   ...globalTheme,
@@ -19,6 +20,7 @@ const theme: MantineThemeOverride = {
     DatePickerInput: DatePickerInputThemeExtension,
     DatePicker: DatePickerThemeExtension,
     Menu: MenuThemeExtension,
+    Modal: ModalThemeExtension,
     Notification: NotificationThemeExtension,
     Radio: RadioThemeExtension,
     TextInput: TextInputThemeExtension,
