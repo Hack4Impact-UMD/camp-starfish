@@ -26,11 +26,6 @@ export default function EditAlbumModal(props: EditAlbumModalProps) {
 
   return (
       <div>
-        {/* Header */}
-        <div className="bg-camp-primary py-4 px-6 text-left">
-          <h2 className="text-white text-lg font-semibold">{albumId ? "EDIT" : "CREATE"} ALBUM</h2>
-        </div>
-
         {/* Upload Box */}
         <div
           className="w-1/2 mx-auto mt-4 flex flex-col items-center justify-center py-6 px-4 cursor-pointer bg-blue-0 rounded-md"
