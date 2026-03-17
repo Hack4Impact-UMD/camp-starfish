@@ -6,11 +6,11 @@ import Image from "next/image";
 import { modals } from "@mantine/modals";
 
 interface EditAlbumModalProps {
-  mode: "CREATE" | "EDIT";
+  albumId?: string
 }
 
 export default function EditAlbumModal(props: EditAlbumModalProps) {
-  const { mode } = props;
+  const { albumId } = props;
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [albumName, setAlbumName] = useState("");
 
@@ -28,7 +28,7 @@ export default function EditAlbumModal(props: EditAlbumModalProps) {
       <div>
         {/* Header */}
         <div className="bg-camp-primary py-4 px-6 text-left">
-          <h2 className="text-white text-lg font-semibold">{mode} ALBUM</h2>
+          <h2 className="text-white text-lg font-semibold">{albumId ? "EDIT" : "CREATE"} ALBUM</h2>
         </div>
 
         {/* Upload Box */}
@@ -92,16 +92,16 @@ export default function EditAlbumModal(props: EditAlbumModalProps) {
             onClick={() => {modals.closeAll()}}
             className="bg-camp-tert-green text-white px-6 py-2 rounded-full font-lato font-semibold"
           >
-            {mode === "CREATE" ? "CREATE" : "CONFIRM"}
+            {albumId ? "CONFIRM" : "CREATE"}
           </button>
         </div>
       </div>
   );
 };
 
-export function openEditAlbumModal() {
+export function openEditAlbumModal(albumId?: string) {
   modals.open({
     title: "Edit Album",
-    children: <EditAlbumModal mode="EDIT" />,
+    children: <EditAlbumModal albumId={albumId} />,
   })
 }

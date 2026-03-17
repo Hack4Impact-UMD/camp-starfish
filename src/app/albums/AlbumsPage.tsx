@@ -33,7 +33,7 @@ const AlbumsPage: React.FC = () => {
                 <MdPendingActions size={30} />
               </ActionIcon>
             </Indicator>
-            <ActionIcon color="orange" onClick={openEditAlbumModal}>
+            <ActionIcon color="orange" onClick={() => openEditAlbumModal()}>
               <MdAdd size={40} />
             </ActionIcon>
           </div>
