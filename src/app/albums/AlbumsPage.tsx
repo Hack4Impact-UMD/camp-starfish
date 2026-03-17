@@ -2,17 +2,14 @@
 
 import React from "react";
 import AlbumCard from "../../components/AlbumCard";
-import plusIcon from "@/assets/icons/plusIcon.svg";
-import filterIcon from "@/assets/icons/filterIcon.svg";
 import EditAlbumModal from "@/components/EditAlbumModal";
 import CardGallery from "@/components/CardGallery";
 import { Album } from "@/types/albums/albumTypes";
-import Image from "next/image";
 import useAlbums from "@/hooks/albums/useAlbums";
 import ErrorPage from "../error";
 import LoadingPage from "../loading";
 import { ActionIcon, Button, Title } from "@mantine/core";
-import { Md10K, MdAdd } from "react-icons/md";
+import { MdAdd } from "react-icons/md";
 
 const AlbumsPage: React.FC = () => {
   const albumsQuery = useAlbums();
