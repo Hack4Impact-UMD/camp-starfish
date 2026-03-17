@@ -33,7 +33,7 @@ export default function EditAlbumModal(props: EditAlbumModalProps) {
 
         {/* Upload Box */}
         <div
-          className="w-1/2 mx-auto mt-4 flex flex-col items-center justify-center py-6 px-4 cursor-pointer bg-[#E6EAEC] rounded-md"
+          className="w-1/2 mx-auto mt-4 flex flex-col items-center justify-center py-6 px-4 cursor-pointer bg-blue-0 rounded-md"
           onClick={() => fileInputRef.current?.click()}
         >
           {selectedImage ? (
@@ -75,7 +75,7 @@ export default function EditAlbumModal(props: EditAlbumModalProps) {
               value={albumName}
               placeholder="Album title"
               onChange={(e) => setAlbumName(e.target.value)}
-              className="w-full text-center bg-[#E6EAEC] text-bg-camp-buttons-neutral border-none outline-hidden text-lg py-2 placeholder:text-bg-camp-buttons-neutral rounded-md"
+              className="w-full text-center bg-blue-0 text-bg-camp-buttons-neutral border-none outline-hidden text-lg py-2 placeholder:text-bg-camp-buttons-neutral rounded-md"
             />
           </div>
         </div>
