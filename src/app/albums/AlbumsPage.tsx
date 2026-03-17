@@ -2,7 +2,7 @@
 
 import React from "react";
 import AlbumCard from "../../components/AlbumCard";
-import EditAlbumModal from "@/components/EditAlbumModal";
+import EditAlbumModal, { openEditAlbumModal } from "@/components/EditAlbumModal";
 import CardGallery from "@/components/CardGallery";
 import { Album } from "@/types/albums/albumTypes";
 import useAlbums from "@/hooks/albums/useAlbums";
@@ -33,14 +33,9 @@ const AlbumsPage: React.FC = () => {
                 <MdPendingActions size={30} />
               </ActionIcon>
             </Indicator>
-            <EditAlbumModal
-              trigger={
-                <ActionIcon color="orange">
-                  <MdAdd size={40} />
-                </ActionIcon>
-              }
-              mode="CREATE"
-            />
+            <ActionIcon color="orange" onClick={openEditAlbumModal}>
+              <MdAdd size={40} />
+            </ActionIcon>
           </div>
         </div>
         <CardGallery<Album>
