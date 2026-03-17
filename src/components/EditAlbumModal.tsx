@@ -79,20 +79,12 @@ export default function EditAlbumModal(props: EditAlbumModalProps) {
           </div>
         </div>
 
-        {/* Footer Buttons */}
         <div className="flex justify-center gap-4 px-6 py-6">
-          <button
-            onClick={() => modals.closeAll()}
-            className="bg-camp-buttons-neutral text-black px-6 py-2 rounded-full font-lato font-semibold"
-          >
-            CLOSE
-          </button>
-          <button
-            onClick={() => {modals.closeAll()}}
-            className="bg-camp-tert-green text-white px-6 py-2 rounded-full font-lato font-semibold"
-          >
-            {albumId ? "CONFIRM" : "CREATE"}
-          </button>
+          <Button color="error" onClick={() => modals.closeAll()}>CLOSE</Button>
+          <Button color="success" onClick={() => {
+            console.log('TODO: Perform album mutation')
+            modals.closeAll();
+          }}>{albumId ? "CONFIRM" : "CREATE"}</Button>
         </div>
       </div>
   );
