@@ -1,9 +1,9 @@
 import { getAlbumById } from "@/data/firestore/albums";
-import { useQuery } from "@tanstack/react-query";
+import { skipToken, useQuery } from "@tanstack/react-query";
 
-export default function useAlbumById(albumId: string) {
+export default function useAlbumById(albumId: string | undefined) {
   return useQuery({
     queryKey: ['albums', albumId],
-    queryFn: () => getAlbumById(albumId),
+    queryFn: albumId ? (() => getAlbumById(albumId)) : skipToken,
   })
 }

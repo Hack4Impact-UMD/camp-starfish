@@ -4,6 +4,7 @@ import React, { useState, useRef } from "react";
 import imageIcon from "@/assets/icons/imageIcon.png";
 import Image from "next/image";
 import { modals } from "@mantine/modals";
+import useAlbumById from "@/hooks/albums/useAlbumById";
 
 interface EditAlbumModalProps {
   albumId?: string
@@ -11,6 +12,9 @@ interface EditAlbumModalProps {
 
 export default function EditAlbumModal(props: EditAlbumModalProps) {
   const { albumId } = props;
+
+  const albumQuery = useAlbumById(albumId)
+  
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [albumName, setAlbumName] = useState("");
 
