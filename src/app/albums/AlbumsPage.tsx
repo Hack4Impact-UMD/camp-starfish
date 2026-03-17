@@ -8,8 +8,8 @@ import { Album } from "@/types/albums/albumTypes";
 import useAlbums from "@/hooks/albums/useAlbums";
 import ErrorPage from "../error";
 import LoadingPage from "../loading";
-import { ActionIcon, Button, Title } from "@mantine/core";
-import { MdAdd } from "react-icons/md";
+import { ActionIcon, Button, Indicator, Title } from "@mantine/core";
+import { MdAdd, MdPendingActions } from "react-icons/md";
 
 const AlbumsPage: React.FC = () => {
   const albumsQuery = useAlbums();
@@ -28,6 +28,11 @@ const AlbumsPage: React.FC = () => {
           <Title order={1}>Albums</Title>
           <div className="flex items-center gap-4 ml-auto">
             <Button>SELECT ALL</Button>
+            <Indicator color="error" offset={7}>
+              <ActionIcon variant="outline">
+                <MdPendingActions size={30} />
+              </ActionIcon>
+            </Indicator>
             <EditAlbumModal
               trigger={
                 <ActionIcon color="orange">
