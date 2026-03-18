@@ -12,11 +12,14 @@ interface EditAlbumModalProps {
 
 export default function EditAlbumModal(props: EditAlbumModalProps) {
   const { albumId } = props;
+  const albumQuery = useAlbumById(albumId);
 
-  const albumQuery = useAlbumById(albumId)
-  
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [albumName, setAlbumName] = useState("");
+  const [albumName, setAlbumName] = useState<string>(albumQuery.data?.name || '');
+
+  if (albumId && albumQuery.isPending) return <LoadingPage />
+  else if (albumQuery.isError) return <ErrorPage error={albumQuery.error} />
+  
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
