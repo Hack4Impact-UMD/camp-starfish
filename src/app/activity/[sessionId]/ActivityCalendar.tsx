@@ -69,7 +69,7 @@ export default function ActivityCalendar({ startDate, endDate, sections }: Activ
             key={day}
             className="p-2 bg-neutral-0 border border-solid border-neutral-5"
           >
-            <Text className="text-xs font-bold text-center uppercase">{day}</Text>
+            <Text className="text-xs text-center uppercase" fw={700}>{day}</Text>
           </Box>
         ))}
       </SimpleGrid>
@@ -101,7 +101,7 @@ export default function ActivityCalendar({ startDate, endDate, sections }: Activ
                   <Box
                     key={day.format("YYYY-MM-DD")}
                     className={classNames(
-                      "p-2 border border-solid border-neutral-5 min-h-[100px]",
+                      "p-2 border border-solid border-neutral-5 min-h-[150px]",
                       {
                         "bg-neutral-2": isInSession,
                         "bg-neutral-3": !isInSession,
@@ -123,7 +123,7 @@ export default function ActivityCalendar({ startDate, endDate, sections }: Activ
 
             {/* Section bars overlaid on the week */}
             {sectionsInWeek.length > 0 && (
-              <SimpleGrid className="grid-cols-7 gap-0 -mt-[80px] px-1 pointer-events-none">
+              <SimpleGrid className="grid-cols-7 gap-0 -mt-[120px] px-1 pointer-events-none">
                 {(() => {
                   // Render section pills positioned in the grid
                   const cells: React.ReactNode[] = [];
@@ -149,7 +149,7 @@ export default function ActivityCalendar({ startDate, endDate, sections }: Activ
                       <Box
                         key={section.id}
                         className={classNames(
-                          "rounded-md px-2 py-1 text-center text-xs font-semibold pointer-events-auto",
+                          "rounded-full px-3 py-1.5 mx-1 text-center text-xs font-semibold pointer-events-auto",
                           sectionColorMap[section.type]
                         )}
                         style={{ gridColumn: `span ${spanCols}` }}
