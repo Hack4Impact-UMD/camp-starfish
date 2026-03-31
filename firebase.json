@@ -47,10 +47,10 @@
       "port": 5001
     },
     "firestore": {
-      "port": 8080
+      "port": 8082
     },
     "hosting": {
-      "port": 5000
+      "port": 5010
     },
     "storage": {
       "port": 9199

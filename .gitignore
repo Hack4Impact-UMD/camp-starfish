@@ -50,6 +50,7 @@ yarn-error.log*
 # misc
 .DS_Store
 *.pem
+CLAUDE.md
 
 # debug
 npm-debug.log*
