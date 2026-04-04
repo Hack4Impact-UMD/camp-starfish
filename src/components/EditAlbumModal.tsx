@@ -95,7 +95,7 @@ export default function EditAlbumModal(props: EditAlbumModalProps) {
 
 export function openEditAlbumModal(albumId?: string) {
   modals.open({
-    title: "Edit Album",
+    title: albumId ? "Edit Album" : "Create Album",
     children: <EditAlbumModal albumId={albumId} />,
-  })
+  });
 }
