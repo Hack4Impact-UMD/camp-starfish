@@ -1,9 +1,10 @@
-import { MantineThemeOverride, Title, createTheme } from "@mantine/core";
+import { MantineThemeOverride } from "@mantine/core";
 import globalTheme from "./globalTheme";
 import ActionIconThemeExtension from "./components/ActionIconThemeExtension";
 import ButtonThemeExtension from "./components/ButtonThemeExtension";
 import DatePickerInputThemeExtension from "./components/DatePickerInputThemeExtension";
 import DatePickerThemeExtension from "./components/DatePickerThemeExtension";
+import ImageThemeExtension from "./components/ImageThemeExtension";
 import MenuThemeExtension from "./components/MenuThemeExtension";
 import NotificationThemeExtension from "./components/NotificationThemeExtension";
 import RadioThemeExtension from "./components/RadioThemeExtension";
@@ -19,6 +20,7 @@ const theme: MantineThemeOverride = {
     Button: ButtonThemeExtension,
     DatePickerInput: DatePickerInputThemeExtension,
     DatePicker: DatePickerThemeExtension,
+    Image: ImageThemeExtension,
     Menu: MenuThemeExtension,
     Modal: ModalThemeExtension,
     Notification: NotificationThemeExtension,
