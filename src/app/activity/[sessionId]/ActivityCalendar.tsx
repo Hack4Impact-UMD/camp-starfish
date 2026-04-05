@@ -6,6 +6,7 @@ import { IconCheck, IconPencil, IconPlus } from "@tabler/icons-react";
 import { Section, SectionType } from "@/types/sessions/sessionTypes";
 import moment, { weekdaysShort } from "moment";
 import classNames from "classnames";
+import { openEditActivitiesModal } from "@/components/EditActivitiesModal";
 
 interface ActivityCalendarProps {
   startDate: string;
@@ -186,6 +187,10 @@ export default function ActivityCalendar({ startDate, endDate, sections }: Activ
                         fullWidth
                         color="gray"
                         rightSection={<IconPencil size={12} />}
+                        onClick={() => openEditActivitiesModal({
+                          section: startingSections[0],
+                          sections,
+                        })}
                       >
                         Edit Activity
                       </Button>
