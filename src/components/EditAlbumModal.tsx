@@ -40,34 +40,41 @@ export default function EditAlbumModal(props: EditAlbumModalProps) {
 
   return (
     <div className="flex flex-col items-center w-full h-full">
-      {albumThumbnail && albumThumbnailURL ? (
-        <Indicator
-          classNames={{
-            root: 'flex justify-center items-center w-2/3 h-full m-md bg-blue-0 aspect-square bg-contain border',
-            indicator: 'cursor-pointer'
-          }}
-          label={<MdClose onClick={() => setAlbumThumbnail(null)} />}
-          size={20}
-        >
-          <Image src={albumThumbnailURL} alt={albumThumbnail.name} width={10} height={10} className="w-full h-full object-contain" />
-        </Indicator>
-      ) : (
+      <Indicator
+        disabled={!(albumThumbnail && albumThumbnailURL)}
+        classNames={{
+          root: "flex justify-center items-center w-2/3 m-md h-full bg-blue-0 aspect-square bg-contain border",
+          indicator: "cursor-pointer",
+        }}
+        label={<MdClose onClick={() => setAlbumThumbnail(null)} />}
+        size={20}
+      >
         <Dropzone
           onDrop={(files: FileWithPath[]) => setAlbumThumbnail(files[0])}
           multiple={false}
           classNames={{
-            root: "flex justify-center items-center w-2/3 h-full aspect-square m-md",
+            root: "flex justify-center items-center w-full h-full aspect-square border cursor-pointer",
             inner: "w-full h-full",
           }}
         >
-          <div className="flex flex-col justify-center items-center w-full h-full p-2 bg-blue-0">
-            <MdImage className="text-neutral-4 w-10 h-10" size={40} />
-            <Text classNames={{ root: "text-neutral-5" }}>
-              Upload album thumbnail
-            </Text>
-          </div>
+          {albumThumbnail && albumThumbnailURL ? (
+            <Image
+              src={albumThumbnailURL}
+              alt={albumThumbnail.name}
+              width={10}
+              height={10}
+              className="w-full h-full object-contain"
+            />
+          ) : (
+            <div className="flex flex-col justify-center items-center w-full h-full p-2 bg-blue-0">
+              <MdImage className="text-neutral-4 w-10 h-10" size={40} />
+              <Text classNames={{ root: "text-neutral-5" }}>
+                Upload album thumbnail
+              </Text>
+            </div>
+          )}
         </Dropzone>
-      )}
+      </Indicator>
 
       <TextInput
         label="Album Title"
