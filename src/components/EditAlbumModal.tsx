@@ -43,7 +43,7 @@ export default function EditAlbumModal(props: EditAlbumModalProps) {
       <Indicator
         disabled={!(albumThumbnail && albumThumbnailURL)}
         classNames={{
-          root: "flex justify-center items-center w-2/3 m-md h-full bg-blue-0 aspect-square bg-contain border",
+          root: "w-2/3 m-md",
           indicator: "cursor-pointer",
         }}
         label={<MdClose onClick={() => setAlbumThumbnail(null)} />}
@@ -53,7 +53,7 @@ export default function EditAlbumModal(props: EditAlbumModalProps) {
           onDrop={(files: FileWithPath[]) => setAlbumThumbnail(files[0])}
           multiple={false}
           classNames={{
-            root: "flex justify-center items-center w-full h-full aspect-square border cursor-pointer",
+            root: "flex justify-center items-center w-full h-full aspect-square bg-blue-0 border cursor-pointer",
             inner: "w-full h-full",
           }}
         >
@@ -66,7 +66,7 @@ export default function EditAlbumModal(props: EditAlbumModalProps) {
               className="w-full h-full object-contain"
             />
           ) : (
-            <div className="flex flex-col justify-center items-center w-full h-full p-2 bg-blue-0">
+            <div className="flex flex-col justify-center items-center w-full h-full p-2">
               <MdImage className="text-neutral-4 w-10 h-10" size={40} />
               <Text classNames={{ root: "text-neutral-5" }}>
                 Upload album thumbnail
