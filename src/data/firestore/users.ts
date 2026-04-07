@@ -3,6 +3,8 @@ import { User } from "@/types/users/userTypes";
 import { UserDoc } from "./types/documents";
 import {
   doc,
+  collection,
+  CollectionReference,
   Transaction,
   WriteBatch,
   QueryDocumentSnapshot,
@@ -10,7 +12,7 @@ import {
   WithFieldValue,
   DocumentReference,
 } from "firebase/firestore";
-import { setDoc, getDoc, updateDoc, deleteDoc } from "./firestoreClientOperations";
+import { setDoc, getDoc, updateDoc, deleteDoc, executeQuery } from "./firestoreClientOperations";
 import { Collection } from "./types/collections";
 
 const userFirestoreConverter: FirestoreDataConverter<User, UserDoc> = {
@@ -20,6 +22,10 @@ const userFirestoreConverter: FirestoreDataConverter<User, UserDoc> = {
   },
   fromFirestore: (snapshot: QueryDocumentSnapshot<UserDoc, UserDoc>): User => ({ id: Number(snapshot.ref.id), ...snapshot.data() })
 };
+
+export async function getAllUsers(): Promise<User[]> {
+  return await executeQuery<User, UserDoc>(collection(db, Collection.USERS) as CollectionReference<User, UserDoc>, userFirestoreConverter);
+}
 
 export async function getUserById(id: number, transaction?: Transaction): Promise<User> {
   return await getDoc<User, UserDoc>(doc(db, Collection.USERS, String(id)) as DocumentReference<User, UserDoc>, userFirestoreConverter, transaction);
