@@ -8,6 +8,8 @@ import { Dropzone, FileWithPath } from "@mantine/dropzone";
 import LoadingPage from "@/app/loading";
 import ErrorPage from "@/app/error";
 import { MdClose, MdImage } from "react-icons/md";
+import useCreateAlbum from "@/hooks/albums/useCreateAlbum";
+import useUpdateAlbum from "@/hooks/albums/useUpdateAlbum";
 
 interface EditAlbumModalProps {
   albumId?: string;
@@ -24,6 +26,9 @@ export default function EditAlbumModal(props: EditAlbumModalProps) {
   const [albumThumbnailURL, setAlbumThumbnailURL] = useState<string | null>(
     null,
   );
+
+  const createAlbumMutation = useCreateAlbum();
+  const updateAlbumMutation = useUpdateAlbum();
 
   useEffect(() => {
     if (!albumThumbnail) {
@@ -90,7 +95,16 @@ export default function EditAlbumModal(props: EditAlbumModalProps) {
         <Button
           color="success"
           onClick={() => {
-            console.log("TODO: Perform album mutation");
+            albumId ? updateAlbumMutation.mutate({
+              albumId,
+              updates: { name: albumName }
+            }) : createAlbumMutation.mutate({ album: {
+              name: albumName,
+              hasThumbnail: !!albumThumbnail,
+              startDate: "",
+              endDate: "",
+              numItems: 0,
+            } });
             modals.closeAll();
           }}
         >
