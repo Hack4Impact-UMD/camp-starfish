@@ -8,7 +8,7 @@ import { Album } from "@/types/albums/albumTypes";
 import useAlbums from "@/hooks/albums/useAlbums";
 import ErrorPage from "../error";
 import LoadingPage from "../loading";
-import { ActionIcon, Button, Indicator, Title } from "@mantine/core";
+import { ActionIcon, Button, Indicator, Text, Title } from "@mantine/core";
 import { MdAdd, MdPendingActions } from "react-icons/md";
 import Link from "next/link";
 
@@ -23,31 +23,36 @@ const AlbumsPage: React.FC = () => {
 
   const albums = albumsQuery.data || [];
   return (
-    <div className="w-full min-h-full bg-neutral-1">
-      <div className="container mx-auto px-4 py-6">
-        <div className="flex items-center justify-between">
-          <Title order={1}>Albums</Title>
-          <div className="flex items-center gap-4 ml-auto">
-            <Button>SELECT ALL</Button>
-            <Link href="/albums/pending">
-              <Indicator color="error" offset={7}>
-                <ActionIcon variant="outline">
-                  <MdPendingActions size={30} />
-                </ActionIcon>
-              </Indicator>
-            </Link>
-            <ActionIcon color="orange" onClick={() => openEditAlbumModal()}>
-              <MdAdd size={40} />
-            </ActionIcon>
-          </div>
+    <div className="flex flex-col w-6/7 grow mx-auto px-4 py-6 gap-6">
+      <div className="flex items-center justify-between">
+        <Title order={1}>Albums</Title>
+        <div className="flex items-center gap-4 ml-auto">
+          <Button>SELECT ALL</Button>
+          <Link href="/albums/pending">
+            <Indicator color="error" offset={7}>
+              <ActionIcon variant="outline">
+                <MdPendingActions size={30} />
+              </ActionIcon>
+            </Indicator>
+          </Link>
+          <ActionIcon color="orange" onClick={() => openEditAlbumModal()}>
+            <MdAdd size={40} />
+          </ActionIcon>
         </div>
+      </div>
+      {albums.length === 0 ? (
+        <div className="flex flex-col justify-center items-center grow bg-neutral-3 gap-4">
+          <Title order={4}>No albums yet</Title>
+          <Button color="orange" rightSection={<MdAdd size={24} />} onClick={() => openEditAlbumModal()}>Create</Button>
+        </div>
+      ) : (
         <CardGallery<Album>
           items={albums}
           renderItem={(album: Album) => (
             <AlbumCard album={album} thumbnail="" />
           )}
         />
-      </div>
+      )}
     </div>
   );
 };
