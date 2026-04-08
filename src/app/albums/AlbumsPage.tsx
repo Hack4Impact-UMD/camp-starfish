@@ -25,7 +25,7 @@ const AlbumsPage: React.FC = () => {
 
   const albums = albumsQuery.data;
   return (
-    <div className="w-full min-h-full bg-gray-100">
+    <div className="w-full min-h-full bg-neutral-1">
       <div className="container mx-auto px-4 py-6">
         <div className="flex items-center justify-between">
           <Title order={1}>Albums</Title>
