@@ -12,7 +12,7 @@ import { ActionIcon, Button, Indicator, Text, Title } from "@mantine/core";
 import { MdAdd, MdPendingActions } from "react-icons/md";
 import Link from "next/link";
 
-const AlbumsPage: React.FC = () => {
+export default function AlbumsPage() {
   const albumsQuery = useAlbums();
 
   if (albumsQuery.isError) {
@@ -49,12 +49,10 @@ const AlbumsPage: React.FC = () => {
         <CardGallery<Album>
           items={albums}
           renderItem={(album: Album) => (
-            <AlbumCard album={album} thumbnail="" />
+            <AlbumCard albumId={album.id} />
           )}
         />
       )}
     </div>
   );
 };
-
-export default AlbumsPage;
