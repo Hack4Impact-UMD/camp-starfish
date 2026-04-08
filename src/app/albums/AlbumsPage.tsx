@@ -2,9 +2,7 @@
 
 import React from "react";
 import AlbumCard from "../../components/AlbumCard";
-import EditAlbumModal, {
-  openEditAlbumModal,
-} from "@/components/EditAlbumModal";
+import { openEditAlbumModal } from "@/components/EditAlbumModal";
 import CardGallery from "@/components/CardGallery";
 import { Album } from "@/types/albums/albumTypes";
 import useAlbums from "@/hooks/albums/useAlbums";
@@ -19,11 +17,11 @@ const AlbumsPage: React.FC = () => {
 
   if (albumsQuery.isError) {
     return <ErrorPage error={albumsQuery.error} />;
-  } else if (albumsQuery.isPending) {
+  } else if (albumsQuery.isLoading) {
     return <LoadingPage />;
   }
 
-  const albums = albumsQuery.data;
+  const albums = albumsQuery.data || [];
   return (
     <div className="w-full min-h-full bg-neutral-1">
       <div className="container mx-auto px-4 py-6">
