@@ -1,8 +1,10 @@
 import Link from "next/link";
-import Image from "next/image";
+import { Image, Text, Title } from "@mantine/core";
 import useAlbumById from "@/hooks/albums/useAlbumById";
 import ErrorPage from "@/app/error";
 import LoadingPage from "@/app/loading";
+import testImage from "./test.jpg";
+import { useRouter } from "next/navigation";
 
 interface AlbumCardProps {
   albumId: string;
@@ -12,30 +14,30 @@ export default function AlbumCard(props: AlbumCardProps) {
   const { albumId } = props;
   const albumQuery = useAlbumById(albumId);
 
+  const router = useRouter();
+
   if (albumQuery.isError) {
     return <ErrorPage error={albumQuery.error} />;
   } else if (albumQuery.isPending) {
-    return <LoadingPage></LoadingPage>
+    return <LoadingPage></LoadingPage>;
   }
 
   const { name, startDate, endDate, numItems, id } = albumQuery.data;
   return (
     <Link href={`/albums/${id}`}>
-      <div className="bg-white shadow-md hover:shadow-lg transition-shadow duration-300 p-4">
+      <div className="bg-neutral-0 shadow-md hover:shadow-lg duration-300 p-4" onDoubleClick={() => router.push(`/albums/${id}`)}>
         <Image
-          src={null}
+          src={testImage}
           alt={name}
-          className="w-full h-48 object-cover rounded-lg"
+          className="w-full h-48 object-cover"
           width={200}
           height={48}
         />
         <div className="mt-2">
-          <h3 className="text-lg font-bold font-lato text-camp-text-headingBody">
-            {name}
-          </h3>
-          <p className="text-sm font-lato text-camp-text-subheading">
+          <Title order={3}>{name}</Title>
+          <Text>
             {startDate} - {endDate} • {numItems} photos
-          </p>
+          </Text>
         </div>
       </div>
     </Link>
