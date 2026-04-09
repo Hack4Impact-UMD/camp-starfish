@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { Image, Text, Title } from "@mantine/core";
 import useAlbumById from "@/hooks/albums/useAlbumById";
 import ErrorPage from "@/app/error";
@@ -24,22 +23,23 @@ export default function AlbumCard(props: AlbumCardProps) {
 
   const { name, startDate, endDate, numItems, id } = albumQuery.data;
   return (
-    <Link href={`/albums/${id}`}>
-      <div className="bg-neutral-0 shadow-md hover:shadow-lg duration-300 p-4" onDoubleClick={() => router.push(`/albums/${id}`)}>
-        <Image
-          src={testImage}
-          alt={name}
-          className="w-full h-48 object-cover"
-          width={200}
-          height={48}
-        />
-        <div className="mt-2">
-          <Title order={3}>{name}</Title>
-          <Text>
-            {startDate} - {endDate} • {numItems} photos
-          </Text>
-        </div>
+    <div
+      className="bg-neutral-0 shadow-md hover:shadow-lg duration-300 p-4 cursor-pointer"
+      onDoubleClick={() => router.push(`/albums/${id}`)}
+    >
+      <Image
+        src={testImage}
+        alt={name}
+        className="w-full h-48 object-contain"
+        width={200}
+        height={48}
+      />
+      <div className="mt-2">
+        <Title order={3}>{name}</Title>
+        <Text>
+          {startDate} - {endDate} • {numItems} photos
+        </Text>
       </div>
-    </Link>
+    </div>
   );
 }
