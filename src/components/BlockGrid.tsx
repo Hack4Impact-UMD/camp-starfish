@@ -3,12 +3,14 @@
 import React from "react";
 import { Text, ActionIcon, Badge, UnstyledButton, Flex } from "@mantine/core";
 import { IconPlus, IconCircleFilled } from "@tabler/icons-react";
+import { BundleActivity, JamboreeActivity } from "@/types/scheduling/schedulingTypes";
 
 export interface BlockActivity {
   id: string;
   name: string;
   description: string;
-  ageGroup: "OCP" | "NAV";
+  ageGroup?: "OCP" | "NAV";
+  programAreaId?: string;
 }
 
 export interface Block {
@@ -19,6 +21,8 @@ export interface Block {
 
 interface BlockGridProps {
   blocks: Block[];
+  onAddActivity: (blockId: string) => void;
+  onEditActivity: (blockId: string, activity: BundleActivity | JamboreeActivity) => void;
 }
 
 const ageGroupColor: Record<string, string> = {
@@ -26,7 +30,7 @@ const ageGroupColor: Record<string, string> = {
   NAV: "blue",
 };
 
-export default function BlockGrid({ blocks }: BlockGridProps) {
+export default function BlockGrid({ blocks, onAddActivity, onEditActivity }: BlockGridProps) {
   return (
     <div
       className="grid gap-0"
@@ -45,7 +49,14 @@ export default function BlockGrid({ blocks }: BlockGridProps) {
           {/* Add button with lines */}
           <Flex align="center" className="py-3 px-3">
             <div className="flex-grow h-px bg-gray-300" />
-            <ActionIcon variant="outline" color="gray" radius="xl" size="md" className="mx-2">
+            <ActionIcon
+              variant="outline"
+              color="gray"
+              radius="xl"
+              size="md"
+              className="mx-2"
+              onClick={() => onAddActivity(block.id)}
+            >
               <IconPlus size={16} />
             </ActionIcon>
             <div className="flex-grow h-px bg-gray-300" />
@@ -60,24 +71,28 @@ export default function BlockGrid({ blocks }: BlockGridProps) {
               >
                 {/* Colored dot + Name + Badge row */}
                 <Flex align="center" gap="xs">
-                  <IconCircleFilled
-                    size={10}
-                    className={
-                      activity.ageGroup === "OCP"
-                        ? "text-red-500"
-                        : "text-blue-500"
-                    }
-                  />
+                  {activity.ageGroup && (
+                    <IconCircleFilled
+                      size={10}
+                      className={
+                        activity.ageGroup === "OCP"
+                          ? "text-red-500"
+                          : "text-blue-500"
+                      }
+                    />
+                  )}
                   <Text className="font-bold text-sm flex-grow text-center">
                     {activity.name}
                   </Text>
-                  <Badge
-                    size="xs"
-                    color={ageGroupColor[activity.ageGroup]}
-                    variant="filled"
-                  >
-                    {activity.ageGroup}
-                  </Badge>
+                  {activity.ageGroup && (
+                    <Badge
+                      size="xs"
+                      color={ageGroupColor[activity.ageGroup]}
+                      variant="filled"
+                    >
+                      {activity.ageGroup}
+                    </Badge>
+                  )}
                 </Flex>
 
                 {/* Line under activity name */}
@@ -90,7 +105,24 @@ export default function BlockGrid({ blocks }: BlockGridProps) {
 
                 {/* Edit link */}
                 <Flex justify="flex-end" className="mt-1">
-                  <UnstyledButton>
+                  <UnstyledButton
+                    onClick={() => {
+                      const activityData = activity.ageGroup
+                        ? ({
+                            id: activity.id,
+                            name: activity.name,
+                            description: activity.description,
+                            programAreaId: activity.programAreaId ?? "",
+                            ageGroup: activity.ageGroup,
+                          } as BundleActivity)
+                        : ({
+                            id: activity.id,
+                            name: activity.name,
+                            description: activity.description,
+                          } as JamboreeActivity);
+                      onEditActivity(block.id, activityData);
+                    }}
+                  >
                     <Text className="text-xs text-gray-500">Edit</Text>
                   </UnstyledButton>
                 </Flex>

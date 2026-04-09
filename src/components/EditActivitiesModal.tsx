@@ -4,11 +4,34 @@ import React, { useState } from "react";
 import { Text, Title, ActionIcon, Flex } from "@mantine/core";
 import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 import { modals } from "@mantine/modals";
-import { Section } from "@/types/sessions/sessionTypes";
+import { SchedulingSectionType, Section } from "@/types/sessions/sessionTypes";
+import { BundleActivity, JamboreeActivity } from "@/types/scheduling/schedulingTypes";
+import { isBundleActivity } from "@/types/scheduling/schedulingTypeGuards";
 import moment from "moment";
-import BlockGrid, { Block } from "./BlockGrid";
+import BlockGrid, { Block, BlockActivity } from "./BlockGrid";
+import CreateActivityModal from "./CreateActivityModal";
+import { TagData } from "./ActivityTagManagementModal";
 
-const placeholderBlocks: Block[] = [
+const initialTagData: TagData = {
+  categories: [
+    "Athletics", "Arts & Crafts", "Boating", "Challenge",
+    "Dance", "Drama", "Discovery", "Learning Center", "Music", "Outdoor Cooking",
+  ],
+  activitiesByCategory: {
+    Athletics: ["Soccer", "Basketball", "Quidditch", "Football", "Cheerleading", "Fencing", "Cricket", "Ping Pong", "Hoops and HORSE"],
+    "Arts & Crafts": ["Paper Dolls", "Painting", "Pottery"],
+    Boating: ["Kayaking", "Canoeing", "Sailing"],
+    Challenge: ["Ropes Course", "Rock Climbing"],
+    Dance: ["Hip Hop", "Jazz", "Ballet"],
+    Drama: ["Improv", "Skit Night"],
+    Discovery: ["Bird Houses", "Nature Walk"],
+    "Learning Center": ["Reading", "Writing"],
+    Music: ["Guitar", "Drums", "Singing"],
+    "Outdoor Cooking": ["Outdoor Cooking"],
+  },
+};
+
+const initialBlocks: Block[] = [
   {
     id: "a", label: "Block A",
     activities: [
@@ -66,10 +89,19 @@ interface EditActivitiesModalProps {
   sections: Section[];
 }
 
+interface ModalState {
+  opened: boolean;
+  blockId: string | null;
+  existingActivity?: BundleActivity | JamboreeActivity;
+}
+
 export default function EditActivitiesModal({ section: initialSection, sections }: EditActivitiesModalProps) {
   const schedulingSections = sections.filter((s) => s.type !== "COMMON");
   const initialIndex = schedulingSections.findIndex((s) => s.id === initialSection.id);
   const [currentIndex, setCurrentIndex] = useState(Math.max(initialIndex, 0));
+  const [blocks, setBlocks] = useState<Block[]>(initialBlocks);
+  const [modalState, setModalState] = useState<ModalState>({ opened: false, blockId: null });
+  const [tagData, setTagData] = useState<TagData>(initialTagData);
 
   const section = schedulingSections[currentIndex] ?? initialSection;
 
@@ -79,6 +111,68 @@ export default function EditActivitiesModal({ section: initialSection, sections 
 
   const goToNext = () => {
     if (currentIndex < schedulingSections.length - 1) setCurrentIndex(currentIndex + 1);
+  };
+
+  const handleAddActivity = (blockId: string) => {
+    setModalState({ opened: true, blockId });
+  };
+
+  const handleEditActivity = (blockId: string, activity: BundleActivity | JamboreeActivity) => {
+    setModalState({ opened: true, blockId, existingActivity: activity });
+  };
+
+  const handleCloseModal = () => {
+    setModalState({ opened: false, blockId: null });
+  };
+
+  const handleActivitySubmit = (activity: BundleActivity | JamboreeActivity) => {
+    const { blockId, existingActivity } = modalState;
+    if (!blockId) return;
+
+    const newBlockActivity: BlockActivity = {
+      id: activity.id,
+      name: activity.name,
+      description: activity.description,
+      ageGroup: isBundleActivity(activity) ? activity.ageGroup : undefined,
+      programAreaId: isBundleActivity(activity) ? activity.programAreaId : undefined,
+    };
+
+    setBlocks((prev) =>
+      prev.map((block) => {
+        if (block.id !== blockId) return block;
+
+        if (existingActivity) {
+          // Edit: replace the existing activity
+          return {
+            ...block,
+            activities: block.activities.map((a) =>
+              a.id === existingActivity.id ? newBlockActivity : a,
+            ),
+          };
+        } else {
+          // Create: append to the end of the block
+          return {
+            ...block,
+            activities: [...block.activities, newBlockActivity],
+          };
+        }
+      }),
+    );
+  };
+
+  const handleActivityDelete = (activityId: string) => {
+    const { blockId } = modalState;
+    if (!blockId) return;
+
+    setBlocks((prev) =>
+      prev.map((block) => {
+        if (block.id !== blockId) return block;
+        return {
+          ...block,
+          activities: block.activities.filter((a) => a.id !== activityId),
+        };
+      }),
+    );
   };
 
   return (
@@ -118,7 +212,23 @@ export default function EditActivitiesModal({ section: initialSection, sections 
       </Text>
 
       {/* Block grid */}
-      <BlockGrid blocks={placeholderBlocks} />
+      <BlockGrid
+        blocks={blocks}
+        onAddActivity={handleAddActivity}
+        onEditActivity={handleEditActivity}
+      />
+
+      {/* Create/Edit Activity modal - rendered inside the full-screen modal */}
+      <CreateActivityModal
+        opened={modalState.opened}
+        onClose={handleCloseModal}
+        sectionType={section.type as SchedulingSectionType}
+        existingActivity={modalState.existingActivity}
+        onSubmit={handleActivitySubmit}
+        onDelete={handleActivityDelete}
+        tagData={tagData}
+        onTagDataChange={setTagData}
+      />
     </div>
   );
 }

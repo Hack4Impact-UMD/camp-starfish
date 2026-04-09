@@ -207,6 +207,7 @@ export default function ActivityCalendar({ startDate, endDate, sections }: Activ
                         fullWidth
                         color="gray"
                         rightSection={<IconPlus size={12} />}
+                        onClick={() => {}}
                       >
                         Add Activity
                       </Button>
