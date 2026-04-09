@@ -4,7 +4,6 @@ import ErrorPage from "@/app/error";
 import LoadingPage from "@/app/loading";
 import testImage from "./test.jpg";
 import { useRouter } from "next/navigation";
-
 interface AlbumCardProps {
   albumId: string;
 }
@@ -24,7 +23,7 @@ export default function AlbumCard(props: AlbumCardProps) {
   const { name, startDate, endDate, numItems, id } = albumQuery.data;
   return (
     <div
-      className="bg-neutral-0 shadow-md hover:shadow-lg duration-300 p-4 cursor-pointer"
+      className="bg-neutral-0 hover:bg-neutral-2 border border-neutral-3 shadow-sm hover:shadow-lg duration-300 p-4 cursor-pointer"
       onDoubleClick={() => router.push(`/albums/${id}`)}
     >
       <Image
