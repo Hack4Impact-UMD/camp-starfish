@@ -31,6 +31,9 @@ import { useQueryClient } from "@tanstack/react-query";
 import { User, Role } from "@/types/users/userTypes";
 import { updateUser } from "@/data/firestore/users";
 import { deleteUser } from "@/data/firestore/users";
+import useUsers from "@/hooks/users/useUsers";
+import LoadingPage from "@/app/loading";
+import ErrorPage from "@/app/error";
 
 const ALL_ROLES: Role[] = ["ADMIN", "STAFF", "PHOTOGRAPHER", "PARENT", "CAMPER"];
 
@@ -42,10 +45,6 @@ const ROLE_COLORS: Record<Role, string> = {
   CAMPER: "orange",
 };
 
-interface UserManagementPageProps {
-  users: User[];
-}
-
 interface PendingRoleChange {
   user: User;
   newRole: Role;
@@ -55,7 +54,8 @@ interface PendingDelete {
   user: User;
 }
 
-export default function UserManagementPage({ users }: UserManagementPageProps) {
+export default function UserManagementPage() {
+  const usersQuery = useUsers();
   const queryClient = useQueryClient();
 
   const [globalFilter, setGlobalFilter] = useState("");
@@ -66,6 +66,8 @@ export default function UserManagementPage({ users }: UserManagementPageProps) {
   const [pendingRoleChange, setPendingRoleChange] = useState<PendingRoleChange | null>(null);
   const [pendingDelete, setPendingDelete] = useState<PendingDelete | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
+
+  const users = usersQuery.data ?? [];
 
   const data = useMemo(() => {
     if (!roleFilter) return users;
@@ -194,6 +196,9 @@ export default function UserManagementPage({ users }: UserManagementPageProps) {
       setPendingDelete(null);
     }
   };
+
+  if (usersQuery.isPending) return <LoadingPage />;
+  if (usersQuery.isError) return <ErrorPage error={new Error("Error loading users")} />;
 
   const totalRows = table.getFilteredRowModel().rows.length;
   const { pageIndex, pageSize } = table.getState().pagination;
