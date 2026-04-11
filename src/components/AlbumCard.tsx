@@ -2,7 +2,6 @@ import { Image, Text, Title } from "@mantine/core";
 import useAlbumById from "@/hooks/albums/useAlbumById";
 import ErrorPage from "@/app/error";
 import LoadingPage from "@/app/loading";
-import testImage from "./test.jpg";
 import { useRouter } from "next/navigation";
 interface AlbumCardProps {
   albumId: string;
@@ -27,7 +26,7 @@ export default function AlbumCard(props: AlbumCardProps) {
       onDoubleClick={() => router.push(`/albums/${id}`)}
     >
       <Image
-        src={testImage}
+        src={null}
         alt={name}
         className="w-full h-48 object-contain"
         width={200}
