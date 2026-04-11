@@ -100,10 +100,84 @@ export function generateFamily() {
 
 }
 
-export function generateSession(): Session {
-
+export function generateAlbum(): Album {
+  return {} as Album;
 }
 
-export function generateAlbum(): Album {
+export function generateSession(): Session {
+  const sessionLength = faker.number.int({ min: 5, max: 14 });
+  const startDate = faker.date.future();
+  const endDate = moment(startDate).add(sessionLength, 'days');
 
+  return {
+    id: faker.string.uuid(),
+    name: faker.lorem.words({ min: 2, max: 5 }),
+    startDate: startDate.toISOString(),
+    endDate: endDate.toISOString(),
+    driveFolderId: '',
+  }
+}
+
+export function generateSections(session: Session): Section[] {
+  const sections: Section[] = [];
+  const startDate = moment(session.startDate);
+  const endDate = moment(session.endDate);
+
+  const openingSection: CommonSection = {
+    id: faker.string.uuid(),
+    name: faker.lorem.words({ min: 2, max: 5 }),
+    type: "COMMON",
+    sessionId: session.id,
+    startDate: startDate.toISOString(),
+    endDate: startDate.clone().add(1, 'day').toISOString()
+  }
+
+  const endingSection: CommonSection = {
+    id: faker.string.uuid(),
+    name: faker.lorem.words({ min: 2, max: 5 }),
+    type: "COMMON",
+    sessionId: session.id,
+    startDate: endDate.clone().subtract(1, 'day').toISOString(),
+    endDate: endDate.toISOString()
+  }
+
+  let currDate = startDate.clone().add(1, 'day');
+  const dayBeforeLast = endDate.clone().subtract(1, 'day')
+  while (currDate.isBefore(dayBeforeLast)) {
+    const daysLeft = dayBeforeLast.diff(currDate, 'days');
+    if (Math.floor(daysLeft / 4) >= 1) {
+      sections.push({
+        id: faker.string.uuid(),
+        name: faker.lorem.words({ min: 2, max: 5 }),
+        type: "BUNDLE",
+        sessionId: session.id,
+        startDate: currDate.toISOString(),
+        endDate: currDate.clone().add(3, 'days').toISOString(),
+        isScheduleOutdated: faker.datatype.boolean(),
+      } satisfies SchedulingSection);
+      sections.push({
+        id: faker.string.uuid(),
+        name: faker.lorem.words({ min: 2, max: 5 }),
+        type: faker.datatype.boolean() ? "BUNK-JAMBO" : "NON-BUNK-JAMBO",
+        sessionId: session.id,
+        startDate: currDate.toISOString(),
+        endDate: currDate.clone().add(3, 'days').toISOString(),
+        isScheduleOutdated: faker.datatype.boolean(),
+      } satisfies SchedulingSection);
+      continue;
+    }
+    for (let i = 0; i < daysLeft; i++) {
+      sections.push({
+        id: faker.string.uuid(),
+        name: faker.lorem.words({ min: 2, max: 5 }),
+        type: faker.datatype.boolean() ? "BUNK-JAMBO" : "NON-BUNK-JAMBO",
+        sessionId: session.id,
+        startDate: currDate.toISOString(),
+        endDate: currDate.clone().add(3, 'days').toISOString(),
+        isScheduleOutdated: faker.datatype.boolean(),
+      } satisfies SchedulingSection)
+    }
+  }
+
+  return [openingSection, ...sections, endingSection];
 }
