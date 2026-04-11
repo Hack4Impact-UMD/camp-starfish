@@ -1,7 +1,12 @@
 import { faker } from "@faker-js/faker";
 import { Admin, Camper, Gender, Parent, Photographer, Staff } from "@/types/users/userTypes";
 import { Album } from "@/types/albums/albumTypes";
-import { Session } from "@/types/sessions/sessionTypes";
+import { CommonSection, SchedulingSection, Section, Session } from "@/types/sessions/sessionTypes";
+import moment from "moment";
+
+export function resetFaker() {
+  faker.seed(0);
+}
 
 function generateGender(): Gender {
   const rng = faker.number.float()
