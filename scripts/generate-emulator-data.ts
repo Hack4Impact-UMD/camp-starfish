@@ -2,6 +2,7 @@ import { faker } from "@faker-js/faker";
 import { Admin, Camper, Gender, Parent, Photographer, Staff } from "@/types/users/userTypes";
 import { Album } from "@/types/albums/albumTypes";
 import { CommonSection, SchedulingSection, Section, Session } from "@/types/sessions/sessionTypes";
+import { BundleActivity, BundleActivityWithAssignments, BundleBlock, BundleSectionSchedule, BunkJamboreeActivityWithAssignments, BunkJamboreeBlock, BunkJamboreeSectionSchedule, JamboreeActivity, NonBunkJamboreeActivityWithAssignments, NonBunkJamboreeBlock, NonBunkJamboreeSectionSchedule } from "@/types/scheduling/schedulingTypes";
 import moment from "moment";
 
 export function resetFaker() {
@@ -185,4 +186,125 @@ export function generateSections(session: Session): Section[] {
   }
 
   return [openingSection, ...sections, endingSection];
+}
+
+const ALL_PROGRAM_AREAS = {
+  "ACT": "Activate",
+  "A&C": "Arts & Crafts",
+  "ATH": "Athletics",
+  "BOAT": "Boating",
+  "CHAL": "Challenge",
+  "DNC": "Dance",
+  "DRA": "Drama",
+  "DISC": "Discovery",
+  "LC": "Learning Center",
+  "MUS": "Music",
+  "OUT": "Outdoor Cooking",
+  "SMA": "Small Animals",
+  "XPL": "Xplore!",
+  "OCP": "Teens",
+  "WF": "Waterfront"
+}
+
+export function generateBundleActivities(): BundleActivityWithAssignments[] {
+  return Object.keys(ALL_PROGRAM_AREAS).flatMap((programArea) => ({
+    id: faker.string.uuid(),
+    name: faker.lorem.words({ min: 2, max: 5 }),
+    description: faker.lorem.words({ min: 5, max: 20 }),
+    programAreaId: programArea,
+    ageGroup: faker.datatype.boolean() ? "NAV" : "OCP",
+    adminIds: [],
+    staffIds: [],
+    camperIds: []
+  }) satisfies BundleActivityWithAssignments)
+}
+
+export function generateBundleBlock(): BundleBlock {
+  return {
+    activities: generateBundleActivities(),
+    periodsOff: [],
+  }
+}
+
+export function generateBundleSchedule(section: SchedulingSection): BundleSectionSchedule {
+  return {
+    sessionId: section.sessionId,
+    sectionId: section.id,
+    type: "BUNDLE",
+    blocks: {
+      "A": generateBundleBlock(),
+      "B": generateBundleBlock(),
+      "C": generateBundleBlock(),
+      "D": generateBundleBlock(),
+      "E": generateBundleBlock(),
+    },
+    alternatePeriodsOff: {},
+  }
+}
+
+export function generateBunkJamboreeActivities(): BunkJamboreeActivityWithAssignments[] {
+  return Object.keys(ALL_PROGRAM_AREAS).flatMap((programArea) => ({
+    id: faker.string.uuid(),
+    name: faker.lorem.words({ min: 2, max: 5 }),
+    description: faker.lorem.words({ min: 5, max: 20 }),
+    adminIds: [],
+    bunkNums: []
+  }) satisfies BunkJamboreeActivityWithAssignments)
+}
+
+export function generateBunkJamboreeBlock(): BunkJamboreeBlock {
+  return {
+    activities: generateBunkJamboreeActivities(),
+    periodsOff: [],
+  }
+}
+
+export function generateNonBunkJamboreeActivities(): NonBunkJamboreeActivityWithAssignments[] {
+  return Object.keys(ALL_PROGRAM_AREAS).flatMap((programArea) => ({
+    id: faker.string.uuid(),
+    name: faker.lorem.words({ min: 2, max: 5 }),
+    description: faker.lorem.words({ min: 5, max: 20 }),
+    adminIds: [],
+    staffIds: [],
+    camperIds: []
+  }) satisfies NonBunkJamboreeActivityWithAssignments)
+}
+
+export function generateNonBunkJamboreeBlock(): NonBunkJamboreeBlock {
+  return {
+    activities: generateNonBunkJamboreeActivities(),
+    periodsOff: [],
+  }
+}
+
+export function generateBunkJamboreeSchedule(section: SchedulingSection): BunkJamboreeSectionSchedule {
+  return {
+    sessionId: section.sessionId,
+    sectionId: section.id,
+    type: "BUNK-JAMBO",
+    blocks: {
+      "A": generateBunkJamboreeBlock(),
+      "B": generateBunkJamboreeBlock(),
+      "C": generateBunkJamboreeBlock(),
+      "D": generateBunkJamboreeBlock(),
+      "E": generateBunkJamboreeBlock(),
+    },
+    alternatePeriodsOff: {},
+  }
+}
+
+export function generateNonBunkJamboreeSchedule(section: SchedulingSection): NonBunkJamboreeSectionSchedule {
+  return {
+    sessionId: section.sessionId,
+    sectionId: section.id,
+    type: "NON-BUNK-JAMBO",
+    blocks: {
+      "A": generateNonBunkJamboreeBlock(),
+      "B": generateNonBunkJamboreeBlock(),
+      "C": generateNonBunkJamboreeBlock(),
+      "D": generateNonBunkJamboreeBlock(),
+      "E": generateNonBunkJamboreeBlock(),
+    },
+    alternatePeriodsOff: {},
+  }
 }
