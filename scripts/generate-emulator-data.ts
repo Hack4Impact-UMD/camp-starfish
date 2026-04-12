@@ -1,5 +1,5 @@
 import { faker } from "@faker-js/faker";
-import { Admin, Camper, Gender, Parent, Photographer, Staff } from "@/types/users/userTypes";
+import { Admin, Camper, Gender, Name, Parent, Photographer, Staff } from "@/types/users/userTypes";
 import { Album } from "@/types/albums/albumTypes";
 import { CommonSection, SchedulingSection, Section, Session } from "@/types/sessions/sessionTypes";
 import { BundleActivity, BundleActivityWithAssignments, BundleBlock, BundleSectionSchedule, BunkJamboreeActivityWithAssignments, BunkJamboreeBlock, BunkJamboreeSectionSchedule, JamboreeActivity, NonBunkJamboreeActivityWithAssignments, NonBunkJamboreeBlock, NonBunkJamboreeSectionSchedule } from "@/types/scheduling/schedulingTypes";
@@ -14,14 +14,17 @@ function generateGender(): Gender {
   return rng < 0.02 ? 'Other' : rng < 0.51 ? 'Male' : 'Female'
 }
 
+function generateName(): Name {
+  const firstName = faker.person.firstName();
+  const middleName = faker.number.float() < 0.5 ? faker.person.middleName() : undefined;
+  const lastName = faker.person.lastName();
+  return middleName ? { firstName, middleName, lastName } : { firstName, lastName }
+}
+
 export function generateAdmin(): Admin {
   return {
     id: faker.number.int({ min: 10000000, max: 99999999 }),
-    name: {
-      firstName: faker.person.firstName(),
-      middleName: faker.number.float() < 0.5 ? faker.person.middleName() : undefined,
-      lastName: faker.person.lastName(),
-    },
+    name: generateName(),
     role: "ADMIN",
     gender: generateGender(),
     email: faker.internet.email(),
@@ -35,11 +38,7 @@ export function generateAdmin(): Admin {
 export function generateStaff(): Staff {
   return {
     id: faker.number.int({ min: 10000000, max: 99999999 }),
-    name: {
-      firstName: faker.person.firstName(),
-      middleName: faker.number.float() < 0.5 ? faker.person.middleName() : undefined,
-      lastName: faker.person.lastName(),
-    },
+    name: generateName(),
     role: "STAFF",
     gender: generateGender(),
     email: faker.internet.email(),
@@ -53,15 +52,11 @@ export function generateStaff(): Staff {
 export function generateCamper(): Camper {
   return {
     id: faker.number.int({ min: 10000000, max: 99999999 }),
-    name: {
-      firstName: faker.person.firstName(),
-      middleName: faker.number.float() < 0.5 ? faker.person.middleName() : undefined,
-      lastName: faker.person.lastName(),
-    },
+    name: generateName(),
     role: "CAMPER",
     dateOfBirth: faker.date.birthdate({ mode: 'age', min: 7, max: 18 }).toISOString(),
     gender: generateGender(),
-    email: faker.number.float() < 0.5 ? faker.internet.email() : undefined,
+    ...(faker.datatype.boolean() ? { email: faker.internet.email() } : {}),
     uid: faker.string.alphanumeric(28),
     nonoListIds: [],
     parentIds: [],
@@ -72,11 +67,7 @@ export function generateCamper(): Camper {
 export function generateParent(): Parent {
   return {
     id: faker.number.int({ min: 10000000, max: 99999999 }),
-    name: {
-      firstName: faker.person.firstName(),
-      middleName: faker.number.float() < 0.5 ? faker.person.middleName() : undefined,
-      lastName: faker.person.lastName(),
-    },
+    name: generateName(),
     dateOfBirth: faker.date.birthdate({ mode: 'age', min: 25, max: 60 }).toISOString(),
     role: "PARENT",
     gender: generateGender(),
@@ -89,11 +80,7 @@ export function generateParent(): Parent {
 export function generatePhotographer(): Photographer {
   return {
     id: faker.number.int({ min: 10000000, max: 99999999 }),
-    name: {
-      firstName: faker.person.firstName(),
-      middleName: faker.number.float() < 0.5 ? faker.person.middleName() : undefined,
-      lastName: faker.person.lastName(),
-    },
+    name: generateName(),
     role: "PHOTOGRAPHER",
     dateOfBirth: faker.date.birthdate({ mode: 'age', min: 18, max: 60 }).toISOString(),
     gender: generateGender(),
