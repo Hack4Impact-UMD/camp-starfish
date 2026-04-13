@@ -94,6 +94,7 @@ export default function EditAlbumModal(props: EditAlbumModalProps) {
         </Button>
         <Button
           color="success"
+          loading={createAlbumMutation.isPending || updateAlbumMutation.isPending}
           onClick={() => {
             albumId ? updateAlbumMutation.mutate({
               albumId,
