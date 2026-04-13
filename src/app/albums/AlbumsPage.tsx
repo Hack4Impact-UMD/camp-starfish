@@ -8,8 +8,8 @@ import { Album } from "@/types/albums/albumTypes";
 import useAlbums from "@/hooks/albums/useAlbums";
 import ErrorPage from "../error";
 import LoadingPage from "../loading";
-import { ActionIcon, Button, Indicator, Text, Title } from "@mantine/core";
-import { MdAdd, MdPendingActions } from "react-icons/md";
+import { ActionIcon, Button, Indicator, Menu, Text, Title } from "@mantine/core";
+import { MdAdd, MdFilterList, MdPendingActions } from "react-icons/md";
 import Link from "next/link";
 
 export default function AlbumsPage() {
@@ -27,7 +27,19 @@ export default function AlbumsPage() {
       <div className="flex items-center justify-between">
         <Title order={1}>Albums</Title>
         <div className="flex items-center gap-4 ml-auto">
-          <Button>SELECT ALL</Button>
+          <Menu>
+            <Menu.Target>
+              <ActionIcon variant="transparent">
+                <MdFilterList size={50} />
+              </ActionIcon>
+            </Menu.Target>
+          <Menu.Dropdown>
+            <Menu.Item>Oldest → Newest</Menu.Item>
+            <Menu.Item>Newest → Oldest</Menu.Item>
+            <Menu.Item>A → Z</Menu.Item>
+            <Menu.Item>Z → A</Menu.Item>
+          </Menu.Dropdown>
+          </Menu>
           <Link href="/albums/pending">
             <Indicator color="error" offset={7}>
               <ActionIcon variant="outline">
