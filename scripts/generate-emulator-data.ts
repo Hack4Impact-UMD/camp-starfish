@@ -157,6 +157,7 @@ export function generateSections(session: Session): Section[] {
         endDate: currDate.clone().add(3, 'days').toISOString(),
         isScheduleOutdated: faker.datatype.boolean(),
       } satisfies SchedulingSection);
+      currDate.add(4, 'days')
       continue;
     }
     for (let i = 0; i < daysLeft; i++) {
@@ -170,6 +171,8 @@ export function generateSections(session: Session): Section[] {
         isScheduleOutdated: faker.datatype.boolean(),
       } satisfies SchedulingSection)
     }
+    currDate.add(daysLeft, 'days');
+    console.log(currDate.toISOString(), endDate.toISOString());
   }
 
   return [openingSection, ...sections, endingSection];
