@@ -6,12 +6,13 @@ import DatePickerInputThemeExtension from "./components/DatePickerInputThemeExte
 import DatePickerThemeExtension from "./components/DatePickerThemeExtension";
 import ImageThemeExtension from "./components/ImageThemeExtension";
 import MenuThemeExtension from "./components/MenuThemeExtension";
+import ModalThemeExtension from "./components/ModalThemeExtension";
 import NotificationThemeExtension from "./components/NotificationThemeExtension";
 import RadioThemeExtension from "./components/RadioThemeExtension";
 import TextInputThemeExtension from "./components/TextInputThemeExtension";
 import TextThemeExtension from "./components/TextThemeExtension";
 import TitleThemeExtension from "./components/TitleThemeExtension";
-import ModalThemeExtension from "./components/ModalThemeExtension";
+import TooltipThemeExtension from "./components/TooltipThemeExtension";
 
 const theme: MantineThemeOverride = {
   ...globalTheme,
@@ -28,6 +29,7 @@ const theme: MantineThemeOverride = {
     TextInput: TextInputThemeExtension,
     Text: TextThemeExtension,
     Title: TitleThemeExtension,
+    Tooltip: TooltipThemeExtension
   }
 };
 
