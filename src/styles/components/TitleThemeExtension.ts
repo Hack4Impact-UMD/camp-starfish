@@ -2,7 +2,7 @@ import { Title } from "@mantine/core";
 import classNames from "classnames";
 
 const TitleThemeExtension = Title.extend({
-  classNames: (theme, props, ctx) => {
+  classNames: (_, props) => {
     const { order } = props;
     return {
       root: classNames('font-bold', {

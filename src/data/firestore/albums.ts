@@ -5,7 +5,6 @@ import { v4 as uuid } from "uuid";
 import { Collection } from "./types/collections";
 import { setDoc, deleteDoc, getDoc, updateDoc, executeQuery } from "./firestoreClientOperations";
 import { collection, CollectionReference, doc, DocumentReference, FirestoreDataConverter, QueryDocumentSnapshot, Transaction, UpdateData, WithFieldValue, WriteBatch } from "firebase/firestore";
-import { Moment } from "moment";
 
 const albumFirestoreConverter: FirestoreDataConverter<Album, AlbumDoc> = {
   toFirestore: (album: WithFieldValue<Album>): WithFieldValue<AlbumDoc> => {
