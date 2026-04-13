@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import AlbumCard from "../../components/AlbumCard";
 import { openEditAlbumModal } from "@/components/EditAlbumModal";
 import CardGallery from "@/components/CardGallery";
@@ -18,8 +18,25 @@ import {
 } from "@mantine/core";
 import { MdAdd, MdPendingActions, MdSort } from "react-icons/md";
 import Link from "next/link";
+import moment from "moment";
+
+const enum AlbumsPageSortOption {
+  NEWEST_TO_OLDEST = "Newest → Oldest",
+  OLDEST_TO_NEWEST = "Oldest → Newest",
+  A_TO_Z = "A → Z",
+  Z_TO_A = "Z → A",
+}
+
+const sortFuncs: Record<AlbumsPageSortOption, (a: Album, b: Album) => number> = {
+  "Newest → Oldest": (a, b) => moment(b.startDate).diff(moment(a.startDate)),
+  "Oldest → Newest": (a, b) => moment(a.startDate).diff(moment(b.startDate)),
+  "A → Z": (a, b) => a.name.localeCompare(b.name),
+  "Z → A": (a, b) => b.name.localeCompare(a.name),
+}
 
 export default function AlbumsPage() {
+  const [sortOption, setSortOption] = useState<AlbumsPageSortOption>(AlbumsPageSortOption.NEWEST_TO_OLDEST);
+  
   const albumsQuery = useAlbums();
 
   if (albumsQuery.isError) {
@@ -29,6 +46,7 @@ export default function AlbumsPage() {
   }
 
   const albums = albumsQuery.data || [];
+  const sortedAlbums = albums.sort(sortFuncs[sortOption]);
   return (
     <div className="flex flex-col w-6/7 grow mx-auto px-4 py-6 gap-6">
       <div className="flex items-center justify-between">
@@ -43,10 +61,10 @@ export default function AlbumsPage() {
               </Menu.Target>
             </Tooltip>
             <Menu.Dropdown>
-              <Menu.Item>Oldest → Newest</Menu.Item>
-              <Menu.Item>Newest → Oldest</Menu.Item>
-              <Menu.Item>A → Z</Menu.Item>
-              <Menu.Item>Z → A</Menu.Item>
+              <Menu.Item onClick={() => setSortOption(AlbumsPageSortOption.NEWEST_TO_OLDEST)}>Newest → Oldest</Menu.Item>
+              <Menu.Item onClick={() => setSortOption(AlbumsPageSortOption.OLDEST_TO_NEWEST)}>Oldest → Newest</Menu.Item>
+              <Menu.Item onClick={() => setSortOption(AlbumsPageSortOption.A_TO_Z)}>A → Z</Menu.Item>
+              <Menu.Item onClick={() => setSortOption(AlbumsPageSortOption.Z_TO_A)}>Z → A</Menu.Item>
             </Menu.Dropdown>
           </Menu>
           <Link href="/albums/pending">
@@ -78,7 +96,7 @@ export default function AlbumsPage() {
         </div>
       ) : (
         <CardGallery<Album>
-          items={albums}
+          items={sortedAlbums}
           renderItem={(album: Album) => <AlbumCard albumId={album.id} />}
         />
       )}
