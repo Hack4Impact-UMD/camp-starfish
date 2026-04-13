@@ -22,6 +22,7 @@ export default function EditAlbumModal(props: EditAlbumModalProps) {
   const [albumName, setAlbumName] = useState<string>(
     albumQuery.data?.name || "",
   );
+  const [albumNameError, setAlbumNameError] = useState<string | null>(null);
   const [albumThumbnail, setAlbumThumbnail] = useState<File | null>(null);
   const [albumThumbnailURL, setAlbumThumbnailURL] = useState<string | null>(
     null,
@@ -83,9 +84,14 @@ export default function EditAlbumModal(props: EditAlbumModalProps) {
 
       <TextInput
         label="Album Title"
-        onChange={(e) => setAlbumName(e.target.value)}
+        onChange={(e) => {
+          setAlbumName(e.target.value);
+          setAlbumNameError(null);
+        }}
         classNames={{ root: "w-4/5" }}
         value={albumName}
+        error={albumNameError}
+        withAsterisk
       />
 
       <div className="flex justify-center gap-4 px-6 py-6">
@@ -96,6 +102,7 @@ export default function EditAlbumModal(props: EditAlbumModalProps) {
           color="success"
           loading={createAlbumMutation.isPending || updateAlbumMutation.isPending}
           onClick={() => {
+            if (!albumName) { setAlbumNameError("Album name is required"); return; }
             albumId ? updateAlbumMutation.mutate({
               albumId,
               updates: { name: albumName }
