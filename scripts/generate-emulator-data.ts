@@ -172,7 +172,6 @@ export function generateSections(session: Session): Section[] {
       } satisfies SchedulingSection)
     }
     currDate.add(daysLeft, 'days');
-    console.log(currDate.toISOString(), endDate.toISOString());
   }
 
   return [openingSection, ...sections, endingSection];
