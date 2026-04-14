@@ -10,6 +10,7 @@ import ErrorPage from "@/app/error";
 import { MdClose, MdImage } from "react-icons/md";
 import useCreateAlbum from "@/hooks/albums/useCreateAlbum";
 import useUpdateAlbum from "@/hooks/albums/useUpdateAlbum";
+import useNotifications from "@/features/notifications/useNotifications";
 
 interface EditAlbumModalProps {
   albumId?: string;
@@ -30,6 +31,7 @@ export default function EditAlbumModal(props: EditAlbumModalProps) {
 
   const createAlbumMutation = useCreateAlbum();
   const updateAlbumMutation = useUpdateAlbum();
+  const notifications = useNotifications();
 
   if (albumQuery.isLoading) return <LoadingPage />;
   else if (albumQuery.isError) return <ErrorPage error={albumQuery.error} />;
@@ -96,14 +98,19 @@ export default function EditAlbumModal(props: EditAlbumModalProps) {
             albumId ? updateAlbumMutation.mutate({
               albumId,
               updates: { name: albumName }
+            }, {
+              onSuccess: () => modals.closeAll(),
+              onError: () => notifications.error("Failed to update album. Please try again.")
             }) : createAlbumMutation.mutate({ album: {
               name: albumName,
               hasThumbnail: !!albumThumbnail,
               startDate: "",
               endDate: "",
               numItems: 0,
-            } });
-            modals.closeAll();
+            } }, {
+              onSuccess: () => modals.closeAll(),
+              onError: () => notifications.error("Failed to create album. Please try again.")
+            });
           }}
         >
           {albumId ? "CONFIRM" : "CREATE"}
