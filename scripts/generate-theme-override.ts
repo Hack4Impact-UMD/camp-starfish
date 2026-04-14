@@ -1,3 +1,4 @@
+import { campStarfishFonts } from "@/styles/fonts";
 import globalTheme from "../src/styles/globalTheme";
 import { DEFAULT_THEME, mergeThemeOverrides } from "@mantine/core";
 import { appendFileSync } from "fs";
@@ -12,6 +13,9 @@ for (const [color, shades] of Object.entries(colors)) {
     css += `\t--color-${color}-${i}: ${shades[i]};\n`
   }
   css += `\t--color-${color}: ${shades[primaryShade]};\n`
+}
+for (const font of campStarfishFonts) {
+  css += `\t--font-${font}: ${font};\n`
 }
 css += "}\n";
 appendFileSync("./src/styles/theme.css", css);

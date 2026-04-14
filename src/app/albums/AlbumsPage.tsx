@@ -1,69 +1,105 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import AlbumCard from "../../components/AlbumCard";
-import plusIcon from "@/assets/icons/plusIcon.svg";
-import filterIcon from "@/assets/icons/filterIcon.svg";
-import EditAlbumModal from "@/components/EditAlbumModal";
+import { openEditAlbumModal } from "@/components/EditAlbumModal";
 import CardGallery from "@/components/CardGallery";
 import { Album } from "@/types/albums/albumTypes";
-import Image from "next/image";
 import useAlbums from "@/hooks/albums/useAlbums";
 import ErrorPage from "../error";
 import LoadingPage from "../loading";
+import {
+  ActionIcon,
+  Button,
+  Indicator,
+  Menu,
+  Title,
+  Tooltip,
+} from "@mantine/core";
+import { MdAdd, MdPendingActions, MdSort } from "react-icons/md";
+import Link from "next/link";
+import moment from "moment";
 
-const AlbumsPage: React.FC = () => {
-  const albumsQuery = useAlbums();
+const enum AlbumsPageSortOption {
+  NEWEST_TO_OLDEST = "Newest → Oldest",
+  OLDEST_TO_NEWEST = "Oldest → Newest",
+  A_TO_Z = "A → Z",
+  Z_TO_A = "Z → A",
+}
+
+const sortFuncs: Record<AlbumsPageSortOption, (a: Album, b: Album) => number> = {
+  "Newest → Oldest": (a, b) => moment(b.startDate).diff(moment(a.startDate)),
+  "Oldest → Newest": (a, b) => moment(a.startDate).diff(moment(b.startDate)),
+  "A → Z": (a, b) => a.name.localeCompare(b.name),
+  "Z → A": (a, b) => b.name.localeCompare(a.name),
+}
+
+export default function AlbumsPage() {
+  const [sortOption, setSortOption] = useState<AlbumsPageSortOption>(AlbumsPageSortOption.NEWEST_TO_OLDEST);
   
+  const albumsQuery = useAlbums();
+
   if (albumsQuery.isError) {
-    return <ErrorPage error={albumsQuery.error} />
-  } else if (albumsQuery.isPending) {
+    return <ErrorPage error={albumsQuery.error} />;
+  } else if (albumsQuery.isLoading) {
     return <LoadingPage />;
   }
 
-  const albums = albumsQuery.data;
+  const albums = albumsQuery.data ?? [];
+  const sortedAlbums = albums.toSorted(sortFuncs[sortOption]);
   return (
-    <div className="w-full min-h-full bg-gray-100">
-      <div className="container mx-auto px-4 py-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-5xl font-newSpirit font-bold text-camp-primary">
-            Albums
-          </h1>
-          <div className="flex items-center gap-4 ml-auto">
-            <Image
-              className="w-18 h-18 flex-none cursor-pointer"
-              src={filterIcon.src}
-              alt="Filter"
-              width={48}
-              height={48}
-            />
-            <button className="border-2 border-camp-primary text-lg py-2 px-4 rounded-3xl w-64 h-12 font-lato font-bold text-camp-text-modalTitle">
-              SELECT ALL
-            </button>
-            {/* Wrap plus icon with modal trigger */}
-            <EditAlbumModal
-              trigger={
-                <Image
-                  className="w-18 h-18 flex-none cursor-pointer"
-                  src={plusIcon.src}
-                  alt="Plus"
-                  width={48}
-                  height={48}
-                />
-              }
-              mode="CREATE"
-            />
-          </div>
+    <div className="flex flex-col w-6/7 grow mx-auto px-4 py-6 gap-6">
+      <div className="flex items-center justify-between">
+        <Title order={1}>Albums</Title>
+        <div className="flex items-center gap-4 ml-auto">
+          <Menu>
+            <Tooltip label="Sort">
+              <Menu.Target>
+                <ActionIcon variant="transparent">
+                  <MdSort size={50} />
+                </ActionIcon>
+              </Menu.Target>
+            </Tooltip>
+            <Menu.Dropdown>
+              <Menu.Item onClick={() => setSortOption(AlbumsPageSortOption.NEWEST_TO_OLDEST)}>Newest → Oldest</Menu.Item>
+              <Menu.Item onClick={() => setSortOption(AlbumsPageSortOption.OLDEST_TO_NEWEST)}>Oldest → Newest</Menu.Item>
+              <Menu.Item onClick={() => setSortOption(AlbumsPageSortOption.A_TO_Z)}>A → Z</Menu.Item>
+              <Menu.Item onClick={() => setSortOption(AlbumsPageSortOption.Z_TO_A)}>Z → A</Menu.Item>
+            </Menu.Dropdown>
+          </Menu>
+          <Link href="/albums/pending">
+            <Tooltip label="Pending Items">
+              <Indicator color="error" offset={7}>
+                <ActionIcon variant="outline">
+                  <MdPendingActions size={30} />
+                </ActionIcon>
+              </Indicator>
+            </Tooltip>
+          </Link>
+          <Tooltip label="Create Album">
+            <ActionIcon color="orange" onClick={() => openEditAlbumModal()}>
+              <MdAdd size={40} />
+            </ActionIcon>
+          </Tooltip>
         </div>
-        <CardGallery<Album>
-          items={albums}
-          renderItem={(album: Album) => (
-            <AlbumCard album={album} thumbnail="" />
-          )}
-        />
       </div>
+      {albums.length === 0 ? (
+        <div className="flex flex-col justify-center items-center grow bg-neutral-3 gap-4">
+          <Title order={4}>No albums yet</Title>
+          <Button
+            color="orange"
+            rightSection={<MdAdd size={24} />}
+            onClick={() => openEditAlbumModal()}
+          >
+            Create
+          </Button>
+        </div>
+      ) : (
+        <CardGallery<Album>
+          items={sortedAlbums}
+          renderItem={(album: Album) => <AlbumCard albumId={album.id} />}
+        />
+      )}
     </div>
   );
-};
-
-export default AlbumsPage;
+}

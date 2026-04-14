@@ -1,38 +1,43 @@
-import { Album } from "@/types/albums/albumTypes";
-import Link from "next/link";
-import Image from "next/image";
-
+import { Image, Text, Title } from "@mantine/core";
+import useAlbumById from "@/hooks/albums/useAlbumById";
+import ErrorPage from "@/app/error";
+import LoadingPage from "@/app/loading";
+import { useRouter } from "next/navigation";
 interface AlbumCardProps {
-  album: Album;
-  thumbnail: string;
+  albumId: string;
 }
 
-const AlbumCard: React.FC<AlbumCardProps> = ({
-  album,
-  thumbnail,
-}: AlbumCardProps) => {
-  const { name, startDate, endDate, numItems, id } = album;
-  return (
-    <Link href={`/albums/${id}`}>
-      <div className="bg-white shadow-md hover:shadow-lg transition-shadow duration-300 p-4">
-        <Image
-          src={thumbnail}
-          alt={name}
-          className="w-full h-48 object-cover rounded-lg"
-          width={200}
-          height={48}
-        />
-        <div className="mt-2">
-          <h3 className="text-lg font-bold font-lato text-camp-text-headingBody">
-            {name}
-          </h3>
-          <p className="text-sm font-lato text-camp-text-subheading">
-            {startDate} - {endDate} • {numItems} photos
-          </p>
-        </div>
-      </div>
-    </Link>
-  );
-};
+export default function AlbumCard(props: AlbumCardProps) {
+  const { albumId } = props;
+  const albumQuery = useAlbumById(albumId);
 
-export default AlbumCard;
+  const router = useRouter();
+
+  if (albumQuery.isError) {
+    return <ErrorPage error={albumQuery.error} />;
+  } else if (albumQuery.isPending) {
+    return <LoadingPage></LoadingPage>;
+  }
+
+  const { name, startDate, endDate, numItems, id } = albumQuery.data;
+  return (
+    <div
+      className="bg-neutral-0 hover:bg-neutral-2 border border-neutral-3 shadow-sm hover:shadow-lg duration-300 p-4 cursor-pointer"
+      onDoubleClick={() => router.push(`/albums/${id}`)}
+    >
+      <Image
+        src={null}
+        alt={name}
+        className="w-full h-48 object-contain"
+        width={200}
+        height={48}
+      />
+      <div className="mt-2">
+        <Title order={3}>{name}</Title>
+        <Text>
+          {startDate} - {endDate} • {numItems} photos
+        </Text>
+      </div>
+    </div>
+  );
+}

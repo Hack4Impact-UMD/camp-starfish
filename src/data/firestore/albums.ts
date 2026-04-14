@@ -22,7 +22,7 @@ export async function getAlbums() {
   return await executeQuery<Album, AlbumDoc>(collection(db, Collection.ALBUMS) as CollectionReference<Album, AlbumDoc>, albumFirestoreConverter);
 }
   
-export async function setAlbum(album: AlbumDoc, instance?: Transaction | WriteBatch): Promise<string> {
+export async function createAlbum(album: AlbumDoc, instance?: Transaction | WriteBatch): Promise<string> {
   const albumId = uuid();
   await setDoc<Album, AlbumDoc>(doc(db, Collection.ALBUMS, albumId) as DocumentReference<Album, AlbumDoc>, { id: albumId, ...album }, albumFirestoreConverter, instance);
   return albumId;

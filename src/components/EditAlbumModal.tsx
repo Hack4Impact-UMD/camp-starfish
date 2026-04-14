@@ -1,113 +1,128 @@
 "use client";
 
-import React, { useState, useRef } from "react";
-import imageIcon from "@/assets/icons/imageIcon.png";
-import Image from "next/image";
+import React, { useState, useEffect, useMemo } from "react";
+import { modals } from "@mantine/modals";
+import useAlbumById from "@/hooks/albums/useAlbumById";
+import { Button, Image, Indicator, Text, TextInput } from "@mantine/core";
+import { Dropzone, FileWithPath } from "@mantine/dropzone";
+import LoadingPage from "@/app/loading";
+import ErrorPage from "@/app/error";
+import { MdClose, MdImage } from "react-icons/md";
+import useCreateAlbum from "@/hooks/albums/useCreateAlbum";
+import useUpdateAlbum from "@/hooks/albums/useUpdateAlbum";
+import useNotifications from "@/features/notifications/useNotifications";
 
 interface EditAlbumModalProps {
-  trigger: React.ReactNode;
-  mode: "CREATE" | "EDIT";
+  albumId?: string;
 }
 
-const EditAlbumModal: React.FC<EditAlbumModalProps> = ({ trigger, mode }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [albumName, setAlbumName] = useState("");
+export default function EditAlbumModal(props: EditAlbumModalProps) {
+  const { albumId } = props;
+  const albumQuery = useAlbumById(albumId);
 
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [albumName, setAlbumName] = useState<string>(
+    albumQuery.data?.name || "",
+  );
+  const [albumNameError, setAlbumNameError] = useState<string | null>(null);
+  const [albumThumbnail, setAlbumThumbnail] = useState<File | null>(null);
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files && event.target.files[0]) {
-      const file = event.target.files[0];
-      const imageUrl = URL.createObjectURL(file);
-      setSelectedImage(imageUrl);
-    }
-  };
+  const albumThumbnailUrl = useMemo(() => (albumThumbnail ? URL.createObjectURL(albumThumbnail) : null), [albumThumbnail]);
+  useEffect(() => { return () => { if (albumThumbnailUrl) URL.revokeObjectURL(albumThumbnailUrl); }; }, [albumThumbnailUrl]);
+
+  const createAlbumMutation = useCreateAlbum();
+  const updateAlbumMutation = useUpdateAlbum();
+  const notifications = useNotifications();
+
+  if (albumQuery.isLoading) return <LoadingPage />;
+  else if (albumQuery.isError) return <ErrorPage error={albumQuery.error} />;
 
   return (
-    <>
-      <div onClick={() => setIsOpen(true)}>{trigger}</div>
-
-      {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-lg overflow-hidden w-full max-w-md mx-4 text-center shadow-lg">
-            {/* Header */}
-            <div className="bg-camp-primary py-4 px-6 text-left">
-              <h2 className="text-white text-lg font-semibold">{mode} ALBUM</h2>
+    <div className="flex flex-col items-center w-full h-full">
+      <Indicator
+        disabled={!albumThumbnail}
+        classNames={{
+          root: "w-2/3 m-md",
+          indicator: "cursor-pointer",
+        }}
+        label={<MdClose onClick={() => setAlbumThumbnail(null)} />}
+        size={20}
+      >
+        <Dropzone
+          onDrop={(files: FileWithPath[]) => setAlbumThumbnail(files[0])}
+          multiple={false}
+          classNames={{
+            root: "flex justify-center items-center w-full h-full aspect-square bg-blue-0 border cursor-pointer",
+            inner: "w-full h-full",
+          }}
+        >
+          {albumThumbnail ? (
+            <Image
+              src={albumThumbnailUrl}
+              alt={albumThumbnail.name}
+              width={10}
+              height={10}
+              className="w-full h-full object-contain"
+            />
+          ) : (
+            <div className="flex flex-col justify-center items-center w-full h-full p-2">
+              <MdImage className="text-neutral-4 w-10 h-10" size={40} />
+              <Text classNames={{ root: "text-neutral-5" }}>
+                Upload album thumbnail
+              </Text>
             </div>
+          )}
+        </Dropzone>
+      </Indicator>
 
-            {/* Upload Box */}
-            <div
-              className="w-1/2 mx-auto mt-4 flex flex-col items-center justify-center py-6 px-4 cursor-pointer bg-[#E6EAEC] rounded-md"
-              onClick={() => fileInputRef.current?.click()}
-            >
-              {selectedImage ? (
-                <Image
-                  src={selectedImage}
-                  alt="Uploaded"
-                  className="w-28 h-28 object-cover rounded-md"
-                  width={112}
-                  height={112}
-                />
-              ) : (
-                <>
-                  <Image
-                    src={imageIcon.src}
-                    alt="Upload"
-                    className="w-10 h-10"
-                    width={40}
-                    height={40}
-                  />
-                </>
-              )}
+      <TextInput
+        label="Album Title"
+        onChange={(e) => {
+          setAlbumName(e.target.value);
+          setAlbumNameError(null);
+        }}
+        classNames={{ root: "w-4/5" }}
+        value={albumName}
+        error={albumNameError}
+        withAsterisk
+      />
 
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handleFileChange}
-              />
-            </div>
-            <p className="text-camp-text-subheading mt-2 mb-4 text-sm text-center">
-              {!selectedImage && "Upload album thumbnail"}
-            </p>
-
-            <div className="px-6 flex justify-center">
-              <div className="w-[70%] text-camp-text-subheading">
-                <input
-                  type="text"
-                  value={albumName}
-                  placeholder="Album title"
-                  onChange={(e) => setAlbumName(e.target.value)}
-                  className="w-full text-center bg-[#E6EAEC] text-bg-camp-buttons-neutral border-none outline-hidden text-lg py-2 placeholder:text-bg-camp-buttons-neutral rounded-md"
-                />
-              </div>
-            </div>
-
-            {/* Footer Buttons */}
-            <div className="flex justify-center gap-4 px-6 py-6">
-              <button
-                onClick={() => setIsOpen(false)}
-                className="bg-camp-buttons-neutral text-black px-6 py-2 rounded-full font-lato font-semibold"
-              >
-                CLOSE
-              </button>
-              <button
-                onClick={() => {
-                  // handle create logic here
-                  setIsOpen(false);
-                }}
-                className="bg-camp-tert-green text-white px-6 py-2 rounded-full font-lato font-semibold"
-              >
-                {mode === "CREATE" ? "CREATE" : "CONFIRM"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </>
+      <div className="flex justify-center gap-4 px-6 py-6">
+        <Button color="error" onClick={() => modals.closeAll()}>
+          CLOSE
+        </Button>
+        <Button
+          color="success"
+          loading={createAlbumMutation.isPending || updateAlbumMutation.isPending}
+          onClick={() => {
+            if (!albumName) { setAlbumNameError("Album name is required"); return; }
+            albumId ? updateAlbumMutation.mutate({
+              albumId,
+              updates: { name: albumName }
+            }, {
+              onSuccess: () => modals.closeAll(),
+              onError: () => notifications.error("Failed to update album. Please try again.")
+            }) : createAlbumMutation.mutate({ album: {
+              name: albumName,
+              hasThumbnail: !!albumThumbnail,
+              startDate: "",
+              endDate: "",
+              numItems: 0,
+            } }, {
+              onSuccess: () => modals.closeAll(),
+              onError: () => notifications.error("Failed to create album. Please try again.")
+            });
+          }}
+        >
+          {albumId ? "CONFIRM" : "CREATE"}
+        </Button>
+      </div>
+    </div>
   );
-};
+}
 
-export default EditAlbumModal;
+export function openEditAlbumModal(albumId?: string) {
+  modals.open({
+    title: albumId ? "Edit Album" : "Create Album",
+    children: <EditAlbumModal albumId={albumId} />,
+  });
+}
