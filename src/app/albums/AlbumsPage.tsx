@@ -46,7 +46,7 @@ export default function AlbumsPage() {
   }
 
   const albums = albumsQuery.data ?? [];
-  const sortedAlbums = albums.sort(sortFuncs[sortOption]);
+  const sortedAlbums = albums.toSorted(sortFuncs[sortOption]);
   return (
     <div className="flex flex-col w-6/7 grow mx-auto px-4 py-6 gap-6">
       <div className="flex items-center justify-between">
