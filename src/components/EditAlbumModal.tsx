@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { modals } from "@mantine/modals";
 import useAlbumById from "@/hooks/albums/useAlbumById";
 import { Button, Image, Indicator, Text, TextInput } from "@mantine/core";
@@ -24,22 +24,12 @@ export default function EditAlbumModal(props: EditAlbumModalProps) {
   );
   const [albumNameError, setAlbumNameError] = useState<string | null>(null);
   const [albumThumbnail, setAlbumThumbnail] = useState<File | null>(null);
-  const [albumThumbnailURL, setAlbumThumbnailURL] = useState<string | null>(
-    null,
-  );
+
+  const albumThumbnailUrl = useMemo(() => (albumThumbnail ? URL.createObjectURL(albumThumbnail) : null), [albumThumbnail]);
+  useEffect(() => { return () => { if (albumThumbnailUrl) URL.revokeObjectURL(albumThumbnailUrl); }; }, [albumThumbnailUrl]);
 
   const createAlbumMutation = useCreateAlbum();
   const updateAlbumMutation = useUpdateAlbum();
-
-  useEffect(() => {
-    if (!albumThumbnail) {
-      setAlbumThumbnailURL(null);
-      return;
-    }
-    const albumThumbnailURL = URL.createObjectURL(albumThumbnail);
-    setAlbumThumbnailURL(albumThumbnailURL);
-    return () => URL.revokeObjectURL(albumThumbnailURL);
-  }, [albumThumbnail]);
 
   if (albumQuery.isLoading) return <LoadingPage />;
   else if (albumQuery.isError) return <ErrorPage error={albumQuery.error} />;
@@ -47,7 +37,7 @@ export default function EditAlbumModal(props: EditAlbumModalProps) {
   return (
     <div className="flex flex-col items-center w-full h-full">
       <Indicator
-        disabled={!(albumThumbnail && albumThumbnailURL)}
+        disabled={!albumThumbnail}
         classNames={{
           root: "w-2/3 m-md",
           indicator: "cursor-pointer",
@@ -63,9 +53,9 @@ export default function EditAlbumModal(props: EditAlbumModalProps) {
             inner: "w-full h-full",
           }}
         >
-          {albumThumbnail && albumThumbnailURL ? (
+          {albumThumbnail ? (
             <Image
-              src={albumThumbnailURL}
+              src={albumThumbnailUrl}
               alt={albumThumbnail.name}
               width={10}
               height={10}
