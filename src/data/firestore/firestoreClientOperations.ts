@@ -1,6 +1,6 @@
 import { NestedFieldPath } from "@/utils/types/typeUtils";
 import { FirebaseError } from "firebase/app";
-import { DocumentReference, Query, Transaction, WriteBatch, DocumentSnapshot, getDoc as getFirestore, setDoc as setFirestore, updateDoc as updateFirestore, deleteDoc as deleteFirestore, getDocs as queryFirestore, WithFieldValue, DocumentData, UpdateData, FirestoreDataConverter, CollectionReference, WhereFilterOp, collectionGroup, where as whereFirestore, orderBy as orderByFirestore, limit, limitToLast, startAfter, startAt, endBefore, endAt, query } from "firebase/firestore";
+import { DocumentReference, Query, Transaction, WriteBatch, DocumentSnapshot, getDoc as getFirestore, setDoc as setFirestore, updateDoc as updateFirestore, deleteDoc as deleteFirestore, getDocs as queryFirestore, WithFieldValue, DocumentData, UpdateData, FirestoreDataConverter, CollectionReference, WhereFilterOp, collectionGroup, where as whereFirestore, orderBy as orderByFirestore, limit, limitToLast, startAfter, startAt, endBefore, endAt, query, documentId } from "firebase/firestore";
 import { db } from "@/config/firebase";
 import { AlbumsSubcollection, Collection, SectionsSubcollection, SessionsSubcollection } from "./types/collections";
 
@@ -86,8 +86,8 @@ export async function executeQuery<AppModelType, DbModelType extends DocumentDat
     if (options) {
       const { where = [], orderBy = [] } = options;
       // @ts-expect-error - fieldPath is not infinitely recursive
-      const whereClauses = where.map(({ fieldPath, operation, value }) => whereFirestore(fieldPath, operation, value));
-      const orderByClauses = orderBy.map(({ fieldPath, direction }) => orderByFirestore(fieldPath, direction));
+      const whereClauses = where.map(({ fieldPath, operation, value }) => whereFirestore(fieldPath === '__document-id__' ? documentId() : fieldPath, operation, value));
+      const orderByClauses = orderBy.map(({ fieldPath, direction }) => orderByFirestore(fieldPath === '__document-id__' ? documentId() : fieldPath, direction));
       
       const limitAndCursorClauses = [];
       if ('limit' in options) {
