@@ -1,6 +1,7 @@
 import { NestedFieldPath } from "@/utils/types/typeUtils";
 import { FirebaseError } from "firebase/app";
-import { DocumentReference, Query, Transaction, WriteBatch, DocumentSnapshot, getDoc as getFirestore, setDoc as setFirestore, updateDoc as updateFirestore, deleteDoc as deleteFirestore, getDocs as queryFirestore, WithFieldValue, DocumentData, UpdateData, FirestoreDataConverter, CollectionReference, collection, WhereFilterOp } from "firebase/firestore";
+import { DocumentReference, Query, Transaction, WriteBatch, DocumentSnapshot, getDoc as getFirestore, setDoc as setFirestore, updateDoc as updateFirestore, deleteDoc as deleteFirestore, getDocs as queryFirestore, WithFieldValue, DocumentData, UpdateData, FirestoreDataConverter, CollectionReference, WhereFilterOp, collectionGroup } from "firebase/firestore";
+import { db } from "@/config/firebase";
 
 export async function getDoc<AppModelType, DbModelType extends DocumentData>(ref: DocumentReference<AppModelType, DbModelType>, converter: FirestoreDataConverter<AppModelType, DbModelType>, transaction?: Transaction): Promise<AppModelType> {
   let doc: DocumentSnapshot<AppModelType, DbModelType>;
@@ -69,14 +70,15 @@ type StartCursorClause = { startAfter?: unknown[] } | { startAt?: unknown[] };
 type EndCursorClause = { endBefore?: unknown[] } | { endAt?: unknown[] };
 
 type ExecuteQueryOptions<DbModelType extends DocumentData> = {
-  collectionGroupQuery?: boolean;
   where?: WhereClause<DbModelType>[];
   orderBy?: OrderByClause<DbModelType>[];
 } & LimitClause & StartCursorClause & EndCursorClause;
 
-export async function executeQuery<AppModelType, DbModelType extends DocumentData>(collection: CollectionReference<AppModelType, DbModelType>, converter: FirestoreDataConverter<AppModelType, DbModelType>, options: ExecuteQueryOptions<DbModelType>): Promise<AppModelType[]> {
+type CollectionGroupQuery = string;
+
+export async function executeQuery<AppModelType, DbModelType extends DocumentData>(collection: CollectionReference<AppModelType, DbModelType> | CollectionGroupQuery, converter: FirestoreDataConverter<AppModelType, DbModelType>, options: ExecuteQueryOptions<DbModelType>): Promise<AppModelType[]> {
   try {
-    query = query.withConverter(converter);
+    let query: Query<AppModelType, DbModelType> = typeof collection === 'string' ? collectionGroup(db, collection) as Query<AppModelType, DbModelType> : collection;
     const querySnapshot = await queryFirestore(query);
     return querySnapshot.docs.map(doc => doc.data());
   } catch {
