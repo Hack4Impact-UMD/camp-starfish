@@ -17,7 +17,7 @@ import {
   documentId,
   CollectionReference
 } from "firebase/firestore";
-import { setDoc, getDoc, updateDoc, executeQuery, deleteDoc } from "./firestoreClientOperations";
+import { createDoc, getDoc, updateDoc, executeQuery, deleteDoc } from "./firestoreClientOperations";
 import { Collection } from "./types/collections";
 
 const programAreaFirestoreConverter: FirestoreDataConverter<ProgramArea, ProgramAreaDoc> = {
@@ -45,8 +45,8 @@ export async function getProgramAreasByIds(ids: string[]): Promise<ProgramArea[]
   return responses.flatMap(response => response)
 }
 
-export async function setProgramArea(id: string, programArea: ProgramAreaDoc, instance?: Transaction | WriteBatch): Promise<void> {
-  await setDoc<ProgramArea, ProgramAreaDoc>(doc(db, Collection.PROGRAM_AREAS, id) as DocumentReference<ProgramArea, ProgramAreaDoc>, { id, ...programArea }, programAreaFirestoreConverter, instance);
+export async function createProgramArea(id: string, programArea: ProgramAreaDoc, instance?: Transaction | WriteBatch): Promise<void> {
+  await createDoc<ProgramArea, ProgramAreaDoc>(doc(db, Collection.PROGRAM_AREAS, id) as DocumentReference<ProgramArea, ProgramAreaDoc>, { id, ...programArea }, programAreaFirestoreConverter, instance);
 }
 
 export async function updateProgramArea(id: string, updates: UpdateData<ProgramAreaDoc>, instance?: Transaction | WriteBatch): Promise<void> {

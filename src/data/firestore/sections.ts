@@ -15,7 +15,7 @@ import {
   UpdateData,
 } from "firebase/firestore";
 import { Collection, SessionsSubcollection } from "./types/collections";
-import { setDoc, deleteDoc, getDoc, updateDoc, executeQuery } from "./firestoreClientOperations";
+import { createDoc, deleteDoc, getDoc, updateDoc, executeQuery } from "./firestoreClientOperations";
 
 const sectionFirestoreConverter: FirestoreDataConverter<Section, SectionDoc> = {
   toFirestore: (section: WithFieldValue<Section>): WithFieldValue<SectionDoc> => {
@@ -33,9 +33,9 @@ export async function getSectionsBySessionId(sessionId: string): Promise<Section
   return await executeQuery<Section, SectionDoc>(collection(db, Collection.SESSIONS, sessionId, SessionsSubcollection.SECTIONS) as CollectionReference<Section, SectionDoc>, sectionFirestoreConverter);
 }
 
-export async function setSection(sessionId: string, section: SectionDoc, instance?: Transaction | WriteBatch): Promise<string> {
+export async function createSection(sessionId: string, section: SectionDoc, instance?: Transaction | WriteBatch): Promise<string> {
   const sectionId = uuid();
-  await setDoc<Section, SectionDoc>(doc(db, Collection.SESSIONS, sessionId, SessionsSubcollection.SECTIONS, sectionId) as DocumentReference<Section, SectionDoc>, { id: sectionId, sessionId, ...section }, sectionFirestoreConverter, instance);
+  await createDoc<Section, SectionDoc>(doc(db, Collection.SESSIONS, sessionId, SessionsSubcollection.SECTIONS, sectionId) as DocumentReference<Section, SectionDoc>, { id: sectionId, sessionId, ...section }, sectionFirestoreConverter, instance);
   return sectionId;
 }
 

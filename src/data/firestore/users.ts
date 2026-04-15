@@ -10,7 +10,7 @@ import {
   WithFieldValue,
   DocumentReference,
 } from "firebase/firestore";
-import { setDoc, getDoc, updateDoc, deleteDoc } from "./firestoreClientOperations";
+import { createDoc, getDoc, updateDoc, deleteDoc } from "./firestoreClientOperations";
 import { Collection } from "./types/collections";
 
 const userFirestoreConverter: FirestoreDataConverter<User, UserDoc> = {
@@ -25,8 +25,8 @@ export async function getUserById(id: number, transaction?: Transaction): Promis
   return await getDoc<User, UserDoc>(doc(db, Collection.USERS, String(id)) as DocumentReference<User, UserDoc>, userFirestoreConverter, transaction);
 };
 
-export async function setUser(id: number, user: UserDoc, instance?: Transaction | WriteBatch): Promise<void> {
-  await setDoc<User, UserDoc>(doc(db, Collection.USERS, String(id)) as DocumentReference<User, UserDoc>, { id, ...user }, userFirestoreConverter, instance);
+export async function createUser(id: number, user: UserDoc, instance?: Transaction | WriteBatch): Promise<void> {
+  await createDoc<User, UserDoc>(doc(db, Collection.USERS, String(id)) as DocumentReference<User, UserDoc>, { id, ...user }, userFirestoreConverter, instance);
 }
 
 export async function updateUser(id: number, updates: Partial<UserDoc>, instance?: Transaction | WriteBatch): Promise<void> {

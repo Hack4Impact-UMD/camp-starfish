@@ -19,7 +19,7 @@ export async function getDoc<AppModelType, DbModelType extends DocumentData>(ref
   return doc.data();
 }
 
-export async function setDoc<AppModelType, DbModelType extends DocumentData>(ref: DocumentReference<AppModelType, DbModelType>, data: WithFieldValue<AppModelType>, converter: FirestoreDataConverter<AppModelType, DbModelType>, instance?: Transaction | WriteBatch, whenDocumentExists: 'fail' | 'overwrite' = 'overwrite'): Promise<void> {
+export async function createDoc<AppModelType, DbModelType extends DocumentData>(ref: DocumentReference<AppModelType, DbModelType>, data: WithFieldValue<AppModelType>, converter: FirestoreDataConverter<AppModelType, DbModelType>, instance?: Transaction | WriteBatch, whenDocumentExists: 'fail' | 'overwrite' = 'overwrite'): Promise<void> {
   try {
     ref = ref.withConverter(converter);
     if (whenDocumentExists === 'fail') {
@@ -103,7 +103,7 @@ export async function executeQuery<AppModelType, DbModelType extends DocumentDat
       // @ts-expect-error - fieldPath is not infinitely recursive
       const whereClauses = where.map(({ fieldPath, operation, value }) => whereFirestore(fieldPath === '__document-id__' ? documentId() : fieldPath, operation, value));
       const orderByClauses = orderBy.map(({ fieldPath, direction }) => orderByFirestore(fieldPath === '__document-id__' ? documentId() : fieldPath, direction));
-      
+
       const limitAndCursorClauses = [];
       if ('limit' in options) {
         limitAndCursorClauses.push(limit(options.limit));
