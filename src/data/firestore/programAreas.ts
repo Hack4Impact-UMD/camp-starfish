@@ -14,7 +14,8 @@ import {
   query,
   Query,
   UpdateData,
-  documentId
+  documentId,
+  CollectionReference
 } from "firebase/firestore";
 import { setDoc, getDoc, updateDoc, executeQuery, deleteDoc } from "./firestoreClientOperations";
 import { Collection } from "./types/collections";
@@ -36,7 +37,11 @@ export async function getProgramAreasByIds(ids: string[]): Promise<ProgramArea[]
   for (let i = 0; i < ids.length; i += 30) {
     idBatches.push(ids.slice(i, i + 30));
   }
-  const responses = await Promise.all(idBatches.flatMap(idBatch => executeQuery<ProgramArea, ProgramAreaDoc>(query(collection(db, Collection.PROGRAM_AREAS), where(documentId(), "in", idBatch)) as Query<ProgramArea, ProgramAreaDoc>, programAreaFirestoreConverter)));
+  const responses = await Promise.all(idBatches.flatMap(idBatch => executeQuery<ProgramArea, ProgramAreaDoc>(
+    collection(db, Collection.PROGRAM_AREAS) as CollectionReference<ProgramArea, ProgramAreaDoc>,
+    programAreaFirestoreConverter,
+    { where: [{ fieldPath: '__document-id__', operation: 'in', value: idBatch }] }
+  )));
   return responses.flatMap(response => response)
 }
 
