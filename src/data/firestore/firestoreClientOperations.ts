@@ -70,7 +70,7 @@ export async function deleteDoc<AppModelType, DbModelType extends DocumentData>(
   }
 }
 
-type FirestoreDocumentFieldPath<T> = NestedFieldPath<T> | '__document-id__';
+type FirestoreDocumentFieldPath<T> = NestedFieldPath<T> | '__name__';
 
 interface WhereClause<DbModelType> {
   fieldPath: FirestoreDocumentFieldPath<DbModelType>;
@@ -101,8 +101,8 @@ export async function executeQuery<AppModelType, DbModelType extends DocumentDat
     if (options) {
       const { where = [], orderBy = [] } = options;
       // @ts-expect-error - fieldPath is not infinitely recursive
-      const whereClauses = where.map(({ fieldPath, operation, value }) => whereFirestore(fieldPath === '__document-id__' ? documentId() : fieldPath, operation, value));
-      const orderByClauses = orderBy.map(({ fieldPath, direction }) => orderByFirestore(fieldPath === '__document-id__' ? documentId() : fieldPath, direction));
+      const whereClauses = where.map(({ fieldPath, operation, value }) => whereFirestore(fieldPath === '__name__' ? documentId() : fieldPath, operation, value));
+      const orderByClauses = orderBy.map(({ fieldPath, direction }) => orderByFirestore(fieldPath === '__name__' ? documentId() : fieldPath, direction));
 
       const limitAndCursorClauses = [];
       if ('limit' in options) {

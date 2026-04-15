@@ -40,7 +40,7 @@ export async function getProgramAreasByIds(ids: string[]): Promise<ProgramArea[]
   const responses = await Promise.all(idBatches.flatMap(idBatch => executeQuery<ProgramArea, ProgramAreaDoc>(
     collection(db, Collection.PROGRAM_AREAS) as CollectionReference<ProgramArea, ProgramAreaDoc>,
     programAreaFirestoreConverter,
-    { where: [{ fieldPath: '__document-id__', operation: 'in', value: idBatch }] }
+    { where: [{ fieldPath: '__name__', operation: 'in', value: idBatch }] }
   )));
   return responses.flatMap(response => response)
 }
