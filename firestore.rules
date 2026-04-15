@@ -69,6 +69,12 @@ service cloud.firestore {
       }
     }
     
+    // Users collection (all roles unified)
+    match /users/{userId} {
+      allow read: if isAdmin();
+      allow write: if isAdmin();
+    }
+
     // User collections
     match /campers/{camperId} {
       allow read: if isStaffOrAdmin();
