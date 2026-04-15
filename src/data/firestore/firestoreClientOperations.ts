@@ -1,5 +1,6 @@
+import { NestedFieldPath } from "@/utils/types/typeUtils";
 import { FirebaseError } from "firebase/app";
-import { DocumentReference, Query, Transaction, WriteBatch, DocumentSnapshot, getDoc as getFirestore, setDoc as setFirestore, updateDoc as updateFirestore, deleteDoc as deleteFirestore, getDocs as queryFirestore, WithFieldValue, DocumentData, UpdateData, FirestoreDataConverter } from "firebase/firestore";
+import { DocumentReference, Query, Transaction, WriteBatch, DocumentSnapshot, getDoc as getFirestore, setDoc as setFirestore, updateDoc as updateFirestore, deleteDoc as deleteFirestore, getDocs as queryFirestore, WithFieldValue, DocumentData, UpdateData, FirestoreDataConverter, CollectionReference, collection, WhereFilterOp } from "firebase/firestore";
 
 export async function getDoc<AppModelType, DbModelType extends DocumentData>(ref: DocumentReference<AppModelType, DbModelType>, converter: FirestoreDataConverter<AppModelType, DbModelType>, transaction?: Transaction): Promise<AppModelType> {
   let doc: DocumentSnapshot<AppModelType, DbModelType>;
@@ -52,7 +53,28 @@ export async function deleteDoc<AppModelType, DbModelType extends DocumentData>(
   }
 }
 
-export async function executeQuery<AppModelType, DbModelType extends DocumentData>(query: Query<AppModelType, DbModelType>, converter: FirestoreDataConverter<AppModelType, DbModelType>): Promise<AppModelType[]> {
+interface WhereClause<DbModelType> {
+  fieldPath: NestedFieldPath<DbModelType>;
+  operation: WhereFilterOp;
+  value: unknown;
+}
+
+interface OrderByClause<DbModelType> {
+  fieldPath: NestedFieldPath<DbModelType>;
+  direction: 'asc' | 'desc';
+}
+
+type LimitClause = { limit?: number } | { limitToLast?: number };
+type StartCursorClause = { startAfter?: unknown[] } | { startAt?: unknown[] };
+type EndCursorClause = { endBefore?: unknown[] } | { endAt?: unknown[] };
+
+type ExecuteQueryOptions<DbModelType extends DocumentData> = {
+  collectionGroupQuery?: boolean;
+  where?: WhereClause<DbModelType>[];
+  orderBy?: OrderByClause<DbModelType>[];
+} & LimitClause & StartCursorClause & EndCursorClause;
+
+export async function executeQuery<AppModelType, DbModelType extends DocumentData>(collection: CollectionReference<AppModelType, DbModelType>, converter: FirestoreDataConverter<AppModelType, DbModelType>, options: ExecuteQueryOptions<DbModelType>): Promise<AppModelType[]> {
   try {
     query = query.withConverter(converter);
     const querySnapshot = await queryFirestore(query);
