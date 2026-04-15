@@ -38,7 +38,7 @@ export async function createDoc<AppModelType, DbModelType extends DocumentData>(
       }
     } else {
       // @ts-expect-error - both Transaction & WriteBatch have a set with the same signature, but TypeScript fails to recognize that
-      await (instance ? instance.set(ref, data) : setFirestore(ref, data));
+      await (instance ? instance.set(ref, data, { merge: false }) : setFirestore(ref, data, { merge: false }));
     }
   } catch (error) {
     if (error instanceof FirebaseError) {
@@ -48,11 +48,16 @@ export async function createDoc<AppModelType, DbModelType extends DocumentData>(
   }
 }
 
-export async function updateDoc<AppModelType, DbModelType extends DocumentData>(ref: DocumentReference<AppModelType, DbModelType>, data: UpdateData<DbModelType>, converter: FirestoreDataConverter<AppModelType, DbModelType>, instance?: Transaction | WriteBatch): Promise<void> {
+export async function updateDoc<AppModelType, DbModelType extends DocumentData>(ref: DocumentReference<AppModelType, DbModelType>, data: UpdateData<DbModelType>, converter: FirestoreDataConverter<AppModelType, DbModelType>, instance?: Transaction | WriteBatch, whenDocumentDoesNotExist: 'fail' | 'create' = 'fail'): Promise<void> {
   try {
     ref = ref.withConverter(converter);
-    // @ts-expect-error - both Transaction & WriteBatch have a set with the same signature, but TypeScript fails to recognize that
-    await (instance ? instance.update(ref, data) : updateFirestore(ref, data));
+    if (whenDocumentDoesNotExist == 'fail') {
+      // @ts-expect-error - both Transaction & WriteBatch have a update with the same signature, but TypeScript fails to recognize that
+      await (instance ? instance.update(ref, data) : updateFirestore(ref, data));
+    } else {
+      // @ts-expect-error - both Transaction & WriteBatch have a set with the same signature, but TypeScript fails to recognize that
+      await (instance ? instance.set(ref, data, { merge: true }) : setFirestore(ref, data, { merge: true }));
+    }
   } catch (error) {
     if (error instanceof FirebaseError && error.code === "not-found") {
       throw Error("Attempted to update a document that doesn't exist");
