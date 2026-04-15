@@ -67,8 +67,8 @@ interface OrderByClause<DbModelType> {
 }
 
 type LimitClause = { limit: number } | { limitToLast: number } | {};
-type StartCursorClause = { startAfter?: unknown[] } | { startAt?: unknown[] } | {};
-type EndCursorClause = { endBefore?: unknown[] } | { endAt?: unknown[] };
+type StartCursorClause = { startAfter: DocumentSnapshot | unknown[] } | { startAt: DocumentSnapshot | unknown[] } | {};
+type EndCursorClause = { endBefore: DocumentSnapshot | unknown[] } | { endAt: DocumentSnapshot | unknown[] };
 
 type ExecuteQueryOptions<DbModelType extends DocumentData> = {
   where?: WhereClause<DbModelType>[];
