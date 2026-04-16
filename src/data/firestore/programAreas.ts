@@ -18,7 +18,7 @@ import {
   CollectionReference
 } from "firebase/firestore";
 import { createDoc, getDoc, updateDoc, executeQuery, deleteDoc } from "./firestoreClientOperations";
-import { Collection } from "./types/collections";
+import { RootLevelCollection } from "./types/collections";
 
 const programAreaFirestoreConverter: FirestoreDataConverter<ProgramArea, ProgramAreaDoc> = {
   toFirestore: (programArea: WithFieldValue<ProgramArea>) => {
@@ -29,7 +29,7 @@ const programAreaFirestoreConverter: FirestoreDataConverter<ProgramArea, Program
 };
 
 export async function getProgramAreaById(id: string, transaction?: Transaction): Promise<ProgramArea> {
-  return await getDoc<ProgramArea, ProgramAreaDoc>(doc(db, Collection.PROGRAM_AREAS, id) as DocumentReference<ProgramArea, ProgramAreaDoc>, programAreaFirestoreConverter, transaction);
+  return await getDoc<ProgramArea, ProgramAreaDoc>(doc(db, RootLevelCollection.PROGRAM_AREAS, id) as DocumentReference<ProgramArea, ProgramAreaDoc>, programAreaFirestoreConverter, transaction);
 };
 
 export async function getProgramAreasByIds(ids: string[]): Promise<ProgramArea[]> {
@@ -38,7 +38,7 @@ export async function getProgramAreasByIds(ids: string[]): Promise<ProgramArea[]
     idBatches.push(ids.slice(i, i + 30));
   }
   const responses = await Promise.all(idBatches.flatMap(idBatch => executeQuery<ProgramArea, ProgramAreaDoc>(
-    collection(db, Collection.PROGRAM_AREAS) as CollectionReference<ProgramArea, ProgramAreaDoc>,
+    collection(db, RootLevelCollection.PROGRAM_AREAS) as CollectionReference<ProgramArea, ProgramAreaDoc>,
     programAreaFirestoreConverter,
     { where: [{ fieldPath: '__name__', operation: 'in', value: idBatch }] }
   )));
@@ -46,13 +46,13 @@ export async function getProgramAreasByIds(ids: string[]): Promise<ProgramArea[]
 }
 
 export async function createProgramArea(id: string, programArea: ProgramAreaDoc, instance?: Transaction | WriteBatch): Promise<void> {
-  await createDoc<ProgramArea, ProgramAreaDoc>(doc(db, Collection.PROGRAM_AREAS, id) as DocumentReference<ProgramArea, ProgramAreaDoc>, { id, ...programArea }, programAreaFirestoreConverter, instance);
+  await createDoc<ProgramArea, ProgramAreaDoc>(doc(db, RootLevelCollection.PROGRAM_AREAS, id) as DocumentReference<ProgramArea, ProgramAreaDoc>, { id, ...programArea }, programAreaFirestoreConverter, instance);
 }
 
 export async function updateProgramArea(id: string, updates: UpdateData<ProgramAreaDoc>, instance?: Transaction | WriteBatch): Promise<void> {
-  await updateDoc<ProgramArea, ProgramAreaDoc>(doc(db, Collection.PROGRAM_AREAS, id) as DocumentReference<ProgramArea, ProgramAreaDoc>, updates, programAreaFirestoreConverter, instance);
+  await updateDoc<ProgramArea, ProgramAreaDoc>(doc(db, RootLevelCollection.PROGRAM_AREAS, id) as DocumentReference<ProgramArea, ProgramAreaDoc>, updates, programAreaFirestoreConverter, instance);
 }
 
 export async function deleteProgramArea(id: string, instance?: Transaction | WriteBatch): Promise<void> {
-  await deleteDoc<ProgramArea, ProgramAreaDoc>(doc(db, Collection.PROGRAM_AREAS, id) as DocumentReference<ProgramArea, ProgramAreaDoc>, programAreaFirestoreConverter, instance);
+  await deleteDoc<ProgramArea, ProgramAreaDoc>(doc(db, RootLevelCollection.PROGRAM_AREAS, id) as DocumentReference<ProgramArea, ProgramAreaDoc>, programAreaFirestoreConverter, instance);
 }

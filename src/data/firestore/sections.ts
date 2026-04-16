@@ -14,7 +14,7 @@ import {
   CollectionReference,
   UpdateData,
 } from "firebase/firestore";
-import { Collection, SessionsSubcollection } from "./types/collections";
+import { RootLevelCollection, SessionsSubcollection } from "./types/collections";
 import { createDoc, deleteDoc, getDoc, updateDoc, executeQuery } from "./firestoreClientOperations";
 
 const sectionFirestoreConverter: FirestoreDataConverter<Section, SectionDoc> = {
@@ -26,23 +26,23 @@ const sectionFirestoreConverter: FirestoreDataConverter<Section, SectionDoc> = {
 }
 
 export async function getSectionById(sessionId: string, sectionId: string, transaction?: Transaction): Promise<Section> {
-  return await getDoc<Section, SectionDoc>(doc(db, Collection.SESSIONS, sessionId, SessionsSubcollection.SECTIONS, sectionId) as DocumentReference<Section, SectionDoc>, sectionFirestoreConverter, transaction);
+  return await getDoc<Section, SectionDoc>(doc(db, RootLevelCollection.SESSIONS, sessionId, SessionsSubcollection.SECTIONS, sectionId) as DocumentReference<Section, SectionDoc>, sectionFirestoreConverter, transaction);
 }
 
 export async function getSectionsBySessionId(sessionId: string): Promise<Section[]> {
-  return await executeQuery<Section, SectionDoc>(collection(db, Collection.SESSIONS, sessionId, SessionsSubcollection.SECTIONS) as CollectionReference<Section, SectionDoc>, sectionFirestoreConverter);
+  return await executeQuery<Section, SectionDoc>(collection(db, RootLevelCollection.SESSIONS, sessionId, SessionsSubcollection.SECTIONS) as CollectionReference<Section, SectionDoc>, sectionFirestoreConverter);
 }
 
 export async function createSection(sessionId: string, section: SectionDoc, instance?: Transaction | WriteBatch): Promise<string> {
   const sectionId = uuid();
-  await createDoc<Section, SectionDoc>(doc(db, Collection.SESSIONS, sessionId, SessionsSubcollection.SECTIONS, sectionId) as DocumentReference<Section, SectionDoc>, { id: sectionId, sessionId, ...section }, sectionFirestoreConverter, instance);
+  await createDoc<Section, SectionDoc>(doc(db, RootLevelCollection.SESSIONS, sessionId, SessionsSubcollection.SECTIONS, sectionId) as DocumentReference<Section, SectionDoc>, { id: sectionId, sessionId, ...section }, sectionFirestoreConverter, instance);
   return sectionId;
 }
 
 export async function updateSection(sessionId: string, sectionId: string, updates: UpdateData<SectionDoc>, instance?: Transaction | WriteBatch): Promise<void> {
-  await updateDoc<Section, SectionDoc>(doc(db, Collection.SESSIONS, sessionId, SessionsSubcollection.SECTIONS, sectionId) as DocumentReference<Section, SectionDoc>, updates, sectionFirestoreConverter, instance);
+  await updateDoc<Section, SectionDoc>(doc(db, RootLevelCollection.SESSIONS, sessionId, SessionsSubcollection.SECTIONS, sectionId) as DocumentReference<Section, SectionDoc>, updates, sectionFirestoreConverter, instance);
 }
 
 export async function deleteSection(id: string, sessionID: string, instance?: Transaction | WriteBatch): Promise<void> {
-  await deleteDoc<Section, SectionDoc>(doc(db, Collection.SESSIONS, sessionID, SessionsSubcollection.SECTIONS, id) as DocumentReference<Section, SectionDoc>, sectionFirestoreConverter, instance);
+  await deleteDoc<Section, SectionDoc>(doc(db, RootLevelCollection.SESSIONS, sessionID, SessionsSubcollection.SECTIONS, id) as DocumentReference<Section, SectionDoc>, sectionFirestoreConverter, instance);
 }

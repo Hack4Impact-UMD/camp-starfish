@@ -21,7 +21,7 @@ import {
   updateDoc,
   executeQuery,
 } from "./firestoreClientOperations";
-import { Collection } from "./types/collections";
+import { RootLevelCollection } from "./types/collections";
 
 const sessionFirestoreConverter: FirestoreDataConverter<Session, SessionDoc> = {
   toFirestore: (
@@ -36,24 +36,24 @@ const sessionFirestoreConverter: FirestoreDataConverter<Session, SessionDoc> = {
 };
 
 export async function getSessionById(id: string, transaction?: Transaction): Promise<Session> {
-  return await getDoc<Session, SessionDoc>(doc(db, Collection.SESSIONS, id) as DocumentReference<Session, SessionDoc>, sessionFirestoreConverter, transaction);
+  return await getDoc<Session, SessionDoc>(doc(db, RootLevelCollection.SESSIONS, id) as DocumentReference<Session, SessionDoc>, sessionFirestoreConverter, transaction);
 }
 
 export async function getAllSessions(): Promise<Session[]> {
-  return await executeQuery<Session, SessionDoc>(collection(db, Collection.SESSIONS) as CollectionReference<Session, SessionDoc>, sessionFirestoreConverter);
+  return await executeQuery<Session, SessionDoc>(collection(db, RootLevelCollection.SESSIONS) as CollectionReference<Session, SessionDoc>, sessionFirestoreConverter);
 }
 
 export type CreateSessionDTO = SessionDoc;
 export async function createSession(session: CreateSessionDTO, instance?: Transaction | WriteBatch): Promise<string> {
   const sessionId = uuid();
-  await createDoc<Session, SessionDoc>(doc(db, Collection.SESSIONS, sessionId) as DocumentReference<Session, SessionDoc>, { id: sessionId, ...session }, sessionFirestoreConverter, instance);
+  await createDoc<Session, SessionDoc>(doc(db, RootLevelCollection.SESSIONS, sessionId) as DocumentReference<Session, SessionDoc>, { id: sessionId, ...session }, sessionFirestoreConverter, instance);
   return sessionId;
 }
 
 export async function updateSession(id: string, updates: UpdateData<SessionDoc>, instance?: Transaction | WriteBatch): Promise<void> {
-  await updateDoc<Session, SessionDoc>(doc(db, Collection.SESSIONS, id) as DocumentReference<Session, SessionDoc>, updates, sessionFirestoreConverter, instance);
+  await updateDoc<Session, SessionDoc>(doc(db, RootLevelCollection.SESSIONS, id) as DocumentReference<Session, SessionDoc>, updates, sessionFirestoreConverter, instance);
 }
 
 export async function deleteSession(id: string, instance?: Transaction | WriteBatch): Promise<void> {
-  await deleteDoc<Session, SessionDoc>(doc(db, Collection.SESSIONS, id) as DocumentReference<Session, SessionDoc>, sessionFirestoreConverter, instance);
+  await deleteDoc<Session, SessionDoc>(doc(db, RootLevelCollection.SESSIONS, id) as DocumentReference<Session, SessionDoc>, sessionFirestoreConverter, instance);
 }

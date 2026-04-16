@@ -10,7 +10,7 @@ import {
   Query,
 } from "firebase-admin/firestore";
 import { createDoc, getDoc, updateDoc, deleteDoc, executeQuery } from "./firestoreAdminOperations";
-import { Collection } from "@/data/firestore/types/collections";
+import { RootLevelCollection } from "@/data/firestore/types/collections";
 import { adminDb } from "../../config/firebaseAdminConfig";
 
 const userFirestoreConverter: FirestoreDataConverter<User, UserDoc> = {
@@ -22,11 +22,11 @@ const userFirestoreConverter: FirestoreDataConverter<User, UserDoc> = {
 };
 
 export async function getUserById(id: number, transaction?: Transaction): Promise<User> {
-  return await getDoc<User, UserDoc>(adminDb.collection(Collection.USERS).doc(String(id)) as DocumentReference<User, UserDoc>, userFirestoreConverter, transaction);
+  return await getDoc<User, UserDoc>(adminDb.collection(RootLevelCollection.USERS).doc(String(id)) as DocumentReference<User, UserDoc>, userFirestoreConverter, transaction);
 };
 
 export async function getUserByEmail(email: string, transaction?: Transaction): Promise<User> {
-  const users = await executeQuery<User, UserDoc>(adminDb.collection(Collection.USERS).where('email', '==', email).limit(1) as Query<User, UserDoc>, userFirestoreConverter, transaction);
+  const users = await executeQuery<User, UserDoc>(adminDb.collection(RootLevelCollection.USERS).where('email', '==', email).limit(1) as Query<User, UserDoc>, userFirestoreConverter, transaction);
   if (users.length === 0) {
     throw new Error("No user with email found");
   }
@@ -34,13 +34,13 @@ export async function getUserByEmail(email: string, transaction?: Transaction): 
 }
 
 export async function createUser(id: number, user: UserDoc, instance?: Transaction | WriteBatch): Promise<void> {
-  await createDoc<User, UserDoc>(adminDb.collection(Collection.USERS).doc(String(id)) as DocumentReference<User, UserDoc>, { id, ...user }, userFirestoreConverter, instance);
+  await createDoc<User, UserDoc>(adminDb.collection(RootLevelCollection.USERS).doc(String(id)) as DocumentReference<User, UserDoc>, { id, ...user }, userFirestoreConverter, instance);
 }
 
 export async function updateUser(id: number, updates: Partial<UserDoc>, instance?: Transaction | WriteBatch): Promise<void> {
-  await updateDoc<User, UserDoc>(adminDb.collection(Collection.USERS).doc(String(id)) as DocumentReference<User, UserDoc>, updates, userFirestoreConverter, instance);
+  await updateDoc<User, UserDoc>(adminDb.collection(RootLevelCollection.USERS).doc(String(id)) as DocumentReference<User, UserDoc>, updates, userFirestoreConverter, instance);
 }
 
 export async function deleteUser(id: number, instance?: Transaction | WriteBatch): Promise<void> {
-  await deleteDoc<User, UserDoc>(adminDb.collection(Collection.USERS).doc(String(id)) as DocumentReference<User, UserDoc>, userFirestoreConverter, instance);
+  await deleteDoc<User, UserDoc>(adminDb.collection(RootLevelCollection.USERS).doc(String(id)) as DocumentReference<User, UserDoc>, userFirestoreConverter, instance);
 }

@@ -1,4 +1,6 @@
-export const enum Collection {
+export type Collection = RootLevelCollection | AlbumsSubcollection | SessionsSubcollection | SectionsSubcollection;
+
+export const enum RootLevelCollection {
   USERS = "users",
   ALBUMS = "albums",
   SESSIONS = "sessions",
