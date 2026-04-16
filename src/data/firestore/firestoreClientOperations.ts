@@ -1,6 +1,6 @@
 import { NestedFieldPath } from "@/utils/types/typeUtils";
 import { FirebaseError } from "firebase/app";
-import { DocumentReference, Query, Transaction, WriteBatch, DocumentSnapshot, getDoc as getFirestore, setDoc as setFirestore, updateDoc as updateFirestore, deleteDoc as deleteFirestore, getDocs as queryFirestore, WithFieldValue, DocumentData, UpdateData, FirestoreDataConverter, CollectionReference, WhereFilterOp, collectionGroup, where as whereFirestore, orderBy as orderByFirestore, limit, limitToLast, startAfter, startAt, endBefore, endAt, query, documentId } from "firebase/firestore";
+import { DocumentReference, Query, Transaction, WriteBatch, DocumentSnapshot, getDoc as getFirestore, setDoc as setFirestore, updateDoc as updateFirestore, deleteDoc as deleteFirestore, getDocs as queryFirestore, WithFieldValue, DocumentData, UpdateData, FirestoreDataConverter, CollectionReference, WhereFilterOp, collectionGroup, where as whereFirestore, orderBy as orderByFirestore, limit, limitToLast, startAfter, startAt, endBefore, endAt, query, documentId, getAggregateFromServer, AggregateType, count, AggregateField, sum, average } from "firebase/firestore";
 import { db } from "@/config/firebase";
 import { AlbumsSubcollection, Collection, SectionsSubcollection, SessionsSubcollection } from "./types/collections";
 
@@ -71,47 +71,75 @@ type LimitClause = { limit: number } | { limitToLast: number } | {};
 type StartCursorClause = { startAfter: DocumentSnapshot | unknown[] } | { startAt: DocumentSnapshot | unknown[] } | {};
 type EndCursorClause = { endBefore: DocumentSnapshot | unknown[] } | { endAt: DocumentSnapshot | unknown[] } | {};
 
-type ExecuteQueryOptions<DbModelType extends DocumentData> = {
+type BuildQueryOptions<DbModelType extends DocumentData> = {
   where?: WhereClause<DbModelType>[];
   orderBy?: OrderByClause<DbModelType>[];
 } & LimitClause & StartCursorClause & EndCursorClause;
 
 type CollectionGroupQuery = Collection | AlbumsSubcollection | SessionsSubcollection | SectionsSubcollection;
 
-export async function executeQuery<AppModelType, DbModelType extends DocumentData>(collection: CollectionReference<AppModelType, DbModelType> | CollectionGroupQuery, converter: FirestoreDataConverter<AppModelType, DbModelType>, options?: ExecuteQueryOptions<DbModelType>): Promise<AppModelType[]> {
-  try {
-    let queryObj: Query<AppModelType, DbModelType> = typeof collection === 'string' ? collectionGroup(db, collection) as Query<AppModelType, DbModelType> : collection;
-    queryObj = queryObj.withConverter(converter);
-    if (options) {
-      const { where = [], orderBy = [] } = options;
-      // @ts-expect-error - fieldPath is not infinitely recursive
-      const whereClauses = where.map(({ fieldPath, operation, value }) => whereFirestore(fieldPath === '__name__' ? documentId() : fieldPath, operation, value));
-      const orderByClauses = orderBy.map(({ fieldPath, direction }) => orderByFirestore(fieldPath === '__name__' ? documentId() : fieldPath, direction));
+function buildQuery<AppModelType, DbModelType extends DocumentData>(collection: CollectionReference<AppModelType, DbModelType> | CollectionGroupQuery, converter: FirestoreDataConverter<AppModelType, DbModelType>, options?: BuildQueryOptions<DbModelType>): Query<AppModelType, DbModelType> {
+  let queryObj: Query<AppModelType, DbModelType> = typeof collection === 'string' ? collectionGroup(db, collection) as Query<AppModelType, DbModelType> : collection;
+  queryObj = queryObj.withConverter(converter);
+  if (options) {
+    const { where = [], orderBy = [] } = options;
+    // @ts-expect-error - fieldPath is not infinitely recursive
+    const whereClauses = where.map(({ fieldPath, operation, value }) => whereFirestore(fieldPath === '__name__' ? documentId() : fieldPath, operation, value));
+    const orderByClauses = orderBy.map(({ fieldPath, direction }) => orderByFirestore(fieldPath === '__name__' ? documentId() : fieldPath, direction));
 
-      const limitAndCursorClauses = [];
-      if ('limit' in options) {
-        limitAndCursorClauses.push(limit(options.limit));
-      } else if ('limitToLast' in options) {
-        limitAndCursorClauses.push(limitToLast(options.limitToLast));
-      }
-
-      if ('startAfter' in options) {
-        limitAndCursorClauses.push(startAfter(options.startAfter));
-      } else if ('startAt' in options) {
-        limitAndCursorClauses.push(startAt(options.startAt));
-      }
-
-      if ('endBefore' in options) {
-        limitAndCursorClauses.push(endBefore(options.endBefore));
-      } else if ('endAt' in options) {
-        limitAndCursorClauses.push(endAt(options.endAt));
-      }
-
-      queryObj = query(queryObj, ...whereClauses, ...orderByClauses, ...limitAndCursorClauses);
+    const limitAndCursorClauses = [];
+    if ('limit' in options) {
+      limitAndCursorClauses.push(limit(options.limit));
+    } else if ('limitToLast' in options) {
+      limitAndCursorClauses.push(limitToLast(options.limitToLast));
     }
+
+    if ('startAfter' in options) {
+      limitAndCursorClauses.push(startAfter(options.startAfter));
+    } else if ('startAt' in options) {
+      limitAndCursorClauses.push(startAt(options.startAt));
+    }
+
+    if ('endBefore' in options) {
+      limitAndCursorClauses.push(endBefore(options.endBefore));
+    } else if ('endAt' in options) {
+      limitAndCursorClauses.push(endAt(options.endAt));
+    }
+
+    queryObj = query(queryObj, ...whereClauses, ...orderByClauses, ...limitAndCursorClauses);
+  }
+  return queryObj;
+}
+
+export async function executeQuery<AppModelType, DbModelType extends DocumentData>(collection: CollectionReference<AppModelType, DbModelType> | CollectionGroupQuery, converter: FirestoreDataConverter<AppModelType, DbModelType>, options?: BuildQueryOptions<DbModelType>): Promise<AppModelType[]> {
+  try {
+    const queryObj = buildQuery(collection, converter, options);
     const querySnapshot = await queryFirestore(queryObj);
     return querySnapshot.docs.map(doc => doc.data());
   } catch {
     throw Error("Failed to execute query");
+  }
+}
+
+type AggregationClause<DbModelType> = { aggregateFieldName: string; } &(
+  | { operation: Extract<AggregateType, 'count'>; }
+  | { operation: Extract<AggregateType, 'sum' | 'avg'>; sourceFieldPath: FirestoreDocumentFieldPath<DbModelType>; })
+
+type ExecuteAggregationOptions<DbModelType extends DocumentData> = BuildQueryOptions<DbModelType> & { aggregations: AggregationClause<DbModelType>[]; }
+
+export async function executeAggregation<AppModelType, DbModelType extends DocumentData>(collection: CollectionReference<AppModelType, DbModelType> | CollectionGroupQuery, converter: FirestoreDataConverter<AppModelType, DbModelType>, options: ExecuteAggregationOptions<DbModelType>): Promise<{ [key: string]: number }> {
+  try {
+    const { aggregations, ...queryOptions } = options;
+    const queryObj = buildQuery(collection, converter, queryOptions);
+    const aggregationObj: { [key: string]: AggregateField<number> } = {};
+    aggregations.forEach(agg => {
+      if (agg.operation === 'count') { aggregationObj[agg.aggregateFieldName] = count(); }
+      else if (agg.operation === 'sum') { aggregationObj[agg.aggregateFieldName] = sum(agg.sourceFieldPath); }
+      else if (agg.operation === 'avg') { aggregationObj[agg.aggregateFieldName] = average(agg.sourceFieldPath); }
+    })
+    const aggregateSnapshot = await getAggregateFromServer(queryObj, aggregationObj);
+    return aggregateSnapshot.data();
+  } catch (error) {
+    throw Error("Failed to execute aggregation");
   }
 }
