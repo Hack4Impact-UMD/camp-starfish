@@ -1,6 +1,6 @@
 import { NestedFieldPath } from "@/utils/types/typeUtils";
 import { FirebaseError } from "firebase/app";
-import { DocumentReference, Query, Transaction, WriteBatch, DocumentSnapshot, getDoc as getFirestore, setDoc as setFirestore, updateDoc as updateFirestore, deleteDoc as deleteFirestore, getDocs as queryFirestore, WithFieldValue, DocumentData, UpdateData, FirestoreDataConverter, CollectionReference, WhereFilterOp, collectionGroup, where as whereFirestore, orderBy as orderByFirestore, limit, limitToLast, startAfter, startAt, endBefore, endAt, query, documentId, runTransaction } from "firebase/firestore";
+import { DocumentReference, Query, Transaction, WriteBatch, DocumentSnapshot, getDoc as getFirestore, setDoc as setFirestore, updateDoc as updateFirestore, deleteDoc as deleteFirestore, getDocs as queryFirestore, WithFieldValue, DocumentData, UpdateData, FirestoreDataConverter, CollectionReference, WhereFilterOp, collectionGroup, where as whereFirestore, orderBy as orderByFirestore, limit, limitToLast, startAfter, startAt, endBefore, endAt, query, documentId } from "firebase/firestore";
 import { db } from "@/config/firebase";
 import { AlbumsSubcollection, Collection, SectionsSubcollection, SessionsSubcollection } from "./types/collections";
 
@@ -22,24 +22,8 @@ export async function getDoc<AppModelType, DbModelType extends DocumentData>(ref
 export async function createDoc<AppModelType, DbModelType extends DocumentData>(ref: DocumentReference<AppModelType, DbModelType>, data: WithFieldValue<AppModelType>, converter: FirestoreDataConverter<AppModelType, DbModelType>, instance?: Transaction | WriteBatch, whenDocumentExists: 'fail' | 'overwrite' = 'overwrite'): Promise<void> {
   try {
     ref = ref.withConverter(converter);
-    if (whenDocumentExists === 'fail') {
-      if (!instance) {
-        await runTransaction(db, async (transaction) => {
-          const doc = await transaction.get(ref);
-          if (doc.exists()) { throw Error("Document already exists"); }
-          await transaction.set(ref, data, { merge: false });
-        });
-      } else if (instance instanceof Transaction) {
-        const doc = await instance.get(ref);
-        if (doc.exists()) { throw Error("Document already exists"); }
-        await instance.set(ref, data, { merge: false });
-      } else {
-        throw Error("Cannot use whenDocumentExists='fail' with a WriteBatch");
-      }
-    } else {
-      // @ts-expect-error - both Transaction & WriteBatch have a set with the same signature, but TypeScript fails to recognize that
-      await (instance ? instance.set(ref, data) : setFirestore(ref, data));
-    }
+    // @ts-expect-error - both Transaction & WriteBatch have a set with the same signature, but TypeScript fails to recognize that
+    await (instance ? instance.set(ref, data) : setFirestore(ref, data));
   } catch (error) {
     if (error instanceof FirebaseError) {
       throw Error(`Failed to create document: ${error.code} - ${error.message}`);
