@@ -19,8 +19,7 @@ export async function getDoc<AppModelType, DbModelType extends DocumentData>(ref
 export async function createDoc<AppModelType, DbModelType extends DocumentData>(ref: DocumentReference<AppModelType, DbModelType>, data: WithFieldValue<AppModelType>, converter: FirestoreDataConverter<AppModelType, DbModelType>, instance?: Transaction | WriteBatch): Promise<void> {
   try {
     ref = ref.withConverter(converter);
-    // @ts-expect-error - both Transaction & WriteBatch have a set with the same signature, but TypeScript fails to recognize that
-    await (instance ? instance.set(ref, data) : ref.set(data));
+    await (instance ? instance.create(ref, data) : ref.create(data));
   } catch (error: unknown) {
     if (isFirebaseError(error) && error.code === GrpcStatus.ALREADY_EXISTS) {
       throw Error("Document already exists");
