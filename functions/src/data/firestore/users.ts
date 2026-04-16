@@ -9,7 +9,7 @@ import {
   DocumentReference,
   Query,
 } from "firebase-admin/firestore";
-import { setDoc, getDoc, updateDoc, deleteDoc, executeQuery } from "./firestoreAdminOperations";
+import { createDoc, getDoc, updateDoc, deleteDoc, executeQuery } from "./firestoreAdminOperations";
 import { Collection } from "@/data/firestore/types/collections";
 import { adminDb } from "../../config/firebaseAdminConfig";
 
@@ -33,8 +33,8 @@ export async function getUserByEmail(email: string, transaction?: Transaction): 
   return users[0];
 }
 
-export async function setUser(id: number, user: UserDoc, instance?: Transaction | WriteBatch): Promise<void> {
-  await setDoc<User, UserDoc>(adminDb.collection(Collection.USERS).doc(String(id)) as DocumentReference<User, UserDoc>, { id, ...user }, userFirestoreConverter, instance);
+export async function createUser(id: number, user: UserDoc, instance?: Transaction | WriteBatch): Promise<void> {
+  await createDoc<User, UserDoc>(adminDb.collection(Collection.USERS).doc(String(id)) as DocumentReference<User, UserDoc>, { id, ...user }, userFirestoreConverter, instance);
 }
 
 export async function updateUser(id: number, updates: Partial<UserDoc>, instance?: Transaction | WriteBatch): Promise<void> {

@@ -2,7 +2,7 @@ import { onRequest } from "firebase-functions/https";
 import { adminAuth } from "../config/firebaseAdminConfig";
 import { getFunctionsURL } from "@/utils/firebaseUtils";
 import { Credentials, OAuth2Client, TokenPayload } from "google-auth-library";
-import { setGoogleCredentials, updateGoogleCredentials } from "../data/firestore/googleCredentials";
+import { createGoogleCredentials, updateGoogleCredentials } from "../data/firestore/googleCredentials";
 
 const handleOAuth2Code = onRequest(async (req, res) => {
   if (req.method !== 'GET') {
@@ -57,7 +57,7 @@ const handleOAuth2Code = onRequest(async (req, res) => {
   }
 
   const uid = user.uid;
-  await setGoogleCredentials(uid, tokens);
+  await createGoogleCredentials(uid, tokens);
 
   res.status(303).redirect(`${process.env.NEXT_PUBLIC_DOMAIN}?success=true`);
 });

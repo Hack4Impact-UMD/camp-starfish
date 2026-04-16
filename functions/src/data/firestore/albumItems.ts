@@ -1,7 +1,7 @@
 import { AlbumItem } from "@/types/albums/albumTypes";
 import { AlbumItemDoc } from "@/data/firestore/types/documents";
 import { Transaction, WriteBatch, FirestoreDataConverter, WithFieldValue, QueryDocumentSnapshot, DocumentReference } from "firebase-admin/firestore";
-import { getDoc, setDoc, updateDoc, deleteDoc } from "./firestoreAdminOperations"
+import { getDoc, createDoc, updateDoc, deleteDoc } from "./firestoreAdminOperations"
 import { AlbumsSubcollection, Collection } from "@/data/firestore/types/collections";
 import { adminDb } from "../../config/firebaseAdminConfig";
 
@@ -17,8 +17,8 @@ export async function getAlbumItemById(albumId: string, albumItemId: string, tra
   return await getDoc<AlbumItem, AlbumItemDoc>(adminDb.collection(Collection.ALBUMS).doc(albumId).collection(AlbumsSubcollection.ALBUM_ITEMS).doc(albumItemId) as DocumentReference<AlbumItem, AlbumItemDoc>, albumItemFirestoreConverter, transaction);
 }
 
-export async function setAlbumItem(albumId: string, albumItemId: string, image: AlbumItemDoc, instance?: Transaction | WriteBatch): Promise<void> {
-  await setDoc(adminDb.collection(Collection.ALBUMS).doc(albumId).collection(AlbumsSubcollection.ALBUM_ITEMS).doc(albumItemId) as DocumentReference<AlbumItem, AlbumItemDoc>, { id: albumItemId, albumId, ...image }, albumItemFirestoreConverter, instance);
+export async function createAlbumItem(albumId: string, albumItemId: string, image: AlbumItemDoc, instance?: Transaction | WriteBatch): Promise<void> {
+  await createDoc(adminDb.collection(Collection.ALBUMS).doc(albumId).collection(AlbumsSubcollection.ALBUM_ITEMS).doc(albumItemId) as DocumentReference<AlbumItem, AlbumItemDoc>, { id: albumItemId, albumId, ...image }, albumItemFirestoreConverter, instance);
 }
 
 export async function updateAlbumItem(albumId: string, albumItemId: string, updates: Partial<AlbumItemDoc>, instance?: Transaction | WriteBatch): Promise<void> {

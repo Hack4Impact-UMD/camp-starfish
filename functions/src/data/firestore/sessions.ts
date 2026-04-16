@@ -12,7 +12,7 @@ import {
   UpdateData
 } from "firebase-admin/firestore";
 import {
-  setDoc,
+  createDoc,
   deleteDoc,
   getDoc,
   updateDoc,
@@ -44,7 +44,7 @@ export async function getAllSessions(): Promise<Session[]> {
 export type CreateSessionDTO = SessionDoc;
 export async function setSession(session: CreateSessionDTO, instance?: Transaction | WriteBatch): Promise<string> {
   const sessionId = uuid();
-  await setDoc<Session, SessionDoc>(adminDb.collection(Collection.SESSIONS).doc(sessionId) as DocumentReference<Session, SessionDoc>, { id: sessionId, ...session }, sessionFirestoreConverter, instance);
+  await createDoc<Session, SessionDoc>(adminDb.collection(Collection.SESSIONS).doc(sessionId) as DocumentReference<Session, SessionDoc>, { id: sessionId, ...session }, sessionFirestoreConverter, instance);
   return sessionId;
 }
 
