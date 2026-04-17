@@ -3,7 +3,7 @@ import { Album } from "@/types/albums/albumTypes";
 import { AlbumDoc } from "./types/documents";
 import { v4 as uuid } from "uuid";
 import { RootLevelCollection } from "./types/collections";
-import { createDoc, deleteDoc, getDoc, updateDoc, executeQuery } from "./firestoreClientOperations";
+import { setDoc, deleteDoc, getDoc, updateDoc, executeQuery } from "./firestoreClientOperations";
 import { collection, CollectionReference, doc, DocumentReference, FirestoreDataConverter, QueryDocumentSnapshot, Transaction, UpdateData, WithFieldValue, WriteBatch } from "firebase/firestore";
 
 const albumFirestoreConverter: FirestoreDataConverter<Album, AlbumDoc> = {
@@ -24,7 +24,7 @@ export async function getAlbums() {
 
 export async function createAlbum(album: AlbumDoc, instance?: Transaction | WriteBatch): Promise<string> {
   const albumId = uuid();
-  await createDoc<Album, AlbumDoc>(doc(db, RootLevelCollection.ALBUMS, albumId) as DocumentReference<Album, AlbumDoc>, { id: albumId, ...album }, albumFirestoreConverter, instance);
+  await setDoc<Album, AlbumDoc>(doc(db, RootLevelCollection.ALBUMS, albumId) as DocumentReference<Album, AlbumDoc>, { id: albumId, ...album }, albumFirestoreConverter, { instance });
   return albumId;
 }
 

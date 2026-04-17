@@ -1,4 +1,4 @@
-import { AggregateField, AggregateType, CollectionGroup, CollectionReference, DocumentData, DocumentReference, DocumentSnapshot, FirestoreDataConverter, GrpcStatus, Query, Transaction, UpdateData, WhereFilterOp, WithFieldValue, WriteBatch } from "firebase-admin/firestore";
+import { AggregateField, AggregateType, CollectionGroup, CollectionReference, DocumentData, DocumentReference, DocumentSnapshot, FirestoreDataConverter, GrpcStatus, PartialWithFieldValue, Query, SetOptions, Transaction, UpdateData, WhereFilterOp, WithFieldValue, WriteBatch } from "firebase-admin/firestore";
 import { isFirebaseError } from "../../types/error";
 import { NestedFieldPath } from "@/utils/types/typeUtils";
 import { Collection } from "@/data/firestore/types/collections";
@@ -28,6 +28,36 @@ export async function createDoc<AppModelType, DbModelType extends DocumentData>(
       throw Error("Document already exists");
     }
     throw Error("Failed to create document");
+  }
+}
+
+type SetDocOptions = SetDocMergeOptions | SetDocOverwriteOptions;
+
+interface SetDocMergeOptions {
+  instance?: Transaction | WriteBatch;
+  mergeOptions: SetOptions;
+}
+
+interface SetDocOverwriteOptions {
+  instance?: Transaction | WriteBatch;
+}
+
+export async function setDoc<AppModelType, DbModelType extends DocumentData>(ref: DocumentReference<AppModelType, DbModelType>, data: WithFieldValue<AppModelType>, converter: FirestoreDataConverter<AppModelType, DbModelType>, options?: SetDocOverwriteOptions): Promise<void>
+export async function setDoc<AppModelType, DbModelType extends DocumentData>(ref: DocumentReference<AppModelType, DbModelType>, data: PartialWithFieldValue<AppModelType>, converter: FirestoreDataConverter<AppModelType, DbModelType>, options: SetDocMergeOptions): Promise<void>
+export async function setDoc<AppModelType, DbModelType extends DocumentData>(ref: DocumentReference<AppModelType, DbModelType>, data: WithFieldValue<AppModelType> | PartialWithFieldValue<AppModelType>, converter: FirestoreDataConverter<AppModelType, DbModelType>, options?: SetDocOptions): Promise<void> {
+  try {
+    ref = ref.withConverter(converter);
+    options = options ?? {};
+    const { instance } = options;
+    if ('mergeOptions' in options) {
+      // @ts-expect-error - both Transaction & WriteBatch have a set with the same signature, but TypeScript fails to recognize that
+      await (instance ? instance.set(ref, data, options.mergeOptions) : ref.set(data as PartialWithFieldValue<AppModelType>, options.mergeOptions));
+    } else {
+      // @ts-expect-error - both Transaction & WriteBatch have a set with the same signature, but TypeScript fails to recognize that
+      await (instance ? instance.set(ref, data) : ref.set(data as WithFieldValue<AppModelType>));
+    }
+  } catch (error: unknown) {
+    throw Error("Failed to set document")
   }
 }
 

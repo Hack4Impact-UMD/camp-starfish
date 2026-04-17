@@ -13,7 +13,7 @@ import {
   CollectionReference,
   UpdateData
 } from "firebase/firestore";
-import { createDoc, getDoc, updateDoc, executeQuery, deleteDoc } from "./firestoreClientOperations";
+import { setDoc, getDoc, updateDoc, executeQuery, deleteDoc } from "./firestoreClientOperations";
 import { RootLevelCollection, SessionsSubcollection } from "./types/collections";
 
 const nightScheduleFirestoreConverter: FirestoreDataConverter<NightSchedule, NightScheduleDoc> = {
@@ -33,7 +33,7 @@ export async function getNightSchedulesBySessionId(sessionId: string): Promise<N
 }
 
 export async function createNightSchedule(date: string, sessionId: string, nightShift: NightScheduleDoc, instance?: Transaction | WriteBatch): Promise<void> {
-  await createDoc<NightSchedule, NightScheduleDoc>(doc(db, RootLevelCollection.SESSIONS, sessionId, SessionsSubcollection.NIGHT_SCHEDULES, date) as DocumentReference<NightSchedule, NightScheduleDoc>, { date, sessionId, ...nightShift }, nightScheduleFirestoreConverter, instance);
+  await setDoc<NightSchedule, NightScheduleDoc>(doc(db, RootLevelCollection.SESSIONS, sessionId, SessionsSubcollection.NIGHT_SCHEDULES, date) as DocumentReference<NightSchedule, NightScheduleDoc>, { date, sessionId, ...nightShift }, nightScheduleFirestoreConverter, { instance });
 }
 
 export async function updateNightSchedule(id: string, sessionId: string, updates: UpdateData<NightScheduleDoc>, instance?: Transaction | WriteBatch): Promise<void> {

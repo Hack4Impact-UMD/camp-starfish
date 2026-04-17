@@ -12,7 +12,7 @@ import {
   collection,
   CollectionReference
 } from "firebase/firestore";
-import { createDoc, getDoc, updateDoc, executeQuery } from "./firestoreClientOperations";
+import { setDoc, getDoc, updateDoc, executeQuery } from "./firestoreClientOperations";
 import { RootLevelCollection, SessionsSubcollection } from "./types/collections";
 
 const attendeeFirestoreConverter: FirestoreDataConverter<Attendee, AttendeeDoc> = {
@@ -33,7 +33,7 @@ export async function getAttendeesBySessionId(sessionId: string): Promise<Attend
 
 export async function createAttendee(campminderId: number, sessionId: string, attendee: AttendeeDoc, instance?: Transaction | WriteBatch): Promise<number> {
   const attendeeId = campminderId;
-  await createDoc<Attendee, AttendeeDoc>(doc(db, RootLevelCollection.SESSIONS, sessionId, SessionsSubcollection.ATTENDEES, String(campminderId)) as DocumentReference<Attendee, AttendeeDoc>, { attendeeId, sessionId: sessionId, ...attendee }, attendeeFirestoreConverter, instance);
+  await setDoc<Attendee, AttendeeDoc>(doc(db, RootLevelCollection.SESSIONS, sessionId, SessionsSubcollection.ATTENDEES, String(campminderId)) as DocumentReference<Attendee, AttendeeDoc>, { attendeeId, sessionId: sessionId, ...attendee }, attendeeFirestoreConverter, { instance });
   return attendeeId;
 }
 

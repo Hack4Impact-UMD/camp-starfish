@@ -2,7 +2,7 @@ import { db } from "@/config/firebase";
 import { Freeplay } from "@/types/sessions/sessionTypes";
 import { FreeplayDoc } from "./types/documents";
 import { doc, Transaction, WriteBatch, QueryDocumentSnapshot, FirestoreDataConverter, WithFieldValue, DocumentReference } from "firebase/firestore";
-import { createDoc, deleteDoc, getDoc, updateDoc } from "./firestoreClientOperations";
+import { setDoc, deleteDoc, getDoc, updateDoc } from "./firestoreClientOperations";
 import { RootLevelCollection, SessionsSubcollection } from "./types/collections";
 
 const freeplayFirestoreConverter: FirestoreDataConverter<Freeplay, FreeplayDoc> = {
@@ -18,7 +18,7 @@ export async function getFreeplayById(sessionId: string, freeplayId: string, tra
 };
 
 export async function createFreeplay(sessionId: string, freeplay: Freeplay, instance?: Transaction | WriteBatch): Promise<void> {
-  await createDoc<Freeplay, FreeplayDoc>(doc(db, RootLevelCollection.SESSIONS, sessionId, SessionsSubcollection.FREEPLAYS, freeplay.date) as DocumentReference<Freeplay, FreeplayDoc>, freeplay, freeplayFirestoreConverter, instance);
+  await setDoc<Freeplay, FreeplayDoc>(doc(db, RootLevelCollection.SESSIONS, sessionId, SessionsSubcollection.FREEPLAYS, freeplay.date) as DocumentReference<Freeplay, FreeplayDoc>, freeplay, freeplayFirestoreConverter, { instance });
 };
 
 export async function updateFreeplay(sessionId: string, freeplayId: string, updates: Partial<FreeplayDoc>, instance?: Transaction | WriteBatch): Promise<void> {

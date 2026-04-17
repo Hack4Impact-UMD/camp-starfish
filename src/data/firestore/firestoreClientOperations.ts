@@ -1,6 +1,6 @@
 import { NestedFieldPath } from "@/utils/types/typeUtils";
 import { FirebaseError } from "firebase/app";
-import { DocumentReference, Query, Transaction, WriteBatch, DocumentSnapshot, getDoc as getFirestore, setDoc as setFirestore, updateDoc as updateFirestore, deleteDoc as deleteFirestore, getDocs as queryFirestore, WithFieldValue, DocumentData, UpdateData, FirestoreDataConverter, CollectionReference, WhereFilterOp, collectionGroup, where as whereFirestore, orderBy as orderByFirestore, limit, limitToLast, startAfter, startAt, endBefore, endAt, query, documentId, getAggregateFromServer, AggregateType, count, AggregateField, sum, average } from "firebase/firestore";
+import { DocumentReference, Query, Transaction, WriteBatch, DocumentSnapshot, getDoc as getFirestore, setDoc as setFirestore, updateDoc as updateFirestore, deleteDoc as deleteFirestore, getDocs as queryFirestore, WithFieldValue, DocumentData, UpdateData, FirestoreDataConverter, CollectionReference, WhereFilterOp, collectionGroup, where as whereFirestore, orderBy as orderByFirestore, limit, limitToLast, startAfter, startAt, endBefore, endAt, query, documentId, getAggregateFromServer, AggregateType, count, AggregateField, sum, average, SetOptions, PartialWithFieldValue } from "firebase/firestore";
 import { db } from "@/config/firebase";
 import { AlbumsSubcollection, Collection, RootLevelCollection, SectionsSubcollection, SessionsSubcollection } from "./types/collections";
 
@@ -19,16 +19,33 @@ export async function getDoc<AppModelType, DbModelType extends DocumentData>(ref
   return doc.data();
 }
 
-export async function createDoc<AppModelType, DbModelType extends DocumentData>(ref: DocumentReference<AppModelType, DbModelType>, data: WithFieldValue<AppModelType>, converter: FirestoreDataConverter<AppModelType, DbModelType>, instance?: Transaction | WriteBatch): Promise<void> {
+type SetDocOptions = SetDocMergeOptions | SetDocOverwriteOptions;
+
+interface SetDocMergeOptions {
+  instance?: Transaction | WriteBatch;
+  mergeOptions: SetOptions;
+}
+
+interface SetDocOverwriteOptions {
+  instance?: Transaction | WriteBatch;
+}
+
+export async function setDoc<AppModelType, DbModelType extends DocumentData>(ref: DocumentReference<AppModelType, DbModelType>, data: WithFieldValue<AppModelType>, converter: FirestoreDataConverter<AppModelType, DbModelType>, options?: SetDocOverwriteOptions): Promise<void>
+export async function setDoc<AppModelType, DbModelType extends DocumentData>(ref: DocumentReference<AppModelType, DbModelType>, data: PartialWithFieldValue<AppModelType>, converter: FirestoreDataConverter<AppModelType, DbModelType>, options: SetDocMergeOptions): Promise<void>
+export async function setDoc<AppModelType, DbModelType extends DocumentData>(ref: DocumentReference<AppModelType, DbModelType>, data: WithFieldValue<AppModelType> | PartialWithFieldValue<AppModelType>, converter: FirestoreDataConverter<AppModelType, DbModelType>, options?: SetDocOptions): Promise<void> {
   try {
     ref = ref.withConverter(converter);
-    // @ts-expect-error - both Transaction & WriteBatch have a set with the same signature, but TypeScript fails to recognize that
-    await (instance ? instance.set(ref, data) : setFirestore(ref, data));
-  } catch (error) {
-    if (error instanceof FirebaseError) {
-      throw Error(`Failed to create document: ${error.code} - ${error.message}`);
+    options = options ?? {};
+    const { instance } = options;
+    if ('mergeOptions' in options) {
+      // @ts-expect-error - both Transaction & WriteBatch have a set with the same signature, but TypeScript fails to recognize that
+      await (instance ? instance.set(ref, data, options.mergeOptions) : ref.set(data as PartialWithFieldValue<AppModelType>, options.mergeOptions));
+    } else {
+      // @ts-expect-error - both Transaction & WriteBatch have a set with the same signature, but TypeScript fails to recognize that
+      await (instance ? instance.set(ref, data) : ref.set(data as WithFieldValue<AppModelType>));
     }
-    throw Error("Failed to create document");
+  } catch (error: unknown) {
+    throw Error("Failed to set document")
   }
 }
 

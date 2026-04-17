@@ -15,7 +15,7 @@ import {
   UpdateData
 } from "firebase/firestore";
 import {
-  createDoc,
+  setDoc,
   deleteDoc,
   getDoc,
   updateDoc,
@@ -46,7 +46,7 @@ export async function getAllSessions(): Promise<Session[]> {
 export type CreateSessionDTO = SessionDoc;
 export async function createSession(session: CreateSessionDTO, instance?: Transaction | WriteBatch): Promise<string> {
   const sessionId = uuid();
-  await createDoc<Session, SessionDoc>(doc(db, RootLevelCollection.SESSIONS, sessionId) as DocumentReference<Session, SessionDoc>, { id: sessionId, ...session }, sessionFirestoreConverter, instance);
+  await setDoc<Session, SessionDoc>(doc(db, RootLevelCollection.SESSIONS, sessionId) as DocumentReference<Session, SessionDoc>, { id: sessionId, ...session }, sessionFirestoreConverter, { instance });
   return sessionId;
 }
 
