@@ -31,16 +31,15 @@ export async function createDoc<AppModelType, DbModelType extends DocumentData>(
   }
 }
 
-type SetDocOptions = SetDocMergeOptions | SetDocOverwriteOptions;
+type SetDocOptions = {
+  instance?: Transaction | WriteBatch;
+} & (SetDocMergeOptions | SetDocOverwriteOptions);
 
 interface SetDocMergeOptions {
-  instance?: Transaction | WriteBatch;
   mergeOptions: SetOptions;
 }
 
-interface SetDocOverwriteOptions {
-  instance?: Transaction | WriteBatch;
-}
+interface SetDocOverwriteOptions {}
 
 export async function setDoc<AppModelType, DbModelType extends DocumentData>(ref: DocumentReference<AppModelType, DbModelType>, data: WithFieldValue<AppModelType>, converter: FirestoreDataConverter<AppModelType, DbModelType>, options?: SetDocOverwriteOptions): Promise<void>
 export async function setDoc<AppModelType, DbModelType extends DocumentData>(ref: DocumentReference<AppModelType, DbModelType>, data: PartialWithFieldValue<AppModelType>, converter: FirestoreDataConverter<AppModelType, DbModelType>, options: SetDocMergeOptions): Promise<void>
