@@ -73,9 +73,8 @@ export async function updateDoc<AppModelType, DbModelType extends DocumentData>(
   }
 }
 
-export async function deleteDoc<AppModelType, DbModelType extends DocumentData>(ref: DocumentReference<AppModelType, DbModelType>, converter: FirestoreDataConverter<AppModelType, DbModelType>, instance?: Transaction | WriteBatch): Promise<void> {
+export async function deleteDoc<AppModelType, DbModelType extends DocumentData>(ref: DocumentReference<AppModelType, DbModelType>, instance?: Transaction | WriteBatch): Promise<void> {
   try {
-    ref = ref.withConverter(converter);
     await (instance ? instance.delete(ref) : ref.delete());
   } catch {
     throw Error("Failed to delete document");
@@ -104,9 +103,8 @@ type BuildQueryOptions<DbModelType extends DocumentData> = {
   orderBy?: OrderByClause<DbModelType>[];
 } & LimitClause & StartCursorClause & EndCursorClause;
 
-function buildQuery<AppModelType, DbModelType extends DocumentData>(collection: CollectionReference<AppModelType, DbModelType> | Collection, converter: FirestoreDataConverter<AppModelType, DbModelType>, options?: BuildQueryOptions<DbModelType>): Query<AppModelType, DbModelType> {
+function buildQuery<AppModelType, DbModelType extends DocumentData>(collection: CollectionReference<AppModelType, DbModelType> | Collection, options?: BuildQueryOptions<DbModelType>): Query<AppModelType, DbModelType> {
   let queryObj: Query<AppModelType, DbModelType> = typeof collection === 'string' ? adminDb.collectionGroup(collection) as CollectionGroup<AppModelType, DbModelType> : collection;
-  queryObj = queryObj.withConverter(converter);
   if (options) {
     const { where = [], orderBy = [] } = options;
     // @ts-expect-error - fieldPath is not infinitely recursive
@@ -136,7 +134,7 @@ function buildQuery<AppModelType, DbModelType extends DocumentData>(collection: 
 
 export async function executeQuery<AppModelType, DbModelType extends DocumentData>(collection: CollectionReference<AppModelType, DbModelType> | Collection, converter: FirestoreDataConverter<AppModelType, DbModelType>, options?: BuildQueryOptions<DbModelType>): Promise<AppModelType[]> {
   try {
-    const queryObj = buildQuery(collection, converter, options);
+    const queryObj = buildQuery(collection, options).withConverter(converter);
     const querySnapshot = await queryObj.get();
     return querySnapshot.docs.map(doc => doc.data());
   } catch {
@@ -150,10 +148,10 @@ type AggregationClause<DbModelType> = { aggregateFieldName: string; } & (
 
 type ExecuteAggregationOptions<DbModelType extends DocumentData> = BuildQueryOptions<DbModelType> & { aggregations: AggregationClause<DbModelType>[]; }
 
-export async function executeAggregation<AppModelType, DbModelType extends DocumentData>(collection: CollectionReference<AppModelType, DbModelType> | Collection, converter: FirestoreDataConverter<AppModelType, DbModelType>, options: ExecuteAggregationOptions<DbModelType>): Promise<{ [key: string]: number }> {
+export async function executeAggregation<AppModelType, DbModelType extends DocumentData>(collection: CollectionReference<AppModelType, DbModelType> | Collection, options: ExecuteAggregationOptions<DbModelType>): Promise<{ [key: string]: number }> {
   try {
     const { aggregations, ...queryOptions } = options;
-    const queryObj = buildQuery(collection, converter, queryOptions);
+    const queryObj = buildQuery(collection, queryOptions);
     const aggregationObj: { [key: string]: AggregateField<number> } = {};
     aggregations.forEach(agg => {
       if (agg.operation === 'count') { aggregationObj[agg.aggregateFieldName] = AggregateField.count(); }
