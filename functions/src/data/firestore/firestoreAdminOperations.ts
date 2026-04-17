@@ -98,12 +98,12 @@ type LimitClause = { limit: number } | { limitToLast: number } | {};
 type StartCursorClause = { startAfter: DocumentSnapshot | unknown[] } | { startAt: DocumentSnapshot | unknown[] } | {};
 type EndCursorClause = { endBefore: DocumentSnapshot | unknown[] } | { endAt: DocumentSnapshot | unknown[] } | {};
 
-type BuildQueryOptions<DbModelType extends DocumentData> = {
+type QueryOptions<DbModelType extends DocumentData> = {
   where?: WhereClause<DbModelType>[];
   orderBy?: OrderByClause<DbModelType>[];
 } & LimitClause & StartCursorClause & EndCursorClause;
 
-function buildQuery<AppModelType, DbModelType extends DocumentData>(collection: CollectionReference<AppModelType, DbModelType> | Collection, options?: BuildQueryOptions<DbModelType>): Query<AppModelType, DbModelType> {
+function buildQuery<AppModelType, DbModelType extends DocumentData>(collection: CollectionReference<AppModelType, DbModelType> | Collection, options?: QueryOptions<DbModelType>): Query<AppModelType, DbModelType> {
   let queryObj: Query<AppModelType, DbModelType> = typeof collection === 'string' ? adminDb.collectionGroup(collection) as CollectionGroup<AppModelType, DbModelType> : collection;
   if (options) {
     const { where = [], orderBy = [] } = options;
@@ -132,7 +132,7 @@ function buildQuery<AppModelType, DbModelType extends DocumentData>(collection: 
   return queryObj;
 }
 
-export async function executeQuery<AppModelType, DbModelType extends DocumentData>(collection: CollectionReference<AppModelType, DbModelType> | Collection, converter: FirestoreDataConverter<AppModelType, DbModelType>, options?: BuildQueryOptions<DbModelType>): Promise<AppModelType[]> {
+export async function executeQuery<AppModelType, DbModelType extends DocumentData>(collection: CollectionReference<AppModelType, DbModelType> | Collection, converter: FirestoreDataConverter<AppModelType, DbModelType>, options?: QueryOptions<DbModelType>): Promise<AppModelType[]> {
   try {
     const queryObj = buildQuery(collection, options).withConverter(converter);
     const querySnapshot = await queryObj.get();
@@ -146,9 +146,9 @@ type AggregationClause<DbModelType> = { aggregateFieldName: string; } & (
   | { operation: Extract<AggregateType, 'count'>; }
   | { operation: Extract<AggregateType, 'sum' | 'avg'>; sourceFieldPath: FirestoreDocumentFieldPath<DbModelType>; })
 
-type ExecuteAggregationOptions<DbModelType extends DocumentData> = BuildQueryOptions<DbModelType> & { aggregations: AggregationClause<DbModelType>[]; }
+type AggregationOptions<DbModelType extends DocumentData> = QueryOptions<DbModelType> & { aggregations: AggregationClause<DbModelType>[]; }
 
-export async function executeAggregation<AppModelType, DbModelType extends DocumentData>(collection: CollectionReference<AppModelType, DbModelType> | Collection, options: ExecuteAggregationOptions<DbModelType>): Promise<{ [key: string]: number }> {
+export async function executeAggregation<AppModelType, DbModelType extends DocumentData>(collection: CollectionReference<AppModelType, DbModelType> | Collection, options: AggregationOptions<DbModelType>): Promise<{ [key: string]: number }> {
   try {
     const { aggregations, ...queryOptions } = options;
     const queryObj = buildQuery(collection, queryOptions);
