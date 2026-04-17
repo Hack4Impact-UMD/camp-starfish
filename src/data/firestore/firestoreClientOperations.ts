@@ -19,6 +19,13 @@ export async function getDoc<AppModelType, DbModelType extends DocumentData>(ref
   return doc.data();
 }
 
+export async function assertDocumentDoesNotExist(ref: DocumentReference, instance?: Transaction): Promise<void> {
+  const doc = await (instance ? instance.get(ref) : getFirestore(ref));
+  if (doc.exists()) {
+    throw Error("Document already exists");
+  }
+}
+
 type SetDocOptions = {
   instance?: Transaction | WriteBatch;
 } & (SetDocMergeOptions | SetDocOverwriteOptions);
