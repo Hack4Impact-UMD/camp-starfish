@@ -132,10 +132,16 @@ function buildQuery<AppModelType, DbModelType extends DocumentData>(collection: 
   return queryObj;
 }
 
-export async function executeQuery<AppModelType, DbModelType extends DocumentData>(collection: CollectionReference<AppModelType, DbModelType> | Collection, converter: FirestoreDataConverter<AppModelType, DbModelType>, options?: QueryOptions<DbModelType>): Promise<AppModelType[]> {
+interface ExecuteQueryOptions<DbModelType extends DocumentData> {
+  transaction?: Transaction;
+  queryOptions?: QueryOptions<DbModelType>;
+}
+
+export async function executeQuery<AppModelType, DbModelType extends DocumentData>(collection: CollectionReference<AppModelType, DbModelType> | Collection, converter: FirestoreDataConverter<AppModelType, DbModelType>, options?: ExecuteQueryOptions<DbModelType>): Promise<AppModelType[]> {
   try {
-    const queryObj = buildQuery(collection, options).withConverter(converter);
-    const querySnapshot = await queryObj.get();
+    const { transaction, queryOptions } = options ?? {};
+    const queryObj = buildQuery(collection, queryOptions).withConverter(converter);
+    const querySnapshot = await (transaction ? transaction.get(queryObj) : queryObj.get());
     return querySnapshot.docs.map(doc => doc.data());
   } catch {
     throw Error("Failed to execute query");
