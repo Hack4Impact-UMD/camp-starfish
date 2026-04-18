@@ -1,6 +1,5 @@
 import { AggregateField, AggregateType, CollectionGroup, CollectionReference, DocumentData, DocumentReference, DocumentSnapshot, FirestoreDataConverter, GrpcStatus, PartialWithFieldValue, Query, SetOptions, Transaction, UpdateData, WhereFilterOp, WithFieldValue, WriteBatch } from "firebase-admin/firestore";
 import { isFirebaseError } from "../../types/error";
-import { NestedFieldPath } from "@/utils/types/typeUtils";
 import { Collection } from "@/data/firestore/types/collections";
 import { adminDb } from "../../config/firebaseAdminConfig";
 
@@ -80,7 +79,7 @@ export async function deleteDoc<AppModelType, DbModelType extends DocumentData>(
   }
 }
 
-type FirestoreDocumentFieldPath<T> = NestedFieldPath<T> | '__name__';
+type FirestoreDocumentFieldPath<T> = (keyof UpdateData<T> & string) | '__name__';
 
 interface WhereClause<DbModelType> {
   fieldPath: FirestoreDocumentFieldPath<DbModelType>;
@@ -115,7 +114,6 @@ function buildQuery<AppModelType, DbModelType extends DocumentData>(collection: 
   let queryObj: Query<AppModelType, DbModelType> = typeof collection === 'string' ? adminDb.collectionGroup(collection) as CollectionGroup<AppModelType, DbModelType> : collection;
   if (options) {
     const { where = [], orderBy = [] } = options;
-    // @ts-expect-error - fieldPath is not infinitely recursive
     where.forEach(({ fieldPath, operation, value }) => queryObj = queryObj.where(fieldPath, operation, value));
     orderBy.forEach(({ fieldPath, direction }) => queryObj = queryObj.orderBy(fieldPath, direction));
 
