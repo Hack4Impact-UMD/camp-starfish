@@ -154,11 +154,11 @@ type AggregationClause<DbModelType> = { aggregateFieldName: string; } & (
 
 type AggregationQueryOptions<DbModelType extends DocumentData> = QueryOptions<DbModelType> & { aggregations: AggregationClause<DbModelType>[]; }
 
-export async function executeAggregationQuery<AppModelType, DbModelType extends DocumentData>(collection: CollectionReference<AppModelType, DbModelType> | Collection, converter: FirestoreDataConverter<AppModelType, DbModelType>, options: AggregationQueryOptions<DbModelType>): Promise<{ [key: string]: number }> {
+export async function executeAggregationQuery<AppModelType, DbModelType extends DocumentData>(collection: CollectionReference<AppModelType, DbModelType> | Collection, converter: FirestoreDataConverter<AppModelType, DbModelType>, options: AggregationQueryOptions<DbModelType>): Promise<{ [key: string]: number | null }> {
   try {
     const { aggregations, ...queryOptions } = options;
     const queryObj = buildQuery(collection, queryOptions);
-    const aggregationObj: { [key: string]: AggregateField<number> } = {};
+    const aggregationObj: { [key: string]: AggregateField<number | null> } = {};
     aggregations.forEach(agg => {
       if (agg.operation === 'count') { aggregationObj[agg.aggregateFieldName] = count(); }
       else if (agg.operation === 'sum') { aggregationObj[agg.aggregateFieldName] = sum(agg.sourceFieldPath); }
