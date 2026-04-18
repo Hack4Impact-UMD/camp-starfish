@@ -2,6 +2,7 @@ import { AggregateField, AggregateType, CollectionGroup, CollectionReference, Do
 import { isFirebaseError } from "../../types/error";
 import { Collection } from "@/data/firestore/types/collections";
 import { adminDb } from "../../config/firebaseAdminConfig";
+import { DistributiveKeyof } from "@/utils/types/typeUtils";
 
 export async function getDoc<AppModelType, DbModelType extends DocumentData>(ref: DocumentReference<AppModelType, DbModelType>, converter: FirestoreDataConverter<AppModelType, DbModelType>, transaction?: Transaction): Promise<AppModelType> {
   let doc: DocumentSnapshot<AppModelType, DbModelType>;
@@ -79,7 +80,7 @@ export async function deleteDoc<AppModelType, DbModelType extends DocumentData>(
   }
 }
 
-type FirestoreDocumentFieldPath<T> = keyof UpdateData<T> & string;
+type FirestoreDocumentFieldPath<T> = DistributiveKeyof<UpdateData<T>> & string;
 type FirestoreDocumentFieldPathAndID<T> = FirestoreDocumentFieldPath<T> | '__name__';
 
 interface WhereClause<DbModelType> {

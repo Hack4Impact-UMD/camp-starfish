@@ -2,6 +2,7 @@ import { FirebaseError } from "firebase/app";
 import { DocumentReference, Query, Transaction, WriteBatch, DocumentSnapshot, getDoc as getFirestore, setDoc as setFirestore, updateDoc as updateFirestore, deleteDoc as deleteFirestore, getDocs as queryFirestore, WithFieldValue, DocumentData, UpdateData, FirestoreDataConverter, CollectionReference, WhereFilterOp, collectionGroup, where as whereFirestore, orderBy as orderByFirestore, limit, limitToLast, startAfter, startAt, endBefore, endAt, query, documentId, getAggregateFromServer, AggregateType, count, AggregateField, sum, average, SetOptions, PartialWithFieldValue } from "firebase/firestore";
 import { db } from "@/config/firebase";
 import { Collection } from "./types/collections";
+import { DistributiveKeyof } from "@/utils/types/typeUtils";
 
 export async function getDoc<AppModelType, DbModelType extends DocumentData>(ref: DocumentReference<AppModelType, DbModelType>, converter: FirestoreDataConverter<AppModelType, DbModelType>, transaction?: Transaction): Promise<AppModelType> {
   let doc: DocumentSnapshot<AppModelType, DbModelType>;
@@ -74,7 +75,7 @@ export async function deleteDoc<AppModelType, DbModelType extends DocumentData>(
   }
 }
 
-type FirestoreDocumentFieldPath<T> = keyof UpdateData<T> & string;
+type FirestoreDocumentFieldPath<T> = DistributiveKeyof<UpdateData<T>> & string;
 type FirestoreDocumentFieldPathAndID<T> = FirestoreDocumentFieldPath<T> | '__name__';
 
 interface WhereClause<DbModelType> {
