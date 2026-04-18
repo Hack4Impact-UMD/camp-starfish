@@ -26,15 +26,14 @@ export async function assertDocumentDoesNotExist(ref: DocumentReference, instanc
   }
 }
 
-type SetDocOptions = {
-  instance?: Transaction | WriteBatch;
-} & (SetDocMergeOptions | SetDocOverwriteOptions);
-
+type SetDocOptions = SetDocMergeOptions | SetDocOverwriteOptions;
 interface SetDocMergeOptions {
+  instance?: Transaction | WriteBatch;
   mergeOptions: SetOptions;
 }
-
-type SetDocOverwriteOptions = Record<string, never>;
+interface SetDocOverwriteOptions {
+  instance?: Transaction | WriteBatch;
+};
 
 export async function setDoc<AppModelType, DbModelType extends DocumentData>(ref: DocumentReference<AppModelType, DbModelType>, data: WithFieldValue<AppModelType>, converter: FirestoreDataConverter<AppModelType, DbModelType>, options?: SetDocOverwriteOptions): Promise<void>
 export async function setDoc<AppModelType, DbModelType extends DocumentData>(ref: DocumentReference<AppModelType, DbModelType>, data: PartialWithFieldValue<AppModelType>, converter: FirestoreDataConverter<AppModelType, DbModelType>, options: SetDocMergeOptions): Promise<void>
@@ -89,9 +88,9 @@ interface OrderByClause<DbModelType> {
   direction: 'asc' | 'desc';
 }
 
-type LimitClause = { limit: number } | { limitToLast: number } | Record<string, never>;
-type StartCursorClause = { startAfter: DocumentSnapshot | unknown[] } | { startAt: DocumentSnapshot | unknown[] } | Record<string, never>;
-type EndCursorClause = { endBefore: DocumentSnapshot | unknown[] } | { endAt: DocumentSnapshot | unknown[] } | Record<string, never>;
+type LimitClause = { limit: number } | { limitToLast: number } | { limit?: never; limitToLast?: never };
+type StartCursorClause = { startAfter: DocumentSnapshot | unknown[] } | { startAt: DocumentSnapshot | unknown[] } | { startAfter?: never; startAt?: never };
+type EndCursorClause = { endBefore: DocumentSnapshot | unknown[] } | { endAt: DocumentSnapshot | unknown[] } | { endBefore?: never; endAt?: never };
 
 type QueryOptions<DbModelType extends DocumentData> = {
   where?: WhereClause<DbModelType>[];
@@ -107,9 +106,9 @@ function buildQuery<AppModelType, DbModelType extends DocumentData>(collection: 
     const orderByClauses = orderBy.map(({ fieldPath, direction }) => orderByFirestore(fieldPath === '__name__' ? documentId() : fieldPath, direction));
 
     const limitAndCursorClauses = [];
-    if ('limit' in options) {
+    if ('limit' in options && options.limit) {
       limitAndCursorClauses.push(limit(options.limit));
-    } else if ('limitToLast' in options) {
+    } else if ('limitToLast' in options && options.limitToLast) {
       limitAndCursorClauses.push(limitToLast(options.limitToLast));
     }
 
