@@ -125,16 +125,16 @@ function buildQuery<AppModelType, DbModelType extends DocumentData>(collection: 
       queryObj = queryObj.limitToLast(options.limitToLast);
     }
 
-    if ('startAfter' in options) {
-      queryObj = queryObj.startAfter(options.startAfter);
-    } else if ('startAt' in options) {
-      queryObj = queryObj.startAt(options.startAt);
+    if ('startAfter' in options && options.startAfter) {
+      queryObj = Array.isArray(options.startAfter) ? queryObj.startAfter(...options.startAfter) : queryObj.startAfter(options.startAfter);
+    } else if ('startAt' in options && options.startAt) {
+      queryObj = Array.isArray(options.startAt) ? queryObj.startAt(...options.startAt) : queryObj.startAt(options.startAt);
     }
 
-    if ('endBefore' in options) {
-      queryObj = queryObj.endBefore(options.endBefore);
-    } else if ('endAt' in options) {
-      queryObj = queryObj.endAt(options.endAt);
+    if ('endBefore' in options && options.endBefore) {
+      queryObj = Array.isArray(options.endBefore) ? queryObj.endBefore(...options.endBefore) : queryObj.endBefore(options.endBefore);
+    } else if ('endAt' in options && options.endAt) {
+      queryObj = Array.isArray(options.endAt) ? queryObj.endAt(...options.endAt) : queryObj.endAt(options.endAt);
     }
   }
   return queryObj;

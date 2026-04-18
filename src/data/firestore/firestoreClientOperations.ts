@@ -121,16 +121,16 @@ function buildQuery<AppModelType, DbModelType extends DocumentData>(collection: 
       limitAndCursorClauses.push(limitToLast(options.limitToLast));
     }
 
-    if ('startAfter' in options) {
-      limitAndCursorClauses.push(startAfter(options.startAfter));
-    } else if ('startAt' in options) {
-      limitAndCursorClauses.push(startAt(options.startAt));
+    if ('startAfter' in options && options.startAfter) {
+      limitAndCursorClauses.push(Array.isArray(options.startAfter) ? startAfter(...options.startAfter) : startAfter(options.startAfter));
+    } else if ('startAt' in options && options.startAt) {
+      limitAndCursorClauses.push(Array.isArray(options.startAt) ? startAt(...options.startAt) : startAt(options.startAt));
     }
 
-    if ('endBefore' in options) {
-      limitAndCursorClauses.push(endBefore(options.endBefore));
-    } else if ('endAt' in options) {
-      limitAndCursorClauses.push(endAt(options.endAt));
+    if ('endBefore' in options && options.endBefore) {
+      limitAndCursorClauses.push(Array.isArray(options.endBefore) ? endBefore(...options.endBefore) : endBefore(options.endBefore));
+    } else if ('endAt' in options && options.endAt) {
+      limitAndCursorClauses.push(Array.isArray(options.endAt) ? endAt(...options.endAt) : endAt(options.endAt));
     }
 
     queryObj = query(queryObj, ...whereClauses, ...orderByClauses, ...limitAndCursorClauses);
