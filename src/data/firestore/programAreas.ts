@@ -10,11 +10,7 @@ import {
   WithFieldValue,
   DocumentReference,
   collection,
-  where,
-  query,
-  Query,
   UpdateData,
-  documentId,
   CollectionReference
 } from "firebase/firestore";
 import { setDoc, getDoc, updateDoc, executeQuery, deleteDoc } from "./firestoreClientOperations";

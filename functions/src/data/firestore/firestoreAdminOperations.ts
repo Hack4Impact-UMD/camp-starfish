@@ -39,7 +39,7 @@ interface SetDocMergeOptions {
   mergeOptions: SetOptions;
 }
 
-interface SetDocOverwriteOptions {}
+type SetDocOverwriteOptions = Record<string, never>;
 
 export async function setDoc<AppModelType, DbModelType extends DocumentData>(ref: DocumentReference<AppModelType, DbModelType>, data: WithFieldValue<AppModelType>, converter: FirestoreDataConverter<AppModelType, DbModelType>, options?: SetDocOverwriteOptions): Promise<void>
 export async function setDoc<AppModelType, DbModelType extends DocumentData>(ref: DocumentReference<AppModelType, DbModelType>, data: PartialWithFieldValue<AppModelType>, converter: FirestoreDataConverter<AppModelType, DbModelType>, options: SetDocMergeOptions): Promise<void>
@@ -55,7 +55,7 @@ export async function setDoc<AppModelType, DbModelType extends DocumentData>(ref
       // @ts-expect-error - both Transaction & WriteBatch have a set with the same signature, but TypeScript fails to recognize that
       await (instance ? instance.set(ref, data) : ref.set(data as WithFieldValue<AppModelType>));
     }
-  } catch (error: unknown) {
+  } catch {
     throw Error("Failed to set document")
   }
 }
@@ -94,9 +94,9 @@ interface OrderByClause<DbModelType> {
   direction: 'asc' | 'desc';
 }
 
-type LimitClause = { limit: number } | { limitToLast: number } | {};
-type StartCursorClause = { startAfter: DocumentSnapshot | unknown[] } | { startAt: DocumentSnapshot | unknown[] } | {};
-type EndCursorClause = { endBefore: DocumentSnapshot | unknown[] } | { endAt: DocumentSnapshot | unknown[] } | {};
+type LimitClause = { limit: number } | { limitToLast: number } | Record<string, never>;
+type StartCursorClause = { startAfter: DocumentSnapshot | unknown[] } | { startAt: DocumentSnapshot | unknown[] } | Record<string, never>;
+type EndCursorClause = { endBefore: DocumentSnapshot | unknown[] } | { endAt: DocumentSnapshot | unknown[] } | Record<string, never>;
 
 type QueryOptions<DbModelType extends DocumentData> = {
   where?: WhereClause<DbModelType>[];
@@ -166,7 +166,7 @@ export async function executeAggregation<AppModelType, DbModelType extends Docum
     })
     const aggregateSnapshot = await queryObj.aggregate(aggregationObj).get();
     return aggregateSnapshot.data();
-  } catch (error) {
+  } catch {
     throw Error("Failed to execute aggregation");
   }
 }
