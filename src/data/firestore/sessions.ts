@@ -55,5 +55,5 @@ export async function updateSession(id: string, updates: UpdateData<SessionDoc>,
 }
 
 export async function deleteSession(id: string, instance?: Transaction | WriteBatch): Promise<void> {
-  await deleteDoc<Session, SessionDoc>(doc(db, RootLevelCollection.SESSIONS, id) as DocumentReference<Session, SessionDoc>, sessionFirestoreConverter, instance);
+  await deleteDoc<Session, SessionDoc>(doc(db, RootLevelCollection.SESSIONS, id) as DocumentReference<Session, SessionDoc>, instance);
 }

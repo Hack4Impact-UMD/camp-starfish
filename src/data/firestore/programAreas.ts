@@ -54,5 +54,5 @@ export async function updateProgramArea(id: string, updates: UpdateData<ProgramA
 }
 
 export async function deleteProgramArea(id: string, instance?: Transaction | WriteBatch): Promise<void> {
-  await deleteDoc<ProgramArea, ProgramAreaDoc>(doc(db, RootLevelCollection.PROGRAM_AREAS, id) as DocumentReference<ProgramArea, ProgramAreaDoc>, programAreaFirestoreConverter, instance);
+  await deleteDoc<ProgramArea, ProgramAreaDoc>(doc(db, RootLevelCollection.PROGRAM_AREAS, id) as DocumentReference<ProgramArea, ProgramAreaDoc>, instance);
 }

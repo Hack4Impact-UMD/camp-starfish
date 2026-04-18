@@ -44,5 +44,5 @@ export async function updateSection(sessionId: string, sectionId: string, update
 }
 
 export async function deleteSection(id: string, sessionID: string, instance?: Transaction | WriteBatch): Promise<void> {
-  await deleteDoc<Section, SectionDoc>(doc(db, RootLevelCollection.SESSIONS, sessionID, SessionsSubcollection.SECTIONS, id) as DocumentReference<Section, SectionDoc>, sectionFirestoreConverter, instance);
+  await deleteDoc<Section, SectionDoc>(doc(db, RootLevelCollection.SESSIONS, sessionID, SessionsSubcollection.SECTIONS, id) as DocumentReference<Section, SectionDoc>, instance);
 }

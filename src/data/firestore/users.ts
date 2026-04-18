@@ -34,5 +34,5 @@ export async function updateUser(id: number, updates: Partial<UserDoc>, instance
 }
 
 export async function deleteUser(id: number, instance?: Transaction | WriteBatch): Promise<void> {
-  await deleteDoc<User, UserDoc>(doc(db, RootLevelCollection.USERS, String(id)) as DocumentReference<User, UserDoc>, userFirestoreConverter, instance);
+  await deleteDoc<User, UserDoc>(doc(db, RootLevelCollection.USERS, String(id)) as DocumentReference<User, UserDoc>, instance);
 }

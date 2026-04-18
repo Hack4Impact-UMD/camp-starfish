@@ -26,5 +26,5 @@ export async function updateFreeplay(sessionId: string, freeplayId: string, upda
 };
 
 export async function deleteFreeplay(sessionId: string, freeplayId: string, instance?: Transaction | WriteBatch): Promise<void> {
-  await deleteDoc<Freeplay, FreeplayDoc>(doc(db, RootLevelCollection.SESSIONS, sessionId, SessionsSubcollection.FREEPLAYS, freeplayId) as DocumentReference<Freeplay, FreeplayDoc>, freeplayFirestoreConverter, instance);
+  await deleteDoc<Freeplay, FreeplayDoc>(doc(db, RootLevelCollection.SESSIONS, sessionId, SessionsSubcollection.FREEPLAYS, freeplayId) as DocumentReference<Freeplay, FreeplayDoc>, instance);
 };

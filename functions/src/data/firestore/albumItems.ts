@@ -26,5 +26,5 @@ export async function updateAlbumItem(albumId: string, albumItemId: string, upda
 }
 
 export async function deleteAlbumItem(albumId: string, albumItemId: string, instance?: Transaction | WriteBatch): Promise<void> {
-  await deleteDoc<AlbumItem, AlbumItemDoc>(adminDb.collection(RootLevelCollection.ALBUMS).doc(albumId).collection(AlbumsSubcollection.ALBUM_ITEMS).doc(albumItemId) as DocumentReference<AlbumItem, AlbumItemDoc>, albumItemFirestoreConverter, instance);
+  await deleteDoc<AlbumItem, AlbumItemDoc>(adminDb.collection(RootLevelCollection.ALBUMS).doc(albumId).collection(AlbumsSubcollection.ALBUM_ITEMS).doc(albumItemId) as DocumentReference<AlbumItem, AlbumItemDoc>, instance);
 }

@@ -41,5 +41,5 @@ export async function updateNightSchedule(id: string, sessionId: string, updates
 }
 
 export async function deleteNightSchedule(id: string, sessionId: string, instance?: Transaction | WriteBatch): Promise<void> {
-  await deleteDoc<NightSchedule, NightScheduleDoc>(doc(db, RootLevelCollection.SESSIONS, sessionId, SessionsSubcollection.NIGHT_SCHEDULES, id) as DocumentReference<NightSchedule, NightScheduleDoc>, nightScheduleFirestoreConverter, instance);
+  await deleteDoc<NightSchedule, NightScheduleDoc>(doc(db, RootLevelCollection.SESSIONS, sessionId, SessionsSubcollection.NIGHT_SCHEDULES, id) as DocumentReference<NightSchedule, NightScheduleDoc>, instance);
 }

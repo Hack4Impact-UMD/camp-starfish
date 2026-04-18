@@ -7,7 +7,7 @@ import {
   FirestoreDataConverter,
   WithFieldValue,
   DocumentReference,
-  Query,
+  CollectionReference,
 } from "firebase-admin/firestore";
 import { createDoc, getDoc, updateDoc, deleteDoc, executeQuery } from "./firestoreAdminOperations";
 import { RootLevelCollection } from "@/data/firestore/types/collections";
@@ -26,7 +26,13 @@ export async function getUserById(id: number, transaction?: Transaction): Promis
 };
 
 export async function getUserByEmail(email: string, transaction?: Transaction): Promise<User> {
-  const users = await executeQuery<User, UserDoc>(adminDb.collection(RootLevelCollection.USERS).where('email', '==', email).limit(1) as Query<User, UserDoc>, userFirestoreConverter, transaction);
+  const users = await executeQuery<User, UserDoc>(adminDb.collection(RootLevelCollection.USERS) as CollectionReference<User, UserDoc>, userFirestoreConverter, {
+    transaction,
+    queryOptions: {
+      where: [{ fieldPath: 'email', operation: '==', value: email }],
+      limit: 1,
+    },
+  })
   if (users.length === 0) {
     throw new Error("No user with email found");
   }
@@ -42,5 +48,5 @@ export async function updateUser(id: number, updates: Partial<UserDoc>, instance
 }
 
 export async function deleteUser(id: number, instance?: Transaction | WriteBatch): Promise<void> {
-  await deleteDoc<User, UserDoc>(adminDb.collection(RootLevelCollection.USERS).doc(String(id)) as DocumentReference<User, UserDoc>, userFirestoreConverter, instance);
+  await deleteDoc<User, UserDoc>(adminDb.collection(RootLevelCollection.USERS).doc(String(id)) as DocumentReference<User, UserDoc>, instance);
 }

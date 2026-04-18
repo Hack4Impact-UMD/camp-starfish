@@ -29,5 +29,5 @@ export async function updateGoogleCredentials(uid: string, updates: Partial<Cred
 }
 
 export async function deleteGoogleCredentials(uid: string, instance?: Transaction | WriteBatch): Promise<void> {
-  await deleteDoc<Credentials, Credentials>(adminDb.collection(RootLevelCollection.GOOGLE_OAUTH2_TOKENS).doc(uid) as DocumentReference<Credentials, Credentials>, googleCredentialsFirestoreConverter, instance);
+  await deleteDoc<Credentials, Credentials>(adminDb.collection(RootLevelCollection.GOOGLE_OAUTH2_TOKENS).doc(uid) as DocumentReference<Credentials, Credentials>, instance);
 }
