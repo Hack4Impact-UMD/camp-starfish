@@ -17,7 +17,6 @@ import {
 import useAttendeesBySessionId from "@/hooks/attendees/useAttendeesBySessionId";
 import Profile from "@/assets/icons/Profile.svg";
 import Image from "next/image";
-//import { useRouter } from "next/navigation";
 
 type SmallDirectoryBlockProps = {
   sessionId: string;
@@ -27,7 +26,6 @@ const INITIAL_VISIBILE_COUNT = 3;
 const LOAD_MORE_COUNT = 3;
 
 export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
-  ///const router = useRouter();
   const { data: people, isLoading, error } = useAttendeesBySessionId(sessionId);
   const [searchQuery, setSearchQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState<"CAMPER" | "STAFF" | "ADMIN">(
@@ -36,7 +34,6 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
   const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBILE_COUNT);
   const [showAll, setShowAll] = useState(false);
 
-  // loading state
   if (isLoading) {
     return (
       <div className="max-w-[400px] m-[50px] border-[1.3px] border-black p-4 bg-neutral-2">
@@ -50,7 +47,6 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
     );
   }
 
-  // error state
   if (error) {
     return (
       <div className="max-w-[400px] m-[50px] border-[1.3px] border-black p-4 bg-neutral-2">
@@ -73,11 +69,10 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
   }
 
   // filtering the people based on role in search
-  const filteredPeople = (people || [])
-    .filter(
+  const filteredPeople = (people || []).filter(
       (person) =>
         person.role === roleFilter &&
-        person.name.firstName.toLowerCase().includes(searchQuery.toLowerCase())
+        person.snapshot.name.firstName.toLowerCase().includes(searchQuery.toLowerCase())
     )
     .slice(0, showAll ? people?.length : visibleCount);
 
@@ -134,16 +129,16 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
 
       <div className="flex flex-col gap-4 mt-7">
         {filteredPeople.map((person) => (
-          <div key={person.id}>
+          <div key={person.attendeeId}>
             <div className="flex items-center gap-[32px]">
               <Image
-                className="flex-shrink-0 w-[32px] h-[32px]"
+                className="shrink-0 w-[32px] h-[32px]"
                 src={Profile}
                 alt="Profile"
               />
               <div>
                 <p className="text-sm font-bold text-primary-5">
-                  {person.name.firstName} {person.name.lastName}
+                  {person.snapshot.name.firstName} {person.snapshot.name.lastName}
                   {"bunk" in person &&
                     person.bunk !== undefined &&
                     ` (${person.bunk})`}

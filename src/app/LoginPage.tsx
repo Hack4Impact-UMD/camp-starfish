@@ -4,17 +4,12 @@ import GoogleIcon from "@/assets/icons/Google.svg";
 import MicrosoftIcon from "@/assets/icons/Microsoft.svg";
 import ErrorIcon from "@/assets/icons/errorIcon.svg";
 import BackgroundPattern from "@/components/BackgroundPattern";
-import { useAuth } from "@/auth/useAuth";
 import { signInWithGooglePopup } from "@/auth/authN";
 import Image from "next/image";
 import { signInWithMicrosoftPopup } from "@/auth/authN";
 
 export default function LoginPage() {
   const [error, setError] = useState<string>("");
-
-  const auth = useAuth();
-
-  const errorDisplay = error ? error : auth.error;
 
   const signInWithGoogle = async () => {
     try {
@@ -69,11 +64,11 @@ export default function LoginPage() {
 
 
         {/* Error Message */}
-        {errorDisplay && (
+        {error && (
           <div className="flex flex-row w-5/6 mt-[14px]">
             <Image src={ErrorIcon.src} alt="Error Icon" width={32} height={32} />
             <p className="text-[#D32F2F] text-sm font-lato text-left pl-2">
-              {errorDisplay}
+              {error}
             </p>
           </div>
         )}

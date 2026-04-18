@@ -27,11 +27,11 @@ export default function GalleryCardOne({
         </h3>
         <Image src={albumIcon.src} alt="Album Icon" width={28} height={28} />
       </span>
-      <p className="text-center text-[20px] font-[400] text-modalSecondaryTitle">
+      <p className="text-center text-[20px] font-normal text-modalSecondaryTitle">
         {description}
       </p>
       <Image className="mt-[20px] mb-[20px]" src={PolaroidPhotos1.src} alt="Campers Stock Image" width={463.17} height={328.52}/>
-      <button className="rounded-[40px] w-full py-[16px] text-[20px] text-white font-[700] bg-camp-tert-green">
+      <button className="rounded-[40px] w-full py-[16px] text-[20px] text-white font-bold bg-camp-tert-green">
         VIEW {title}
       </button>
     </div>

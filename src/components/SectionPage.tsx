@@ -1,6 +1,6 @@
 "use client";
 import { Button, Text, Title } from "@mantine/core";
-import { SchedulingSectionID, SessionID } from "@/types/sessionTypes";
+import { Session, SchedulingSection } from "@/types/sessions/sessionTypes";
 import LoadingPage from "@/app/loading";
 import React from "react";
 import { usePublishSectionSchedule } from "@/features/scheduling/publishing/publishSectionSchedule";
@@ -8,7 +8,7 @@ import moment from "moment";
 import useSession from "@/hooks/sessions/useSession";
 import useSection from "@/hooks/sections/useSection";
 import DownloadDaySchedulePDFButton from "@/features/scheduling/exporting/DownloadDaySchedulePDFButton";
-import { isCommonSection } from "@/types/sectionTypeGuards";
+import { isCommonSection } from "@/types/sessions/sessionTypeGuards";
 
 interface SectionPageProps {
   sessionId: string;
@@ -38,8 +38,8 @@ export default function SectionPage(props: SectionPageProps) {
 }
 
 interface SectionPageContentProps {
-  session: SessionID;
-  section: SchedulingSectionID;
+  session: Session;
+  section: SchedulingSection;
 }
 
 function SectionPageContent(props: SectionPageContentProps) {
@@ -55,9 +55,9 @@ function SectionPageContent(props: SectionPageContentProps) {
         </Title>
         <Text className="text-sm text-primary-5 mb-4 italic">
           {`Last generated: ${
-            section && section.scheduleLastGenerated
-              ? moment(section.scheduleLastGenerated).format(
-                  "MM/DD/YYYY hh:mm:ss A"
+            section && section.publishedAt
+              ? moment(section.publishedAt).format(
+                  "MM/DD/YYYY hh:mm:ss A",
                 )
               : "N/A"
           }`}

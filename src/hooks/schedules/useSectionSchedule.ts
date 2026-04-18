@@ -1,4 +1,4 @@
-import { getSectionSchedule } from "@/data/firestore/schedules";
+import { getSectionSchedule } from "@/data/firestore/sectionSchedules";
 import { useQuery } from "@tanstack/react-query";
 
 export default function useSectionSchedule(sessionId: string, sectionId: string) {
