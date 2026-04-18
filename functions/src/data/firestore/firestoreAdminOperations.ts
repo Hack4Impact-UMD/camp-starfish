@@ -79,16 +79,17 @@ export async function deleteDoc<AppModelType, DbModelType extends DocumentData>(
   }
 }
 
-type FirestoreDocumentFieldPath<T> = (keyof UpdateData<T> & string) | '__name__';
+type FirestoreDocumentFieldPath<T> = keyof UpdateData<T> & string;
+type FirestoreDocumentFieldPathAndID<T> = FirestoreDocumentFieldPath<T> | '__name__';
 
 interface WhereClause<DbModelType> {
-  fieldPath: FirestoreDocumentFieldPath<DbModelType>;
+  fieldPath: FirestoreDocumentFieldPathAndID<DbModelType>;
   operation: WhereFilterOp;
   value: unknown;
 }
 
 interface OrderByClause<DbModelType> {
-  fieldPath: FirestoreDocumentFieldPath<DbModelType>;
+  fieldPath: FirestoreDocumentFieldPathAndID<DbModelType>;
   direction: 'asc' | 'desc';
 }
 
