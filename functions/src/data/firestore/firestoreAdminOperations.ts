@@ -1,5 +1,7 @@
-import { DocumentData, DocumentReference, DocumentSnapshot, FirestoreDataConverter, GrpcStatus, Query, Transaction, UpdateData, WithFieldValue, WriteBatch } from "firebase-admin/firestore";
+import { AggregateField, AggregateType, CollectionGroup, CollectionReference, DocumentData, DocumentReference, DocumentSnapshot, FirestoreDataConverter, GrpcStatus, PartialWithFieldValue, Query, SetOptions, Transaction, UpdateData, WhereFilterOp, WithFieldValue, WriteBatch } from "firebase-admin/firestore";
 import { isFirebaseError } from "../../types/error";
+import { Collection } from "@/data/firestore/types/collections";
+import { adminDb } from "../../config/firebaseAdminConfig";
 
 export async function getDoc<AppModelType, DbModelType extends DocumentData>(ref: DocumentReference<AppModelType, DbModelType>, converter: FirestoreDataConverter<AppModelType, DbModelType>, transaction?: Transaction): Promise<AppModelType> {
   let doc: DocumentSnapshot<AppModelType, DbModelType>;
@@ -16,16 +18,43 @@ export async function getDoc<AppModelType, DbModelType extends DocumentData>(ref
   return doc.data()!;
 }
 
-export async function setDoc<AppModelType, DbModelType extends DocumentData>(ref: DocumentReference<AppModelType, DbModelType>, data: WithFieldValue<AppModelType>, converter: FirestoreDataConverter<AppModelType, DbModelType>, instance?: Transaction | WriteBatch): Promise<void> {
+export async function createDoc<AppModelType, DbModelType extends DocumentData>(ref: DocumentReference<AppModelType, DbModelType>, data: WithFieldValue<AppModelType>, converter: FirestoreDataConverter<AppModelType, DbModelType>, instance?: Transaction | WriteBatch): Promise<void> {
   try {
     ref = ref.withConverter(converter);
-    // @ts-expect-error - both Transaction & WriteBatch have a set with the same signature, but TypeScript fails to recognize that
-    await (instance ? instance.set(ref, data) : ref.set(data));
+    await (instance ? instance.create(ref, data) : ref.create(data));
   } catch (error: unknown) {
     if (isFirebaseError(error) && error.code === GrpcStatus.ALREADY_EXISTS) {
       throw Error("Document already exists");
     }
     throw Error("Failed to create document");
+  }
+}
+
+type SetDocOptions = SetDocMergeOptions | SetDocOverwriteOptions;
+interface SetDocMergeOptions {
+  instance?: Transaction | WriteBatch;
+  mergeOptions: SetOptions;
+}
+interface SetDocOverwriteOptions {
+  instance?: Transaction | WriteBatch;
+}
+
+export async function setDoc<AppModelType, DbModelType extends DocumentData>(ref: DocumentReference<AppModelType, DbModelType>, data: WithFieldValue<AppModelType>, converter: FirestoreDataConverter<AppModelType, DbModelType>, options?: SetDocOverwriteOptions): Promise<void>
+export async function setDoc<AppModelType, DbModelType extends DocumentData>(ref: DocumentReference<AppModelType, DbModelType>, data: PartialWithFieldValue<AppModelType>, converter: FirestoreDataConverter<AppModelType, DbModelType>, options: SetDocMergeOptions): Promise<void>
+export async function setDoc<AppModelType, DbModelType extends DocumentData>(ref: DocumentReference<AppModelType, DbModelType>, data: WithFieldValue<AppModelType> | PartialWithFieldValue<AppModelType>, converter: FirestoreDataConverter<AppModelType, DbModelType>, options?: SetDocOptions): Promise<void> {
+  try {
+    ref = ref.withConverter(converter);
+    options = options ?? {};
+    const { instance } = options;
+    if ('mergeOptions' in options) {
+      // @ts-expect-error - both Transaction & WriteBatch have a set with the same signature, but TypeScript fails to recognize that
+      await (instance ? instance.set(ref, data, options.mergeOptions) : ref.set(data as PartialWithFieldValue<AppModelType>, options.mergeOptions));
+    } else {
+      // @ts-expect-error - both Transaction & WriteBatch have a set with the same signature, but TypeScript fails to recognize that
+      await (instance ? instance.set(ref, data) : ref.set(data as WithFieldValue<AppModelType>));
+    }
+  } catch {
+    throw Error("Failed to set document")
   }
 }
 
@@ -42,21 +71,116 @@ export async function updateDoc<AppModelType, DbModelType extends DocumentData>(
   }
 }
 
-export async function deleteDoc<AppModelType, DbModelType extends DocumentData>(ref: DocumentReference<AppModelType, DbModelType>, converter: FirestoreDataConverter<AppModelType, DbModelType>, instance?: Transaction | WriteBatch): Promise<void> {
+export async function deleteDoc<AppModelType, DbModelType extends DocumentData>(ref: DocumentReference<AppModelType, DbModelType>, instance?: Transaction | WriteBatch): Promise<void> {
   try {
-    ref = ref.withConverter(converter);
     await (instance ? instance.delete(ref) : ref.delete());
   } catch {
     throw Error("Failed to delete document");
   }
 }
 
-export async function executeQuery<AppModelType, DbModelType extends DocumentData>(query: Query<AppModelType, DbModelType>, converter: FirestoreDataConverter<AppModelType, DbModelType>, instance?: Transaction): Promise<AppModelType[]> {
+type FirestoreDocumentFieldPath<T> = keyof UpdateData<T> & string;
+type FirestoreDocumentFieldPathAndID<T> = FirestoreDocumentFieldPath<T> | '__name__';
+
+interface WhereClause<DbModelType> {
+  fieldPath: FirestoreDocumentFieldPathAndID<DbModelType>;
+  operation: WhereFilterOp;
+  value: unknown;
+}
+
+interface OrderByClause<DbModelType> {
+  fieldPath: FirestoreDocumentFieldPathAndID<DbModelType>;
+  direction: 'asc' | 'desc';
+}
+
+type LimitClause =
+  | { limit: number; limitToLast?: never; }
+  | { limit?: never; limitToLast: number; }
+  | { limit?: never; limitToLast?: never; };
+type StartCursorClause =
+  | { startAfter: DocumentSnapshot | unknown[]; startAt?: never; }
+  | { startAfter?: never; startAt: DocumentSnapshot | unknown[]; }
+  | { startAfter?: never; startAt?: never; };
+type EndCursorClause =
+  | { endBefore: DocumentSnapshot | unknown[]; endAt?: never; }
+  | { endBefore?: never; endAt: DocumentSnapshot | unknown[]; }
+  | { endBefore?: never; endAt?: never; };
+
+type QueryOptions<DbModelType extends DocumentData> = {
+  where?: WhereClause<DbModelType>[];
+  orderBy?: OrderByClause<DbModelType>[];
+} & LimitClause & StartCursorClause & EndCursorClause;
+
+function buildQuery<AppModelType, DbModelType extends DocumentData>(collection: CollectionReference<AppModelType, DbModelType> | Collection, options?: QueryOptions<DbModelType>): Query<AppModelType, DbModelType> {
+  let queryObj: Query<AppModelType, DbModelType> = typeof collection === 'string' ? adminDb.collectionGroup(collection) as CollectionGroup<AppModelType, DbModelType> : collection;
+  if (options) {
+    const { where = [], orderBy = [] } = options;
+    where.forEach(({ fieldPath, operation, value }) => queryObj = queryObj.where(fieldPath, operation, value));
+    orderBy.forEach(({ fieldPath, direction }) => queryObj = queryObj.orderBy(fieldPath, direction));
+
+    if ('limit' in options && options.limit) {
+      queryObj = queryObj.limit(options.limit);
+    } else if ('limitToLast' in options && options.limitToLast) {
+      queryObj = queryObj.limitToLast(options.limitToLast);
+    }
+
+    if ('startAfter' in options && options.startAfter) {
+      queryObj = Array.isArray(options.startAfter) ? queryObj.startAfter(...options.startAfter) : queryObj.startAfter(options.startAfter);
+    } else if ('startAt' in options && options.startAt) {
+      queryObj = Array.isArray(options.startAt) ? queryObj.startAt(...options.startAt) : queryObj.startAt(options.startAt);
+    }
+
+    if ('endBefore' in options && options.endBefore) {
+      queryObj = Array.isArray(options.endBefore) ? queryObj.endBefore(...options.endBefore) : queryObj.endBefore(options.endBefore);
+    } else if ('endAt' in options && options.endAt) {
+      queryObj = Array.isArray(options.endAt) ? queryObj.endAt(...options.endAt) : queryObj.endAt(options.endAt);
+    }
+  }
+  return queryObj;
+}
+
+interface ExecuteQueryOptions<DbModelType extends DocumentData> {
+  transaction?: Transaction;
+  queryOptions?: QueryOptions<DbModelType>;
+}
+
+export async function executeQuery<AppModelType, DbModelType extends DocumentData>(collection: CollectionReference<AppModelType, DbModelType> | Collection, converter: FirestoreDataConverter<AppModelType, DbModelType>, options?: ExecuteQueryOptions<DbModelType>): Promise<AppModelType[]> {
   try {
-    query = query.withConverter(converter);
-    const querySnapshot = await (instance ? instance.get(query) : query.get())
+    const { transaction, queryOptions } = options ?? {};
+    const queryObj = buildQuery(collection, queryOptions).withConverter(converter);
+    const querySnapshot = await (transaction ? transaction.get(queryObj) : queryObj.get());
     return querySnapshot.docs.map(doc => doc.data());
   } catch {
     throw Error("Failed to execute query");
+  }
+}
+
+type AggregationClause<DbModelType> = { aggregateFieldName: string; } & (
+  | { operation: Extract<AggregateType, 'count'>; }
+  | { operation: Extract<AggregateType, 'sum' | 'avg'>; sourceFieldPath: FirestoreDocumentFieldPath<DbModelType>; })
+
+type AggregationQueryOptions<DbModelType extends DocumentData> = QueryOptions<DbModelType> & { aggregations: AggregationClause<DbModelType>[]; }
+
+interface ExecuteAggregationQueryOptions<DbModelType extends DocumentData> {
+  transaction?: Transaction;
+  aggregationQueryOptions: AggregationQueryOptions<DbModelType>;
+}
+
+export async function executeAggregationQuery<AppModelType, DbModelType extends DocumentData>(collection: CollectionReference<AppModelType, DbModelType> | Collection, options: ExecuteAggregationQueryOptions<DbModelType>): Promise<{ [key: string]: number | null }> {
+  try {
+    const { transaction, aggregationQueryOptions } = options;
+    const { aggregations, ...queryOptions } = aggregationQueryOptions;
+    const queryObj = buildQuery(collection, queryOptions);
+    const aggregationObj: { [key: string]: AggregateField<number | null> } = {};
+    aggregations.forEach(agg => {
+      if (agg.operation === 'count') { aggregationObj[agg.aggregateFieldName] = AggregateField.count(); }
+      else if (agg.operation === 'sum') { aggregationObj[agg.aggregateFieldName] = AggregateField.sum(agg.sourceFieldPath); }
+      else if (agg.operation === 'avg') { aggregationObj[agg.aggregateFieldName] = AggregateField.average(agg.sourceFieldPath); }
+    })
+    const aggregationQueryObj = queryObj.aggregate(aggregationObj);
+    const aggregateSnapshot = await (transaction ? transaction.get(aggregationQueryObj) : aggregationQueryObj.get());
+    return aggregateSnapshot.data();
+  } catch {
+    throw Error("Failed to execute aggregation");
   }
 }
