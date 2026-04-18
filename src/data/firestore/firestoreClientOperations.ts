@@ -152,9 +152,9 @@ type AggregationClause<DbModelType> = { aggregateFieldName: string; } & (
   | { operation: Extract<AggregateType, 'count'>; }
   | { operation: Extract<AggregateType, 'sum' | 'avg'>; sourceFieldPath: FirestoreDocumentFieldPath<DbModelType>; })
 
-type AggregationOptions<DbModelType extends DocumentData> = QueryOptions<DbModelType> & { aggregations: AggregationClause<DbModelType>[]; }
+type AggregationQueryOptions<DbModelType extends DocumentData> = QueryOptions<DbModelType> & { aggregations: AggregationClause<DbModelType>[]; }
 
-export async function executeAggregation<AppModelType, DbModelType extends DocumentData>(collection: CollectionReference<AppModelType, DbModelType> | Collection, converter: FirestoreDataConverter<AppModelType, DbModelType>, options: AggregationOptions<DbModelType>): Promise<{ [key: string]: number }> {
+export async function executeAggregationQuery<AppModelType, DbModelType extends DocumentData>(collection: CollectionReference<AppModelType, DbModelType> | Collection, converter: FirestoreDataConverter<AppModelType, DbModelType>, options: AggregationQueryOptions<DbModelType>): Promise<{ [key: string]: number }> {
   try {
     const { aggregations, ...queryOptions } = options;
     const queryObj = buildQuery(collection, queryOptions);

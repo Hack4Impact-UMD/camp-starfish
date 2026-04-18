@@ -160,19 +160,26 @@ type AggregationClause<DbModelType> = { aggregateFieldName: string; } & (
   | { operation: Extract<AggregateType, 'count'>; }
   | { operation: Extract<AggregateType, 'sum' | 'avg'>; sourceFieldPath: FirestoreDocumentFieldPath<DbModelType>; })
 
-type AggregationOptions<DbModelType extends DocumentData> = QueryOptions<DbModelType> & { aggregations: AggregationClause<DbModelType>[]; }
+type AggregationQueryOptions<DbModelType extends DocumentData> = QueryOptions<DbModelType> & { aggregations: AggregationClause<DbModelType>[]; }
 
-export async function executeAggregation<AppModelType, DbModelType extends DocumentData>(collection: CollectionReference<AppModelType, DbModelType> | Collection, options: AggregationOptions<DbModelType>): Promise<{ [key: string]: number }> {
+interface ExecuteAggregationQueryOptions<DbModelType extends DocumentData> {
+  transaction?: Transaction;
+  aggregationQueryOptions: AggregationQueryOptions<DbModelType>;
+}
+
+export async function executeAggregationQuery<AppModelType, DbModelType extends DocumentData>(collection: CollectionReference<AppModelType, DbModelType> | Collection, options: ExecuteAggregationQueryOptions<DbModelType>): Promise<{ [key: string]: number | null }> {
   try {
-    const { aggregations, ...queryOptions } = options;
+    const { transaction, aggregationQueryOptions } = options;
+    const { aggregations, ...queryOptions } = aggregationQueryOptions;
     const queryObj = buildQuery(collection, queryOptions);
-    const aggregationObj: { [key: string]: AggregateField<number> } = {};
+    const aggregationObj: { [key: string]: AggregateField<number | null> } = {};
     aggregations.forEach(agg => {
       if (agg.operation === 'count') { aggregationObj[agg.aggregateFieldName] = AggregateField.count(); }
       else if (agg.operation === 'sum') { aggregationObj[agg.aggregateFieldName] = AggregateField.sum(agg.sourceFieldPath); }
       else if (agg.operation === 'avg') { aggregationObj[agg.aggregateFieldName] = AggregateField.average(agg.sourceFieldPath); }
     })
-    const aggregateSnapshot = await queryObj.aggregate(aggregationObj).get();
+    const aggregationQueryObj = queryObj.aggregate(aggregationObj);
+    const aggregateSnapshot = await (transaction ? transaction.get(aggregationQueryObj) : aggregationQueryObj.get());
     return aggregateSnapshot.data();
   } catch {
     throw Error("Failed to execute aggregation");
