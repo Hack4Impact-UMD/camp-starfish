@@ -1,6 +1,6 @@
 import { NestedFieldPath } from "@/utils/types/typeUtils";
 import { FirebaseError } from "firebase/app";
-import { DocumentReference, Query, Transaction, WriteBatch, DocumentSnapshot, getDoc as getFirestore, updateDoc as updateFirestore, deleteDoc as deleteFirestore, getDocs as queryFirestore, WithFieldValue, DocumentData, UpdateData, FirestoreDataConverter, CollectionReference, WhereFilterOp, collectionGroup, where as whereFirestore, orderBy as orderByFirestore, limit, limitToLast, startAfter, startAt, endBefore, endAt, query, documentId, getAggregateFromServer, AggregateType, count, AggregateField, sum, average, SetOptions, PartialWithFieldValue } from "firebase/firestore";
+import { DocumentReference, Query, Transaction, WriteBatch, DocumentSnapshot, getDoc as getFirestore, setDoc as setFirestore, updateDoc as updateFirestore, deleteDoc as deleteFirestore, getDocs as queryFirestore, WithFieldValue, DocumentData, UpdateData, FirestoreDataConverter, CollectionReference, WhereFilterOp, collectionGroup, where as whereFirestore, orderBy as orderByFirestore, limit, limitToLast, startAfter, startAt, endBefore, endAt, query, documentId, getAggregateFromServer, AggregateType, count, AggregateField, sum, average, SetOptions, PartialWithFieldValue } from "firebase/firestore";
 import { db } from "@/config/firebase";
 import { Collection } from "./types/collections";
 
@@ -44,10 +44,10 @@ export async function setDoc<AppModelType, DbModelType extends DocumentData>(ref
     const { instance } = options;
     if ('mergeOptions' in options) {
       // @ts-expect-error - both Transaction & WriteBatch have a set with the same signature, but TypeScript fails to recognize that
-      await (instance ? instance.set(ref, data, options.mergeOptions) : ref.set(data as PartialWithFieldValue<AppModelType>, options.mergeOptions));
+      await (instance ? instance.set(ref, data, options.mergeOptions) : setFirestore(ref, data, options.mergeOptions));
     } else {
       // @ts-expect-error - both Transaction & WriteBatch have a set with the same signature, but TypeScript fails to recognize that
-      await (instance ? instance.set(ref, data) : ref.set(data as WithFieldValue<AppModelType>));
+      await (instance ? instance.set(ref, data) : setFirestore(ref, data));
     }
   } catch {
     throw Error("Failed to set document")
