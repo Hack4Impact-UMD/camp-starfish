@@ -93,9 +93,18 @@ interface OrderByClause<DbModelType> {
   direction: 'asc' | 'desc';
 }
 
-type LimitClause = { limit: number } | { limitToLast: number } | { limit?: never; limitToLast?: never };
-type StartCursorClause = { startAfter: DocumentSnapshot | unknown[] } | { startAt: DocumentSnapshot | unknown[] } | { startAfter?: never; startAt?: never };
-type EndCursorClause = { endBefore: DocumentSnapshot | unknown[] } | { endAt: DocumentSnapshot | unknown[] } | { endBefore?: never; endAt?: never };
+type LimitClause =
+  | { limit: number; limitToLast?: never; }
+  | { limit?: never; limitToLast: number; }
+  | { limit?: never; limitToLast?: never; };
+type StartCursorClause =
+  | { startAfter: DocumentSnapshot | unknown[]; startAt?: never; }
+  | { startAfter?: never; startAt: DocumentSnapshot | unknown[]; }
+  | { startAfter?: never; startAt?: never; };
+type EndCursorClause =
+  | { endBefore: DocumentSnapshot | unknown[]; endAt?: never; }
+  | { endBefore?: never; endAt: DocumentSnapshot | unknown[]; }
+  | { endBefore?: never; endAt?: never; };
 
 type QueryOptions<DbModelType extends DocumentData> = {
   where?: WhereClause<DbModelType>[];
