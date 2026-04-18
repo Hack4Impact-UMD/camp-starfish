@@ -1,4 +1,4 @@
-export type Collection = RootLevelCollection | AlbumsSubcollection | SessionsSubcollection | SectionsSubcollection;
+export type Collection = RootLevelCollection | AlbumsSubcollection | AlbumItemsSubcollection | SessionsSubcollection | SectionsSubcollection;
 
 export const enum RootLevelCollection {
   USERS = "users",
@@ -11,6 +11,10 @@ export const enum RootLevelCollection {
 
 export const enum AlbumsSubcollection {
   ALBUM_ITEMS = "albumItems"
+}
+
+export const enum AlbumItemsSubcollection {
+  REPORTS = "reports"
 }
 
 export const enum SessionsSubcollection {

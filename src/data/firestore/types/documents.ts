@@ -1,4 +1,4 @@
-import { Album, AlbumItem } from "@/types/albums/albumTypes";
+import { Album, AlbumItem, AlbumItemReport } from "@/types/albums/albumTypes";
 import { ProgramArea, SectionSchedule } from "@/types/scheduling/schedulingTypes";
 import { Attendee, Bunk, Freeplay, NightSchedule, Post, Section, Session } from "@/types/sessions/sessionTypes";
 import { User } from "@/types/users/userTypes";
@@ -6,6 +6,7 @@ import { DistributiveOmit } from "@/utils/types/typeUtils";
 
 export type AlbumDoc = Omit<Album, "id">;
 export type AlbumItemDoc = Omit<AlbumItem, "id" | "albumId">;
+export type AlbumItemReportDoc = DistributiveOmit<AlbumItemReport, "id" | "albumItemId" | "albumId">;
 
 export type UserDoc = DistributiveOmit<User, "id">;
 
