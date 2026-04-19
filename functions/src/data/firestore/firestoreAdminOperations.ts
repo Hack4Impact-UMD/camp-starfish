@@ -1,13 +1,12 @@
-import { AggregateField, AggregateType, CollectionGroup, CollectionReference, DocumentData, DocumentReference, DocumentSnapshot, FirestoreDataConverter, GrpcStatus, PartialWithFieldValue, Query, SetOptions, Transaction, UpdateData, WhereFilterOp, WithFieldValue, WriteBatch } from "firebase-admin/firestore";
+import { AggregateField, AggregateType, CollectionGroup, CollectionReference, DocumentData, DocumentReference, DocumentSnapshot, GrpcStatus, PartialWithFieldValue, Query, SetOptions, Transaction, UpdateData, WhereFilterOp, WithFieldValue, WriteBatch } from "firebase-admin/firestore";
 import { isFirebaseError } from "../../types/error";
 import { Collection } from "@/data/firestore/types/collections";
 import { adminDb } from "../../config/firebaseAdminConfig";
 import { DistributiveKeyof } from "@/utils/types/typeUtils";
 
-export async function getDoc<AppModelType, DbModelType extends DocumentData>(ref: DocumentReference<AppModelType, DbModelType>, converter: FirestoreDataConverter<AppModelType, DbModelType>, transaction?: Transaction): Promise<AppModelType> {
-  let doc: DocumentSnapshot<AppModelType, DbModelType>;
+export async function getDoc<DbModelType extends DocumentData>(ref: DocumentReference<DbModelType, DbModelType>, transaction?: Transaction): Promise<DbModelType> {
+  let doc: DocumentSnapshot<DbModelType, DbModelType>;
   try {
-    ref = ref.withConverter(converter);
     doc = await (transaction ? transaction.get(ref) : ref.get());
   } catch {
     throw Error("Error getting document");
@@ -19,9 +18,8 @@ export async function getDoc<AppModelType, DbModelType extends DocumentData>(ref
   return doc.data()!;
 }
 
-export async function createDoc<AppModelType, DbModelType extends DocumentData>(ref: DocumentReference<AppModelType, DbModelType>, data: WithFieldValue<AppModelType>, converter: FirestoreDataConverter<AppModelType, DbModelType>, instance?: Transaction | WriteBatch): Promise<void> {
+export async function createDoc<DbModelType extends DocumentData>(ref: DocumentReference<DbModelType, DbModelType>, data: WithFieldValue<DbModelType>, instance?: Transaction | WriteBatch): Promise<void> {
   try {
-    ref = ref.withConverter(converter);
     await (instance ? instance.create(ref, data) : ref.create(data));
   } catch (error: unknown) {
     if (isFirebaseError(error) && error.code === GrpcStatus.ALREADY_EXISTS) {
@@ -40,28 +38,26 @@ interface SetDocOverwriteOptions {
   instance?: Transaction | WriteBatch;
 }
 
-export async function setDoc<AppModelType, DbModelType extends DocumentData>(ref: DocumentReference<AppModelType, DbModelType>, data: WithFieldValue<AppModelType>, converter: FirestoreDataConverter<AppModelType, DbModelType>, options?: SetDocOverwriteOptions): Promise<void>
-export async function setDoc<AppModelType, DbModelType extends DocumentData>(ref: DocumentReference<AppModelType, DbModelType>, data: PartialWithFieldValue<AppModelType>, converter: FirestoreDataConverter<AppModelType, DbModelType>, options: SetDocMergeOptions): Promise<void>
-export async function setDoc<AppModelType, DbModelType extends DocumentData>(ref: DocumentReference<AppModelType, DbModelType>, data: WithFieldValue<AppModelType> | PartialWithFieldValue<AppModelType>, converter: FirestoreDataConverter<AppModelType, DbModelType>, options?: SetDocOptions): Promise<void> {
+export async function setDoc<DbModelType extends DocumentData>(ref: DocumentReference<DbModelType, DbModelType>, data: WithFieldValue<DbModelType>, options?: SetDocOverwriteOptions): Promise<void>
+export async function setDoc<DbModelType extends DocumentData>(ref: DocumentReference<DbModelType, DbModelType>, data: PartialWithFieldValue<DbModelType>, options: SetDocMergeOptions): Promise<void>
+export async function setDoc<DbModelType extends DocumentData>(ref: DocumentReference<DbModelType, DbModelType>, data: WithFieldValue<DbModelType> | PartialWithFieldValue<DbModelType>, options?: SetDocOptions): Promise<void> {
   try {
-    ref = ref.withConverter(converter);
     options = options ?? {};
     const { instance } = options;
     if ('mergeOptions' in options) {
       // @ts-expect-error - both Transaction & WriteBatch have a set with the same signature, but TypeScript fails to recognize that
-      await (instance ? instance.set(ref, data, options.mergeOptions) : ref.set(data as PartialWithFieldValue<AppModelType>, options.mergeOptions));
+      await (instance ? instance.set(ref, data, options.mergeOptions) : ref.set(data as PartialWithFieldValue<DbModelType>, options.mergeOptions));
     } else {
       // @ts-expect-error - both Transaction & WriteBatch have a set with the same signature, but TypeScript fails to recognize that
-      await (instance ? instance.set(ref, data) : ref.set(data as WithFieldValue<AppModelType>));
+      await (instance ? instance.set(ref, data) : ref.set(data as WithFieldValue<DbModelType>));
     }
   } catch {
     throw Error("Failed to set document")
   }
 }
 
-export async function updateDoc<AppModelType, DbModelType extends DocumentData>(ref: DocumentReference<AppModelType, DbModelType>, data: UpdateData<DbModelType>, converter: FirestoreDataConverter<AppModelType, DbModelType>, instance?: Transaction | WriteBatch): Promise<void> {
+export async function updateDoc<DbModelType extends DocumentData>(ref: DocumentReference<DbModelType, DbModelType>, data: UpdateData<DbModelType>, instance?: Transaction | WriteBatch): Promise<void> {
   try {
-    ref = ref.withConverter(converter);
     // @ts-expect-error - both Transaction & WriteBatch have a set with the same signature, but TypeScript fails to recognize that
     await (instance ? instance.update(ref, data) : ref.update(data));
   } catch (error: unknown) {
@@ -72,7 +68,7 @@ export async function updateDoc<AppModelType, DbModelType extends DocumentData>(
   }
 }
 
-export async function deleteDoc<AppModelType, DbModelType extends DocumentData>(ref: DocumentReference<AppModelType, DbModelType>, instance?: Transaction | WriteBatch): Promise<void> {
+export async function deleteDoc<DbModelType extends DocumentData>(ref: DocumentReference<DbModelType, DbModelType>, instance?: Transaction | WriteBatch): Promise<void> {
   try {
     await (instance ? instance.delete(ref) : ref.delete());
   } catch {
@@ -112,8 +108,8 @@ type QueryOptions<DbModelType extends DocumentData> = {
   orderBy?: OrderByClause<DbModelType>[];
 } & LimitClause & StartCursorClause & EndCursorClause;
 
-function buildQuery<AppModelType, DbModelType extends DocumentData>(collection: CollectionReference<AppModelType, DbModelType> | Collection, options?: QueryOptions<DbModelType>): Query<AppModelType, DbModelType> {
-  let queryObj: Query<AppModelType, DbModelType> = typeof collection === 'string' ? adminDb.collectionGroup(collection) as CollectionGroup<AppModelType, DbModelType> : collection;
+function buildQuery<DbModelType extends DocumentData>(collection: CollectionReference<DbModelType, DbModelType> | Collection, options?: QueryOptions<DbModelType>): Query<DbModelType, DbModelType> {
+  let queryObj: Query<DbModelType, DbModelType> = typeof collection === 'string' ? adminDb.collectionGroup(collection) as CollectionGroup<DbModelType, DbModelType> : collection;
   if (options) {
     const { where = [], orderBy = [] } = options;
     where.forEach(({ fieldPath, operation, value }) => queryObj = queryObj.where(fieldPath, operation, value));
@@ -145,10 +141,10 @@ interface ExecuteQueryOptions<DbModelType extends DocumentData> {
   queryOptions?: QueryOptions<DbModelType>;
 }
 
-export async function executeQuery<AppModelType, DbModelType extends DocumentData>(collection: CollectionReference<AppModelType, DbModelType> | Collection, converter: FirestoreDataConverter<AppModelType, DbModelType>, options?: ExecuteQueryOptions<DbModelType>): Promise<AppModelType[]> {
+export async function executeQuery<DbModelType extends DocumentData>(collection: CollectionReference<DbModelType, DbModelType> | Collection, options?: ExecuteQueryOptions<DbModelType>): Promise<DbModelType[]> {
   try {
     const { transaction, queryOptions } = options ?? {};
-    const queryObj = buildQuery(collection, queryOptions).withConverter(converter);
+    const queryObj = buildQuery(collection, queryOptions);
     const querySnapshot = await (transaction ? transaction.get(queryObj) : queryObj.get());
     return querySnapshot.docs.map(doc => doc.data());
   } catch {
@@ -167,7 +163,7 @@ interface ExecuteAggregationQueryOptions<DbModelType extends DocumentData> {
   aggregationQueryOptions: AggregationQueryOptions<DbModelType>;
 }
 
-export async function executeAggregationQuery<AppModelType, DbModelType extends DocumentData>(collection: CollectionReference<AppModelType, DbModelType> | Collection, options: ExecuteAggregationQueryOptions<DbModelType>): Promise<{ [key: string]: number | null }> {
+export async function executeAggregationQuery<DbModelType extends DocumentData>(collection: CollectionReference<DbModelType, DbModelType> | Collection, options: ExecuteAggregationQueryOptions<DbModelType>): Promise<{ [key: string]: number | null }> {
   try {
     const { transaction, aggregationQueryOptions } = options;
     const { aggregations, ...queryOptions } = aggregationQueryOptions;
