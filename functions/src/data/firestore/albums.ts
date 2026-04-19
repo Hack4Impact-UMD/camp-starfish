@@ -14,7 +14,7 @@ function fromFirestore(snapshot: DocumentSnapshot<AlbumDoc, AlbumDoc> | QueryDoc
   }
 }
 
-export async function getAlbumById(id: string, transaction?: Transaction): Promise<Album> {
+export async function getAlbumDocById(id: string, transaction?: Transaction): Promise<Album> {
   const snapshot = await getDoc<AlbumDoc>(adminDb.collection(RootLevelCollection.ALBUMS).doc(id) as DocumentReference<AlbumDoc, AlbumDoc>, transaction);
   return fromFirestore(snapshot);
 }
@@ -25,10 +25,10 @@ export async function createAlbumDoc(album: AlbumDoc, instance?: Transaction | W
   return albumId;
 }
 
-export async function updateAlbum(id: string, updates: UpdateData<AlbumDoc>, instance?: Transaction | WriteBatch): Promise<void> {
+export async function updateAlbumDoc(id: string, updates: UpdateData<AlbumDoc>, instance?: Transaction | WriteBatch): Promise<void> {
   await updateDoc<AlbumDoc>(adminDb.collection(RootLevelCollection.ALBUMS).doc(id) as DocumentReference<AlbumDoc, AlbumDoc>, updates, instance);
 }
 
-export async function deleteAlbum(id: string, instance?: Transaction | WriteBatch): Promise<void> {
+export async function deleteAlbumDoc(id: string, instance?: Transaction | WriteBatch): Promise<void> {
   await deleteDoc<AlbumDoc>(adminDb.collection(RootLevelCollection.ALBUMS).doc(id) as DocumentReference<AlbumDoc, AlbumDoc>, instance);
 }
