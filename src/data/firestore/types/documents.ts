@@ -3,8 +3,17 @@ import { ProgramArea, SectionSchedule } from "@/types/scheduling/schedulingTypes
 import { Attendee, Bunk, Freeplay, NightSchedule, Post, Section, Session } from "@/types/sessions/sessionTypes";
 import { User } from "@/types/users/userTypes";
 import { DistributiveOmit } from "@/utils/types/typeUtils";
+import { Timestamp } from "firebase/firestore";
 
-export type AlbumDoc = Omit<Album, "id">;
+export interface AlbumDoc {
+  name: string;
+  numItems: number;
+  startDate?: Timestamp;
+  endDate?: Timestamp;
+  hasThumbnail: boolean;
+  linkedSessionId?: string;
+}
+
 export type AlbumItemDoc = Omit<AlbumItem, "id" | "albumId">;
 export type AlbumItemReportDoc = DistributiveOmit<AlbumItemReport, "id" | "albumItemId" | "albumId">;
 

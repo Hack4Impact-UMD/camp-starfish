@@ -1,10 +1,12 @@
+import { Moment } from "moment";
+
 export interface Album {
   id: string;
   name: string; // same as Session name if a corresponding Session exists
-  startDate: string; // ISO-8601
-  endDate: string; // ISO-8601
-  hasThumbnail: boolean;
   numItems: number;
+  startDate?: Moment;
+  endDate?: Moment;
+  thumbnail?: File;
   linkedSessionId?: string;
 }
 
