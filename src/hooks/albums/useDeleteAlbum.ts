@@ -1,4 +1,4 @@
-import { deleteAlbum } from "@/data/firestore/albums";
+import { deleteAlbumDoc } from "@/data/firestore/albums";
 import { useMutation } from "@tanstack/react-query";
 
 interface UseDeleteAlbumParams {
@@ -7,6 +7,6 @@ interface UseDeleteAlbumParams {
 
 export default function useDeleteAlbum() {
   return useMutation({
-    mutationFn: (params: UseDeleteAlbumParams) => deleteAlbum(params.albumId)
+    mutationFn: (params: UseDeleteAlbumParams) => deleteAlbumDoc(params.albumId)
   })
 }

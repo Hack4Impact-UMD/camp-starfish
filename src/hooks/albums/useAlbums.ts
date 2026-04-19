@@ -1,4 +1,4 @@
-import { getAlbums } from "@/data/firestore/albums";
+import { getAlbumDocs } from "@/data/firestore/albums";
 import { Album } from "@/types/albums/albumTypes";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -7,7 +7,7 @@ export default function useAlbums() {
   return useQuery({
     queryKey: ['albums'],
     queryFn: async () => {
-      const albums = await getAlbums();
+      const albums = await getAlbumDocs();
       albums.forEach((album: Album) => queryClient.setQueryData(['albums', album.id], album));
       return albums;
     },

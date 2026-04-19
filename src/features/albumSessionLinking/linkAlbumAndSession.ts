@@ -1,5 +1,5 @@
 import { db } from "@/config/firebase";
-import { getAlbumById, updateAlbum } from "@/data/firestore/albums";
+import { getAlbumDocById, updateAlbumDoc } from "@/data/firestore/albums";
 import { getSessionById, updateSession } from "@/data/firestore/sessions";
 import { useMutation } from "@tanstack/react-query";
 import { runTransaction, Transaction } from "firebase/firestore";
@@ -7,7 +7,7 @@ import { runTransaction, Transaction } from "firebase/firestore";
 export default async function linkAlbumAndSession(albumId: string, sessionId: string) {
   await runTransaction(db, async (transaction: Transaction) => {
     const session = await getSessionById(sessionId, transaction);
-    const album = await getAlbumById(albumId, transaction);
+    const album = await getAlbumDocById(albumId, transaction);
 
     if (session.linkedAlbumId === albumId && album.linkedSessionId === sessionId) {
       return;
@@ -18,7 +18,7 @@ export default async function linkAlbumAndSession(albumId: string, sessionId: st
     }
 
     await updateSession(sessionId, { linkedAlbumId: albumId }, transaction);
-    await updateAlbum(albumId, { linkedSessionId: sessionId }, transaction);
+    await updateAlbumDoc(albumId, { linkedSessionId: sessionId }, transaction);
   });
 }
 

@@ -1,4 +1,4 @@
-import { updateAlbum } from "@/data/firestore/albums";
+import { updateAlbumDoc } from "@/data/firestore/albums";
 import { AlbumDoc } from "@/data/firestore/types/documents";
 import { useMutation } from "@tanstack/react-query";
 
@@ -9,6 +9,6 @@ interface UseUpdateAlbumParams {
 
 export default function useUpdateAlbum() {
   return useMutation({
-    mutationFn: (params: UseUpdateAlbumParams) => updateAlbum(params.albumId, params.updates)
+    mutationFn: (params: UseUpdateAlbumParams) => updateAlbumDoc(params.albumId, params.updates)
   })
 }
