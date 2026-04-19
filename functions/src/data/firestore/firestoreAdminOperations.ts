@@ -1,10 +1,10 @@
-import { AggregateField, AggregateType, CollectionGroup, CollectionReference, DocumentData, DocumentReference, DocumentSnapshot, GrpcStatus, PartialWithFieldValue, Query, SetOptions, Transaction, UpdateData, WhereFilterOp, WithFieldValue, WriteBatch } from "firebase-admin/firestore";
+import { AggregateField, AggregateType, CollectionGroup, CollectionReference, DocumentData, DocumentReference, DocumentSnapshot, GrpcStatus, PartialWithFieldValue, Query, QueryDocumentSnapshot, SetOptions, Transaction, UpdateData, WhereFilterOp, WithFieldValue, WriteBatch } from "firebase-admin/firestore";
 import { isFirebaseError } from "../../types/error";
 import { Collection } from "@/data/firestore/types/collections";
 import { adminDb } from "../../config/firebaseAdminConfig";
 import { DistributiveKeyof } from "@/utils/types/typeUtils";
 
-export async function getDoc<DbModelType extends DocumentData>(ref: DocumentReference<DbModelType, DbModelType>, transaction?: Transaction): Promise<DbModelType> {
+export async function getDoc<DbModelType extends DocumentData>(ref: DocumentReference<DbModelType, DbModelType>, transaction?: Transaction): Promise<DocumentSnapshot<DbModelType, DbModelType>> {
   let doc: DocumentSnapshot<DbModelType, DbModelType>;
   try {
     doc = await (transaction ? transaction.get(ref) : ref.get());
@@ -15,7 +15,7 @@ export async function getDoc<DbModelType extends DocumentData>(ref: DocumentRefe
   if (!doc.exists) {
     throw Error("Document not found");
   }
-  return doc.data()!;
+  return doc;
 }
 
 export async function createDoc<DbModelType extends DocumentData>(ref: DocumentReference<DbModelType, DbModelType>, data: WithFieldValue<DbModelType>, instance?: Transaction | WriteBatch): Promise<void> {
@@ -141,12 +141,12 @@ interface ExecuteQueryOptions<DbModelType extends DocumentData> {
   queryOptions?: QueryOptions<DbModelType>;
 }
 
-export async function executeQuery<DbModelType extends DocumentData>(collection: CollectionReference<DbModelType, DbModelType> | Collection, options?: ExecuteQueryOptions<DbModelType>): Promise<DbModelType[]> {
+export async function executeQuery<DbModelType extends DocumentData>(collection: CollectionReference<DbModelType, DbModelType> | Collection, options?: ExecuteQueryOptions<DbModelType>): Promise<QueryDocumentSnapshot<DbModelType, DbModelType>[]> {
   try {
     const { transaction, queryOptions } = options ?? {};
     const queryObj = buildQuery(collection, queryOptions);
     const querySnapshot = await (transaction ? transaction.get(queryObj) : queryObj.get());
-    return querySnapshot.docs.map(doc => doc.data());
+    return querySnapshot.docs;
   } catch {
     throw Error("Failed to execute query");
   }
