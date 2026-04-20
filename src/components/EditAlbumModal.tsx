@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import { modals } from "@mantine/modals";
-import useAlbumById from "@/hooks/albums/useAlbumById";
+import useAlbumById from "@/hooks/albums/useAlbumDoc";
 import { Button, Image, Indicator, Text, TextInput } from "@mantine/core";
 import { Dropzone, FileWithPath } from "@mantine/dropzone";
 import LoadingPage from "@/app/loading";
@@ -26,8 +26,15 @@ export default function EditAlbumModal(props: EditAlbumModalProps) {
   const [albumNameError, setAlbumNameError] = useState<string | null>(null);
   const [albumThumbnail, setAlbumThumbnail] = useState<File | null>(null);
 
-  const albumThumbnailUrl = useMemo(() => (albumThumbnail ? URL.createObjectURL(albumThumbnail) : null), [albumThumbnail]);
-  useEffect(() => { return () => { if (albumThumbnailUrl) URL.revokeObjectURL(albumThumbnailUrl); }; }, [albumThumbnailUrl]);
+  const albumThumbnailUrl = useMemo(
+    () => (albumThumbnail ? URL.createObjectURL(albumThumbnail) : null),
+    [albumThumbnail],
+  );
+  useEffect(() => {
+    return () => {
+      if (albumThumbnailUrl) URL.revokeObjectURL(albumThumbnailUrl);
+    };
+  }, [albumThumbnailUrl]);
 
   const createAlbumMutation = useCreateAlbum();
   const updateAlbumMutation = useUpdateAlbum();
@@ -92,25 +99,46 @@ export default function EditAlbumModal(props: EditAlbumModalProps) {
         </Button>
         <Button
           color="success"
-          loading={createAlbumMutation.isPending || updateAlbumMutation.isPending}
+          loading={
+            createAlbumMutation.isPending || updateAlbumMutation.isPending
+          }
           onClick={() => {
-            if (!albumName) { setAlbumNameError("Album name is required"); return; }
-            albumId ? updateAlbumMutation.mutate({
-              albumId,
-              updates: { name: albumName }
-            }, {
-              onSuccess: () => modals.closeAll(),
-              onError: () => notifications.error("Failed to update album. Please try again.")
-            }) : createAlbumMutation.mutate({ album: {
-              name: albumName,
-              hasThumbnail: !!albumThumbnail,
-              startDate: "",
-              endDate: "",
-              numItems: 0,
-            } }, {
-              onSuccess: () => modals.closeAll(),
-              onError: () => notifications.error("Failed to create album. Please try again.")
-            });
+            if (!albumName) {
+              setAlbumNameError("Album name is required");
+              return;
+            }
+            albumId
+              ? updateAlbumMutation.mutate(
+                  {
+                    albumId,
+                    updates: { name: albumName },
+                  },
+                  {
+                    onSuccess: () => modals.closeAll(),
+                    onError: () =>
+                      notifications.error(
+                        "Failed to update album. Please try again.",
+                      ),
+                  },
+                )
+              : createAlbumMutation.mutate(
+                  {
+                    album: {
+                      name: albumName,
+                      hasThumbnail: !!albumThumbnail,
+                      startDate: "",
+                      endDate: "",
+                      numItems: 0,
+                    },
+                  },
+                  {
+                    onSuccess: () => modals.closeAll(),
+                    onError: () =>
+                      notifications.error(
+                        "Failed to create album. Please try again.",
+                      ),
+                  },
+                );
           }}
         >
           {albumId ? "CONFIRM" : "CREATE"}
