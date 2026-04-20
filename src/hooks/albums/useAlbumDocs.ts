@@ -10,11 +10,12 @@ interface TanstackQueryFirestorePageParam {
   snapshot: QueryDocumentSnapshot<AlbumDoc, AlbumDoc>;
 }
 
-export default function useAlbums(queryOptions: QueryOptions<AlbumDoc>) {
+export default function useAlbums(queryOptions?: QueryOptions<AlbumDoc>) {
   const queryClient = useQueryClient();
   return useInfiniteQuery({
     queryKey: ['albums', queryOptions],
     queryFn: async ({ pageParam }) => {
+      if (!queryOptions) { queryOptions = {} }
       if (pageParam) {
         if (pageParam.direction === 'previous') {
           queryOptions.startAfter = pageParam.snapshot;
