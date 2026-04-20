@@ -135,11 +135,19 @@ function buildQuery<DbModelType extends DocumentData>(collection: CollectionRefe
   return queryObj;
 }
 
-export type PaginatedQueryResult<AppModelType, DbModelType extends DocumentData> =
-  | { docs: []; firstSnapshot?: never; lastSnapshot?: never; }
-  | { docs: NonEmptyArray<AppModelType>; firstSnapshot: QueryDocumentSnapshot<DbModelType, DbModelType>; lastSnapshot: QueryDocumentSnapshot<DbModelType, DbModelType>; }
+export type PaginatedQueryResponse<AppModelType, DbModelType extends DocumentData> =
+  | {
+    docs: [];
+    firstSnapshot?: never;
+    lastSnapshot?: never;
+  }
+  | {
+    docs: NonEmptyArray<AppModelType>;
+    firstSnapshot: QueryDocumentSnapshot<DbModelType, DbModelType>;
+    lastSnapshot: QueryDocumentSnapshot<DbModelType, DbModelType>;
+  }
 
-export function mapSnapshotsToPaginatedQueryResult<AppModelType, DbModelType extends DocumentData>(snapshots: QueryDocumentSnapshot<DbModelType, DbModelType>[], mapFunc: (snapshot: QueryDocumentSnapshot<DbModelType, DbModelType>) => AppModelType): PaginatedQueryResult<AppModelType, DbModelType> {
+export function mapSnapshotsToPaginatedQueryResult<AppModelType, DbModelType extends DocumentData>(snapshots: QueryDocumentSnapshot<DbModelType, DbModelType>[], mapFunc: (snapshot: QueryDocumentSnapshot<DbModelType, DbModelType>) => AppModelType): PaginatedQueryResponse<AppModelType, DbModelType> {
   return snapshots.length === 0 ? { docs: [] } : {
     docs: snapshots.map(mapFunc) as NonEmptyArray<AppModelType>,
     firstSnapshot: snapshots[0],
