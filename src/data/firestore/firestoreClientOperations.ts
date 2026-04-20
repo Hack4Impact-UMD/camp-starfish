@@ -136,7 +136,7 @@ function buildQuery<DbModelType extends DocumentData>(collection: CollectionRefe
 }
 
 export type PaginatedQueryResult<AppModelType, DbModelType extends DocumentData> =
-  | { docs: [] }
+  | { docs: []; firstSnapshot?: never; lastSnapshot?: never; }
   | { docs: NonEmptyArray<AppModelType>; firstSnapshot: QueryDocumentSnapshot<DbModelType, DbModelType>; lastSnapshot: QueryDocumentSnapshot<DbModelType, DbModelType>; }
 
 export function mapSnapshotsToPaginatedQueryResult<AppModelType, DbModelType extends DocumentData>(snapshots: QueryDocumentSnapshot<DbModelType, DbModelType>[], mapFunc: (snapshot: QueryDocumentSnapshot<DbModelType, DbModelType>) => AppModelType): PaginatedQueryResult<AppModelType, DbModelType> {
