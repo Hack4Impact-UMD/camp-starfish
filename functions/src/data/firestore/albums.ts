@@ -1,20 +1,27 @@
-import { Album } from "@/types/albums/albumTypes";
+import { AlbumDocAppModel } from "@/types/albums/albumTypes";
 import { AlbumDoc } from "@/data/firestore/types/documents";
 import { v4 as uuid } from "uuid";
 import { RootLevelCollection } from "@/data/firestore/types/collections";
 import { createDoc, deleteDoc, getDoc, updateDoc } from "./firestoreAdminOperations";
 import { DocumentReference, DocumentSnapshot, QueryDocumentSnapshot, Transaction, UpdateData, WriteBatch } from "firebase-admin/firestore";
 import { adminDb } from "../../config/firebaseAdminConfig";
+import moment from "moment";
 
-function fromFirestore(snapshot: DocumentSnapshot<AlbumDoc, AlbumDoc> | QueryDocumentSnapshot<AlbumDoc, AlbumDoc>): Album {
+function fromFirestore(snapshot: DocumentSnapshot<AlbumDoc, AlbumDoc> | QueryDocumentSnapshot<AlbumDoc, AlbumDoc>): AlbumDocAppModel {
   if (!snapshot.exists) { throw Error("Document not found"); }
+  const albumDoc = snapshot.data() as AlbumDoc;
   return {
     id: snapshot.ref.id,
-    ...snapshot.data() as AlbumDoc
+    name: albumDoc.name,
+    numItems: albumDoc.numItems,
+    hasThumbnail: albumDoc.hasThumbnail,
+    startDate: albumDoc.startDate ? moment(albumDoc.startDate.toMillis()) : undefined,
+    endDate: albumDoc.endDate ? moment(albumDoc.endDate.toMillis()) : undefined,
+    linkedSessionId: albumDoc.linkedSessionId,
   }
 }
 
-export async function getAlbumDocById(id: string, transaction?: Transaction): Promise<Album> {
+export async function getAlbumDocById(id: string, transaction?: Transaction): Promise<AlbumDocAppModel> {
   const snapshot = await getDoc<AlbumDoc>(adminDb.collection(RootLevelCollection.ALBUMS).doc(id) as DocumentReference<AlbumDoc, AlbumDoc>, transaction);
   return fromFirestore(snapshot);
 }
