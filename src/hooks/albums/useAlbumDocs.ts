@@ -10,7 +10,7 @@ interface TanstackQueryFirestorePageParam {
   snapshot: QueryDocumentSnapshot<AlbumDoc, AlbumDoc>;
 }
 
-export default function useAlbums(queryOptions?: QueryOptions<AlbumDoc>) {
+export default function useAlbumDocs(queryOptions?: QueryOptions<AlbumDoc>) {
   const queryClient = useQueryClient();
   return useInfiniteQuery({
     queryKey: ['albums', queryOptions],
