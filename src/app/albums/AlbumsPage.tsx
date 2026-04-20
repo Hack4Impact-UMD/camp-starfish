@@ -5,7 +5,7 @@ import AlbumCard from "../../components/AlbumCard";
 import { openEditAlbumModal } from "@/components/EditAlbumModal";
 import CardGallery from "@/components/CardGallery";
 import { Album } from "@/types/albums/albumTypes";
-import useAlbums from "@/hooks/albums/useAlbums";
+import useAlbumDocs from "@/hooks/albums/useAlbumDocs";
 import ErrorPage from "../error";
 import LoadingPage from "../loading";
 import {
@@ -37,7 +37,7 @@ const sortFuncs: Record<AlbumsPageSortOption, (a: Album, b: Album) => number> = 
 export default function AlbumsPage() {
   const [sortOption, setSortOption] = useState<AlbumsPageSortOption>(AlbumsPageSortOption.NEWEST_TO_OLDEST);
   
-  const albumsQuery = useAlbums();
+  const albumsQuery = useAlbumDocs();
 
   if (albumsQuery.isError) {
     return <ErrorPage error={albumsQuery.error} />;
