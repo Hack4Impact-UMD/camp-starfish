@@ -123,13 +123,8 @@ export default function EditAlbumModal(props: EditAlbumModalProps) {
                 )
               : createAlbumMutation.mutate(
                   {
-                    album: {
-                      name: albumName,
-                      hasThumbnail: !!albumThumbnail,
-                      startDate: "",
-                      endDate: "",
-                      numItems: 0,
-                    },
+                    name: albumName,
+                    thumbnail: albumThumbnail ?? undefined,
                   },
                   {
                     onSuccess: () => modals.closeAll(),

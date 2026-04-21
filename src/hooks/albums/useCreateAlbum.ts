@@ -1,13 +1,33 @@
-import { createAlbumDoc } from "@/data/firestore/albums";
-import { AlbumDoc } from "@/data/firestore/types/documents";
+import { createAlbumDoc, deleteAlbumDoc } from "@/data/firestore/albums";
+import { uploadFile } from "@/data/storage/storageClientOperations";
 import { useMutation } from "@tanstack/react-query";
 
-interface UseCreateAlbumParams {
-  album: AlbumDoc;
+interface CreateAlbumDTO {
+  name: string;
+  thumbnail?: File;
+  linkedSessionId?: string;
+}
+
+async function createAlbum(dto: CreateAlbumDTO) {
+  console.log('creating album')
+  const albumId = await createAlbumDoc({
+    name: dto.name,
+    numItems: 0,
+    hasThumbnail: !!dto.thumbnail,
+    ...(dto.linkedSessionId ? { linkedSessionId: dto.linkedSessionId } : {}),
+  });
+  try {
+    if (dto.thumbnail) {
+      console.log('uploading thumbnail')
+      await uploadFile(dto.thumbnail, `albums/${albumId}/thumbnail`);
+    }
+  } catch (error) {
+    await deleteAlbumDoc(albumId);
+  }
 }
 
 export default function useCreateAlbum() {
   return useMutation({
-    mutationFn: (params: UseCreateAlbumParams) => createAlbumDoc(params.album)
+    mutationFn: async (dto: CreateAlbumDTO) => createAlbum(dto)
   })
 }
