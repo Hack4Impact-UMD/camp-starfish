@@ -18,7 +18,8 @@ import {
 } from "@mantine/core";
 import { MdAdd, MdPendingActions, MdSort } from "react-icons/md";
 import Link from "next/link";
-import moment from "moment";
+import { QueryOptions } from "@/data/firestore/firestoreClientOperations";
+import { AlbumDoc } from "@/data/firestore/types/documents";
 
 const enum AlbumsPageSortOption {
   NEWEST_TO_OLDEST = "Newest → Oldest",
@@ -27,17 +28,21 @@ const enum AlbumsPageSortOption {
   Z_TO_A = "Z → A",
 }
 
-const sortFuncs: Record<AlbumsPageSortOption, (a: Album, b: Album) => number> = {
-  "Newest → Oldest": (a, b) => moment(b.startDate).diff(moment(a.startDate)),
-  "Oldest → Newest": (a, b) => moment(a.startDate).diff(moment(b.startDate)),
-  "A → Z": (a, b) => a.name.localeCompare(b.name),
-  "Z → A": (a, b) => b.name.localeCompare(a.name),
+const sortQueryOptions: Record<AlbumsPageSortOption, QueryOptions<AlbumDoc>> = {
+  "Newest → Oldest": { orderBy: [{ fieldPath: "startDate", direction: "desc" }] },
+  "Oldest → Newest": { orderBy: [{ fieldPath: "startDate", direction: "asc" }] },
+  "A → Z": { orderBy: [{ fieldPath: "name", direction: "asc" }] },
+  "Z → A": { orderBy: [{ fieldPath: "name", direction: "desc" }] },
 }
 
 export default function AlbumsPage() {
   const [sortOption, setSortOption] = useState<AlbumsPageSortOption>(AlbumsPageSortOption.NEWEST_TO_OLDEST);
   
-  const albumsQuery = useAlbumDocs();
+  const albumsQuery = useAlbumDocs({
+    ...sortQueryOptions[sortOption],
+    limit: 1,
+    limitToLast: undefined
+  });
 
   if (albumsQuery.isError) {
     return <ErrorPage error={albumsQuery.error} />;
@@ -45,8 +50,7 @@ export default function AlbumsPage() {
     return <LoadingPage />;
   }
 
-  const albums = albumsQuery.data ?? [];
-  const sortedAlbums = albums.toSorted(sortFuncs[sortOption]);
+  const albums = albumsQuery.data?.pages.flatMap(page => page.docs) ?? [];
   return (
     <div className="flex flex-col w-6/7 grow mx-auto px-4 py-6 gap-6">
       <div className="flex items-center justify-between">
@@ -96,7 +100,7 @@ export default function AlbumsPage() {
         </div>
       ) : (
         <CardGallery<Album>
-          items={sortedAlbums}
+          items={albums}
           renderItem={(album: Album) => <AlbumCard albumId={album.id} />}
         />
       )}
