@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import { modals } from "@mantine/modals";
-import useAlbumById from "@/hooks/albums/useAlbumDoc";
 import { Button, Image, Indicator, Text, TextInput } from "@mantine/core";
 import { Dropzone, FileWithPath } from "@mantine/dropzone";
 import LoadingPage from "@/app/loading";
@@ -11,6 +10,7 @@ import { MdClose, MdImage } from "react-icons/md";
 import useCreateAlbum from "@/hooks/albums/useCreateAlbum";
 import useUpdateAlbum from "@/hooks/albums/useUpdateAlbum";
 import useNotifications from "@/features/notifications/useNotifications";
+import useAlbum from "@/hooks/albums/useAlbum";
 
 interface EditAlbumModalProps {
   albumId?: string;
@@ -18,7 +18,7 @@ interface EditAlbumModalProps {
 
 export default function EditAlbumModal(props: EditAlbumModalProps) {
   const { albumId } = props;
-  const albumQuery = useAlbumById(albumId);
+  const { albumQuery } = useAlbum(albumId, { albumThumbnailURL: true });
 
   const [albumName, setAlbumName] = useState<string>(
     albumQuery.data?.name || "",

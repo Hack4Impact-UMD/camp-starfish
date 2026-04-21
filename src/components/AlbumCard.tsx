@@ -1,5 +1,5 @@
 import { Image, Text, Title } from "@mantine/core";
-import useAlbumById from "@/hooks/albums/useAlbumDoc";
+import useAlbum from "@/hooks/albums/useAlbum";
 import ErrorPage from "@/app/error";
 import LoadingPage from "@/app/loading";
 import { useRouter } from "next/navigation";
@@ -9,7 +9,7 @@ interface AlbumCardProps {
 
 export default function AlbumCard(props: AlbumCardProps) {
   const { albumId } = props;
-  const albumQuery = useAlbumById(albumId);
+  const { albumQuery } = useAlbum(albumId, { albumThumbnailURL: true });
 
   const router = useRouter();
 
