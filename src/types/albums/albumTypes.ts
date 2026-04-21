@@ -1,7 +1,6 @@
 import { Moment } from "moment";
 
-export type Album = AlbumDocAppModel & Partial<{ thumbnailURL: AlbumThumbnailURL; }>
-export interface AlbumDocAppModel {
+export interface Album {
   id: string;
   name: string; // same as Session name if a corresponding Session exists
   numItems: number;
@@ -10,8 +9,6 @@ export interface AlbumDocAppModel {
   hasThumbnail: boolean;
   linkedSessionId?: string;
 }
-
-export type AlbumThumbnailURL = string;
 
 export interface AlbumItem {
   id: string;

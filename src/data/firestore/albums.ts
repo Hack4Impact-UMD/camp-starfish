@@ -1,5 +1,5 @@
 import { db } from "@/config/firebase";
-import { Album, AlbumDocAppModel } from "@/types/albums/albumTypes";
+import { Album } from "@/types/albums/albumTypes";
 import { AlbumDoc } from "./types/documents";
 import { v4 as uuid } from "uuid";
 import { RootLevelCollection } from "./types/collections";
@@ -7,7 +7,7 @@ import { setDoc, deleteDoc, getDoc, updateDoc, executeQuery, QueryOptions, mapSn
 import { collection, CollectionReference, doc, DocumentReference, DocumentSnapshot, QueryDocumentSnapshot, Transaction, UpdateData, WriteBatch } from "firebase/firestore";
 import moment from "moment";
 
-function fromFirestore(snapshot: DocumentSnapshot<AlbumDoc, AlbumDoc> | QueryDocumentSnapshot<AlbumDoc, AlbumDoc>): AlbumDocAppModel {
+function fromFirestore(snapshot: DocumentSnapshot<AlbumDoc, AlbumDoc> | QueryDocumentSnapshot<AlbumDoc, AlbumDoc>): Album {
   if (!snapshot.exists()) { throw Error("Document not found"); }
   const albumDoc = snapshot.data();
   return {
@@ -21,7 +21,7 @@ function fromFirestore(snapshot: DocumentSnapshot<AlbumDoc, AlbumDoc> | QueryDoc
   }
 }
 
-export async function getAlbumDocById(id: string, transaction?: Transaction): Promise<AlbumDocAppModel> {
+export async function getAlbumDocById(id: string, transaction?: Transaction): Promise<Album> {
   const snapshot = await getDoc<AlbumDoc>(doc(db, RootLevelCollection.ALBUMS, id) as DocumentReference<AlbumDoc, AlbumDoc>, transaction);
   return fromFirestore(snapshot);
 }
