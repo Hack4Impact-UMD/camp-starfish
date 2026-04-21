@@ -41,8 +41,10 @@ const AlbumPage: React.FC = () => {
   const session = "No Session";
 
   async function uploadImages(images: File[]) {
-    const paths = images.map(() => `albums/${albumId}/${uuidv4()}`);
-    await uploadFiles(images, paths);
+    await uploadFiles(images.map(image => ({
+      file: image,
+      path: `albums/${albumId}/${uuidv4()}`
+    })));
   }
 
   return (
