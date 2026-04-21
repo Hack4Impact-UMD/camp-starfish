@@ -17,7 +17,7 @@ export default function useAlbumDocs(queryOptions?: QueryOptions<AlbumDoc>) {
     queryFn: async ({ pageParam }) => {
       if (!queryOptions) { queryOptions = {} }
       if (pageParam) {
-        if (pageParam.direction === 'previous') {
+        if (pageParam.direction === 'next') {
           queryOptions.startAfter = pageParam.snapshot;
           queryOptions.startAt = undefined;
         } else {
