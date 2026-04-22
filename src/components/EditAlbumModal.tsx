@@ -18,7 +18,7 @@ interface EditAlbumModalProps {
 
 export default function EditAlbumModal(props: EditAlbumModalProps) {
   const { albumId } = props;
-  const { albumQuery } = useAlbum(albumId, { albumThumbnailURL: true });
+  const albumQuery = useAlbum(albumId);
 
   const [albumName, setAlbumName] = useState<string>(
     albumQuery.data?.name || "",

@@ -5,7 +5,7 @@ import AlbumCard from "../../components/AlbumCard";
 import { openEditAlbumModal } from "@/components/EditAlbumModal";
 import CardGallery from "@/components/CardGallery";
 import { Album } from "@/types/albums/albumTypes";
-import useAlbumDocs from "@/hooks/albums/useAlbumDocs";
+import useAlbums from "@/hooks/albums/useAlbums";
 import ErrorPage from "../error";
 import LoadingPage from "../loading";
 import {
@@ -29,19 +29,25 @@ const enum AlbumsPageSortOption {
 }
 
 const sortQueryOptions: Record<AlbumsPageSortOption, QueryOptions<AlbumDoc>> = {
-  "Newest → Oldest": { orderBy: [{ fieldPath: "startDate", direction: "desc" }] },
-  "Oldest → Newest": { orderBy: [{ fieldPath: "startDate", direction: "asc" }] },
+  "Newest → Oldest": {
+    orderBy: [{ fieldPath: "startDate", direction: "desc" }],
+  },
+  "Oldest → Newest": {
+    orderBy: [{ fieldPath: "startDate", direction: "asc" }],
+  },
   "A → Z": { orderBy: [{ fieldPath: "name", direction: "asc" }] },
   "Z → A": { orderBy: [{ fieldPath: "name", direction: "desc" }] },
-}
+};
 
 export default function AlbumsPage() {
-  const [sortOption, setSortOption] = useState<AlbumsPageSortOption>(AlbumsPageSortOption.NEWEST_TO_OLDEST);
-  
-  const albumsQuery = useAlbumDocs({
+  const [sortOption, setSortOption] = useState<AlbumsPageSortOption>(
+    AlbumsPageSortOption.NEWEST_TO_OLDEST,
+  );
+
+  const albumsQuery = useAlbums({
     ...sortQueryOptions[sortOption],
     limit: 1,
-    limitToLast: undefined
+    limitToLast: undefined,
   });
 
   if (albumsQuery.isError) {
@@ -50,7 +56,7 @@ export default function AlbumsPage() {
     return <LoadingPage />;
   }
 
-  const albums = albumsQuery.data?.pages.flatMap(page => page.docs) ?? [];
+  const albums = albumsQuery.data?.pages.flatMap((page) => page.docs) ?? [];
   return (
     <div className="flex flex-col w-6/7 grow mx-auto px-4 py-6 gap-6">
       <div className="flex items-center justify-between">
@@ -65,10 +71,30 @@ export default function AlbumsPage() {
               </Menu.Target>
             </Tooltip>
             <Menu.Dropdown>
-              <Menu.Item onClick={() => setSortOption(AlbumsPageSortOption.NEWEST_TO_OLDEST)}>Newest → Oldest</Menu.Item>
-              <Menu.Item onClick={() => setSortOption(AlbumsPageSortOption.OLDEST_TO_NEWEST)}>Oldest → Newest</Menu.Item>
-              <Menu.Item onClick={() => setSortOption(AlbumsPageSortOption.A_TO_Z)}>A → Z</Menu.Item>
-              <Menu.Item onClick={() => setSortOption(AlbumsPageSortOption.Z_TO_A)}>Z → A</Menu.Item>
+              <Menu.Item
+                onClick={() =>
+                  setSortOption(AlbumsPageSortOption.NEWEST_TO_OLDEST)
+                }
+              >
+                Newest → Oldest
+              </Menu.Item>
+              <Menu.Item
+                onClick={() =>
+                  setSortOption(AlbumsPageSortOption.OLDEST_TO_NEWEST)
+                }
+              >
+                Oldest → Newest
+              </Menu.Item>
+              <Menu.Item
+                onClick={() => setSortOption(AlbumsPageSortOption.A_TO_Z)}
+              >
+                A → Z
+              </Menu.Item>
+              <Menu.Item
+                onClick={() => setSortOption(AlbumsPageSortOption.Z_TO_A)}
+              >
+                Z → A
+              </Menu.Item>
             </Menu.Dropdown>
           </Menu>
           <Link href="/albums/pending">

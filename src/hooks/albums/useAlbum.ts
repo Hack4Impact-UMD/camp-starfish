@@ -1,11 +1,9 @@
-import useAlbumDoc from "./useAlbumDoc";
-import useAlbumThumbnailURL from "./useAlbumThumbnailURL";
+import { getAlbumDocById } from "@/data/firestore/albums";
+import { skipToken, useQuery } from "@tanstack/react-query";
 
-export default function useAlbum(albumId: string | undefined, options: { albumThumbnailURL: boolean }) {
-  const albumDocQuery = useAlbumDoc(albumId);
-  const albumThumbnailUrlQuery = useAlbumThumbnailURL(albumId, options.albumThumbnailURL && albumDocQuery.isSuccess && albumDocQuery.data.hasThumbnail);
-  return {
-    albumQuery: albumDocQuery,
-    thumbnailQuery: albumThumbnailUrlQuery,
-  };
+export default function useAlbum(albumId: string | undefined) {
+  return useQuery({
+    queryKey: ['albums', albumId],
+    queryFn: albumId ? (() => getAlbumDocById(albumId)) : skipToken,
+  })
 }

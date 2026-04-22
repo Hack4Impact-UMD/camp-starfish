@@ -23,7 +23,7 @@ function getAlbumCardText(album: Album) {
 
 export default function AlbumCard(props: AlbumCardProps) {
   const { albumId } = props;
-  const { albumQuery, thumbnailQuery } = useAlbum(albumId, { albumThumbnailURL: true });
+  const albumQuery = useAlbum(albumId);
 
   const router = useRouter();
 
@@ -40,7 +40,7 @@ export default function AlbumCard(props: AlbumCardProps) {
       onDoubleClick={() => router.push(`/albums/${album.id}`)}
     >
       <Image
-        src={thumbnailQuery.data}
+        src={album.thumbnailSrc}
         alt={album.name}
         className="w-full h-48 object-contain"
         width={200}
