@@ -111,7 +111,8 @@ export default function EditAlbumModal(props: EditAlbumModalProps) {
               ? updateAlbumMutation.mutate(
                   {
                     albumId,
-                    updates: { name: albumName },
+                    name: albumName,
+                    thumbnail: albumThumbnail ?? undefined,
                   },
                   {
                     onSuccess: () => modals.closeAll(),
