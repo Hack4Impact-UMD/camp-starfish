@@ -21,7 +21,7 @@ function fromFirestore(snapshot: DocumentSnapshot<AlbumDoc, AlbumDoc> | QueryDoc
   }
 }
 
-export async function getAlbumDocById(id: string, transaction?: Transaction): Promise<Album> {
+export async function getAlbumDoc(id: string, transaction?: Transaction): Promise<Album> {
   const snapshot = await getDoc<AlbumDoc>(doc(db, RootLevelCollection.ALBUMS, id) as DocumentReference<AlbumDoc, AlbumDoc>, transaction);
   return fromFirestore(snapshot);
 }
