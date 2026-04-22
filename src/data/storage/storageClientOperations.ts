@@ -1,5 +1,5 @@
 import { storage } from "@/config/firebase";
-import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { deleteObject, getDownloadURL, ref, uploadBytes } from "firebase/storage";
 
 interface UploadFileItem {
   file: File;
@@ -14,6 +14,11 @@ export async function uploadFile(file: File, path: string) {
 export async function uploadFiles(items: UploadFileItem[]) {
   const uploadPromises = items.map(({ file, path }) => uploadFile(file, path));
   await Promise.all(uploadPromises);
+}
+
+export async function deleteFile(path: string) {
+  const deleteRef = ref(storage, path);
+  await deleteObject(deleteRef);
 }
 
 export async function getFileURL(path: string) {
