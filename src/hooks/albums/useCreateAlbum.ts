@@ -13,12 +13,10 @@ async function createAlbum(dto: CreateAlbumDTO) {
   const albumId = await createAlbumDoc({
     name: dto.name,
     numItems: 0,
-    hasThumbnail: !!dto.thumbnail,
     ...(dto.linkedSessionId ? { linkedSessionId: dto.linkedSessionId } : {}),
   });
   try {
     if (dto.thumbnail) {
-      console.log('uploading thumbnail')
       await uploadFile(dto.thumbnail, `albums/${albumId}/thumbnail`);
     }
   } catch (error) {
