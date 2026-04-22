@@ -1,4 +1,4 @@
-import { Album, AlbumItem, AlbumItemReport } from "@/types/albums/albumTypes";
+import { AlbumItem, AlbumItemReport } from "@/types/albums/albumTypes";
 import { ProgramArea, SectionSchedule } from "@/types/scheduling/schedulingTypes";
 import { Attendee, Bunk, Freeplay, NightSchedule, Post, Section, Session } from "@/types/sessions/sessionTypes";
 import { User } from "@/types/users/userTypes";
@@ -10,7 +10,7 @@ export interface AlbumDoc {
   numItems: number;
   startDate?: Timestamp;
   endDate?: Timestamp;
-  hasThumbnail: boolean;
+  thumbnailSrc?: string;
   linkedSessionId?: string;
 }
 
