@@ -3,6 +3,14 @@ import { onDocumentCreated, onDocumentDeleted } from "firebase-functions/firesto
 import { onObjectFinalized } from "firebase-functions/storage";
 import { updateAlbumDoc } from "../data/firestore/albums";
 import { FieldValue } from "firebase-admin/firestore";
+import { deleteFile } from "../data/storage/storageAdminOperations";
+
+const onAlbumDeleted = onDocumentDeleted(`/${RootLevelCollection.ALBUMS}/{albumId}`, async (event) => {
+  const hasThumbnail = event.data?.data()?.thumbnailSrc !== undefined;
+  if (hasThumbnail) {
+    await deleteFile(`/albums/${event.params.albumId}/thumbnail`);
+  }
+});
 
 const onAlbumItemCreated = onDocumentCreated(`/${RootLevelCollection.ALBUMS}/{albumId}/${AlbumsSubcollection.ALBUM_ITEMS}/{albumItemId}`, async (event) => {
   const { albumId } = event.params;
@@ -22,6 +30,7 @@ const onFileUploaded = onObjectFinalized(async (event) => {
 })
 
 export const albumsCloudFunctions = {
+  onAlbumDeleted,
   onAlbumItemCreated,
   onAlbumItemDeleted,
   onFileUploaded
