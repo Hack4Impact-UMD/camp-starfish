@@ -13,8 +13,8 @@ export interface Album {
 export interface AlbumItem {
   id: string;
   albumId: string;
-  src: string;
-  name?: string;
+  src?: string;
+  name: string;
   dateTaken: Moment;
   inReview: boolean;
   tagIds: {

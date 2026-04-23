@@ -15,8 +15,8 @@ export interface AlbumDoc {
 }
 
 export type AlbumItemDoc = {
-  src: string;
-  name?: string;
+  src?: string;
+  name: string;
   dateTaken: Timestamp;
   inReview: boolean;
   tagIds: {
