@@ -1,4 +1,4 @@
-import { AlbumItem, AlbumItemReport } from "@/types/albums/albumTypes";
+import { AlbumItemReport } from "@/types/albums/albumTypes";
 import { ProgramArea, SectionSchedule } from "@/types/scheduling/schedulingTypes";
 import { Attendee, Bunk, Freeplay, NightSchedule, Post, Section, Session } from "@/types/sessions/sessionTypes";
 import { User } from "@/types/users/userTypes";
