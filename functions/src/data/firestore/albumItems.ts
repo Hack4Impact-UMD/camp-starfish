@@ -4,13 +4,19 @@ import { Transaction, WriteBatch, QueryDocumentSnapshot, DocumentReference, Docu
 import { getDoc, createDoc, updateDoc, deleteDoc } from "./firestoreAdminOperations"
 import { AlbumsSubcollection, RootLevelCollection } from "@/data/firestore/types/collections";
 import { adminDb } from "../../config/firebaseAdminConfig";
+import moment from "moment";
 
 function fromFirestore(snapshot: DocumentSnapshot<AlbumItemDoc, AlbumItemDoc> | QueryDocumentSnapshot<AlbumItemDoc, AlbumItemDoc>): AlbumItem {
   if (!snapshot.exists) { throw Error("Document not found"); };
+  const albumItemDoc = snapshot.data() as AlbumItemDoc;
   return {
     id: snapshot.ref.id,
     albumId: snapshot.ref.parent.parent!.id,
-    ...snapshot.data() as AlbumItemDoc
+    src: albumItemDoc.src,
+    name: albumItemDoc.name,
+    dateTaken: moment(albumItemDoc.dateTaken.toMillis()),
+    inReview: albumItemDoc.inReview,
+    tagIds: albumItemDoc.tagIds,
   }
 }
 

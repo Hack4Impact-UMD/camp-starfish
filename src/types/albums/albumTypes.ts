@@ -12,10 +12,10 @@ export interface Album {
 
 export interface AlbumItem {
   id: string;
-  src: string;
   albumId: string;
-  name: string;
-  dateTaken: string; // ISO-8601
+  src: string;
+  name?: string;
+  dateTaken: Moment;
   inReview: boolean;
   tagIds: {
     approved: number[];

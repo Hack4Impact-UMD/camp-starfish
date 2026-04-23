@@ -14,7 +14,17 @@ export interface AlbumDoc {
   linkedSessionId?: string;
 }
 
-export type AlbumItemDoc = Omit<AlbumItem, "id" | "albumId">;
+export type AlbumItemDoc = {
+  src: string;
+  name?: string;
+  dateTaken: Timestamp;
+  inReview: boolean;
+  tagIds: {
+    approved: number[];
+    inReview: number[];
+  }
+}
+
 export type AlbumItemReportDoc = DistributiveOmit<AlbumItemReport, "id" | "albumItemId" | "albumId">;
 
 export type UserDoc = DistributiveOmit<User, "id">;

@@ -4,13 +4,19 @@ import { AlbumItemDoc } from "./types/documents";
 import { doc, Transaction, WriteBatch, QueryDocumentSnapshot, DocumentReference, DocumentSnapshot } from "firebase/firestore";
 import { getDoc, setDoc, updateDoc, deleteDoc } from "./firestoreClientOperations"
 import { AlbumsSubcollection, RootLevelCollection } from "./types/collections";
+import moment from "moment";
 
 function fromFirestore(snapshot: DocumentSnapshot<AlbumItemDoc, AlbumItemDoc> | QueryDocumentSnapshot<AlbumItemDoc, AlbumItemDoc>): AlbumItem {
   if (!snapshot.exists()) { throw Error("Document not found"); }
+  const albumItemDoc = snapshot.data();
   return {
     id: snapshot.ref.id,
     albumId: snapshot.ref.parent.parent!.id,
-    ...snapshot.data(),
+    src: albumItemDoc.src,
+    name: albumItemDoc.name,
+    dateTaken: moment(albumItemDoc.dateTaken.toMillis()),
+    inReview: albumItemDoc.inReview,
+    tagIds: albumItemDoc.tagIds,
   }
 }
 
