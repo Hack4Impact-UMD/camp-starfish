@@ -8,8 +8,8 @@ import { Timestamp } from "firebase/firestore";
 export interface AlbumDoc {
   name: string;
   numItems: number;
-  startDate?: Timestamp;
-  endDate?: Timestamp;
+  startDate?: Timestamp | null;
+  endDate?: Timestamp | null;
   thumbnailSrc?: string;
   linkedSessionId?: string;
 }

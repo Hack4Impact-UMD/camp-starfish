@@ -15,8 +15,8 @@ function fromFirestore(snapshot: DocumentSnapshot<AlbumDoc, AlbumDoc> | QueryDoc
     name: albumDoc.name,
     numItems: albumDoc.numItems,
     thumbnailSrc: albumDoc.thumbnailSrc,
-    startDate: albumDoc.startDate ? moment(albumDoc.startDate.toMillis()) : undefined,
-    endDate: albumDoc.endDate ? moment(albumDoc.endDate.toMillis()) : undefined,
+    startDate: albumDoc.startDate ? moment(albumDoc.startDate.toMillis()) : null,
+    endDate: albumDoc.endDate ? moment(albumDoc.endDate.toMillis()) : null,
     linkedSessionId: albumDoc.linkedSessionId
   }
 }

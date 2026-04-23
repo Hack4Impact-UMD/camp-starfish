@@ -13,6 +13,8 @@ async function createAlbum(dto: CreateAlbumDTO) {
   const albumId = await createAlbumDoc({
     name: dto.name,
     numItems: 0,
+    startDate: null,
+    endDate: null,
     ...(dto.linkedSessionId ? { linkedSessionId: dto.linkedSessionId } : {}),
   });
   try {

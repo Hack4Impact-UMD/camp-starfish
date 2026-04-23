@@ -4,8 +4,8 @@ export interface Album {
   id: string;
   name: string; // same as Session name if a corresponding Session exists
   numItems: number;
-  startDate?: Moment;
-  endDate?: Moment;
+  startDate: Moment | null;
+  endDate: Moment | null;
   thumbnailSrc?: string;
   linkedSessionId?: string;
 }
