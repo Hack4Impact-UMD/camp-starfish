@@ -4,7 +4,7 @@ import { AlbumDoc } from "./types/documents";
 import { v4 as uuid } from "uuid";
 import { RootLevelCollection } from "./types/collections";
 import { setDoc, deleteDoc, getDoc, updateDoc, executeQuery, QueryOptions, mapSnapshotsToPaginatedQueryResult, PaginatedQueryResponse } from "./firestoreClientOperations";
-import { collection, CollectionReference, doc, DocumentReference, DocumentSnapshot, QueryDocumentSnapshot, Transaction, UpdateData, WriteBatch } from "firebase/firestore";
+import { collection, CollectionReference, doc, DocumentReference, DocumentSnapshot, QueryDocumentSnapshot, Transaction, UpdateData, WithFieldValue, WriteBatch } from "firebase/firestore";
 import moment from "moment";
 
 function fromFirestore(snapshot: DocumentSnapshot<AlbumDoc, AlbumDoc> | QueryDocumentSnapshot<AlbumDoc, AlbumDoc>): Album {
@@ -31,7 +31,7 @@ export async function getAlbumDocs(queryOptions?: QueryOptions<AlbumDoc>): Promi
   return mapSnapshotsToPaginatedQueryResult(snapshots, fromFirestore);
 }
 
-export async function createAlbumDoc(album: AlbumDoc, instance?: Transaction | WriteBatch): Promise<string> {
+export async function createAlbumDoc(album: WithFieldValue<AlbumDoc>, instance?: Transaction | WriteBatch): Promise<string> {
   const albumId = uuid();
   await setDoc<AlbumDoc>(doc(db, RootLevelCollection.ALBUMS, albumId) as DocumentReference<AlbumDoc, AlbumDoc>, album, { instance });
   return albumId;

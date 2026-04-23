@@ -1,7 +1,7 @@
 import { db } from "@/config/firebase";
 import { AlbumItem } from "@/types/albums/albumTypes";
 import { AlbumItemDoc } from "./types/documents";
-import { doc, Transaction, WriteBatch, QueryDocumentSnapshot, DocumentReference, DocumentSnapshot } from "firebase/firestore";
+import { doc, Transaction, WriteBatch, QueryDocumentSnapshot, DocumentReference, DocumentSnapshot, WithFieldValue, UpdateData } from "firebase/firestore";
 import { getDoc, setDoc, updateDoc, deleteDoc } from "./firestoreClientOperations"
 import { AlbumsSubcollection, RootLevelCollection } from "./types/collections";
 import moment from "moment";
@@ -26,13 +26,13 @@ export async function getAlbumItemDoc(albumId: string, albumItemId: string, tran
   return fromFirestore(snapshot);
 }
 
-export async function createAlbumItemDoc(albumId: string, albumItem: AlbumItemDoc, instance?: Transaction | WriteBatch): Promise<string> {
+export async function createAlbumItemDoc(albumId: string, albumItem: WithFieldValue<AlbumItemDoc>, instance?: Transaction | WriteBatch): Promise<string> {
   const albumItemId = uuidv4();
   await setDoc(doc(db, RootLevelCollection.ALBUMS, albumId, AlbumsSubcollection.ALBUM_ITEMS, albumItemId) as DocumentReference<AlbumItemDoc, AlbumItemDoc>, albumItem, { instance });
   return albumItemId;
 }
 
-export async function updateAlbumItemDoc(albumId: string, albumItemId: string, updates: Partial<AlbumItemDoc>, instance?: Transaction | WriteBatch): Promise<void> {
+export async function updateAlbumItemDoc(albumId: string, albumItemId: string, updates: UpdateData<AlbumItemDoc>, instance?: Transaction | WriteBatch): Promise<void> {
   await updateDoc<AlbumItemDoc>(doc(db, RootLevelCollection.ALBUMS, albumId, AlbumsSubcollection.ALBUM_ITEMS, albumItemId) as DocumentReference<AlbumItemDoc, AlbumItemDoc>, updates, instance);
 }
 

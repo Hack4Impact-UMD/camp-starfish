@@ -3,7 +3,7 @@ import { AlbumDoc } from "@/data/firestore/types/documents";
 import { v4 as uuid } from "uuid";
 import { RootLevelCollection } from "@/data/firestore/types/collections";
 import { createDoc, deleteDoc, getDoc, updateDoc } from "./firestoreAdminOperations";
-import { DocumentReference, DocumentSnapshot, QueryDocumentSnapshot, Transaction, UpdateData, WriteBatch } from "firebase-admin/firestore";
+import { DocumentReference, DocumentSnapshot, QueryDocumentSnapshot, Transaction, UpdateData, WithFieldValue, WriteBatch } from "firebase-admin/firestore";
 import { adminDb } from "../../config/firebaseAdminConfig";
 import moment from "moment";
 
@@ -26,7 +26,7 @@ export async function getAlbumDoc(id: string, transaction?: Transaction): Promis
   return fromFirestore(snapshot);
 }
 
-export async function createAlbumDoc(album: AlbumDoc, instance?: Transaction | WriteBatch): Promise<string> {
+export async function createAlbumDoc(album: WithFieldValue<AlbumDoc>, instance?: Transaction | WriteBatch): Promise<string> {
   const albumId = uuid();
   await createDoc<AlbumDoc>(adminDb.collection(RootLevelCollection.ALBUMS).doc(albumId) as DocumentReference<AlbumDoc, AlbumDoc>, album, instance);
   return albumId;

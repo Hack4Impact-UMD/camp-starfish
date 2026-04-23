@@ -7,6 +7,8 @@ import {
   DocumentReference,
   CollectionReference,
   DocumentSnapshot,
+  UpdateData,
+  WithFieldValue,
 } from "firebase-admin/firestore";
 import { createDoc, getDoc, updateDoc, deleteDoc, executeQuery } from "./firestoreAdminOperations";
 import { RootLevelCollection } from "@/data/firestore/types/collections";
@@ -39,11 +41,11 @@ export async function getUserByEmail(email: string, transaction?: Transaction): 
   return fromFirestore(snapshots[0]);
 }
 
-export async function createUser(id: number, user: UserDoc, instance?: Transaction | WriteBatch): Promise<void> {
+export async function createUser(id: number, user: WithFieldValue<UserDoc>, instance?: Transaction | WriteBatch): Promise<void> {
   await createDoc<UserDoc>(adminDb.collection(RootLevelCollection.USERS).doc(String(id)) as DocumentReference<UserDoc, UserDoc>, user, instance);
 }
 
-export async function updateUser(id: number, updates: Partial<UserDoc>, instance?: Transaction | WriteBatch): Promise<void> {
+export async function updateUser(id: number, updates: UpdateData<UserDoc>, instance?: Transaction | WriteBatch): Promise<void> {
   await updateDoc<UserDoc>(adminDb.collection(RootLevelCollection.USERS).doc(String(id)) as DocumentReference<UserDoc, UserDoc>, updates, instance);
 }
 

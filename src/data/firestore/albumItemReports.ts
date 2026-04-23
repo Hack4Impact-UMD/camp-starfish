@@ -9,7 +9,9 @@ import {
   QueryDocumentSnapshot, 
   DocumentReference,
   CollectionReference,
-  DocumentSnapshot
+  DocumentSnapshot,
+  WithFieldValue,
+  UpdateData
 } from "firebase/firestore";
 import { getDoc, setDoc, updateDoc, deleteDoc, executeQuery } from "./firestoreClientOperations";
 import { RootLevelCollection, AlbumsSubcollection, AlbumItemsSubcollection } from "./types/collections";
@@ -40,7 +42,7 @@ export async function getAlbumItemReportDocsByAlbumItemId(albumId: string, album
   return snapshots.map(fromFirestore);
 }
 
-export async function createAlbumItemReportDoc(albumId: string, albumItemId: string, report: AlbumItemReportDoc, instance?: Transaction | WriteBatch): Promise<string> {
+export async function createAlbumItemReportDoc(albumId: string, albumItemId: string, report: WithFieldValue<AlbumItemReportDoc>, instance?: Transaction | WriteBatch): Promise<string> {
   const reportId = uuid();
   await setDoc<AlbumItemReportDoc>(
     doc(db, RootLevelCollection.ALBUMS, albumId, AlbumsSubcollection.ALBUM_ITEMS, albumItemId, AlbumItemsSubcollection.REPORTS, reportId) as DocumentReference<AlbumItemReportDoc, AlbumItemReportDoc>, 
@@ -50,7 +52,7 @@ export async function createAlbumItemReportDoc(albumId: string, albumItemId: str
   return reportId;
 }
 
-export async function updateAlbumItemReportDoc(albumId: string, albumItemId: string, reportId: string, updates: Partial<AlbumItemReportDoc>, instance?: Transaction | WriteBatch): Promise<void> {
+export async function updateAlbumItemReportDoc(albumId: string, albumItemId: string, reportId: string, updates: UpdateData<AlbumItemReportDoc>, instance?: Transaction | WriteBatch): Promise<void> {
   await updateDoc<AlbumItemReportDoc>(
     doc(db, RootLevelCollection.ALBUMS, albumId, AlbumsSubcollection.ALBUM_ITEMS, albumItemId, AlbumItemsSubcollection.REPORTS, reportId) as DocumentReference<AlbumItemReportDoc, AlbumItemReportDoc>, 
     updates, 

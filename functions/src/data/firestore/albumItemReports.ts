@@ -7,7 +7,9 @@ import {
   DocumentReference,
   CollectionReference,
   DocumentSnapshot,
-  QueryDocumentSnapshot
+  QueryDocumentSnapshot,
+  WithFieldValue,
+  UpdateData
 } from "firebase-admin/firestore";
 import { getDoc, setDoc, updateDoc, deleteDoc, executeQuery } from "./firestoreAdminOperations";
 import { RootLevelCollection, AlbumsSubcollection, AlbumItemsSubcollection } from "@/data/firestore/types/collections";
@@ -39,7 +41,7 @@ export async function getAlbumItemReportDocsByImageId(albumId: string, albumItem
   return snapshots.map(fromFirestore);
 }
 
-export async function createAlbumItemReportDoc(albumId: string, albumItemId: string, report: AlbumItemReportDoc, instance?: Transaction | WriteBatch): Promise<string> {
+export async function createAlbumItemReportDoc(albumId: string, albumItemId: string, report: WithFieldValue<AlbumItemReportDoc>, instance?: Transaction | WriteBatch): Promise<string> {
   const reportId = uuid();
   await setDoc<AlbumItemReportDoc>(
     adminDb.collection(RootLevelCollection.ALBUMS).doc(albumId).collection(AlbumsSubcollection.ALBUM_ITEMS).doc(albumItemId).collection(AlbumItemsSubcollection.REPORTS).doc(reportId) as DocumentReference<AlbumItemReportDoc, AlbumItemReportDoc>,
@@ -49,7 +51,7 @@ export async function createAlbumItemReportDoc(albumId: string, albumItemId: str
   return reportId;
 }
 
-export async function updateAlbumItemReportDoc(albumId: string, albumItemId: string, reportId: string, updates: Partial<AlbumItemReportDoc>, instance?: Transaction | WriteBatch): Promise<void> {
+export async function updateAlbumItemReportDoc(albumId: string, albumItemId: string, reportId: string, updates: UpdateData<AlbumItemReportDoc>, instance?: Transaction | WriteBatch): Promise<void> {
   await updateDoc<AlbumItemReportDoc>(
     adminDb.collection(RootLevelCollection.ALBUMS).doc(albumId).collection(AlbumsSubcollection.ALBUM_ITEMS).doc(albumItemId).collection(AlbumItemsSubcollection.REPORTS).doc(reportId) as DocumentReference<AlbumItemReportDoc, AlbumItemReportDoc>,
     updates,
