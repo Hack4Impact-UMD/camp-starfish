@@ -1,5 +1,5 @@
 import { Image, Text, Title } from "@mantine/core";
-import useAlbum from "@/features/albums/albumManagement/useAlbum";
+import useAlbum from "@/hooks/albums/useAlbum";
 import ErrorPage from "@/app/error";
 import LoadingPage from "@/app/loading";
 import { useRouter } from "next/navigation";
