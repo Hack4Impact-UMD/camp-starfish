@@ -7,10 +7,10 @@ import { Dropzone, FileWithPath } from "@mantine/dropzone";
 import LoadingPage from "@/app/loading";
 import ErrorPage from "@/app/error";
 import { MdClose, MdImage } from "react-icons/md";
-import useCreateAlbum from "@/hooks/albums/useCreateAlbum";
-import useUpdateAlbum from "@/hooks/albums/useUpdateAlbum";
+import useCreateAlbum from "@/features/albums/albumManagement/useCreateAlbum";
+import useUpdateAlbum from "@/features/albums/albumManagement/useUpdateAlbum";
 import useNotifications from "@/features/notifications/useNotifications";
-import useAlbum from "@/hooks/albums/useAlbum";
+import useAlbum from "@/features/albums/albumManagement/useAlbum";
 
 interface EditAlbumModalProps {
   albumId?: string;

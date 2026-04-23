@@ -1,5 +1,5 @@
 import { Image, Text, Title } from "@mantine/core";
-import useAlbum from "@/hooks/albums/useAlbum";
+import useAlbum from "@/features/albums/albumManagement/useAlbum";
 import ErrorPage from "@/app/error";
 import LoadingPage from "@/app/loading";
 import { useRouter } from "next/navigation";
@@ -12,8 +12,8 @@ function getAlbumCardText(album: Album) {
   const { startDate, endDate, numItems } = album;
   if (!startDate || !endDate) {
     return `${numItems} items`;
-  } else if (startDate.isSame(endDate, 'year')) {
-    if (startDate.isSame(endDate, 'month')) {
+  } else if (startDate.isSame(endDate, "year")) {
+    if (startDate.isSame(endDate, "month")) {
       return `${startDate.format("MMMM YYYY")} • ${numItems} items`;
     }
     return `${startDate.format("MMMM")} - ${endDate.format("MMMM YYYY")} • ${numItems} items`;
