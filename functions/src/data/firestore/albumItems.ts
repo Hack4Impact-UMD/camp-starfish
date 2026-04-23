@@ -5,6 +5,7 @@ import { getDoc, createDoc, updateDoc, deleteDoc } from "./firestoreAdminOperati
 import { AlbumsSubcollection, RootLevelCollection } from "@/data/firestore/types/collections";
 import { adminDb } from "../../config/firebaseAdminConfig";
 import moment from "moment";
+import { v4 as uuidv4 } from "uuid";
 
 function fromFirestore(snapshot: DocumentSnapshot<AlbumItemDoc, AlbumItemDoc> | QueryDocumentSnapshot<AlbumItemDoc, AlbumItemDoc>): AlbumItem {
   if (!snapshot.exists) { throw Error("Document not found"); };
@@ -25,8 +26,10 @@ export async function getAlbumItemDoc(albumId: string, albumItemId: string, tran
   return fromFirestore(snapshot);
 }
 
-export async function createAlbumItemDoc(albumId: string, albumItemId: string, albumItem: AlbumItemDoc, instance?: Transaction | WriteBatch): Promise<void> {
+export async function createAlbumItemDoc(albumId: string, albumItem: AlbumItemDoc, instance?: Transaction | WriteBatch): Promise<string> {
+  const albumItemId = uuidv4();
   await createDoc<AlbumItemDoc>(adminDb.collection(RootLevelCollection.ALBUMS).doc(albumId).collection(AlbumsSubcollection.ALBUM_ITEMS).doc(albumItemId) as DocumentReference<AlbumItemDoc, AlbumItemDoc>, albumItem, instance);
+  return albumItemId;
 }
 
 export async function updateAlbumItemDoc(albumId: string, albumItemId: string, updates: Partial<AlbumItemDoc>, instance?: Transaction | WriteBatch): Promise<void> {
