@@ -4,6 +4,7 @@ import { onObjectFinalized } from "firebase-functions/storage";
 import { updateAlbumDoc } from "../data/firestore/albums";
 import { FieldValue } from "firebase-admin/firestore";
 import { deleteFile } from "../data/storage/storageAdminOperations";
+import { updateAlbumItemDoc } from "../data/firestore/albumItems";
 
 const onAlbumDeleted = onDocumentDeleted(`/${RootLevelCollection.ALBUMS}/{albumId}`, async (event) => {
   const hasThumbnail = event.data?.data()?.thumbnailSrc !== undefined;
@@ -26,6 +27,8 @@ const onFileUploaded = onObjectFinalized(async (event) => {
   const pathParts = event.data.name.split('/');
   if (pathParts.length === 3 && pathParts[0] === 'albums' && pathParts[2] === 'thumbnail') {
     await updateAlbumDoc(pathParts[1], { thumbnailSrc: event.data.mediaLink });
+  } else if (pathParts.length === 4 && pathParts[0] === 'albums' && pathParts[2] === 'albumItems') {
+    await updateAlbumItemDoc(pathParts[1], pathParts[3], { src: event.data.mediaLink });
   }
 })
 
