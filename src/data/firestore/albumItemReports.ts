@@ -87,8 +87,8 @@ export async function deleteAlbumItemReportDoc(albumId: string, albumItemId: str
 }
 
 export async function doesReporterHavePendingReportForAlbumItem(albumId: string, albumItemId: string, reporterId: number): Promise<boolean> {
-  const { reportCount } = await executeAggregationQuery(
-    collection(db, RootLevelCollection.ALBUMS, albumId, AlbumsSubcollection.ALBUM_ITEMS, albumItemId, AlbumItemsSubcollection.REPORTS),
+  const { reportCount } = await executeAggregationQuery<AlbumItemReportDoc>(
+    collection(db, RootLevelCollection.ALBUMS, albumId, AlbumsSubcollection.ALBUM_ITEMS, albumItemId, AlbumItemsSubcollection.REPORTS) as CollectionReference<AlbumItemReportDoc, AlbumItemReportDoc>,
     {
       where: [
         { fieldPath: 'reporterId', operation: '==', value: reporterId },
