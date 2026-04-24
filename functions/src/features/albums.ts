@@ -37,8 +37,9 @@ const onAlbumItemCreated = onDocumentCreated(`/${RootLevelCollection.ALBUMS}/{al
 })
 
 const onAlbumItemDeleted = onDocumentDeleted(`/${RootLevelCollection.ALBUMS}/{albumId}/${AlbumsSubcollection.ALBUM_ITEMS}/{albumItemId}`, async (event) => {
-  const { albumId } = event.params;
+  const { albumId, albumItemId } = event.params;
   try {
+    await deleteFile(`/albums/${albumId}/albumItems/${albumItemId}`);
     await adminDb.runTransaction(async (transaction) => {
       const oldestAlbumItem = await getOldestAlbumItemInAlbum(albumId, transaction);
       if (oldestAlbumItem === null) {
