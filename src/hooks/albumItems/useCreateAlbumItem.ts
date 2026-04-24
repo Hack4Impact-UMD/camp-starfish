@@ -26,7 +26,6 @@ async function createAlbumItem(req: CreateAlbumItemRequest) {
   } catch {
     await deleteAlbumItemDoc(albumId, albumItemId);
   }
-
   return albumItemId;
 }
 

@@ -1,7 +1,6 @@
 import { db } from "@/config/firebase";
 import { updateAlbumItemDoc } from "@/data/firestore/albumItems";
 import { AlbumItemDoc } from "@/data/firestore/types/documents";
-import stripUndefined from "@/utils/data/stripUndefined";
 import { useMutation } from "@tanstack/react-query";
 import { arrayRemove, arrayUnion, UpdateData, writeBatch } from "firebase/firestore";
 
@@ -63,16 +62,16 @@ async function updateAlbumItem(req: UpdateAlbumItemRequest) {
   if (needsWriteBatch) {
     const batch = writeBatch(db);
     await updateAlbumItemDoc(albumId, albumItemId, {
-      name: req.name,
-      inReview: req.inReview,
+      ...(req.name ? { name: req.name } : {}),
+      ...(req.inReview ? { inReview: req.inReview } : {}),
       ...tagChanges[0]
     }, batch);
     await updateAlbumItemDoc(albumId, albumItemId, tagChanges[1], batch);
     await batch.commit();
   } else {
     await updateAlbumItemDoc(albumId, albumItemId, {
-      name: req.name,
-      inReview: req.inReview,
+      ...(req.name ? { name: req.name } : {}),
+      ...(req.inReview ? { inReview: req.inReview } : {}),
       ...tagChanges[0]
     })
   }
