@@ -34,7 +34,7 @@ interface BaseAlbumItemReport {
 
   reporterId: number;
   reportMessage: string;
-  reportedAt: string; // ISO-8601
+  reportedAt: Moment;
 }
 
 export interface PendingAlbumItemReport extends BaseAlbumItemReport { status: 'PENDING' }; 
@@ -42,6 +42,6 @@ export interface ResolvedAlbumItemReport extends BaseAlbumItemReport {
   status: 'RESOLVED';
   resolverId: number;
   resolutionMessage: string;
-  resolvedAt: string; // ISO-8601
+  resolvedAt: Moment;
 }
 export type AlbumItemReport = PendingAlbumItemReport | ResolvedAlbumItemReport;

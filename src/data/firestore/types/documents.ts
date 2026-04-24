@@ -1,4 +1,4 @@
-import { AlbumItemReport } from "@/types/albums/albumTypes";
+import { AlbumItemReportStatus } from "@/types/albums/albumTypes";
 import { ProgramArea, SectionSchedule } from "@/types/scheduling/schedulingTypes";
 import { Attendee, Bunk, Freeplay, NightSchedule, Post, Section, Session } from "@/types/sessions/sessionTypes";
 import { User } from "@/types/users/userTypes";
@@ -14,7 +14,7 @@ export interface AlbumDoc {
   linkedSessionId?: string;
 }
 
-export type AlbumItemDoc = {
+export interface AlbumItemDoc {
   src?: string;
   name: string;
   dateTaken: Timestamp;
@@ -25,7 +25,20 @@ export type AlbumItemDoc = {
   }
 }
 
-export type AlbumItemReportDoc = DistributiveOmit<AlbumItemReport, "id" | "albumItemId" | "albumId">;
+interface BaseAlbumItemReportDoc {
+  status: AlbumItemReportStatus;
+  reporterId: number;
+  reportMessage: string;
+  reportedAt: Timestamp;
+}
+export interface PendingAlbumItemReportDoc extends BaseAlbumItemReportDoc { status: "PENDING" };
+export interface ResolvedAlbumItemReportDoc extends BaseAlbumItemReportDoc {
+  status: "RESOLVED";
+  resolverId: number;
+  resolutionMessage: string;
+  resolvedAt: Timestamp;
+};
+export type AlbumItemReportDoc = PendingAlbumItemReportDoc | ResolvedAlbumItemReportDoc;
 
 export type UserDoc = DistributiveOmit<User, "id">;
 

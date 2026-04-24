@@ -1,5 +1,5 @@
 import { db } from "@/config/firebase";
-import { AlbumItemReport } from "@/types/albums/albumTypes";
+import { AlbumItemReport, PendingAlbumItemReport, ResolvedAlbumItemReport } from "@/types/albums/albumTypes";
 import { AlbumItemReportDoc } from "./types/documents";
 import { 
   doc, 
@@ -16,15 +16,34 @@ import {
 import { getDoc, setDoc, updateDoc, deleteDoc, executeQuery } from "./firestoreClientOperations";
 import { RootLevelCollection, AlbumsSubcollection, AlbumItemsSubcollection } from "./types/collections";
 import { v4 as uuid } from "uuid";
+import moment from "moment";
 
 function fromFirestore(snapshot: DocumentSnapshot<AlbumItemReportDoc, AlbumItemReportDoc> | QueryDocumentSnapshot<AlbumItemReportDoc, AlbumItemReportDoc>): AlbumItemReport {
   if (!snapshot.exists()) { throw Error("Document not found"); }
+  const albumItemReportDoc = snapshot.data() as AlbumItemReportDoc;
+  if (albumItemReportDoc.status === 'PENDING') {
+    return {
+      id: snapshot.ref.id,
+      albumItemId: snapshot.ref.parent.parent!.id,
+      albumId: snapshot.ref.parent.parent!.parent.parent!.id,
+      status: albumItemReportDoc.status,
+      reporterId: albumItemReportDoc.reporterId,
+      reportMessage: albumItemReportDoc.reportMessage,
+      reportedAt: moment(albumItemReportDoc.reportedAt.toMillis())
+    } satisfies PendingAlbumItemReport
+  }
   return {
     id: snapshot.ref.id,
     albumItemId: snapshot.ref.parent.parent!.id,
     albumId: snapshot.ref.parent.parent!.parent.parent!.id,
-    ...snapshot.data()
-  }
+    status: albumItemReportDoc.status,
+    reporterId: albumItemReportDoc.reporterId,
+    reportMessage: albumItemReportDoc.reportMessage,
+    reportedAt: moment(albumItemReportDoc.reportedAt.toMillis()),
+    resolverId: albumItemReportDoc.resolverId,
+    resolutionMessage: albumItemReportDoc.resolutionMessage,
+    resolvedAt: moment(albumItemReportDoc.resolvedAt.toMillis())
+  } satisfies ResolvedAlbumItemReport;
 }
 
 export async function getAlbumItemReportDocById(albumId: string, imageId: string, reportId: string, transaction?: Transaction): Promise<AlbumItemReport> {

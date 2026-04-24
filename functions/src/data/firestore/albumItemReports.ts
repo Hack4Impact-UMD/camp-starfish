@@ -1,6 +1,6 @@
 import { adminDb } from "../../config/firebaseAdminConfig";
-import { AlbumItemReport } from "@/types/albums/albumTypes";
-import { AlbumItemReportDoc } from "@/data/firestore/types/documents";
+import { AlbumItemReport, PendingAlbumItemReport, ResolvedAlbumItemReport } from "@/types/albums/albumTypes";
+import { AlbumItemReportDoc, PendingAlbumItemReportDoc } from "@/data/firestore/types/documents";
 import {
   Transaction,
   WriteBatch,
@@ -14,15 +14,34 @@ import {
 import { getDoc, setDoc, updateDoc, deleteDoc, executeQuery } from "./firestoreAdminOperations";
 import { RootLevelCollection, AlbumsSubcollection, AlbumItemsSubcollection } from "@/data/firestore/types/collections";
 import { v4 as uuid } from "uuid";
+import moment from "moment";
 
 function fromFirestore(snapshot: DocumentSnapshot<AlbumItemReportDoc, AlbumItemReportDoc> | QueryDocumentSnapshot<AlbumItemReportDoc, AlbumItemReportDoc>): AlbumItemReport {
   if (!snapshot.exists) { throw Error("Document not found"); };
+  const albumItemReportDoc = snapshot.data() as AlbumItemReportDoc;
+  if (albumItemReportDoc.status === 'PENDING') {
+    return {
+      id: snapshot.ref.id,
+      albumItemId: snapshot.ref.parent.parent!.id,
+      albumId: snapshot.ref.parent.parent!.parent.parent!.id,
+      status: albumItemReportDoc.status,
+      reporterId: albumItemReportDoc.reporterId,
+      reportMessage: albumItemReportDoc.reportMessage,
+      reportedAt: moment(albumItemReportDoc.reportedAt.toMillis())
+    } satisfies PendingAlbumItemReport
+  }
   return {
     id: snapshot.ref.id,
     albumItemId: snapshot.ref.parent.parent!.id,
     albumId: snapshot.ref.parent.parent!.parent.parent!.id,
-    ...snapshot.data() as AlbumItemReportDoc
-  }
+    status: albumItemReportDoc.status,
+    reporterId: albumItemReportDoc.reporterId,
+    reportMessage: albumItemReportDoc.reportMessage,
+    reportedAt: moment(albumItemReportDoc.reportedAt.toMillis()),
+    resolverId: albumItemReportDoc.resolverId,
+    resolutionMessage: albumItemReportDoc.resolutionMessage,
+    resolvedAt: moment(albumItemReportDoc.resolvedAt.toMillis())
+  } satisfies ResolvedAlbumItemReport;
 }
 
 export async function getAlbumItemReportDocById(albumId: string, albumItemId: string, reportId: string, transaction?: Transaction): Promise<AlbumItemReport> {
