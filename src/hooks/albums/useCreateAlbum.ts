@@ -20,7 +20,7 @@ async function createAlbum(dto: CreateAlbumDTO) {
     if (dto.thumbnail) {
       await uploadFile(dto.thumbnail, `albums/${albumId}/thumbnail`);
     }
-  } catch (error) {
+  } catch {
     await deleteAlbumDoc(albumId);
   }
 }

@@ -9,6 +9,7 @@ import FileUploadModal from "@/components/FileUploadModal";
 import { uploadFiles } from "@/data/storage/storageClientOperations";
 import { v4 as uuidv4 } from "uuid";
 import Image from "next/image";
+import moment from "moment";
 
 const AlbumPage: React.FC = () => {
   const dates = [
@@ -28,7 +29,7 @@ const AlbumPage: React.FC = () => {
         approved: [],
         inReview: [],
       },
-      dateTaken: dates[i % 5],
+      dateTaken: moment(dates[i % 5]),
       inReview: false,
       id: i.toString(),
       albumId: "iug",
@@ -93,7 +94,7 @@ const AlbumPage: React.FC = () => {
           groups={{
             groupLabels: dates,
             defaultGroupLabel: "Date Unknown",
-            groupFunc: (image: AlbumItem) => image.dateTaken,
+            groupFunc: (image: AlbumItem) => image.dateTaken.format("YYYY-MM-DD"),
           }}
         />
       </div>

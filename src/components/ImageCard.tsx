@@ -18,7 +18,7 @@ export default function ImageCard(props: ImageCardProps) {
       }`}
     >
       <Image
-        src={image.src}
+        src={image.src || ""}
         alt={`${image.name}`}
         width={200}
         height={200}

@@ -15,14 +15,14 @@ export default function useAlbums(queryOptions?: QueryOptions<AlbumDoc>) {
   return useInfiniteQuery({
     queryKey: ['albums', queryOptions],
     queryFn: async ({ pageParam }) => {
-      if (!queryOptions) { queryOptions = {} }
+      const updatedQueryOptions = queryOptions ? { ...queryOptions } : {};
       if (pageParam) {
         if (pageParam.direction === 'next') {
-          queryOptions.startAfter = pageParam.snapshot;
-          queryOptions.startAt = undefined;
+          updatedQueryOptions.startAfter = pageParam.snapshot;
+          updatedQueryOptions.startAt = undefined;
         } else {
-          queryOptions.endBefore = pageParam.snapshot;
-          queryOptions.endAt = undefined;
+          updatedQueryOptions.endBefore = pageParam.snapshot;
+          updatedQueryOptions.endAt = undefined;
         }
       }
       const albumsPage = await getAlbumDocs(queryOptions);
