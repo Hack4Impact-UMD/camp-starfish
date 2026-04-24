@@ -5,12 +5,17 @@ import { updateAlbumDoc } from "../data/firestore/albums";
 import { FieldValue } from "firebase-admin/firestore";
 import { deleteFile } from "../data/storage/storageAdminOperations";
 import { updateAlbumItemDoc } from "../data/firestore/albumItems";
+import { adminDb } from "../config/firebaseAdminConfig";
 
 const onAlbumDeleted = onDocumentDeleted(`/${RootLevelCollection.ALBUMS}/{albumId}`, async (event) => {
+  const promises = [
+    adminDb.recursiveDelete(adminDb.collection(RootLevelCollection.ALBUMS).doc(event.params.albumId))
+  ];
   const hasThumbnail = event.data?.data()?.thumbnailSrc !== undefined;
   if (hasThumbnail) {
-    await deleteFile(`/albums/${event.params.albumId}/thumbnail`);
+    promises.push(deleteFile(`/albums/${event.params.albumId}/thumbnail`));
   }
+  await Promise.all(promises);
 });
 
 const onAlbumItemCreated = onDocumentCreated(`/${RootLevelCollection.ALBUMS}/{albumId}/${AlbumsSubcollection.ALBUM_ITEMS}/{albumItemId}`, async (event) => {
@@ -20,7 +25,10 @@ const onAlbumItemCreated = onDocumentCreated(`/${RootLevelCollection.ALBUMS}/{al
 
 const onAlbumItemDeleted = onDocumentDeleted(`/${RootLevelCollection.ALBUMS}/{albumId}/${AlbumsSubcollection.ALBUM_ITEMS}/{albumItemId}`, async (event) => {
   const { albumId } = event.params;
-  await updateAlbumDoc(albumId, { numItems: FieldValue.increment(-1) });
+  console.log(event);
+  try {
+    await updateAlbumDoc(albumId, { numItems: FieldValue.increment(-1) });
+  } catch { }
 })
 
 const onFileUploaded = onObjectFinalized(async (event) => {
