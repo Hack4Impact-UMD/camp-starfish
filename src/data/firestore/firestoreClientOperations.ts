@@ -3,7 +3,6 @@ import { DocumentReference, Query, Transaction, WriteBatch, DocumentSnapshot, ge
 import { db } from "@/config/firebase";
 import { Collection } from "./types/collections";
 import { DistributiveKeyof, NonEmptyArray } from "@/utils/types/typeUtils";
-import stripUndefined from "@/utils/data/stripUndefined";
 
 export async function getDoc<DbModelType extends DocumentData>(ref: DocumentReference<DbModelType, DbModelType>, transaction?: Transaction): Promise<DocumentSnapshot<DbModelType, DbModelType>> {
   let doc: DocumentSnapshot<DbModelType, DbModelType>;
@@ -41,7 +40,6 @@ export async function setDoc<DbModelType extends DocumentData>(ref: DocumentRefe
   try {
     options = options ?? {};
     const { instance } = options;
-    data = stripUndefined(data);
     if ('mergeOptions' in options) {
       // @ts-expect-error - both Transaction & WriteBatch have a set with the same signature, but TypeScript fails to recognize that
       await (instance ? instance.set(ref, data, options.mergeOptions) : setFirestore(ref, data, options.mergeOptions));
@@ -56,7 +54,6 @@ export async function setDoc<DbModelType extends DocumentData>(ref: DocumentRefe
 
 export async function updateDoc<DbModelType extends DocumentData>(ref: DocumentReference<DbModelType, DbModelType>, data: UpdateData<DbModelType>, instance?: Transaction | WriteBatch): Promise<void> {
   try {
-    data = stripUndefined(data);
     // @ts-expect-error - both Transaction & WriteBatch have a set with the same signature, but TypeScript fails to recognize that
     await (instance ? instance.update(ref, data) : updateFirestore(ref, data));
   } catch (error) {
