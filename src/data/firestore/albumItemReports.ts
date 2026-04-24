@@ -46,7 +46,7 @@ function fromFirestore(snapshot: DocumentSnapshot<AlbumItemReportDoc, AlbumItemR
   } satisfies ResolvedAlbumItemReport;
 }
 
-export async function getAlbumItemReportDocById(albumId: string, imageId: string, reportId: string, transaction?: Transaction): Promise<AlbumItemReport> {
+export async function getAlbumItemReportDoc(albumId: string, imageId: string, reportId: string, transaction?: Transaction): Promise<AlbumItemReport> {
   const snapshot = await getDoc<AlbumItemReportDoc>(
     doc(db, RootLevelCollection.ALBUMS, albumId, AlbumsSubcollection.ALBUM_ITEMS, imageId, AlbumItemsSubcollection.REPORTS, reportId) as DocumentReference<AlbumItemReportDoc, AlbumItemReportDoc>, 
     transaction
