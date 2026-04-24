@@ -1,11 +1,12 @@
 import { AlbumsSubcollection, RootLevelCollection } from "@/data/firestore/types/collections";
 import { onDocumentCreated, onDocumentDeleted } from "firebase-functions/firestore";
 import { onObjectFinalized } from "firebase-functions/storage";
-import { updateAlbumDoc } from "../data/firestore/albums";
-import { FieldValue } from "firebase-admin/firestore";
+import { getAlbumDoc, updateAlbumDoc } from "../data/firestore/albums";
+import { FieldValue, Timestamp, UpdateData } from "firebase-admin/firestore";
 import { deleteFile } from "../data/storage/storageAdminOperations";
 import { updateAlbumItemDoc } from "../data/firestore/albumItems";
 import { adminDb } from "../config/firebaseAdminConfig";
+import { AlbumDoc, AlbumItemDoc } from "@/data/firestore/types/documents";
 
 const onAlbumDeleted = onDocumentDeleted(`/${RootLevelCollection.ALBUMS}/{albumId}`, async (event) => {
   const promises = [
@@ -20,7 +21,18 @@ const onAlbumDeleted = onDocumentDeleted(`/${RootLevelCollection.ALBUMS}/{albumI
 
 const onAlbumItemCreated = onDocumentCreated(`/${RootLevelCollection.ALBUMS}/{albumId}/${AlbumsSubcollection.ALBUM_ITEMS}/{albumItemId}`, async (event) => {
   const { albumId } = event.params;
-  await updateAlbumDoc(albumId, { numItems: FieldValue.increment(1) });
+  const albumItem = event.data?.data() as AlbumItemDoc;
+  await adminDb.runTransaction(async (transaction) => {
+    const album = await getAlbumDoc(albumId, transaction);
+    const updates: UpdateData<AlbumDoc> = { numItems: album.numItems + 1 };
+    if (!album.startDate || albumItem.dateTaken < Timestamp.fromMillis(album.startDate.milliseconds())) {
+      updates.startDate = albumItem.dateTaken;
+    }
+    if (!album.endDate || albumItem.dateTaken > Timestamp.fromMillis(album.endDate.milliseconds())) {
+      updates.endDate = albumItem.dateTaken;
+    }
+    await updateAlbumDoc(albumId, updates, transaction);
+  });
 })
 
 const onAlbumItemDeleted = onDocumentDeleted(`/${RootLevelCollection.ALBUMS}/{albumId}/${AlbumsSubcollection.ALBUM_ITEMS}/{albumItemId}`, async (event) => {
