@@ -46,7 +46,7 @@ export default function AlbumsPage() {
 
   const albumsQuery = useAlbums({
     ...sortQueryOptions[sortOption],
-    limit: 1,
+    limit: 10,
     limitToLast: undefined,
   });
 
