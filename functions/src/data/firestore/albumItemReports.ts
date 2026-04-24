@@ -1,6 +1,6 @@
 import { adminDb } from "../../config/firebaseAdminConfig";
 import { AlbumItemReport, PendingAlbumItemReport, ResolvedAlbumItemReport } from "@/types/albums/albumTypes";
-import { AlbumItemReportDoc, PendingAlbumItemReportDoc } from "@/data/firestore/types/documents";
+import { AlbumItemReportDoc } from "@/data/firestore/types/documents";
 import {
   Transaction,
   WriteBatch,
