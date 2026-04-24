@@ -4,9 +4,10 @@ import { onObjectFinalized } from "firebase-functions/storage";
 import { getAlbumDoc, updateAlbumDoc } from "../data/firestore/albums";
 import { FieldValue, Timestamp, UpdateData } from "firebase-admin/firestore";
 import { deleteFile } from "../data/storage/storageAdminOperations";
-import { updateAlbumItemDoc } from "../data/firestore/albumItems";
+import { getNewestAlbumItemInAlbum, getOldestAlbumItemInAlbum, updateAlbumItemDoc } from "../data/firestore/albumItems";
 import { adminDb } from "../config/firebaseAdminConfig";
 import { AlbumDoc, AlbumItemDoc } from "@/data/firestore/types/documents";
+import { AlbumItem } from "@/types/albums/albumTypes";
 
 const onAlbumDeleted = onDocumentDeleted(`/${RootLevelCollection.ALBUMS}/{albumId}`, async (event) => {
   const promises = [
@@ -25,10 +26,10 @@ const onAlbumItemCreated = onDocumentCreated(`/${RootLevelCollection.ALBUMS}/{al
   await adminDb.runTransaction(async (transaction) => {
     const album = await getAlbumDoc(albumId, transaction);
     const updates: UpdateData<AlbumDoc> = { numItems: album.numItems + 1 };
-    if (!album.startDate || albumItem.dateTaken < Timestamp.fromMillis(album.startDate.milliseconds())) {
+    if (!album.startDate || albumItem.dateTaken < Timestamp.fromDate(album.startDate.toDate())) {
       updates.startDate = albumItem.dateTaken;
     }
-    if (!album.endDate || albumItem.dateTaken > Timestamp.fromMillis(album.endDate.milliseconds())) {
+    if (!album.endDate || albumItem.dateTaken > Timestamp.fromDate(album.endDate.toDate())) {
       updates.endDate = albumItem.dateTaken;
     }
     await updateAlbumDoc(albumId, updates, transaction);
@@ -37,9 +38,25 @@ const onAlbumItemCreated = onDocumentCreated(`/${RootLevelCollection.ALBUMS}/{al
 
 const onAlbumItemDeleted = onDocumentDeleted(`/${RootLevelCollection.ALBUMS}/{albumId}/${AlbumsSubcollection.ALBUM_ITEMS}/{albumItemId}`, async (event) => {
   const { albumId } = event.params;
-  console.log(event);
   try {
-    await updateAlbumDoc(albumId, { numItems: FieldValue.increment(-1) });
+    await adminDb.runTransaction(async (transaction) => {
+      const oldestAlbumItem = await getOldestAlbumItemInAlbum(albumId, transaction);
+      if (oldestAlbumItem === null) {
+        await updateAlbumDoc(albumId, {
+          numItems: FieldValue.increment(-1),
+          startDate: null,
+          endDate: null
+        }, transaction);
+        return;
+      }
+
+      const newestAlbumItem = await getNewestAlbumItemInAlbum(albumId, transaction) as AlbumItem;
+      await updateAlbumDoc(albumId, {
+        numItems: FieldValue.increment(-1),
+        startDate: Timestamp.fromDate(newestAlbumItem.dateTaken.toDate()),
+        endDate: Timestamp.fromDate(oldestAlbumItem.dateTaken.toDate())
+      }, transaction)
+    });
   } catch { }
 })
 

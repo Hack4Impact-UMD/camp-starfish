@@ -1,7 +1,7 @@
 import { AlbumItem } from "@/types/albums/albumTypes";
 import { AlbumItemDoc } from "@/data/firestore/types/documents";
-import { Transaction, WriteBatch, QueryDocumentSnapshot, DocumentReference, DocumentSnapshot, UpdateData, WithFieldValue } from "firebase-admin/firestore";
-import { getDoc, createDoc, updateDoc, deleteDoc } from "./firestoreAdminOperations"
+import { Transaction, WriteBatch, QueryDocumentSnapshot, DocumentReference, DocumentSnapshot, UpdateData, WithFieldValue, CollectionReference } from "firebase-admin/firestore";
+import { getDoc, createDoc, updateDoc, deleteDoc, executeQuery } from "./firestoreAdminOperations"
 import { AlbumsSubcollection, RootLevelCollection } from "@/data/firestore/types/collections";
 import { adminDb } from "../../config/firebaseAdminConfig";
 import moment from "moment";
@@ -38,4 +38,32 @@ export async function updateAlbumItemDoc(albumId: string, albumItemId: string, u
 
 export async function deleteAlbumItemDoc(albumId: string, albumItemId: string, instance?: Transaction | WriteBatch): Promise<void> {
   await deleteDoc<AlbumItemDoc>(adminDb.collection(RootLevelCollection.ALBUMS).doc(albumId).collection(AlbumsSubcollection.ALBUM_ITEMS).doc(albumItemId) as DocumentReference<AlbumItemDoc, AlbumItemDoc>, instance);
+}
+
+export async function getOldestAlbumItemInAlbum(albumId: string, transaction?: Transaction) {
+  const snapshot = await executeQuery<AlbumItemDoc>(
+    adminDb.collection(RootLevelCollection.ALBUMS).doc(albumId).collection(AlbumsSubcollection.ALBUM_ITEMS) as CollectionReference<AlbumItemDoc, AlbumItemDoc>,
+    {
+      transaction,
+      queryOptions: {
+        orderBy: [{ fieldPath: 'dateTaken', direction: 'asc' }],
+        limit: 1
+      },
+    }
+  )
+  return snapshot.length === 0 ? null : fromFirestore(snapshot[0]);
+}
+
+export async function getNewestAlbumItemInAlbum(albumId: string, transaction?: Transaction) {
+  const snapshot = await executeQuery<AlbumItemDoc>(
+    adminDb.collection(RootLevelCollection.ALBUMS).doc(albumId).collection(AlbumsSubcollection.ALBUM_ITEMS) as CollectionReference<AlbumItemDoc, AlbumItemDoc>,
+    {
+      transaction,
+      queryOptions: {
+        orderBy: [{ fieldPath: 'dateTaken', direction: 'desc' }],
+        limit: 1
+      },
+    }
+  )
+  return snapshot.length === 0 ? null : fromFirestore(snapshot[0]);
 }
