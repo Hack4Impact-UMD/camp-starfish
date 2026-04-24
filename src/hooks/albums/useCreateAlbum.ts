@@ -9,7 +9,6 @@ interface CreateAlbumDTO {
 }
 
 async function createAlbum(dto: CreateAlbumDTO) {
-  console.log('creating album')
   const albumId = await createAlbumDoc({
     name: dto.name,
     numItems: 0,
