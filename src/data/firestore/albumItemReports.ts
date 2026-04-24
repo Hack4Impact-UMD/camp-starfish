@@ -90,7 +90,10 @@ export async function doesReporterHavePendingReportForAlbumItem(albumId: string,
   const { reportCount } = await executeAggregationQuery(
     collection(db, RootLevelCollection.ALBUMS, albumId, AlbumsSubcollection.ALBUM_ITEMS, albumItemId, AlbumItemsSubcollection.REPORTS),
     {
-      where: [{ fieldPath: 'reporterId', operation: '==', value: reporterId }],
+      where: [
+        { fieldPath: 'reporterId', operation: '==', value: reporterId },
+        { fieldPath: 'status', operation: '==', value: 'PENDING' }
+      ],
       aggregations: [{ aggregateFieldName: 'reportCount', operation: 'count' }]
     }
   )
