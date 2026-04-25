@@ -27,13 +27,13 @@ function getTagChanges(tagUpdates: UpdateAlbumItemRequest['tagIds']): UpdateData
     if (tagUpdates.approved.add) {
       tagChanges[0] = {
         ...tagChanges[0],
-        "tagIds.approved": arrayUnion(tagUpdates.approved.add)
+        "tagIds.approved": arrayUnion(...tagUpdates.approved.add)
       };
     }
     if (tagUpdates.approved.remove) {
       tagChanges[1] = {
         ...tagChanges[1],
-        "tagIds.approved": arrayRemove(tagUpdates.approved.remove)
+        "tagIds.approved": arrayRemove(...tagUpdates.approved.remove)
       }
     }
   }
@@ -41,13 +41,13 @@ function getTagChanges(tagUpdates: UpdateAlbumItemRequest['tagIds']): UpdateData
     if (tagUpdates.inReview.add) {
       tagChanges[0] = {
         ...tagChanges[0],
-        "tagIds.inReview": arrayUnion(tagUpdates.inReview.add)
+        "tagIds.inReview": arrayUnion(...tagUpdates.inReview.add)
       };
     }
     if (tagUpdates.inReview.remove) {
       tagChanges[1] = {
         ...tagChanges[1],
-        "tagIds.inReview": arrayRemove(tagUpdates.inReview.remove)
+        "tagIds.inReview": arrayRemove(...tagUpdates.inReview.remove)
       }
     }
   }
