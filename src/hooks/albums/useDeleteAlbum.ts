@@ -6,13 +6,8 @@ interface DeleteAlbumRequest {
 }
 
 async function deleteAlbum(req: DeleteAlbumRequest) {
-  try {
-    const { albumId } = req;
-    await deleteAlbumDoc(albumId);
-  } catch {
-    throw Error("Failed to delete album");
-  }
-
+  const { albumId } = req;
+  await deleteAlbumDoc(albumId);
 }
 
 export default function useDeleteAlbum() {

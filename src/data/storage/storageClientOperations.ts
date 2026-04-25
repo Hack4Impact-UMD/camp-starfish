@@ -1,7 +1,7 @@
 import { storage } from "@/config/firebase";
 import { deleteObject, getDownloadURL, ref, uploadBytes } from "firebase/storage";
 
-interface UploadFileItem {
+export interface UploadFileItem {
   file: File;
   path: string;
 }

@@ -13,8 +13,8 @@ interface ResolveAlbumItemReportRequest {
 async function resolveAlbumItemReport(req: ResolveAlbumItemReportRequest) {
   const { albumId, albumItemId, albumItemReportId, ...rest } = req;
   await updateAlbumItemReportDoc(albumId, albumItemId, albumItemReportId, {
-    status: "RESOLVED",
     ...rest,
+    status: "RESOLVED",
     resolvedAt: serverTimestamp()
   });
 }

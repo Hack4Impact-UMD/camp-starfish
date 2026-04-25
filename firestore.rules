@@ -63,7 +63,7 @@ service cloud.firestore {
       allow read: if isStaffOrAdmin();
       allow write: if isStaffOrAdmin();
       
-      match /albumItems/{imageId} {
+      match /albumItems/{albumItemId} {
         allow read: if isStaffOrAdmin();
         allow write: if isStaffOrAdmin();
       }
