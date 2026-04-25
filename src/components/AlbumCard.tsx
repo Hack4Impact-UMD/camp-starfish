@@ -10,15 +10,16 @@ interface AlbumCardProps {
 
 function getAlbumCardText(album: Album) {
   const { startDate, endDate, numItems } = album;
+  const itemsText = numItems === 1 ? `1 item` : `${numItems} items`;
   if (!startDate || !endDate) {
-    return `${numItems} items`;
+    return itemsText;
   } else if (startDate.isSame(endDate, "year")) {
     if (startDate.isSame(endDate, "month")) {
-      return `${startDate.format("MMMM YYYY")} • ${numItems} items`;
+      return `${startDate.format("MMMM YYYY")} • ${itemsText}`;
     }
-    return `${startDate.format("MMMM")} - ${endDate.format("MMMM YYYY")} • ${numItems} items`;
+    return `${startDate.format("MMMM")} - ${endDate.format("MMMM YYYY")} • ${itemsText}`;
   }
-  return `${startDate.format("MMMM YYYY")} - ${endDate.format("MMMM YYYY")} • ${numItems} items`;
+  return `${startDate.format("MMMM YYYY")} - ${endDate.format("MMMM YYYY")} • ${itemsText}`;
 }
 
 export default function AlbumCard(props: AlbumCardProps) {
