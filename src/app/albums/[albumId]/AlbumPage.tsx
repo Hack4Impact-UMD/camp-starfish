@@ -1,7 +1,6 @@
 import React from "react";
 import plusIcon from "@/assets/icons/plusIcon.svg";
 import filterIcon from "@/assets/icons/filterIcon.svg";
-import TestPicture from "@/assets/images/PolaroidPhotos1.png"; // Replace with actual image URL
 import ImageCard from "@/components/ImageCard";
 import CardGallery from "@/components/CardGallery";
 import { AlbumItem } from "@/types/albums/albumTypes";

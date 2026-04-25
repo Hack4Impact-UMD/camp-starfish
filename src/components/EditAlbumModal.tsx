@@ -23,7 +23,7 @@ export default function EditAlbumModal(props: EditAlbumModalProps) {
 
   if (albumQuery.isLoading) return <LoadingPage />;
   else if (albumQuery.isError) return <ErrorPage error={albumQuery.error} />;
-  return <EditAlbumModalContent album={albumQuery.data} />
+  return <EditAlbumModalContent album={albumQuery.data} />;
 }
 
 interface EditAlbumModalContentProps {
@@ -113,35 +113,36 @@ function EditAlbumModalContent(props: EditAlbumModalContentProps) {
             if (!albumName) {
               setAlbumNameError("Album name is required");
               return;
+            } else if (album) {
+              updateAlbumMutation.mutate(
+                {
+                  albumId: album.id,
+                  name: albumName,
+                  thumbnail: albumThumbnail ?? undefined,
+                },
+                {
+                  onSuccess: () => modals.closeAll(),
+                  onError: () =>
+                    notifications.error(
+                      "Failed to update album. Please try again.",
+                    ),
+                },
+              );
+            } else {
+              createAlbumMutation.mutate(
+                {
+                  name: albumName,
+                  thumbnail: albumThumbnail ?? undefined,
+                },
+                {
+                  onSuccess: () => modals.closeAll(),
+                  onError: () =>
+                    notifications.error(
+                      "Failed to create album. Please try again.",
+                    ),
+                },
+              );
             }
-            album
-              ? updateAlbumMutation.mutate(
-                  {
-                    albumId: album.id,
-                    name: albumName,
-                    thumbnail: albumThumbnail ?? undefined,
-                  },
-                  {
-                    onSuccess: () => modals.closeAll(),
-                    onError: () =>
-                      notifications.error(
-                        "Failed to update album. Please try again.",
-                      ),
-                  },
-                )
-              : createAlbumMutation.mutate(
-                  {
-                    name: albumName,
-                    thumbnail: albumThumbnail ?? undefined,
-                  },
-                  {
-                    onSuccess: () => modals.closeAll(),
-                    onError: () =>
-                      notifications.error(
-                        "Failed to create album. Please try again.",
-                      ),
-                  },
-                );
           }}
         >
           {album ? "CONFIRM" : "CREATE"}
