@@ -43,7 +43,6 @@
     "react-dom": "^19.2.0",
     "react-dropzone": "^14.3.8",
     "react-icons": "^5.5.0",
-    "react-pdf-tailwind": "^3.0.0",
     "tailwind-preset-mantine": "^4.0.2",
     "tanstack": "^1.0.3",
     "tsc-alias": "^1.8.16",
