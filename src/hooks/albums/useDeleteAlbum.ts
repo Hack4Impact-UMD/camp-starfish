@@ -1,12 +1,22 @@
-import { deleteAlbum } from "@/data/firestore/albums";
+import { deleteAlbumDoc } from "@/data/firestore/albums";
 import { useMutation } from "@tanstack/react-query";
 
-interface UseDeleteAlbumParams {
+interface DeleteAlbumRequest {
   albumId: string;
+}
+
+async function deleteAlbum(req: DeleteAlbumRequest) {
+  try {
+    const { albumId } = req;
+    await deleteAlbumDoc(albumId);
+  } catch {
+    throw Error("Failed to delete album");
+  }
+
 }
 
 export default function useDeleteAlbum() {
   return useMutation({
-    mutationFn: (params: UseDeleteAlbumParams) => deleteAlbum(params.albumId)
+    mutationFn: (req: DeleteAlbumRequest) => deleteAlbum(req)
   })
 }

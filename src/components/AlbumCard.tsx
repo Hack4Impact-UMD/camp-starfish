@@ -1,15 +1,32 @@
 import { Image, Text, Title } from "@mantine/core";
-import useAlbumById from "@/hooks/albums/useAlbumById";
+import useAlbum from "@/hooks/albums/useAlbum";
 import ErrorPage from "@/app/error";
 import LoadingPage from "@/app/loading";
 import { useRouter } from "next/navigation";
+import { Album } from "@/types/albums/albumTypes";
+import useAlbumThumbnailSrc from "@/hooks/albums/useAlbumThumbnailSrc";
 interface AlbumCardProps {
   albumId: string;
 }
 
+function getAlbumCardText(album: Album) {
+  const { startDate, endDate, numItems } = album;
+  const itemsText = numItems === 1 ? `1 item` : `${numItems} items`;
+  if (!startDate || !endDate) {
+    return itemsText;
+  } else if (startDate.isSame(endDate, "year")) {
+    if (startDate.isSame(endDate, "month")) {
+      return `${startDate.format("MMMM YYYY")} • ${itemsText}`;
+    }
+    return `${startDate.format("MMMM")} - ${endDate.format("MMMM YYYY")} • ${itemsText}`;
+  }
+  return `${startDate.format("MMMM YYYY")} - ${endDate.format("MMMM YYYY")} • ${itemsText}`;
+}
+
 export default function AlbumCard(props: AlbumCardProps) {
   const { albumId } = props;
-  const albumQuery = useAlbumById(albumId);
+  const albumQuery = useAlbum(albumId);
+  const thumbnailSrcQuery = useAlbumThumbnailSrc(albumQuery.data);
 
   const router = useRouter();
 
@@ -19,24 +36,22 @@ export default function AlbumCard(props: AlbumCardProps) {
     return <LoadingPage></LoadingPage>;
   }
 
-  const { name, startDate, endDate, numItems, id } = albumQuery.data;
+  const album = albumQuery.data;
   return (
     <div
       className="bg-neutral-0 hover:bg-neutral-2 border border-neutral-3 shadow-sm hover:shadow-lg duration-300 p-4 cursor-pointer"
-      onDoubleClick={() => router.push(`/albums/${id}`)}
+      onDoubleClick={() => router.push(`/albums/${album.id}`)}
     >
       <Image
-        src={null}
-        alt={name}
+        src={thumbnailSrcQuery.data}
+        alt={album.name}
         className="w-full h-48 object-contain"
         width={200}
         height={48}
       />
       <div className="mt-2">
-        <Title order={3}>{name}</Title>
-        <Text>
-          {startDate} - {endDate} • {numItems} photos
-        </Text>
+        <Title order={3}>{album.name}</Title>
+        <Text>{getAlbumCardText(albumQuery.data)}</Text>
       </div>
     </div>
   );

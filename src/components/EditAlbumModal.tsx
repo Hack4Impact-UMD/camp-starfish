@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import { modals } from "@mantine/modals";
-import useAlbumById from "@/hooks/albums/useAlbumById";
 import { Button, Image, Indicator, Text, TextInput } from "@mantine/core";
 import { Dropzone, FileWithPath } from "@mantine/dropzone";
 import LoadingPage from "@/app/loading";
@@ -11,6 +10,8 @@ import { MdClose, MdImage } from "react-icons/md";
 import useCreateAlbum from "@/hooks/albums/useCreateAlbum";
 import useUpdateAlbum from "@/hooks/albums/useUpdateAlbum";
 import useNotifications from "@/features/notifications/useNotifications";
+import useAlbum from "@/hooks/albums/useAlbum";
+import { Album } from "@/types/albums/albumTypes";
 
 interface EditAlbumModalProps {
   albumId?: string;
@@ -18,23 +19,36 @@ interface EditAlbumModalProps {
 
 export default function EditAlbumModal(props: EditAlbumModalProps) {
   const { albumId } = props;
-  const albumQuery = useAlbumById(albumId);
+  const albumQuery = useAlbum(albumId);
 
-  const [albumName, setAlbumName] = useState<string>(
-    albumQuery.data?.name || "",
-  );
+  if (albumQuery.isLoading) return <LoadingPage />;
+  else if (albumQuery.isError) return <ErrorPage error={albumQuery.error} />;
+  return <EditAlbumModalContent album={albumQuery.data} />;
+}
+
+interface EditAlbumModalContentProps {
+  album?: Album;
+}
+
+function EditAlbumModalContent(props: EditAlbumModalContentProps) {
+  const { album } = props;
+  const [albumName, setAlbumName] = useState<string>(album?.name ?? "");
   const [albumNameError, setAlbumNameError] = useState<string | null>(null);
   const [albumThumbnail, setAlbumThumbnail] = useState<File | null>(null);
 
-  const albumThumbnailUrl = useMemo(() => (albumThumbnail ? URL.createObjectURL(albumThumbnail) : null), [albumThumbnail]);
-  useEffect(() => { return () => { if (albumThumbnailUrl) URL.revokeObjectURL(albumThumbnailUrl); }; }, [albumThumbnailUrl]);
+  const albumThumbnailUrl = useMemo(
+    () => (albumThumbnail ? URL.createObjectURL(albumThumbnail) : null),
+    [albumThumbnail],
+  );
+  useEffect(() => {
+    return () => {
+      if (albumThumbnailUrl) URL.revokeObjectURL(albumThumbnailUrl);
+    };
+  }, [albumThumbnailUrl]);
 
   const createAlbumMutation = useCreateAlbum();
   const updateAlbumMutation = useUpdateAlbum();
   const notifications = useNotifications();
-
-  if (albumQuery.isLoading) return <LoadingPage />;
-  else if (albumQuery.isError) return <ErrorPage error={albumQuery.error} />;
 
   return (
     <div className="flex flex-col items-center w-full h-full">
@@ -92,28 +106,46 @@ export default function EditAlbumModal(props: EditAlbumModalProps) {
         </Button>
         <Button
           color="success"
-          loading={createAlbumMutation.isPending || updateAlbumMutation.isPending}
+          loading={
+            createAlbumMutation.isPending || updateAlbumMutation.isPending
+          }
           onClick={() => {
-            if (!albumName) { setAlbumNameError("Album name is required"); return; }
-            albumId ? updateAlbumMutation.mutate({
-              albumId,
-              updates: { name: albumName }
-            }, {
-              onSuccess: () => modals.closeAll(),
-              onError: () => notifications.error("Failed to update album. Please try again.")
-            }) : createAlbumMutation.mutate({ album: {
-              name: albumName,
-              hasThumbnail: !!albumThumbnail,
-              startDate: "",
-              endDate: "",
-              numItems: 0,
-            } }, {
-              onSuccess: () => modals.closeAll(),
-              onError: () => notifications.error("Failed to create album. Please try again.")
-            });
+            if (!albumName) {
+              setAlbumNameError("Album name is required");
+              return;
+            } else if (album) {
+              updateAlbumMutation.mutate(
+                {
+                  albumId: album.id,
+                  name: albumName,
+                  thumbnail: albumThumbnail,
+                },
+                {
+                  onSuccess: () => modals.closeAll(),
+                  onError: () =>
+                    notifications.error(
+                      "Failed to update album. Please try again.",
+                    ),
+                },
+              );
+            } else {
+              createAlbumMutation.mutate(
+                {
+                  name: albumName,
+                  thumbnail: albumThumbnail ?? undefined,
+                },
+                {
+                  onSuccess: () => modals.closeAll(),
+                  onError: () =>
+                    notifications.error(
+                      "Failed to create album. Please try again.",
+                    ),
+                },
+              );
+            }
           }}
         >
-          {albumId ? "CONFIRM" : "CREATE"}
+          {album ? "CONFIRM" : "CREATE"}
         </Button>
       </div>
     </div>

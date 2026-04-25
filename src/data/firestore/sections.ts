@@ -12,6 +12,7 @@ import {
   CollectionReference,
   UpdateData,
   DocumentSnapshot,
+  WithFieldValue,
 } from "firebase/firestore";
 import { RootLevelCollection, SessionsSubcollection } from "./types/collections";
 import { setDoc, deleteDoc, getDoc, updateDoc, executeQuery } from "./firestoreClientOperations";
@@ -35,7 +36,7 @@ export async function getSectionsBySessionId(sessionId: string): Promise<Section
   return snapshots.map(fromFirestore);
 }
 
-export async function createSection(sessionId: string, section: SectionDoc, instance?: Transaction | WriteBatch): Promise<string> {
+export async function createSection(sessionId: string, section: WithFieldValue<SectionDoc>, instance?: Transaction | WriteBatch): Promise<string> {
   const sectionId = uuid();
   await setDoc<SectionDoc>(doc(db, RootLevelCollection.SESSIONS, sessionId, SessionsSubcollection.SECTIONS, sectionId) as DocumentReference<SectionDoc, SectionDoc>, section, { instance });
   return sectionId;

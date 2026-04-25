@@ -10,7 +10,8 @@ import {
   collection,
   UpdateData,
   CollectionReference,
-  DocumentSnapshot
+  DocumentSnapshot,
+  WithFieldValue
 } from "firebase/firestore";
 import { setDoc, getDoc, updateDoc, executeQuery, deleteDoc } from "./firestoreClientOperations";
 import { RootLevelCollection } from "./types/collections";
@@ -40,7 +41,7 @@ export async function getProgramAreasByIds(ids: string[]): Promise<ProgramArea[]
   return responses.flatMap(response => response).map(fromFirestore);
 }
 
-export async function createProgramArea(id: string, programArea: ProgramAreaDoc, instance?: Transaction | WriteBatch): Promise<void> {
+export async function createProgramArea(id: string, programArea: WithFieldValue<ProgramAreaDoc>, instance?: Transaction | WriteBatch): Promise<void> {
   await setDoc<ProgramAreaDoc>(doc(db, RootLevelCollection.PROGRAM_AREAS, id) as DocumentReference<ProgramAreaDoc, ProgramAreaDoc>, programArea, { instance });
 }
 

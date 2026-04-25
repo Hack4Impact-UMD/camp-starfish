@@ -10,10 +10,12 @@ import {
   collection,
   CollectionReference,
   UpdateData,
-  DocumentSnapshot
+  DocumentSnapshot,
+  WithFieldValue
 } from "firebase/firestore";
 import { setDoc, getDoc, updateDoc, executeQuery, deleteDoc } from "./firestoreClientOperations";
 import { RootLevelCollection, SessionsSubcollection } from "./types/collections";
+import { Moment } from "moment";
 
 function fromFirestore(snapshot: DocumentSnapshot<NightScheduleDoc, NightScheduleDoc> | QueryDocumentSnapshot<NightScheduleDoc, NightScheduleDoc>): NightSchedule {
   if (!snapshot.exists()) { throw Error("Document not found"); }
@@ -34,8 +36,8 @@ export async function getNightSchedulesBySessionId(sessionId: string): Promise<N
   return snapshots.map(fromFirestore);
 }
 
-export async function createNightSchedule(date: string, sessionId: string, nightShift: NightScheduleDoc, instance?: Transaction | WriteBatch): Promise<void> {
-  await setDoc<NightScheduleDoc>(doc(db, RootLevelCollection.SESSIONS, sessionId, SessionsSubcollection.NIGHT_SCHEDULES, date) as DocumentReference<NightScheduleDoc, NightScheduleDoc>, nightShift, { instance });
+export async function createNightSchedule(sessionId: string, date: Moment, nightShift: WithFieldValue<NightScheduleDoc>, instance?: Transaction | WriteBatch): Promise<void> {
+  await setDoc<NightScheduleDoc>(doc(db, RootLevelCollection.SESSIONS, sessionId, SessionsSubcollection.NIGHT_SCHEDULES, date.format("YYYY-MM-DD")) as DocumentReference<NightScheduleDoc, NightScheduleDoc>, nightShift, { instance });
 }
 
 export async function updateNightSchedule(id: string, sessionId: string, updates: UpdateData<NightScheduleDoc>, instance?: Transaction | WriteBatch): Promise<void> {
