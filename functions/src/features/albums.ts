@@ -54,8 +54,8 @@ const onAlbumItemDeleted = onDocumentDeleted(`/${RootLevelCollection.ALBUMS}/{al
       const newestAlbumItem = await getNewestAlbumItemInAlbum(albumId, transaction) as AlbumItem;
       await updateAlbumDoc(albumId, {
         numItems: FieldValue.increment(-1),
-        startDate: Timestamp.fromDate(newestAlbumItem.dateTaken.toDate()),
-        endDate: Timestamp.fromDate(oldestAlbumItem.dateTaken.toDate())
+        startDate: Timestamp.fromDate(oldestAlbumItem.dateTaken.toDate()),
+        endDate: Timestamp.fromDate(newestAlbumItem.dateTaken.toDate())
       }, transaction)
     });
   } catch { }
