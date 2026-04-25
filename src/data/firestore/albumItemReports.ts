@@ -13,7 +13,7 @@ import {
   WithFieldValue,
   UpdateData
 } from "firebase/firestore";
-import { getDoc, setDoc, updateDoc, deleteDoc, executeQuery, executeAggregationQuery } from "./firestoreClientOperations";
+import { getDoc, setDoc, updateDoc, deleteDoc, executeQuery } from "./firestoreClientOperations";
 import { RootLevelCollection, AlbumsSubcollection, AlbumItemsSubcollection } from "./types/collections";
 import { v4 as uuid } from "uuid";
 import moment from "moment";
@@ -84,18 +84,4 @@ export async function deleteAlbumItemReportDoc(albumId: string, albumItemId: str
     doc(db, RootLevelCollection.ALBUMS, albumId, AlbumsSubcollection.ALBUM_ITEMS, albumItemId, AlbumItemsSubcollection.REPORTS, reportId) as DocumentReference<AlbumItemReportDoc, AlbumItemReportDoc>, 
     instance
   );
-}
-
-export async function doesReporterHavePendingReportForAlbumItem(albumId: string, albumItemId: string, reporterId: number): Promise<boolean> {
-  const { reportCount } = await executeAggregationQuery<AlbumItemReportDoc>(
-    collection(db, RootLevelCollection.ALBUMS, albumId, AlbumsSubcollection.ALBUM_ITEMS, albumItemId, AlbumItemsSubcollection.REPORTS) as CollectionReference<AlbumItemReportDoc, AlbumItemReportDoc>,
-    {
-      where: [
-        { fieldPath: 'reporterId', operation: '==', value: reporterId },
-        { fieldPath: 'status', operation: '==', value: 'PENDING' }
-      ],
-      aggregations: [{ aggregateFieldName: 'reportCount', operation: 'count' }]
-    }
-  )
-  return (reportCount as number) > 0;
 }

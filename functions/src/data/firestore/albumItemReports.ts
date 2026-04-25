@@ -1,6 +1,6 @@
 import { adminDb } from "../../config/firebaseAdminConfig";
 import { AlbumItemReport, PendingAlbumItemReport, ResolvedAlbumItemReport } from "@/types/albums/albumTypes";
-import { AlbumItemReportDoc } from "@/data/firestore/types/documents";
+import { AlbumItemReportDoc, PendingAlbumItemReportDoc } from "@/data/firestore/types/documents";
 import {
   Transaction,
   WriteBatch,
@@ -83,4 +83,21 @@ export async function deleteAlbumItemReportDoc(albumId: string, albumItemId: str
     adminDb.collection(RootLevelCollection.ALBUMS).doc(albumId).collection(AlbumsSubcollection.ALBUM_ITEMS).doc(albumItemId).collection(AlbumItemsSubcollection.REPORTS).doc(reportId) as DocumentReference<AlbumItemReportDoc, AlbumItemReportDoc>,
     instance
   );
+}
+
+export async function getPendingReportDocByReporterId(albumId: string, albumItemId: string, reporterId: number, transaction?: Transaction): Promise<PendingAlbumItemReport | null> {
+  const snapshots = await executeQuery<PendingAlbumItemReportDoc>(
+    adminDb.collection(RootLevelCollection.ALBUMS).doc(albumId).collection(AlbumsSubcollection.ALBUM_ITEMS).doc(albumItemId).collection(AlbumItemsSubcollection.REPORTS) as CollectionReference<PendingAlbumItemReportDoc, PendingAlbumItemReportDoc>,
+    {
+      transaction,
+      queryOptions: {
+        where: [
+          { fieldPath: "reporterId", operation: "==", value: reporterId },
+          { fieldPath: 'status', operation: '==', value: 'PENDING' }
+        ],
+        limit: 1
+      }
+    }
+  )
+  return snapshots.length === 0 ? null : fromFirestore(snapshots[0]) as PendingAlbumItemReport;
 }

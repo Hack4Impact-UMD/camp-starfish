@@ -1,6 +1,6 @@
-import { createAlbumItemReportDoc, doesReporterHavePendingReportForAlbumItem } from "@/data/firestore/albumItemReports";
+import { functions } from "@/config/firebase";
 import { useMutation } from "@tanstack/react-query";
-import { serverTimestamp } from "firebase/firestore";
+import { httpsCallable } from "firebase/functions";
 
 interface CreateAlbumItemReportRequest {
   albumId: string;
@@ -10,16 +10,7 @@ interface CreateAlbumItemReportRequest {
 }
 
 async function createAlbumItemReport(req: CreateAlbumItemReportRequest) {
-  const { albumId, albumItemId, ...rest } = req;
-  if (await doesReporterHavePendingReportForAlbumItem(albumId, albumItemId, req.reporterId)) {
-    throw Error("Reporter already has a pending report for this album item.");
-  }
-  const reportId = await createAlbumItemReportDoc(albumId, albumItemId, {
-    status: 'PENDING',
-    ...rest,
-    reportedAt: serverTimestamp()
-  });
-  return reportId;
+  await httpsCallable(functions, "createAlbumItemReportCloudFunction")(req);
 }
 
 export default function useCreateAlbumItemReport() {
