@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import AlbumCard from "../../components/AlbumCard";
 import { openEditAlbumModal } from "@/components/EditAlbumModal";
 import CardGallery from "@/components/CardGallery";
@@ -20,6 +20,7 @@ import { MdAdd, MdPendingActions, MdSort } from "react-icons/md";
 import Link from "next/link";
 import { QueryOptions } from "@/data/firestore/firestoreClientOperations";
 import { AlbumDoc } from "@/data/firestore/types/documents";
+import { useInViewport } from "@mantine/hooks";
 
 const enum AlbumsPageSortOption {
   NEWEST_TO_OLDEST = "Newest → Oldest",
@@ -50,6 +51,15 @@ export default function AlbumsPage() {
     limitToLast: undefined,
   });
 
+  const { ref, inViewport } = useInViewport();
+
+  useEffect(() => {
+    console.log(inViewport, albumsQuery.hasNextPage);
+    if (inViewport && albumsQuery.hasNextPage) {
+      albumsQuery.fetchNextPage();
+    }
+  }, [inViewport]);
+  
   if (albumsQuery.isError) {
     return <ErrorPage error={albumsQuery.error} />;
   } else if (albumsQuery.isLoading) {
@@ -125,10 +135,13 @@ export default function AlbumsPage() {
           </Button>
         </div>
       ) : (
-        <CardGallery<Album>
-          items={albums}
-          renderItem={(album: Album) => <AlbumCard albumId={album.id} />}
-        />
+        <>
+          <CardGallery<Album>
+            items={albums}
+            renderItem={(album: Album) => <AlbumCard albumId={album.id} />}
+          />
+          <div className="invisible" ref={ref} />
+        </>
       )}
     </div>
   );
