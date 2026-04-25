@@ -14,7 +14,7 @@ function fromFirestore(snapshot: DocumentSnapshot<AlbumDoc, AlbumDoc> | QueryDoc
     id: snapshot.ref.id,
     name: albumDoc.name,
     numItems: albumDoc.numItems,
-    thumbnailSrc: albumDoc.thumbnailSrc,
+    hasThumbnail: albumDoc.hasThumbnail,
     startDate: albumDoc.startDate ? moment(albumDoc.startDate.toMillis()) : null,
     endDate: albumDoc.endDate ? moment(albumDoc.endDate.toMillis()) : null,
     linkedSessionId: albumDoc.linkedSessionId,

@@ -10,7 +10,7 @@ export interface AlbumDoc {
   numItems: number;
   startDate?: Timestamp | null;
   endDate?: Timestamp | null;
-  thumbnailSrc?: string;
+  hasThumbnail: boolean;
   linkedSessionId?: string;
 }
 

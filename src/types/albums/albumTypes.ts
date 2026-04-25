@@ -6,7 +6,7 @@ export interface Album {
   numItems: number;
   startDate: Moment | null;
   endDate: Moment | null;
-  thumbnailSrc?: string;
+  hasThumbnail: boolean;
   linkedSessionId?: string;
 }
 

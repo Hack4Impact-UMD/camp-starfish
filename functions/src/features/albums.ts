@@ -13,7 +13,7 @@ const onAlbumDeleted = onDocumentDeleted(`/${RootLevelCollection.ALBUMS}/{albumI
   const promises = [
     adminDb.recursiveDelete(adminDb.collection(RootLevelCollection.ALBUMS).doc(event.params.albumId))
   ];
-  const hasThumbnail = event.data?.data()?.thumbnailSrc !== undefined;
+  const hasThumbnail = event.data?.data()?.hasThumbnail;
   if (hasThumbnail) {
     promises.push(deleteFile(`/albums/${event.params.albumId}/thumbnail`));
   }
@@ -67,9 +67,7 @@ const onAlbumItemDeleted = onDocumentDeleted(`/${RootLevelCollection.ALBUMS}/{al
 
 const onFileUploaded = onObjectFinalized(async (event) => {
   const pathParts = event.data.name.split('/');
-  if (pathParts.length === 3 && pathParts[0] === 'albums' && pathParts[2] === 'thumbnail') {
-    await updateAlbumDoc(pathParts[1], { thumbnailSrc: event.data.mediaLink });
-  } else if (pathParts.length === 4 && pathParts[0] === 'albums' && pathParts[2] === 'albumItems') {
+  if (pathParts.length === 4 && pathParts[0] === 'albums' && pathParts[2] === 'albumItems') {
     await updateAlbumItemDoc(pathParts[1], pathParts[3], { src: event.data.mediaLink });
   }
 })

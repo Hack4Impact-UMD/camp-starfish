@@ -1,8 +1,6 @@
 import { updateAlbumDoc } from "@/data/firestore/albums";
-import { AlbumDoc } from "@/data/firestore/types/documents";
 import { deleteFile, uploadFile } from "@/data/storage/storageClientOperations";
 import { useMutation } from "@tanstack/react-query";
-import { PartialWithFieldValue } from "firebase/firestore";
 
 interface UpdateAlbumRequest {
   albumId: string;
@@ -11,9 +9,17 @@ interface UpdateAlbumRequest {
 }
 
 async function updateAlbum(req: UpdateAlbumRequest): Promise<void> {
-  const { albumId, ...updates } = req;
+  const { albumId, ...rest } = req;
+  if (Object.values(rest).filter(value => value !== undefined).length === 0) {
+    return;
+  }
+
   const promises = [];
-  if (Object.values(updates).filter(value => value !== undefined).length !== 0) { promises.push(updateAlbumDoc(albumId, updates)); }
+  promises.push(updateAlbumDoc(albumId, {
+    name: req.name,
+    hasThumbnail: req.thumbnail ? true : req.thumbnail === null ? false : undefined
+  }));
+
   if (req.thumbnail) {
     promises.push(uploadFile(req.thumbnail, `albums/${albumId}/thumbnail`));
   } else if (req.thumbnail === null) {

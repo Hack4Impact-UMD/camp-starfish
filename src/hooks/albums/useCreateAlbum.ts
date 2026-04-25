@@ -14,6 +14,7 @@ async function createAlbum(req: CreateAlbumRequest) {
     numItems: 0,
     startDate: null,
     endDate: null,
+    hasThumbnail: !!req.thumbnail,
     linkedSessionId: req.linkedSessionId
   });
   try {
