@@ -166,7 +166,7 @@ export default function ProgramAreaGrid({
     >
       <View style={styles.table}>
         {/* Table Header */}
-        <View style={styles.row}>
+        <View style={styles.row} wrap={false}>
           <View style={[styles.blockCell, styles.headerCell]}>
             <Text>BLOCKS</Text>
           </View>
@@ -186,7 +186,7 @@ export default function ProgramAreaGrid({
           );
 
           return (
-            <View key={blockId} style={styles.row}>
+            <View key={blockId} style={styles.row} wrap={false}>
               {/* Block Label */}
               <View style={[styles.blockCell, styles.blockLabel]}>
                 <Text>{`BLOCK ${blockId}`}</Text>

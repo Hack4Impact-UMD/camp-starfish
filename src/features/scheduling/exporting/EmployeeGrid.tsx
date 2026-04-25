@@ -161,7 +161,7 @@ export default function EmployeeGrid(props: EmployeeGridProps) {
         Assignments
       </Text>
       <View style={styles.table}>
-        <View style={styles.headerRow}>
+        <View style={styles.headerRow} fixed>
           <Text style={styles.headerCell}>NAME</Text>
           {Object.keys(schedule.blocks).map((blockId) => (
             <Text key={blockId} style={styles.headerCell}>
@@ -194,7 +194,7 @@ export default function EmployeeGrid(props: EmployeeGridProps) {
           }
 
           return (
-            <View key={employee.attendeeId} style={styles.row}>
+            <View key={employee.attendeeId} style={styles.row} wrap={false}>
               {/* Name column - Use dataCell style */}
               <View style={styles.dataCell}>
                 <Text>

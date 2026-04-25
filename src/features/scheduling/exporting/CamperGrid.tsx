@@ -169,7 +169,7 @@ export default function CamperGrid(props: CamperGridProps) {
     <View>
       <Text style={styles.sectionTitle}>Camper Grid</Text>
       <View style={styles.compactTable}>
-        <View style={styles.headerRow}>
+        <View style={styles.headerRow} fixed>
           <Text style={styles.compactHeaderCell}>BUNK</Text>
           <Text style={styles.compactHeaderCell}>NAME</Text>
           {Object.keys(schedule.blocks).map((blockId) => (
@@ -209,7 +209,7 @@ export default function CamperGrid(props: CamperGridProps) {
           }
 
           return (
-            <View key={camper.attendeeId} style={styles.row}>
+            <View key={camper.attendeeId} style={styles.row} wrap={false}>
               <View style={styles.compactBunkCell}>
                 <Text>{camper.bunk}</Text>
               </View>
