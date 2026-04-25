@@ -10,13 +10,13 @@ interface UpdateAlbumRequest {
   thumbnail?: File | null;
 }
 
-async function updateAlbum(dto: UpdateAlbumRequest): Promise<void> {
-  const { albumId, ...updates } = dto;
+async function updateAlbum(req: UpdateAlbumRequest): Promise<void> {
+  const { albumId, ...updates } = req;
   const promises = [];
   if (Object.values(updates).filter(value => value !== undefined).length !== 0) { promises.push(updateAlbumDoc(albumId, updates)); }
-  if (dto.thumbnail) {
-    promises.push(uploadFile(dto.thumbnail, `albums/${albumId}/thumbnail`));
-  } else if (dto.thumbnail === null) {
+  if (req.thumbnail) {
+    promises.push(uploadFile(req.thumbnail, `albums/${albumId}/thumbnail`));
+  } else if (req.thumbnail === null) {
     promises.push(deleteFile(`albums/${albumId}/thumbnail`));
   }
 
@@ -29,6 +29,6 @@ async function updateAlbum(dto: UpdateAlbumRequest): Promise<void> {
 
 export default function useUpdateAlbum() {
   return useMutation({
-    mutationFn: (dto: UpdateAlbumRequest) => updateAlbum(dto)
+    mutationFn: (req: UpdateAlbumRequest) => updateAlbum(req)
   })
 }
