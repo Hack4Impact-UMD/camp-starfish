@@ -23,7 +23,6 @@ const AlbumPage: React.FC = () => {
   const images: AlbumItem[] = [];
   for (let i = 0; i < 10; i++) {
     images.push({
-      src: TestPicture.src,
       name: "Image " + i,
       tagIds: {
         approved: [],
