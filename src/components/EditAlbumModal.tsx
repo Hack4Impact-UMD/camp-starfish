@@ -11,6 +11,7 @@ import useCreateAlbum from "@/hooks/albums/useCreateAlbum";
 import useUpdateAlbum from "@/hooks/albums/useUpdateAlbum";
 import useNotifications from "@/features/notifications/useNotifications";
 import useAlbum from "@/hooks/albums/useAlbum";
+import { Album } from "@/types/albums/albumTypes";
 
 interface EditAlbumModalProps {
   albumId?: string;
@@ -20,9 +21,18 @@ export default function EditAlbumModal(props: EditAlbumModalProps) {
   const { albumId } = props;
   const albumQuery = useAlbum(albumId);
 
-  const [albumName, setAlbumName] = useState<string>(
-    albumQuery.data?.name || "",
-  );
+  if (albumQuery.isLoading) return <LoadingPage />;
+  else if (albumQuery.isError) return <ErrorPage error={albumQuery.error} />;
+  return <EditAlbumModalContent album={albumQuery.data} />
+}
+
+interface EditAlbumModalContentProps {
+  album?: Album;
+}
+
+function EditAlbumModalContent(props: EditAlbumModalContentProps) {
+  const { album } = props;
+  const [albumName, setAlbumName] = useState<string>(album?.name ?? "");
   const [albumNameError, setAlbumNameError] = useState<string | null>(null);
   const [albumThumbnail, setAlbumThumbnail] = useState<File | null>(null);
 
@@ -39,9 +49,6 @@ export default function EditAlbumModal(props: EditAlbumModalProps) {
   const createAlbumMutation = useCreateAlbum();
   const updateAlbumMutation = useUpdateAlbum();
   const notifications = useNotifications();
-
-  if (albumQuery.isLoading) return <LoadingPage />;
-  else if (albumQuery.isError) return <ErrorPage error={albumQuery.error} />;
 
   return (
     <div className="flex flex-col items-center w-full h-full">
@@ -107,10 +114,10 @@ export default function EditAlbumModal(props: EditAlbumModalProps) {
               setAlbumNameError("Album name is required");
               return;
             }
-            albumId
+            album
               ? updateAlbumMutation.mutate(
                   {
-                    albumId,
+                    albumId: album.id,
                     name: albumName,
                     thumbnail: albumThumbnail ?? undefined,
                   },
@@ -137,7 +144,7 @@ export default function EditAlbumModal(props: EditAlbumModalProps) {
                 );
           }}
         >
-          {albumId ? "CONFIRM" : "CREATE"}
+          {album ? "CONFIRM" : "CREATE"}
         </Button>
       </div>
     </div>
