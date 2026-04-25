@@ -1,180 +1,254 @@
 import {
-  AdminAttendeeID,
-  CamperAttendeeID,
+  AdminAttendee,
+  CamperAttendee,
   Freeplay,
-  SchedulingSectionType,
-  SectionScheduleID,
-  StaffAttendeeID,
-} from "@/types/sessionTypes";
-import { Document, Page, Text } from "@react-pdf/renderer";
+  StaffAttendee,
+} from "@/types/sessions/sessionTypes";
+import { SectionSchedule } from "@/types/scheduling/schedulingTypes";
+import { StyleSheet, Text, View } from "@react-pdf/renderer";
+import { getFreeplayAssignmentId } from "../generation/schedulingUtils";
 import {
-  getFreeplayAssignmentId,
   isBundleActivity,
-  isIndividualAssignments,
-} from "../generation/schedulingUtils";
-import { getFullName } from "@/utils/personUtils";
-import { tw } from "@/utils/reactPdfTailwind";
-import { Table, TR, TH, TD } from "@ag-media/react-pdf-table";
+  isBunkJamboreeBlock,
+} from "@/types/scheduling/schedulingTypeGuards";
+import { getFullName } from "@/types/users/userUtils";
+import { isStaffAttendee } from "@/types/sessions/sessionTypeGuards";
 
-interface EmployeeGridProps<T extends SchedulingSectionType> {
-  schedule: SectionScheduleID<T>;
+const styles = StyleSheet.create({
+  page: {
+    padding: 15, // Reduced padding
+    fontSize: 8, // Reduced font size
+    fontFamily: "Helvetica",
+  },
+  sectionTitle: {
+    fontSize: 12, // Reduced title size
+    marginVertical: 6,
+    fontWeight: "bold",
+  },
+  row: {
+    flexDirection: "row",
+  },
+  cell: {
+    flex: 1,
+    padding: 1, // Reduced padding
+    borderWidth: 1,
+    borderColor: "#000",
+    backgroundColor: "#fff",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  bold: {
+    fontWeight: "bold",
+  },
+  table: {
+    marginBottom: 8, // Reduced margin
+    borderWidth: 1,
+    borderColor: "#000",
+  },
+  headerRow: {
+    flexDirection: "row",
+    backgroundColor: "#000",
+  },
+  headerCell: {
+    flex: 1,
+    textAlign: "center",
+    fontSize: 8, // Reduced font size
+    fontWeight: "bold",
+    color: "#fff",
+    borderWidth: 1,
+    borderColor: "#000",
+    padding: 1, // Reduced padding
+    backgroundColor: "#000",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  bunkCell: {
+    flex: 1,
+    padding: 1, // Reduced padding
+    borderWidth: 1,
+    borderColor: "#000",
+    backgroundColor: "#d3d3d3",
+    textAlign: "center",
+    justifyContent: "center",
+    alignItems: "center",
+    fontSize: 7, // Smaller font for bunk numbers
+  },
+  dataCell: {
+    flex: 1,
+    padding: 1, // Reduced padding
+    borderWidth: 1,
+    borderColor: "#000",
+    backgroundColor: "#fff",
+    justifyContent: "center",
+    alignItems: "center",
+    fontSize: 7, // Smaller font for data
+  },
+  // New styles for two-column layout
+  twoColumnPage: {
+    padding: 15,
+    fontSize: 8,
+    fontFamily: "Helvetica",
+    flexDirection: "row",
+  },
+  leftColumn: {
+    width: "50%",
+    paddingRight: 5,
+  },
+  rightColumn: {
+    width: "50%",
+    paddingLeft: 5,
+    marginLeft: "auto", // This will push the right column to the right side
+  },
+  // Styles for smaller tables in two-column layout
+  compactTable: {
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: "#000",
+  },
+  compactHeaderCell: {
+    flex: 1,
+    textAlign: "center",
+    fontSize: 7, // Even smaller for compact layout
+    fontWeight: "bold",
+    color: "#fff",
+    borderWidth: 1,
+    borderColor: "#000",
+    padding: 1,
+    backgroundColor: "#000",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  compactDataCell: {
+    flex: 1,
+    padding: 1,
+    borderWidth: 1,
+    borderColor: "#000",
+    backgroundColor: "#fff",
+    justifyContent: "center",
+    alignItems: "center",
+    fontSize: 6, // Very small font for compact layout
+  },
+  compactBunkCell: {
+    flex: 1,
+    padding: 1,
+    borderWidth: 1,
+    borderColor: "#000",
+    backgroundColor: "#d3d3d3",
+    textAlign: "center",
+    justifyContent: "center",
+    alignItems: "center",
+    fontSize: 6, // Very small font for compact layout
+  },
+});
+
+interface EmployeeGridProps {
+  schedule: SectionSchedule;
   freeplay: Freeplay;
-  campers: CamperAttendeeID[];
-  employees: AdminAttendeeID[] | StaffAttendeeID[];
+  campers: CamperAttendee[];
+  employees: AdminAttendee[] | StaffAttendee[];
 }
 
-export default function EmployeeGrid<T extends SchedulingSectionType>(
-  props: EmployeeGridProps<T>
-) {
+export default function EmployeeGrid(props: EmployeeGridProps) {
   const { schedule, freeplay, campers, employees } = props;
   return (
-    <Document>
-      <Page size="A4">
-        <Table style={[tw("p-[15px] text-[8px]"), { fontFamily: "Helvetica" }]}>
-          <Text style={tw("text-[12px] my-[6px] font-bold")}>
-            {employees.length === 0
-              ? "Employee"
-              : employees[0].role === "ADMIN"
-              ? "Admin"
-              : "Staff"}{" "}
-            Assignments
-          </Text>
-          <TH style={tw("mb-[8px] border border-black")}>
-            <TR style={tw("flex-row bg-black")}>
-              <TD>
-                <Text
-                  style={tw(
-                    "flex-1 text-center text-[8px] font-bold text-white border border-black p-[1px] bg-black justify-center items-center"
-                  )}
-                >
-                  NAME
-                </Text>
-              </TD>
-              {Object.keys(schedule.blocks).map((blockId) => (
-                <TD key={blockId}>
-                  <Text 
-                    style={tw(
-                      "flex-1 text-center text-[8px] font-bold text-white border border-black p-[1px] bg-black justify-center items-center"
-                    )}
-                  >
-                    {blockId}
-                  </Text>
-                </TD>
-              ))}
-              <TD>
-                <Text
-                  style={tw(
-                    "flex-1 text-center text-[8px] font-bold text-white border border-black p-[1px] bg-black justify-center items-center"
-                  )}
-                >
-                  APO
-                </Text>
-              </TD>
-              <TD>
-                <Text
-                  style={tw(
-                    "flex-1 text-center text-[8px] font-bold text-white border border-black p-[1px] bg-black justify-center items-center"
-                  )}
-                >
-                  AM/PM FP
-                </Text>
-              </TD>
-            </TR>
-          </TH>
+    <View style={styles.page}>
+      <Text style={styles.sectionTitle}>
+        {employees.length === 0
+          ? "Employee"
+          : employees[0].role === "ADMIN"
+            ? "Admin"
+            : "Staff"}{" "}
+        Assignments
+      </Text>
+      <View style={styles.table}>
+        <View style={styles.headerRow}>
+          <Text style={styles.headerCell}>NAME</Text>
+          {Object.keys(schedule.blocks).map((blockId) => (
+            <Text key={blockId} style={styles.headerCell}>
+              {blockId}
+            </Text>
+          ))}
+          <Text style={styles.headerCell}>APO</Text>
+          <Text style={styles.headerCell}>AM/PM FP</Text>
+        </View>
 
-          {employees.map((employee) => {
-            const fpBuddyIds = getFreeplayAssignmentId(freeplay, employee.id);
-            const fpBuddies = fpBuddyIds
-              ? (fpBuddyIds as number[]).map((id) =>
-                  campers.find((c) => c.id === id)
-                )
-              : [];
+        {employees.map((employee) => {
+          const fpBuddyIds = getFreeplayAssignmentId(
+            freeplay,
+            employee.attendeeId,
+          );
+          const fpBuddies = fpBuddyIds
+            ? (fpBuddyIds as number[]).map((id) =>
+                campers.find((c) => c.attendeeId === id),
+              )
+            : [];
 
-            let apoText: string = "-";
-            for (const period of Object.keys(schedule.alternatePeriodsOff)) {
-              if (schedule.alternatePeriodsOff[period].includes(employee.id)) {
-                apoText = period;
-                break;
-              }
+          let apoText: string = "-";
+          for (const period of Object.keys(schedule.alternatePeriodsOff)) {
+            if (
+              schedule.alternatePeriodsOff[period].includes(employee.attendeeId)
+            ) {
+              apoText = period;
+              break;
             }
+          }
 
-            return (
-              <TR key={employee.id} style={tw("flex-row")}>
-                {/* Name column - Use dataCell style */}
-                <TD
-                  style={tw(
-                    "flex-1 p-[1px] border border-black bg-white justify-center items-center text-[7px]"
-                  )}
-                >
-                  <Text>
-                    {employee.name.firstName} {employee.name.lastName[0]}.
-                  </Text>
-                </TD>
+          return (
+            <View key={employee.attendeeId} style={styles.row}>
+              {/* Name column - Use dataCell style */}
+              <View style={styles.dataCell}>
+                <Text>
+                  {employee.snapshot.name.firstName}{" "}
+                  {employee.snapshot.name.lastName[0]}.
+                </Text>
+              </View>
+              {Object.keys(schedule.blocks).map((blockId) => {
+                const block = schedule.blocks[blockId];
+                let activityText;
+                if (block.periodsOff.includes(employee.attendeeId)) {
+                  activityText = "OFF";
+                } else {
+                  const activity = isStaffAttendee(employee)
+                    ? isBunkJamboreeBlock(block)
+                      ? block.activities.find((act) =>
+                          act.bunkNums.includes(employee.bunk),
+                        )
+                      : block.activities.find((act) =>
+                          act.staffIds.includes(employee.attendeeId),
+                        )
+                    : block.activities.find((act) =>
+                        act.adminIds.includes(employee.attendeeId),
+                      );
+                  activityText = activity
+                    ? isBundleActivity(activity)
+                      ? activity.programAreaId
+                      : activity.name
+                    : "-";
+                }
+                return (
+                  <View key={blockId} style={styles.cell}>
+                    <Text>{activityText}</Text>
+                  </View>
+                );
+              })}
+              <View style={styles.dataCell}>
+                <Text>{apoText}</Text>
+              </View>
 
-                {/* Block assignments - Use dataCell style */}
-                {Object.entries(schedule.blocks).map(([blockId, block]) => {
-                  let activityText;
-                  if (block.periodsOff.includes(employee.id)) {
-                    activityText = "OFF";
-                  } else if (employee.role === "STAFF") {
-                    const activity = block.activities.find((act) =>
-                      isIndividualAssignments(act.assignments)
-                        ? act.assignments.staffIds.includes(employee.id)
-                        : act.assignments.bunkNums.includes(employee.bunk)
-                    );
-                    activityText = activity
-                      ? isBundleActivity(activity)
-                        ? activity.programArea.id
-                        : activity.name
-                      : "-";
-                  } else {
-                    const activity = block.activities.find((act) =>
-                      act.assignments.adminIds.includes(employee.id)
-                    );
-                    activityText = activity
-                      ? isBundleActivity(activity)
-                        ? activity.programArea.id
-                        : activity.name
-                      : "-";
-                  }
-
-                  return (
-                    <TD
-                      key={blockId}
-                      style={tw(
-                        "flex-1 p-[1px] border border-black bg-white justify-center items-center"
-                      )}
-                    >
-                      <Text>{activityText}</Text>
-                    </TD>
-                  );
-                })}
-
-                <TD
-                  style={tw(
-                    "flex-1 p-[1px] border border-black bg-white justify-center items-center text-[7px]"
-                  )}
-                >
-                  <Text>{apoText}</Text>
-                </TD>
-
-                {/* Freeplay assignment - Use dataCell style */}
-                <TD
-                  style={tw(
-                    "flex-1 p-[1px] border border-black bg-white justify-center items-center text-[7px]"
-                  )}
-                >
-                  <Text>
-                    {fpBuddies
-                      .map((fpBuddy) => (fpBuddy ? getFullName(fpBuddy) : ""))
-                      .join(", ")}
-                  </Text>
-                </TD>
-              </TR>
-            );
-          })}
-        </Table>
-      </Page>
-    </Document>
+              {/* Freeplay assignment - Use dataCell style */}
+              <View style={styles.dataCell}>
+                <Text>
+                  {fpBuddies
+                    .map((fpBuddy) =>
+                      fpBuddy ? getFullName(fpBuddy.snapshot.name) : "",
+                    )
+                    .join(", ")}
+                </Text>
+              </View>
+            </View>
+          );
+        })}
+      </View>
+    </View>
   );
 }

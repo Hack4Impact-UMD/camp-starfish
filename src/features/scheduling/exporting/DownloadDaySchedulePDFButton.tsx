@@ -5,16 +5,13 @@ import useSection from "@/hooks/sections/useSection";
 import useFreeplay from "@/hooks/freeplays/useFreeplay";
 import { cloneElement, useMemo } from "react";
 import useSectionSchedule from "@/hooks/schedules/useSectionSchedule";
-import {
-  AttendeeID,
-  FreeplayID,
-  SchedulingSectionType,
-  SectionID,
-  SectionScheduleID,
-} from "@/types/sessionTypes";
+import { Attendee, Freeplay, Section } from "@/types/sessions/sessionTypes";
+import { ProgramArea, SectionSchedule } from "@/types/scheduling/schedulingTypes";
 import { Button } from "@mantine/core";
 import useNotifications from "@/features/notifications/useNotifications";
 import { MdOpenInNew } from "react-icons/md";
+import { isBundleSectionSchedule } from "@/types/scheduling/schedulingTypeGuards";
+import useProgramAreas from "@/hooks/programAreas/useProgramAreas";
 
 const baseExportButton = <Button rightSection={<MdOpenInNew />}>EXPORT</Button>;
 
@@ -25,7 +22,7 @@ interface DownloadDaySchedulePDFButtonProps {
 }
 
 export default function DownloadDaySchedulePDFButton(
-  props: DownloadDaySchedulePDFButtonProps
+  props: DownloadDaySchedulePDFButtonProps,
 ) {
   const { sessionId, sectionId, date } = props;
 
@@ -34,13 +31,22 @@ export default function DownloadDaySchedulePDFButton(
   const scheduleQuery = useSectionSchedule(sessionId, sectionId);
   const freeplayQuery = useFreeplay(sessionId, date);
 
+  const programAreaIds = useMemo(() => {
+    if (!scheduleQuery.data || !isBundleSectionSchedule(scheduleQuery.data)) return [];
+    const programAreaIds = new Set<string>();
+    Object.values(scheduleQuery.data.blocks).forEach((block) => block.activities.forEach(activity => programAreaIds.add(activity.programAreaId)))
+    return Array.from(programAreaIds);
+  }, [scheduleQuery.data]);
+  const programAreasQuery = useProgramAreas(programAreaIds)
+
   const notifications = useNotifications();
 
   if (
     attendeesQuery.status === "error" ||
     freeplayQuery.status === "error" ||
     sectionQuery.status === "error" ||
-    scheduleQuery.status === "error"
+    scheduleQuery.status === "error" ||
+    programAreasQuery.status === "error"
   ) {
     return cloneElement(baseExportButton, {
       onClick: () =>
@@ -50,7 +56,8 @@ export default function DownloadDaySchedulePDFButton(
     attendeesQuery.status === "pending" ||
     freeplayQuery.status === "pending" ||
     sectionQuery.status === "pending" ||
-    scheduleQuery.status === "pending"
+    scheduleQuery.status === "pending" ||
+    (isBundleSectionSchedule(scheduleQuery.data) && programAreasQuery.status === "pending")
   ) {
     return cloneElement(baseExportButton, { loading: true });
   }
@@ -60,21 +67,23 @@ export default function DownloadDaySchedulePDFButton(
       section={sectionQuery.data}
       schedule={scheduleQuery.data}
       freeplay={freeplayQuery.data}
+      programAreas={programAreasQuery.data}
     />
   );
 }
 
 interface DownloadDaySchedulePDFButtonContentProps {
-  attendees: AttendeeID[];
-  section: SectionID;
-  schedule: SectionScheduleID<SchedulingSectionType>;
-  freeplay: FreeplayID;
+  attendees: Attendee[];
+  section: Section;
+  schedule: SectionSchedule;
+  freeplay: Freeplay;
+  programAreas?: ProgramArea[]
 }
 
 function DownloadDaySchedulePDFButtonContent(
-  props: DownloadDaySchedulePDFButtonContentProps
+  props: DownloadDaySchedulePDFButtonContentProps,
 ) {
-  const { attendees, section, schedule, freeplay } = props;
+  const { attendees, section, schedule, freeplay, programAreas } = props;
 
   const { admins, staff, campers } = useMemo(
     () => ({
@@ -82,7 +91,7 @@ function DownloadDaySchedulePDFButtonContent(
       staff: attendees.filter((att) => att.role === "STAFF"),
       campers: attendees.filter((att) => att.role === "CAMPER"),
     }),
-    [attendees]
+    [attendees],
   );
 
   return (
@@ -95,6 +104,7 @@ function DownloadDaySchedulePDFButtonContent(
           schedule={schedule}
           sectionName={section.name}
           staff={staff}
+          programAreas={programAreas}
         />
       }
       fileName={`${section.name}.pdf`}

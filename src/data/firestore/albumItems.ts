@@ -1,0 +1,32 @@
+import { db } from "@/config/firebase";
+import { AlbumItem } from "@/types/albums/albumTypes";
+import { AlbumItemDoc } from "./types/documents";
+import { doc, Transaction, WriteBatch, QueryDocumentSnapshot, DocumentReference, DocumentSnapshot } from "firebase/firestore";
+import { getDoc, setDoc, updateDoc, deleteDoc } from "./firestoreClientOperations"
+import { AlbumsSubcollection, RootLevelCollection } from "./types/collections";
+
+function fromFirestore(snapshot: DocumentSnapshot<AlbumItemDoc, AlbumItemDoc> | QueryDocumentSnapshot<AlbumItemDoc, AlbumItemDoc>): AlbumItem {
+  if (!snapshot.exists()) { throw Error("Document not found"); }
+  return {
+    id: snapshot.ref.id,
+    albumId: snapshot.ref.parent.parent!.id,
+    ...snapshot.data(),
+  }
+}
+
+export async function getAlbumItemById(albumId: string, albumItemId: string, transaction?: Transaction): Promise<AlbumItem> {
+  const snapshot = await getDoc<AlbumItemDoc>(doc(db, RootLevelCollection.ALBUMS, albumId, AlbumsSubcollection.ALBUM_ITEMS, albumItemId) as DocumentReference<AlbumItemDoc, AlbumItemDoc>, transaction);
+  return fromFirestore(snapshot);
+}
+
+export async function createAlbumItem(albumId: string, albumItemId: string, albumItem: AlbumItemDoc, instance?: Transaction | WriteBatch): Promise<void> {
+  await setDoc(doc(db, RootLevelCollection.ALBUMS, albumId, AlbumsSubcollection.ALBUM_ITEMS, albumItemId) as DocumentReference<AlbumItemDoc, AlbumItemDoc>, albumItem, { instance });
+}
+
+export async function updateAlbumItem(albumId: string, albumItemId: string, updates: Partial<AlbumItemDoc>, instance?: Transaction | WriteBatch): Promise<void> {
+  await updateDoc<AlbumItemDoc>(doc(db, RootLevelCollection.ALBUMS, albumId, AlbumsSubcollection.ALBUM_ITEMS, albumItemId) as DocumentReference<AlbumItemDoc, AlbumItemDoc>, updates, instance);
+}
+
+export async function deleteAlbumItem(albumId: string, albumItemId: string, instance?: Transaction | WriteBatch): Promise<void> {
+  await deleteDoc<AlbumItemDoc>(doc(db, RootLevelCollection.ALBUMS, albumId, AlbumsSubcollection.ALBUM_ITEMS, albumItemId) as DocumentReference<AlbumItemDoc, AlbumItemDoc>, instance);
+}

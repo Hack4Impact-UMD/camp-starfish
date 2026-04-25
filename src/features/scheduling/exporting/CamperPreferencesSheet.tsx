@@ -1,15 +1,15 @@
 import React from "react";
-import { Document, Page, Text, View} from "@react-pdf/renderer";
+import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
+import { AgeGroup } from "@/types/sessions/sessionTypes";
+import { SectionSchedule } from "@/types/scheduling/schedulingTypes";
 import {
-  SectionSchedule,
-  BundleActivity,
-  SchedulingSectionType,
-  AgeGroup,
-} from "@/types/sessionTypes";
-import { isBundleActivity } from "../generation/schedulingUtils";
-import { tw } from "@/utils/reactPdfTailwind";
+  isBundleActivity,
+  isBundleBlock,
+  isBundleSectionSchedule,
+  isNonBunkJamboreeSectionSchedule,
+} from "@/types/scheduling/schedulingTypeGuards";
 
-/*const styles = StyleSheet.create({
+const styles = StyleSheet.create({
   page: { padding: 40, fontSize: 12, fontFamily: "Helvetica" },
   title: {
     fontSize: 18,
@@ -34,51 +34,49 @@ import { tw } from "@/utils/reactPdfTailwind";
   activityInfo: {},
   activityName: { fontWeight: "bold" },
   activityDesc: { fontSize: 11 },
-}); */
+});
 
-type CamperPreferencesSheetProps<T extends SchedulingSectionType> = {
-  schedule: SectionSchedule<T>;
-  sectionType: T;
+type CamperPreferencesSheetProps = {
+  schedule: SectionSchedule;
   sectionName: string;
-  ageGroup?: T extends "BUNDLE" ? AgeGroup : never;
-}
+  ageGroup?: AgeGroup;
+};
 
-export function CamperPreferencesSheet<T extends SchedulingSectionType = SchedulingSectionType>({
-  schedule,
-  sectionType,
-  sectionName,
-  ageGroup
-}: CamperPreferencesSheetProps<T>) {
+export function CamperPreferencesSheet(props: CamperPreferencesSheetProps) {
+  const { schedule, sectionName, ageGroup = undefined } = props;
   return (
     <Document>
-      <Page size="A4" style={[tw("p-[40px] text-[12px]"), { fontFamily: "Helvetica" }]}>
-        <View style={tw("flex-row justify-between mb-[10px]")}>
-          {sectionType !== "NON-BUNK-JAMBO" && <Text>Name: ____________________________</Text>}
+      <Page size="A4" style={styles.page}>
+        <View style={styles.nameRow}>
+          {!isNonBunkJamboreeSectionSchedule(schedule) && (
+            <Text>Name: ____________________________</Text>
+          )}
           <Text>Bunk: ___________</Text>
         </View>
 
-        <Text style={tw("text-[18px] text-center mb-[16px] font-bold")}>
-          {`${sectionName} Preference Sheet${ageGroup ? ` - ${ageGroup}` : ""}`}
+        <Text style={styles.title}>
+          {`${sectionName} Preference Sheet${isBundleSectionSchedule(schedule) ? ` - ${props.ageGroup}` : ""}`}
         </Text>
 
-        {Object.entries(schedule.blocks).map(([blockId, block]) => {
-          const activities = sectionType === "BUNDLE"
-            ? (block.activities as BundleActivity[]).filter(
-                (act) => !ageGroup || act.ageGroup === ageGroup
+        {Object.keys(schedule.blocks).map((blockId) => {
+          const block = schedule.blocks[blockId];
+          const activities = isBundleBlock(block)
+            ? block.activities.filter(
+                (act) => !ageGroup || act.ageGroup === ageGroup,
               )
             : block.activities;
           if (activities.length === 0) return null;
           return (
-            <View key={blockId} style={ tw("mt-[12px]")}>
-              <Text style={tw("text-[14px] font-bold mb-[4px]")}>Block {blockId}</Text>
+            <View key={blockId} style={styles.block}>
+              <Text style={styles.blockTitle}>Block {blockId}</Text>
               {activities.map((activity, idx) => (
-                <View key={`${blockId}-${idx}`} style={tw("ml-[10px] mb-[6px] flex flex-row justify-between")}>
-                  <View>
-                    <Text style={tw("font-bold")}>
-                      {`${isBundleActivity(activity) ? `${activity.programArea.name}: ` : ""}${activity.name}`}
+                <View key={`${blockId}-${idx}`} style={styles.activity}>
+                  <View style={styles.activityInfo}>
+                    <Text style={styles.activityName}>
+                      {`${isBundleActivity(activity) ? `${activity.programAreaId}: ` : ""}${activity.name}`}
                     </Text>
                     {activity.description && (
-                      <Text style={tw("text-[11px]")}>
+                      <Text style={styles.activityDesc}>
                         {activity.description}
                       </Text>
                     )}

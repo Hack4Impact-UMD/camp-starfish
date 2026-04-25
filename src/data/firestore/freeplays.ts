@@ -1,29 +1,32 @@
 import { db } from "@/config/firebase";
-import { Freeplay, FreeplayID } from "@/types/sessionTypes";
-import { doc, Transaction, WriteBatch, QueryDocumentSnapshot, FirestoreDataConverter, WithFieldValue, DocumentReference } from "firebase/firestore";
+import { Freeplay } from "@/types/sessions/sessionTypes";
+import { FreeplayDoc } from "./types/documents";
+import { doc, Transaction, WriteBatch, QueryDocumentSnapshot, DocumentReference, DocumentSnapshot } from "firebase/firestore";
 import { setDoc, deleteDoc, getDoc, updateDoc } from "./firestoreClientOperations";
-import { Collection, SessionsSubcollection } from "./utils";
+import { RootLevelCollection, SessionsSubcollection } from "./types/collections";
 
-const freeplayFirestoreConverter: FirestoreDataConverter<FreeplayID, Freeplay> = {
-  toFirestore: (freeplay: WithFieldValue<FreeplayID>): WithFieldValue<Freeplay> => {
-    const { id, sessionId, ...dto } = freeplay;
-    return dto;
-  },
-  fromFirestore: (snapshot: QueryDocumentSnapshot<Freeplay, Freeplay>): FreeplayID => ({ id: snapshot.ref.id, sessionId: snapshot.ref.parent.parent!.id, ...snapshot.data() })
+function fromFirestore(snapshot: DocumentSnapshot<FreeplayDoc, FreeplayDoc> | QueryDocumentSnapshot<FreeplayDoc, FreeplayDoc>): Freeplay {
+  if (!snapshot.exists()) { throw Error("Document not found"); }
+  return {
+    date: snapshot.ref.id,
+    sessionId: snapshot.ref.parent.parent!.id,
+    ...snapshot.data()
+  };
+}
+
+export async function getFreeplayById(sessionId: string, freeplayId: string, transaction?: Transaction): Promise<Freeplay> {
+  const snapshot = await getDoc<FreeplayDoc>(doc(db, RootLevelCollection.SESSIONS, sessionId, SessionsSubcollection.FREEPLAYS, freeplayId) as DocumentReference<FreeplayDoc, FreeplayDoc>, transaction);
+  return fromFirestore(snapshot);
 };
 
-export async function getFreeplayById(sessionId: string, freeplayId: string, transaction?: Transaction): Promise<FreeplayID> {
-  return await getDoc<FreeplayID, Freeplay>(doc(db, Collection.SESSIONS, sessionId, SessionsSubcollection.FREEPLAYS, freeplayId) as DocumentReference<FreeplayID, Freeplay>, freeplayFirestoreConverter, transaction);
+export async function createFreeplay(sessionId: string, freeplay: Freeplay, instance?: Transaction | WriteBatch): Promise<void> {
+  await setDoc<FreeplayDoc>(doc(db, RootLevelCollection.SESSIONS, sessionId, SessionsSubcollection.FREEPLAYS, freeplay.date) as DocumentReference<FreeplayDoc, FreeplayDoc>, freeplay, { instance });
 };
 
-export async function setFreeplay(sessionId: string, freeplay: FreeplayID, instance?: Transaction | WriteBatch): Promise<void> {
-  await setDoc<FreeplayID, Freeplay>(doc(db, Collection.SESSIONS, sessionId, SessionsSubcollection.FREEPLAYS, freeplay.id) as DocumentReference<FreeplayID, Freeplay>, freeplay, freeplayFirestoreConverter, instance);
-};
-
-export async function updateFreeplay(sessionId: string, freeplayId: string, updates: Partial<Freeplay>, instance?: Transaction | WriteBatch): Promise<void> {
-  await updateDoc<FreeplayID, Freeplay>(doc(db, Collection.SESSIONS, sessionId, SessionsSubcollection.FREEPLAYS, freeplayId) as DocumentReference<FreeplayID, Freeplay>, updates, freeplayFirestoreConverter, instance);
+export async function updateFreeplay(sessionId: string, freeplayId: string, updates: Partial<FreeplayDoc>, instance?: Transaction | WriteBatch): Promise<void> {
+  await updateDoc<FreeplayDoc>(doc(db, RootLevelCollection.SESSIONS, sessionId, SessionsSubcollection.FREEPLAYS, freeplayId) as DocumentReference<FreeplayDoc, FreeplayDoc>, updates, instance);
 };
 
 export async function deleteFreeplay(sessionId: string, freeplayId: string, instance?: Transaction | WriteBatch): Promise<void> {
-  await deleteDoc<FreeplayID, Freeplay>(doc(db, Collection.SESSIONS, sessionId, SessionsSubcollection.FREEPLAYS, freeplayId) as DocumentReference<FreeplayID, Freeplay>, freeplayFirestoreConverter, instance);
+  await deleteDoc<FreeplayDoc>(doc(db, RootLevelCollection.SESSIONS, sessionId, SessionsSubcollection.FREEPLAYS, freeplayId) as DocumentReference<FreeplayDoc, FreeplayDoc>, instance);
 };

@@ -42,12 +42,12 @@ function ConfirmationModal({
             {/* Close Button */}
             <button
               onClick={handleCancel}
-              className="absolute top-6 right-6 flex-shrink-0"
+              className="absolute top-6 right-6 shrink-0"
             >
               <Image
                 src={cross.src}
                 alt="close"
-                className="w-[29px] h-[29px] aspect-[29/29]"
+                className="w-[29px] h-[29px] aspect-29/29"
                 width={29}
                 height={29}
               />
@@ -66,13 +66,13 @@ function ConfirmationModal({
             <div className="flex justify-center gap-4">
               <button
                 onClick={handleCancel}
-                className="bg-camp-buttons-neutral text-black font-lato text-[20px] fold-bold leading-normal rounded-[40px] px-[56px] py-[16px] w-[196px] flex justify-center items-center flex-shrink-0 hover:bg-gray-500 hover:text-white transition duration-300"
+                className="bg-camp-buttons-neutral text-black font-lato text-[20px] fold-bold leading-normal rounded-[40px] px-[56px] py-[16px] w-[196px] flex justify-center items-center shrink-0 hover:bg-gray-500 hover:text-white transition duration-300"
               >
                 CANCEL
               </button>
               <button
                 onClick={handleConfirm}
-                className="bg-camp-text-error text-white font-lato text-[20px] fold-bold leading-normal rounded-[40px] px-[56px] py-[16px] w-[196px] flex justify-center items-center flex-shrink-0 hover:bg-red-800 transition duration-300"
+                className="bg-camp-text-error text-white font-lato text-[20px] fold-bold leading-normal rounded-[40px] px-[56px] py-[16px] w-[196px] flex justify-center items-center shrink-0 hover:bg-red-800 transition duration-300"
               >
                 CONFIRM
               </button>

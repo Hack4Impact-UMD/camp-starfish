@@ -26,7 +26,7 @@ export default function ParentHomePage() {
       </div>
 
       {/* Trail Pattern on Background */}
-      <div className="absolute top-[0px] left-[350px] w-[1280px] h-[296px] flex items-center justify-center transform rotate-[1.86deg] z-0 overflow-hidden">
+      <div className="absolute top-0 left-[350px] w-[1280px] h-[296px] flex items-center justify-center transform rotate-[1.86deg] z-0 overflow-hidden">
         <Image
           src={pattern.src}
           alt="Pattern Image"

@@ -2,22 +2,22 @@ import { Moment, weekdaysShort } from "moment";
 
 import React, { useState } from "react";
 import { SimpleGrid, Text, Box } from "@mantine/core";
-import { SessionID } from "@/types/sessionTypes";
+import { Session } from "@/types/sessions/sessionTypes";
 import moment from "moment";
 import classNames from "classnames";
 import { modals } from "@mantine/modals";
 import EditSectionModal from "@/components/EditSectionModal";
 
 interface SessionCalendarProps {
-  session: SessionID;
+  session: Session;
 }
 
 export default function SessionCalendar({ session }: SessionCalendarProps) {
   const [firstSelectedDate, setFirstSelectedDate] = useState<Moment | null>(
-    null
+    null,
   );
   const [secondSelectedDate, setSecondSelectedDate] = useState<Moment | null>(
-    null
+    null,
   );
 
   const handlePointerDown = (date: Moment) => {
@@ -38,12 +38,20 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
         title: "Create Section",
         children: (
           <EditSectionModal
-            selectedStartDate={firstSelectedDate.isSameOrBefore(secondSelectedDate) ? firstSelectedDate : secondSelectedDate}
-            selectedEndDate={firstSelectedDate.isSameOrBefore(secondSelectedDate) ? secondSelectedDate : firstSelectedDate}
+            selectedStartDate={
+              firstSelectedDate.isSameOrBefore(secondSelectedDate)
+                ? firstSelectedDate
+                : secondSelectedDate
+            }
+            selectedEndDate={
+              firstSelectedDate.isSameOrBefore(secondSelectedDate)
+                ? secondSelectedDate
+                : firstSelectedDate
+            }
             sessionId={session.id}
           />
         ),
-      })
+      });
     }
     setFirstSelectedDate(null);
     setSecondSelectedDate(null);
@@ -60,20 +68,20 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
       {weekdaysShort().map((day) => (
         <Box
           key={day}
-          className="p-xs bg-neutral-0 border-[1px] border-solid border-neutral-5"
+          className="p-xs bg-neutral-0 border border-solid border-neutral-5"
         >
           <Text className="text-sm text-center font-bold">{day}</Text>
         </Box>
       ))}
       {weekStarts.map((weekStart) =>
         Array.from({ length: 7 }, (_, i) =>
-          weekStart.clone().add(i, "day")
+          weekStart.clone().add(i, "day"),
         ).map((day) => {
           const isInSession = day.isBetween(
             session.startDate,
             session.endDate,
             "day",
-            "[]"
+            "[]",
           );
           const isInSelection =
             firstSelectedDate &&
@@ -86,7 +94,7 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
                 ? secondSelectedDate
                 : firstSelectedDate,
               "day",
-              "[]"
+              "[]",
             );
 
           const eventHandlers = isInSession && {
@@ -100,12 +108,12 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
               key={day.format("YYYY-MM-DD")}
               {...eventHandlers}
               className={classNames(
-                "p-xs border-[1px] border-solid border-neutral-5 text-left min-h-52",
+                "p-xs border border-solid border-neutral-5 text-left min-h-52",
                 {
                   "bg-aqua-4": isInSession && isInSelection,
                   "bg-neutral-2": isInSession && !isInSelection,
                   "bg-neutral-3": !isInSession,
-                }
+                },
               )}
             >
               <Text className="text-sm font-bold text-center">
@@ -113,7 +121,7 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
               </Text>
             </Box>
           );
-        })
+        }),
       )}
     </SimpleGrid>
   );
