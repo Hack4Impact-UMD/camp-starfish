@@ -118,7 +118,7 @@ function EditAlbumModalContent(props: EditAlbumModalContentProps) {
                 {
                   albumId: album.id,
                   name: albumName,
-                  thumbnail: albumThumbnail ?? undefined,
+                  thumbnail: albumThumbnail,
                 },
                 {
                   onSuccess: () => modals.closeAll(),
