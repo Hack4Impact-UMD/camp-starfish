@@ -1,7 +1,6 @@
 import React from "react";
 import plusIcon from "@/assets/icons/plusIcon.svg";
 import filterIcon from "@/assets/icons/filterIcon.svg";
-import TestPicture from "@/assets/images/PolaroidPhotos1.png"; // Replace with actual image URL
 import ImageCard from "@/components/ImageCard";
 import CardGallery from "@/components/CardGallery";
 import { AlbumItem } from "@/types/albums/albumTypes";
@@ -9,6 +8,7 @@ import FileUploadModal from "@/components/FileUploadModal";
 import { uploadFiles } from "@/data/storage/storageClientOperations";
 import { v4 as uuidv4 } from "uuid";
 import Image from "next/image";
+import moment from "moment";
 
 const AlbumPage: React.FC = () => {
   const dates = [
@@ -22,13 +22,12 @@ const AlbumPage: React.FC = () => {
   const images: AlbumItem[] = [];
   for (let i = 0; i < 10; i++) {
     images.push({
-      src: TestPicture.src,
       name: "Image " + i,
       tagIds: {
         approved: [],
         inReview: [],
       },
-      dateTaken: dates[i % 5],
+      dateTaken: moment(dates[i % 5]),
       inReview: false,
       id: i.toString(),
       albumId: "iug",
@@ -41,8 +40,10 @@ const AlbumPage: React.FC = () => {
   const session = "No Session";
 
   async function uploadImages(images: File[]) {
-    const paths = images.map(() => `albums/${albumId}/${uuidv4()}`);
-    await uploadFiles(images, paths);
+    await uploadFiles(images.map(image => ({
+      file: image,
+      path: `albums/${albumId}/${uuidv4()}`
+    })));
   }
 
   return (
@@ -91,7 +92,7 @@ const AlbumPage: React.FC = () => {
           groups={{
             groupLabels: dates,
             defaultGroupLabel: "Date Unknown",
-            groupFunc: (image: AlbumItem) => image.dateTaken,
+            groupFunc: (image: AlbumItem) => image.dateTaken.format("YYYY-MM-DD"),
           }}
         />
       </div>

@@ -9,7 +9,9 @@ import {
   DocumentReference,
   collection,
   CollectionReference,
-  DocumentSnapshot
+  DocumentSnapshot,
+  WithFieldValue,
+  UpdateData
 } from "firebase/firestore";
 import { setDoc, getDoc, updateDoc, executeQuery } from "./firestoreClientOperations";
 import { RootLevelCollection, SessionsSubcollection } from "./types/collections";
@@ -33,12 +35,12 @@ export async function getAttendeesBySessionId(sessionId: string): Promise<Attend
   return snapshots.map(fromFirestore);
 }
 
-export async function createAttendee(campminderId: number, sessionId: string, attendee: AttendeeDoc, instance?: Transaction | WriteBatch): Promise<number> {
+export async function createAttendee(campminderId: number, sessionId: string, attendee: WithFieldValue<AttendeeDoc>, instance?: Transaction | WriteBatch): Promise<number> {
   const attendeeId = campminderId;
   await setDoc<AttendeeDoc>(doc(db, RootLevelCollection.SESSIONS, sessionId, SessionsSubcollection.ATTENDEES, String(campminderId)) as DocumentReference<AttendeeDoc, AttendeeDoc>, attendee, { instance });
   return attendeeId;
 }
 
-export async function updateAttendee(campminderId: number, sessionId: string, updates: Partial<AttendeeDoc>, instance?: Transaction | WriteBatch): Promise<void> {
+export async function updateAttendee(campminderId: number, sessionId: string, updates: UpdateData<AttendeeDoc>, instance?: Transaction | WriteBatch): Promise<void> {
   await updateDoc<AttendeeDoc>(doc(db, RootLevelCollection.SESSIONS, sessionId, SessionsSubcollection.ATTENDEES, String(campminderId)) as DocumentReference<AttendeeDoc, AttendeeDoc>, updates, instance);
 }

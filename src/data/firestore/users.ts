@@ -8,6 +8,8 @@ import {
   QueryDocumentSnapshot,
   DocumentReference,
   DocumentSnapshot,
+  WithFieldValue,
+  UpdateData,
 } from "firebase/firestore";
 import { setDoc, getDoc, updateDoc, deleteDoc } from "./firestoreClientOperations";
 import { RootLevelCollection } from "./types/collections";
@@ -25,11 +27,11 @@ export async function getUserById(id: number, transaction?: Transaction): Promis
   return fromFirestore(snapshot);
 };
 
-export async function createUser(id: number, user: UserDoc, instance?: Transaction | WriteBatch): Promise<void> {
+export async function createUser(id: number, user: WithFieldValue<UserDoc>, instance?: Transaction | WriteBatch): Promise<void> {
   await setDoc<UserDoc>(doc(db, RootLevelCollection.USERS, String(id)) as DocumentReference<UserDoc, UserDoc>, user, { instance });
 }
 
-export async function updateUser(id: number, updates: Partial<UserDoc>, instance?: Transaction | WriteBatch): Promise<void> {
+export async function updateUser(id: number, updates: UpdateData<UserDoc>, instance?: Transaction | WriteBatch): Promise<void> {
   await updateDoc<UserDoc>(doc(db, RootLevelCollection.USERS, String(id)) as DocumentReference<UserDoc, UserDoc>, updates, instance);
 }
 

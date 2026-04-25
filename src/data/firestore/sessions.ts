@@ -11,7 +11,8 @@ import {
   collection,
   CollectionReference,
   UpdateData,
-  DocumentSnapshot
+  DocumentSnapshot,
+  WithFieldValue
 } from "firebase/firestore";
 import {
   setDoc,
@@ -40,8 +41,7 @@ export async function getAllSessions(): Promise<Session[]> {
   return snapshots.map(fromFirestore);
 }
 
-export type CreateSessionDTO = SessionDoc;
-export async function createSession(session: CreateSessionDTO, instance?: Transaction | WriteBatch): Promise<string> {
+export async function createSession(session: WithFieldValue<SessionDoc>, instance?: Transaction | WriteBatch): Promise<string> {
   const sessionId = uuid();
   await setDoc<SessionDoc>(doc(db, RootLevelCollection.SESSIONS, sessionId) as DocumentReference<SessionDoc, SessionDoc>, session, { instance });
   return sessionId;

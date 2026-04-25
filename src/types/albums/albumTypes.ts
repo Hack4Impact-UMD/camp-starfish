@@ -1,19 +1,20 @@
+import { Moment } from "moment";
+
 export interface Album {
   id: string;
   name: string; // same as Session name if a corresponding Session exists
-  startDate: string; // ISO-8601
-  endDate: string; // ISO-8601
-  hasThumbnail: boolean;
   numItems: number;
+  startDate: Moment | null;
+  endDate: Moment | null;
+  hasThumbnail: boolean;
   linkedSessionId?: string;
 }
 
 export interface AlbumItem {
   id: string;
-  src: string;
   albumId: string;
   name: string;
-  dateTaken: string; // ISO-8601
+  dateTaken: Moment;
   inReview: boolean;
   tagIds: {
     approved: number[];
@@ -32,7 +33,7 @@ interface BaseAlbumItemReport {
 
   reporterId: number;
   reportMessage: string;
-  reportedAt: string; // ISO-8601
+  reportedAt: Moment;
 }
 
 export interface PendingAlbumItemReport extends BaseAlbumItemReport { status: 'PENDING' }; 
@@ -40,6 +41,6 @@ export interface ResolvedAlbumItemReport extends BaseAlbumItemReport {
   status: 'RESOLVED';
   resolverId: number;
   resolutionMessage: string;
-  resolvedAt: string; // ISO-8601
+  resolvedAt: Moment;
 }
 export type AlbumItemReport = PendingAlbumItemReport | ResolvedAlbumItemReport;

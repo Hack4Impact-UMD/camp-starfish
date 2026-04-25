@@ -2,7 +2,7 @@ import { FirebaseError } from "firebase/app";
 import { DocumentReference, Query, Transaction, WriteBatch, DocumentSnapshot, getDoc as getFirestore, setDoc as setFirestore, updateDoc as updateFirestore, deleteDoc as deleteFirestore, getDocs as queryFirestore, WithFieldValue, DocumentData, UpdateData, CollectionReference, WhereFilterOp, collectionGroup, where as whereFirestore, orderBy as orderByFirestore, limit, limitToLast, startAfter, startAt, endBefore, endAt, query, documentId, getAggregateFromServer, AggregateType, count, AggregateField, sum, average, SetOptions, PartialWithFieldValue, QueryDocumentSnapshot } from "firebase/firestore";
 import { db } from "@/config/firebase";
 import { Collection } from "./types/collections";
-import { DistributiveKeyof } from "@/utils/types/typeUtils";
+import { DistributiveKeyof, NonEmptyArray } from "@/utils/types/typeUtils";
 
 export async function getDoc<DbModelType extends DocumentData>(ref: DocumentReference<DbModelType, DbModelType>, transaction?: Transaction): Promise<DocumentSnapshot<DbModelType, DbModelType>> {
   let doc: DocumentSnapshot<DbModelType, DbModelType>;
@@ -99,7 +99,7 @@ type EndCursorClause =
   | { endBefore?: never; endAt: DocumentSnapshot | unknown[]; }
   | { endBefore?: never; endAt?: never; };
 
-type QueryOptions<DbModelType extends DocumentData> = {
+export type QueryOptions<DbModelType extends DocumentData> = {
   where?: WhereClause<DbModelType>[];
   orderBy?: OrderByClause<DbModelType>[];
 } & LimitClause & StartCursorClause & EndCursorClause;
@@ -133,6 +133,26 @@ function buildQuery<DbModelType extends DocumentData>(collection: CollectionRefe
     queryObj = query(queryObj, ...whereClauses, ...orderByClauses, ...limitAndCursorClauses);
   }
   return queryObj;
+}
+
+export type PaginatedQueryResponse<AppModelType, DbModelType extends DocumentData> =
+  | {
+    docs: [];
+    firstSnapshot?: never;
+    lastSnapshot?: never;
+  }
+  | {
+    docs: NonEmptyArray<AppModelType>;
+    firstSnapshot: QueryDocumentSnapshot<DbModelType, DbModelType>;
+    lastSnapshot: QueryDocumentSnapshot<DbModelType, DbModelType>;
+  }
+
+export function mapSnapshotsToPaginatedQueryResult<AppModelType, DbModelType extends DocumentData>(snapshots: QueryDocumentSnapshot<DbModelType, DbModelType>[], mapFunc: (snapshot: QueryDocumentSnapshot<DbModelType, DbModelType>) => AppModelType): PaginatedQueryResponse<AppModelType, DbModelType> {
+  return snapshots.length === 0 ? { docs: [] } : {
+    docs: snapshots.map(mapFunc) as NonEmptyArray<AppModelType>,
+    firstSnapshot: snapshots[0],
+    lastSnapshot: snapshots[snapshots.length - 1]
+  }
 }
 
 export async function executeQuery<DbModelType extends DocumentData>(collection: CollectionReference<DbModelType, DbModelType> | Collection, options?: QueryOptions<DbModelType>): Promise<QueryDocumentSnapshot<DbModelType, DbModelType>[]> {

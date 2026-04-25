@@ -1,29 +1,50 @@
 import { adminDb } from "../../config/firebaseAdminConfig";
-import { AlbumItemReport } from "@/types/albums/albumTypes";
-import { AlbumItemReportDoc } from "@/data/firestore/types/documents";
+import { AlbumItemReport, PendingAlbumItemReport, ResolvedAlbumItemReport } from "@/types/albums/albumTypes";
+import { AlbumItemReportDoc, PendingAlbumItemReportDoc } from "@/data/firestore/types/documents";
 import {
   Transaction,
   WriteBatch,
   DocumentReference,
   CollectionReference,
   DocumentSnapshot,
-  QueryDocumentSnapshot
+  QueryDocumentSnapshot,
+  WithFieldValue,
+  UpdateData
 } from "firebase-admin/firestore";
 import { getDoc, setDoc, updateDoc, deleteDoc, executeQuery } from "./firestoreAdminOperations";
 import { RootLevelCollection, AlbumsSubcollection, AlbumItemsSubcollection } from "@/data/firestore/types/collections";
 import { v4 as uuid } from "uuid";
+import moment from "moment";
 
 function fromFirestore(snapshot: DocumentSnapshot<AlbumItemReportDoc, AlbumItemReportDoc> | QueryDocumentSnapshot<AlbumItemReportDoc, AlbumItemReportDoc>): AlbumItemReport {
   if (!snapshot.exists) { throw Error("Document not found"); };
+  const albumItemReportDoc = snapshot.data() as AlbumItemReportDoc;
+  if (albumItemReportDoc.status === 'PENDING') {
+    return {
+      id: snapshot.ref.id,
+      albumItemId: snapshot.ref.parent.parent!.id,
+      albumId: snapshot.ref.parent.parent!.parent.parent!.id,
+      status: albumItemReportDoc.status,
+      reporterId: albumItemReportDoc.reporterId,
+      reportMessage: albumItemReportDoc.reportMessage,
+      reportedAt: moment(albumItemReportDoc.reportedAt.toMillis())
+    } satisfies PendingAlbumItemReport
+  }
   return {
     id: snapshot.ref.id,
     albumItemId: snapshot.ref.parent.parent!.id,
     albumId: snapshot.ref.parent.parent!.parent.parent!.id,
-    ...snapshot.data() as AlbumItemReportDoc
-  }
+    status: albumItemReportDoc.status,
+    reporterId: albumItemReportDoc.reporterId,
+    reportMessage: albumItemReportDoc.reportMessage,
+    reportedAt: moment(albumItemReportDoc.reportedAt.toMillis()),
+    resolverId: albumItemReportDoc.resolverId,
+    resolutionMessage: albumItemReportDoc.resolutionMessage,
+    resolvedAt: moment(albumItemReportDoc.resolvedAt.toMillis())
+  } satisfies ResolvedAlbumItemReport;
 }
 
-export async function getAlbumItemReportDocById(albumId: string, albumItemId: string, reportId: string, transaction?: Transaction): Promise<AlbumItemReport> {
+export async function getAlbumItemReportDoc(albumId: string, albumItemId: string, reportId: string, transaction?: Transaction): Promise<AlbumItemReport> {
   const snapshot = await getDoc<AlbumItemReportDoc>(
     adminDb.collection(RootLevelCollection.ALBUMS).doc(albumId).collection(AlbumsSubcollection.ALBUM_ITEMS).doc(albumItemId).collection(AlbumItemsSubcollection.REPORTS).doc(reportId) as DocumentReference<AlbumItemReportDoc, AlbumItemReportDoc>,
     transaction
@@ -39,7 +60,7 @@ export async function getAlbumItemReportDocsByImageId(albumId: string, albumItem
   return snapshots.map(fromFirestore);
 }
 
-export async function createAlbumItemReportDoc(albumId: string, albumItemId: string, report: AlbumItemReportDoc, instance?: Transaction | WriteBatch): Promise<string> {
+export async function createAlbumItemReportDoc(albumId: string, albumItemId: string, report: WithFieldValue<AlbumItemReportDoc>, instance?: Transaction | WriteBatch): Promise<string> {
   const reportId = uuid();
   await setDoc<AlbumItemReportDoc>(
     adminDb.collection(RootLevelCollection.ALBUMS).doc(albumId).collection(AlbumsSubcollection.ALBUM_ITEMS).doc(albumItemId).collection(AlbumItemsSubcollection.REPORTS).doc(reportId) as DocumentReference<AlbumItemReportDoc, AlbumItemReportDoc>,
@@ -49,7 +70,7 @@ export async function createAlbumItemReportDoc(albumId: string, albumItemId: str
   return reportId;
 }
 
-export async function updateAlbumItemReportDoc(albumId: string, albumItemId: string, reportId: string, updates: Partial<AlbumItemReportDoc>, instance?: Transaction | WriteBatch): Promise<void> {
+export async function updateAlbumItemReportDoc(albumId: string, albumItemId: string, reportId: string, updates: UpdateData<AlbumItemReportDoc>, instance?: Transaction | WriteBatch): Promise<void> {
   await updateDoc<AlbumItemReportDoc>(
     adminDb.collection(RootLevelCollection.ALBUMS).doc(albumId).collection(AlbumsSubcollection.ALBUM_ITEMS).doc(albumItemId).collection(AlbumItemsSubcollection.REPORTS).doc(reportId) as DocumentReference<AlbumItemReportDoc, AlbumItemReportDoc>,
     updates,
@@ -62,4 +83,21 @@ export async function deleteAlbumItemReportDoc(albumId: string, albumItemId: str
     adminDb.collection(RootLevelCollection.ALBUMS).doc(albumId).collection(AlbumsSubcollection.ALBUM_ITEMS).doc(albumItemId).collection(AlbumItemsSubcollection.REPORTS).doc(reportId) as DocumentReference<AlbumItemReportDoc, AlbumItemReportDoc>,
     instance
   );
+}
+
+export async function getPendingReportDocByReporterId(albumId: string, albumItemId: string, reporterId: number, transaction?: Transaction): Promise<PendingAlbumItemReport | null> {
+  const snapshots = await executeQuery<PendingAlbumItemReportDoc>(
+    adminDb.collection(RootLevelCollection.ALBUMS).doc(albumId).collection(AlbumsSubcollection.ALBUM_ITEMS).doc(albumItemId).collection(AlbumItemsSubcollection.REPORTS) as CollectionReference<PendingAlbumItemReportDoc, PendingAlbumItemReportDoc>,
+    {
+      transaction,
+      queryOptions: {
+        where: [
+          { fieldPath: "reporterId", operation: "==", value: reporterId },
+          { fieldPath: 'status', operation: '==', value: 'PENDING' }
+        ],
+        limit: 1
+      }
+    }
+  )
+  return snapshots.length === 0 ? null : fromFirestore(snapshots[0]) as PendingAlbumItemReport;
 }

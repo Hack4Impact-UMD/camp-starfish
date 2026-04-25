@@ -8,7 +8,8 @@ import {
   DocumentReference,
   CollectionReference,
   UpdateData,
-  DocumentSnapshot
+  DocumentSnapshot,
+  WithFieldValue
 } from "firebase-admin/firestore";
 import {
   createDoc,
@@ -38,8 +39,7 @@ export async function getAllSessions(): Promise<Session[]> {
   return snapshots.map(fromFirestore);
 }
 
-export type CreateSessionDTO = SessionDoc;
-export async function setSession(session: CreateSessionDTO, instance?: Transaction | WriteBatch): Promise<string> {
+export async function setSession(session: WithFieldValue<SessionDoc>, instance?: Transaction | WriteBatch): Promise<string> {
   const sessionId = uuid();
   await createDoc<SessionDoc>(adminDb.collection(RootLevelCollection.SESSIONS).doc(sessionId) as DocumentReference<SessionDoc, SessionDoc>, session, instance);
   return sessionId;

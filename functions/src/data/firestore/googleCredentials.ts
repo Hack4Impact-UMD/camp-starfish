@@ -4,6 +4,8 @@ import {
   QueryDocumentSnapshot,
   DocumentReference,
   DocumentSnapshot,
+  WithFieldValue,
+  UpdateData,
 } from "firebase-admin/firestore";
 import { RootLevelCollection } from "@/data/firestore/types/collections";
 import { deleteDoc, getDoc, setDoc, updateDoc } from "./firestoreAdminOperations";
@@ -20,11 +22,11 @@ export async function getGoogleCredentialsByUid(uid: string, transaction?: Trans
   return fromFirestore(snapshot);
 }
 
-export async function setGoogleCredentials(uid: string, credentials: Credentials, instance?: Transaction | WriteBatch): Promise<void> {
+export async function setGoogleCredentials(uid: string, credentials: WithFieldValue<Credentials>, instance?: Transaction | WriteBatch): Promise<void> {
   await setDoc<Credentials>(adminDb.collection(RootLevelCollection.GOOGLE_OAUTH2_TOKENS).doc(uid) as DocumentReference<Credentials, Credentials>, credentials, { instance });
 }
 
-export async function updateGoogleCredentials(uid: string, updates: Partial<Credentials>, instance?: Transaction | WriteBatch): Promise<void> {
+export async function updateGoogleCredentials(uid: string, updates: UpdateData<Credentials>, instance?: Transaction | WriteBatch): Promise<void> {
   await updateDoc<Credentials>(adminDb.collection(RootLevelCollection.GOOGLE_OAUTH2_TOKENS).doc(uid) as DocumentReference<Credentials, Credentials>, updates, instance);
 }
 
