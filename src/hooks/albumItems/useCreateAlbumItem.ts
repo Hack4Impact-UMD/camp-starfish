@@ -23,10 +23,11 @@ async function createAlbumItem(req: CreateAlbumItemRequest) {
   });
   try {
     await uploadFile(req.albumItem, `albums/${albumId}/albumItems/${albumItemId}`);
+    return albumItemId;
   } catch {
     await deleteAlbumItemDoc(albumId, albumItemId);
+    throw Error("Failed to create album item");
   }
-  return albumItemId;
 }
 
 export default function useCreateAlbumItem() {

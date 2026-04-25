@@ -22,6 +22,7 @@ async function createAlbum(req: CreateAlbumRequest) {
     }
   } catch {
     await deleteAlbumDoc(albumId);
+    throw Error("Failed to create album");
   }
 }
 
