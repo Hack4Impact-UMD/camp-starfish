@@ -13,6 +13,10 @@ const nextConfig: NextConfig = {
         protocol: "http",
         hostname: "127.0.0.1",
         port: "9199"
+      } satisfies RemotePattern,
+      {
+        protocol: "https",
+        hostname: "firebasestorage.googleapis.com",
       } satisfies RemotePattern
     ]
   }
