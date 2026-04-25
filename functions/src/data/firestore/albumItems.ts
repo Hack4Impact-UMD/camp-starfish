@@ -13,7 +13,6 @@ function fromFirestore(snapshot: DocumentSnapshot<AlbumItemDoc, AlbumItemDoc> | 
   return {
     id: snapshot.ref.id,
     albumId: snapshot.ref.parent.parent!.id,
-    src: albumItemDoc.src,
     name: albumItemDoc.name,
     dateTaken: moment(albumItemDoc.dateTaken.toMillis()),
     inReview: albumItemDoc.inReview,

@@ -1,10 +1,9 @@
 import { AlbumsSubcollection, RootLevelCollection } from "@/data/firestore/types/collections";
 import { onDocumentCreated, onDocumentDeleted } from "firebase-functions/firestore";
-import { onObjectFinalized } from "firebase-functions/storage";
 import { getAlbumDoc, updateAlbumDoc } from "../data/firestore/albums";
 import { FieldValue, Timestamp, UpdateData } from "firebase-admin/firestore";
 import { deleteFile } from "../data/storage/storageAdminOperations";
-import { getNewestAlbumItemInAlbum, getOldestAlbumItemInAlbum, updateAlbumItemDoc } from "../data/firestore/albumItems";
+import { getNewestAlbumItemInAlbum, getOldestAlbumItemInAlbum } from "../data/firestore/albumItems";
 import { adminDb } from "../config/firebaseAdminConfig";
 import { AlbumDoc, AlbumItemDoc } from "@/data/firestore/types/documents";
 import { AlbumItem } from "@/types/albums/albumTypes";
@@ -65,16 +64,8 @@ const onAlbumItemDeleted = onDocumentDeleted(`/${RootLevelCollection.ALBUMS}/{al
   }
 })
 
-const onFileUploaded = onObjectFinalized(async (event) => {
-  const pathParts = event.data.name.split('/');
-  if (pathParts.length === 4 && pathParts[0] === 'albums' && pathParts[2] === 'albumItems') {
-    await updateAlbumItemDoc(pathParts[1], pathParts[3], { src: event.data.mediaLink });
-  }
-})
-
 export const albumsCloudFunctions = {
   onAlbumDeleted,
   onAlbumItemCreated,
-  onAlbumItemDeleted,
-  onFileUploaded
+  onAlbumItemDeleted
 }
