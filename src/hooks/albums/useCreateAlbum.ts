@@ -14,7 +14,7 @@ async function createAlbum(dto: CreateAlbumDTO) {
     numItems: 0,
     startDate: null,
     endDate: null,
-    ...(dto.linkedSessionId ? { linkedSessionId: dto.linkedSessionId } : {}),
+    linkedSessionId: dto.linkedSessionId
   });
   try {
     if (dto.thumbnail) {

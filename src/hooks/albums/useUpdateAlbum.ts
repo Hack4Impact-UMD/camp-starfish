@@ -11,12 +11,9 @@ interface UpdateAlbumRequest {
 }
 
 async function updateAlbum(dto: UpdateAlbumRequest): Promise<void> {
-  const { albumId, ...rest } = dto;
-  const updates: PartialWithFieldValue<AlbumDoc> = {};
-  if ('name' in dto) { updates.name = rest.name; }
-
+  const { albumId, ...updates } = dto;
   const promises = [];
-  if (Object.keys(updates).length !== 0) { promises.push(updateAlbumDoc(albumId, updates)); }
+  if (Object.values(updates).filter(value => value !== undefined).length !== 0) { promises.push(updateAlbumDoc(albumId, updates)); }
   if (dto.thumbnail) {
     promises.push(uploadFile(dto.thumbnail, `albums/${albumId}/thumbnail`));
   } else if (dto.thumbnail === null) {

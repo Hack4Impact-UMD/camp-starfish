@@ -62,16 +62,16 @@ async function updateAlbumItem(req: UpdateAlbumItemRequest) {
   if (needsWriteBatch) {
     const batch = writeBatch(db);
     await updateAlbumItemDoc(albumId, albumItemId, {
-      ...(req.name ? { name: req.name } : {}),
-      ...(req.inReview ? { inReview: req.inReview } : {}),
+      name: req.name,
+      inReview: req.inReview,
       ...tagChanges[0]
     }, batch);
     await updateAlbumItemDoc(albumId, albumItemId, tagChanges[1], batch);
     await batch.commit();
   } else {
     await updateAlbumItemDoc(albumId, albumItemId, {
-      ...(req.name ? { name: req.name } : {}),
-      ...(req.inReview ? { inReview: req.inReview } : {}),
+      name: req.name,
+      inReview: req.inReview,
       ...tagChanges[0]
     })
   }
