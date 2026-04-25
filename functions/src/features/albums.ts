@@ -58,7 +58,11 @@ const onAlbumItemDeleted = onDocumentDeleted(`/${RootLevelCollection.ALBUMS}/{al
         endDate: Timestamp.fromDate(newestAlbumItem.dateTaken.toDate())
       }, transaction)
     });
-  } catch { }
+  } catch (error) {
+    if (!(error instanceof Error) || error.message !== "Can't update a document that doesn't exist") {
+      throw error;
+    }
+  }
 })
 
 const onFileUploaded = onObjectFinalized(async (event) => {
