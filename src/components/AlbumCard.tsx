@@ -4,6 +4,7 @@ import ErrorPage from "@/app/error";
 import LoadingPage from "@/app/loading";
 import { useRouter } from "next/navigation";
 import { Album } from "@/types/albums/albumTypes";
+import useAlbumThumbnailSrc from "@/hooks/albums/useAlbumThumbnailSrc";
 interface AlbumCardProps {
   albumId: string;
 }
@@ -25,6 +26,7 @@ function getAlbumCardText(album: Album) {
 export default function AlbumCard(props: AlbumCardProps) {
   const { albumId } = props;
   const albumQuery = useAlbum(albumId);
+  const thumbnailSrcQuery = useAlbumThumbnailSrc(albumQuery.data);
 
   const router = useRouter();
 
@@ -41,7 +43,7 @@ export default function AlbumCard(props: AlbumCardProps) {
       onDoubleClick={() => router.push(`/albums/${album.id}`)}
     >
       <Image
-        src={album.thumbnailSrc}
+        src={thumbnailSrcQuery.data}
         alt={album.name}
         className="w-full h-48 object-contain"
         width={200}
