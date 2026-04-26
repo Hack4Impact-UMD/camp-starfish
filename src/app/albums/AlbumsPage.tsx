@@ -55,9 +55,10 @@ export default function AlbumsPage() {
 
   const { ref, inViewport } = useInViewport();
 
+  const { hasNextPage, isFetchingNextPage, fetchNextPage } = albumsQuery;
   useEffect(() => {
-    if (inViewport && albumsQuery.hasNextPage) {
-      albumsQuery.fetchNextPage();
+    if (inViewport && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
     }
   }, [inViewport, albumsQuery]);
   
@@ -141,7 +142,7 @@ export default function AlbumsPage() {
             items={albums}
             renderItem={(album: Album) => <AlbumCard albumId={album.id} />}
           />
-          {albumsQuery.isFetching && <div className="w-1/3 self-center"><LoadingAnimation /></div>}
+          {albumsQuery.isFetchingNextPage && <div className="w-1/3 self-center"><LoadingAnimation /></div>}
           {!albumsQuery.hasNextPage && <Text>No more albums</Text>}
           <div className="invisible" ref={ref} />
         </>
