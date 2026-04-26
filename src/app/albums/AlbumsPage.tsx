@@ -19,7 +19,7 @@ import {
 } from "@mantine/core";
 import { MdAdd, MdPendingActions, MdSort } from "react-icons/md";
 import Link from "next/link";
-import { QueryOptions } from "@/data/firestore/firestoreClientOperations";
+import { QueryOptions } from "@/data/firestore/types/queries";
 import { AlbumDoc } from "@/data/firestore/types/documents";
 import { useInViewport } from "@mantine/hooks";
 import LoadingAnimation from "@/components/LoadingAnimation";
