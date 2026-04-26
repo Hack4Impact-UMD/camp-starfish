@@ -6,6 +6,7 @@ import loadingAnimation25 from "@/assets/loading/loadingAnimation25.svg";
 import loadingAnimation50 from "@/assets/loading/loadingAnimation50.svg";
 import loadingAnimation75 from "@/assets/loading/loadingAnimation75.svg";
 import loadingAnimation100 from "@/assets/loading/loadingAnimation100.svg";
+import { Image } from "@mantine/core";
 
 const svgFiles = [
   loadingAnimation25,
@@ -26,12 +27,11 @@ function LoadingAnimation() {
 
   return (
     <div className="flex flex-col items-center justify-center border-4 border-green-5">
-      <motion.img
+      <Image
         src={svgFiles[animationIdx]?.src} // Load current SVG file
         alt={`Loading animation ${animationIdx + 1}`}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }} // Show active animation
-        transition={{ duration: 0.5 }} // Smooth fading transition
+        width={200}
+        height={200}
         style={{
           height: "100%",
           width: "100%",

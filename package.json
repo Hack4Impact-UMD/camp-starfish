@@ -34,7 +34,6 @@
     "dayjs": "^1.11.18",
     "embla-carousel-react": "^8.6.0",
     "firebase": "^11.10.0",
-    "framer-motion": "^12.4.7",
     "lucide-react": "^0.482.0",
     "mime-types": "^3.0.1",
     "moment": "^2.30.1",
