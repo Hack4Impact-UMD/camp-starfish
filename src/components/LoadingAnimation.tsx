@@ -7,46 +7,38 @@ import loadingAnimation50 from "@/assets/loading/loadingAnimation50.svg";
 import loadingAnimation75 from "@/assets/loading/loadingAnimation75.svg";
 import loadingAnimation100 from "@/assets/loading/loadingAnimation100.svg";
 
-/**
- * Loading Animation Component
- * Looping animation using 4 SVG images. Cycles through each image 
- * every 500ms. Uses Framer Motion for smooth transitions.
- */
+const svgFiles = [
+    loadingAnimation25,
+    loadingAnimation50,
+    loadingAnimation75,
+    loadingAnimation100,
+];
+
+
 function LoadingAnimation() {
-    // Array of SVG files
-    const svgFiles = [
-        loadingAnimation25,
-        loadingAnimation50,
-        loadingAnimation75,
-        loadingAnimation100,
-    ];
     const [animationIdx, setAnimationIdx] = useState(0); // Track current loading animation
 
-    /**
-     * Cycle through loading animations every 500ms
-     */
     useEffect(() => {
         const timeout = setTimeout(() => {
             setAnimationIdx((prev) => (prev < svgFiles.length - 1 ? prev + 1 : 0));
-        }, 500);
+        }, 400);
         return () => clearTimeout(timeout);
     }, [animationIdx, svgFiles.length]);
 
     return (
-        <div className="flex flex-col items-center justify-center h-screen bg-white">
-                {svgFiles.map((file, index) => (
+        <div className="flex flex-col items-center justify-center border-4 border-green-5">
                     <motion.img
-                        key={index}
-                        src={file.src} // Load current SVG file
-                        alt={`Loading animation ${index + 1}`}
+                        src={svgFiles[animationIdx]?.src} // Load current SVG file
+                        alt={`Loading animation ${animationIdx + 1}`}
                         initial={{ opacity: 0 }}
-                        animate={{ opacity: animationIdx === index ? 1 : 0, scale: 2.75 }} // Show active animation
+                        animate={{ opacity: 1 }} // Show active animation
                         transition={{ duration: 0.5 }} // Smooth fading transition
                         style={{
-                            position: "absolute", // Position each SVG on top of each other
+                            height: '100%',
+                            width: '100%'
                         }}
                     />
-                ))}
+                
         </div>
     );
 }
