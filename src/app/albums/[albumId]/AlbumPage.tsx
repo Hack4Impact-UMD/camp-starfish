@@ -13,6 +13,7 @@ import moment from "moment";
 import { QueryOptions } from "@/data/firestore/types/queries";
 import { AlbumItemDoc } from "@/data/firestore/types/documents";
 import useAlbum from "@/hooks/albums/useAlbum";
+import useAlbumItemsList from "@/hooks/albumItems/useAlbumItemsList";
 
 const dates = [
   "2023-06-17",
@@ -74,9 +75,12 @@ export default function AlbumPage(props: AlbumPageProps) {
   const { albumId } = props;
 
   const [selectedTags, setSelectedTags] = useState<(typeof allTags)[0][]>([]);
-  const [sortOrder, setSortOrder] = useState<AlbumPageSortOption>(AlbumPageSortOption.NEWEST_TO_OLDEST);
+  const [sortOption, setSortOption] = useState<AlbumPageSortOption>(AlbumPageSortOption.NEWEST_TO_OLDEST);
   const [showSortDropdown, setShowSortDropdown] = useState(false);
   const [filteredImages, setFilteredImages] = useState<AlbumItem[]>([]);
+
+  const albumQuery = useAlbum(albumId);
+  const albumItemsQuery = useAlbumItemsList(albumId, sortQueryOptions[sortOption]);
 
   const initialImages: AlbumItem[] = [];
   for (let i = 0; i < 10; i++) {
@@ -105,25 +109,25 @@ export default function AlbumPage(props: AlbumPageProps) {
   initialImages[8].tagIds.approved = [4, 5, 6];
   initialImages[9].tagIds.approved = [7, 8, 9];
 
-  const [images] = useState<AlbumItem[]>(initialImages);
+  const [albumItems] = useState<AlbumItem[]>(initialImages);
 
   // Update filtered images whenever selected tags or images change
   useEffect(() => {
     if (selectedTags.length > 0) {
-      const filtered = images.filter((image) => {
+      const filtered = albumItems.filter((image) => {
         return selectedTags.some((tag) =>
           image.tagIds.approved.includes(Number(tag)),
         );
       });
       setFilteredImages(filtered);
     } else {
-      setFilteredImages(images);
+      setFilteredImages(albumItems);
     }
-  }, [selectedTags, images]);
+  }, [selectedTags, albumItems]);
 
   // Sort images based on selected sort order
   const sortedImages = [...filteredImages].sort((a, b) => {
-    if (sortOrder === "oldest-newest") {
+    if (sortOption === "oldest-newest") {
       return a.dateTaken.diff(b.dateTaken);
     } else {
       return b.dateTaken.diff(a.dateTaken);
@@ -137,7 +141,7 @@ export default function AlbumPage(props: AlbumPageProps) {
   const sortedDates = [...filteredDates].sort((a, b) => {
     const dateA = dateObjects[dates.indexOf(a.format("YYYY-MM-DD"))];
     const dateB = dateObjects[dates.indexOf(b.format("YYYY-MM-DD"))];
-    if (sortOrder === "oldest-newest") {
+    if (sortOption === "oldest-newest") {
       return dateA.getTime() - dateB.getTime();
     } else {
       return dateB.getTime() - dateA.getTime();
@@ -217,26 +221,26 @@ export default function AlbumPage(props: AlbumPageProps) {
               {showSortDropdown && (
                 <div className="absolute right-0 mt-2 w-60 bg-white rounded-md shadow-lg z-10 border border-gray-200">
                   <div
-                    className={`px-4 py-2 hover:bg-gray-300 text-black cursor-pointer ${sortOrder === "oldest-newest" ? "bg-gray-300 font-medium" : ""}`}
+                    className={`px-4 py-2 hover:bg-gray-300 text-black cursor-pointer ${sortOption === "oldest-newest" ? "bg-gray-300 font-medium" : ""}`}
                     onClick={() => {
-                      setSortOrder("oldest-newest");
+                      setSortOption("oldest-newest");
                       setShowSortDropdown(false);
                     }}
                   >
                     Oldest → Newest
-                    {sortOrder === "oldest-newest" && (
+                    {sortOption === "oldest-newest" && (
                       <span className="ml-2 text-camp-primary">✓</span>
                     )}
                   </div>
                   <div
-                    className={`px-4 py-2 hover:bg-gray-300 text-black cursor-pointer ${sortOrder === "newest-oldest" ? "bg-gray-300 font-medium" : ""}`}
+                    className={`px-4 py-2 hover:bg-gray-300 text-black cursor-pointer ${sortOption === "newest-oldest" ? "bg-gray-300 font-medium" : ""}`}
                     onClick={() => {
-                      setSortOrder("newest-oldest");
+                      setSortOption("newest-oldest");
                       setShowSortDropdown(false);
                     }}
                   >
                     Newest → Oldest
-                    {sortOrder === "newest-oldest" && (
+                    {sortOption === "newest-oldest" && (
                       <span className="ml-2 text-camp-primary">✓</span>
                     )}
                   </div>
