@@ -25,7 +25,7 @@ export default function useAlbums(queryOptions?: QueryOptions<AlbumDoc>) {
           updatedQueryOptions.endAt = undefined;
         }
       }
-      const albumsPage = await getAlbumDocs(queryOptions);
+      const albumsPage = await getAlbumDocs(updatedQueryOptions);
       albumsPage.docs.forEach((album: Album) => queryClient.setQueryData(['albums', album.id], album))
       return albumsPage;
     },

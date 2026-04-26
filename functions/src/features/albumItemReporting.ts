@@ -28,7 +28,6 @@ async function createAlbumItemReport(req: CreateAlbumItemReportRequest) {
 }
 
 export const createAlbumItemReportCloudFunction = onCall(async (req: CallableRequest<CreateAlbumItemReportRequest>) => {
-  console.log(process.env.NODE_ENV);
   const allowedRoles: Role[] = ["STAFF", "ADMIN"];
   if (!allowedRoles.includes(req.auth?.token.role)) {
     throw new HttpsError("permission-denied", "User does not have permission to create an album item report.");
