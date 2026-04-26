@@ -2,18 +2,18 @@
 
 import { useEffect, useState } from "react";
 import loadingAnimation0 from "@/assets/loading/loadingAnimation0.svg";
-import loadingAnimation25 from "@/assets/loading/loadingAnimation25.svg";
-import loadingAnimation50 from "@/assets/loading/loadingAnimation50.svg";
-import loadingAnimation75 from "@/assets/loading/loadingAnimation75.svg";
-import loadingAnimation100 from "@/assets/loading/loadingAnimation100.svg";
+import loadingAnimation1 from "@/assets/loading/loadingAnimation1.svg";
+import loadingAnimation2 from "@/assets/loading/loadingAnimation2.svg";
+import loadingAnimation3 from "@/assets/loading/loadingAnimation3.svg";
+import loadingAnimation4 from "@/assets/loading/loadingAnimation4.svg";
 import { Image } from "@mantine/core";
 
 const svgFiles = [
   loadingAnimation0,
-  loadingAnimation25,
-  loadingAnimation50,
-  loadingAnimation75,
-  loadingAnimation100,
+  loadingAnimation1,
+  loadingAnimation2,
+  loadingAnimation3,
+  loadingAnimation4,
 ];
 
 function LoadingAnimation() {
