@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import blank from "@/assets/loading/image.svg";
 import loadingAnimation25 from "@/assets/loading/loadingAnimation25.svg";
 import loadingAnimation50 from "@/assets/loading/loadingAnimation50.svg";
 import loadingAnimation75 from "@/assets/loading/loadingAnimation75.svg";
@@ -9,6 +9,7 @@ import loadingAnimation100 from "@/assets/loading/loadingAnimation100.svg";
 import { Image } from "@mantine/core";
 
 const svgFiles = [
+  blank,
   loadingAnimation25,
   loadingAnimation50,
   loadingAnimation75,
