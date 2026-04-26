@@ -29,7 +29,7 @@ function LoadingAnimation() {
   return (
     <Image
       src={svgFiles[animationIdx].src}
-      alt={`Loading animation ${animationIdx + 1}`}
+      alt="Loading"
       className="w-full h-full"
       width={200}
       height={200}
