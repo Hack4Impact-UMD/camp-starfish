@@ -143,7 +143,7 @@ export default function AlbumsPage() {
             renderItem={(album: Album) => <AlbumCard albumId={album.id} />}
           />
           {albumsQuery.isFetchingNextPage && <div className="w-1/3 self-center"><LoadingAnimation /></div>}
-          {!albumsQuery.hasNextPage && <Text>No more albums</Text>}
+          {!albumsQuery.hasNextPage && <Title order={4} classNames={{ root: "self-center" }}>All Done!</Title>}
           <div className="invisible" ref={ref} />
         </>
       )}
