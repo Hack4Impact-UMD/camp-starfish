@@ -66,7 +66,13 @@ const sortQueryOptions: Record<AlbumPageSortOption, QueryOptions<AlbumItemDoc>> 
   "Z → A": { orderBy: [{ fieldPath: "name", direction: "desc" }] },
 };
 
-const AlbumPage: React.FC = () => {
+interface AlbumPageProps {
+  albumId: string;
+}
+
+export default function AlbumPage(props: AlbumPageProps) {
+  const { albumId } = props;
+
   const [selectedTags, setSelectedTags] = useState<(typeof allTags)[0][]>([]);
   const [sortOrder, setSortOrder] = useState<AlbumPageSortOption>(AlbumPageSortOption.NEWEST_TO_OLDEST);
   const [showSortDropdown, setShowSortDropdown] = useState(false);
@@ -177,7 +183,6 @@ const AlbumPage: React.FC = () => {
     }
   };
 
-  const albumId = "album-1";
   const title = "Unknown Album";
   const session = "No Session";
 
@@ -295,5 +300,3 @@ const AlbumPage: React.FC = () => {
     </div>
   );
 };
-
-export default AlbumPage;
