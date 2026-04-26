@@ -21,10 +21,10 @@ function LoadingAnimation() {
 
   useEffect(() => {
     const timeout = setTimeout(() => {
-      setAnimationIdx((prev) => (prev < svgFiles.length - 1 ? prev + 1 : 0));
+      setAnimationIdx((prev) => (prev + 1) % svgFiles.length);
     }, 300);
     return () => clearTimeout(timeout);
-  }, [animationIdx, svgFiles.length]);
+  }, [animationIdx]);
 
   return (
     <Image

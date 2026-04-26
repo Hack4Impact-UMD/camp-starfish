@@ -58,7 +58,7 @@ export default function AlbumsPage() {
     if (inViewport && albumsQuery.hasNextPage) {
       albumsQuery.fetchNextPage();
     }
-  }, [inViewport]);
+  }, [inViewport, albumsQuery]);
   
   if (albumsQuery.isError) {
     return <ErrorPage error={albumsQuery.error} />;
