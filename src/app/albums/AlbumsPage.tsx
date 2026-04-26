@@ -13,6 +13,7 @@ import {
   Button,
   Indicator,
   Menu,
+  Text,
   Title,
   Tooltip,
 } from "@mantine/core";
@@ -141,6 +142,7 @@ export default function AlbumsPage() {
             renderItem={(album: Album) => <AlbumCard albumId={album.id} />}
           />
           {albumsQuery.isFetching && <div className="w-1/3 self-center"><LoadingAnimation /></div>}
+          {!albumsQuery.hasNextPage && <Text>No more albums</Text>}
           <div className="invisible" ref={ref} />
         </>
       )}
