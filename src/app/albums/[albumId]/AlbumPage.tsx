@@ -3,16 +3,21 @@ import UploadIcon from "@/assets/icons/Upload.svg";
 import filterIcon from "@/assets/icons/filterIcon.svg";
 import PendingIcon from "@/assets/icons/Pending.svg";
 import DownloadIcon from "@/assets/icons/Download.svg";
-import TestPicture from "@/assets/images/PolaroidPhotos1.png"; // Replace with actual image URL
 import Link from "next/link";
 import ImageCard from "@/components/ImageCard";
 import CardGallery from "@/components/CardGallery";
-import { ImageID } from "@/types/albumTypes";
 import Tagging from "@/components/Tagging";
-import FileUploadModal from "@/components/FileUploadModal";
 import JSZip from "jszip";
+import { AlbumItem } from "@/types/albums/albumTypes";
+import moment from "moment";
 
-const AlbumPage: React.FC = () => {
+  const dates = [
+    "2023-06-17",
+    "2023-06-18",
+    "2023-06-19",
+    "2023-06-20",
+    "2023-06-21",
+  ];
 
     const dateObjects = [
         new Date(2023, 5, 17), // June 17
@@ -21,15 +26,7 @@ const AlbumPage: React.FC = () => {
         new Date(2023, 5, 20), // June 20
         new Date(2023, 5, 21), // June 21
     ]
-
-    const dates = [
-        "Mon, June 17",
-        "Tues, June 18",
-        "Wed, June 19",
-        "Thurs, June 20",
-        "Fri, June 21",
-    ];
-
+    
     const allTags = [
         { id: "1", name: "Claire C." },
         { id: "2", name: "Nitin K." },
@@ -48,46 +45,46 @@ const AlbumPage: React.FC = () => {
         { id: "15", name: "Saharsh M." },
     ]
 
+const AlbumPage: React.FC = () => {
     const [selectedTags, setSelectedTags] = useState<typeof allTags[0][]>([]);
     const [sortOrder, setSortOrder] = useState<"oldest-newest" | "newest-oldest">("oldest-newest");
     const [showSortDropdown, setShowSortDropdown] = useState(false);
-    const [filteredImages, setFilteredImages] = useState<ImageID[]>([]);
+    const [filteredImages, setFilteredImages] = useState<AlbumItem[]>([]);
 
-    // Initial images (for testing purposes, replace with actual data)
-    const initialImages: ImageID[] = [];
-    for (let i = 0; i < 10; i++) {
-        const dateIndex = i % 5;
-        initialImages.push({
-            src: TestPicture.src,
-            name: "Image " + i,
-            tags: [],
-            dateTaken: dates[i % 5],
-            dateObject: dateObjects[dateIndex],
-            inReview: false,
-            id: i.toString(),
-            albumId: "iug"
-        });
-    }
+  const initialImages: AlbumItem[] = [];
+  for (let i = 0; i < 10; i++) {
+    initialImages.push({
+      name: "Image " + i,
+      tagIds: {
+        approved: [],
+        inReview: [],
+      },
+      dateTaken: moment(dates[i % 5]),
+      inReview: false,
+      id: i.toString(),
+      albumId: "iug",
+    });
+  }
 
     // Manual tags (randomized, for testing purposes)
-    initialImages[0].tags = ['1', '2'];
-    initialImages[1].tags = ['3', '4'];
-    initialImages[2].tags = ['5', '6', '7'];
-    initialImages[3].tags = ['1', '8'];
-    initialImages[4].tags = ['9', '10', '11'];
-    initialImages[5].tags = ['12', '13'];
-    initialImages[6].tags = ['14', '15'];
-    initialImages[7].tags = ['1', '2', '3'];
-    initialImages[8].tags = ['4', '5', '6'];
-    initialImages[9].tags = ['7', '8', '9'];
+    initialImages[0].tagIds.approved = [1, 2];
+    initialImages[1].tagIds.approved = [3, 4];
+    initialImages[2].tagIds.approved = [5, 6, 7];
+    initialImages[3].tagIds.approved = [1, 8];
+    initialImages[4].tagIds.approved = [9, 10, 11];
+    initialImages[5].tagIds.approved = [12, 13];
+    initialImages[6].tagIds.approved = [14, 15];
+    initialImages[7].tagIds.approved = [1, 2, 3];
+    initialImages[8].tagIds.approved = [4, 5, 6];
+    initialImages[9].tagIds.approved = [7, 8, 9];
 
-    const [images] = useState<ImageID[]>(initialImages);
+    const [images] = useState<AlbumItem[]>(initialImages);
 
-    // Update filtered images whenever selected tags or images change
+        // Update filtered images whenever selected tags or images change
     useEffect(() => {
         if (selectedTags.length > 0) {
             const filtered = images.filter(image => {
-                return selectedTags.some(tag => image.tags.includes(tag.id));
+                return selectedTags.some(tag => image.tagIds.approved.includes(Number(tag)));
             });
             setFilteredImages(filtered);
         } else {
@@ -98,17 +95,17 @@ const AlbumPage: React.FC = () => {
     // Sort images based on selected sort order
     const sortedImages = [...filteredImages].sort((a, b) => {
         if (sortOrder === "oldest-newest") {
-            return a.dateObject.getTime() - b.dateObject.getTime();
+            return a.dateTaken.diff(b.dateTaken);
         } else {
-            return b.dateObject.getTime() - a.dateObject.getTime();
+            return b.dateTaken.diff(a.dateTaken);
         }
     });
 
     // Get unique dates from filtered images for grouping
     const filteredDates = [...new Set(filteredImages.map(image => image.dateTaken))];
     const sortedDates = [...filteredDates].sort((a, b) => {
-        const dateA = dateObjects[dates.indexOf(a)];
-        const dateB = dateObjects[dates.indexOf(b)];
+        const dateA = dateObjects[dates.indexOf(a.format("YYYY-MM-DD"))];
+        const dateB = dateObjects[dates.indexOf(b.format("YYYY-MM-DD"))];
         if (sortOrder === "oldest-newest") {
             return dateA.getTime() - dateB.getTime();
         } else {
@@ -131,7 +128,7 @@ const AlbumPage: React.FC = () => {
 
             // Add each image to zip file
             await Promise.all(filteredImages.map(async (image, index) => {
-                const response = await fetch(image.src);
+                const response = await fetch("");
                 const blob = await response.blob();
                 imgFolder?.file(`image_${index + 1}.jpg`, blob);
             }));
@@ -243,17 +240,17 @@ const AlbumPage: React.FC = () => {
                 </div>
 
                 {/* Content */}
-                <CardGallery<ImageID>
+                <CardGallery<AlbumItem>
                     items={sortedImages}
-                    renderItem={(image: ImageID, isSelected: boolean) => <ImageCard image={image} isSelected={isSelected} />}
+                    renderItem={(image: AlbumItem, isSelected: boolean) => <ImageCard image={image} isSelected={isSelected} />}
                     groups={{
-                        groupLabels: sortedDates,
+                        groupLabels: sortedDates.map(date => date.format("YYYY-MM-DD")),
                         defaultGroupLabel: "Date Unknown",
-                        groupFunc: (image: ImageID) => image.dateTaken
+                        groupFunc: (image: AlbumItem) => image.dateTaken.format("YYYY-MM-DD")
                     }} />
             </div>
         </div>
-    );
+  );
 };
 
 export default AlbumPage;

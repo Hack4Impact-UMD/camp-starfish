@@ -1,10 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import { ImageID } from "@/types/albumTypes";
+import { AlbumItem } from "@/types/albums/albumTypes";
 
 interface ImageCardProps {
-  image: ImageID;
+  image: AlbumItem;
   isSelected: boolean;
 }
 
@@ -18,7 +18,7 @@ export default function ImageCard(props: ImageCardProps) {
       }`}
     >
       <Image
-        src={image.src}
+        src={""}
         alt={`${image.name}`}
         width={200}
         height={200}

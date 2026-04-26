@@ -1,53 +1,46 @@
 import { db } from "@/config/firebase";
-import { Album, AlbumID } from "@/types/albumTypes";
-import { randomUUID } from "crypto";
-import { doc, collection, Transaction, getDoc, WriteBatch, updateDoc, deleteDoc, setDoc } from "firebase/firestore";
-import { Collection } from "./utils";
+import { Album } from "@/types/albums/albumTypes";
+import { AlbumDoc } from "./types/documents";
+import { v4 as uuid } from "uuid";
+import { RootLevelCollection } from "./types/collections";
+import { setDoc, deleteDoc, getDoc, updateDoc, executeQuery, QueryOptions, mapSnapshotsToPaginatedQueryResult, PaginatedQueryResponse } from "./firestoreClientOperations";
+import { collection, CollectionReference, doc, DocumentReference, DocumentSnapshot, QueryDocumentSnapshot, Transaction, UpdateData, WithFieldValue, WriteBatch } from "firebase/firestore";
+import moment from "moment";
 
-export async function getAlbumById(id: string, transaction?: Transaction): Promise<AlbumID> {
-  const albumRef = doc(db, Collection.ALBUMS, id);
-  let albumDoc;
-  try {
-    albumDoc = await (transaction ? transaction.get(albumRef) : getDoc(albumRef));
-  } catch (error: any) {
-    throw new Error(`Failed to get album: ${error.code}`);
-  }
-  if (!albumDoc.exists()) {
-    throw new Error("Album not found");
-  }
-  return { id: albumDoc.id, ...albumDoc.data() } as AlbumID;
-}
-
-export async function createAlbum(album: Album, instance?: Transaction | WriteBatch): Promise<string> {
-  try {
-    const id = randomUUID();
-    const albumRef = doc(db, Collection.ALBUMS, id);
-    // @ts-ignore
-    await (instance ? instance.set(id, album) : setDoc(albumRef, album));
-    return id;
-  } catch (error: any) {
-    throw new Error(`Failed to create album: ${error.code}`);
+function fromFirestore(snapshot: DocumentSnapshot<AlbumDoc, AlbumDoc> | QueryDocumentSnapshot<AlbumDoc, AlbumDoc>): Album {
+  if (!snapshot.exists()) { throw Error("Document not found"); }
+  const albumDoc = snapshot.data();
+  return {
+    id: snapshot.ref.id,
+    name: albumDoc.name,
+    numItems: albumDoc.numItems,
+    hasThumbnail: albumDoc.hasThumbnail,
+    startDate: albumDoc.startDate ? moment(albumDoc.startDate.toMillis()) : null,
+    endDate: albumDoc.endDate ? moment(albumDoc.endDate.toMillis()) : null,
+    linkedSessionId: albumDoc.linkedSessionId
   }
 }
 
-export async function updateAlbum(id: string, updates: Partial<Album>, instance?: Transaction | WriteBatch) {
-  try {
-    const albumRef = doc(db, Collection.ALBUMS, id);
-    // @ts-ignore
-    await (instance ? instance.update(albumRef, updates) : updateDoc(albumRef, updates));
-  } catch (error: any) {
-    if (error.code === "not-found") {
-      throw new Error("Album not found");
-    }
-    throw new Error(`Failed to update album: ${error.code}`);
-  }
+export async function getAlbumDoc(id: string, transaction?: Transaction): Promise<Album> {
+  const snapshot = await getDoc<AlbumDoc>(doc(db, RootLevelCollection.ALBUMS, id) as DocumentReference<AlbumDoc, AlbumDoc>, transaction);
+  return fromFirestore(snapshot);
 }
 
-export async function deleteAlbum(id: string, instance?: Transaction | WriteBatch) {
-  try {
-    const albumRef = doc(db, Collection.ALBUMS, id);
-    await (instance ? instance.delete(albumRef) : deleteDoc(albumRef));
-  } catch (error: any) {
-    throw new Error(`Failed to delete album: ${error.code}`);
-  }
+export async function getAlbumDocs(queryOptions?: QueryOptions<AlbumDoc>): Promise<PaginatedQueryResponse<Album, AlbumDoc>> {
+  const snapshots = await executeQuery<AlbumDoc>(collection(db, RootLevelCollection.ALBUMS) as CollectionReference<AlbumDoc, AlbumDoc>, queryOptions);
+  return mapSnapshotsToPaginatedQueryResult(snapshots, fromFirestore);
+}
+
+export async function createAlbumDoc(album: WithFieldValue<AlbumDoc>, instance?: Transaction | WriteBatch): Promise<string> {
+  const albumId = uuid();
+  await setDoc<AlbumDoc>(doc(db, RootLevelCollection.ALBUMS, albumId) as DocumentReference<AlbumDoc, AlbumDoc>, album, { instance });
+  return albumId;
+}
+
+export async function updateAlbumDoc(id: string, updates: UpdateData<AlbumDoc>, instance?: Transaction | WriteBatch): Promise<void> {
+  await updateDoc<AlbumDoc>(doc(db, RootLevelCollection.ALBUMS, id) as DocumentReference<AlbumDoc, AlbumDoc>, updates, instance);
+}
+
+export async function deleteAlbumDoc(id: string, instance?: Transaction | WriteBatch): Promise<void> {
+  await deleteDoc<AlbumDoc>(doc(db, RootLevelCollection.ALBUMS, id) as DocumentReference<AlbumDoc, AlbumDoc>, instance);
 }
