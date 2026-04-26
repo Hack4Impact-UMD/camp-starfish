@@ -54,7 +54,6 @@ export default function AlbumsPage() {
   const { ref, inViewport } = useInViewport();
 
   useEffect(() => {
-    console.log(inViewport, albumsQuery.hasNextPage);
     if (inViewport && albumsQuery.hasNextPage) {
       albumsQuery.fetchNextPage();
     }
