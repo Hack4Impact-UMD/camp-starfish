@@ -82,34 +82,7 @@ export default function AlbumPage(props: AlbumPageProps) {
   const albumQuery = useAlbum(albumId);
   const albumItemsQuery = useAlbumItemsList(albumId, sortQueryOptions[sortOption]);
 
-  const initialImages: AlbumItem[] = [];
-  for (let i = 0; i < 10; i++) {
-    initialImages.push({
-      name: "Image " + i,
-      tagIds: {
-        approved: [],
-        inReview: [],
-      },
-      dateTaken: moment(dates[i % 5]),
-      inReview: false,
-      id: i.toString(),
-      albumId: "iug",
-    });
-  }
-
-  // Manual tags (randomized, for testing purposes)
-  initialImages[0].tagIds.approved = [1, 2];
-  initialImages[1].tagIds.approved = [3, 4];
-  initialImages[2].tagIds.approved = [5, 6, 7];
-  initialImages[3].tagIds.approved = [1, 8];
-  initialImages[4].tagIds.approved = [9, 10, 11];
-  initialImages[5].tagIds.approved = [12, 13];
-  initialImages[6].tagIds.approved = [14, 15];
-  initialImages[7].tagIds.approved = [1, 2, 3];
-  initialImages[8].tagIds.approved = [4, 5, 6];
-  initialImages[9].tagIds.approved = [7, 8, 9];
-
-  const [albumItems] = useState<AlbumItem[]>(initialImages);
+  const albumItems = albumItemsQuery.data?.pages.flatMap(page => page.docs) || [];
 
   // Update filtered images whenever selected tags or images change
   useEffect(() => {
