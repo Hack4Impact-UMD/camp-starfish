@@ -10,6 +10,9 @@ import Tagging from "@/components/Tagging";
 import JSZip from "jszip";
 import { AlbumItem } from "@/types/albums/albumTypes";
 import moment from "moment";
+import { QueryOptions } from "@/data/firestore/types/queries";
+import { AlbumItemDoc } from "@/data/firestore/types/documents";
+import useAlbum from "@/hooks/albums/useAlbum";
 
 const dates = [
   "2023-06-17",
@@ -45,11 +48,27 @@ const allTags = [
   { id: "15", name: "Saharsh M." },
 ];
 
+const enum AlbumPageSortOption {
+  NEWEST_TO_OLDEST = "Newest → Oldest",
+  OLDEST_TO_NEWEST = "Oldest → Newest",
+  A_TO_Z = "A → Z",
+  Z_TO_A = "Z → A",
+}
+
+const sortQueryOptions: Record<AlbumPageSortOption, QueryOptions<AlbumItemDoc>> = {
+  "Newest → Oldest": {
+    orderBy: [{ fieldPath: "dateTaken", direction: "desc" }],
+  },
+  "Oldest → Newest": {
+    orderBy: [{ fieldPath: "dateTaken", direction: "asc" }],
+  },
+  "A → Z": { orderBy: [{ fieldPath: "name", direction: "asc" }] },
+  "Z → A": { orderBy: [{ fieldPath: "name", direction: "desc" }] },
+};
+
 const AlbumPage: React.FC = () => {
   const [selectedTags, setSelectedTags] = useState<(typeof allTags)[0][]>([]);
-  const [sortOrder, setSortOrder] = useState<"oldest-newest" | "newest-oldest">(
-    "oldest-newest",
-  );
+  const [sortOrder, setSortOrder] = useState<AlbumPageSortOption>(AlbumPageSortOption.NEWEST_TO_OLDEST);
   const [showSortDropdown, setShowSortDropdown] = useState(false);
   const [filteredImages, setFilteredImages] = useState<AlbumItem[]>([]);
 
