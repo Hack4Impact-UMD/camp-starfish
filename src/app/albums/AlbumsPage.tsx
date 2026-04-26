@@ -21,6 +21,7 @@ import Link from "next/link";
 import { QueryOptions } from "@/data/firestore/firestoreClientOperations";
 import { AlbumDoc } from "@/data/firestore/types/documents";
 import { useInViewport } from "@mantine/hooks";
+import LoadingAnimation from "@/components/LoadingAnimation";
 
 const enum AlbumsPageSortOption {
   NEWEST_TO_OLDEST = "Newest → Oldest",
@@ -139,7 +140,7 @@ export default function AlbumsPage() {
             items={albums}
             renderItem={(album: Album) => <AlbumCard albumId={album.id} />}
           />
-          {true && <div className="w-1/3 self-center"><LoadingAnimation /></div>}
+          {albumsQuery.isFetching && <div className="w-1/3 self-center"><LoadingAnimation /></div>}
           <div className="invisible" ref={ref} />
         </>
       )}
