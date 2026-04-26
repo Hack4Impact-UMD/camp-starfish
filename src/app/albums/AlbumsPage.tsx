@@ -139,6 +139,7 @@ export default function AlbumsPage() {
             items={albums}
             renderItem={(album: Album) => <AlbumCard albumId={album.id} />}
           />
+          {true && <div className="w-1/3 self-center"><LoadingAnimation /></div>}
           <div className="invisible" ref={ref} />
         </>
       )}

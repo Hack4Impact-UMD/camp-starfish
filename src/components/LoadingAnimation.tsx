@@ -27,18 +27,13 @@ function LoadingAnimation() {
   }, [animationIdx, svgFiles.length]);
 
   return (
-    <div className="flex flex-col items-center justify-center border-4 border-green-5">
-      <Image
-        src={svgFiles[animationIdx]?.src} // Load current SVG file
-        alt={`Loading animation ${animationIdx + 1}`}
-        width={200}
-        height={200}
-        style={{
-          height: "100%",
-          width: "100%",
-        }}
-      />
-    </div>
+    <Image
+      src={svgFiles[animationIdx].src}
+      alt={`Loading animation ${animationIdx + 1}`}
+      className="w-full h-full"
+      width={200}
+      height={200}
+    />
   );
 }
 
