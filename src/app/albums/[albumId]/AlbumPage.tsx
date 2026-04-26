@@ -98,29 +98,6 @@ export default function AlbumPage(props: AlbumPageProps) {
     }
   }, [selectedTags, albumItems]);
 
-  // Sort images based on selected sort order
-  const sortedImages = [...filteredImages].sort((a, b) => {
-    if (sortOption === "oldest-newest") {
-      return a.dateTaken.diff(b.dateTaken);
-    } else {
-      return b.dateTaken.diff(a.dateTaken);
-    }
-  });
-
-  // Get unique dates from filtered images for grouping
-  const filteredDates = [
-    ...new Set(filteredImages.map((image) => image.dateTaken)),
-  ];
-  const sortedDates = [...filteredDates].sort((a, b) => {
-    const dateA = dateObjects[dates.indexOf(a.format("YYYY-MM-DD"))];
-    const dateB = dateObjects[dates.indexOf(b.format("YYYY-MM-DD"))];
-    if (sortOption === "oldest-newest") {
-      return dateA.getTime() - dateB.getTime();
-    } else {
-      return dateB.getTime() - dateA.getTime();
-    }
-  });
-
   // Download images as zip file
   const handleDownloadAll = async () => {
     try {
@@ -262,12 +239,12 @@ export default function AlbumPage(props: AlbumPageProps) {
 
         {/* Content */}
         <CardGallery<AlbumItem>
-          items={sortedImages}
+          items={albumItems}
           renderItem={(image: AlbumItem, isSelected: boolean) => (
             <ImageCard image={image} isSelected={isSelected} />
           )}
           groups={{
-            groupLabels: sortedDates.map((date) => date.format("YYYY-MM-DD")),
+            groupLabels: albumItems.map((item) => item.dateTaken.format("YYYY-MM-DD")),
             defaultGroupLabel: "Date Unknown",
             groupFunc: (image: AlbumItem) =>
               image.dateTaken.format("YYYY-MM-DD"),
