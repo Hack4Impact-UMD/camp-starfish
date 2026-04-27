@@ -143,83 +143,82 @@ export default function AlbumPage(props: AlbumPageProps) {
   const session = "No Session";
 
   return (
-    <div className="w-full min-h-full bg-gray-100">
-      <div className="container mx-auto px-4 py-6 w-full">
-        <div className="flex items-center justify-between">
-          <Breadcrumbs classNames={{ separator: "text-3xl" }} separator=">>">
-            {[
-              { title: "ALBUMS", href: "/albums" },
-              { title: albumQuery.data?.name, href: `#` },
-            ].map((breadcrumb) => (
-              <Anchor href={breadcrumb.href} key={breadcrumb.title}>
-                <Title order={1}>{breadcrumb.title || "Unknown Album"}</Title>
-              </Anchor>
-            ))}
-          </Breadcrumbs>
-          <div className="flex items-center gap-4 shrink-0">
-            {/* Tagging */}
-            <Tagging
-              items={allTags}
-              selectedItems={selectedTags}
-              onSelectionChange={setSelectedTags}
-              getOptionLabel={(tag) => tag.name}
-              getOptionValue={(tag) => tag.id}
-              placeholder="Search Tags..."
-              className="w-64 cursor-pointer"
-            />
+    <div className="flex flex-col w-6/7 grow mx-auto px-4 py-6 gap-6">
+      <div className="flex items-center justify-between">
+        <Breadcrumbs classNames={{ separator: "text-3xl" }} separator=">>">
+          {[
+            { title: "ALBUMS", href: "/albums" },
+            { title: albumQuery.data?.name, href: `#` },
+          ].map((breadcrumb) => (
+            <Anchor href={breadcrumb.href} key={breadcrumb.title}>
+              <Title order={1}>{breadcrumb.title || "Unknown Album"}</Title>
+            </Anchor>
+          ))}
+        </Breadcrumbs>
+        <div className="flex items-center gap-4 shrink-0">
+          {/* Tagging */}
+          <Tagging
+            items={allTags}
+            selectedItems={selectedTags}
+            onSelectionChange={setSelectedTags}
+            getOptionLabel={(tag) => tag.name}
+            getOptionValue={(tag) => tag.id}
+            placeholder="Search Tags..."
+            className="w-64 cursor-pointer"
+          />
 
-            <Menu>
-              <Tooltip label="Sort">
-                <Menu.Target>
-                  <ActionIcon variant="transparent">
-                    <MdSort size={50} />
-                  </ActionIcon>
-                </Menu.Target>
-              </Tooltip>
-              <Menu.Dropdown>
-                <Menu.Item
-                  onClick={() =>
-                    setSortOption(AlbumPageSortOption.NEWEST_TO_OLDEST)
-                  }
-                >
-                  Newest → Oldest
-                </Menu.Item>
-                <Menu.Item
-                  onClick={() =>
-                    setSortOption(AlbumPageSortOption.OLDEST_TO_NEWEST)
-                  }
-                >
-                  Oldest → Newest
-                </Menu.Item>
-                <Menu.Item
-                  onClick={() => setSortOption(AlbumPageSortOption.A_TO_Z)}
-                >
-                  A → Z
-                </Menu.Item>
-                <Menu.Item
-                  onClick={() => setSortOption(AlbumPageSortOption.Z_TO_A)}
-                >
-                  Z → A
-                </Menu.Item>
-              </Menu.Dropdown>
-            </Menu>
+          <Menu>
+            <Tooltip label="Sort">
+              <Menu.Target>
+                <ActionIcon variant="transparent">
+                  <MdSort size={50} />
+                </ActionIcon>
+              </Menu.Target>
+            </Tooltip>
+            <Menu.Dropdown>
+              <Menu.Item
+                onClick={() =>
+                  setSortOption(AlbumPageSortOption.NEWEST_TO_OLDEST)
+                }
+              >
+                Newest → Oldest
+              </Menu.Item>
+              <Menu.Item
+                onClick={() =>
+                  setSortOption(AlbumPageSortOption.OLDEST_TO_NEWEST)
+                }
+              >
+                Oldest → Newest
+              </Menu.Item>
+              <Menu.Item
+                onClick={() => setSortOption(AlbumPageSortOption.A_TO_Z)}
+              >
+                A → Z
+              </Menu.Item>
+              <Menu.Item
+                onClick={() => setSortOption(AlbumPageSortOption.Z_TO_A)}
+              >
+                Z → A
+              </Menu.Item>
+            </Menu.Dropdown>
+          </Menu>
 
-            {/* Pending */}
-            <Link href="/albums/pending">
-              <img
-                className="w-[90px] h-[48px] flex-none cursor-pointer"
-                src={PendingIcon.src}
-                alt="Pending"
-              />
-            </Link>
-
-            {/* Upload */}
+          {/* Pending */}
+          <Link href="/albums/pending">
             <img
-              className="w-[48px] h-[48px] flex-none cursor-pointer"
-              src={UploadIcon.src}
-              alt="Upload"
+              className="w-[90px] h-[48px] flex-none cursor-pointer"
+              src={PendingIcon.src}
+              alt="Pending"
             />
-            {/* <FileUploadModal
+          </Link>
+
+          {/* Upload */}
+          <img
+            className="w-[48px] h-[48px] flex-none cursor-pointer"
+            src={UploadIcon.src}
+            alt="Upload"
+          />
+          {/* <FileUploadModal
                             onUpload={(files) => {
                                 console.log("Uploaded files:", files);
                             }}
@@ -233,32 +232,30 @@ export default function AlbumPage(props: AlbumPageProps) {
                             />
                         </FileUploadModal> */}
 
-            {/* Download */}
-            <img
-              className="w-[48px] h-[48px] flex-none cursor-pointer"
-              src={DownloadIcon.src}
-              alt="Download"
-              onClick={handleDownloadAll}
-            />
-          </div>
+          {/* Download */}
+          <img
+            className="w-[48px] h-[48px] flex-none cursor-pointer"
+            src={DownloadIcon.src}
+            alt="Download"
+            onClick={handleDownloadAll}
+          />
         </div>
-
-        {/* Content */}
-        <CardGallery<AlbumItem>
-          items={albumItems}
-          renderItem={(image: AlbumItem, isSelected: boolean) => (
-            <ImageCard image={image} isSelected={isSelected} />
-          )}
-          groups={{
-            groupLabels: albumItems.map((item) =>
-              item.dateTaken.format("YYYY-MM-DD"),
-            ),
-            defaultGroupLabel: "Date Unknown",
-            groupFunc: (image: AlbumItem) =>
-              image.dateTaken.format("YYYY-MM-DD"),
-          }}
-        />
       </div>
+
+      {/* Content */}
+      <CardGallery<AlbumItem>
+        items={albumItems}
+        renderItem={(image: AlbumItem, isSelected: boolean) => (
+          <ImageCard image={image} isSelected={isSelected} />
+        )}
+        groups={{
+          groupLabels: albumItems.map((item) =>
+            item.dateTaken.format("YYYY-MM-DD"),
+          ),
+          defaultGroupLabel: "Date Unknown",
+          groupFunc: (image: AlbumItem) => image.dateTaken.format("YYYY-MM-DD"),
+        }}
+      />
     </div>
   );
 }
