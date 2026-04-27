@@ -125,7 +125,7 @@ export default function AlbumPage(props: AlbumPageProps) {
       const url = URL.createObjectURL(content);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `${title}_images.zip`;
+      link.download = `images.zip`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -134,9 +134,6 @@ export default function AlbumPage(props: AlbumPageProps) {
       console.error("Error downloading images:", error);
     }
   };
-
-  const title = "Unknown Album";
-  const session = "No Session";
 
   return (
     <div className="flex flex-col w-6/7 grow mx-auto px-4 py-6 gap-6">
