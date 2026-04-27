@@ -70,7 +70,6 @@ export default function AlbumPage(props: AlbumPageProps) {
   const [sortOption, setSortOption] = useState<AlbumPageSortOption>(
     AlbumPageSortOption.NEWEST_TO_OLDEST,
   );
-  const [showSortDropdown, setShowSortDropdown] = useState(false);
   const [filteredImages, setFilteredImages] = useState<AlbumItem[]>([]);
 
   const albumQuery = useAlbum(albumId);
@@ -144,7 +143,7 @@ export default function AlbumPage(props: AlbumPageProps) {
             { title: albumQuery.data?.name, href: `#` },
           ].map((breadcrumb) => (
             <Anchor href={breadcrumb.href} key={breadcrumb.title}>
-              <Title order={1}>{breadcrumb.title || "Unknown Album"}</Title>
+              <Title order={1}>{breadcrumb.title}</Title>
             </Anchor>
           ))}
         </Breadcrumbs>
