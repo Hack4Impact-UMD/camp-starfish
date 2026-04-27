@@ -145,11 +145,15 @@ export default function AlbumPage(props: AlbumPageProps) {
     <div className="w-full min-h-full bg-gray-100">
       <div className="container mx-auto px-4 py-6 w-full">
         <div className="flex items-center justify-between">
-          <Breadcrumbs classNames={{ separator: 'text-3xl' }} separator=">>">
+          <Breadcrumbs classNames={{ separator: "text-3xl" }} separator=">>">
             {[
-              { title: 'ALBUMS', href: '/albums' },
-              { title: albumQuery.data?.name, href: `#` }
-          ].map(breadcrumb => <Anchor href={breadcrumb.href} key={breadcrumb.title}><Title order={1}>{breadcrumb.title || "Unknown Album"}</Title></Anchor>)}
+              { title: "ALBUMS", href: "/albums" },
+              { title: albumQuery.data?.name, href: `#` },
+            ].map((breadcrumb) => (
+              <Anchor href={breadcrumb.href} key={breadcrumb.title}>
+                <Title order={1}>{breadcrumb.title || "Unknown Album"}</Title>
+              </Anchor>
+            ))}
           </Breadcrumbs>
           <div className="flex items-center gap-4 shrink-0">
             {/* Tagging */}
