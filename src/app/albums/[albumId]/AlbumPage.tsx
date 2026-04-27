@@ -14,6 +14,7 @@ import { QueryOptions } from "@/data/firestore/types/queries";
 import { AlbumItemDoc } from "@/data/firestore/types/documents";
 import useAlbum from "@/hooks/albums/useAlbum";
 import useAlbumItemsList from "@/hooks/albumItems/useAlbumItemsList";
+import { Anchor, Breadcrumbs, Title } from "@mantine/core";
 
 const dates = [
   "2023-06-17",
@@ -143,11 +144,13 @@ export default function AlbumPage(props: AlbumPageProps) {
   return (
     <div className="w-full min-h-full bg-gray-100">
       <div className="container mx-auto px-4 py-6 w-full">
-        {/* Header */}
         <div className="flex items-center justify-between">
-          <h1 className="text-4xl font-lato font-bold text-camp-primary">
-            ALBUMS {">>"} {title} {">>"} {session}
-          </h1>
+          <Breadcrumbs classNames={{ separator: 'text-3xl' }} separator=">>">
+            {[
+              { title: 'Albums', href: '/albums' },
+              { title: albumQuery.data?.name, href: `#` }
+          ].map(breadcrumb => <Anchor href={breadcrumb.href} key={breadcrumb.title}><Title order={2}>{breadcrumb.title || "Unknown Album"}</Title></Anchor>)}
+          </Breadcrumbs>
           <div className="flex items-center gap-4 shrink-0">
             {/* Tagging */}
             <Tagging

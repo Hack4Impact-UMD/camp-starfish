@@ -3,7 +3,8 @@ import Link from "next/link";
 
 const AnchorThemeExtension = Anchor.extend({
   defaultProps: {
-    component: Link
+    component: Link,
+    underline: 'hover'
   }
 });
 
