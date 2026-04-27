@@ -1,15 +1,11 @@
 import React, { useState, useEffect } from "react";
-import UploadIcon from "@/assets/icons/Upload.svg";
-import filterIcon from "@/assets/icons/filterIcon.svg";
-import PendingIcon from "@/assets/icons/Pending.svg";
-import DownloadIcon from "@/assets/icons/Download.svg";
+import { MdOutlineFileUpload, MdOutlineFileDownload, MdPendingActions } from "react-icons/md";
 import Link from "next/link";
 import ImageCard from "@/components/ImageCard";
 import CardGallery from "@/components/CardGallery";
 import Tagging from "@/components/Tagging";
 import JSZip from "jszip";
 import { AlbumItem } from "@/types/albums/albumTypes";
-import moment from "moment";
 import { QueryOptions } from "@/data/firestore/types/queries";
 import { AlbumItemDoc } from "@/data/firestore/types/documents";
 import useAlbum from "@/hooks/albums/useAlbum";
@@ -205,19 +201,11 @@ export default function AlbumPage(props: AlbumPageProps) {
 
           {/* Pending */}
           <Link href="/albums/pending">
-            <img
-              className="w-[90px] h-[48px] flex-none cursor-pointer"
-              src={PendingIcon.src}
-              alt="Pending"
-            />
+            <MdPendingActions />
           </Link>
 
           {/* Upload */}
-          <img
-            className="w-[48px] h-[48px] flex-none cursor-pointer"
-            src={UploadIcon.src}
-            alt="Upload"
-          />
+          <MdOutlineFileUpload />
           {/* <FileUploadModal
                             onUpload={(files) => {
                                 console.log("Uploaded files:", files);
@@ -233,12 +221,7 @@ export default function AlbumPage(props: AlbumPageProps) {
                         </FileUploadModal> */}
 
           {/* Download */}
-          <img
-            className="w-[48px] h-[48px] flex-none cursor-pointer"
-            src={DownloadIcon.src}
-            alt="Download"
-            onClick={handleDownloadAll}
-          />
+          <MdOutlineFileDownload />
         </div>
       </div>
 
