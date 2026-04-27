@@ -1,6 +1,7 @@
 import { MantineThemeOverride } from "@mantine/core";
 import globalTheme from "./globalTheme";
 import ActionIconThemeExtension from "./components/ActionIconThemeExtension";
+import AnchorThemeExtension from "./components/AnchorThemeExtension";
 import ButtonThemeExtension from "./components/ButtonThemeExtension";
 import DatePickerInputThemeExtension from "./components/DatePickerInputThemeExtension";
 import DatePickerThemeExtension from "./components/DatePickerThemeExtension";
@@ -18,6 +19,7 @@ const theme: MantineThemeOverride = {
   ...globalTheme,
   components: {
     ActionIcon: ActionIconThemeExtension,
+    Anchor: AnchorThemeExtension,
     Button: ButtonThemeExtension,
     DatePickerInput: DatePickerInputThemeExtension,
     DatePicker: DatePickerThemeExtension,
