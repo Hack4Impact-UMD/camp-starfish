@@ -199,33 +199,24 @@ export default function AlbumPage(props: AlbumPageProps) {
             </Menu.Dropdown>
           </Menu>
 
-          {/* Pending */}
           <Link href="/albums/pending">
             <MdPendingActions />
           </Link>
 
-          {/* Upload */}
-          <MdOutlineFileUpload />
-          {/* <FileUploadModal
-                            onUpload={(files) => {
-                                console.log("Uploaded files:", files);
-                            }}
-                            acceptedFileExtensions={['.jpg', '.jpeg', '.png', '.gif']}
-                            maxFileSize={10}
-                        >
-                            <img
-                                className="w-[56px] h-[56px] flex-none cursor-pointer"
-                                src={UploadIcon.src}
-                                alt="Upload"
-                            />
-                        </FileUploadModal> */}
+          <Tooltip label="Upload Items">
+            <ActionIcon color="aqua">{/*onClick={() => openEditAlbumModal()}>*/}
+              <MdOutlineFileUpload size={40} />
+            </ActionIcon>
+          </Tooltip>
 
-          {/* Download */}
-          <MdOutlineFileDownload />
+          <Tooltip label="Download Items">
+            <ActionIcon color="aqua">
+              <MdOutlineFileDownload size={40} />
+            </ActionIcon>
+          </Tooltip>
         </div>
       </div>
 
-      {/* Content */}
       <CardGallery<AlbumItem>
         items={albumItems}
         renderItem={(image: AlbumItem, isSelected: boolean) => (
