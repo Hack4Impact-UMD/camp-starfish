@@ -14,7 +14,15 @@ import { QueryOptions } from "@/data/firestore/types/queries";
 import { AlbumItemDoc } from "@/data/firestore/types/documents";
 import useAlbum from "@/hooks/albums/useAlbum";
 import useAlbumItemsList from "@/hooks/albumItems/useAlbumItemsList";
-import { Anchor, Breadcrumbs, Title } from "@mantine/core";
+import {
+  ActionIcon,
+  Anchor,
+  Breadcrumbs,
+  Menu,
+  Title,
+  Tooltip,
+} from "@mantine/core";
+import { MdSort } from "react-icons/md";
 
 const dates = [
   "2023-06-17",
@@ -57,7 +65,10 @@ const enum AlbumPageSortOption {
   Z_TO_A = "Z → A",
 }
 
-const sortQueryOptions: Record<AlbumPageSortOption, QueryOptions<AlbumItemDoc>> = {
+const sortQueryOptions: Record<
+  AlbumPageSortOption,
+  QueryOptions<AlbumItemDoc>
+> = {
   "Newest → Oldest": {
     orderBy: [{ fieldPath: "dateTaken", direction: "desc" }],
   },
@@ -76,14 +87,20 @@ export default function AlbumPage(props: AlbumPageProps) {
   const { albumId } = props;
 
   const [selectedTags, setSelectedTags] = useState<(typeof allTags)[0][]>([]);
-  const [sortOption, setSortOption] = useState<AlbumPageSortOption>(AlbumPageSortOption.NEWEST_TO_OLDEST);
+  const [sortOption, setSortOption] = useState<AlbumPageSortOption>(
+    AlbumPageSortOption.NEWEST_TO_OLDEST,
+  );
   const [showSortDropdown, setShowSortDropdown] = useState(false);
   const [filteredImages, setFilteredImages] = useState<AlbumItem[]>([]);
 
   const albumQuery = useAlbum(albumId);
-  const albumItemsQuery = useAlbumItemsList(albumId, sortQueryOptions[sortOption]);
+  const albumItemsQuery = useAlbumItemsList(
+    albumId,
+    sortQueryOptions[sortOption],
+  );
 
-  const albumItems = albumItemsQuery.data?.pages.flatMap(page => page.docs) || [];
+  const albumItems =
+    albumItemsQuery.data?.pages.flatMap((page) => page.docs) || [];
 
   // Update filtered images whenever selected tags or images change
   useEffect(() => {
@@ -167,43 +184,41 @@ export default function AlbumPage(props: AlbumPageProps) {
               className="w-64 cursor-pointer"
             />
 
-            {/* Filter Dropdown */}
-            <div className="relative">
-              <img
-                className="w-[80px] h-[48px] flex-none cursor-pointer"
-                src={filterIcon.src}
-                alt="Filter"
-                onClick={() => setShowSortDropdown(!showSortDropdown)}
-              />
-              {showSortDropdown && (
-                <div className="absolute right-0 mt-2 w-60 bg-white rounded-md shadow-lg z-10 border border-gray-200">
-                  <div
-                    className={`px-4 py-2 hover:bg-gray-300 text-black cursor-pointer ${sortOption === "oldest-newest" ? "bg-gray-300 font-medium" : ""}`}
-                    onClick={() => {
-                      setSortOption("oldest-newest");
-                      setShowSortDropdown(false);
-                    }}
-                  >
-                    Oldest → Newest
-                    {sortOption === "oldest-newest" && (
-                      <span className="ml-2 text-camp-primary">✓</span>
-                    )}
-                  </div>
-                  <div
-                    className={`px-4 py-2 hover:bg-gray-300 text-black cursor-pointer ${sortOption === "newest-oldest" ? "bg-gray-300 font-medium" : ""}`}
-                    onClick={() => {
-                      setSortOption("newest-oldest");
-                      setShowSortDropdown(false);
-                    }}
-                  >
-                    Newest → Oldest
-                    {sortOption === "newest-oldest" && (
-                      <span className="ml-2 text-camp-primary">✓</span>
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
+            <Menu>
+              <Tooltip label="Sort">
+                <Menu.Target>
+                  <ActionIcon variant="transparent">
+                    <MdSort size={50} />
+                  </ActionIcon>
+                </Menu.Target>
+              </Tooltip>
+              <Menu.Dropdown>
+                <Menu.Item
+                  onClick={() =>
+                    setSortOption(AlbumPageSortOption.NEWEST_TO_OLDEST)
+                  }
+                >
+                  Newest → Oldest
+                </Menu.Item>
+                <Menu.Item
+                  onClick={() =>
+                    setSortOption(AlbumPageSortOption.OLDEST_TO_NEWEST)
+                  }
+                >
+                  Oldest → Newest
+                </Menu.Item>
+                <Menu.Item
+                  onClick={() => setSortOption(AlbumPageSortOption.A_TO_Z)}
+                >
+                  A → Z
+                </Menu.Item>
+                <Menu.Item
+                  onClick={() => setSortOption(AlbumPageSortOption.Z_TO_A)}
+                >
+                  Z → A
+                </Menu.Item>
+              </Menu.Dropdown>
+            </Menu>
 
             {/* Pending */}
             <Link href="/albums/pending">
@@ -251,7 +266,9 @@ export default function AlbumPage(props: AlbumPageProps) {
             <ImageCard image={image} isSelected={isSelected} />
           )}
           groups={{
-            groupLabels: albumItems.map((item) => item.dateTaken.format("YYYY-MM-DD")),
+            groupLabels: albumItems.map((item) =>
+              item.dateTaken.format("YYYY-MM-DD"),
+            ),
             defaultGroupLabel: "Date Unknown",
             groupFunc: (image: AlbumItem) =>
               image.dateTaken.format("YYYY-MM-DD"),
@@ -260,4 +277,4 @@ export default function AlbumPage(props: AlbumPageProps) {
       </div>
     </div>
   );
-};
+}
