@@ -24,22 +24,6 @@ import {
 } from "@mantine/core";
 import { MdSort } from "react-icons/md";
 
-const dates = [
-  "2023-06-17",
-  "2023-06-18",
-  "2023-06-19",
-  "2023-06-20",
-  "2023-06-21",
-];
-
-const dateObjects = [
-  new Date(2023, 5, 17), // June 17
-  new Date(2023, 5, 18), // June 18
-  new Date(2023, 5, 19), // June 19
-  new Date(2023, 5, 20), // June 20
-  new Date(2023, 5, 21), // June 21
-];
-
 const allTags = [
   { id: "1", name: "Claire C." },
   { id: "2", name: "Nitin K." },
