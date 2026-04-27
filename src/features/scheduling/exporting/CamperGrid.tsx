@@ -147,7 +147,7 @@ interface CamperGridProps {
 }
 
 export default function CamperGrid(props: CamperGridProps) {
-  const { schedule, freeplay, campers, staff } = props;
+  const { schedule, freeplay, campers } = props;
 
   campers.sort((a, b) => {
     if (a.bunk === b.bunk) {
@@ -169,7 +169,7 @@ export default function CamperGrid(props: CamperGridProps) {
     <View>
       <Text style={styles.sectionTitle}>Camper Grid</Text>
       <View style={styles.compactTable}>
-        <View style={styles.headerRow}>
+        <View style={styles.headerRow} fixed>
           <Text style={styles.compactHeaderCell}>BUNK</Text>
           <Text style={styles.compactHeaderCell}>NAME</Text>
           {Object.keys(schedule.blocks).map((blockId) => (
@@ -182,19 +182,34 @@ export default function CamperGrid(props: CamperGridProps) {
         </View>
 
         {campers.map((camper) => {
-          const fpBuddyId = getFreeplayAssignmentId(
+          const fpAssignment = getFreeplayAssignmentId(
             freeplay,
             camper.attendeeId,
           );
-          const fpBuddyObj = staff.find(
-            (staff) => staff.attendeeId === fpBuddyId,
-          );
-          const fpBuddyName = fpBuddyObj
-            ? getFullName(fpBuddyObj.snapshot.name)
-            : "N/A";
+
+          const findPostIdForStaff = (staffId: number): string | undefined => {
+            const entry = Object.entries(freeplay.posts).find(([, employeeIds]) =>
+              employeeIds.includes(staffId),
+            );
+            return entry?.[0];
+          };
+
+          let fpActivityCode = "-";
+          if (typeof fpAssignment === "string") {
+            fpActivityCode = fpAssignment;
+          } else if (typeof fpAssignment === "number") {
+            fpActivityCode = findPostIdForStaff(fpAssignment) ?? "-";
+          } else if (Array.isArray(fpAssignment)) {
+            const postIds = new Set<string>();
+            fpAssignment.forEach((staffId) => {
+              const postId = findPostIdForStaff(staffId);
+              if (postId) postIds.add(postId);
+            });
+            fpActivityCode = postIds.size > 0 ? Array.from(postIds).join(", ") : "-";
+          }
 
           return (
-            <View key={camper.attendeeId} style={styles.row}>
+            <View key={camper.attendeeId} style={styles.row} wrap={false}>
               <View style={styles.compactBunkCell}>
                 <Text>{camper.bunk}</Text>
               </View>
@@ -227,7 +242,7 @@ export default function CamperGrid(props: CamperGridProps) {
                 <Text>-</Text>
               </View>
               <View style={styles.compactDataCell}>
-                <Text>{fpBuddyName}</Text>
+                <Text>{fpActivityCode}</Text>
               </View>
             </View>
           );

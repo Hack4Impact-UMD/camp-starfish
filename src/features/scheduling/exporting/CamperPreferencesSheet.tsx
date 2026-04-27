@@ -70,7 +70,11 @@ export function CamperPreferencesSheet(props: CamperPreferencesSheetProps) {
             <View key={blockId} style={styles.block}>
               <Text style={styles.blockTitle}>Block {blockId}</Text>
               {activities.map((activity, idx) => (
-                <View key={`${blockId}-${idx}`} style={styles.activity}>
+                <View
+                  key={`${blockId}-${idx}`}
+                  style={styles.activity}
+                  wrap={false}
+                >
                   <View style={styles.activityInfo}>
                     <Text style={styles.activityName}>
                       {`${isBundleActivity(activity) ? `${activity.programAreaId}: ` : ""}${activity.name}`}

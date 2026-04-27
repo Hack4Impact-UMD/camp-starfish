@@ -6,6 +6,7 @@ import {
   BundleSectionSchedule,
 } from "@/types/scheduling/schedulingTypes";
 import { toRecord } from "@/utils/data/toRecord";
+import { groupBy } from "@/utils/data/groupBy";
 
 // ---------- Styles ----------
 const styles = StyleSheet.create({
@@ -132,7 +133,10 @@ export default function ProgramAreaGrid({
   }
 
   // Helper function to render activity text
-  const renderActivityText = (activity: BundleActivity) => {
+  const renderActivityText = (activities: BundleActivity[]) => {
+    if (activities.length === 0) return null;
+    const first = activities[0];
+    const suffix = activities.length > 1 ? ` (+${activities.length - 1} more)` : "";
     return (
       <View
         style={{
@@ -145,7 +149,7 @@ export default function ProgramAreaGrid({
         }}
       >
         <Text style={styles.activityText}>
-          {`${activity.name} (${activity.ageGroup})`}
+          {`${first.name} (${first.ageGroup})${suffix}`}
         </Text>
       </View>
     );
@@ -162,7 +166,7 @@ export default function ProgramAreaGrid({
     >
       <View style={styles.table}>
         {/* Table Header */}
-        <View style={styles.row}>
+        <View style={styles.row} wrap={false}>
           <View style={[styles.blockCell, styles.headerCell]}>
             <Text>BLOCKS</Text>
           </View>
@@ -176,13 +180,13 @@ export default function ProgramAreaGrid({
         {/* Table Rows */}
         {blockIds.map((blockId) => {
           const block = schedule.blocks[blockId];
-          const blockActivitiesByProgramArea = toRecord(
+          const blockActivitiesByProgramArea = groupBy(
             block.activities,
             (a) => a.programAreaId,
           );
 
           return (
-            <View key={blockId} style={styles.row}>
+            <View key={blockId} style={styles.row} wrap={false}>
               {/* Block Label */}
               <View style={[styles.blockCell, styles.blockLabel]}>
                 <Text>{`BLOCK ${blockId}`}</Text>

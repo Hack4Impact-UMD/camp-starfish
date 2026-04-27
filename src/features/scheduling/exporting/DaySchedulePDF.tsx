@@ -27,27 +27,49 @@ export default function DaySchedulePDF(props: DaySchedulePDFProps) {
 
   return (
     <Document>
-      <Page size="A4">
+      <Page size="A4" orientation="landscape" style={{ padding: 15 }}>
         <CamperGrid
           schedule={schedule}
           freeplay={freeplay}
           campers={campers}
           staff={staff}
         />
+      </Page>
+      <Page size="A4" orientation="landscape" style={{ padding: 15 }}>
         <BlockRatiosGrid
           schedule={schedule}
           campers={campers}
           staff={staff}
           admins={admins}
         />
+      </Page>
+      <Page size="A4" orientation="landscape" style={{ padding: 15 }}>
         <EmployeeGrid
           schedule={schedule}
           freeplay={freeplay}
           campers={campers}
           employees={staff}
         />
-        {isBundleSectionSchedule(schedule) && programAreas && <ProgramAreaGrid schedule={schedule} sectionName={sectionName} programAreas={programAreas} />}
       </Page>
+      {admins.length > 0 && (
+        <Page size="A4" orientation="landscape" style={{ padding: 15 }}>
+          <EmployeeGrid
+            schedule={schedule}
+            freeplay={freeplay}
+            campers={campers}
+            employees={admins}
+          />
+        </Page>
+      )}
+      {isBundleSectionSchedule(schedule) && programAreas && (
+        <Page size="A4" orientation="landscape" style={{ padding: 15 }}>
+          <ProgramAreaGrid
+            schedule={schedule}
+            sectionName={sectionName}
+            programAreas={programAreas}
+          />
+        </Page>
+      )}
     </Document>
   );
 }

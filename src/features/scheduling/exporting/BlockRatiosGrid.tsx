@@ -1,4 +1,3 @@
-import React from "react";
 import { View, Text, StyleSheet } from "@react-pdf/renderer";
 import {
   StaffAttendee,
@@ -99,7 +98,7 @@ export default function BlockRatiosGrid({
   return (
     <View style={styles.container}>
       {/* Block Headers Row */}
-      <View style={styles.row}>
+      <View style={styles.row} fixed>
         {blockIds.map((blockId) => (
           <View key={blockId} style={styles.blockHeader}>
             <Text>BLOCK {blockId}</Text>
@@ -113,7 +112,7 @@ export default function BlockRatiosGrid({
         const rowBgColor = isGrayRow ? "#d9d9d9" : "#ffffff";
 
         return (
-          <React.Fragment key={`activity-row-${activityIndex}`}>
+          <View key={`activity-row-${activityIndex}`} wrap={false}>
             {/* Activity Headers Row */}
             <View style={styles.row}>
               {blockIds.map((blockId) => {
@@ -215,7 +214,7 @@ export default function BlockRatiosGrid({
                 );
               })}
             </View>
-          </React.Fragment>
+          </View>
         );
       })}
     </View>
