@@ -5,7 +5,7 @@ const TitleThemeExtension = Title.extend({
   classNames: (_, props) => {
     const { order } = props;
     return {
-      root: classNames('font-bold', {
+      root: classNames('font-Lato font-bold uppercase', {
         'text-5xl': order === 1
       })
     }

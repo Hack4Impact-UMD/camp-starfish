@@ -25,12 +25,7 @@ async function updateAlbum(req: UpdateAlbumRequest): Promise<void> {
   } else if (req.thumbnail === null) {
     promises.push(deleteFile(`albums/${albumId}/thumbnail`));
   }
-
-  try {
-    await Promise.all(promises);
-  } catch {
-    throw Error("Failed to update album");
-  }
+  await Promise.all(promises);
 }
 
 export default function useUpdateAlbum() {

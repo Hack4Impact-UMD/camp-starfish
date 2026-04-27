@@ -43,7 +43,7 @@ export default function AlbumCard(props: AlbumCardProps) {
       onDoubleClick={() => router.push(`/albums/${album.id}`)}
     >
       <Image
-        src={thumbnailSrcQuery.data}
+        src={thumbnailSrcQuery.data ?? null}
         alt={album.name}
         className="w-full h-48 object-contain"
         width={200}

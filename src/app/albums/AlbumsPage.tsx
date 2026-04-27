@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import AlbumCard from "../../components/AlbumCard";
 import { openEditAlbumModal } from "@/components/EditAlbumModal";
 import CardGallery from "@/components/CardGallery";
@@ -13,6 +13,7 @@ import {
   Button,
   Indicator,
   Menu,
+  Text,
   Title,
   Tooltip,
 } from "@mantine/core";
@@ -20,6 +21,8 @@ import { MdAdd, MdPendingActions, MdSort } from "react-icons/md";
 import Link from "next/link";
 import { QueryOptions } from "@/data/firestore/firestoreClientOperations";
 import { AlbumDoc } from "@/data/firestore/types/documents";
+import { useInViewport } from "@mantine/hooks";
+import LoadingAnimation from "@/components/LoadingAnimation";
 
 const enum AlbumsPageSortOption {
   NEWEST_TO_OLDEST = "Newest → Oldest",
@@ -50,6 +53,15 @@ export default function AlbumsPage() {
     limitToLast: undefined,
   });
 
+  const { ref, inViewport } = useInViewport();
+
+  const { hasNextPage, isFetchingNextPage, fetchNextPage } = albumsQuery;
+  useEffect(() => {
+    if (inViewport && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [inViewport, albumsQuery]);
+  
   if (albumsQuery.isError) {
     return <ErrorPage error={albumsQuery.error} />;
   } else if (albumsQuery.isLoading) {
@@ -125,10 +137,15 @@ export default function AlbumsPage() {
           </Button>
         </div>
       ) : (
-        <CardGallery<Album>
-          items={albums}
-          renderItem={(album: Album) => <AlbumCard albumId={album.id} />}
-        />
+        <>
+          <CardGallery<Album>
+            items={albums}
+            renderItem={(album: Album) => <AlbumCard albumId={album.id} />}
+          />
+          {albumsQuery.isFetchingNextPage && <div className="w-1/3 self-center"><LoadingAnimation /></div>}
+          {!albumsQuery.hasNextPage && <Title order={4} classNames={{ root: "self-center" }}>All Done!</Title>}
+          <div className="invisible" ref={ref} />
+        </>
       )}
     </div>
   );
