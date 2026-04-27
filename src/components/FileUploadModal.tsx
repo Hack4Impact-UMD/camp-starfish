@@ -10,14 +10,10 @@ import {
 import { Accept, FileRejection, useDropzone } from "react-dropzone";
 import { useState } from "react";
 
-// Icon Imports
-import submitIcon from "@/assets/icons/submitIcon.svg";
-import crossIcon from "@/assets/icons/xIconPrimary.svg";
-import alertIcon from "@/assets/icons/alert.svg";
-import fileLoadIcon from "@/assets/icons/fileLoadSuccessIcon.svg";
-import uploadGreenIcon from "@/assets/icons/uploadGreen.svg";
 import { lookup } from "mime-types";
 import Image from "next/image";
+import { modals } from "@mantine/modals";
+import { MdCheckCircle, MdClose, MdError, MdOutlineFileUpload } from "react-icons/md";
 
 type FileUploadModalProps = {
   children: React.ReactNode;
@@ -52,23 +48,8 @@ function FileComponent({
     >
       <span className="text-camp-text-headingBody text-sm">{file.name}</span>
       <div className="mr-1">
-        <Image
-          src={accepted ? fileLoadIcon.src : alertIcon.src}
-          alt="File status icon"
-          className="w-6 h-6 inline-block"
-          width={24}
-          height={24}
-        />
-        <Image
-          src={crossIcon.src}
-          alt="Delete file icon"
-          onClickCapture={() =>
-            setFiles((last) => last.filter((e) => e.file != file))
-          }
-          className="w-5 h-5 inline-block cursor-pointer p-1 ml-4"
-          width={20}
-          height={20}
-        />
+        {accepted ? <MdCheckCircle /> : <MdError />}
+        <MdClose />
       </div>
     </div>
   );
@@ -88,13 +69,7 @@ function InitialUploadView({
         {acceptedFileExtensions.map((type: string) => type).join(", ")} (Max{" "}
         {maxFileSize}MB)
       </span>
-      <Image
-        src={submitIcon.src}
-        alt="Submit"
-        className="w-12 h-12 text-center block mx-auto m-4"
-        width={48}
-        height={48}
-      />
+      <MdOutlineFileUpload />
       <span className="block font-lato text-camp-text-subheading font-bold text-lg m-2">
         Drag and drop files
       </span>
@@ -117,13 +92,7 @@ function FinishedUploadView({
 }) {
   return (
     <div className="mx-6 my-4">
-      <Image
-        src={uploadState == "success" ? uploadGreenIcon.src : alertIcon.src}
-        alt={uploadState === "success" ? "Success" : "Error"}
-        className="w-6 h-6 text-center block mx-auto m-4"
-        width={24}
-        height={24}
-      />
+      {uploadState === "success" ? <MdOutlineFileUpload /> : <MdError />}
       <span className="block text-center text-camp-primary font-bold font-lato text-xl">
         Upload {uploadState == "success" ? "successful" : "failed"}!
       </span>
@@ -178,7 +147,7 @@ function UploadedFilesView({
   );
 }
 
-export default function FileUploadModal({
+export function FileUploadModal({
   children,
   onUpload,
   acceptedFileExtensions,
@@ -302,4 +271,12 @@ export default function FileUploadModal({
       </DialogPortal>
     </Dialog>
   );
+}
+
+export default function openFileUploadModal(props: FileUploadModalProps & { title: string; }) {
+  const { title, ...rest } = props;
+  modals.open({
+    title: title ?? "Upload Files",
+    children: <FileUploadModal {...rest} />,
+  }); 
 }
