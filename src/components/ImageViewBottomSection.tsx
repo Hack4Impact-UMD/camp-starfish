@@ -6,20 +6,13 @@ import AddIcon from "@/assets/icons/addIcon.svg";
 import XIcon from "@/assets/icons/xIcon.svg";
 import CheckIcon from "@/assets/icons/checkIcon.svg";
 import { Switch } from "./Switch";
-import { Role } from "@/types/personTypes";
-import { ImageID, ImageTags } from "@/types/albumTypes";
+import { Role } from "@/types/users/userTypes";
+import { AlbumItem } from "@/types/albums/albumTypes";
+
+type ImageTags = AlbumItem["tagIds"];
 
 interface ImageViewBottomSectionProps {
-  image: ImageID;
-}
-
-/**
- * Type guard to check if the image tags are in the expected object format
- */
-function isImageTags(
-  tags: ImageTags
-): tags is { approved: any[]; inReview: any[] } {
-  return typeof tags !== "string" && "approved" in tags && "inReview" in tags;
+  image: AlbumItem;
 }
 
 export default function ImageViewBottomSection({
@@ -28,7 +21,7 @@ export default function ImageViewBottomSection({
   const [activeTab, setActiveTab] = useState<"APPROVED" | "PENDING">(
     "APPROVED"
   );
-  const [localTags, setLocalTags] = useState<ImageTags>(image.tags);
+  const [localTags, setLocalTags] = useState<ImageTags>(image.tagIds);
 
   const auth = useAuth();
   const userRole: Role = auth.token?.claims.role as Role;
@@ -57,8 +50,8 @@ export default function ImageViewBottomSection({
     );
   }
 
-  // --- Guard clause for users without tag access or 'ALL' tag type. Will not display anything ---
-  if (!canViewTags || !isImageTags(localTags)) return null;
+  // --- Guard clause for users without tag access ---
+  if (!canViewTags) return null;
 
   // --- Tag display logic based on tab ---
   const tagsToShow =
@@ -68,20 +61,18 @@ export default function ImageViewBottomSection({
    * Renders an individual tag with optional moderation controls
    * Displays tag name and, if the user can moderate, shows buttons to approve or reject
    */
-  const renderTag = (tag: any, isPending: boolean) => (
+  const renderTag = (tagId: number, isPending: boolean) => (
     <div
-      key={tag.campminderId}
+      key={tagId}
       className="bg-[#E6EAEC] px-4 py-2 rounded-3xl flex items-center gap-2"
     >
       <p className="text-black text-sm sm:text-base">
-        {tag.name.firstName}{" "}
-        {tag.name.middleName ? `${tag.name.middleName} ` : ""}
-        {tag.name.lastName}
+        Tag #{tagId}
       </p>
       {canModerateTags && (
         <>
           <button
-            onClick={() => handleRejectTag(tag.campminderId)}
+            onClick={() => handleRejectTag(tagId)}
             aria-label="Reject Tag"
             className="inline-flex items-center justify-center min-w-[22px] min-h-[22px]"
           >
@@ -89,7 +80,7 @@ export default function ImageViewBottomSection({
           </button>
           {isPending && (
             <button
-              onClick={() => handleApproveTag(tag.campminderId)}
+              onClick={() => handleApproveTag(tagId)}
               aria-label="Approve Tag"
               className="inline-flex items-center justify-center min-w-[22px] min-h-[22px]"
             >
@@ -109,17 +100,10 @@ export default function ImageViewBottomSection({
  /**
    * Approve a tag by moving it from 'inReview' to 'approved'
    */
-  const handleApproveTag = (campminderId: number) => {
-    if (!isImageTags(localTags)) return;
-
-    const tag = localTags.inReview.find((t) => t.campminderId === campminderId);
-    if (!tag) return;
-
+  const handleApproveTag = (tagId: number) => {
     const updatedTags: ImageTags = {
-      approved: [...localTags.approved, tag],
-      inReview: localTags.inReview.filter(
-        (t) => t.campminderId !== campminderId
-      ),
+      approved: [...localTags.approved, tagId],
+      inReview: localTags.inReview.filter((t) => t !== tagId),
     };
 
     setLocalTags(updatedTags);
@@ -128,16 +112,10 @@ export default function ImageViewBottomSection({
   /**
    * Reject a tag by removing it from both 'approved' and 'inReview'
    */
-  const handleRejectTag = (campminderId: number) => {
-    if (!isImageTags(localTags)) return;
-
+  const handleRejectTag = (tagId: number) => {
     const updatedTags: ImageTags = {
-      approved: localTags.approved.filter(
-        (t) => t.campminderId !== campminderId
-      ),
-      inReview: localTags.inReview.filter(
-        (t) => t.campminderId !== campminderId
-      ),
+      approved: localTags.approved.filter((t) => t !== tagId),
+      inReview: localTags.inReview.filter((t) => t !== tagId),
     };
 
     setLocalTags(updatedTags);

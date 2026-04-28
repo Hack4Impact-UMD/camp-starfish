@@ -7,17 +7,18 @@ import FolderMoveIcon from "@/assets/icons/folderMoveIcon.svg";
 import LeftArrowIcon from "@/assets/icons/leftArrow.svg";
 import RightArrowIcon from "@/assets/icons/rightArrow.svg";
 import ImageViewBottomSection from "@/components/ImageViewBottomSection";
-import { Role } from "@/types/personTypes";
-import { ImageID } from "@/types/albumTypes";
-import { downloadImage } from "@/data/storage/fileOperations";
+import { Role } from "@/types/users/userTypes";
+import { AlbumItem } from "@/types/albums/albumTypes";
+import { downloadImage } from "@/data/storage/storageClientOperations";
 
 
 interface ImageViewProps {
-  image: ImageID;
+  image: AlbumItem;
   onClose: () => void;
   onLeftClick: () => void;
   onRightClick: () => void;
 }
+
 
 export default function ImageView({
   image,
@@ -28,19 +29,6 @@ export default function ImageView({
   const auth = useAuth();
   const userRole: Role = auth.token?.claims.role as Role;
 
-  // const handleDownload = () => {
-  //   const element = document.createElement("a");
-  //   element.href = image.src
-  //   element.download = image.name || "downloaded-image";
-  //   document.body.appendChild(element);
-  //   element.click();
-  //   document.body.removeChild(element);
-  //   URL.revokeObjectURL(element.href);
-  // };
-
-  /**
-   * Downloads the current image using Firebase Storage
-   */
   const handleDownload = async () => {
     try {
       await downloadImage(image.src, image.name || "downloaded-image");

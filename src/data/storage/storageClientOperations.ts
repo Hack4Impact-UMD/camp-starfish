@@ -26,3 +26,15 @@ export async function getFileURLs(paths: string[]) {
   const downloadPromises = paths.map((path) => getFileURL(path));
   return await Promise.all(downloadPromises);
 }
+
+export async function downloadImage(storagePath: string, fileName: string) {
+  const url = await getFileURL(storagePath);
+  const response = await fetch(url);
+  const blob = await response.blob();
+  const objectUrl = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = objectUrl;
+  anchor.download = fileName;
+  anchor.click();
+  URL.revokeObjectURL(objectUrl);
+}
