@@ -95,8 +95,14 @@ export function AlbumPageContent(props: AlbumPageContentProps) {
     sortQueryOptions[sortOption],
   );
 
+  if (albumItemsQuery.isPending) {
+    return <LoadingPage />;
+  } else if (albumItemsQuery.isError) {
+    return <ErrorPage error={albumItemsQuery.error} />
+  }
+
   const albumItems =
-    albumItemsQuery.data?.pages.flatMap((page) => page.docs) || [];
+    albumItemsQuery.data.pages.flatMap((page) => page.docs) || [];
 
   // Download images as zip file
   const handleDownloadAll = async () => {
