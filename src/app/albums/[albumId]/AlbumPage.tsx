@@ -19,7 +19,6 @@ import {
   Tooltip,
 } from "@mantine/core";
 import { MdSort } from "react-icons/md";
-import { AlbumPageSortOption } from "./AlbumPageStore";
 import LoadingPage from "@/app/loading";
 import ErrorPage from "@/app/error";
 
@@ -41,6 +40,12 @@ const allTags = [
   { id: "15", name: "Saharsh M." },
 ];
 
+const enum AlbumPageSortOption {
+  NEWEST_TO_OLDEST = "Newest → Oldest",
+  OLDEST_TO_NEWEST = "Oldest → Newest",
+  A_TO_Z = "A → Z",
+  Z_TO_A = "Z → A",
+}
 
 const sortQueryOptions: Record<
   AlbumPageSortOption,
