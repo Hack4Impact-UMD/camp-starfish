@@ -9,5 +9,6 @@ export default function useAlbumItemBlob(albumId: string, albumItemId: string) {
   return useQuery({
     queryKey: ['albums', albumId, 'albumItems', albumItemId, 'blob'],
     queryFn: () => getAlbumItemBlob(albumId, albumItemId),
+    staleTime: Infinity
   });
 }
