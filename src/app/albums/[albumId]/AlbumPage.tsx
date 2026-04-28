@@ -5,7 +5,7 @@ import ImageCard from "@/components/ImageCard";
 import CardGallery from "@/components/CardGallery";
 import Tagging from "@/components/Tagging";
 import JSZip from "jszip";
-import { AlbumItem } from "@/types/albums/albumTypes";
+import { Album, AlbumItem } from "@/types/albums/albumTypes";
 import { QueryOptions } from "@/data/firestore/types/queries";
 import { AlbumItemDoc } from "@/data/firestore/types/documents";
 import useAlbum from "@/hooks/albums/useAlbum";
@@ -19,7 +19,9 @@ import {
   Tooltip,
 } from "@mantine/core";
 import { MdSort } from "react-icons/md";
-import openFileUploadModal from "@/components/FileUploadModal";
+import { AlbumPageSortOption } from "./AlbumPageStore";
+import LoadingPage from "@/app/loading";
+import ErrorPage from "@/app/error";
 
 const allTags = [
   { id: "1", name: "Claire C." },
@@ -39,12 +41,6 @@ const allTags = [
   { id: "15", name: "Saharsh M." },
 ];
 
-enum AlbumPageSortOption {
-  NEWEST_TO_OLDEST = "Newest → Oldest",
-  OLDEST_TO_NEWEST = "Oldest → Newest",
-  A_TO_Z = "A → Z",
-  Z_TO_A = "Z → A",
-}
 
 const sortQueryOptions: Record<
   AlbumPageSortOption,
@@ -67,14 +63,30 @@ interface AlbumPageProps {
 export default function AlbumPage(props: AlbumPageProps) {
   const { albumId } = props;
 
+  const albumQuery = useAlbum(albumId);
+  if (albumQuery.isPending) {
+    return <LoadingPage />
+  } else if (albumQuery.isError) {
+    return <ErrorPage error={albumQuery.error} />
+  } else {
+    return <AlbumPageContent album={albumQuery.data} />
+  }
+}
+
+interface AlbumPageContentProps {
+  album: Album;
+}
+
+export function AlbumPageContent(props: AlbumPageContentProps) {
+  const { album } = props;
+
   const [selectedTags, setSelectedTags] = useState<(typeof allTags)[0][]>([]);
   const [sortOption, setSortOption] = useState<AlbumPageSortOption>(
     AlbumPageSortOption.NEWEST_TO_OLDEST,
   );
 
-  const albumQuery = useAlbum(albumId);
   const albumItemsQuery = useAlbumItemsList(
-    albumId,
+    album.id,
     sortQueryOptions[sortOption],
   );
 
@@ -121,7 +133,7 @@ export default function AlbumPage(props: AlbumPageProps) {
         <Breadcrumbs classNames={{ separator: "text-3xl" }} separator=">>">
           {[
             { title: "ALBUMS", href: "/albums" },
-            { title: albumQuery.data?.name, href: `#` },
+            { title: album.name, href: `#` },
           ].map((breadcrumb) => (
             <Anchor href={breadcrumb.href} key={breadcrumb.title}>
               <Title order={1}>{breadcrumb.title}</Title>
