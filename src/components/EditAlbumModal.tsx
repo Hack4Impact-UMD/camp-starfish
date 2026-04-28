@@ -2,6 +2,7 @@
 
 import React, { useState, useRef } from "react";
 import imageIcon from "@/assets/icons/imageIcon.png";
+import Image from "next/image";
 
 interface EditAlbumModalProps {
   trigger: React.ReactNode;
@@ -41,17 +42,21 @@ const EditAlbumModal: React.FC<EditAlbumModalProps> = ({ trigger, mode }) => {
               onClick={() => fileInputRef.current?.click()}
             >
               {selectedImage ? (
-                <img
+                <Image
                   src={selectedImage}
                   alt="Uploaded"
                   className="w-28 h-28 object-cover rounded-md"
+                  width={112}
+                  height={112}
                 />
               ) : (
                 <>
-                  <img
+                  <Image
                     src={imageIcon.src}
                     alt="Upload"
                     className="w-10 h-10"
+                    width={40}
+                    height={40}
                   />
                 </>
               )}
@@ -95,7 +100,7 @@ const EditAlbumModal: React.FC<EditAlbumModalProps> = ({ trigger, mode }) => {
                 }}
                 className="bg-camp-tert-green text-white px-6 py-2 rounded-full font-lato font-semibold"
               >
-                {mode === 'CREATE' ? 'CREATE' : 'CONFIRM'}
+                {mode === "CREATE" ? "CREATE" : "CONFIRM"}
               </button>
             </div>
           </div>

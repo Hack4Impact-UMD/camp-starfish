@@ -2,14 +2,16 @@ import React, { useState } from "react";
 import plusIcon from "@/assets/icons/plusIcon.svg";
 import filterIcon from "@/assets/icons/filterIcon.svg";
 import TestPicture from "@/assets/images/PolaroidPhotos1.png"; // Replace with actual image URL
-import Link from "next/link";
 import ImageCard from "@/components/ImageCard";
 import CardGallery from "@/components/CardGallery";
-import { ImageID } from "@/types/albumTypes";
-import ImageView from "@/components/ImageView";
+import { AlbumItem } from "@/types/albums/albumTypes";
+import FileUploadModal from "@/components/FileUploadModal";
+import { uploadFiles } from "@/data/storage/storageClientOperations";
+import { v4 as uuidv4 } from "uuid";
+import Image from "next/image";
 
 const AlbumPage: React.FC = () => {
-  const [selectedImage, setSelectedImage] = useState<ImageID | null>(null);
+  const [selectedImageId, setSelectedImageId] = useState<string | null>(null);
 
   const dates = [
     "Mon, June 17",
@@ -19,30 +21,14 @@ const AlbumPage: React.FC = () => {
     "Fri, June 21",
   ];
 
-  const images: ImageID[] = [];
+  const images: AlbumItem[] = [];
   for (let i = 0; i < 10; i++) {
     images.push({
       src: TestPicture.src,
       name: "Image " + i,
-      tags: {
-        approved: [
-          {
-            campminderId: 12345,
-            name: {
-              firstName: "Student",
-              lastName: "1",
-            },
-            photoPermissions: "PUBLIC",
-          },
-        ],
-        inReview: Array.from({ length: 5 }, (_, i) => ({
-          campminderId: 67890 + i,
-          name: {
-            firstName: "Student",
-            lastName: `${i + 1}`,
-          },
-          photoPermissions: "PUBLIC",
-        })),
+      tagIds: {
+        approved: [],
+        inReview: [],
       },
       dateTaken: dates[i % 5],
       inReview: false,
@@ -56,62 +42,65 @@ const AlbumPage: React.FC = () => {
   const title = "Unknown Album";
   const session = "No Session";
 
+  async function uploadImages(images: File[]) {
+    const paths = images.map(() => `albums/${albumId}/${uuidv4()}`);
+    await uploadFiles(images, paths);
+  }
+
   return (
-    <div
-      className={`relative w-full h-full ${
-        selectedImage ? "overflow-hidden" : "overflow-auto"
-      }`}
-    >
-      <div className="w-full min-h-full bg-gray-100">
-        <div className="container mx-auto px-4 py-6">
-          {/* Header */}
-          <div className="flex items-center justify-between">
-            <h1 className="text-4xl font-lato font-bold text-camp-primary">
-              ALBUMS {">>"} {title} {">>"} {session}
-            </h1>
-            <div className="flex items-center gap-4">
-              <input
-                type="text"
-                placeholder="Search Tags..."
-                className="px-10 py-2 text-sm border text-black border-gray-500 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-camp-primary"
-              />
-              <img
-                className="w-[72px] h-[72px] flex-none cursor-pointer"
-                src={filterIcon.src}
-                alt="Filter"
-              />
-              <img
+    <div className="w-full min-h-full bg-gray-100">
+      <div className="container mx-auto px-4 py-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <h1 className="text-4xl font-lato font-bold text-camp-primary">
+            ALBUMS {">>"} {title} {">>"} {session}
+          </h1>
+          <div className="flex items-center gap-4">
+            <input
+              type="text"
+              placeholder="Search Tags..."
+              className="px-10 py-2 text-sm border text-black border-gray-500 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-camp-primary"
+            />
+            <Image
+              className="w-[72px] h-[72px] flex-none cursor-pointer"
+              src={filterIcon.src}
+              alt="Filter"
+              width={48}
+              height={48}
+            />
+            <FileUploadModal
+              onUpload={uploadImages}
+              acceptedFileExtensions={[".jpg", ".png"]}
+              maxFileSize={5}
+            >
+              <Image
                 className="w-[72px] h-[72px] flex-none cursor-pointer"
                 src={plusIcon.src}
                 alt="Plus"
+                width={48}
+                height={48}
               />
-            </div>
+            </FileUploadModal>
           </div>
-
-          {/* Content */}
-          <CardGallery<ImageID>
-            items={images}
-            renderItem={(image: ImageID, isSelected: boolean) => (
-              <div onDoubleClick={() => setSelectedImage(image)}>
-                <ImageCard image={image} isSelected={isSelected} />
-              </div>
-            )}
-            groups={{
-              groupLabels: dates,
-              defaultGroupLabel: "Date Unknown",
-              groupFunc: (image: ImageID) => image.dateTaken,
-            }}
-          />
         </div>
 
-        {selectedImage && (
-          <ImageView
-            image={selectedImage}
-            onLeftClick={() => alert("Left Click")}
-            onRightClick={() => alert("Right Click")}
-            onClose={() => setSelectedImage(null)}
-          />
-        )}
+        {/* Content */}
+        <CardGallery<AlbumItem>
+          items={images}
+          renderItem={(image: AlbumItem, isSelected: boolean) => (
+            <div onDoubleClick={() => setSelectedImageId(image.id)}>
+              <ImageCard image={image} isSelected={isSelected} />
+            </div>
+          )}
+          groups={{
+            groupLabels: dates,
+            defaultGroupLabel: "Date Unknown",
+            groupFunc: (image: AlbumItem) => image.dateTaken,
+          }}
+        />
+
+        {/* need to render new ImageView modal here once rewritten */}
+        {/* <ImageView albumId={albumId} albumItemId={selectedImageId} opened={!!selectedImageId} onClose={() => setSelectedImageId(null)} /> */}
       </div>
     </div>
   );

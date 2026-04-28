@@ -1,60 +1,59 @@
 import { db } from "@/config/firebase";
-import { Session, SessionID } from "@/types/sessionTypes";
-import { randomUUID } from "crypto";
+import { Session } from "@/types/sessions/sessionTypes";
+import { SessionDoc } from "./types/documents";
+import { v4 as uuid } from "uuid";
 import {
-    doc,
-    collection,
-    getDoc,
-    addDoc,
-    updateDoc,
-    deleteDoc,
-    Transaction,
-    WriteBatch,
+  doc,
+  Transaction,
+  WriteBatch,
+  FirestoreDataConverter,
+  WithFieldValue,
+  QueryDocumentSnapshot,
+  DocumentReference,
+  collection,
+  CollectionReference,
+  UpdateData
 } from "firebase/firestore";
-import { Collection } from "./utils";
+import {
+  setDoc,
+  deleteDoc,
+  getDoc,
+  updateDoc,
+  executeQuery,
+} from "./firestoreClientOperations";
+import { Collection } from "./types/collections";
 
-export async function getSessionById(id: string, transaction?: Transaction): Promise<SessionID> {
-    const sessionRef = doc(db, Collection.SESSIONS, id);
-    let sessionDoc;
-    try {
-        sessionDoc = await (transaction ? transaction.get(sessionRef) : getDoc(sessionRef));
-    } catch (error: any) {
-        throw new Error(`Failed to get session: ${error.code}`);
-    }
-    if (!sessionDoc.exists()) {
-        throw new Error("Session not found");
-    }
-    return { id: sessionDoc.id, ...sessionDoc.data() } as SessionID;
+const sessionFirestoreConverter: FirestoreDataConverter<Session, SessionDoc> = {
+  toFirestore: (
+    session: WithFieldValue<Session>
+  ): WithFieldValue<SessionDoc> => {
+    const { id, ...dto } = session;
+    return dto;
+  },
+  fromFirestore: (
+    snapshot: QueryDocumentSnapshot<SessionDoc, SessionDoc>
+  ): Session => ({ id: snapshot.ref.id, ...snapshot.data() }),
+};
+
+export async function getSessionById(id: string, transaction?: Transaction): Promise<Session> {
+  return await getDoc<Session, SessionDoc>(doc(db, Collection.SESSIONS, id) as DocumentReference<Session, SessionDoc>, sessionFirestoreConverter, transaction);
 }
 
-export async function createSession(session: Session, instance?: Transaction | WriteBatch): Promise<string> {
-    try {
-        // @ts-ignore
-        const sessionRef = await (instance ? instance.set(doc(db, Collection.SESSIONS, randomUUID()), session) : addDoc(collection(db, Collection.SESSIONS), session));
-        return sessionRef.id;
-    } catch (error: any) {
-        throw new Error(`Failed to create session: ${error.code}`);
-    }
+export async function getAllSessions(): Promise<Session[]> {
+  return await executeQuery<Session, SessionDoc>(collection(db, Collection.SESSIONS) as CollectionReference<Session, SessionDoc>, sessionFirestoreConverter);
 }
 
-export async function updateSession(id: string, updates: Partial<Session>, instance?: Transaction | WriteBatch): Promise<void> {
-    try {
-        const sessionRef = doc(db, Collection.SESSIONS, id);
-        // @ts-ignore
-        await (instance ? Transaction.set(sessionRef, updates) : updateDoc(sessionRef, updates));
-    } catch (error: any) {
-        if (error.code === "not-found") {
-            throw new Error("Session not found");
-        }
-        throw new Error(`Failed to update session: ${error.code}`);
-    }
+export type CreateSessionDTO = SessionDoc;
+export async function setSession(session: CreateSessionDTO, instance?: Transaction | WriteBatch): Promise<string> {
+  const sessionId = uuid();
+  await setDoc<Session, SessionDoc>(doc(db, Collection.SESSIONS, sessionId) as DocumentReference<Session, SessionDoc>, { id: sessionId, ...session }, sessionFirestoreConverter, instance);
+  return sessionId;
+}
+
+export async function updateSession(id: string, updates: UpdateData<SessionDoc>, instance?: Transaction | WriteBatch): Promise<void> {
+  await updateDoc<Session, SessionDoc>(doc(db, Collection.SESSIONS, id) as DocumentReference<Session, SessionDoc>, updates, sessionFirestoreConverter, instance);
 }
 
 export async function deleteSession(id: string, instance?: Transaction | WriteBatch): Promise<void> {
-    try {
-        const sessionRef = doc(db, Collection.SESSIONS, id);
-        await (instance ? instance.delete(sessionRef) : deleteDoc(sessionRef));
-    } catch (error: any) {
-        throw new Error(`Failed to delete session: ${error.code}`);
-    }
+  await deleteDoc<Session, SessionDoc>(doc(db, Collection.SESSIONS, id) as DocumentReference<Session, SessionDoc>, sessionFirestoreConverter, instance);
 }

@@ -1,10 +1,17 @@
-import type { Metadata } from "next";
+import "@mantine/core/styles.css";
+import "@mantine/notifications/styles.css";
+import "@mantine/dates/styles.css";
 import "./globals.css";
-import localFont from "next/font/local";
-import Navbar from "../components/Navbar"; // Adjust the path as needed
-import AuthProvider from "@/auth/AuthProvider";
-import Footer from "../components/Footer";
 
+import type { Metadata } from "next";
+import Navbar from "../components/Navbar"; // Adjust the path as needed
+import Footer from "../components/Footer";
+import localFont from "next/font/local";
+import { NextFontWithVariable } from "next/dist/compiled/@next/font";
+import { CampStarfishFont, campStarfishFonts } from "@/styles/fonts";
+import Providers from "@/components/Providers";
+import { TanStackDevtools } from "@tanstack/react-devtools";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 const lato = localFont({
   src: [
@@ -59,7 +66,7 @@ const lato = localFont({
       style: "italic",
     },
   ],
-  variable: "--font-lato",
+  variable: "--font-Lato",
 });
 
 const newSpirit = localFont({
@@ -115,15 +122,21 @@ const newSpirit = localFont({
       style: "italic",
     },
   ],
-  variable: "--font-newSpirit",
+  variable: "--font-NewSpirit",
 });
 
 const besteam = localFont({
   src: "../../public/fonts/Besteam.ttf",
   weight: "400",
   style: "regular",
-  variable: "--font-besteam",
+  variable: "--font-Besteam",
 });
+
+const fontObjs: Record<CampStarfishFont, NextFontWithVariable> = {
+  Lato: lato,
+  NewSpirit: newSpirit,
+  Besteam: besteam,
+};
 
 export const metadata: Metadata = {
   title: "Camp Starfish",
@@ -138,21 +151,27 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${lato.variable} ${newSpirit.variable} ${besteam.variable} antialiased w-full min-h-screen flex flex-col`}
+        className={`${campStarfishFonts
+          .map((font) => fontObjs[font].variable)
+          .join(" ")} antialiased w-full min-h-screen flex flex-col`}
       >
-        <AuthProvider>
-          <>
-            <div className="w-full">
-              <Navbar />
-            </div>
-            <div className="flex-grow w-full">
-              {children}
-            </div>
-            <div className="w-full">
-              <Footer />
-            </div>
-          </>
-        </AuthProvider>
+        <Providers>
+          <div className="w-full">
+            <Navbar />
+          </div>
+          <div className="flex-grow w-full">{children}</div>
+          <div className="w-full">
+            <Footer />
+          </div>
+          <TanStackDevtools
+            plugins={[
+              {
+                name: "Query",
+                render: <ReactQueryDevtools />,
+              },
+            ]}
+          />
+        </Providers>
       </body>
     </html>
   );

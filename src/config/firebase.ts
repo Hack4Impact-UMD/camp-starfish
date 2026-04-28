@@ -17,10 +17,12 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
-export const storage = getStorage(app); 
+export const storage = getStorage(app);
 export const functions = getFunctions(app, 'us-central1');
 
-connectAuthEmulator(auth, 'http://localhost:9099');
-connectFirestoreEmulator(db, 'localhost', 8080);
-connectFunctionsEmulator(functions, "localhost", 5001);
-connectStorageEmulator(storage, "localhost", 9199);
+if (process.env.NODE_ENV !== "production") {
+  connectAuthEmulator(auth, 'http://localhost:9099');
+  connectFirestoreEmulator(db, 'localhost', 8080);
+  connectFunctionsEmulator(functions, "localhost", 5001);
+  connectStorageEmulator(storage, "localhost", 9199);
+}
