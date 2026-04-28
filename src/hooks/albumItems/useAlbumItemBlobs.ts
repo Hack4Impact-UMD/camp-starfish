@@ -1,7 +1,7 @@
 import { useQueries } from "@tanstack/react-query";
 import { getAlbumItemBlob } from "./useAlbumItemBlob";
 
-interface AlbumItemIdentifier {
+export interface AlbumItemIdentifier {
   albumId: string;
   albumItemId: string;
 }
