@@ -1,33 +1,41 @@
 import { Album } from "@/types/albums/albumTypes";
 import { AlbumDoc } from "@/data/firestore/types/documents";
 import { v4 as uuid } from "uuid";
-import { Collection } from "@/data/firestore/types/collections";
-import { setDoc, deleteDoc, getDoc, updateDoc } from "./firestoreAdminOperations";
-import { DocumentReference, FirestoreDataConverter, QueryDocumentSnapshot, Transaction, UpdateData, WithFieldValue, WriteBatch } from "firebase-admin/firestore";
+import { RootLevelCollection } from "@/data/firestore/types/collections";
+import { createDoc, deleteDoc, getDoc, updateDoc } from "./firestoreAdminOperations";
+import { DocumentReference, DocumentSnapshot, QueryDocumentSnapshot, Transaction, UpdateData, WithFieldValue, WriteBatch } from "firebase-admin/firestore";
 import { adminDb } from "../../config/firebaseAdminConfig";
+import moment from "moment";
 
-const albumFirestoreConverter: FirestoreDataConverter<Album, AlbumDoc> = {
-  toFirestore: (album: WithFieldValue<Album>): WithFieldValue<AlbumDoc> => {
-    const { id, ...dto } = album;
-    return dto;
-  },
-  fromFirestore: (snapshot: QueryDocumentSnapshot<AlbumDoc, AlbumDoc>): Album => ({ id: snapshot.ref.id, ...snapshot.data() })
-};
-
-export async function getAlbumById(id: string, transaction?: Transaction): Promise<Album> {
-  return await getDoc<Album, AlbumDoc>(adminDb.collection(Collection.ALBUMS).doc(id) as DocumentReference<Album, AlbumDoc>, albumFirestoreConverter, transaction);
+function fromFirestore(snapshot: DocumentSnapshot<AlbumDoc, AlbumDoc> | QueryDocumentSnapshot<AlbumDoc, AlbumDoc>): Album {
+  if (!snapshot.exists) { throw Error("Document not found"); }
+  const albumDoc = snapshot.data() as AlbumDoc;
+  return {
+    id: snapshot.ref.id,
+    name: albumDoc.name,
+    numItems: albumDoc.numItems,
+    hasThumbnail: albumDoc.hasThumbnail,
+    startDate: albumDoc.startDate ? moment(albumDoc.startDate.toMillis()) : null,
+    endDate: albumDoc.endDate ? moment(albumDoc.endDate.toMillis()) : null,
+    linkedSessionId: albumDoc.linkedSessionId,
+  }
 }
 
-export async function setAlbum(album: AlbumDoc, instance?: Transaction | WriteBatch): Promise<string> {
+export async function getAlbumDoc(id: string, transaction?: Transaction): Promise<Album> {
+  const snapshot = await getDoc<AlbumDoc>(adminDb.collection(RootLevelCollection.ALBUMS).doc(id) as DocumentReference<AlbumDoc, AlbumDoc>, transaction);
+  return fromFirestore(snapshot);
+}
+
+export async function createAlbumDoc(album: WithFieldValue<AlbumDoc>, instance?: Transaction | WriteBatch): Promise<string> {
   const albumId = uuid();
-  await setDoc<Album, AlbumDoc>(adminDb.collection(Collection.ALBUMS).doc(albumId) as DocumentReference<Album, AlbumDoc>, { id: albumId, ...album }, albumFirestoreConverter, instance);
+  await createDoc<AlbumDoc>(adminDb.collection(RootLevelCollection.ALBUMS).doc(albumId) as DocumentReference<AlbumDoc, AlbumDoc>, album, instance);
   return albumId;
 }
 
-export async function updateAlbum(id: string, updates: UpdateData<AlbumDoc>, instance?: Transaction | WriteBatch): Promise<void> {
-  await updateDoc<Album, AlbumDoc>(adminDb.collection(Collection.ALBUMS).doc(id) as DocumentReference<Album, AlbumDoc>, updates, albumFirestoreConverter, instance);
+export async function updateAlbumDoc(id: string, updates: UpdateData<AlbumDoc>, instance?: Transaction | WriteBatch): Promise<void> {
+  await updateDoc<AlbumDoc>(adminDb.collection(RootLevelCollection.ALBUMS).doc(id) as DocumentReference<AlbumDoc, AlbumDoc>, updates, instance);
 }
 
-export async function deleteAlbum(id: string, instance?: Transaction | WriteBatch): Promise<void> {
-  await deleteDoc<Album, AlbumDoc>(adminDb.collection(Collection.ALBUMS).doc(id) as DocumentReference<Album, AlbumDoc>, albumFirestoreConverter, instance);
+export async function deleteAlbumDoc(id: string, instance?: Transaction | WriteBatch): Promise<void> {
+  await deleteDoc<AlbumDoc>(adminDb.collection(RootLevelCollection.ALBUMS).doc(id) as DocumentReference<AlbumDoc, AlbumDoc>, instance);
 }

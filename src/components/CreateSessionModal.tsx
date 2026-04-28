@@ -4,7 +4,7 @@ import { Button, TextInput, Stack, Group, Text, Box } from "@mantine/core";
 import moment from "moment";
 import useCreateSession from "@/hooks/sessions/useCreateSession";
 import { modals } from "@mantine/modals";
-import { CreateSessionDTO } from "@/data/firestore/sessions";
+import { SessionDoc } from "@/data/firestore/types/documents";
 
 export default function CreateSessionModal() {
   const [sessionName, setSessionName] = useState<string>("");
@@ -18,7 +18,7 @@ export default function CreateSessionModal() {
       return;
     }
 
-    const newSession: CreateSessionDTO = {
+    const newSession: SessionDoc = {
       name: sessionName,
       startDate: moment(startDateStr).startOf("day").toISOString(),
       endDate: moment(endDateStr).endOf("day").toISOString(),
@@ -51,7 +51,7 @@ export default function CreateSessionModal() {
               }
               disabled
               classNames={{
-                root: "flex-grow",
+                root: "grow",
               }}
             />
 
@@ -66,7 +66,7 @@ export default function CreateSessionModal() {
               }
               disabled
               classNames={{
-                root: "flex-grow",
+                root: "grow",
               }}
             />
           </Group>

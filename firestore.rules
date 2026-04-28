@@ -47,7 +47,7 @@ service cloud.firestore {
         allow write: if isStaffOrAdmin();
       }
       
-      match /night_shifts/{shiftId} {
+      match /nightSchedules/{shiftId} {
         allow read: if isStaffOrAdmin();
         allow write: if isStaffOrAdmin();
       }
@@ -63,7 +63,7 @@ service cloud.firestore {
       allow read: if isStaffOrAdmin();
       allow write: if isStaffOrAdmin();
       
-      match /image_metadatas/{imageId} {
+      match /albumItems/{albumItemId} {
         allow read: if isStaffOrAdmin();
         allow write: if isStaffOrAdmin();
       }
@@ -96,7 +96,7 @@ service cloud.firestore {
     }
     
     // Shared resources
-    match /program_areas/{areaId} {
+    match /programAreas/{areaId} {
       allow read: if isStaffOrAdmin();
       allow write: if isStaffOrAdmin();
     }

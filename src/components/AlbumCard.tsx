@@ -1,38 +1,58 @@
+import { Image, Text, Title } from "@mantine/core";
+import useAlbum from "@/hooks/albums/useAlbum";
+import ErrorPage from "@/app/error";
+import LoadingPage from "@/app/loading";
+import { useRouter } from "next/navigation";
 import { Album } from "@/types/albums/albumTypes";
-import Link from "next/link";
-import Image from "next/image";
-
+import useAlbumThumbnailSrc from "@/hooks/albums/useAlbumThumbnailSrc";
 interface AlbumCardProps {
-  album: Album;
-  thumbnail: string;
+  albumId: string;
 }
 
-const AlbumCard: React.FC<AlbumCardProps> = ({
-  album,
-  thumbnail,
-}: AlbumCardProps) => {
-  const { name, startDate, endDate, numPhotos, id } = album;
-  return (
-    <Link href={`/albums/${id}`}>
-      <div className="bg-white shadow-md hover:shadow-lg transition-shadow duration-300 p-4">
-        <Image
-          src={thumbnail}
-          alt={name}
-          className="w-full h-48 object-cover rounded-lg"
-          width={200}
-          height={48}
-        />
-        <div className="mt-2">
-          <h3 className="text-lg font-bold font-lato text-camp-text-headingBody">
-            {name}
-          </h3>
-          <p className="text-sm font-lato text-camp-text-subheading">
-            {startDate} - {endDate} • {numPhotos} photos
-          </p>
-        </div>
-      </div>
-    </Link>
-  );
-};
+function getAlbumCardText(album: Album) {
+  const { startDate, endDate, numItems } = album;
+  const itemsText = numItems === 1 ? `1 item` : `${numItems} items`;
+  if (!startDate || !endDate) {
+    return itemsText;
+  } else if (startDate.isSame(endDate, "year")) {
+    if (startDate.isSame(endDate, "month")) {
+      return `${startDate.format("MMMM YYYY")} • ${itemsText}`;
+    }
+    return `${startDate.format("MMMM")} - ${endDate.format("MMMM YYYY")} • ${itemsText}`;
+  }
+  return `${startDate.format("MMMM YYYY")} - ${endDate.format("MMMM YYYY")} • ${itemsText}`;
+}
 
-export default AlbumCard;
+export default function AlbumCard(props: AlbumCardProps) {
+  const { albumId } = props;
+  const albumQuery = useAlbum(albumId);
+  const thumbnailSrcQuery = useAlbumThumbnailSrc(albumQuery.data);
+
+  const router = useRouter();
+
+  if (albumQuery.isError) {
+    return <ErrorPage error={albumQuery.error} />;
+  } else if (albumQuery.isPending) {
+    return <LoadingPage></LoadingPage>;
+  }
+
+  const album = albumQuery.data;
+  return (
+    <div
+      className="bg-neutral-0 hover:bg-neutral-2 border border-neutral-3 shadow-sm hover:shadow-lg duration-300 p-4 cursor-pointer"
+      onDoubleClick={() => router.push(`/albums/${album.id}`)}
+    >
+      <Image
+        src={thumbnailSrcQuery.data ?? null}
+        alt={album.name}
+        className="w-full h-48 object-contain"
+        width={200}
+        height={48}
+      />
+      <div className="mt-2">
+        <Title order={3}>{album.name}</Title>
+        <Text>{getAlbumCardText(albumQuery.data)}</Text>
+      </div>
+    </div>
+  );
+}
