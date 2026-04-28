@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import plusIcon from "@/assets/icons/plusIcon.svg";
 import filterIcon from "@/assets/icons/filterIcon.svg";
 import ImageCard from "@/components/ImageCard";
@@ -11,6 +11,8 @@ import Image from "next/image";
 import moment from "moment";
 
 const AlbumPage: React.FC = () => {
+  const [selectedImageId, setSelectedImageId] = useState<string | null>(null);
+
   const dates = [
     "Mon, June 17",
     "Tues, June 18",
@@ -87,7 +89,9 @@ const AlbumPage: React.FC = () => {
         <CardGallery<AlbumItem>
           items={images}
           renderItem={(image: AlbumItem, isSelected: boolean) => (
-            <ImageCard image={image} isSelected={isSelected} />
+            <div onDoubleClick={() => setSelectedImageId(image.id)}>
+              <ImageCard image={image} isSelected={isSelected} />
+            </div>
           )}
           groups={{
             groupLabels: dates,
@@ -95,6 +99,9 @@ const AlbumPage: React.FC = () => {
             groupFunc: (image: AlbumItem) => image.dateTaken.format("YYYY-MM-DD"),
           }}
         />
+
+        {/* need to render new ImageView modal here once rewritten */}
+        {/* <ImageView albumId={albumId} albumItemId={selectedImageId} opened={!!selectedImageId} onClose={() => setSelectedImageId(null)} /> */}
       </div>
     </div>
   );
