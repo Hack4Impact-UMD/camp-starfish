@@ -2,17 +2,22 @@ import { Moment, weekdaysShort } from "moment";
 
 import React, { useState } from "react";
 import { SimpleGrid, Text, Box } from "@mantine/core";
-import { Session } from "@/types/sessions/sessionTypes";
+import { SchedulingSection, Session } from "@/types/sessions/sessionTypes";
 import moment from "moment";
 import classNames from "classnames";
 import { modals } from "@mantine/modals";
 import EditSectionModal from "@/components/EditSectionModal";
+import useSections from "@/hooks/sections/useSectionsBySessionId";
+import { isSchedulingSection } from "@/types/sessions/sessionTypeGuards";
+import { getSectionSchedule } from "@/data/firestore/sectionSchedules";
+import { openEditActivitiesModal } from "@/components/EditActivitiesModal";
 
 interface SessionCalendarProps {
   session: Session;
 }
 
 export default function SessionCalendar({ session }: SessionCalendarProps) {
+  const sectionsQuery = useSections(session.id);
   const [firstSelectedDate, setFirstSelectedDate] = useState<Moment | null>(
     null,
   );
@@ -32,21 +37,49 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
     }
   };
 
-  const handlePointerUp = () => {
+  const handlePointerUp = async () => {
     if (isSelecting) {
+      const rangeStart = firstSelectedDate.isSameOrBefore(secondSelectedDate)
+        ? firstSelectedDate
+        : secondSelectedDate;
+      const rangeEnd = firstSelectedDate.isSameOrBefore(secondSelectedDate)
+        ? secondSelectedDate
+        : firstSelectedDate;
+
+      // Single-day click on an existing scheduling section opens activities modal.
+      if (
+        rangeStart.isSame(rangeEnd, "day") &&
+        sectionsQuery.data &&
+        !sectionsQuery.isPending
+      ) {
+        const selectedSection = sectionsQuery.data.find(
+          (section): section is SchedulingSection =>
+            isSchedulingSection(section) &&
+            rangeStart.isBetween(section.startDate, section.endDate, "day", "[]"),
+        );
+
+        if (selectedSection) {
+          const schedule = await getSectionSchedule(session.id, selectedSection.id);
+          openEditActivitiesModal({
+            section: selectedSection,
+            sections: sectionsQuery.data,
+            initialSchedule: schedule,
+          });
+          setFirstSelectedDate(null);
+          setSecondSelectedDate(null);
+          return;
+        }
+      }
+
       modals.open({
         title: "Create Section",
         children: (
           <EditSectionModal
             selectedStartDate={
-              firstSelectedDate.isSameOrBefore(secondSelectedDate)
-                ? firstSelectedDate
-                : secondSelectedDate
+              rangeStart
             }
             selectedEndDate={
-              firstSelectedDate.isSameOrBefore(secondSelectedDate)
-                ? secondSelectedDate
-                : firstSelectedDate
+              rangeEnd
             }
             sessionId={session.id}
           />
