@@ -19,6 +19,7 @@ import {
   Tooltip,
 } from "@mantine/core";
 import { MdSort } from "react-icons/md";
+import openFileUploadModal from "@/components/FileUploadModal";
 
 const allTags = [
   { id: "1", name: "Claire C." },
@@ -38,7 +39,7 @@ const allTags = [
   { id: "15", name: "Saharsh M." },
 ];
 
-const enum AlbumPageSortOption {
+enum AlbumPageSortOption {
   NEWEST_TO_OLDEST = "Newest → Oldest",
   OLDEST_TO_NEWEST = "Oldest → Newest",
   A_TO_Z = "A → Z",
@@ -70,7 +71,6 @@ export default function AlbumPage(props: AlbumPageProps) {
   const [sortOption, setSortOption] = useState<AlbumPageSortOption>(
     AlbumPageSortOption.NEWEST_TO_OLDEST,
   );
-  const [filteredImages, setFilteredImages] = useState<AlbumItem[]>([]);
 
   const albumQuery = useAlbum(albumId);
   const albumItemsQuery = useAlbumItemsList(
@@ -81,28 +81,9 @@ export default function AlbumPage(props: AlbumPageProps) {
   const albumItems =
     albumItemsQuery.data?.pages.flatMap((page) => page.docs) || [];
 
-  // Update filtered images whenever selected tags or images change
-  useEffect(() => {
-    if (selectedTags.length > 0) {
-      const filtered = albumItems.filter((image) => {
-        return selectedTags.some((tag) =>
-          image.tagIds.approved.includes(Number(tag)),
-        );
-      });
-      setFilteredImages(filtered);
-    } else {
-      setFilteredImages(albumItems);
-    }
-  }, [selectedTags, albumItems]);
-
   // Download images as zip file
   const handleDownloadAll = async () => {
     try {
-      // Ensure it's downloading images in filtered list (only selected tags)
-      if (filteredImages.length === 0) {
-        alert("No images to download");
-        return;
-      }
 
       // Create zip file containing all images
       const zip = new JSZip();
@@ -110,7 +91,7 @@ export default function AlbumPage(props: AlbumPageProps) {
 
       // Add each image to zip file
       await Promise.all(
-        filteredImages.map(async (image, index) => {
+        albumItems.map(async (image, index) => {
           const response = await fetch("");
           const blob = await response.blob();
           imgFolder?.file(`image_${index + 1}.jpg`, blob);
