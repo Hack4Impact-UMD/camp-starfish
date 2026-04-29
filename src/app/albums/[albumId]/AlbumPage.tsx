@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { MdOutlineFileUpload, MdOutlineFileDownload, MdPendingActions } from "react-icons/md";
+import {
+  MdOutlineFileUpload,
+  MdOutlineFileDownload,
+  MdPendingActions,
+} from "react-icons/md";
 import Link from "next/link";
 import ImageCard from "@/components/ImageCard";
 import CardGallery from "@/components/CardGallery";
@@ -70,11 +74,11 @@ export default function AlbumPage(props: AlbumPageProps) {
 
   const albumQuery = useAlbum(albumId);
   if (albumQuery.isPending) {
-    return <LoadingPage />
+    return <LoadingPage />;
   } else if (albumQuery.isError) {
-    return <ErrorPage error={albumQuery.error} />
+    return <ErrorPage error={albumQuery.error} />;
   } else {
-    return <AlbumPageContent album={albumQuery.data} />
+    return <AlbumPageContent album={albumQuery.data} />;
   }
 }
 
@@ -104,7 +108,7 @@ export function AlbumPageContent(props: AlbumPageContentProps) {
   if (albumItemsQuery.isPending) {
     return <LoadingPage />;
   } else if (albumItemsQuery.isError) {
-    return <ErrorPage error={albumItemsQuery.error} />
+    return <ErrorPage error={albumItemsQuery.error} />;
   }
 
   const albumItems =
@@ -178,7 +182,8 @@ export function AlbumPageContent(props: AlbumPageContentProps) {
           </Link>
 
           <Tooltip label="Upload Items">
-            <ActionIcon color="aqua">{/*onClick={() => openEditAlbumModal()}>*/}
+            <ActionIcon color="aqua">
+              {/*onClick={() => openEditAlbumModal()}>*/}
               <MdOutlineFileUpload size={40} />
             </ActionIcon>
           </Tooltip>
