@@ -4,7 +4,6 @@ import Link from "next/link";
 import ImageCard from "@/components/ImageCard";
 import CardGallery from "@/components/CardGallery";
 import Tagging from "@/components/Tagging";
-import JSZip from "jszip";
 import { Album, AlbumItem } from "@/types/albums/albumTypes";
 import { FirestoreQueryOptions } from "@/data/firestore/types/queries";
 import { AlbumItemDoc } from "@/data/firestore/types/documents";
@@ -21,6 +20,7 @@ import {
 import { MdSort } from "react-icons/md";
 import LoadingPage from "@/app/loading";
 import ErrorPage from "@/app/error";
+import useDownloadAlbum from "@/features/albums/downloading/useDownloadAlbum";
 
 const allTags = [
   { id: "1", name: "Claire C." },
@@ -92,8 +92,14 @@ export function AlbumPageContent(props: AlbumPageContentProps) {
 
   const albumItemsQuery = useAlbumItemsList(
     album.id,
-    sortQueryOptions[sortOption],
+    {
+      ...sortQueryOptions[sortOption],
+      limit: 10,
+      limitToLast: undefined
+    }
   );
+
+  const downloadAlbumMutation = useDownloadAlbum(album.id, sortQueryOptions[sortOption]);
 
   if (albumItemsQuery.isPending) {
     return <LoadingPage />;
@@ -104,39 +110,7 @@ export function AlbumPageContent(props: AlbumPageContentProps) {
   const albumItems =
     albumItemsQuery.data.pages.flatMap((page) => page.docs) || [];
 
-  // Download images as zip file
-  const handleDownloadAll = async () => {
-    try {
 
-      // Create zip file containing all images
-      const zip = new JSZip();
-      const imgFolder = zip.folder("album_images");
-
-      // Add each image to zip file
-      await Promise.all(
-        albumItems.map(async (image, index) => {
-          const response = await fetch("");
-          const blob = await response.blob();
-          imgFolder?.file(`image_${index + 1}.jpg`, blob);
-        }),
-      );
-
-      // Generate zip file
-      const content = await zip.generateAsync({ type: "blob" });
-
-      // Create download link
-      const url = URL.createObjectURL(content);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `images.zip`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error("Error downloading images:", error);
-    }
-  };
 
   return (
     <div className="flex flex-col w-6/7 grow mx-auto px-4 py-6 gap-6">
@@ -209,8 +183,11 @@ export function AlbumPageContent(props: AlbumPageContentProps) {
             </ActionIcon>
           </Tooltip>
 
-          <Tooltip label="Download Items">
-            <ActionIcon color="aqua">
+          <Tooltip label="Download Album">
+            <ActionIcon
+              color="aqua"
+              onClick={() => downloadAlbumMutation.mutate()}
+            >
               <MdOutlineFileDownload size={40} />
             </ActionIcon>
           </Tooltip>

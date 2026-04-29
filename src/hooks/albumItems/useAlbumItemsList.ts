@@ -5,12 +5,12 @@ import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { TanstackQueryFirestorePageParam } from "../types/tanstackQueryTypes";
 import { FirestoreQueryOptions } from "@/data/firestore/types/queries";
 
-export default function useAlbumItemsList(albumId: string, queryOptions?: FirestoreQueryOptions<AlbumItemDoc>) {
+export default function useAlbumItemsList(albumId: string, firestoreQueryOptions?: FirestoreQueryOptions<AlbumItemDoc>, enabled: boolean = true) {
   const queryClient = useQueryClient();
   return useInfiniteQuery({
-    queryKey: ['albums', albumId, 'albumItems', queryOptions],
+    queryKey: ['albums', albumId, 'albumItems', firestoreQueryOptions],
     queryFn: async ({ pageParam }) => {
-      const updatedQueryOptions = queryOptions ? { ...queryOptions } : {};
+      const updatedQueryOptions = firestoreQueryOptions ? { ...firestoreQueryOptions } : {};
       if (pageParam) {
         if (pageParam.direction === 'next') {
           updatedQueryOptions.startAfter = pageParam.snapshot;
@@ -27,5 +27,6 @@ export default function useAlbumItemsList(albumId: string, queryOptions?: Firest
     initialPageParam: undefined as TanstackQueryFirestorePageParam<AlbumItemDoc> | undefined,
     getPreviousPageParam: (firstPage) => firstPage.firstSnapshot ? ({ direction: 'previous' as const, snapshot: firstPage.firstSnapshot }) : undefined,
     getNextPageParam: (lastPage) => lastPage.lastSnapshot ? ({ direction: 'next' as const, snapshot: lastPage.lastSnapshot }) : undefined,
+    enabled
   });
 }
