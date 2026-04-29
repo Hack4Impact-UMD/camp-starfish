@@ -19,7 +19,7 @@ import {
 } from "@mantine/core";
 import { MdAdd, MdPendingActions, MdSort } from "react-icons/md";
 import Link from "next/link";
-import { QueryOptions } from "@/data/firestore/types/queries";
+import { FirestoreQueryOptions } from "@/data/firestore/types/queries";
 import { AlbumDoc } from "@/data/firestore/types/documents";
 import { useInViewport } from "@mantine/hooks";
 import LoadingAnimation from "@/components/LoadingAnimation";
@@ -31,7 +31,10 @@ const enum AlbumsPageSortOption {
   Z_TO_A = "Z → A",
 }
 
-const sortQueryOptions: Record<AlbumsPageSortOption, QueryOptions<AlbumDoc>> = {
+const sortQueryOptions: Record<
+  AlbumsPageSortOption,
+  FirestoreQueryOptions<AlbumDoc>
+> = {
   "Newest → Oldest": {
     orderBy: [{ fieldPath: "startDate", direction: "desc" }],
   },
@@ -61,7 +64,7 @@ export default function AlbumsPage() {
       fetchNextPage();
     }
   }, [inViewport, albumsQuery]);
-  
+
   if (albumsQuery.isError) {
     return <ErrorPage error={albumsQuery.error} />;
   } else if (albumsQuery.isLoading) {
@@ -142,8 +145,16 @@ export default function AlbumsPage() {
             items={albums}
             renderItem={(album: Album) => <AlbumCard albumId={album.id} />}
           />
-          {albumsQuery.isFetchingNextPage && <div className="w-1/3 self-center"><LoadingAnimation /></div>}
-          {!albumsQuery.hasNextPage && <Title order={4} classNames={{ root: "self-center" }}>All Done!</Title>}
+          {albumsQuery.isFetchingNextPage && (
+            <div className="w-1/3 self-center">
+              <LoadingAnimation />
+            </div>
+          )}
+          {!albumsQuery.hasNextPage && (
+            <Title order={4} classNames={{ root: "self-center" }}>
+              All Done!
+            </Title>
+          )}
           <div className="invisible" ref={ref} />
         </>
       )}

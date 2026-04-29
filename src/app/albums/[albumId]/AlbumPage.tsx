@@ -6,7 +6,7 @@ import CardGallery from "@/components/CardGallery";
 import Tagging from "@/components/Tagging";
 import JSZip from "jszip";
 import { Album, AlbumItem } from "@/types/albums/albumTypes";
-import { QueryOptions } from "@/data/firestore/types/queries";
+import { FirestoreQueryOptions } from "@/data/firestore/types/queries";
 import { AlbumItemDoc } from "@/data/firestore/types/documents";
 import useAlbum from "@/hooks/albums/useAlbum";
 import useAlbumItemsList from "@/hooks/albumItems/useAlbumItemsList";
@@ -49,7 +49,7 @@ const enum AlbumPageSortOption {
 
 const sortQueryOptions: Record<
   AlbumPageSortOption,
-  QueryOptions<AlbumItemDoc>
+  FirestoreQueryOptions<AlbumItemDoc>
 > = {
   "Newest → Oldest": {
     orderBy: [{ fieldPath: "dateTaken", direction: "desc" }],

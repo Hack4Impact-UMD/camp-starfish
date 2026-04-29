@@ -3,9 +3,9 @@ import { AlbumItemDoc } from "@/data/firestore/types/documents";
 import { AlbumItem } from "@/types/albums/albumTypes";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { TanstackQueryFirestorePageParam } from "../types/tanstackQueryTypes";
-import { QueryOptions } from "@/data/firestore/types/queries";
+import { FirestoreQueryOptions } from "@/data/firestore/types/queries";
 
-export default function useAlbumItemsList(albumId: string, queryOptions?: QueryOptions<AlbumItemDoc>) {
+export default function useAlbumItemsList(albumId: string, queryOptions?: FirestoreQueryOptions<AlbumItemDoc>) {
   const queryClient = useQueryClient();
   return useInfiniteQuery({
     queryKey: ['albums', albumId, 'albumItems', queryOptions],

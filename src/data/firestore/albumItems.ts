@@ -3,7 +3,7 @@ import { AlbumItem } from "@/types/albums/albumTypes";
 import { AlbumItemDoc } from "./types/documents";
 import { doc, Transaction, WriteBatch, QueryDocumentSnapshot, DocumentReference, DocumentSnapshot, WithFieldValue, UpdateData, getDocs, collection, CollectionReference } from "firebase/firestore";
 import { getDoc, setDoc, updateDoc, deleteDoc, executeQuery, mapSnapshotsToPaginatedQueryResult } from "./firestoreClientOperations"
-import { PaginatedQueryResponse, QueryOptions } from "./types/queries";
+import { PaginatedQueryResponse, FirestoreQueryOptions } from "./types/queries";
 import { AlbumsSubcollection, RootLevelCollection } from "./types/collections";
 import moment from "moment";
 import { v4 as uuidv4 } from "uuid";
@@ -26,7 +26,7 @@ export async function getAlbumItemDoc(albumId: string, albumItemId: string, tran
   return fromFirestore(snapshot);
 }
 
-export async function listAlbumItemDocs(albumId: string, queryOptions?: QueryOptions<AlbumItemDoc>): Promise<PaginatedQueryResponse<AlbumItem, AlbumItemDoc>> {
+export async function listAlbumItemDocs(albumId: string, queryOptions?: FirestoreQueryOptions<AlbumItemDoc>): Promise<PaginatedQueryResponse<AlbumItem, AlbumItemDoc>> {
   const snapshots = await executeQuery<AlbumItemDoc>(
     collection(db, RootLevelCollection.ALBUMS, albumId, AlbumsSubcollection.ALBUM_ITEMS) as CollectionReference<AlbumItemDoc, AlbumItemDoc>,
     queryOptions

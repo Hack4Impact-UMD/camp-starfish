@@ -3,7 +3,7 @@ import { DocumentReference, Query, Transaction, WriteBatch, DocumentSnapshot, ge
 import { db } from "@/config/firebase";
 import { Collection } from "./types/collections";
 import { NonEmptyArray } from "@/utils/types/typeUtils";
-import { AggregationQueryOptions, PaginatedQueryResponse, QueryOptions, SetDocMergeOptions, SetDocOptions, SetDocOverwriteOptions } from "./types/queries";
+import { AggregationQueryOptions, PaginatedQueryResponse, FirestoreQueryOptions, SetDocMergeOptions, SetDocOptions, SetDocOverwriteOptions } from "./types/queries";
 
 export async function getDoc<DbModelType extends DocumentData>(ref: DocumentReference<DbModelType, DbModelType>, transaction?: Transaction): Promise<DocumentSnapshot<DbModelType, DbModelType>> {
   let doc: DocumentSnapshot<DbModelType, DbModelType>;
@@ -65,7 +65,7 @@ export async function deleteDoc<DbModelType extends DocumentData>(ref: DocumentR
 }
 
 
-function buildQuery<DbModelType extends DocumentData>(collection: CollectionReference<DbModelType, DbModelType> | Collection, options?: QueryOptions<DbModelType>): Query<DbModelType, DbModelType> {
+function buildQuery<DbModelType extends DocumentData>(collection: CollectionReference<DbModelType, DbModelType> | Collection, options?: FirestoreQueryOptions<DbModelType>): Query<DbModelType, DbModelType> {
   let queryObj: Query<DbModelType, DbModelType> = typeof collection === 'string' ? collectionGroup(db, collection) as Query<DbModelType, DbModelType> : collection;
   if (options) {
     const { where = [], orderBy = [] } = options;
@@ -104,7 +104,7 @@ export function mapSnapshotsToPaginatedQueryResult<AppModelType, DbModelType ext
   }
 }
 
-export async function executeQuery<DbModelType extends DocumentData>(collection: CollectionReference<DbModelType, DbModelType> | Collection, options?: QueryOptions<DbModelType>): Promise<QueryDocumentSnapshot<DbModelType, DbModelType>[]> {
+export async function executeQuery<DbModelType extends DocumentData>(collection: CollectionReference<DbModelType, DbModelType> | Collection, options?: FirestoreQueryOptions<DbModelType>): Promise<QueryDocumentSnapshot<DbModelType, DbModelType>[]> {
   try {
     const queryObj = buildQuery(collection, options);
     const querySnapshot = await queryFirestore(queryObj);
