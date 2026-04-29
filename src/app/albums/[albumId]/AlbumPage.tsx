@@ -94,16 +94,16 @@ export function AlbumPageContent(props: AlbumPageContentProps) {
     AlbumPageSortOption.NEWEST_TO_OLDEST,
   );
 
-  const albumItemsQuery = useAlbumItemsList(
-    album.id,
-    {
-      ...sortQueryOptions[sortOption],
-      limit: 10,
-      limitToLast: undefined
-    }
-  );
+  const albumItemsQuery = useAlbumItemsList(album.id, {
+    ...sortQueryOptions[sortOption],
+    limit: 10,
+    limitToLast: undefined,
+  });
 
-  const downloadAlbumMutation = useDownloadAlbum(album.id, sortQueryOptions[sortOption]);
+  const downloadAlbumMutation = useDownloadAlbum(
+    album.id,
+    sortQueryOptions[sortOption],
+  );
 
   if (albumItemsQuery.isPending) {
     return <LoadingPage />;
@@ -155,7 +155,11 @@ export function AlbumPageContent(props: AlbumPageContentProps) {
                 AlbumPageSortOption.OLDEST_TO_NEWEST,
                 AlbumPageSortOption.A_TO_Z,
                 AlbumPageSortOption.Z_TO_A,
-              ].map(option => <Menu.Item onClick={() => setSortOption(option)}>{option}</Menu.Item>)}
+              ].map((option) => (
+                <Menu.Item onClick={() => setSortOption(option)}>
+                  {option}
+                </Menu.Item>
+              ))}
             </Menu.Dropdown>
           </Menu>
 
