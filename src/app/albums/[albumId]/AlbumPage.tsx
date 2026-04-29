@@ -150,30 +150,12 @@ export function AlbumPageContent(props: AlbumPageContentProps) {
               </Menu.Target>
             </Tooltip>
             <Menu.Dropdown>
-              <Menu.Item
-                onClick={() =>
-                  setSortOption(AlbumPageSortOption.NEWEST_TO_OLDEST)
-                }
-              >
-                Newest → Oldest
-              </Menu.Item>
-              <Menu.Item
-                onClick={() =>
-                  setSortOption(AlbumPageSortOption.OLDEST_TO_NEWEST)
-                }
-              >
-                Oldest → Newest
-              </Menu.Item>
-              <Menu.Item
-                onClick={() => setSortOption(AlbumPageSortOption.A_TO_Z)}
-              >
-                A → Z
-              </Menu.Item>
-              <Menu.Item
-                onClick={() => setSortOption(AlbumPageSortOption.Z_TO_A)}
-              >
-                Z → A
-              </Menu.Item>
+              {[
+                AlbumPageSortOption.NEWEST_TO_OLDEST,
+                AlbumPageSortOption.OLDEST_TO_NEWEST,
+                AlbumPageSortOption.A_TO_Z,
+                AlbumPageSortOption.Z_TO_A,
+              ].map(option => <Menu.Item onClick={() => setSortOption(option)}>{option}</Menu.Item>)}
             </Menu.Dropdown>
           </Menu>
 
