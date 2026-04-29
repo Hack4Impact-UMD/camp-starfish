@@ -186,7 +186,7 @@ export function AlbumPageContent(props: AlbumPageContentProps) {
       <CardGallery<AlbumItem>
         items={albumItems}
         renderItem={(image: AlbumItem, isSelected: boolean) => (
-          <AlbumItemCard albumItem={image} isSelected={isSelected} />
+          <AlbumItemCard albumId={album.id} albumItemId={image.id} isSelected={isSelected} />
         )}
         groups={{
           groupLabels: [...new Set(albumItems.map((item) =>

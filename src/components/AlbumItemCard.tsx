@@ -1,56 +1,53 @@
 "use client";
 
-import Image from "next/image";
-import { AlbumItem } from "@/types/albums/albumTypes";
+import useAlbumItemSrc from "@/hooks/albumItems/useAlbumItemSrc";
+import useAlbumItem from "@/hooks/albumItems/useAlbumItem";
+import { BackgroundImage, Card, Checkbox } from "@mantine/core";
+import LoadingAnimation from "./LoadingAnimation";
+import { MdError } from "react-icons/md";
+import classNames from "classnames";
+import { JSX } from "react";
 
 interface AlbumItemCardProps {
-  albumItem: AlbumItem;
+  albumId: string;
+  albumItemId: string;
   isSelected: boolean;
 }
 
 export default function AlbumItemCard(props: AlbumItemCardProps) {
-  const { albumItem, isSelected } = props;
-  return (
-    <div
-      key={albumItem.id}
-      className={`relative group w-full h-auto rounded-lg overflow-hidden shadow-md border-4 transition duration-300 cursor-pointer ${
-        isSelected ? "border-blue-500" : "border-transparent"
-      }`}
-    >
-      <Image
-        src={""}
-        alt={`${albumItem.name}`}
-        width={200}
-        height={200}
-        className="w-full h-auto object-cover"
-      />
-      <div
-        className={`absolute top-2 left-2 w-8 h-8 rounded-md bg-white bg-opacity-80 flex items-center justify-center transition-opacity duration-200 ${
-          isSelected ? "opacity-100" : "opacity-0 group-hover:opacity-100"
-        }`}
-      >
-        <div
-          className={`w-5 h-5 rounded-sm border-2 flex items-center justify-center ${
-            isSelected ? "bg-blue-500 border-blue-500" : "border-gray-400"
-          }`}
-        >
-          {isSelected && (
-            <svg
-              className="w-4 h-4 text-white"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="3"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M5 13l4 4L19 7"
-              />
-            </svg>
-          )}
+  const { albumId, albumItemId, isSelected } = props;
+
+  const albumItemSrcQuery = useAlbumItemSrc(albumId, albumItemId);
+
+  let albumItemContent: JSX.Element;
+  switch (albumItemSrcQuery.status) {
+    case "pending":
+      albumItemContent = <div><LoadingAnimation /></div>;
+      break;
+    case "error":
+      albumItemContent = <div className="flex justify-center items-center w-full h-full"><MdError className="text-error" size={60}/></div>;
+      break;
+    case "success":
+      albumItemContent = (
+      <BackgroundImage className="bg-contain bg-no-repeat w-full h-full p-2" src={albumItemSrcQuery.data}>
+        <div className={classNames("flex justify-center items-center rounded-sm bg-[#ffffffc0] w-8 h-8", {
+          'opacity-0 group-hover:opacity-100 transition duration-300': !isSelected,
+        })}>
+          <Checkbox color="neutral.8" classNames={{
+            'input': 'rounded-sm'
+          }} checked={isSelected} />
         </div>
-      </div>
-    </div>
-  );
+      </BackgroundImage>
+      )
+  }
+  
+  return (
+    <Card classNames={{ root: classNames('rounded-none p-0 aspect-3/2 cursor-pointer group', {
+      'border-neutral-8': isSelected,
+      'border-transparent': !isSelected,
+      'border-4': albumItemSrcQuery.isSuccess
+    }) }}>
+      {albumItemContent}
+    </Card>
+  )
 }
