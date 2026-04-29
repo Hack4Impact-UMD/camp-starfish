@@ -189,9 +189,9 @@ export function AlbumPageContent(props: AlbumPageContentProps) {
           <AlbumItemCard albumItem={image} isSelected={isSelected} />
         )}
         groups={{
-          groupLabels: albumItems.map((item) =>
+          groupLabels: [...new Set(albumItems.map((item) =>
             item.dateTaken.format("YYYY-MM-DD"),
-          ),
+          ))],
           defaultGroupLabel: "Date Unknown",
           groupFunc: (image: AlbumItem) => image.dateTaken.format("YYYY-MM-DD"),
         }}
