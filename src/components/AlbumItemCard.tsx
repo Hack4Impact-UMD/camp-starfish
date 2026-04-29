@@ -3,23 +3,23 @@
 import Image from "next/image";
 import { AlbumItem } from "@/types/albums/albumTypes";
 
-interface ImageCardProps {
-  image: AlbumItem;
+interface AlbumItemCardProps {
+  albumItem: AlbumItem;
   isSelected: boolean;
 }
 
-export default function ImageCard(props: ImageCardProps) {
-  const { image, isSelected } = props;
+export default function AlbumItemCard(props: AlbumItemCardProps) {
+  const { albumItem, isSelected } = props;
   return (
     <div
-      key={image.id}
+      key={albumItem.id}
       className={`relative group w-full h-auto rounded-lg overflow-hidden shadow-md border-4 transition duration-300 cursor-pointer ${
         isSelected ? "border-blue-500" : "border-transparent"
       }`}
     >
       <Image
         src={""}
-        alt={`${image.name}`}
+        alt={`${albumItem.name}`}
         width={200}
         height={200}
         className="w-full h-auto object-cover"

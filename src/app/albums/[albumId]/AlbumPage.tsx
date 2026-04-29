@@ -5,7 +5,7 @@ import {
   MdPendingActions,
 } from "react-icons/md";
 import Link from "next/link";
-import ImageCard from "@/components/ImageCard";
+import AlbumItemCard from "@/components/AlbumItemCard";
 import CardGallery from "@/components/CardGallery";
 import Tagging from "@/components/Tagging";
 import { Album, AlbumItem } from "@/types/albums/albumTypes";
@@ -114,8 +114,6 @@ export function AlbumPageContent(props: AlbumPageContentProps) {
   const albumItems =
     albumItemsQuery.data.pages.flatMap((page) => page.docs) || [];
 
-
-
   return (
     <div className="flex flex-col w-6/7 grow mx-auto px-4 py-6 gap-6">
       <div className="flex items-center justify-between">
@@ -188,7 +186,7 @@ export function AlbumPageContent(props: AlbumPageContentProps) {
       <CardGallery<AlbumItem>
         items={albumItems}
         renderItem={(image: AlbumItem, isSelected: boolean) => (
-          <ImageCard image={image} isSelected={isSelected} />
+          <AlbumItemCard albumItem={image} isSelected={isSelected} />
         )}
         groups={{
           groupLabels: albumItems.map((item) =>
