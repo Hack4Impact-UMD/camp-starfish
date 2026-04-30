@@ -14,6 +14,8 @@ import { lookup } from "mime-types";
 import Image from "next/image";
 import { modals } from "@mantine/modals";
 import { MdCheckCircle, MdClose, MdError, MdOutlineFileUpload } from "react-icons/md";
+import { Dropzone, FileWithPath } from "@mantine/dropzone";
+import { Button, List, ScrollArea, Text } from "@mantine/core";
 
 type FileUploadModalProps = {
   children: React.ReactNode;
@@ -41,45 +43,7 @@ function FileComponent({
     >
   >;
 }) {
-  return (
-    <div
-      className="w-140 my-1 py-3 px-3 bg-camp-background-formField text-camp-text-headingBody rounded-md flex flex-row items-center justify-between"
-      key={file.name}
-    >
-      <span className="text-camp-text-headingBody text-sm">{file.name}</span>
-      <div className="mr-1">
-        {accepted ? <MdCheckCircle /> : <MdError />}
-        <MdClose />
-      </div>
-    </div>
-  );
-}
-
-function InitialUploadView({
-  acceptedFileExtensions,
-  maxFileSize,
-}: {
-  acceptedFileExtensions: string[];
-  maxFileSize: number;
-}) {
-  return (
-    <div className="border-4 border-dashed border-camp-tert-orange rounded-lg text-center px-32 py-12">
-      <span className="block font-lato text-camp-text-subheading font-bold text-lg">
-        Supported file formats:{" "}
-        {acceptedFileExtensions.map((type: string) => type).join(", ")} (Max{" "}
-        {maxFileSize}MB)
-      </span>
-      <MdOutlineFileUpload />
-      <span className="block font-lato text-camp-text-subheading font-bold text-lg m-2">
-        Drag and drop files
-      </span>
-      <span className="block font-lato text-camp-text-subheading font-bold text-lg m-2">
-        OR
-      </span>
-      <span className=" cursor-pointer block font-lato text-camp-text-link font-bold text-lg m-2">
-        Select from device
-      </span>
-    </div>
+  return (<></>
   );
 }
 
@@ -145,6 +109,40 @@ function UploadedFilesView({
       </div>
     </>
   );
+}
+
+export function FileUploadModal2() {
+  const [files, setFiles] = useState<File[]>([]);
+  const acceptedFileExtensions = ["jpg", "png"];
+  const maxFileSize = 5;
+  return (
+    <>
+    <Dropzone classNames={{ inner: 'flex flex-col justify-center items-center border-4 border-dashed border-orange-5 rounded-lg my-2 py-2' }} onDrop={(files: FileWithPath[]) => setFiles(files)} >
+      <Text className="text-center">{`Supported file formats: ${acceptedFileExtensions.join(", ")} (Max ${maxFileSize}MB)`}</Text>
+      <MdOutlineFileUpload className="text-neutral-4" size={50} />
+      <Text className="text-center">{"Drag and drop files"}</Text>
+      <Text className="text-center">{"OR"}</Text>
+      <Text className="text-center">{"Select from device"}</Text>
+    </Dropzone>
+    <ScrollArea.Autosize classNames={{
+      root: 'max-h-80 my-2',
+      content: 'flex flex-col justify-center self-center items-center gap-2'
+    }}>
+      {files.map(file => (
+            <div className="flex bg-blue-0 rounded-sm p-2 justify-between gap-4 w-full" key={file.name}>
+        <Text>{file.name}</Text>
+        <div className="flex gap-2">
+          {true ? <MdCheckCircle className="text-success" size={25} /> : <MdError className="text-error" size={25} />}
+          <MdClose className="text-blue hover:bg-blue-1 rounded-lg cursor-pointer" size={25} />
+        </div>
+      </div>))}
+    </ScrollArea.Autosize>
+    <div className="flex justify-between w-full my-2 gap-2">
+      <Button color="gray">CANCEL</Button>
+      <Button color="green">UPLOAD</Button>
+    </div>
+    </>
+  )
 }
 
 export function FileUploadModal({
