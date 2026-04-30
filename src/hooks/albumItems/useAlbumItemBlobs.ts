@@ -1,5 +1,5 @@
 import { useQueries } from "@tanstack/react-query";
-import { getAlbumItemBlob } from "./useAlbumItemBlob";
+import { useAlbumItemBlobOptions } from "./useAlbumItemBlob";
 
 export interface AlbumItemIdentifier {
   albumId: string;
@@ -8,10 +8,6 @@ export interface AlbumItemIdentifier {
 
 export default function useAlbumItemBlobs(albumItemIds: AlbumItemIdentifier[]) {
   return useQueries({
-    queries: albumItemIds.map(({ albumId, albumItemId }) => ({
-      queryKey: ['albums', albumId, 'albumItems', albumItemId, 'blob'],
-      queryFn: () => getAlbumItemBlob(albumId, albumItemId),
-      staleTime: Infinity
-    }))
+    queries: albumItemIds.map(({ albumId, albumItemId }) => useAlbumItemBlobOptions(albumId, albumItemId))
   })
 }
