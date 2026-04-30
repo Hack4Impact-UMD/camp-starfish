@@ -1,14 +1,15 @@
 import { listAlbumItemDocs } from "@/data/firestore/albumItems";
 import { AlbumItemDoc } from "@/data/firestore/types/documents";
 import { AlbumItem } from "@/types/albums/albumTypes";
-import { infiniteQueryOptions, queryOptions, useInfiniteQuery, UseInfiniteQueryOptions, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { TanstackQueryFirestorePageParam } from "../types/tanstackQueryTypes";
 import { FirestoreQueryOptions } from "@/data/firestore/types/queries";
 
-export function useAlbumItemListOptions(albumId: string, firestoreQueryOptions?: FirestoreQueryOptions<AlbumItemDoc>) {
-  return infiniteQueryOptions({
+export default function useAlbumItemsList(albumId: string, firestoreQueryOptions?: FirestoreQueryOptions<AlbumItemDoc>, enabled: boolean = true) {
+  const queryClient = useQueryClient();
+  return useInfiniteQuery({
     queryKey: ['albums', albumId, 'albumItems', firestoreQueryOptions],
-    queryFn: async ({ pageParam, client }) => {
+    queryFn: async ({ pageParam }) => {
       const updatedQueryOptions = firestoreQueryOptions ? { ...firestoreQueryOptions } : {};
       if (pageParam) {
         if (pageParam.direction === 'next') {
@@ -20,15 +21,12 @@ export function useAlbumItemListOptions(albumId: string, firestoreQueryOptions?:
         }
       }
       const albumItemsPage = await listAlbumItemDocs(albumId, updatedQueryOptions);
-      albumItemsPage.docs.forEach((albumItem: AlbumItem) => client.setQueryData(['albums', albumId, 'albumItems', albumItem.id], albumItem))
+      albumItemsPage.docs.forEach((albumItem: AlbumItem) => queryClient.setQueryData(['albums', albumId, 'albumItems', albumItem.id], albumItem))
       return albumItemsPage;
     },
     initialPageParam: undefined as TanstackQueryFirestorePageParam<AlbumItemDoc> | undefined,
     getPreviousPageParam: (firstPage) => firstPage.firstSnapshot ? ({ direction: 'previous' as const, snapshot: firstPage.firstSnapshot }) : undefined,
-    getNextPageParam: (lastPage) => lastPage.lastSnapshot ? ({ direction: 'next' as const, snapshot: lastPage.lastSnapshot }) : undefined
-  })
-}
-
-export default function useAlbumItemsList(albumId: string, firestoreQueryOptions?: FirestoreQueryOptions<AlbumItemDoc>) {
-  return useInfiniteQuery(useAlbumItemListOptions(albumId, firestoreQueryOptions));
+    getNextPageParam: (lastPage) => lastPage.lastSnapshot ? ({ direction: 'next' as const, snapshot: lastPage.lastSnapshot }) : undefined,
+    enabled
+  });
 }
