@@ -25,6 +25,7 @@ import { MdSort } from "react-icons/md";
 import LoadingPage from "@/app/loading";
 import ErrorPage from "@/app/error";
 import useDownloadAlbum from "@/features/albums/downloading/useDownloadAlbum";
+import openFileUploadModal from "@/components/FileUploadModal";
 
 const allTags = [
   { id: "1", name: "Claire C." },
@@ -100,10 +101,7 @@ export function AlbumPageContent(props: AlbumPageContentProps) {
     limitToLast: undefined,
   });
 
-  const downloadAlbumMutation = useDownloadAlbum(
-    album.id,
-    sortQueryOptions[sortOption],
-  );
+  const downloadAlbumMutation = useDownloadAlbum();
 
   if (albumItemsQuery.isPending) {
     return <LoadingPage />;
@@ -166,8 +164,7 @@ export function AlbumPageContent(props: AlbumPageContentProps) {
           </Link>
 
           <Tooltip label="Upload Items">
-            <ActionIcon color="aqua">
-              {/*onClick={() => openEditAlbumModal()}>*/}
+            <ActionIcon color="aqua" onClick={() => openFileUploadModal()}>
               <MdOutlineFileUpload size={40} />
             </ActionIcon>
           </Tooltip>
