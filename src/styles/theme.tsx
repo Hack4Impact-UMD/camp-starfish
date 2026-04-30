@@ -14,6 +14,7 @@ import TextInputThemeExtension from "./components/TextInputThemeExtension";
 import TextThemeExtension from "./components/TextThemeExtension";
 import TitleThemeExtension from "./components/TitleThemeExtension";
 import TooltipThemeExtension from "./components/TooltipThemeExtension";
+import DropzoneThemeExtension from "./components/DropzoneThemeExtension";
 
 const theme: MantineThemeOverride = {
   ...globalTheme,
@@ -23,6 +24,7 @@ const theme: MantineThemeOverride = {
     Button: ButtonThemeExtension,
     DatePickerInput: DatePickerInputThemeExtension,
     DatePicker: DatePickerThemeExtension,
+    Dropzone: DropzoneThemeExtension,
     Image: ImageThemeExtension,
     Menu: MenuThemeExtension,
     Modal: ModalThemeExtension,
