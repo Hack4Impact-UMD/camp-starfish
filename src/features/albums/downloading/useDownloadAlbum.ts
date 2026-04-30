@@ -1,28 +1,31 @@
+import { listAlbumItemDocs } from "@/data/firestore/albumItems";
 import { AlbumItemDoc } from "@/data/firestore/types/documents"
 import { FirestoreQueryOptions } from "@/data/firestore/types/queries"
-import useAlbumItemBlobs, { AlbumItemIdentifier } from "@/hooks/albumItems/useAlbumItemBlobs"
-import useAlbumItemsList from "@/hooks/albumItems/useAlbumItemsList"
-import useDownloadFilesLocally from "@/hooks/useDownloadFilesLocally";
+import { getAlbumItemBlob } from "@/hooks/albumItems/useAlbumItemBlob";
+import { downloadFilesLocally } from "@/hooks/useDownloadFilesLocally";
 import { useMutation } from "@tanstack/react-query";
 
-export default function useDownloadAlbum(albumId: string, queryOptions?: FirestoreQueryOptions<AlbumItemDoc>) {
-  const updatedQueryOptions: FirestoreQueryOptions<AlbumItemDoc> = {
-    limit: undefined,
-    limitToLast: undefined,
-    ...queryOptions
-  };
-  const albumItemsQuery = useAlbumItemsList(albumId, updatedQueryOptions, false);
-  const albumItems = albumItemsQuery.data?.pages.flatMap((page) => page.docs) ?? [];
-  const albumItemBlobQueries = useAlbumItemBlobs(albumItems.map((albumItem) => ({ albumId, albumItemId: albumItem.id })));
-  const downloadFilesLocallyMutation = useDownloadFilesLocally();
+interface DownloadAlbumRequest {
+  albumId: string;
+  queryOptions?: FirestoreQueryOptions<AlbumItemDoc>;
+}
 
+export default function useDownloadAlbum() {
   return useMutation({
-    mutationFn: async () => {
-      await albumItemsQuery.refetch();
-      console.log(albumItems);
-      await downloadFilesLocallyMutation.mutate({
-        files: albumItemBlobQueries.map(albumItemBlobQuery => albumItemBlobQuery.data).filter(blob => !!blob)
-      })
+    mutationFn: async (req: DownloadAlbumRequest, { client }) => {
+      const { albumId, queryOptions } = req;
+      const updatedQueryOptions = {
+        ...queryOptions,
+        limit: undefined,
+        limitToLast: undefined
+      };
+
+      const albumItems = (await listAlbumItemDocs(albumId, updatedQueryOptions)).docs;
+      const albumItemBlobs = await Promise.all(albumItems.map((albumItem) => client.fetchQuery({
+        queryKey: ['albums', albumId, 'albumItems', albumItem.id, 'blob'],
+        queryFn: () => getAlbumItemBlob(albumId, albumItem.id)
+      })));
+      await downloadFilesLocally({ files: albumItemBlobs });
     }
   });
 }

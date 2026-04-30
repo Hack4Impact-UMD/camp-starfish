@@ -175,7 +175,10 @@ export function AlbumPageContent(props: AlbumPageContentProps) {
           <Tooltip label="Download Album">
             <ActionIcon
               color="aqua"
-              onClick={() => downloadAlbumMutation.mutate()}
+              onClick={() => downloadAlbumMutation.mutate({
+                albumId: album.id,
+                queryOptions: sortQueryOptions[sortOption]
+              })}
             >
               <MdOutlineFileDownload size={40} />
             </ActionIcon>

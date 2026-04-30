@@ -19,7 +19,7 @@ function downloadFileLocally(file: File | Blob, filename?: string): void {
   URL.revokeObjectURL(url);
 }
 
-async function downloadFilesLocally(req: DownloadFilesLocallyRequest) {
+export async function downloadFilesLocally(req: DownloadFilesLocallyRequest) {
   const { files } = req;
   if (files.length === 0) {
     throw Error("No files to download");
