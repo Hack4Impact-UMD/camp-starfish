@@ -28,6 +28,7 @@ import { useMutationState } from "@tanstack/react-query";
 import { request } from "http";
 import useNotifications from "@/features/notifications/useNotifications";
 import { groupBy } from "@/utils/data/groupBy";
+import { MBToBytes } from "@/utils/fileUtils";
 
 type FileUploadModalProps = {
   children: React.ReactNode;
@@ -166,7 +167,7 @@ export function UploadAlbumItemsModal(props: UploadAlbumItemsModalProps) {
             "flex flex-col justify-center items-center border-4 border-dashed border-orange-5 rounded-lg my-2 p-2",
         }}
         accept={acceptedMimeTypes}
-        maxSize={maxFileSizeMB * 1024 * 1024}
+        maxSize={MBToBytes(maxFileSizeMB)}
         onDrop={onDrop}
         onReject={onReject}
       >
