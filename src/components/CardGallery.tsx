@@ -66,10 +66,10 @@ export default function CardGallery<T extends { id: string }>(
     });
   };
 
-  groupLabels.push(defaultGroupLabel);
+  const labels = [...groupLabels, defaultGroupLabel];
   return (
     <Stack gap="xl" mt="md">
-      {groupLabels.map(
+      {labels.map(
         (label: string) =>
           itemGroups[label] && (
             <Stack gap="md" key={label}>

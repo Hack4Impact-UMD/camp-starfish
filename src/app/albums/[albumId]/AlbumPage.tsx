@@ -28,6 +28,7 @@ import LoadingPage from "@/app/loading";
 import ErrorPage from "@/app/error";
 import { AlbumItem } from "@/types/albums/albumTypes";
 import useAlbum from "@/hooks/albums/useAlbum";
+import useAlbumItems from "@/hooks/albumItems/useAlbumItems";
 import useCreateAlbumItem from "@/hooks/albumItems/useCreateAlbumItem";
 import useDownloadAlbum from "@/hooks/albums/useDownloadAlbum";
 import useNotifications from "@/features/notifications/useNotifications";
@@ -37,6 +38,7 @@ const AlbumPage: React.FC = () => {
   const albumId = params.albumId;
 
   const albumQuery = useAlbum(albumId);
+  const albumItemsQuery = useAlbumItems(albumId);
   const createAlbumItemMutation = useCreateAlbumItem();
   const downloadMutation = useDownloadAlbum();
   const notifications = useNotifications();
@@ -44,12 +46,15 @@ const AlbumPage: React.FC = () => {
   if (albumQuery.isError) {
     return <ErrorPage error={albumQuery.error} />;
   }
-  if (albumQuery.isLoading || !albumQuery.data) {
+  if (albumItemsQuery.isError) {
+    return <ErrorPage error={albumItemsQuery.error} />;
+  }
+  if (albumQuery.isLoading || !albumQuery.data || albumItemsQuery.isLoading) {
     return <LoadingPage />;
   }
 
   const album = albumQuery.data;
-  const items: AlbumItem[] = [];
+  const items: AlbumItem[] = albumItemsQuery.data ?? [];
 
   async function uploadImages(files: File[]) {
     await Promise.all(

@@ -2,6 +2,7 @@
 
 import { Card, Checkbox, Image } from "@mantine/core";
 import { AlbumItem } from "@/types/albums/albumTypes";
+import useAlbumItemSrc from "@/hooks/albumItems/useAlbumItemSrc";
 
 interface ImageCardProps {
   image: AlbumItem;
@@ -10,6 +11,7 @@ interface ImageCardProps {
 
 export default function ImageCard(props: ImageCardProps) {
   const { image, isSelected } = props;
+  const srcQuery = useAlbumItemSrc(image);
   return (
     <Card
       key={image.id}
@@ -24,7 +26,7 @@ export default function ImageCard(props: ImageCardProps) {
       }}
     >
       <Image
-        src={null}
+        src={srcQuery.data ?? null}
         alt={image.name}
         h={200}
         fit="cover"

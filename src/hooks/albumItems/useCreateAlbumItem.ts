@@ -1,6 +1,6 @@
 import { createAlbumItemDoc, deleteAlbumItemDoc } from "@/data/firestore/albumItems";
 import { uploadFile } from "@/data/storage/storageClientOperations";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Timestamp } from "firebase/firestore";
 import moment from "moment";
 
@@ -31,7 +31,15 @@ async function createAlbumItem(req: CreateAlbumItemRequest) {
 }
 
 export default function useCreateAlbumItem() {
+  const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (req: CreateAlbumItemRequest) => createAlbumItem(req)
-  })
+    mutationFn: async (req: CreateAlbumItemRequest) => createAlbumItem(req),
+    // The Firestore write + the `onAlbumItemCreated` Cloud Function together
+    // change: the items list, the parent album's numItems/startDate/endDate,
+    // and (transitively) the albums list cards. Refresh everything under
+    // `["albums"]` so the gallery and album metadata stay in sync.
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["albums"] });
+    },
+  });
 }
