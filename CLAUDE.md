@@ -382,7 +382,6 @@ There is **no unit test framework wired up** (no Jest/Vitest config, no `.test.*
 9. **Dual date libraries**: both `dayjs` and `moment` are dependencies and used in different files. Consolidating on `dayjs` would shrink bundle and reduce decision fatigue.
 10. **Incomplete seed helpers**: `generateAlbum()` and `generateFamily()` in `scripts/generate-emulator-data.ts` are stubs.
 11. **`tanstack: ^1.0.3`** in dependencies is suspicious — likely a typo'd install; the real packages are individually scoped (`@tanstack/*`). Verify and remove if unused.
-12. **Orphan `src/components/Tagging.tsx`** — not imported anywhere, but imports from `react-select` and `@radix-ui/react-icons`, neither of which is installed. Causes `next build` to fail in production mode (dev mode is unaffected). Either install the deps + wire the component up, or delete the file.
 
 ### Documentation drift
 12. README still references `tailwind.config.ts` and `eslint.config.mjs` in the structure tree, but the repo uses `eslint.config.ts` and Tailwind v4 (no `tailwind.config.ts`).
