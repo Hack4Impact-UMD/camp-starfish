@@ -1,102 +1,148 @@
+"use client";
+
 import React from "react";
-import plusIcon from "@/assets/icons/plusIcon.svg";
-import filterIcon from "@/assets/icons/filterIcon.svg";
+import { useParams } from "next/navigation";
+import {
+  ActionIcon,
+  Anchor,
+  Breadcrumbs,
+  Button,
+  Group,
+  Stack,
+  TextInput,
+  Title,
+  Tooltip,
+} from "@mantine/core";
+import {
+  MdAdd,
+  MdDownload,
+  MdFilterList,
+  MdSearch,
+} from "react-icons/md";
+import Link from "next/link";
+
 import ImageCard from "@/components/ImageCard";
 import CardGallery from "@/components/CardGallery";
-import { AlbumItem } from "@/types/albums/albumTypes";
 import FileUploadModal from "@/components/FileUploadModal";
-import { uploadFiles } from "@/data/storage/storageClientOperations";
-import { v4 as uuidv4 } from "uuid";
-import Image from "next/image";
-import moment from "moment";
+import LoadingPage from "@/app/loading";
+import ErrorPage from "@/app/error";
+import { AlbumItem } from "@/types/albums/albumTypes";
+import useAlbum from "@/hooks/albums/useAlbum";
+import useCreateAlbumItem from "@/hooks/albumItems/useCreateAlbumItem";
+import useDownloadAlbum from "@/hooks/albums/useDownloadAlbum";
+import useNotifications from "@/features/notifications/useNotifications";
 
 const AlbumPage: React.FC = () => {
-  const dates = [
-    "Mon, June 17",
-    "Tues, June 18",
-    "Wed, June 19",
-    "Thurs, June 20",
-    "Fri, June 21",
-  ];
+  const params = useParams<{ albumId: string }>();
+  const albumId = params.albumId;
 
-  const images: AlbumItem[] = [];
-  for (let i = 0; i < 10; i++) {
-    images.push({
-      name: "Image " + i,
-      tagIds: {
-        approved: [],
-        inReview: [],
-      },
-      dateTaken: moment(dates[i % 5]),
-      inReview: false,
-      id: i.toString(),
-      albumId: "iug",
+  const albumQuery = useAlbum(albumId);
+  const createAlbumItemMutation = useCreateAlbumItem();
+  const downloadMutation = useDownloadAlbum();
+  const notifications = useNotifications();
+
+  if (albumQuery.isError) {
+    return <ErrorPage error={albumQuery.error} />;
+  }
+  if (albumQuery.isLoading || !albumQuery.data) {
+    return <LoadingPage />;
+  }
+
+  const album = albumQuery.data;
+  const items: AlbumItem[] = [];
+
+  async function uploadImages(files: File[]) {
+    await Promise.all(
+      files.map((file) =>
+        createAlbumItemMutation.mutateAsync({
+          albumId,
+          albumItem: file,
+          inReview: false,
+        }),
+      ),
+    );
+  }
+
+  const handleDownloadAlbum = () => {
+    if (downloadMutation.isPending) return;
+    downloadMutation.mutate(album, {
+      onSuccess: () => notifications.success(`Downloaded "${album.name}".`),
+      onError: (error: Error) =>
+        notifications.error(error.message || "Failed to download album."),
     });
-  }
-
-  const albumId = "album-1";
-
-  const title = "Unknown Album";
-  const session = "No Session";
-
-  async function uploadImages(images: File[]) {
-    await uploadFiles(images.map(image => ({
-      file: image,
-      path: `albums/${albumId}/${uuidv4()}`
-    })));
-  }
+  };
 
   return (
-    <div className="w-full min-h-full bg-gray-100">
-      <div className="container mx-auto px-4 py-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <h1 className="text-4xl font-lato font-bold text-camp-primary">
-            ALBUMS {">>"} {title} {">>"} {session}
-          </h1>
-          <div className="flex items-center gap-4">
-            <input
-              type="text"
-              placeholder="Search Tags..."
-              className="px-10 py-2 text-sm border text-black border-gray-500 rounded-full shadow-sm focus:outline-hidden focus:ring-2 focus:ring-camp-primary"
-            />
-            <Image
-              className="w-[72px] h-[72px] flex-none cursor-pointer"
-              src={filterIcon.src}
-              alt="Filter"
-              width={48}
-              height={48}
-            />
-            <FileUploadModal
-              onUpload={uploadImages}
-              acceptedFileExtensions={[".jpg", ".png"]}
-              maxFileSize={5}
-            >
-              <Image
-                className="w-[72px] h-[72px] flex-none cursor-pointer"
-                src={plusIcon.src}
-                alt="Plus"
-                width={48}
-                height={48}
-              />
-            </FileUploadModal>
-          </div>
-        </div>
+    <Stack className="w-6/7 grow mx-auto px-4 py-6" gap="lg">
+      <Breadcrumbs>
+        <Anchor component={Link} href="/albums">Albums</Anchor>
+        <Title order={2} component="span">{album.name}</Title>
+      </Breadcrumbs>
 
-        {/* Content */}
+      <Group justify="space-between" align="center" wrap="nowrap">
+        <Title order={1}>{album.name}</Title>
+        <Group gap="md" wrap="nowrap">
+          <TextInput
+            placeholder="Search tags..."
+            leftSection={<MdSearch size={18} />}
+            radius="xl"
+            classNames={{ root: "w-64" }}
+          />
+          <Tooltip label="Filter">
+            <ActionIcon variant="outline" aria-label="Filter">
+              <MdFilterList size={24} />
+            </ActionIcon>
+          </Tooltip>
+          <Tooltip label="Download album">
+            <ActionIcon
+              color="aqua.5"
+              variant="filled"
+              loading={downloadMutation.isPending}
+              onClick={handleDownloadAlbum}
+              aria-label="Download album"
+            >
+              <MdDownload size={24} />
+            </ActionIcon>
+          </Tooltip>
+          <FileUploadModal
+            onUpload={uploadImages}
+            acceptedFileExtensions={[".jpg", ".png"]}
+            maxFileSize={5}
+          >
+            <Tooltip label="Upload photos">
+              <ActionIcon color="orange" aria-label="Upload photos">
+                <MdAdd size={28} />
+              </ActionIcon>
+            </Tooltip>
+          </FileUploadModal>
+        </Group>
+      </Group>
+
+      {items.length === 0 ? (
+        <Stack
+          align="center"
+          justify="center"
+          gap="md"
+          className="grow bg-neutral-2 py-16 rounded-md"
+        >
+          <Title order={4}>No photos yet</Title>
+          <FileUploadModal
+            onUpload={uploadImages}
+            acceptedFileExtensions={[".jpg", ".png"]}
+            maxFileSize={5}
+          >
+            <Button color="orange" rightSection={<MdAdd size={20} />}>Upload</Button>
+          </FileUploadModal>
+        </Stack>
+      ) : (
         <CardGallery<AlbumItem>
-          items={images}
+          items={items}
           renderItem={(image: AlbumItem, isSelected: boolean) => (
             <ImageCard image={image} isSelected={isSelected} />
           )}
-          groups={{
-            groupLabels: dates,
-            defaultGroupLabel: "Date Unknown",
-            groupFunc: (image: AlbumItem) => image.dateTaken.format("YYYY-MM-DD"),
-          }}
         />
-      </div>
-    </div>
+      )}
+    </Stack>
   );
 };
 

@@ -13,7 +13,6 @@ import {
   Button,
   Indicator,
   Menu,
-  Text,
   Title,
   Tooltip,
 } from "@mantine/core";
@@ -60,7 +59,7 @@ export default function AlbumsPage() {
     if (inViewport && hasNextPage && !isFetchingNextPage) {
       fetchNextPage();
     }
-  }, [inViewport, albumsQuery]);
+  }, [inViewport, hasNextPage, isFetchingNextPage, fetchNextPage]);
   
   if (albumsQuery.isError) {
     return <ErrorPage error={albumsQuery.error} />;
