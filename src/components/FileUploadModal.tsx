@@ -231,11 +231,7 @@ function FileItem(props: FileItemProps) {
       key={file.name}
     >
       <Text>{file.name}</Text>
-      <div className="flex gap-2">
-        {icon}
-      {/* {state.length > 0 && state[state.length - 1].status === "success" ? <MdCheckCircle className="text-success" size={25} /> : state.length > 0 && state[state.length - 1].status === "error" ? <MdError className="text-error" size={25} /> : <Loader />} */}
-      {/* <MdClose className="text-blue hover:bg-blue-1 rounded-lg cursor-pointer" size={25} /> */}
-      </div>
+      {icon}
     </div>
   );
 }
