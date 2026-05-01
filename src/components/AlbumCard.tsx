@@ -1,12 +1,18 @@
-import { Image, Text, Title } from "@mantine/core";
+import { ActionIcon, Card, Group, Image, Loader, Stack, Text, Title, Tooltip } from "@mantine/core";
 import useAlbum from "@/hooks/albums/useAlbum";
+import useDownloadAlbum from "@/hooks/albums/useDownloadAlbum";
+import useNotifications from "@/features/notifications/useNotifications";
 import ErrorPage from "@/app/error";
 import LoadingPage from "@/app/loading";
 import { useRouter } from "next/navigation";
 import { Album } from "@/types/albums/albumTypes";
 import useAlbumThumbnailSrc from "@/hooks/albums/useAlbumThumbnailSrc";
+import { MdDownload } from "react-icons/md";
+
 interface AlbumCardProps {
   albumId: string;
+  onEdit?: (albumID: string) => void;
+  onDelete?: (albumID: string) => void;
 }
 
 function getAlbumCardText(album: Album) {
@@ -27,6 +33,8 @@ export default function AlbumCard(props: AlbumCardProps) {
   const { albumId } = props;
   const albumQuery = useAlbum(albumId);
   const thumbnailSrcQuery = useAlbumThumbnailSrc(albumQuery.data);
+  const downloadMutation = useDownloadAlbum();
+  const notifications = useNotifications();
 
   const router = useRouter();
 
@@ -37,22 +45,57 @@ export default function AlbumCard(props: AlbumCardProps) {
   }
 
   const album = albumQuery.data;
+  const isDownloading = downloadMutation.isPending;
+
+  const handleDownload = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation();
+    if (isDownloading) return;
+    downloadMutation.mutate(album, {
+      onSuccess: () =>
+        notifications.success(`Downloaded "${album.name}".`),
+      onError: (error: Error) =>
+        notifications.error(error.message || "Failed to download album."),
+    });
+  };
+
   return (
-    <div
-      className="bg-neutral-0 hover:bg-neutral-2 border border-neutral-3 shadow-sm hover:shadow-lg duration-300 p-4 cursor-pointer"
+    <Card
+      shadow="md"
+      radius="sm"
+      padding="md"
+      withBorder
+      classNames={{ root: "cursor-pointer hover:shadow-lg duration-300" }}
       onDoubleClick={() => router.push(`/albums/${album.id}`)}
     >
-      <Image
-        src={thumbnailSrcQuery.data ?? null}
-        alt={album.name}
-        className="w-full h-48 object-contain"
-        width={200}
-        height={48}
-      />
-      <div className="mt-2">
-        <Title order={3}>{album.name}</Title>
-        <Text>{getAlbumCardText(albumQuery.data)}</Text>
-      </div>
-    </div>
+      <Card.Section className="relative">
+        <Image
+          src={thumbnailSrcQuery.data ?? null}
+          alt={album.name}
+          h={196}
+          fit="cover"
+          fallbackSrc="https://placehold.co/280x196?text=No+Thumbnail"
+        />
+        <Tooltip label={isDownloading ? "Downloading…" : "Download album"} withArrow>
+          <ActionIcon
+            color="aqua.5"
+            variant="filled"
+            size="lg"
+            radius="xl"
+            className="absolute top-2 right-2 shadow"
+            onClick={handleDownload}
+            loading={isDownloading}
+            aria-label={`Download ${album.name}`}
+          >
+            {isDownloading ? <Loader size="xs" color="white" /> : <MdDownload size={20} />}
+          </ActionIcon>
+        </Tooltip>
+      </Card.Section>
+      <Stack gap={4} mt="sm">
+        <Title order={3} lineClamp={1}>{album.name}</Title>
+        <Group gap="xs">
+          <Text size="sm" c="neutral.5">{getAlbumCardText(album)}</Text>
+        </Group>
+      </Stack>
+    </Card>
   );
 }

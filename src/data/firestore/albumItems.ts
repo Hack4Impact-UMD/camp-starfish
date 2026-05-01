@@ -1,8 +1,8 @@
 import { db } from "@/config/firebase";
 import { AlbumItem } from "@/types/albums/albumTypes";
 import { AlbumItemDoc } from "./types/documents";
-import { doc, Transaction, WriteBatch, QueryDocumentSnapshot, DocumentReference, DocumentSnapshot, WithFieldValue, UpdateData } from "firebase/firestore";
-import { getDoc, setDoc, updateDoc, deleteDoc } from "./firestoreClientOperations"
+import { collection, CollectionReference, doc, Transaction, WriteBatch, QueryDocumentSnapshot, DocumentReference, DocumentSnapshot, WithFieldValue, UpdateData } from "firebase/firestore";
+import { getDoc, setDoc, updateDoc, deleteDoc, executeQuery, mapSnapshotsToPaginatedQueryResult, PaginatedQueryResponse, QueryOptions } from "./firestoreClientOperations"
 import { AlbumsSubcollection, RootLevelCollection } from "./types/collections";
 import moment from "moment";
 import { v4 as uuidv4 } from "uuid";
@@ -23,6 +23,11 @@ function fromFirestore(snapshot: DocumentSnapshot<AlbumItemDoc, AlbumItemDoc> | 
 export async function getAlbumItemDoc(albumId: string, albumItemId: string, transaction?: Transaction): Promise<AlbumItem> {
   const snapshot = await getDoc<AlbumItemDoc>(doc(db, RootLevelCollection.ALBUMS, albumId, AlbumsSubcollection.ALBUM_ITEMS, albumItemId) as DocumentReference<AlbumItemDoc, AlbumItemDoc>, transaction);
   return fromFirestore(snapshot);
+}
+
+export async function getAlbumItemDocs(albumId: string, queryOptions?: QueryOptions<AlbumItemDoc>): Promise<PaginatedQueryResponse<AlbumItem, AlbumItemDoc>> {
+  const snapshots = await executeQuery<AlbumItemDoc>(collection(db, RootLevelCollection.ALBUMS, albumId, AlbumsSubcollection.ALBUM_ITEMS) as CollectionReference<AlbumItemDoc, AlbumItemDoc>, queryOptions);
+  return mapSnapshotsToPaginatedQueryResult(snapshots, fromFirestore);
 }
 
 export async function createAlbumItemDoc(albumId: string, albumItem: WithFieldValue<AlbumItemDoc>, instance?: Transaction | WriteBatch): Promise<string> {

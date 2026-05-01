@@ -1,6 +1,7 @@
 "use client";
 
 import { JSX, useState } from "react";
+import { Checkbox, Group, SimpleGrid, Stack, Title } from "@mantine/core";
 
 export interface GroupOptions<T> {
   groupLabels: string[];
@@ -31,13 +32,13 @@ export default function CardGallery<T extends { id: string }>(
 
   if (!groups) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-6">
+      <SimpleGrid cols={{ base: 1, sm: 2, md: 3, lg: 4 }} spacing="lg" mt="md">
         {items.map((item: T) => (
           <div onClick={() => toggleItem(item.id)} key={item.id}>
             {renderItem(item, selectedItemIds.indexOf(item.id) !== -1)}
           </div>
         ))}
-      </div>
+      </SimpleGrid>
     );
   }
 
@@ -65,33 +66,33 @@ export default function CardGallery<T extends { id: string }>(
     });
   };
 
-  groupLabels.push(defaultGroupLabel);
+  const labels = [...groupLabels, defaultGroupLabel];
   return (
-    <div className="mt-6 space-y-8">
-      {groupLabels.map(
+    <Stack gap="xl" mt="md">
+      {labels.map(
         (label: string) =>
           itemGroups[label] && (
-            <div key={label}>
-              <div className="flex items-center gap-8 mb-4">
-                <h2 className="text-xl font-lato text-camp-primary">{label}</h2>
-                <input
-                  type="checkbox"
+            <Stack gap="md" key={label}>
+              <Group gap="lg" align="center">
+                <Title order={4}>{label}</Title>
+                <Checkbox
                   checked={itemGroups[label].every(
                     (item: T) => selectedItemIds.indexOf(item.id) !== -1
                   )}
-                  onChange={(event) => toggleGroup(label, event.target.checked)}
+                  onChange={(event) => toggleGroup(label, event.currentTarget.checked)}
+                  aria-label={`Select all in ${label}`}
                 />
-              </div>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              </Group>
+              <SimpleGrid cols={{ base: 2, md: 3, lg: 4 }} spacing="md">
                 {itemGroups[label].map((item: T) => (
                   <div onClick={() => toggleItem(item.id)} key={item.id}>
                     {renderItem(item, selectedItemIds.indexOf(item.id) !== -1)}
                   </div>
                 ))}
-              </div>
-            </div>
+              </SimpleGrid>
+            </Stack>
           )
       )}
-    </div>
+    </Stack>
   );
 }
