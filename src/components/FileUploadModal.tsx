@@ -8,7 +8,7 @@ import {
   DialogTrigger,
 } from "@radix-ui/react-dialog";
 import { Accept, FileRejection, useDropzone } from "react-dropzone";
-import { useRef, useState } from "react";
+import { cloneElement, useRef, useState } from "react";
 
 import { extension, lookup } from "mime-types";
 import Image from "next/image";
@@ -221,8 +221,8 @@ function FileItem(props: FileItemProps) {
     "success": <MdCheckCircle className="text-success" size={25} />,
     "error": <MdError className="text-error" size={25} />,
     "pending": <Loader />,
-    "idle": <MdClose className="text-blue hover:bg-blue-1 rounded-lg cursor-pointer" size={25} />,
-  }[status[status.length - 1]]
+    "idle": <></>,
+  }[status[status.length - 1]] || <MdClose className="text-blue hover:bg-blue-1 rounded-lg cursor-pointer" size={25} /> 
 
 
   return (
@@ -231,7 +231,7 @@ function FileItem(props: FileItemProps) {
       key={file.name}
     >
       <Text>{file.name}</Text>
-      {icon}
+      {cloneElement(icon, { className: 'min-w-6 self-center' })}
     </div>
   );
 }
