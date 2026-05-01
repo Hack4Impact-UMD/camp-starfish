@@ -1,0 +1,103 @@
+import React from "react";
+import plusIcon from "@/assets/icons/plusIcon.svg";
+import filterIcon from "@/assets/icons/filterIcon.svg";
+import ImageCard from "@/components/ImageCard";
+import CardGallery from "@/components/CardGallery";
+import { AlbumItem } from "@/types/albums/albumTypes";
+import FileUploadModal from "@/components/FileUploadModal";
+import { uploadFiles } from "@/data/storage/storageClientOperations";
+import { v4 as uuidv4 } from "uuid";
+import Image from "next/image";
+import moment from "moment";
+
+const AlbumPage: React.FC = () => {
+  const dates = [
+    "Mon, June 17",
+    "Tues, June 18",
+    "Wed, June 19",
+    "Thurs, June 20",
+    "Fri, June 21",
+  ];
+
+  const images: AlbumItem[] = [];
+  for (let i = 0; i < 10; i++) {
+    images.push({
+      name: "Image " + i,
+      tagIds: {
+        approved: [],
+        inReview: [],
+      },
+      dateTaken: moment(dates[i % 5]),
+      inReview: false,
+      id: i.toString(),
+      albumId: "iug",
+    });
+  }
+
+  const albumId = "album-1";
+
+  const title = "Unknown Album";
+  const session = "No Session";
+
+  async function uploadImages(images: File[]) {
+    await uploadFiles(images.map(image => ({
+      file: image,
+      path: `albums/${albumId}/${uuidv4()}`
+    })));
+  }
+
+  return (
+    <div className="w-full min-h-full bg-gray-100">
+      <div className="container mx-auto px-4 py-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <h1 className="text-4xl font-lato font-bold text-camp-primary">
+            ALBUMS {">>"} {title} {">>"} {session}
+          </h1>
+          <div className="flex items-center gap-4">
+            <input
+              type="text"
+              placeholder="Search Tags..."
+              className="px-10 py-2 text-sm border text-black border-gray-500 rounded-full shadow-sm focus:outline-hidden focus:ring-2 focus:ring-camp-primary"
+            />
+            <Image
+              className="w-[72px] h-[72px] flex-none cursor-pointer"
+              src={filterIcon.src}
+              alt="Filter"
+              width={48}
+              height={48}
+            />
+            <FileUploadModal
+              onUpload={uploadImages}
+              acceptedFileExtensions={[".jpg", ".png"]}
+              maxFileSize={5}
+            >
+              <Image
+                className="w-[72px] h-[72px] flex-none cursor-pointer"
+                src={plusIcon.src}
+                alt="Plus"
+                width={48}
+                height={48}
+              />
+            </FileUploadModal>
+          </div>
+        </div>
+
+        {/* Content */}
+        <CardGallery<AlbumItem>
+          items={images}
+          renderItem={(image: AlbumItem, isSelected: boolean) => (
+            <ImageCard image={image} isSelected={isSelected} />
+          )}
+          groups={{
+            groupLabels: dates,
+            defaultGroupLabel: "Date Unknown",
+            groupFunc: (image: AlbumItem) => image.dateTaken.format("YYYY-MM-DD"),
+          }}
+        />
+      </div>
+    </div>
+  );
+};
+
+export default AlbumPage;
