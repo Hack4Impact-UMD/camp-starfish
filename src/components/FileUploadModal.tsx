@@ -220,7 +220,7 @@ function FileItem(props: FileItemProps) {
   const icon = {
     "success": <MdCheckCircle className="text-success" size={25} />,
     "error": <MdError className="text-error" size={25} />,
-    "loading": <Loader />,
+    "pending": <Loader />,
     "idle": <MdClose className="text-blue hover:bg-blue-1 rounded-lg cursor-pointer" size={25} />,
   }[status[status.length - 1]]
 
@@ -232,7 +232,7 @@ function FileItem(props: FileItemProps) {
     >
       <Text>{file.name}</Text>
       <div className="flex gap-2">
-        {status || "none"}
+        {icon}
       {/* {state.length > 0 && state[state.length - 1].status === "success" ? <MdCheckCircle className="text-success" size={25} /> : state.length > 0 && state[state.length - 1].status === "error" ? <MdError className="text-error" size={25} /> : <Loader />} */}
       {/* <MdClose className="text-blue hover:bg-blue-1 rounded-lg cursor-pointer" size={25} /> */}
       </div>
