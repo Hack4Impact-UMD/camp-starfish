@@ -24,7 +24,7 @@ import { Button, List, Loader, ScrollArea, Text } from "@mantine/core";
 import useCreateAlbumItem, {
   CreateAlbumItemRequest,
 } from "@/hooks/albumItems/useCreateAlbumItem";
-import { useMutationState } from "@tanstack/react-query";
+import { useIsMutating, useMutationState } from "@tanstack/react-query";
 import { request } from "http";
 import useNotifications from "@/features/notifications/useNotifications";
 import { groupBy } from "@/utils/data/groupBy";
@@ -136,12 +136,21 @@ export function UploadAlbumItemsModal(props: UploadAlbumItemsModalProps) {
   const maxFileSizeMB = 5;
 
   const createAlbumItemMutation = useCreateAlbumItem();
+  const numMutating = useIsMutating({
+    mutationKey: ['albumItems', 'create'],
+    predicate: (mutation) => acceptedFiles.includes(mutation.state.variables.albumItem) && mutation.state.status === 'pending'
+  });
+  const isMutating = numMutating !== 0;
 
   const notifications = useNotifications();
 
   const onDrop = (files: FileWithPath[]) => {
-    console.log(files)
     setAcceptedFiles((prev) => [...prev, ...files]);
+    files.forEach(file => requestsRef.current.push({
+      albumId: "000f726f-2023-46c8-bd0b-4518751b494b",
+      albumItem: file,
+      inReview: true
+    }))
   };
 
   const onReject = (fileRejections: FileRejection[]) => {
@@ -150,13 +159,7 @@ export function UploadAlbumItemsModal(props: UploadAlbumItemsModalProps) {
   }
 
   const onUpload = () => {
-    const requests: CreateAlbumItemRequest[] = acceptedFiles.map((file) => ({
-      albumId: "000f726f-2023-46c8-bd0b-4518751b494b",
-      albumItem: file,
-      inReview: true,
-    }));
-    requestsRef.current = requests;
-    requests.forEach((req) => createAlbumItemMutation.mutate(req));
+    requestsRef.current.forEach((req) => createAlbumItemMutation.mutate(req));
   };
 
   return (
@@ -189,10 +192,10 @@ export function UploadAlbumItemsModal(props: UploadAlbumItemsModalProps) {
         ))}
       </ScrollArea.Autosize>
       <div className="flex justify-between w-full my-2 gap-2">
-        <Button color="gray" className="text-black">
+        <Button color="gray" className="text-black" disabled={isMutating} onClick={() => modals.closeAll()}>
           CANCEL
         </Button>
-        <Button color="green" onClick={onUpload}>
+        <Button color="green" onClick={onUpload} loading={isMutating}>
           UPLOAD
         </Button>
       </div>
@@ -206,16 +209,21 @@ interface FileItemProps {
 
 function FileItem(props: FileItemProps) {
   const { file } = props;
-  const mutation = useMutationState({
+  const status = useMutationState({
     filters: {
-      predicate: (mutation) => {
-        console.log("mut", mutation);
-        return mutation.state.variables?.albumItem === file;
-      },
+      mutationKey: ['albumItems', 'create'],
+      predicate: (mutation) => mutation.state.variables?.albumItem === file,
     },
-    select: (mutation) => mutation,
+    select: (mutation) => mutation.state.status,
   });
-  console.log("bruh", mutation);
+
+  const icon = {
+    "success": <MdCheckCircle className="text-success" size={25} />,
+    "error": <MdError className="text-error" size={25} />,
+    "loading": <Loader />,
+    "idle": <MdClose className="text-blue hover:bg-blue-1 rounded-lg cursor-pointer" size={25} />,
+  }[status[status.length - 1]]
+
 
   return (
     <div
@@ -223,10 +231,11 @@ function FileItem(props: FileItemProps) {
       key={file.name}
     >
       <Text>{file.name}</Text>
-      {/* <div className="flex gap-2"> */}
+      <div className="flex gap-2">
+        {status || "none"}
       {/* {state.length > 0 && state[state.length - 1].status === "success" ? <MdCheckCircle className="text-success" size={25} /> : state.length > 0 && state[state.length - 1].status === "error" ? <MdError className="text-error" size={25} /> : <Loader />} */}
       {/* <MdClose className="text-blue hover:bg-blue-1 rounded-lg cursor-pointer" size={25} /> */}
-      {/* </div> */}
+      </div>
     </div>
   );
 }
