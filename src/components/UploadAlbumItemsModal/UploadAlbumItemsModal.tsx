@@ -159,8 +159,15 @@ export function UploadAlbumItemsModal(props: UploadAlbumItemsModalProps) {
     notifications.error(rejectionMessage);
   }
 
-  const onUpload = () => {
-    requestsRef.current.forEach((req) => createAlbumItemMutation.mutate(req));
+  const onUpload = async () => {
+    const responses = await Promise.allSettled(requestsRef.current.map((req) => createAlbumItemMutation.mutateAsync(req)));
+    const errors = responses.filter(r => r.status === 'rejected');
+    if (errors.length > 0) {
+      notifications.error(`Failed to upload ${errors.length} files. Please try again.`);
+    } else {
+      notifications.success(`${responses.length} files uploaded successfully!`);
+      modals.closeAll();
+    }
   };
 
   return (
