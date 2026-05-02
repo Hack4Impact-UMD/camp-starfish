@@ -28,7 +28,7 @@ export default function Tagging<T>({
     // Custom styles for react-select
     const customStyles: StylesConfig<T, true> = {
         // Styling of main control/container
-        control: (base, state) => ({
+        control: (base) => ({
             ...base,
             border: '2px solid black',
             borderRadius: '8px',
@@ -47,6 +47,8 @@ export default function Tagging<T>({
             padding: '1px 6px',
             border: '1px solid #d1d5db',
             color: '#3B4E57',
+            flexShrink: 0,
+            minWidth: 'fit-content',
         }),
         // Styling for remove button of selected tags
         multiValueRemove: (base) => ({
@@ -66,6 +68,12 @@ export default function Tagging<T>({
             paddingLeft: '8px',
             gap: '8px',
             fontSize: '18px',
+            flexWrap: 'nowrap',
+            overflowX: 'auto',
+            scrollbarWidth: 'none',
+            '&::-webkit-scrollbar': {
+                display: 'none',
+            },
         }),
         // Styling for dropdown options
         option: (base, state) => ({
@@ -79,6 +87,7 @@ export default function Tagging<T>({
     };
 
     // Custom Option component to display avatar icon with names in dropdown
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const Option = (props: any) => (
         <components.Option {...props}>
             <div className="flex items-center">
