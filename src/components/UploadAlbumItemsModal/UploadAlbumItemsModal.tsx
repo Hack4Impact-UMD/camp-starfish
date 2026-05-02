@@ -1,17 +1,5 @@
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogOverlay,
-  DialogPortal,
-  DialogTitle,
-  DialogTrigger,
-} from "@radix-ui/react-dialog";
-import { Accept, FileRejection, useDropzone } from "react-dropzone";
 import { cloneElement, JSX, useRef, useState } from "react";
-
-import { extension, lookup } from "mime-types";
-import Image from "next/image";
+import { extension } from "mime-types";
 import { modals } from "@mantine/modals";
 import {
   MdCheckCircle,
@@ -19,110 +7,15 @@ import {
   MdError,
   MdOutlineFileUpload,
 } from "react-icons/md";
-import { Dropzone, FileWithPath } from "@mantine/dropzone";
-import { Button, List, Loader, ScrollArea, Text } from "@mantine/core";
+import { Dropzone, FileRejection, FileWithPath } from "@mantine/dropzone";
+import { Button, Loader, ScrollArea, Text } from "@mantine/core";
 import useCreateAlbumItem, {
   CreateAlbumItemRequest,
 } from "@/hooks/albumItems/useCreateAlbumItem";
 import { useIsMutating, useMutationState } from "@tanstack/react-query";
-import { request } from "http";
 import useNotifications from "@/features/notifications/useNotifications";
-import { groupBy } from "@/utils/data/groupBy";
 import { MBToBytes } from "@/utils/fileUtils";
 import classNames from "classnames";
-
-type FileUploadModalProps = {
-  children: React.ReactNode;
-  onUpload: (files: File[]) => void;
-  acceptedFileExtensions: string[];
-  maxFileSize: number; // MB
-};
-
-type UploadState = "success" | "fail" | "none";
-type FileStatus = "success" | "failure" | "pending";
-
-function FileComponent({
-  file,
-  accepted,
-  setFiles,
-}: {
-  file: File;
-  accepted: boolean;
-  setFiles: React.Dispatch<
-    React.SetStateAction<
-      {
-        file: File;
-        state: FileStatus;
-      }[]
-    >
-  >;
-}) {
-  return <></>;
-}
-
-function FinishedUploadView({
-  uploadState,
-  files,
-}: {
-  uploadState: UploadState;
-  files: { file: File; state: FileStatus }[];
-}) {
-  return (
-    <div className="mx-6 my-4">
-      {uploadState === "success" ? <MdOutlineFileUpload /> : <MdError />}
-      <span className="block text-center text-camp-primary font-bold font-lato text-xl">
-        Upload {uploadState == "success" ? "successful" : "failed"}!
-      </span>
-      <span className="text-center text-camp-text-modalSecondaryTitle block m-4 text-sm">
-        {files.filter((e) => e.state == "success").length} files{" "}
-        {uploadState == "success" ? "uploaded." : "failed to upload."}
-      </span>
-      <div className="text-center">
-        <DialogClose asChild>
-          <button className="bg-camp-buttons-neutral text-bold font-lato text-camp-buttons-buttonTextLight px-12 py-2 rounded-full">
-            Close
-          </button>
-        </DialogClose>
-
-        <button className="bg-camp-primary text-bold font-lato text-camp-buttons-buttonTextDark ml-4 px-12 py-2 rounded-full">
-          View
-        </button>
-      </div>
-    </div>
-  );
-}
-
-function UploadedFilesView({
-  files,
-  setFiles,
-}: {
-  files: { file: File; state: FileStatus }[];
-  setFiles: React.Dispatch<
-    React.SetStateAction<
-      {
-        file: File;
-        state: FileStatus;
-      }[]
-    >
-  >;
-}) {
-  return (
-    <>
-      <div className="h-80 overflow-y-scroll">
-        {files
-          .filter((e) => e.state == "success")
-          .map((fileState) => (
-            <FileComponent
-              key={fileState.file.name}
-              file={fileState.file}
-              accepted={true}
-              setFiles={setFiles}
-            />
-          ))}
-      </div>
-    </>
-  );
-}
 
 interface UploadAlbumItemsModalProps {
   albumId: string;
@@ -249,132 +142,6 @@ function FileItem(props: FileItemProps) {
       <Text>{file.name}</Text>
       {cloneElement(icon, { className: classNames('min-w-6 self-center', icon.props.className) })}
     </div>
-  );
-}
-
-export function FileUploadModal({
-  children,
-  onUpload,
-  acceptedFileExtensions,
-  maxFileSize,
-}: FileUploadModalProps) {
-  const [files, setFiles] = useState<{ file: File; state: FileStatus }[]>([]);
-  const [uploadState, setUploadState] = useState<UploadState>("none");
-
-  const mimeTypes: string[] = [
-    ...new Set(
-      acceptedFileExtensions
-        .map((fileType: string) => lookup(fileType))
-        .filter((mimeType: string | false) => mimeType),
-    ),
-  ] as string[];
-
-  const inputAccept: Accept = {};
-  mimeTypes.forEach((mimeType: string) => {
-    inputAccept[mimeType] = [];
-  });
-
-  const { getRootProps, getInputProps } = useDropzone({
-    accept: inputAccept,
-    maxSize: maxFileSize * 1024 * 1024,
-    onDrop: async (accepted: File[], rejected: FileRejection[]) => {
-      setFiles((last) =>
-        last
-          .concat(accepted.map((f) => ({ file: f, state: "success" })))
-          .concat(rejected.map((f) => ({ file: f.file, state: "failure" }))),
-      );
-    },
-  });
-
-  return (
-    <Dialog
-      onOpenChange={(isOpen: boolean) => {
-        if (!isOpen) {
-          setFiles([]);
-          setUploadState("none");
-        }
-      }}
-    >
-      <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogPortal>
-        <DialogOverlay className="fixed inset-0 bg-black/50" />
-        <DialogContent className="bg-camp-primary fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-lg overflow-hidden">
-          <div
-            className={`flex justify-between items-center px-3 py-4 ${
-              uploadState != "success" ? "" : "hidden"
-            }`}
-          >
-            <DialogTitle className="text-2xl font-semibold text-camp-white font-lato">
-              Upload Files
-            </DialogTitle>
-          </div>
-
-          <div className="bg-white p-5">
-            {uploadState == "success" ? (
-              <FinishedUploadView uploadState={uploadState} files={files} />
-            ) : (
-              <>
-                <div {...getRootProps({ className: "dropzone" })}>
-                  <input {...getInputProps()} />
-                  {files.filter((e) => e.state == "success").length > 0 ? (
-                    <UploadedFilesView files={files} setFiles={setFiles} />
-                  ) : (
-                    <InitialUploadView
-                      acceptedFileExtensions={acceptedFileExtensions}
-                      maxFileSize={maxFileSize}
-                    />
-                  )}
-                </div>
-              </>
-            )}
-
-            <div hidden={uploadState == "success"}>
-              <DialogClose asChild>
-                <button className="bg-camp-buttons-neutral text-bold font-lato text-camp-buttons-buttonTextLight mt-4 px-8 py-2 rounded-full">
-                  Cancel
-                </button>
-              </DialogClose>
-
-              <button
-                hidden={files.filter((e) => e.state == "success").length == 0}
-                onClick={async () => {
-                  try {
-                    await onUpload(
-                      files
-                        .filter((e) => e.state == "success")
-                        .map((x) => x.file),
-                    );
-                    setUploadState("success");
-                  } catch {
-                    setUploadState("fail");
-                    return;
-                  }
-                }}
-                className="bg-camp-tert-green text-bold font-lato text-camp-buttons-buttonTextDark ml-2 mt-4 px-8 py-2 rounded-full"
-              >
-                Upload {files.filter((e) => e.state == "success").length} File
-                {files.filter((e) => e.state == "success").length > 1
-                  ? "s"
-                  : ""}
-              </button>
-              <span
-                className="ml-4 text-camp-text-error"
-                hidden={
-                  uploadState != "fail" ||
-                  files.filter((e) => e.state == "success").length < 1
-                }
-              >
-                {"Couldn't upload "}
-                {files.filter((e) => e.state == "success").length} file
-                {files.filter((e) => e.state == "success").length > 1
-                  ? "s"
-                  : ""}
-              </span>
-            </div>
-          </div>
-        </DialogContent>
-      </DialogPortal>
-    </Dialog>
   );
 }
 
