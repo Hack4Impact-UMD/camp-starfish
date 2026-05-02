@@ -32,7 +32,7 @@ export function UploadAlbumItemsModal(props: UploadAlbumItemsModalProps) {
   const createAlbumItemMutation = useCreateAlbumItem();
   const numMutating = useIsMutating({
     mutationKey: ['albumItems', 'create'],
-    predicate: (mutation) => acceptedFiles.includes(mutation.state.variables.albumItem) && mutation.state.status === 'pending'
+    predicate: (mutation) => mutation.state.variables !== undefined && acceptedFiles.includes((mutation.state.variables as CreateAlbumItemRequest).albumItem) && mutation.state.status === 'pending'
   });
   const isMutating = numMutating !== 0;
 
@@ -113,7 +113,7 @@ function FileItem(props: FileItemProps) {
   const status = useMutationState({
     filters: {
       mutationKey: ['albumItems', 'create'],
-      predicate: (mutation) => mutation.state.variables?.albumItem === file,
+      predicate: (mutation) => mutation.state.variables !== undefined && (mutation.state.variables as CreateAlbumItemRequest).albumItem === file,
     },
     select: (mutation) => mutation.state.status,
   });
