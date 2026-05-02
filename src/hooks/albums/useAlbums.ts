@@ -3,7 +3,6 @@ import { FirestoreQueryOptions } from "@/data/firestore/types/queries";
 import { AlbumDoc } from "@/data/firestore/types/documents";
 import { Album } from "@/types/albums/albumTypes";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
-import { QueryDocumentSnapshot } from "firebase/firestore";
 import { TanstackQueryFirestorePageParam } from "../types/tanstackQueryTypes";
 
 export default function useAlbums(queryOptions?: FirestoreQueryOptions<AlbumDoc>) {

@@ -1,7 +1,7 @@
 import { db } from "@/config/firebase";
 import { AlbumItem } from "@/types/albums/albumTypes";
 import { AlbumItemDoc } from "./types/documents";
-import { doc, Transaction, WriteBatch, QueryDocumentSnapshot, DocumentReference, DocumentSnapshot, WithFieldValue, UpdateData, getDocs, collection, CollectionReference } from "firebase/firestore";
+import { doc, Transaction, WriteBatch, QueryDocumentSnapshot, DocumentReference, DocumentSnapshot, WithFieldValue, UpdateData, collection, CollectionReference } from "firebase/firestore";
 import { getDoc, setDoc, updateDoc, deleteDoc, executeQuery, mapSnapshotsToPaginatedQueryResult } from "./firestoreClientOperations"
 import { PaginatedQueryResponse, FirestoreQueryOptions } from "./types/queries";
 import { AlbumsSubcollection, RootLevelCollection } from "./types/collections";

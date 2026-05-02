@@ -1,6 +1,5 @@
 import { useQueries } from "@tanstack/react-query";
 import { AlbumItemIdentifier } from "./useAlbumItemBlobs";
-import { query } from "firebase/firestore";
 import { getAlbumItemSrc } from "./useAlbumItemSrc";
 
 export default function useAlbumItemSrcs(albumItemIds: AlbumItemIdentifier[]) {

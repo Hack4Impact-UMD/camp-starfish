@@ -1,7 +1,6 @@
 "use client";
 
 import useAlbumItemSrc from "@/hooks/albumItems/useAlbumItemSrc";
-import useAlbumItem from "@/hooks/albumItems/useAlbumItem";
 import { BackgroundImage, Card, Checkbox } from "@mantine/core";
 import LoadingAnimation from "./LoadingAnimation";
 import { MdError } from "react-icons/md";

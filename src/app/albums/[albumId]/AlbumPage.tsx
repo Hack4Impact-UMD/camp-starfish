@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   MdOutlineFileUpload,
   MdOutlineFileDownload,
@@ -152,7 +152,7 @@ export function AlbumPageContent(props: AlbumPageContentProps) {
                 AlbumPageSortOption.A_TO_Z,
                 AlbumPageSortOption.Z_TO_A,
               ].map((option) => (
-                <Menu.Item onClick={() => setSortOption(option)}>
+                <Menu.Item key={option} onClick={() => setSortOption(option)}>
                   {option}
                 </Menu.Item>
               ))}

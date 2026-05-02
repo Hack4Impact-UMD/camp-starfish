@@ -28,7 +28,7 @@ export default function Tagging<T>({
     // Custom styles for react-select
     const customStyles: StylesConfig<T, true> = {
         // Styling of main control/container
-        control: (base, state) => ({
+        control: (base) => ({
             ...base,
             border: '2px solid black',
             borderRadius: '8px',
@@ -87,6 +87,7 @@ export default function Tagging<T>({
     };
 
     // Custom Option component to display avatar icon with names in dropdown
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const Option = (props: any) => (
         <components.Option {...props}>
             <div className="flex items-center">
