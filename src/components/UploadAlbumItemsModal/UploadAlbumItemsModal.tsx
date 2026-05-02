@@ -378,12 +378,9 @@ export function FileUploadModal({
   );
 }
 
-export default function openFileUploadModal(
-  props: FileUploadModalProps & { title: string },
-) {
-  const { title, ...rest } = props;
+export default function openUploadAlbumItemsModal(albumId: string) {
   modals.open({
-    title: title ?? "Upload Files",
-    children: <FileUploadModal {...rest} />,
+    title: "Upload Album Items",
+    children: <UploadAlbumItemsModal albumId={albumId} />,
   });
 }
