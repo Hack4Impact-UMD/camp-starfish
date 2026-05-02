@@ -18,7 +18,7 @@ import { MBToBytes } from "@/utils/fileUtils";
 import classNames from "classnames";
 import { useAuth } from "@/auth/useAuth";
 import { Role } from "@/types/users/userTypes";
-import { getUserRole } from "@/utils/userUtils";
+import { getUserRole } from "@/utils/authUtils";
 import ErrorPage from "@/app/error";
 
 interface UploadAlbumItemsModalProps {
