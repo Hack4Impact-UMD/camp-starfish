@@ -18,7 +18,7 @@ import {
 } from "@mantine/core";
 import { MdAdd, MdPendingActions, MdSort } from "react-icons/md";
 import Link from "next/link";
-import { QueryOptions } from "@/data/firestore/firestoreClientOperations";
+import { FirestoreQueryOptions } from "@/data/firestore/types/queries";
 import { AlbumDoc } from "@/data/firestore/types/documents";
 import { useInViewport } from "@mantine/hooks";
 import LoadingAnimation from "@/components/LoadingAnimation";
@@ -30,7 +30,10 @@ const enum AlbumsPageSortOption {
   Z_TO_A = "Z → A",
 }
 
-const sortQueryOptions: Record<AlbumsPageSortOption, QueryOptions<AlbumDoc>> = {
+const sortQueryOptions: Record<
+  AlbumsPageSortOption,
+  FirestoreQueryOptions<AlbumDoc>
+> = {
   "Newest → Oldest": {
     orderBy: [{ fieldPath: "startDate", direction: "desc" }],
   },
@@ -60,7 +63,7 @@ export default function AlbumsPage() {
       fetchNextPage();
     }
   }, [inViewport, hasNextPage, isFetchingNextPage, fetchNextPage]);
-  
+
   if (albumsQuery.isError) {
     return <ErrorPage error={albumsQuery.error} />;
   } else if (albumsQuery.isLoading) {
@@ -71,7 +74,7 @@ export default function AlbumsPage() {
   return (
     <div className="flex flex-col w-6/7 grow mx-auto px-4 py-6 gap-6">
       <div className="flex items-center justify-between">
-        <Title order={1}>Albums</Title>
+        <Title order={1} className="uppercase">Albums</Title>
         <div className="flex items-center gap-4 ml-auto">
           <Menu>
             <Tooltip label="Sort">
@@ -141,8 +144,16 @@ export default function AlbumsPage() {
             items={albums}
             renderItem={(album: Album) => <AlbumCard albumId={album.id} />}
           />
-          {albumsQuery.isFetchingNextPage && <div className="w-1/3 self-center"><LoadingAnimation /></div>}
-          {!albumsQuery.hasNextPage && <Title order={4} classNames={{ root: "self-center" }}>All Done!</Title>}
+          {albumsQuery.isFetchingNextPage && (
+            <div className="w-1/3 self-center">
+              <LoadingAnimation />
+            </div>
+          )}
+          {!albumsQuery.hasNextPage && (
+            <Title order={4} classNames={{ root: "self-center" }}>
+              All Done!
+            </Title>
+          )}
           <div className="invisible" ref={ref} />
         </>
       )}

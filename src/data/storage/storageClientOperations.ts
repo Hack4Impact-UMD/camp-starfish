@@ -1,5 +1,5 @@
 import { storage } from "@/config/firebase";
-import { deleteObject, getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { deleteObject, getBlob, getDownloadURL, ref, uploadBytes } from "firebase/storage";
 
 export interface UploadFileItem {
   file: File;
@@ -28,5 +28,15 @@ export async function getFileURL(path: string) {
 
 export async function getFileURLs(paths: string[]) {
   const downloadPromises = paths.map((path) => getFileURL(path));
+  return await Promise.all(downloadPromises);
+}
+
+export async function getFileBlob(path: string) {
+  const downloadRef = ref(storage, path);
+  return await getBlob(downloadRef);
+}
+
+export async function getFileBlobs(paths: string[]) {
+  const downloadPromises = paths.map((path) => getFileBlob(path));
   return await Promise.all(downloadPromises);
 }

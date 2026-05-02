@@ -1,160 +1,213 @@
-"use client";
-
-import React from "react";
-import { useParams } from "next/navigation";
+import React, { useState } from "react";
+import {
+  MdOutlineFileUpload,
+  MdOutlineFileDownload,
+  MdPendingActions,
+} from "react-icons/md";
+import Link from "next/link";
+import AlbumItemCard from "@/components/AlbumItemCard";
+import CardGallery from "@/components/CardGallery";
+import Tagging from "@/components/Tagging";
+import { Album, AlbumItem } from "@/types/albums/albumTypes";
+import { FirestoreQueryOptions } from "@/data/firestore/types/queries";
+import { AlbumItemDoc } from "@/data/firestore/types/documents";
+import useAlbum from "@/hooks/albums/useAlbum";
+import useAlbumItemsList from "@/hooks/albumItems/useAlbumItemsList";
 import {
   ActionIcon,
   Anchor,
   Breadcrumbs,
-  Button,
-  Group,
-  Stack,
-  TextInput,
+  Indicator,
+  Menu,
   Title,
   Tooltip,
 } from "@mantine/core";
-import {
-  MdAdd,
-  MdDownload,
-  MdFilterList,
-  MdSearch,
-} from "react-icons/md";
-import Link from "next/link";
-
-import ImageCard from "@/components/ImageCard";
-import CardGallery from "@/components/CardGallery";
-import FileUploadModal from "@/components/FileUploadModal";
+import { MdSort } from "react-icons/md";
 import LoadingPage from "@/app/loading";
 import ErrorPage from "@/app/error";
-import { AlbumItem } from "@/types/albums/albumTypes";
-import useAlbum from "@/hooks/albums/useAlbum";
-import useAlbumItems from "@/hooks/albumItems/useAlbumItems";
-import useCreateAlbumItem from "@/hooks/albumItems/useCreateAlbumItem";
-import useDownloadAlbum from "@/hooks/albums/useDownloadAlbum";
-import useNotifications from "@/features/notifications/useNotifications";
-import { useQueryClient } from "@tanstack/react-query";
+import useDownloadAlbum from "@/features/albums/downloading/useDownloadAlbum";
+import openUploadAlbumItemsModal from "@/components/UploadAlbumItemsModal/UploadAlbumItemsModal";
 
-const AlbumPage: React.FC = () => {
-  const params = useParams<{ albumId: string }>();
-  const albumId = params.albumId;
+const allTags = [
+  { id: "1", name: "Claire C." },
+  { id: "2", name: "Nitin K." },
+  { id: "3", name: "Ben E." },
+  { id: "4", name: "Maia J." },
+  { id: "5", name: "Harshitha J." },
+  { id: "6", name: "Tej S." },
+  { id: "7", name: "Advik D." },
+  { id: "8", name: "Christine N." },
+  { id: "9", name: "Esha V." },
+  { id: "10", name: "Gelila K." },
+  { id: "11", name: "Joel C." },
+  { id: "12", name: "Nishtha D." },
+  { id: "13", name: "Rivan P." },
+  { id: "14", name: "Riya M." },
+  { id: "15", name: "Saharsh M." },
+];
 
-  const albumQuery = useAlbum(albumId);
-  const albumItemsQuery = useAlbumItems(albumId);
-  const createAlbumItemMutation = useCreateAlbumItem();
-  const downloadMutation = useDownloadAlbum();
-  const notifications = useNotifications();
-  const queryClient = useQueryClient();
+const enum AlbumPageSortOption {
+  NEWEST_TO_OLDEST = "Newest → Oldest",
+  OLDEST_TO_NEWEST = "Oldest → Newest",
+  A_TO_Z = "A → Z",
+  Z_TO_A = "Z → A",
+}
 
-  if (albumQuery.isError) {
-    return <ErrorPage error={albumQuery.error} />;
-  }
-  if (albumItemsQuery.isError) {
-    return <ErrorPage error={albumItemsQuery.error} />;
-  }
-  if (albumQuery.isLoading || !albumQuery.data || albumItemsQuery.isLoading) {
-    return <LoadingPage />;
-  }
-
-  const album = albumQuery.data;
-  const items: AlbumItem[] = albumItemsQuery.data ?? [];
-
-  async function uploadImages(files: File[]) {
-    await Promise.all(
-      files.map((file) =>
-        createAlbumItemMutation.mutateAsync({
-          albumId,
-          albumItem: file,
-          inReview: false,
-        }),
-      ),
-    );
-    // Single invalidation after the batch — `useCreateAlbumItem` deliberately
-    // skips per-item invalidation so N parallel uploads don't trigger N
-    // refetches.
-    await queryClient.invalidateQueries({ queryKey: ["albums"] });
-  }
-
-  const handleDownloadAlbum = () => {
-    if (downloadMutation.isPending) return;
-    downloadMutation.mutate(album, {
-      onSuccess: () => notifications.success(`Downloaded "${album.name}".`),
-      onError: (error: Error) =>
-        notifications.error(error.message || "Failed to download album."),
-    });
-  };
-
-  return (
-    <Stack className="w-6/7 grow mx-auto px-4 py-6" gap="lg">
-      <Breadcrumbs>
-        <Anchor component={Link} href="/albums">Albums</Anchor>
-        <Title order={2} component="span">{album.name}</Title>
-      </Breadcrumbs>
-
-      <Group justify="space-between" align="center" wrap="nowrap">
-        <Title order={1}>{album.name}</Title>
-        <Group gap="md" wrap="nowrap">
-          <TextInput
-            placeholder="Search tags..."
-            leftSection={<MdSearch size={18} />}
-            radius="xl"
-            classNames={{ root: "w-64" }}
-          />
-          <Tooltip label="Filter">
-            <ActionIcon variant="outline" aria-label="Filter">
-              <MdFilterList size={24} />
-            </ActionIcon>
-          </Tooltip>
-          <Tooltip label="Download album">
-            <ActionIcon
-              color="aqua.5"
-              variant="filled"
-              loading={downloadMutation.isPending}
-              onClick={handleDownloadAlbum}
-              aria-label="Download album"
-            >
-              <MdDownload size={24} />
-            </ActionIcon>
-          </Tooltip>
-          <FileUploadModal
-            onUpload={uploadImages}
-            acceptedFileExtensions={[".jpg", ".jpeg", ".png"]}
-            maxFileSize={5}
-          >
-            <Tooltip label="Upload photos">
-              <ActionIcon color="orange" aria-label="Upload photos">
-                <MdAdd size={28} />
-              </ActionIcon>
-            </Tooltip>
-          </FileUploadModal>
-        </Group>
-      </Group>
-
-      {items.length === 0 ? (
-        <Stack
-          align="center"
-          justify="center"
-          gap="md"
-          className="grow bg-neutral-2 py-16 rounded-md"
-        >
-          <Title order={4}>No photos yet</Title>
-          <FileUploadModal
-            onUpload={uploadImages}
-            acceptedFileExtensions={[".jpg", ".jpeg", ".png"]}
-            maxFileSize={5}
-          >
-            <Button color="orange" rightSection={<MdAdd size={20} />}>Upload</Button>
-          </FileUploadModal>
-        </Stack>
-      ) : (
-        <CardGallery<AlbumItem>
-          items={items}
-          renderItem={(image: AlbumItem, isSelected: boolean) => (
-            <ImageCard image={image} isSelected={isSelected} />
-          )}
-        />
-      )}
-    </Stack>
-  );
+const sortQueryOptions: Record<
+  AlbumPageSortOption,
+  FirestoreQueryOptions<AlbumItemDoc>
+> = {
+  "Newest → Oldest": {
+    orderBy: [{ fieldPath: "dateTaken", direction: "desc" }],
+  },
+  "Oldest → Newest": {
+    orderBy: [{ fieldPath: "dateTaken", direction: "asc" }],
+  },
+  "A → Z": { orderBy: [{ fieldPath: "name", direction: "asc" }] },
+  "Z → A": { orderBy: [{ fieldPath: "name", direction: "desc" }] },
 };
 
-export default AlbumPage;
+interface AlbumPageProps {
+  albumId: string;
+}
+
+export default function AlbumPage(props: AlbumPageProps) {
+  const { albumId } = props;
+
+  const albumQuery = useAlbum(albumId);
+  if (albumQuery.isPending) {
+    return <LoadingPage />;
+  } else if (albumQuery.isError) {
+    return <ErrorPage error={albumQuery.error} />;
+  } else {
+    return <AlbumPageContent album={albumQuery.data} />;
+  }
+}
+
+interface AlbumPageContentProps {
+  album: Album;
+}
+
+export function AlbumPageContent(props: AlbumPageContentProps) {
+  const { album } = props;
+
+  const [selectedTags, setSelectedTags] = useState<(typeof allTags)[0][]>([]);
+  const [sortOption, setSortOption] = useState<AlbumPageSortOption>(
+    AlbumPageSortOption.NEWEST_TO_OLDEST,
+  );
+
+  const albumItemsQuery = useAlbumItemsList(album.id, {
+    ...sortQueryOptions[sortOption],
+    limit: 10,
+    limitToLast: undefined,
+  });
+
+  const downloadAlbumMutation = useDownloadAlbum();
+
+  if (albumItemsQuery.isPending) {
+    return <LoadingPage />;
+  } else if (albumItemsQuery.isError) {
+    return <ErrorPage error={albumItemsQuery.error} />;
+  }
+
+  const albumItems =
+    albumItemsQuery.data.pages.flatMap((page) => page.docs) || [];
+
+  return (
+    <div className="flex flex-col w-6/7 grow mx-auto px-4 py-6 gap-6">
+      <div className="flex items-center justify-between">
+        <Breadcrumbs classNames={{ separator: "text-3xl" }} separator=">>">
+          {[
+            { title: "ALBUMS", href: "/albums" },
+            { title: album.name, href: `#` },
+          ].map((breadcrumb) => (
+            <Anchor href={breadcrumb.href} key={breadcrumb.title}>
+              <Title order={1}>{breadcrumb.title}</Title>
+            </Anchor>
+          ))}
+        </Breadcrumbs>
+        <div className="flex items-center gap-4 shrink-0">
+          {/* Tagging */}
+          <Tagging
+            items={allTags}
+            selectedItems={selectedTags}
+            onSelectionChange={setSelectedTags}
+            getOptionLabel={(tag) => tag.name}
+            getOptionValue={(tag) => tag.id}
+            placeholder="Search Tags..."
+            className="w-64 cursor-pointer"
+          />
+
+          <Menu>
+            <Tooltip label="Sort">
+              <Menu.Target>
+                <ActionIcon variant="transparent">
+                  <MdSort size={50} />
+                </ActionIcon>
+              </Menu.Target>
+            </Tooltip>
+            <Menu.Dropdown>
+              {[
+                AlbumPageSortOption.NEWEST_TO_OLDEST,
+                AlbumPageSortOption.OLDEST_TO_NEWEST,
+                AlbumPageSortOption.A_TO_Z,
+                AlbumPageSortOption.Z_TO_A,
+              ].map((option) => (
+                <Menu.Item key={option} onClick={() => setSortOption(option)}>
+                  {option}
+                </Menu.Item>
+              ))}
+            </Menu.Dropdown>
+          </Menu>
+          <Link href="/albums/pending">
+            <Tooltip label="Pending Items">
+              <Indicator color="error" offset={7}>
+                <ActionIcon variant="outline">
+                  <MdPendingActions size={30} />
+                </ActionIcon>
+              </Indicator>
+            </Tooltip>
+          </Link>
+          <Tooltip label="Upload Items">
+            <ActionIcon color="aqua" onClick={() => openUploadAlbumItemsModal(album.id)}>
+              <MdOutlineFileUpload size={40} />
+            </ActionIcon>
+          </Tooltip>
+          <Tooltip label="Download Album">
+            <ActionIcon
+              color="aqua"
+              onClick={() =>
+                downloadAlbumMutation.mutate({
+                  albumId: album.id,
+                  queryOptions: sortQueryOptions[sortOption],
+                })
+              }
+            >
+              <MdOutlineFileDownload size={40} />
+            </ActionIcon>
+          </Tooltip>
+        </div>
+      </div>
+
+      <CardGallery<AlbumItem>
+        items={albumItems}
+        renderItem={(image: AlbumItem, isSelected: boolean) => (
+          <AlbumItemCard
+            albumId={album.id}
+            albumItemId={image.id}
+            isSelected={isSelected}
+          />
+        )}
+        groups={{
+          groupLabels: [
+            ...new Set(
+              albumItems.map((item) => item.dateTaken.format("YYYY-MM-DD")),
+            ),
+          ],
+          defaultGroupLabel: "Date Unknown",
+          groupFunc: (image: AlbumItem) => image.dateTaken.format("YYYY-MM-DD"),
+        }}
+      />
+    </div>
+  );
+}

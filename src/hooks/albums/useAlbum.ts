@@ -1,9 +1,13 @@
 import { getAlbumDoc } from "@/data/firestore/albums";
-import { skipToken, useQuery } from "@tanstack/react-query";
+import { queryOptions, skipToken, useQuery } from "@tanstack/react-query";
 
-export default function useAlbum(albumId: string | undefined) {
-  return useQuery({
+export function getUseAlbumOptions(albumId: string | undefined) {
+  return queryOptions({
     queryKey: ['albums', albumId],
     queryFn: albumId ? (() => getAlbumDoc(albumId)) : skipToken,
-  })
+  });
+}
+
+export default function useAlbum(albumId: string | undefined) {
+  return useQuery(getUseAlbumOptions(albumId));
 }

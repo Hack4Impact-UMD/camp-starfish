@@ -1,8 +1,9 @@
 import { db } from "@/config/firebase";
 import { AlbumItem } from "@/types/albums/albumTypes";
 import { AlbumItemDoc } from "./types/documents";
-import { collection, CollectionReference, doc, Transaction, WriteBatch, QueryDocumentSnapshot, DocumentReference, DocumentSnapshot, WithFieldValue, UpdateData } from "firebase/firestore";
-import { getDoc, setDoc, updateDoc, deleteDoc, executeQuery, mapSnapshotsToPaginatedQueryResult, PaginatedQueryResponse, QueryOptions } from "./firestoreClientOperations"
+import { doc, Transaction, WriteBatch, QueryDocumentSnapshot, DocumentReference, DocumentSnapshot, WithFieldValue, UpdateData, collection, CollectionReference } from "firebase/firestore";
+import { getDoc, setDoc, updateDoc, deleteDoc, executeQuery, mapSnapshotsToPaginatedQueryResult } from "./firestoreClientOperations"
+import { PaginatedQueryResponse, FirestoreQueryOptions } from "./types/queries";
 import { AlbumsSubcollection, RootLevelCollection } from "./types/collections";
 import moment from "moment";
 import { v4 as uuidv4 } from "uuid";
@@ -25,8 +26,11 @@ export async function getAlbumItemDoc(albumId: string, albumItemId: string, tran
   return fromFirestore(snapshot);
 }
 
-export async function getAlbumItemDocs(albumId: string, queryOptions?: QueryOptions<AlbumItemDoc>): Promise<PaginatedQueryResponse<AlbumItem, AlbumItemDoc>> {
-  const snapshots = await executeQuery<AlbumItemDoc>(collection(db, RootLevelCollection.ALBUMS, albumId, AlbumsSubcollection.ALBUM_ITEMS) as CollectionReference<AlbumItemDoc, AlbumItemDoc>, queryOptions);
+export async function listAlbumItemDocs(albumId: string, queryOptions?: FirestoreQueryOptions<AlbumItemDoc>): Promise<PaginatedQueryResponse<AlbumItem, AlbumItemDoc>> {
+  const snapshots = await executeQuery<AlbumItemDoc>(
+    collection(db, RootLevelCollection.ALBUMS, albumId, AlbumsSubcollection.ALBUM_ITEMS) as CollectionReference<AlbumItemDoc, AlbumItemDoc>,
+    queryOptions
+  )
   return mapSnapshotsToPaginatedQueryResult(snapshots, fromFirestore);
 }
 

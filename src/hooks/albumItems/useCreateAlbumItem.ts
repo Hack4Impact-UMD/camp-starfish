@@ -4,7 +4,7 @@ import { useMutation } from "@tanstack/react-query";
 import { Timestamp } from "firebase/firestore";
 import moment from "moment";
 
-interface CreateAlbumItemRequest {
+export interface CreateAlbumItemRequest {
   albumId: string;
   albumItem: File;
   inReview: boolean;
@@ -30,13 +30,9 @@ async function createAlbumItem(req: CreateAlbumItemRequest) {
   }
 }
 
-// Unlike the other mutation hooks in this project, this one does NOT invalidate
-// queries on success. Photo uploads almost always run as a batch
-// (`Promise.all(files.map(mutateAsync))`), and per-item invalidation triggers
-// one cache refetch per file. Callers should invalidate `["albums"]` once after
-// the batch settles.
 export default function useCreateAlbumItem() {
   return useMutation({
-    mutationFn: async (req: CreateAlbumItemRequest) => createAlbumItem(req),
-  });
+    mutationKey: ['albumItems', 'create'],
+    mutationFn: async (req: CreateAlbumItemRequest) => createAlbumItem(req)
+  })
 }
