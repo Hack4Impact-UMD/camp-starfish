@@ -129,7 +129,7 @@ export function UploadAlbumItemsModal(props: UploadAlbumItemsModalProps) {
         }}
       >
         {acceptedFiles.map((file) => (
-          <FileItem key={file.name} file={file} />
+          <FileItem key={file.name} file={file} onRemove={() => setAcceptedFiles(prev => prev.filter(f => f !== file))} />
         ))}
       </ScrollArea.Autosize>
       <div className="flex justify-between w-full my-2 gap-2">
@@ -155,10 +155,11 @@ export function UploadAlbumItemsModal(props: UploadAlbumItemsModalProps) {
 
 interface FileItemProps {
   file: File;
+  onRemove: () => void;
 }
 
 function FileItem(props: FileItemProps) {
-  const { file } = props;
+  const { file, onRemove } = props;
   const status = useMutationState({
     filters: {
       mutationKey: ["albumItems", "create"],
@@ -186,6 +187,7 @@ function FileItem(props: FileItemProps) {
         <MdClose
           className="text-blue hover:bg-blue-1 rounded-lg cursor-pointer"
           size={25}
+          onClick={onRemove}
         />
       );
   }
