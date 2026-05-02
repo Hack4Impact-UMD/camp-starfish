@@ -16,6 +16,10 @@ import { useIsMutating, useMutationState } from "@tanstack/react-query";
 import useNotifications from "@/features/notifications/useNotifications";
 import { MBToBytes } from "@/utils/fileUtils";
 import classNames from "classnames";
+import { useAuth } from "@/auth/useAuth";
+import { Role } from "@/types/users/userTypes";
+import { getUserRole } from "@/utils/userUtils";
+import ErrorPage from "@/app/error";
 
 interface UploadAlbumItemsModalProps {
   albumId: string;
@@ -26,37 +30,77 @@ export function UploadAlbumItemsModal(props: UploadAlbumItemsModalProps) {
 
   const [acceptedFiles, setAcceptedFiles] = useState<File[]>([]);
   const requestsRef = useRef<CreateAlbumItemRequest[]>([]);
-  const acceptedMimeTypes = ["image/jpeg", "image/png", "image/heic", "image/gif", "video/mp4", "video/quicktime"];
+  const acceptedMimeTypes = [
+    "image/jpeg",
+    "image/png",
+    "image/heic",
+    "image/gif",
+    "video/mp4",
+    "video/quicktime",
+  ];
   const maxFileSizeMB = 5;
 
   const createAlbumItemMutation = useCreateAlbumItem();
   const numMutating = useIsMutating({
-    mutationKey: ['albumItems', 'create'],
-    predicate: (mutation) => mutation.state.variables !== undefined && acceptedFiles.includes((mutation.state.variables as CreateAlbumItemRequest).albumItem) && mutation.state.status === 'pending'
+    mutationKey: ["albumItems", "create"],
+    predicate: (mutation) =>
+      mutation.state.variables !== undefined &&
+      acceptedFiles.includes(
+        (mutation.state.variables as CreateAlbumItemRequest).albumItem,
+      ) &&
+      mutation.state.status === "pending",
   });
   const isMutating = numMutating !== 0;
 
   const notifications = useNotifications();
 
+  const auth = useAuth();
+  const userRole = getUserRole(auth);
+  const canUploadApprovedItemsRoles: Role[] = ["ADMIN", "PHOTOGRAPHER"];
+  const canUploadInReviewItemsRoles: Role[] = ["STAFF"];
+  if (
+    !userRole ||
+    (!canUploadApprovedItemsRoles.includes(userRole) &&
+    !canUploadInReviewItemsRoles.includes(userRole))
+  ) {
+    return (
+      <ErrorPage
+        error={Error("You do not have permission to perform this operation.")}
+      />
+    );
+  }
+  const inReview = canUploadApprovedItemsRoles.includes(userRole);
+
   const onDrop = (files: FileWithPath[]) => {
     setAcceptedFiles((prev) => [...prev, ...files]);
-    files.forEach(file => requestsRef.current.push({
-      albumId: "000f726f-2023-46c8-bd0b-4518751b494b",
-      albumItem: file,
-      inReview: true
-    }))
+    files.forEach((file) =>
+      requestsRef.current.push({
+        albumId,
+        albumItem: file,
+        inReview,
+      }),
+    );
   };
 
   const onReject = (fileRejections: FileRejection[]) => {
-    const rejectionMessage = fileRejections.length === 1 ? '1 file was rejected because it does not meet the specified requirements.' : `${fileRejections.length} files were rejected because they do not meet the specified requirements.`
+    const rejectionMessage =
+      fileRejections.length === 1
+        ? "1 file was rejected because it does not meet the specified requirements."
+        : `${fileRejections.length} files were rejected because they do not meet the specified requirements.`;
     notifications.error(rejectionMessage);
-  }
+  };
 
   const onUpload = async () => {
-    const responses = await Promise.allSettled(requestsRef.current.map((req) => createAlbumItemMutation.mutateAsync(req)));
-    const errors = responses.filter(r => r.status === 'rejected');
+    const responses = await Promise.allSettled(
+      requestsRef.current.map((req) =>
+        createAlbumItemMutation.mutateAsync(req),
+      ),
+    );
+    const errors = responses.filter((r) => r.status === "rejected");
     if (errors.length > 0) {
-      notifications.error(`Failed to upload ${errors.length} files. Please try again.`);
+      notifications.error(
+        `Failed to upload ${errors.length} files. Please try again.`,
+      );
     } else {
       notifications.success(`${responses.length} files uploaded successfully!`);
       modals.closeAll();
@@ -65,7 +109,7 @@ export function UploadAlbumItemsModal(props: UploadAlbumItemsModalProps) {
 
   return (
     <>
-      <Dropzone        
+      <Dropzone
         classNames={{
           inner:
             "flex flex-col justify-center items-center border-4 border-dashed border-orange-5 rounded-lg my-2 p-2",
@@ -75,7 +119,7 @@ export function UploadAlbumItemsModal(props: UploadAlbumItemsModalProps) {
         onDrop={onDrop}
         onReject={onReject}
       >
-        <Text className="text-center">{`Supported file types: ${acceptedMimeTypes.map(mimeType => extension(mimeType)).join(", ")} (Max ${maxFileSizeMB}MB)`}</Text>
+        <Text className="text-center">{`Supported file types: ${acceptedMimeTypes.map((mimeType) => extension(mimeType)).join(", ")} (Max ${maxFileSizeMB}MB)`}</Text>
         <MdOutlineFileUpload className="text-neutral-4" size={50} />
         <Text className="text-center">{"Drag and drop files"}</Text>
         <Text className="text-center">{"OR"}</Text>
@@ -93,10 +137,19 @@ export function UploadAlbumItemsModal(props: UploadAlbumItemsModalProps) {
         ))}
       </ScrollArea.Autosize>
       <div className="flex justify-between w-full my-2 gap-2">
-        <Button color="gray" className="text-black" onClick={() => modals.closeAll()}>
+        <Button
+          color="gray"
+          className="text-black"
+          onClick={() => modals.closeAll()}
+        >
           CANCEL
         </Button>
-        <Button color="green" onClick={onUpload} loading={isMutating} disabled={isMutating || acceptedFiles.length === 0}>
+        <Button
+          color="green"
+          onClick={onUpload}
+          loading={isMutating}
+          disabled={isMutating || acceptedFiles.length === 0}
+        >
           UPLOAD
         </Button>
       </div>
@@ -112,8 +165,10 @@ function FileItem(props: FileItemProps) {
   const { file } = props;
   const status = useMutationState({
     filters: {
-      mutationKey: ['albumItems', 'create'],
-      predicate: (mutation) => mutation.state.variables !== undefined && (mutation.state.variables as CreateAlbumItemRequest).albumItem === file,
+      mutationKey: ["albumItems", "create"],
+      predicate: (mutation) =>
+        mutation.state.variables !== undefined &&
+        (mutation.state.variables as CreateAlbumItemRequest).albumItem === file,
     },
     select: (mutation) => mutation.state.status,
   });
@@ -131,7 +186,12 @@ function FileItem(props: FileItemProps) {
       break;
     case "idle":
     default:
-      icon = <MdClose className="text-blue hover:bg-blue-1 rounded-lg cursor-pointer" size={25} />;
+      icon = (
+        <MdClose
+          className="text-blue hover:bg-blue-1 rounded-lg cursor-pointer"
+          size={25}
+        />
+      );
   }
 
   return (
@@ -140,7 +200,9 @@ function FileItem(props: FileItemProps) {
       key={file.name}
     >
       <Text>{file.name}</Text>
-      {cloneElement(icon, { className: classNames('min-w-6 self-center', icon.props.className) })}
+      {cloneElement(icon, {
+        className: classNames("min-w-6 self-center", icon.props.className),
+      })}
     </div>
   );
 }
