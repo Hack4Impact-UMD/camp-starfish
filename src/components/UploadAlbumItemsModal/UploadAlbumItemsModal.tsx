@@ -8,7 +8,7 @@ import {
   DialogTrigger,
 } from "@radix-ui/react-dialog";
 import { Accept, FileRejection, useDropzone } from "react-dropzone";
-import { cloneElement, useRef, useState } from "react";
+import { cloneElement, JSX, useRef, useState } from "react";
 
 import { extension, lookup } from "mime-types";
 import Image from "next/image";
@@ -29,6 +29,7 @@ import { request } from "http";
 import useNotifications from "@/features/notifications/useNotifications";
 import { groupBy } from "@/utils/data/groupBy";
 import { MBToBytes } from "@/utils/fileUtils";
+import classNames from "classnames";
 
 type FileUploadModalProps = {
   children: React.ReactNode;
@@ -217,13 +218,21 @@ function FileItem(props: FileItemProps) {
     select: (mutation) => mutation.state.status,
   });
 
-  const icon = {
-    "success": <MdCheckCircle className="text-success" size={25} />,
-    "error": <MdError className="text-error" size={25} />,
-    "pending": <Loader />,
-    "idle": <></>,
-  }[status[status.length - 1]] || <MdClose className="text-blue hover:bg-blue-1 rounded-lg cursor-pointer" size={25} /> 
-
+  let icon: JSX.Element;
+  switch (status[status.length - 1]) {
+    case "success":
+      icon = <MdCheckCircle className="text-success" size={25} />;
+      break;
+    case "error":
+      icon = <MdError className="text-error" size={25} />;
+      break;
+    case "pending":
+      icon = <Loader size={25} />;
+      break;
+    case "idle":
+    default:
+      icon = <MdClose className="text-blue hover:bg-blue-1 rounded-lg cursor-pointer" size={25} />;
+  }
 
   return (
     <div
@@ -231,7 +240,7 @@ function FileItem(props: FileItemProps) {
       key={file.name}
     >
       <Text>{file.name}</Text>
-      {cloneElement(icon, { className: 'min-w-6 self-center' })}
+      {cloneElement(icon, { className: classNames('min-w-6 self-center', icon.props.className) })}
     </div>
   );
 }
