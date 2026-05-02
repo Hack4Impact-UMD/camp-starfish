@@ -22,19 +22,19 @@ function fromFirestore(snapshot: DocumentSnapshot<UserDoc, UserDoc> | QueryDocum
   }
 }
 
-export async function getUserById(id: number, transaction?: Transaction): Promise<User> {
+export async function getUserDoc(id: number, transaction?: Transaction): Promise<User> {
   const snapshot = await getDoc<UserDoc>(doc(db, RootLevelCollection.USERS, String(id)) as DocumentReference<UserDoc, UserDoc>, transaction);
   return fromFirestore(snapshot);
 };
 
-export async function createUser(id: number, user: WithFieldValue<UserDoc>, instance?: Transaction | WriteBatch): Promise<void> {
+export async function createUserDoc(id: number, user: WithFieldValue<UserDoc>, instance?: Transaction | WriteBatch): Promise<void> {
   await setDoc<UserDoc>(doc(db, RootLevelCollection.USERS, String(id)) as DocumentReference<UserDoc, UserDoc>, user, { instance });
 }
 
-export async function updateUser(id: number, updates: UpdateData<UserDoc>, instance?: Transaction | WriteBatch): Promise<void> {
+export async function updateUserDoc(id: number, updates: UpdateData<UserDoc>, instance?: Transaction | WriteBatch): Promise<void> {
   await updateDoc<UserDoc>(doc(db, RootLevelCollection.USERS, String(id)) as DocumentReference<UserDoc, UserDoc>, updates, instance);
 }
 
-export async function deleteUser(id: number, instance?: Transaction | WriteBatch): Promise<void> {
+export async function deleteUserDoc(id: number, instance?: Transaction | WriteBatch): Promise<void> {
   await deleteDoc<UserDoc>(doc(db, RootLevelCollection.USERS, String(id)) as DocumentReference<UserDoc, UserDoc>, instance);
 }
