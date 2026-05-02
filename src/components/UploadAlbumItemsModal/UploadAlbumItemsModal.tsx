@@ -200,10 +200,10 @@ export function UploadAlbumItemsModal(props: UploadAlbumItemsModalProps) {
         ))}
       </ScrollArea.Autosize>
       <div className="flex justify-between w-full my-2 gap-2">
-        <Button color="gray" className="text-black" disabled={isMutating} onClick={() => modals.closeAll()}>
+        <Button color="gray" className="text-black" onClick={() => modals.closeAll()}>
           CANCEL
         </Button>
-        <Button color="green" onClick={onUpload} loading={isMutating}>
+        <Button color="green" onClick={onUpload} loading={isMutating} disabled={isMutating || acceptedFiles.length === 0}>
           UPLOAD
         </Button>
       </div>
