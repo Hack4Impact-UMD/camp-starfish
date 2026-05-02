@@ -17,6 +17,7 @@ import {
   ActionIcon,
   Anchor,
   Breadcrumbs,
+  Indicator,
   Menu,
   Title,
   Tooltip,
@@ -158,17 +159,20 @@ export function AlbumPageContent(props: AlbumPageContentProps) {
               ))}
             </Menu.Dropdown>
           </Menu>
-
           <Link href="/albums/pending">
-            <MdPendingActions />
+            <Tooltip label="Pending Items">
+              <Indicator color="error" offset={7}>
+                <ActionIcon variant="outline">
+                  <MdPendingActions size={30} />
+                </ActionIcon>
+              </Indicator>
+            </Tooltip>
           </Link>
-
           <Tooltip label="Upload Items">
             <ActionIcon color="aqua" onClick={() => openUploadAlbumItemsModal(album.id)}>
               <MdOutlineFileUpload size={40} />
             </ActionIcon>
           </Tooltip>
-
           <Tooltip label="Download Album">
             <ActionIcon
               color="aqua"
