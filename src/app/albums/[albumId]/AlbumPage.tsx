@@ -172,10 +172,12 @@ export function AlbumPageContent(props: AlbumPageContentProps) {
           <Tooltip label="Download Album">
             <ActionIcon
               color="aqua"
-              onClick={() => downloadAlbumMutation.mutate({
-                albumId: album.id,
-                queryOptions: sortQueryOptions[sortOption]
-              })}
+              onClick={() =>
+                downloadAlbumMutation.mutate({
+                  albumId: album.id,
+                  queryOptions: sortQueryOptions[sortOption],
+                })
+              }
             >
               <MdOutlineFileDownload size={40} />
             </ActionIcon>
@@ -186,12 +188,18 @@ export function AlbumPageContent(props: AlbumPageContentProps) {
       <CardGallery<AlbumItem>
         items={albumItems}
         renderItem={(image: AlbumItem, isSelected: boolean) => (
-          <AlbumItemCard albumId={album.id} albumItemId={image.id} isSelected={isSelected} />
+          <AlbumItemCard
+            albumId={album.id}
+            albumItemId={image.id}
+            isSelected={isSelected}
+          />
         )}
         groups={{
-          groupLabels: [...new Set(albumItems.map((item) =>
-            item.dateTaken.format("YYYY-MM-DD"),
-          ))],
+          groupLabels: [
+            ...new Set(
+              albumItems.map((item) => item.dateTaken.format("YYYY-MM-DD")),
+            ),
+          ],
           defaultGroupLabel: "Date Unknown",
           groupFunc: (image: AlbumItem) => image.dateTaken.format("YYYY-MM-DD"),
         }}
