@@ -29,7 +29,6 @@ export function UploadAlbumItemsModal(props: UploadAlbumItemsModalProps) {
   const { albumId } = props;
 
   const [acceptedFiles, setAcceptedFiles] = useState<File[]>([]);
-  const requestsRef = useRef<CreateAlbumItemRequest[]>([]);
   const acceptedMimeTypes = [
     "image/jpeg",
     "image/png",
@@ -73,13 +72,6 @@ export function UploadAlbumItemsModal(props: UploadAlbumItemsModalProps) {
 
   const onDrop = (files: FileWithPath[]) => {
     setAcceptedFiles((prev) => [...prev, ...files]);
-    files.forEach((file) =>
-      requestsRef.current.push({
-        albumId,
-        albumItem: file,
-        inReview,
-      }),
-    );
   };
 
   const onReject = (fileRejections: FileRejection[]) => {
@@ -92,8 +84,12 @@ export function UploadAlbumItemsModal(props: UploadAlbumItemsModalProps) {
 
   const onUpload = async () => {
     const responses = await Promise.allSettled(
-      requestsRef.current.map((req) =>
-        createAlbumItemMutation.mutateAsync(req),
+      acceptedFiles.map((file) =>
+        createAlbumItemMutation.mutateAsync({
+          albumId,
+          albumItem: file,
+          inReview
+        }),
       ),
     );
     const errors = responses.filter((r) => r.status === "rejected");
