@@ -128,8 +128,8 @@ export function UploadAlbumItemsModal(props: UploadAlbumItemsModalProps) {
             "flex flex-col justify-center self-center items-center gap-2",
         }}
       >
-        {acceptedFiles.map((file) => (
-          <FileItem key={file.name} file={file} onRemove={() => setAcceptedFiles(prev => prev.filter(f => f !== file))} />
+        {acceptedFiles.map((file, i) => (
+          <FileItem key={i} file={file} onRemove={() => setAcceptedFiles(prev => prev.filter(f => f !== file))} />
         ))}
       </ScrollArea.Autosize>
       <div className="flex justify-between w-full my-2 gap-2">
@@ -193,10 +193,7 @@ function FileItem(props: FileItemProps) {
   }
 
   return (
-    <div
-      className="flex bg-blue-0 rounded-sm p-2 justify-between gap-4 w-full"
-      key={file.name}
-    >
+    <div className="flex bg-blue-0 rounded-sm p-2 justify-between gap-4 w-full">
       <Text>{file.name}</Text>
       {cloneElement(icon, {
         className: classNames("min-w-6 self-center", icon.props.className),

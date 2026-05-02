@@ -74,7 +74,7 @@ export default function AlbumsPage() {
   return (
     <div className="flex flex-col w-6/7 grow mx-auto px-4 py-6 gap-6">
       <div className="flex items-center justify-between">
-        <Title order={1}>ALBUMS</Title>
+        <Title order={1} className="uppercase">Albums</Title>
         <div className="flex items-center gap-4 ml-auto">
           <Menu>
             <Tooltip label="Sort">
