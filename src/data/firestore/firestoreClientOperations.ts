@@ -114,7 +114,7 @@ export async function executeQuery<DbModelType extends DocumentData>(collection:
 }
 
 const FIRESTORE_WHERE_IN_LIMIT = 30;
-export async function batchGetDocsInCollection<DbModelType extends DocumentData>(collection: CollectionReference<DbModelType, DbModelType> | Collection, ids: string[]): Promise<QueryDocumentSnapshot<DbModelType, DbModelType>[]> {
+export async function batchGetDocs<DbModelType extends DocumentData>(collection: CollectionReference<DbModelType, DbModelType> | Collection, ids: string[]): Promise<QueryDocumentSnapshot<DbModelType, DbModelType>[]> {
   try {
     const idBatches = [];
     for (let i = 0; i < ids.length; i += FIRESTORE_WHERE_IN_LIMIT) {
