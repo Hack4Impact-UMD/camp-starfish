@@ -2,7 +2,7 @@ import { executeTagDirectoryQuery } from "@/data/firestore/tagDirectory";
 import { TagDirectory } from "@/types/albums/albumTypes";
 import { useQuery } from "@tanstack/react-query";
 
-export async function getAllTags(): Promise<TagDirectory> {
+export async function getTagDirectory(): Promise<TagDirectory> {
   const pages = await executeTagDirectoryQuery();
   const combinedTags = pages.reduce((acc, page) => ({ ...acc, ...page }), {});
   return {
@@ -11,9 +11,9 @@ export async function getAllTags(): Promise<TagDirectory> {
   }
 }
 
-export default function useAllTags() {
+export default function useTagDirectory() {
   return useQuery({
     queryKey: ['tags'],
-    queryFn: getAllTags
+    queryFn: getTagDirectory
   })
 }
