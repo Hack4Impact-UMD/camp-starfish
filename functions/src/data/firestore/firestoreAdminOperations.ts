@@ -136,7 +136,7 @@ function buildQuery<DbModelType extends DocumentData>(collection: CollectionRefe
   return queryObj;
 }
 
-interface ExecuteQueryOptions<DbModelType extends DocumentData> {
+export interface ExecuteQueryOptions<DbModelType extends DocumentData> {
   transaction?: Transaction;
   queryOptions?: FirestoreQueryOptions<DbModelType>;
 }
