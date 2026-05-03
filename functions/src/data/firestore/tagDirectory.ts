@@ -3,11 +3,19 @@ import { DocumentSnapshot, QueryDocumentSnapshot, Transaction, UpdateData, Write
 import { createDoc, deleteDoc, executeQuery, ExecuteQueryOptions, updateDoc } from "./firestoreAdminOperations";
 import { adminDb } from "../../config/firebaseAdminConfig";
 import { RootLevelCollection } from "@/data/firestore/types/collections";
-import { v4 as uuidv4 } from "uuid";
+import { TagDirectory } from "@/types/albums/albumTypes";
 
-function fromFirestore(snapshot: DocumentSnapshot<TagDirectoryDoc, TagDirectoryDoc> | QueryDocumentSnapshot<TagDirectoryDoc, TagDirectoryDoc>): TagDirectoryDoc {
+function fromFirestore(snapshot: DocumentSnapshot<TagDirectoryDoc, TagDirectoryDoc> | QueryDocumentSnapshot<TagDirectoryDoc, TagDirectoryDoc>): TagDirectory {
   if (!snapshot.exists) { throw Error("Document not found"); }
-  return snapshot.data() as TagDirectoryDoc;
+    return {
+    page: Number(snapshot.id),
+    ...snapshot.data()
+  };
+}
+
+export async function getTagDirectoryDoc(pageId: number, transaction?: Transaction): Promise<TagDirectoryDoc> {
+  const doc = await getDoc<TagDirectoryDoc>(adminDb.collection(RootLevelCollection.TAG_DIRECTORY).doc(String(pageId)), transaction);
+  return fromFirestore(doc);
 }
 
 export async function executeTagDirectoryQuery(options?: ExecuteQueryOptions<TagDirectoryDoc>): Promise<TagDirectoryDoc[]> {
