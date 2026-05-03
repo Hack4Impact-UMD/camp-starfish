@@ -14,7 +14,7 @@ function fromFirestore(snapshot: DocumentSnapshot<TagDirectoryDoc, TagDirectoryD
   };
 }
 
-export async function executeTagDirectoryQuery(options?: FirestoreQueryOptions<TagDirectoryDoc>): Promise<TagDirectoryDoc[]> {
+export async function executeTagDirectoryQuery(options?: FirestoreQueryOptions<TagDirectoryDoc>): Promise<TagDirectory[]> {
   const snapshots = await executeQuery<TagDirectoryDoc>(collection(db, RootLevelCollection.TAG_DIRECTORY) as CollectionReference<TagDirectoryDoc, TagDirectoryDoc>, options);
   return snapshots.map(fromFirestore);
 }
