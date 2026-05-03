@@ -158,7 +158,7 @@ type AggregationClause<DbModelType> = { aggregateFieldName: string; } & (
 
 type AggregationQueryOptions<DbModelType extends DocumentData> = FirestoreQueryOptions<DbModelType> & { aggregations: AggregationClause<DbModelType>[]; }
 
-interface ExecuteAggregationQueryOptions<DbModelType extends DocumentData> {
+export interface ExecuteAggregationQueryOptions<DbModelType extends DocumentData> {
   transaction?: Transaction;
   aggregationQueryOptions: AggregationQueryOptions<DbModelType>;
 }
