@@ -19,6 +19,10 @@ service cloud.firestore {
       return isStaff() || isAdmin();
     }
 
+    match /tagDirectory/{pageId} {
+      allow read, write: if isStaffOrAdmin();
+    }
+
     // Sessions collection
     match /sessions/{sessionId} {
       allow read: if isStaffOrAdmin();
