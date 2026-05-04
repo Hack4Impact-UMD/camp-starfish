@@ -2,6 +2,22 @@
 
 import Select, { MultiValue, StylesConfig, components } from 'react-select';
 import { AvatarIcon, MagnifyingGlassIcon } from '@radix-ui/react-icons';
+import { MultiSelect } from '@mantine/core';
+import useTagDirectory from '@/hooks/tags/useTagDirectory';
+import { useMemo } from 'react';
+
+export default function Tagging() {
+  const tagDirectoryQuery = useTagDirectory();
+
+  return <MultiSelect
+    label="Filter by tagged people"
+    placeholder="Pick a tagged person!"
+    data={Object.values(tagDirectoryQuery.data) || []}
+  />
+}
+
+
+
 
 // Props for generic Tagging component
 type TaggingProps<T> = {
@@ -15,7 +31,7 @@ type TaggingProps<T> = {
     className?: string;
 };
 
-export default function Tagging<T>({
+export function Twefwagging<T>({
     items,
     selectedItems,
     onSelectionChange,
