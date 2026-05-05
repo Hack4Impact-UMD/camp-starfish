@@ -10,12 +10,7 @@ interface ConfirmationModalProps {
   children: JSX.Element;
 }
 
-function ConfirmationModal({
-  text,
-  onConfirm,
-  cannotUndo,
-  children,
-}: ConfirmationModalProps) {
+export default function ConfirmationModal({ text, onConfirm, cannotUndo, children }: ConfirmationModalProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleConfirm = () => {
@@ -76,5 +71,3 @@ function ConfirmationModal({
     </>
   );
 }
-
-export default ConfirmationModal;
