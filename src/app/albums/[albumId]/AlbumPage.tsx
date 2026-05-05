@@ -27,6 +27,8 @@ import LoadingPage from "@/app/loading";
 import ErrorPage from "@/app/error";
 import useDownloadAlbum from "@/features/albums/downloading/useDownloadAlbum";
 import openUploadAlbumItemsModal from "@/components/UploadAlbumItemsModal/UploadAlbumItemsModal";
+import useUserBatch from "@/hooks/users/useUserBatch";
+import useTagDirectory from "@/hooks/tags/useTagDirectory";
 
 const allTags = [
   { id: "1", name: "Claire C." },
@@ -115,7 +117,7 @@ export function AlbumPageContent(props: AlbumPageContentProps) {
 
   return (
     <div className="flex flex-col w-6/7 grow mx-auto px-4 py-6 gap-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-start justify-between">
         <Breadcrumbs classNames={{ separator: "text-3xl" }} separator=">>">
           {[
             { title: "ALBUMS", href: "/albums" },
@@ -126,18 +128,8 @@ export function AlbumPageContent(props: AlbumPageContentProps) {
             </Anchor>
           ))}
         </Breadcrumbs>
-        <div className="flex items-center gap-4 shrink-0">
-          {/* Tagging */}
-          <Tagging
-            items={allTags}
-            selectedItems={selectedTags}
-            onSelectionChange={setSelectedTags}
-            getOptionLabel={(tag) => tag.name}
-            getOptionValue={(tag) => tag.id}
-            placeholder="Search Tags..."
-            className="w-64 cursor-pointer"
-          />
-
+        <div className="flex items-start gap-4 shrink-0">
+          <Tagging />
           <Menu>
             <Tooltip label="Sort">
               <Menu.Target>
@@ -169,7 +161,10 @@ export function AlbumPageContent(props: AlbumPageContentProps) {
             </Tooltip>
           </Link>
           <Tooltip label="Upload Items">
-            <ActionIcon color="aqua" onClick={() => openUploadAlbumItemsModal(album.id)}>
+            <ActionIcon
+              color="aqua"
+              onClick={() => openUploadAlbumItemsModal(album.id)}
+            >
               <MdOutlineFileUpload size={40} />
             </ActionIcon>
           </Tooltip>

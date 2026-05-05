@@ -2,17 +2,34 @@
 
 import Select, { MultiValue, StylesConfig, components } from 'react-select';
 import { AvatarIcon, MagnifyingGlassIcon } from '@radix-ui/react-icons';
-import { MultiSelect } from '@mantine/core';
+import { Loader, MultiSelect } from '@mantine/core';
 import useTagDirectory from '@/hooks/tags/useTagDirectory';
-import { useMemo } from 'react';
+import { useState } from 'react';
+import { MdError } from 'react-icons/md';
 
-export default function Tagging() {
+export default function TagSelect() {
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+
   const tagDirectoryQuery = useTagDirectory();
+  const tagOptions = Object.entries(tagDirectoryQuery.data || {});
+
+  if (tagDirectoryQuery.isPending) {
+    return <MultiSelect
+      placeholder="Loading data..."
+      rightSection={<Loader size={20} />}
+    />
+  } else if (tagDirectoryQuery.isError) {
+    return <MultiSelect
+      placeholder="Failed to load tags"
+      rightSection={<MdError className="text-error" size={20} />}
+      disabled
+    />
+  }
 
   return <MultiSelect
-    label="Filter by tagged people"
-    placeholder="Pick a tagged person!"
-    data={Object.values(tagDirectoryQuery.data) || []}
+    placeholder="Search tags"
+    data={tagOptions.map(([_, fullName]) => fullName)}
+    searchable
   />
 }
 
