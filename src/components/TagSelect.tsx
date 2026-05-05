@@ -4,12 +4,9 @@ import Select, { MultiValue, StylesConfig, components } from 'react-select';
 import { AvatarIcon, MagnifyingGlassIcon } from '@radix-ui/react-icons';
 import { Loader, MultiSelect } from '@mantine/core';
 import useTagDirectory from '@/hooks/tags/useTagDirectory';
-import { useState } from 'react';
 import { MdError } from 'react-icons/md';
 
 export default function TagSelect() {
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
-
   const tagDirectoryQuery = useTagDirectory();
   const tagOptions = Object.entries(tagDirectoryQuery.data || {});
 
@@ -30,6 +27,7 @@ export default function TagSelect() {
     placeholder="Search tags"
     data={tagOptions.map(([_, fullName]) => fullName)}
     searchable
+    maxValues={5}
   />
 }
 
