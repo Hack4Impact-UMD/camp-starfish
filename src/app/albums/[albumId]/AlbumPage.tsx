@@ -29,6 +29,7 @@ import ErrorPage from "@/app/error";
 import useDownloadAlbum from "@/features/albums/downloading/useDownloadAlbum";
 import openUploadAlbumItemsModal from "@/components/UploadAlbumItemsModal/UploadAlbumItemsModal";
 import { useInViewport } from "@mantine/hooks";
+import LoadingAnimation from "@/components/LoadingAnimation";
 
 const allTags = [
   { id: "1", name: "Claire C." },
@@ -214,26 +215,39 @@ export function AlbumPageContent(props: AlbumPageContentProps) {
           </Button>
         </div>
       ) : (
-        <CardGallery<AlbumItem>
-          items={albumItems}
-          renderItem={(image: AlbumItem, isSelected: boolean) => (
-            <AlbumItemCard
-              albumId={album.id}
-              albumItemId={image.id}
-              isSelected={isSelected}
-            />
+        <>
+          <CardGallery<AlbumItem>
+            items={albumItems}
+            renderItem={(image: AlbumItem, isSelected: boolean) => (
+              <AlbumItemCard
+                albumId={album.id}
+                albumItemId={image.id}
+                isSelected={isSelected}
+              />
+            )}
+            groups={{
+              groupLabels: [
+                ...new Set(
+                  albumItems.map((item) => item.dateTaken.format("YYYY-MM-DD")),
+                ),
+              ],
+              defaultGroupLabel: "Date Unknown",
+              groupFunc: (image: AlbumItem) =>
+                image.dateTaken.format("YYYY-MM-DD"),
+            }}
+          />
+          {albumItemsQuery.isFetchingNextPage && (
+            <div className="w-1/3 self-center">
+              <LoadingAnimation />
+            </div>
           )}
-          groups={{
-            groupLabels: [
-              ...new Set(
-                albumItems.map((item) => item.dateTaken.format("YYYY-MM-DD")),
-              ),
-            ],
-            defaultGroupLabel: "Date Unknown",
-            groupFunc: (image: AlbumItem) =>
-              image.dateTaken.format("YYYY-MM-DD"),
-          }}
-        />
+          {!albumItemsQuery.hasNextPage && (
+            <Title order={4} classNames={{ root: "self-center" }}>
+              All Done!
+            </Title>
+          )}
+          <div className="invisible" ref={ref} />
+        </>
       )}
     </div>
   );
