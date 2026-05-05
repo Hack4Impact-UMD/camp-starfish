@@ -23,6 +23,10 @@ service cloud.firestore {
       allow read, write: if isStaffOrAdmin();
     }
 
+    match /users/{userId} {
+      allow read, write: if isStaffOrAdmin();
+    }
+
     // Sessions collection
     match /sessions/{sessionId} {
       allow read: if isStaffOrAdmin();
