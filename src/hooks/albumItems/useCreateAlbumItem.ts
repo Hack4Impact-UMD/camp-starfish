@@ -1,6 +1,6 @@
 import { createAlbumItemDoc, deleteAlbumItemDoc } from "@/data/firestore/albumItems";
 import { uploadFile } from "@/data/storage/storageClientOperations";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { Timestamp } from "firebase/firestore";
 import moment from "moment";
 
@@ -30,16 +30,13 @@ async function createAlbumItem(req: CreateAlbumItemRequest) {
   }
 }
 
+// Unlike the other mutation hooks in this project, this one does NOT invalidate
+// queries on success. Photo uploads almost always run as a batch
+// (`Promise.all(files.map(mutateAsync))`), and per-item invalidation triggers
+// one cache refetch per file. Callers should invalidate `["albums"]` once after
+// the batch settles.
 export default function useCreateAlbumItem() {
-  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (req: CreateAlbumItemRequest) => createAlbumItem(req),
-    // The Firestore write + the `onAlbumItemCreated` Cloud Function together
-    // change: the items list, the parent album's numItems/startDate/endDate,
-    // and (transitively) the albums list cards. Refresh everything under
-    // `["albums"]` so the gallery and album metadata stay in sync.
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["albums"] });
-    },
   });
 }

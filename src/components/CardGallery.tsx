@@ -33,11 +33,20 @@ export default function CardGallery<T extends { id: string }>(
   if (!groups) {
     return (
       <SimpleGrid cols={{ base: 1, sm: 2, md: 3, lg: 4 }} spacing="lg" mt="md">
-        {items.map((item: T) => (
-          <div onClick={() => toggleItem(item.id)} key={item.id}>
-            {renderItem(item, selectedItemIds.indexOf(item.id) !== -1)}
-          </div>
-        ))}
+        {items.map((item: T) => {
+          const isSelected = selectedItemIds.indexOf(item.id) !== -1;
+          return (
+            <button
+              type="button"
+              onClick={() => toggleItem(item.id)}
+              key={item.id}
+              aria-pressed={isSelected}
+              className="text-left p-0 bg-transparent border-0 cursor-pointer rounded-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-5"
+            >
+              {renderItem(item, isSelected)}
+            </button>
+          );
+        })}
       </SimpleGrid>
     );
   }
@@ -84,11 +93,20 @@ export default function CardGallery<T extends { id: string }>(
                 />
               </Group>
               <SimpleGrid cols={{ base: 2, md: 3, lg: 4 }} spacing="md">
-                {itemGroups[label].map((item: T) => (
-                  <div onClick={() => toggleItem(item.id)} key={item.id}>
-                    {renderItem(item, selectedItemIds.indexOf(item.id) !== -1)}
-                  </div>
-                ))}
+                {itemGroups[label].map((item: T) => {
+                  const isSelected = selectedItemIds.indexOf(item.id) !== -1;
+                  return (
+                    <button
+                      type="button"
+                      onClick={() => toggleItem(item.id)}
+                      key={item.id}
+                      aria-pressed={isSelected}
+                      className="text-left p-0 bg-transparent border-0 cursor-pointer rounded-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-5"
+                    >
+                      {renderItem(item, isSelected)}
+                    </button>
+                  );
+                })}
               </SimpleGrid>
             </Stack>
           )

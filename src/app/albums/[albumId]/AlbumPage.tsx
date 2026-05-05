@@ -32,6 +32,7 @@ import useAlbumItems from "@/hooks/albumItems/useAlbumItems";
 import useCreateAlbumItem from "@/hooks/albumItems/useCreateAlbumItem";
 import useDownloadAlbum from "@/hooks/albums/useDownloadAlbum";
 import useNotifications from "@/features/notifications/useNotifications";
+import { useQueryClient } from "@tanstack/react-query";
 
 const AlbumPage: React.FC = () => {
   const params = useParams<{ albumId: string }>();
@@ -42,6 +43,7 @@ const AlbumPage: React.FC = () => {
   const createAlbumItemMutation = useCreateAlbumItem();
   const downloadMutation = useDownloadAlbum();
   const notifications = useNotifications();
+  const queryClient = useQueryClient();
 
   if (albumQuery.isError) {
     return <ErrorPage error={albumQuery.error} />;
@@ -66,6 +68,10 @@ const AlbumPage: React.FC = () => {
         }),
       ),
     );
+    // Single invalidation after the batch — `useCreateAlbumItem` deliberately
+    // skips per-item invalidation so N parallel uploads don't trigger N
+    // refetches.
+    await queryClient.invalidateQueries({ queryKey: ["albums"] });
   }
 
   const handleDownloadAlbum = () => {
@@ -111,7 +117,7 @@ const AlbumPage: React.FC = () => {
           </Tooltip>
           <FileUploadModal
             onUpload={uploadImages}
-            acceptedFileExtensions={[".jpg", ".png"]}
+            acceptedFileExtensions={[".jpg", ".jpeg", ".png"]}
             maxFileSize={5}
           >
             <Tooltip label="Upload photos">
@@ -133,7 +139,7 @@ const AlbumPage: React.FC = () => {
           <Title order={4}>No photos yet</Title>
           <FileUploadModal
             onUpload={uploadImages}
-            acceptedFileExtensions={[".jpg", ".png"]}
+            acceptedFileExtensions={[".jpg", ".jpeg", ".png"]}
             maxFileSize={5}
           >
             <Button color="orange" rightSection={<MdAdd size={20} />}>Upload</Button>
