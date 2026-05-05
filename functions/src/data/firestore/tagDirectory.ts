@@ -36,6 +36,6 @@ export async function deleteTagDirectoryDoc(pageId: number, instance?: Transacti
   await deleteDoc(adminDb.collection(RootLevelCollection.TAG_DIRECTORY).doc(String(pageId)), instance);
 }
 
-export async function aggregateTagDirectoryDocs(options: ExecuteAggregationQueryOptions<TagDirectoryDoc>, instance?: Transaction | WriteBatch): Promise<{ [key: string]: number | null }> {
+export async function aggregateTagDirectoryDocs(options: ExecuteAggregationQueryOptions<TagDirectoryDoc>): Promise<{ [key: string]: number | null }> {
   return await executeAggregationQuery(adminDb.collection(RootLevelCollection.TAG_DIRECTORY), options);
 }
