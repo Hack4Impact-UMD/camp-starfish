@@ -1,95 +1,126 @@
+"use client";
+
 import { useState } from "react";
-import flag from "../assets/icons/flag.svg";
-import errorIcon from "../assets/icons/error.svg";
+import { Button, Group, Stack, Text, Textarea, Title } from "@mantine/core";
+import { modals } from "@mantine/modals";
+import { MdError, MdFlag } from "react-icons/md";
+import { useAuth } from "@/auth/useAuth";
+import useCreateAlbumItemReport from "@/features/albums/albumItemReporting/useCreateAlbumItemReport";
 
 interface PhotoReportingProps {
-  onClose: () => void;
+  albumId: string;
+  albumItemId: string;
 }
 
-export default function PhotoReporting({ onClose }: PhotoReportingProps) {
-  const [submitted, setSubmitted] = useState(true);
-
-  // If submitted, but database didn't properly update, then error would be set to true
-  const [error, setError] = useState(true);
+export function PhotoReporting({ albumId, albumItemId }: PhotoReportingProps) {
+  const auth = useAuth();
+  const reporterId = auth.token?.claims.campminderId as number | undefined;
 
   const [reportMessage, setReportMessage] = useState("");
-  
+  const createReport = useCreateAlbumItemReport();
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setSubmitted(true);
+    if (reporterId === undefined) return;
+    try {
+      await createReport.mutateAsync({
+        albumId,
+        albumItemId,
+        reporterId,
+        reportMessage: reportMessage.trim(),
+      });
+    } catch {
+      // Surfaced via createReport.isError below
+    }
   };
 
+  const handleClose = () => modals.closeAll();
+
+  if (createReport.isSuccess) {
+    return (
+      <Stack align="center" gap="md" px={56} py={40} className="w-[576px]">
+        <MdFlag size={48} className="text-green-5" />
+        <Title order={3} className="text-center">Report sent!</Title>
+        <Text c="neutral.5" ta="center">
+          Our team will review your issue and email you soon
+        </Text>
+        <Button color="gray" className="text-black" w={216} onClick={handleClose}>
+          Close
+        </Button>
+      </Stack>
+    );
+  }
+
+  if (createReport.isError) {
+    return (
+      <Stack align="center" gap="md" px={56} py={40} className="w-[576px]">
+        <MdError size={48} className="text-error" />
+        <Title order={3} className="text-center">Error reporting</Title>
+        <Text c="neutral.5" ta="center">
+          Please try again later or contact support
+        </Text>
+        <Group>
+          <Button color="gray" className="text-black" w={200} onClick={handleClose}>
+            Close
+          </Button>
+          <Button color="blue" w={200} onClick={() => createReport.reset()}>
+            Try again
+          </Button>
+        </Group>
+      </Stack>
+    );
+  }
 
   return (
-    <>
-      {!submitted && (
-        <form
-          onSubmit={handleSubmit}
-          className="w-[576px] h-[440px] flex flex-col justify-center items-center px-[56px] py-[40px] gap-[24px] rounded-[8px] shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)]"
-        >
-          <h1 className="font-bold text-[28px]">Report a photo</h1>
-          <p>We will share your issue with the team for review</p>
-          <textarea
-            className="bg-[#E6EAEC] w-full h-[160px] px-[24px] py-[16px] rounded-[8px] placeholder:text-camp-text-subheadings text-camp-text-subheadings resize-none"
-            placeholder="Describe your issue"
-            onChange = {(e) => setReportMessage(e.target.value)}
-          />
-          <div className="w-full flex justify-center gap-[16px]">
-            <button
-              type="button"
-              onClick={onClose}
-              className="bg-camp-buttons-neutral text-camp-text-body w-[216px] h-[48px] rounded-[40px] font-bold text-[18px]"
-            >
-              CLOSE
-            </button>
-            <button
-              type="submit"
-              className="bg-camp-cta-primary text-white w-[216px] h-[48px] rounded-[40px] font-bold text-[18px]"
-            >
-              REPORT
-            </button>
-          </div>
-        </form>
-      )}
-
-      {submitted && !error && (
-        <div className="w-[576px] h-[320px] flex flex-col justify-center items-center px-[56px] py-[40px] gap-[20px] rounded-[8px] shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)]">
-          <img src={flag.src} alt="flag" />
-          <h1 className="font-bold text-[28px]">Report sent!</h1>
-          <p>Our team will review your issue and email you soon</p>
-          <button
-            onClick={onClose}
-            className="bg-camp-buttons-neutral text-camp-text-body w-[216px] h-[48px] rounded-[40px] font-bold text-[18px]"
+    <form onSubmit={handleSubmit}>
+      <Stack align="center" gap="lg" px={56} py={40} className="w-[576px]">
+        <Stack align="center" gap="xs">
+          <Title order={3} className="text-center">Report a photo</Title>
+          <Text c="neutral.5" ta="center">
+            We will share your issue with the team for review
+          </Text>
+        </Stack>
+        <Textarea
+          autosize
+          minRows={5}
+          maxRows={5}
+          w="100%"
+          placeholder="Describe your issue"
+          value={reportMessage}
+          onChange={(e) => setReportMessage(e.currentTarget.value)}
+          disabled={createReport.isPending}
+        />
+        <Group>
+          <Button
+            color="gray"
+            className="text-black"
+            w={216}
+            onClick={handleClose}
+            disabled={createReport.isPending}
           >
-            CLOSE
-          </button>
-        </div>
-      )}
-
-      {submitted && error && (
-        <div className="w-[576px] h-[320px] flex flex-col justify-center items-center px-[56px] py-[40px] gap-[15px] rounded-[8px] shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)]">
-          <img src={errorIcon.src} alt="flag" />
-          <h1 className="font-bold text-[28px]">Error Reporting</h1>
-          <p>Please try again later or contact support</p>
-          <div className = "flex gap-[20px]">
-            <button
-              onClick={onClose}
-              className="bg-camp-buttons-neutral text-camp-text-body w-[200px] h-[56px] rounded-[40px] font-bold text-[18px]"
-            >
-              CLOSE
-            </button>
-            <button
-              onClick={() => setSubmitted(false)}
-              className="bg-camp-primary text-white w-[200px] h-[56px] rounded-[40px] font-bold text-[18px]"
-            >
-              TRY AGAIN
-            </button>      
-
-          </div>
-            
-        </div>
-      )}
-    </>
+            Close
+          </Button>
+          <Button
+            type="submit"
+            color="green"
+            w={216}
+            loading={createReport.isPending}
+            disabled={!reportMessage.trim() || reporterId === undefined}
+          >
+            Report
+          </Button>
+        </Group>
+      </Stack>
+    </form>
   );
+}
+
+export default function openPhotoReportingModal(albumId: string, albumItemId: string) {
+  modals.open({
+    withCloseButton: false,
+    classNames: { header: "hidden", body: "p-0" },
+    centered: true,
+    size: 576,
+    children: <PhotoReporting albumId={albumId} albumItemId={albumItemId} />,
+  });
 }
