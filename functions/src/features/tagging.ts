@@ -11,7 +11,10 @@ const onUserCreated = onDocumentCreated(`/${RootLevelCollection.USERS}/{userId}`
   const name: Name = event.data?.data()?.name;
   const fullName: string = getFullName(name);
   adminDb.runTransaction(async (transaction) => {
-    const { docCount } = await aggregateTagDirectoryDocs({ aggregationQueryOptions: { aggregations: [{ aggregateFieldName: 'docCount', operation: 'count' }] } }, transaction) as { docCount: number };
+    const { docCount } = await aggregateTagDirectoryDocs({
+      transaction,
+      aggregationQueryOptions: { aggregations: [{ aggregateFieldName: 'docCount', operation: 'count' }] }
+    }) as { docCount: number };
     if (docCount === 0) {
       await createTagDirectoryDoc(0, { [Number(userId)]: fullName }, transaction);
       return;
@@ -53,7 +56,10 @@ const onUserUpdated = onDocumentUpdated(`/${RootLevelCollection.USERS}/{userId}`
       await updateTagDirectoryDoc(doc.page, { [userId]: afterFullName }, transaction);
     } catch {
       await updateTagDirectoryDoc(doc.page, { [userId]: FieldValue.delete() }, transaction);
-      const { docCount } = await aggregateTagDirectoryDocs({ aggregationQueryOptions: { aggregations: [{ aggregateFieldName: 'docCount', operation: 'count' }] } }, transaction) as { docCount: number };
+      const { docCount } = await aggregateTagDirectoryDocs({
+        transaction,
+        aggregationQueryOptions: { aggregations: [{ aggregateFieldName: 'docCount', operation: 'count' }] }
+      }) as { docCount: number };
       await createTagDirectoryDoc(docCount, { [userId]: afterFullName }, transaction);
     }
     
