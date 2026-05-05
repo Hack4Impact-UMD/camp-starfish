@@ -1,6 +1,6 @@
 import { ActionIcon, Card, Group, Image, Loader, Stack, Text, Title, Tooltip } from "@mantine/core";
 import useAlbum from "@/hooks/albums/useAlbum";
-import useDownloadAlbum from "@/hooks/albums/useDownloadAlbum";
+import useDownloadAlbum from "@/features/albums/downloading/useDownloadAlbum";
 import useNotifications from "@/features/notifications/useNotifications";
 import ErrorPage from "@/app/error";
 import LoadingPage from "@/app/loading";
@@ -50,7 +50,7 @@ export default function AlbumCard(props: AlbumCardProps) {
   const handleDownload = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
     if (isDownloading) return;
-    downloadMutation.mutate(album, {
+    downloadMutation.mutate({ albumId: album.id }, {
       onSuccess: () =>
         notifications.success(`Downloaded "${album.name}".`),
       onError: (error: Error) =>
