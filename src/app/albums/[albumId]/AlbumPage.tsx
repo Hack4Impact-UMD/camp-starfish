@@ -7,7 +7,7 @@ import {
 import Link from "next/link";
 import AlbumItemCard from "@/components/AlbumItemCard";
 import CardGallery from "@/components/CardGallery";
-import Tagging from "@/components/Tagging";
+import TagSelect from "@/components/TagSelect";
 import { Album, AlbumItem } from "@/types/albums/albumTypes";
 import { FirestoreQueryOptions } from "@/data/firestore/types/queries";
 import { AlbumItemDoc } from "@/data/firestore/types/documents";
@@ -129,7 +129,7 @@ export function AlbumPageContent(props: AlbumPageContentProps) {
           ))}
         </Breadcrumbs>
         <div className="flex items-start gap-4 shrink-0">
-          <Tagging />
+          <TagSelect />
           <Menu>
             <Tooltip label="Sort">
               <Menu.Target>
