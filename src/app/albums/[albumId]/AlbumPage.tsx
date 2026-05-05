@@ -7,7 +7,7 @@ import {
 import Link from "next/link";
 import AlbumItemCard from "@/components/AlbumItemCard";
 import CardGallery from "@/components/CardGallery";
-import Tagging from "@/components/Tagging";
+import TagSelect from "@/components/TagSelect";
 import { Album, AlbumItem } from "@/types/albums/albumTypes";
 import { FirestoreQueryOptions } from "@/data/firestore/types/queries";
 import { AlbumItemDoc } from "@/data/firestore/types/documents";
@@ -30,24 +30,6 @@ import useDownloadAlbum from "@/features/albums/downloading/useDownloadAlbum";
 import openUploadAlbumItemsModal from "@/components/UploadAlbumItemsModal/UploadAlbumItemsModal";
 import { useInViewport } from "@mantine/hooks";
 import LoadingAnimation from "@/components/LoadingAnimation";
-
-const allTags = [
-  { id: "1", name: "Claire C." },
-  { id: "2", name: "Nitin K." },
-  { id: "3", name: "Ben E." },
-  { id: "4", name: "Maia J." },
-  { id: "5", name: "Harshitha J." },
-  { id: "6", name: "Tej S." },
-  { id: "7", name: "Advik D." },
-  { id: "8", name: "Christine N." },
-  { id: "9", name: "Esha V." },
-  { id: "10", name: "Gelila K." },
-  { id: "11", name: "Joel C." },
-  { id: "12", name: "Nishtha D." },
-  { id: "13", name: "Rivan P." },
-  { id: "14", name: "Riya M." },
-  { id: "15", name: "Saharsh M." },
-];
 
 const enum AlbumPageSortOption {
   NEWEST_TO_OLDEST = "Newest → Oldest",
@@ -94,7 +76,6 @@ interface AlbumPageContentProps {
 export function AlbumPageContent(props: AlbumPageContentProps) {
   const { album } = props;
 
-  const [selectedTags, setSelectedTags] = useState<(typeof allTags)[0][]>([]);
   const [sortOption, setSortOption] = useState<AlbumPageSortOption>(
     AlbumPageSortOption.NEWEST_TO_OLDEST,
   );
@@ -126,7 +107,7 @@ export function AlbumPageContent(props: AlbumPageContentProps) {
 
   return (
     <div className="flex flex-col w-6/7 grow mx-auto px-4 py-6 gap-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-start justify-between">
         <Breadcrumbs classNames={{ separator: "text-3xl" }} separator=">>">
           {[
             { title: "ALBUMS", href: "/albums" },
@@ -137,18 +118,8 @@ export function AlbumPageContent(props: AlbumPageContentProps) {
             </Anchor>
           ))}
         </Breadcrumbs>
-        <div className="flex items-center gap-4 shrink-0">
-          {/* Tagging */}
-          <Tagging
-            items={allTags}
-            selectedItems={selectedTags}
-            onSelectionChange={setSelectedTags}
-            getOptionLabel={(tag) => tag.name}
-            getOptionValue={(tag) => tag.id}
-            placeholder="Search Tags..."
-            className="w-64 cursor-pointer"
-          />
-
+        <div className="flex items-start gap-4 shrink-0">
+          <TagSelect />
           <Menu>
             <Tooltip label="Sort">
               <Menu.Target>

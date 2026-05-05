@@ -8,6 +8,7 @@ import DatePickerThemeExtension from "./components/DatePickerThemeExtension";
 import ImageThemeExtension from "./components/ImageThemeExtension";
 import MenuThemeExtension from "./components/MenuThemeExtension";
 import ModalThemeExtension from "./components/ModalThemeExtension";
+import MultiSelectThemeExtension from "./components/MultiSelectThemeExtension";
 import NotificationThemeExtension from "./components/NotificationThemeExtension";
 import RadioThemeExtension from "./components/RadioThemeExtension";
 import TextInputThemeExtension from "./components/TextInputThemeExtension";
@@ -28,6 +29,7 @@ const theme: MantineThemeOverride = {
     Image: ImageThemeExtension,
     Menu: MenuThemeExtension,
     Modal: ModalThemeExtension,
+    MultiSelect: MultiSelectThemeExtension,
     Notification: NotificationThemeExtension,
     Radio: RadioThemeExtension,
     TextInput: TextInputThemeExtension,

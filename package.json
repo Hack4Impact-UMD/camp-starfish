@@ -44,7 +44,6 @@
     "react-dropzone": "^14.3.8",
     "react-icons": "^5.5.0",
     "react-router-dom": "^7.2.0",
-    "react-select": "^5.10.1",
     "tailwind-preset-mantine": "^4.0.2",
     "tanstack": "^1.0.3",
     "tsc-alias": "^1.8.16",
