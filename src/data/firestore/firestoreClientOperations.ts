@@ -64,39 +64,7 @@ export async function deleteDoc<DbModelType extends DocumentData>(ref: DocumentR
   }
 }
 
-type FirestoreDocumentFieldPath<T> = DistributiveKeyof<UpdateData<T>> & string;
-type FirestoreDocumentFieldPathAndID<T> = FirestoreDocumentFieldPath<T> | '__name__';
-
-interface WhereClause<DbModelType> {
-  fieldPath: FirestoreDocumentFieldPathAndID<DbModelType>;
-  operation: WhereFilterOp;
-  value: unknown;
-}
-
-interface OrderByClause<DbModelType> {
-  fieldPath: FirestoreDocumentFieldPathAndID<DbModelType>;
-  direction: 'asc' | 'desc';
-}
-
-type LimitClause =
-  | { limit: number; limitToLast?: never; }
-  | { limit?: never; limitToLast: number; }
-  | { limit?: never; limitToLast?: never; };
-type StartCursorClause =
-  | { startAfter: DocumentSnapshot | unknown[]; startAt?: never; }
-  | { startAfter?: never; startAt: DocumentSnapshot | unknown[]; }
-  | { startAfter?: never; startAt?: never; };
-type EndCursorClause =
-  | { endBefore: DocumentSnapshot | unknown[]; endAt?: never; }
-  | { endBefore?: never; endAt: DocumentSnapshot | unknown[]; }
-  | { endBefore?: never; endAt?: never; };
-
-export type QueryOptions<DbModelType extends DocumentData> = {
-  where?: WhereClause<DbModelType>[];
-  orderBy?: OrderByClause<DbModelType>[];
-} & LimitClause & StartCursorClause & EndCursorClause;
-
-function buildQuery<DbModelType extends DocumentData>(collection: CollectionReference<DbModelType, DbModelType> | Collection, options?: QueryOptions<DbModelType>): Query<DbModelType, DbModelType> {
+function buildQuery<DbModelType extends DocumentData>(collection: CollectionReference<DbModelType, DbModelType> | Collection, options?: FirestoreQueryOptions<DbModelType>): Query<DbModelType, DbModelType> {
   let queryObj: Query<DbModelType, DbModelType> = typeof collection === 'string' ? collectionGroup(db, collection) as Query<DbModelType, DbModelType> : collection;
   if (options) {
     const { where = [], orderBy = [] } = options;
@@ -145,11 +113,20 @@ export async function executeQuery<DbModelType extends DocumentData>(collection:
   }
 }
 
-type AggregationClause<DbModelType> = { aggregateFieldName: string; } & (
-  | { operation: Extract<AggregateType, 'count'>; }
-  | { operation: Extract<AggregateType, 'sum' | 'avg'>; sourceFieldPath: FirestoreDocumentFieldPath<DbModelType>; })
-
-type AggregationQueryOptions<DbModelType extends DocumentData> = QueryOptions<DbModelType> & { aggregations: AggregationClause<DbModelType>[]; }
+const FIRESTORE_WHERE_IN_LIMIT = 30;
+export async function batchGetDocs<DbModelType extends DocumentData>(collection: CollectionReference<DbModelType, DbModelType> | Collection, ids: string[]): Promise<QueryDocumentSnapshot<DbModelType, DbModelType>[]> {
+  try {
+    const idBatches = [];
+    for (let i = 0; i < ids.length; i += FIRESTORE_WHERE_IN_LIMIT) {
+      idBatches.push(ids.slice(i, i + FIRESTORE_WHERE_IN_LIMIT));
+    }
+    const queries = idBatches.map(idBatch => executeQuery(collection, { where: [{ fieldPath: '__name__', operation: 'in', value: idBatch }] }));
+    const responses = await Promise.all(queries);
+    return responses.flatMap(response => response)
+  } catch {
+    throw Error("Failed to batch get documents");
+  }
+}
 
 export async function executeAggregationQuery<DbModelType extends DocumentData>(collection: CollectionReference<DbModelType, DbModelType> | Collection, options: AggregationQueryOptions<DbModelType>): Promise<{ [key: string]: number | null }> {
   try {
