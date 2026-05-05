@@ -1,7 +1,5 @@
 "use client";
 
-import Select, { MultiValue, StylesConfig, components } from 'react-select';
-import { AvatarIcon, MagnifyingGlassIcon } from '@radix-ui/react-icons';
 import { Loader, MultiSelect } from '@mantine/core';
 import useTagDirectory from '@/hooks/tags/useTagDirectory';
 import { MdError } from 'react-icons/md';
@@ -25,7 +23,7 @@ export default function TagSelect() {
 
   return <MultiSelect
     placeholder="Search tags"
-    data={tagOptions.map(([_, fullName]) => fullName)}
+    data={tagOptions.map(([_userId, fullName]) => fullName)}
     searchable
     maxValues={5}
   />

@@ -27,26 +27,6 @@ import LoadingPage from "@/app/loading";
 import ErrorPage from "@/app/error";
 import useDownloadAlbum from "@/features/albums/downloading/useDownloadAlbum";
 import openUploadAlbumItemsModal from "@/components/UploadAlbumItemsModal/UploadAlbumItemsModal";
-import useUserBatch from "@/hooks/users/useUserBatch";
-import useTagDirectory from "@/hooks/tags/useTagDirectory";
-
-const allTags = [
-  { id: "1", name: "Claire C." },
-  { id: "2", name: "Nitin K." },
-  { id: "3", name: "Ben E." },
-  { id: "4", name: "Maia J." },
-  { id: "5", name: "Harshitha J." },
-  { id: "6", name: "Tej S." },
-  { id: "7", name: "Advik D." },
-  { id: "8", name: "Christine N." },
-  { id: "9", name: "Esha V." },
-  { id: "10", name: "Gelila K." },
-  { id: "11", name: "Joel C." },
-  { id: "12", name: "Nishtha D." },
-  { id: "13", name: "Rivan P." },
-  { id: "14", name: "Riya M." },
-  { id: "15", name: "Saharsh M." },
-];
 
 const enum AlbumPageSortOption {
   NEWEST_TO_OLDEST = "Newest → Oldest",
@@ -93,7 +73,6 @@ interface AlbumPageContentProps {
 export function AlbumPageContent(props: AlbumPageContentProps) {
   const { album } = props;
 
-  const [selectedTags, setSelectedTags] = useState<(typeof allTags)[0][]>([]);
   const [sortOption, setSortOption] = useState<AlbumPageSortOption>(
     AlbumPageSortOption.NEWEST_TO_OLDEST,
   );
