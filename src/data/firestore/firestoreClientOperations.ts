@@ -64,7 +64,6 @@ export async function deleteDoc<DbModelType extends DocumentData>(ref: DocumentR
   }
 }
 
-
 function buildQuery<DbModelType extends DocumentData>(collection: CollectionReference<DbModelType, DbModelType> | Collection, options?: FirestoreQueryOptions<DbModelType>): Query<DbModelType, DbModelType> {
   let queryObj: Query<DbModelType, DbModelType> = typeof collection === 'string' ? collectionGroup(db, collection) as Query<DbModelType, DbModelType> : collection;
   if (options) {
@@ -111,6 +110,21 @@ export async function executeQuery<DbModelType extends DocumentData>(collection:
     return querySnapshot.docs;
   } catch {
     throw Error("Failed to execute query");
+  }
+}
+
+const FIRESTORE_WHERE_IN_LIMIT = 30;
+export async function batchGetDocs<DbModelType extends DocumentData>(collection: CollectionReference<DbModelType, DbModelType> | Collection, ids: string[]): Promise<QueryDocumentSnapshot<DbModelType, DbModelType>[]> {
+  try {
+    const idBatches = [];
+    for (let i = 0; i < ids.length; i += FIRESTORE_WHERE_IN_LIMIT) {
+      idBatches.push(ids.slice(i, i + FIRESTORE_WHERE_IN_LIMIT));
+    }
+    const queries = idBatches.map(idBatch => executeQuery(collection, { where: [{ fieldPath: '__name__', operation: 'in', value: idBatch }] }));
+    const responses = await Promise.all(queries);
+    return responses.flatMap(response => response)
+  } catch {
+    throw Error("Failed to batch get documents");
   }
 }
 
