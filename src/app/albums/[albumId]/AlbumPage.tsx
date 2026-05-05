@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   MdOutlineFileUpload,
   MdOutlineFileDownload,
@@ -17,6 +17,7 @@ import {
   ActionIcon,
   Anchor,
   Breadcrumbs,
+  Button,
   Indicator,
   Menu,
   Title,
@@ -27,6 +28,7 @@ import LoadingPage from "@/app/loading";
 import ErrorPage from "@/app/error";
 import useDownloadAlbum from "@/features/albums/downloading/useDownloadAlbum";
 import openUploadAlbumItemsModal from "@/components/UploadAlbumItemsModal/UploadAlbumItemsModal";
+import { useInViewport } from "@mantine/hooks";
 
 const allTags = [
   { id: "1", name: "Claire C." },
@@ -102,6 +104,14 @@ export function AlbumPageContent(props: AlbumPageContentProps) {
     limitToLast: undefined,
   });
 
+  const { ref, inViewport } = useInViewport();
+  const { hasNextPage, isFetchingNextPage, fetchNextPage } = albumItemsQuery;
+  useEffect(() => {
+    if (inViewport && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [inViewport, hasNextPage, isFetchingNextPage, fetchNextPage]);
+
   const downloadAlbumMutation = useDownloadAlbum();
 
   if (albumItemsQuery.isPending) {
@@ -169,7 +179,10 @@ export function AlbumPageContent(props: AlbumPageContentProps) {
             </Tooltip>
           </Link>
           <Tooltip label="Upload Items">
-            <ActionIcon color="aqua" onClick={() => openUploadAlbumItemsModal(album.id)}>
+            <ActionIcon
+              color="aqua"
+              onClick={() => openUploadAlbumItemsModal(album.id)}
+            >
               <MdOutlineFileUpload size={40} />
             </ActionIcon>
           </Tooltip>
@@ -189,25 +202,39 @@ export function AlbumPageContent(props: AlbumPageContentProps) {
         </div>
       </div>
 
-      <CardGallery<AlbumItem>
-        items={albumItems}
-        renderItem={(image: AlbumItem, isSelected: boolean) => (
-          <AlbumItemCard
-            albumId={album.id}
-            albumItemId={image.id}
-            isSelected={isSelected}
-          />
-        )}
-        groups={{
-          groupLabels: [
-            ...new Set(
-              albumItems.map((item) => item.dateTaken.format("YYYY-MM-DD")),
-            ),
-          ],
-          defaultGroupLabel: "Date Unknown",
-          groupFunc: (image: AlbumItem) => image.dateTaken.format("YYYY-MM-DD"),
-        }}
-      />
+      {albumItems.length === 0 ? (
+        <div className="flex flex-col justify-center items-center grow bg-neutral-3 gap-4">
+          <Title order={4}>No items yet</Title>
+          <Button
+            color="aqua"
+            rightSection={<MdOutlineFileUpload size={24} />}
+            onClick={() => openUploadAlbumItemsModal(album.id)}
+          >
+            Upload Items
+          </Button>
+        </div>
+      ) : (
+        <CardGallery<AlbumItem>
+          items={albumItems}
+          renderItem={(image: AlbumItem, isSelected: boolean) => (
+            <AlbumItemCard
+              albumId={album.id}
+              albumItemId={image.id}
+              isSelected={isSelected}
+            />
+          )}
+          groups={{
+            groupLabels: [
+              ...new Set(
+                albumItems.map((item) => item.dateTaken.format("YYYY-MM-DD")),
+              ),
+            ],
+            defaultGroupLabel: "Date Unknown",
+            groupFunc: (image: AlbumItem) =>
+              image.dateTaken.format("YYYY-MM-DD"),
+          }}
+        />
+      )}
     </div>
   );
 }
