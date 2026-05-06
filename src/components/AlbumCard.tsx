@@ -71,6 +71,8 @@ export default function AlbumCard(props: AlbumCardProps) {
         <Image
           src={thumbnailSrcQuery.data ?? null}
           alt={album.name}
+          width={280}
+          height={196}
           h={196}
           fit="cover"
           fallbackSrc="https://placehold.co/280x196?text=No+Thumbnail"
