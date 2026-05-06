@@ -13,21 +13,56 @@ interface CardGalleryProps<T> {
   items: T[];
   renderItem: (item: T, isSelected: boolean) => JSX.Element;
   groups?: GroupOptions<T>;
+  // Controlled selection — when provided, the parent owns selection state
+  selectedItemIds?: string[];
+  onToggleItem?: (id: string) => void;
+  onToggleGroup?: (label: string, checked: boolean) => void;
 }
 
 export default function CardGallery<T extends { id: string }>(
   props: CardGalleryProps<T>
 ) {
   const { items, renderItem, groups } = props;
-  const [selectedItemIds, setSelectedItemIds] = useState<string[]>([]);
+  const [internalSelectedIds, setInternalSelectedIds] = useState<string[]>([]);
+
+  const isControlled = props.selectedItemIds !== undefined;
+  const selectedItemIds = isControlled ? props.selectedItemIds! : internalSelectedIds;
+
+  // Build item groups up-front so both toggleGroup and the render can reference it
+  const itemGroups: { [groupLabel: string]: T[] } = {};
+  if (groups) {
+    const { groupLabels, defaultGroupLabel, groupFunc } = groups;
+    items.forEach((item: T) => {
+      let label = groupFunc(item);
+      if (groupLabels.indexOf(label) === -1) label = defaultGroupLabel;
+      itemGroups[label] = itemGroups[label] || [];
+      itemGroups[label].push(item);
+    });
+  }
 
   const toggleItem = (itemId: string) => {
-    setSelectedItemIds((prev: string[]) => {
-      if (prev.indexOf(itemId) === -1) {
-        return [...prev, itemId];
-      }
-      return prev.filter((id: string) => id !== itemId);
-    });
+    if (isControlled) {
+      props.onToggleItem?.(itemId);
+    } else {
+      setInternalSelectedIds((prev) =>
+        prev.indexOf(itemId) === -1
+          ? [...prev, itemId]
+          : prev.filter((id) => id !== itemId)
+      );
+    }
+  };
+
+  const toggleGroup = (label: string, checked: boolean) => {
+    if (isControlled) {
+      props.onToggleGroup?.(label, checked);
+    } else {
+      setInternalSelectedIds((prev) => {
+        if (checked) {
+          return Array.from(new Set([...prev, ...itemGroups[label].map((item) => item.id)]));
+        }
+        return prev.filter((id) => !itemGroups[label].some((item) => item.id === id));
+      });
+    }
   };
 
   if (!groups) {
@@ -36,45 +71,24 @@ export default function CardGallery<T extends { id: string }>(
         {items.map((item: T) => {
           const isSelected = selectedItemIds.indexOf(item.id) !== -1;
           return (
-            <button
-              type="button"
+            <div
+              role="button"
+              tabIndex={0}
               onClick={() => toggleItem(item.id)}
+              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggleItem(item.id); } }}
               key={item.id}
               aria-pressed={isSelected}
-              className="text-left p-0 bg-transparent border-0 cursor-pointer rounded-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-5"
+              className="cursor-pointer rounded-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-5"
             >
               {renderItem(item, isSelected)}
-            </button>
+            </div>
           );
         })}
       </SimpleGrid>
     );
   }
 
-  const { groupLabels, defaultGroupLabel, groupFunc } = groups;
-  const itemGroups: { [groupLabel: string]: T[] } = {};
-  items.forEach((item: T) => {
-    let label = groupFunc(item);
-    if (groupLabels.indexOf(label) === -1) {
-      label = defaultGroupLabel;
-    }
-    itemGroups[label] = itemGroups[label] || [];
-    itemGroups[label].push(item);
-  });
-
-  const toggleGroup = (label: string, checked: boolean) => {
-    setSelectedItemIds((prev: string[]) => {
-      if (checked) {
-        return Array.from(
-          new Set([...prev, ...itemGroups[label].map((item: T) => item.id)])
-        );
-      }
-      return prev.filter(
-        (id: string) => !itemGroups[label].some((item: T) => item.id === id)
-      );
-    });
-  };
-
+  const { groupLabels, defaultGroupLabel } = groups;
   const labels = [...groupLabels, defaultGroupLabel];
   return (
     <Stack gap="xl" mt="md">
@@ -92,7 +106,7 @@ export default function CardGallery<T extends { id: string }>(
                   aria-label={`Select all in ${label}`}
                 />
               </Group>
-              <SimpleGrid cols={{ base: 2, md: 3, lg: 4 }} spacing="md">
+              <SimpleGrid cols={{ base: 2, md: 3, lg: 6 }} spacing="xs">
                 {itemGroups[label].map((item: T) => {
                   const isSelected = selectedItemIds.indexOf(item.id) !== -1;
                   return (
