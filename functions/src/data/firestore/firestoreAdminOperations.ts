@@ -136,7 +136,7 @@ function buildQuery<DbModelType extends DocumentData>(collection: CollectionRefe
   return queryObj;
 }
 
-interface ExecuteQueryOptions<DbModelType extends DocumentData> {
+export interface ExecuteQueryOptions<DbModelType extends DocumentData> {
   transaction?: Transaction;
   queryOptions?: FirestoreQueryOptions<DbModelType>;
 }
@@ -158,7 +158,7 @@ type AggregationClause<DbModelType> = { aggregateFieldName: string; } & (
 
 type AggregationQueryOptions<DbModelType extends DocumentData> = FirestoreQueryOptions<DbModelType> & { aggregations: AggregationClause<DbModelType>[]; }
 
-interface ExecuteAggregationQueryOptions<DbModelType extends DocumentData> {
+export interface ExecuteAggregationQueryOptions<DbModelType extends DocumentData> {
   transaction?: Transaction;
   aggregationQueryOptions: AggregationQueryOptions<DbModelType>;
 }
