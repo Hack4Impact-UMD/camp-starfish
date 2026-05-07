@@ -1,6 +1,6 @@
 import { AlbumItemReportStatus } from "@/types/albums/albumTypes";
 import { ProgramArea, SectionSchedule } from "@/types/scheduling/schedulingTypes";
-import { Attendee, Bunk, Freeplay, NightSchedule, Post, Section, Session } from "@/types/sessions/sessionTypes";
+import { Attendee, Bunk, Freeplay, NightSchedule, Post, SchedulingSectionType, Section, SectionType, Session } from "@/types/sessions/sessionTypes";
 import { User } from "@/types/users/userTypes";
 import { DistributiveOmit } from "@/utils/types/typeUtils";
 import { Timestamp } from "firebase/firestore";
@@ -51,8 +51,20 @@ export interface SessionDoc {
   driveFolderId: string;
 }
 
+interface BaseSectionDoc {
+  name: string;
+  type: SectionType;
+  startDate: Timestamp;
+  endDate: Timestamp;
+}
+export interface CommonSectionDoc extends BaseSectionDoc { type: "COMMON" };
+export interface SchedulingSectionDoc extends BaseSectionDoc {
+  type: SchedulingSectionType;
+  publishedAt: Timestamp | null;
+}
+export type SectionDoc = CommonSectionDoc | SchedulingSectionDoc;
+
 export type AttendeeDoc = DistributiveOmit<Attendee, "sessionId" | "attendeeId">;
-export type SectionDoc = DistributiveOmit<Section, "id" | "sessionId">;
 export type SectionScheduleDoc = DistributiveOmit<SectionSchedule, "sessionId" | "sectionId">;
 export type BunkDoc = Omit<Bunk, "bunkNum" | "sessionId">;
 export type NightScheduleDoc = Omit<NightSchedule, "date" | "sessionId">;

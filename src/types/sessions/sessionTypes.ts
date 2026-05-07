@@ -18,14 +18,13 @@ interface BaseSection {
   name: string;
   sessionId: string;
   type: SectionType;
-  startDate: string;
-  endDate: string;
+  startDate: Moment;
+  endDate: Moment;
 }
-export interface CommonSection extends BaseSection { type: "COMMON" }
+export interface CommonSection extends BaseSection { type: "COMMON" };
 export interface SchedulingSection extends BaseSection {
   type: SchedulingSectionType;
-  publishedAt?: string; // ISO-8601
-  isScheduleOutdated: boolean;
+  publishedAt?: Moment; // ISO-8601
 }
 export type Section = CommonSection | SchedulingSection;
 
