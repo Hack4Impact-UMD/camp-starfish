@@ -36,7 +36,6 @@ interface BaseAttendee {
     gender: Gender;
     age: number;
     nonoList: number[];
-    dateOfBirth: string; // ISO-8601, may be temporary since "dateOfBirth" field already exists on User type and can't change
   };
   role: Role;
 }
@@ -45,7 +44,7 @@ export type AgeGroup = "OCP" | "NAV";
 export interface CamperAttendee extends BaseAttendee {
   role: "CAMPER";
   ageGroup: AgeGroup;
-  level: number;
+  level: 1 | 2 | 3 | 4 | 5;
   bunk: number;
   isOptedOutFromSwim: boolean;
 }
@@ -53,13 +52,13 @@ export interface StaffAttendee extends BaseAttendee {
   role: "STAFF";
   programCounselorFor?: string;
   bunk: number;
-  leadBunkCounselor: boolean;
-  daysOff: string[];
+  isLeadBunkCounselor: boolean;
+  daysOff: Moment[];
   snapshot: BaseAttendee['snapshot'] & { yesyesList: number[] };
 }
 export interface AdminAttendee extends BaseAttendee {
   role: "ADMIN";
-  daysOff: string[];
+  daysOff: Moment[];
   snapshot: BaseAttendee['snapshot'] & { yesyesList: number[] };
 }
 export type Attendee = CamperAttendee | StaffAttendee | AdminAttendee;

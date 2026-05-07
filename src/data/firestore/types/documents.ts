@@ -1,7 +1,7 @@
 import { AlbumItemReportStatus } from "@/types/albums/albumTypes";
 import { ProgramArea, SectionSchedule } from "@/types/scheduling/schedulingTypes";
-import { Attendee, Bunk, Freeplay, NightSchedule, Post, SchedulingSectionType, Section, SectionType, Session } from "@/types/sessions/sessionTypes";
-import { User } from "@/types/users/userTypes";
+import { AgeGroup, Attendee, Bunk, Freeplay, NightSchedule, Post, SchedulingSectionType, Section, SectionType, Session } from "@/types/sessions/sessionTypes";
+import { Gender, Name, Role, User } from "@/types/users/userTypes";
 import { DistributiveOmit } from "@/utils/types/typeUtils";
 import { Timestamp } from "firebase/firestore";
 
@@ -51,6 +51,41 @@ export interface SessionDoc {
   driveFolderId: string;
 }
 
+interface BaseAttendeeDoc {
+  snapshot: {
+    name: Name;
+    gender: Gender;
+    age: number;
+    nonoList: number[];
+  }
+  role: Role;
+}
+
+interface CamperAttendeeDoc extends BaseAttendeeDoc {
+  role: "CAMPER";
+  ageGroup: AgeGroup;
+  level: 1 | 2 | 3 | 4 | 5;
+  bunk: number;
+  isOptedOutFromSwim: boolean;
+}
+
+interface StaffAttendeeDoc extends BaseAttendeeDoc {
+  role: "STAFF";
+  programCounselorFor?: string;
+  bunk: number;
+  isLeadBunkCounselor: boolean;
+  daysOff: Timestamp[];
+  snapshot: BaseAttendeeDoc['snapshot'] & { yesyesList: number[]; };
+}
+
+interface AdminAttendeeDoc extends BaseAttendeeDoc {
+  role: "ADMIN";
+  daysOff: Timestamp[];
+  snapshot: BaseAttendeeDoc['snapshot'] & { yesyesList: number[]; };
+}
+
+export type AttendeeDoc = CamperAttendeeDoc | StaffAttendeeDoc | AdminAttendeeDoc;
+
 interface BaseSectionDoc {
   name: string;
   type: SectionType;
@@ -64,7 +99,6 @@ export interface SchedulingSectionDoc extends BaseSectionDoc {
 }
 export type SectionDoc = CommonSectionDoc | SchedulingSectionDoc;
 
-export type AttendeeDoc = DistributiveOmit<Attendee, "sessionId" | "attendeeId">;
 export type SectionScheduleDoc = DistributiveOmit<SectionSchedule, "sessionId" | "sectionId">;
 export type BunkDoc = Omit<Bunk, "bunkNum" | "sessionId">;
 export type NightScheduleDoc = Omit<NightSchedule, "date" | "sessionId">;
