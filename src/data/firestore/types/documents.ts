@@ -43,7 +43,14 @@ export type AlbumItemReportDoc = PendingAlbumItemReportDoc | ResolvedAlbumItemRe
 
 export type UserDoc = DistributiveOmit<User, "id">;
 
-export type SessionDoc = Omit<Session, "id">;
+export interface SessionDoc {
+  name: string;
+  startDate: Timestamp;
+  endDate: Timestamp;
+  linkedAlbumId?: string;
+  driveFolderId: string;
+}
+
 export type AttendeeDoc = DistributiveOmit<Attendee, "sessionId" | "attendeeId">;
 export type SectionDoc = DistributiveOmit<Section, "id" | "sessionId">;
 export type SectionScheduleDoc = DistributiveOmit<SectionSchedule, "sessionId" | "sectionId">;

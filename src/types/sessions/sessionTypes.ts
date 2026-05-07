@@ -1,10 +1,11 @@
+import { Moment } from "moment";
 import { Gender, Name, Role } from "../users/userTypes";
 
 export interface Session {
   id: string;
   name: string;
-  startDate: string;
-  endDate: string;
+  startDate: Moment;
+  endDate: Moment;
   linkedAlbumId?: string;
   driveFolderId: string;
 }
