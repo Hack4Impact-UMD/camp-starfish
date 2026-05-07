@@ -9,6 +9,7 @@ export default function useSections(sessionId: string) {
     queryFn: async () => {
       const sections = await getSectionsBySessionId(sessionId);
       sections.forEach(section => queryClient.setQueryData(['sessions', sessionId, 'sections', section.id], section));
+      return sections;
     },
     enabled: !!sessionId,
     staleTime: 1000 * 60 * 5, // 5 minutes
