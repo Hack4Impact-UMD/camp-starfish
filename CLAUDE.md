@@ -23,7 +23,7 @@ Repository: `Hack4Impact-UMD/camp-starfish`. Production target: Firebase Hosting
 - **Framework**: Next.js `^15.5.9` (App Router, Turbopack dev)
 - **React**: `^19.2.0`
 - **Language**: TypeScript `^5.9.3` (target `ES2024`, `@/*` → `./src/*`)
-- **UI Components**: Mantine `^8.3.18` (core, form, hooks, modals, notifications, carousel, dates, dropzone) + Radix Dialog
+- **UI Components**: Mantine `^8.3.18` (core, form, hooks, modals, notifications, carousel, dates, dropzone)
 - **Styling**: Tailwind CSS `^4.2.1` via `@tailwindcss/postcss` + `tailwind-preset-mantine` (theme bridge)
 - **Data Fetching**: TanStack Query `^5.90.6`
 - **Forms**: TanStack Form `^1.27.7`
@@ -31,9 +31,9 @@ Repository: `Hack4Impact-UMD/camp-starfish`. Production target: Firebase Hosting
 - **Validation**: Zod `^3.25.76`
 - **Firebase Client SDK**: `firebase ^11.10.0`
 - **PDF**: `@react-pdf/renderer ^4.3.1`
-- **Icons**: `lucide-react`, `react-icons`, `@tabler/icons-react`
+- **Icons**: `react-icons/md` - Material Design icons
 - **Dates**: `dayjs`, `moment` (both present — see issues)
-- **Other**: `uuid`, `react-dropzone`, `embla-carousel-react`, `classnames`, `cookie`, `mime-types`
+- **Other**: `uuid`, `embla-carousel-react`, `classnames`, `cookie`, `mime-types`
 - **Devtools** (dev-only): `@tanstack/react-devtools`, `react-query-devtools`, `react-form-devtools`, `react-table-devtools`, `@faker-js/faker`
 
 ### Backend — Cloud Functions (`functions/package.json`)
@@ -74,7 +74,7 @@ camp-starfish/
 │       ├── types/
 │       ├── index.ts                      # Function exports
 │       └── serverUtils.ts
-├── public/                # Static assets, custom font files
+├── public/                # Static assets, font files
 ├── scripts/
 │   ├── generate-emulator-data.ts         # Faker-based seed
 │   └── generate-theme-override.ts        # Mantine → Tailwind tokens
@@ -253,7 +253,7 @@ When adding new UI:
 - The `checkAllowlist` Cloud Function assigns the role at user-creation time.
 - Client guard: `src/auth/RequireAuth.tsx` wraps protected routes and accepts an array of allowed roles.
 - Server guard: `firestore.rules` enforces `isStaff()`, `isAdmin()`, `isStaffOrAdmin()` on every collection.
-- Currently `firestore.rules` does **not** grant PARENT or PHOTOGRAPHER read access to any collection — yet `/albums` is gated client-side to also allow PARENT/PHOTOGRAPHER. **This is a contradiction worth verifying.** (See Issues §11.)
+- Currently `firestore.rules` is not complete. Rules need to be updated to give users with PARENT, CAMPER, and PHOTOGRAPHER roles the correct permissions.
 
 ---
 
@@ -272,14 +272,9 @@ sessions/{sessionId}
 
 albums/{albumId}
   └─ albumItems/{albumItemId}
+    └─ albumItemReports/{reportId}
 
-albumItemReports/{reportId}     # top-level (moderation)
-
-campers/{camperId}
-parents/{parentId}
-staff/{staffId}
-admins/{adminId}
-photographers/{photographerId}
+users/{userId}
 
 programAreas/{areaId}
 posts/{postId}
@@ -325,8 +320,6 @@ Ports (see `firebase.json`):
 - Hosting: `5000`
 - Storage: `9199`
 - Emulator UI: `4000`
-
-> The README's command (`firebase emulators:start ./testData`) references a path that does not exist in this repo. The correct path is `./test/emulatorData`.
 
 ### Cloud Functions
 ```bash
@@ -401,28 +394,7 @@ There is **no unit test framework wired up** (no Jest/Vitest config, no `.test.*
 
 ---
 
-## 13. Environment Variables
-
-Not committed. Expected at minimum:
-
-### Frontend (`.env.local`)
-- `NEXT_PUBLIC_FIREBASE_API_KEY`
-- `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN`
-- `NEXT_PUBLIC_FIREBASE_PROJECT_ID`
-- `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET`
-- `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID`
-- `NEXT_PUBLIC_FIREBASE_APP_ID`
-
-### Functions (`.env.production` copied to `functions/.env` at deploy)
-- `DEV_EMAILS` — comma-separated allowlist treated as ADMIN.
-- `NPO_EMAILS` — comma-separated allowlist treated as ADMIN.
-- Google OAuth2 credentials for the Drive integration.
-
-`firebase.json` `functions.predeploy` copies `.env.production` into `functions/` and removes it postdeploy.
-
----
-
-## 14. Quick Reference — Where to Look
+## 13. Quick Reference — Where to Look
 
 | If you need to… | Look in… |
 |---|---|
@@ -439,7 +411,7 @@ Not committed. Expected at minimum:
 
 ---
 
-## 15. Team
+## 14. Team
 
 | Name | Role | Contact |
 |---|---|---|
