@@ -1,4 +1,4 @@
-import { getSectionsBySessionId } from "@/data/firestore/sections";
+import { listSectionDocs } from "@/data/firestore/sections";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 export default function useSections(sessionId: string) {
@@ -7,7 +7,7 @@ export default function useSections(sessionId: string) {
   return useQuery({
     queryKey: ['sessions', sessionId, 'sections'],
     queryFn: async () => {
-      const sections = await getSectionsBySessionId(sessionId);
+      const sections = await listSectionDocs(sessionId);
       sections.forEach(section => queryClient.setQueryData(['sessions', sessionId, 'sections', section.id], section));
     },
     enabled: !!sessionId,

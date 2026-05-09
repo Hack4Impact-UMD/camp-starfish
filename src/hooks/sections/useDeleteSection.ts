@@ -1,4 +1,4 @@
-import { deleteSection } from "@/data/firestore/sections";
+import { deleteSectionDoc } from "@/data/firestore/sections";
 import useNotifications from "@/features/notifications/useNotifications";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
@@ -12,7 +12,7 @@ export default function useDeleteSection() {
   const notifications = useNotifications();
 
   return useMutation({
-    mutationFn: ({ sessionId, sectionId }: UseDeleteSectionVariables) => deleteSection(sessionId, sectionId),
+    mutationFn: ({ sessionId, sectionId }: UseDeleteSectionVariables) => deleteSectionDoc(sessionId, sectionId),
     onSuccess: (_, { sessionId, sectionId }) => {
       queryClient.removeQueries({ queryKey: ['sessions', sessionId, 'sections', sectionId], exact: true });
       queryClient.invalidateQueries({ queryKey: ['sessions', sessionId] });

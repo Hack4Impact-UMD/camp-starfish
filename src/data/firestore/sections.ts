@@ -47,26 +47,26 @@ function fromFirestore(snapshot: DocumentSnapshot<SectionDoc, SectionDoc> | Quer
   }
 }
 
-export async function getSectionById(sessionId: string, sectionId: string, transaction?: Transaction): Promise<Section> {
+export async function getSectionDoc(sessionId: string, sectionId: string, transaction?: Transaction): Promise<Section> {
   const snapshot = await getDoc<SectionDoc>(doc(db, RootLevelCollection.SESSIONS, sessionId, SessionsSubcollection.SECTIONS, sectionId) as DocumentReference<SectionDoc, SectionDoc>, transaction);
   return fromFirestore(snapshot);
 }
 
-export async function getSectionsBySessionId(sessionId: string): Promise<Section[]> {
+export async function listSectionDocs(sessionId: string): Promise<Section[]> {
   const snapshots = await executeQuery<SectionDoc>(collection(db, RootLevelCollection.SESSIONS, sessionId, SessionsSubcollection.SECTIONS) as CollectionReference<SectionDoc, SectionDoc>);
   return snapshots.map(fromFirestore);
 }
 
-export async function createSection(sessionId: string, section: WithFieldValue<SectionDoc>, instance?: Transaction | WriteBatch): Promise<string> {
+export async function createSectionDoc(sessionId: string, section: WithFieldValue<SectionDoc>, instance?: Transaction | WriteBatch): Promise<string> {
   const sectionId = uuid();
   await setDoc<SectionDoc>(doc(db, RootLevelCollection.SESSIONS, sessionId, SessionsSubcollection.SECTIONS, sectionId) as DocumentReference<SectionDoc, SectionDoc>, section, { instance });
   return sectionId;
 }
 
-export async function updateSection(sessionId: string, sectionId: string, updates: UpdateData<SectionDoc>, instance?: Transaction | WriteBatch): Promise<void> {
+export async function updateSectionDoc(sessionId: string, sectionId: string, updates: UpdateData<SectionDoc>, instance?: Transaction | WriteBatch): Promise<void> {
   await updateDoc<SectionDoc>(doc(db, RootLevelCollection.SESSIONS, sessionId, SessionsSubcollection.SECTIONS, sectionId) as DocumentReference<SectionDoc, SectionDoc>, updates, instance);
 }
 
-export async function deleteSection(id: string, sessionID: string, instance?: Transaction | WriteBatch): Promise<void> {
+export async function deleteSectionDoc(id: string, sessionID: string, instance?: Transaction | WriteBatch): Promise<void> {
   await deleteDoc<SectionDoc>(doc(db, RootLevelCollection.SESSIONS, sessionID, SessionsSubcollection.SECTIONS, id) as DocumentReference<SectionDoc, SectionDoc>, instance);
 }

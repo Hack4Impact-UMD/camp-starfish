@@ -1,4 +1,4 @@
-import { updateSection } from "@/data/firestore/sections";
+import { updateSectionDoc } from "@/data/firestore/sections";
 import useNotifications from "@/features/notifications/useNotifications";
 import { Section } from "@/types/sessions/sessionTypes";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -15,7 +15,7 @@ export default function useUpdateSection() {
 
   return useMutation({
     mutationFn: ({ sessionId, sectionId, updates }: UseUpdateSectionVariables) =>
-      updateSection(sessionId, sectionId, updates),
+      updateSectionDoc(sessionId, sectionId, updates),
     onSuccess: (_, { sectionId, sessionId }) => {
       queryClient.invalidateQueries({ queryKey: ['sessions', sessionId] });
       queryClient.invalidateQueries({ queryKey: ['sessions', sessionId, 'sections', sectionId] });
