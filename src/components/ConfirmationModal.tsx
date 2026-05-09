@@ -1,8 +1,7 @@
 "use client";
 
 import React, { useState, JSX } from "react";
-import cross from "../assets/icons/crossIcon.svg";
-import Image from "next/image";
+import { MdClose } from "react-icons/md";
 
 interface ConfirmationModalProps {
   text: string;
@@ -11,12 +10,7 @@ interface ConfirmationModalProps {
   children: JSX.Element;
 }
 
-function ConfirmationModal({
-  text,
-  onConfirm,
-  cannotUndo,
-  children,
-}: ConfirmationModalProps) {
+export default function ConfirmationModal({ text, onConfirm, cannotUndo, children }: ConfirmationModalProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleConfirm = () => {
@@ -44,13 +38,7 @@ function ConfirmationModal({
               onClick={handleCancel}
               className="absolute top-6 right-6 shrink-0"
             >
-              <Image
-                src={cross.src}
-                alt="close"
-                className="w-[29px] h-[29px] aspect-29/29"
-                width={29}
-                height={29}
-              />
+              <MdClose />
             </button>
 
             {/* Confirmation Text */}
@@ -83,5 +71,3 @@ function ConfirmationModal({
     </>
   );
 }
-
-export default ConfirmationModal;

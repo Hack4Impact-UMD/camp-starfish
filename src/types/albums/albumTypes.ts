@@ -24,6 +24,11 @@ export interface AlbumItem {
 
 export type PhotoPermissions = "PUBLIC" | "PRIVATE"
 
+export interface TagDirectory {
+  page: number;
+  [userId: number]: string;
+}
+
 export type AlbumItemReportStatus = 'PENDING' | 'RESOLVED';
 interface BaseAlbumItemReport {
   id: string;
