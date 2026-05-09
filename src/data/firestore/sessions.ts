@@ -12,7 +12,8 @@ import {
   CollectionReference,
   UpdateData,
   DocumentSnapshot,
-  WithFieldValue
+  WithFieldValue,
+  Firestore
 } from "firebase/firestore";
 import {
   setDoc,
@@ -23,6 +24,7 @@ import {
 } from "./firestoreClientOperations";
 import { RootLevelCollection } from "./types/collections";
 import moment from "moment";
+import { FirestoreQueryOptions } from "./types/queries";
 
 function fromFirestore(snapshot: DocumentSnapshot<SessionDoc, SessionDoc> | QueryDocumentSnapshot<SessionDoc, SessionDoc>): Session {
   if (!snapshot.exists()) { throw Error("Document not found"); };
@@ -42,8 +44,8 @@ export async function getSessionDoc(id: string, transaction?: Transaction): Prom
   return fromFirestore(snapshot);
 }
 
-export async function listSessionDocs(): Promise<Session[]> {
-  const snapshots = await executeQuery<SessionDoc>(collection(db, RootLevelCollection.SESSIONS) as CollectionReference<SessionDoc, SessionDoc>);
+export async function listSessionDocs(options: FirestoreQueryOptions<SessionDoc>): Promise<Session[]> {
+  const snapshots = await executeQuery<SessionDoc>(collection(db, RootLevelCollection.SESSIONS) as CollectionReference<SessionDoc, SessionDoc>, options);
   return snapshots.map(fromFirestore);
 }
 

@@ -3,7 +3,7 @@ import { getSessionDoc } from "@/data/firestore/sessions";
 
 export default function useSession(sessionId: string) {
   return useQuery({
-    queryKey: ["session", sessionId],
+    queryKey: ["sessions", sessionId],
     queryFn: () => getSessionDoc(sessionId),
   });
 }

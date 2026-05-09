@@ -1,7 +1,7 @@
 "use client";
 
 import SessionsPage from "@/components/SessionsPage";
-import { useSessions } from "@/hooks/sessions/useSessions";
+import { useSessions } from "@/hooks/sessions/useListSessions";
 import LoadingPage from "../loading";
 import RequireAuth from "@/auth/RequireAuth";
 import { useAuth } from "@/auth/useAuth";
