@@ -1,5 +1,5 @@
 import { db } from "@/config/firebase";
-import { Section } from "@/types/sessions/sessionTypes";
+import { CommonSection, SchedulingSection, Section } from "@/types/sessions/sessionTypes";
 import { SectionDoc } from "./types/documents";
 import { v4 as uuid } from "uuid";
 import {
@@ -16,13 +16,34 @@ import {
 } from "firebase/firestore";
 import { RootLevelCollection, SessionsSubcollection } from "./types/collections";
 import { setDoc, deleteDoc, getDoc, updateDoc, executeQuery } from "./firestoreClientOperations";
+import moment from "moment";
 
 function fromFirestore(snapshot: DocumentSnapshot<SectionDoc, SectionDoc> | QueryDocumentSnapshot<SectionDoc, SectionDoc>): Section {
   if (!snapshot.exists()) { throw Error("Document not found"); };
-  return {
-    id: snapshot.ref.id,
-    sessionId: snapshot.ref.parent.parent!.id,
-    ...snapshot.data()
+  const sectionDoc = snapshot.data();
+  switch (sectionDoc.type) {
+    case "COMMON":
+      return {
+        id: snapshot.ref.id,
+        sessionId: snapshot.ref.parent.parent!.id,
+        name: sectionDoc.name,
+        startDate: moment(sectionDoc.startDate.toDate()),
+        endDate: moment(sectionDoc.endDate.toDate()),
+        type: sectionDoc.type
+      } satisfies CommonSection;
+    case "BUNDLE":
+    case "BUNK-JAMBO":
+    case "NON-BUNK-JAMBO":
+      return {
+        id: snapshot.ref.id,
+        sessionId: snapshot.ref.parent.parent!.id,
+        name: sectionDoc.name,
+        startDate: moment(sectionDoc.startDate.toDate()),
+        endDate: moment(sectionDoc.endDate.toDate()),
+        type: sectionDoc.type,
+        publishedAt: sectionDoc.publishedAt ? moment(sectionDoc.publishedAt.toDate()) : undefined
+      } satisfies SchedulingSection;
+    default: throw Error("Unknown section type");
   }
 }
 

@@ -22,12 +22,18 @@ import {
   executeQuery,
 } from "./firestoreClientOperations";
 import { RootLevelCollection } from "./types/collections";
+import moment from "moment";
 
 function fromFirestore(snapshot: DocumentSnapshot<SessionDoc, SessionDoc> | QueryDocumentSnapshot<SessionDoc, SessionDoc>): Session {
   if (!snapshot.exists()) { throw Error("Document not found"); };
+  const sessionDoc = snapshot.data();
   return {
     id: snapshot.ref.id,
-    ...snapshot.data()
+    name: sessionDoc.name,
+    startDate: moment(sessionDoc.startDate.toDate()),
+    endDate: moment(sessionDoc.endDate.toDate()),
+    driveFolderId: sessionDoc.driveFolderId,
+    linkedAlbumId: sessionDoc.linkedAlbumId
   };
 }
 

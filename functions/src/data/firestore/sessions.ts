@@ -20,14 +20,19 @@ import {
 } from "./firestoreAdminOperations";
 import { RootLevelCollection } from "@/data/firestore/types/collections";
 import { adminDb } from "../../config/firebaseAdminConfig";
+import moment from "moment";
 
 function fromFirestore(snapshot: DocumentSnapshot<SessionDoc, SessionDoc> | QueryDocumentSnapshot<SessionDoc, SessionDoc>): Session {
   if (!snapshot.exists) { throw Error("Document not found"); };
+  const sessionDoc = snapshot.data() as SessionDoc;
   return {
     id: snapshot.ref.id,
-    ...snapshot.data() as SessionDoc
-  };
-}
+    name: sessionDoc.name,
+    startDate: moment(sessionDoc.startDate.toDate()),
+    endDate: moment(sessionDoc.endDate.toDate()),
+    driveFolderId: sessionDoc.driveFolderId,
+    linkedAlbumId: sessionDoc.linkedAlbumId
+  };}
 
 export async function getSessionById(id: string, transaction?: Transaction): Promise<Session> {
   const snapshot = await getDoc<SessionDoc>(adminDb.collection(RootLevelCollection.SESSIONS).doc(id) as DocumentReference<SessionDoc, SessionDoc>, transaction);
