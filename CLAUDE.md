@@ -31,9 +31,9 @@ Repository: `Hack4Impact-UMD/camp-starfish`. Production target: Firebase Hosting
 - **Validation**: Zod `^3.25.76`
 - **Firebase Client SDK**: `firebase ^11.10.0`
 - **PDF**: `@react-pdf/renderer ^4.3.1`
-- **Icons**: `lucide-react`, `react-icons`, `@tabler/icons-react`
+- **Icons**: `react-icons/md` - Material Design icons
 - **Dates**: `dayjs`, `moment` (both present — see issues)
-- **Other**: `uuid`, `react-dropzone`, `embla-carousel-react`, `classnames`, `cookie`, `mime-types`, `jszip` (album zip download)
+- **Other**: `uuid`, `embla-carousel-react`, `classnames`, `cookie`, `mime-types`
 - **Devtools** (dev-only): `@tanstack/react-devtools`, `react-query-devtools`, `react-form-devtools`, `react-table-devtools`, `@faker-js/faker`
 
 ### Backend — Cloud Functions (`functions/package.json`)
@@ -74,7 +74,7 @@ camp-starfish/
 │       ├── types/
 │       ├── index.ts                      # Function exports
 │       └── serverUtils.ts
-├── public/                # Static assets, custom font files
+├── public/                # Static assets, font files
 ├── scripts/
 │   ├── generate-emulator-data.ts         # Faker-based seed
 │   └── generate-theme-override.ts        # Mantine → Tailwind tokens
