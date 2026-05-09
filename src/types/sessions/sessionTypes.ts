@@ -7,7 +7,7 @@ export interface Session {
   startDate: Moment;
   endDate: Moment;
   linkedAlbumId?: string;
-  driveFolderId: string;
+  driveFolderId?: string;
 }
 
 export type SchedulingSectionType = "BUNDLE" | "BUNK-JAMBO" | "NON-BUNK-JAMBO";
