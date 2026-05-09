@@ -1,11 +1,9 @@
 import { getSectionDoc } from "@/data/firestore/sections";
-import { useQuery } from "@tanstack/react-query";
+import { skipToken, useQuery } from "@tanstack/react-query";
 
-export default function useSection(sessionId: string, sectionId: string) {
+export default function useSection(sessionId: string | undefined, sectionId: string | undefined) {
   return useQuery({
     queryKey: ['sessions', sessionId, 'sections', sectionId],
-    queryFn: () => getSectionDoc(sessionId, sectionId),
-    enabled: !!sessionId && !!sectionId,
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    queryFn: sectionId && sessionId ? (() => getSectionDoc(sessionId, sectionId)) : skipToken,
   });
 }

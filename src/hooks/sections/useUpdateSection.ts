@@ -1,28 +1,30 @@
 import { updateSectionDoc } from "@/data/firestore/sections";
-import useNotifications from "@/features/notifications/useNotifications";
-import { Section } from "@/types/sessions/sessionTypes";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Timestamp } from "firebase/firestore";
+import { Moment } from "moment";
 
-interface UseUpdateSectionVariables {
+interface UpdateSectionRequest {
   sessionId: string;
   sectionId: string;
-  updates: Partial<Section>;
+  name?: string;
+  startDate?: Moment;
+  endDate?: Moment;
+}
+
+async function updateSection(req: UpdateSectionRequest) {
+  const { sessionId, sectionId, ...updates } = req;
+  await updateSectionDoc(sessionId, sectionId, {
+    name: updates.name,
+    startDate: updates.startDate ? Timestamp.fromDate(updates.startDate.toDate()) : undefined,
+    endDate: updates.endDate ? Timestamp.fromDate(updates.endDate.toDate()) : undefined,
+  });
 }
 
 export default function useUpdateSection() {
-  const queryClient = useQueryClient();
-  const notifications = useNotifications();
-
   return useMutation({
-    mutationFn: ({ sessionId, sectionId, updates }: UseUpdateSectionVariables) =>
-      updateSectionDoc(sessionId, sectionId, updates),
-    onSuccess: (_, { sectionId, sessionId }) => {
-      queryClient.invalidateQueries({ queryKey: ['sessions', sessionId] });
-      queryClient.invalidateQueries({ queryKey: ['sessions', sessionId, 'sections', sectionId] });
-      notifications.success('Section updated successfully!')
-    },
-    onError: () => {
-      notifications.error('Failed to update section. Please try again.');
+    mutationFn: (req: UpdateSectionRequest) => updateSection(req),
+    onSuccess: (_data, { sectionId, sessionId }, _result, { client }) => {
+      client.invalidateQueries({ queryKey: ['sessions', sessionId, 'sections', sectionId] });
     }
   });
 }
