@@ -1,20 +1,28 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { createSession } from '@/data/firestore/sessions';
-import { SessionDoc } from '@/data/firestore/types/documents';
-import useNotifications from '@/features/notifications/useNotifications';
+import { useMutation } from '@tanstack/react-query';
+import { createSessionDoc } from '@/data/firestore/sessions';
+import { Moment } from 'moment';
+import { Timestamp } from 'firebase/firestore';
+
+interface CreateSessionRequest {
+  name: string;
+  startDate: Moment;
+  endDate: Moment;
+}
+
+async function createSession(req: CreateSessionRequest) {
+  const { name, startDate, endDate } = req;
+  await createSessionDoc({
+    name,
+    startDate: Timestamp.fromDate(startDate.toDate()),
+    endDate: Timestamp.fromDate(endDate.toDate())
+  });
+}
 
 export default function useCreateSession() {
-  const queryClient = useQueryClient();
-  const { success, error } = useNotifications();
   return useMutation({
-    mutationFn: async (data: SessionDoc) => createSession(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['sessions'] });
-      success("Session created successfully!");
-    },
-    onError: (err: Error) => {
-      console.error("Error creating session:", err);
-      error(err?.message || "Failed to create session.");
-    },
+    mutationFn: async (req: CreateSessionRequest) => createSession(req),
+    onSuccess: (_data, _vars, _result, { client }) => {
+      client.invalidateQueries({ queryKey: ['sessions'] });
+    }
   });
 }
