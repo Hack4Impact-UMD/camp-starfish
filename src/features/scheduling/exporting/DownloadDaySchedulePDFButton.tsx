@@ -15,6 +15,7 @@ import useNotifications from "@/features/notifications/useNotifications";
 import { MdOpenInNew } from "react-icons/md";
 import { isBundleSectionSchedule } from "@/types/scheduling/schedulingTypeGuards";
 import useProgramAreas from "@/hooks/programAreas/useProgramAreas";
+import moment from "moment";
 
 const baseExportButton = <Button rightSection={<MdOpenInNew />}>EXPORT</Button>;
 
@@ -32,7 +33,7 @@ export default function DownloadDaySchedulePDFButton(
   const attendeesQuery = useListAttendees(sessionId);
   const sectionQuery = useSection(sessionId, sectionId);
   const scheduleQuery = useSectionSchedule(sessionId, sectionId);
-  const freeplayQuery = useFreeplay(sessionId, date);
+  const freeplayQuery = useFreeplay(sessionId, moment(date));
 
   const programAreaIds = useMemo(() => {
     if (!scheduleQuery.data || !isBundleSectionSchedule(scheduleQuery.data))
