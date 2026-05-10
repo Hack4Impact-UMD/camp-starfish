@@ -8,12 +8,7 @@ import { useAuth } from "@/auth/useAuth";
 import ErrorPage from "@/app/error";
 
 export default function Page() {
-  const sessionsQuery = useSessionList();
   const { token } = useAuth();
-
-  if (sessionsQuery.isPending) return <LoadingPage />;
-  else if (sessionsQuery.isError)
-    return <ErrorPage error={new Error("Error loading sessions")} />;
 
   return (
     <RequireAuth
@@ -21,7 +16,7 @@ export default function Page() {
         {
           authFn: () =>
             !!token?.claims.role && token.claims.role !== "PHOTOGRAPHER",
-          component: <SessionsPage sessions={sessionsQuery.data} />,
+          component: <SessionsPage />,
         },
       ]}
       fallbackComponent={<p>You do not have permission to access this page.</p>}

@@ -8,13 +8,13 @@ import { Session } from "@/types/sessions/sessionTypes";
 import pencilIcon from "@/assets/icons/pencilIcon.svg";
 import SessionCard from "@/components/SessionCard";
 import { openCreateSessionModal } from "@/components/CreateSessionModal";
+import useSessionList from "@/hooks/sessions/useSessionList";
 
-interface SessionsPageProps {
-  sessions: Session[];
-}
-
-export default function SessionsPage({ sessions }: SessionsPageProps) {
+export default function SessionsPage() {
   const [editMode, setEditMode] = useState(false);
+
+  const sessionsQuery = useSessionList();
+  const sessions = sessionsQuery.data ?? [];
 
   // --- Categorize sessions ---
   const { current, future, past } = useMemo(() => {
