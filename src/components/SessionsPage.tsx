@@ -12,29 +12,30 @@ import { MdCheck, MdEdit } from "react-icons/md";
 export default function SessionsPage() {
   const [editMode, setEditMode] = useState(false);
 
-  const sessionsQuery = useSessionList();
-  const sessions = sessionsQuery.data ?? [];
+  const sessionsQuery = useSessionList({
+    orderBy: [{ fieldPath: "startDate", direction: "desc" }],
+    startAt: [moment().add(6, 'month').startOf('day').toDate()],
+    endAt: [moment().subtract(6, 'month').startOf('day').toDate()],
+    limit: 10
+  });
+  const sessions = sessionsQuery.data?.pages.flatMap(page => page.docs) ?? [];
 
   // --- Categorize sessions ---
-  const { current, future, past } = useMemo(() => {
+  const { future, current, past } = useMemo(() => {
     const now = moment();
     const current: Session[] = [];
     const future: Session[] = [];
     const past: Session[] = [];
 
-    for (const s of sessions) {
-      const start = moment(s.startDate);
-      const end = moment(s.endDate);
+    sessions.forEach(session => {
+      const start = session.startDate;
+      const end = session.endDate;
 
-      if (now.isSameOrAfter(start) && now.isBefore(end)) current.push(s);
-      else if (start.isAfter(now)) future.push(s);
-      else past.push(s);
-    }
-
-    future.sort((a, b) => moment(a.startDate).diff(moment(b.startDate)));
-    past.sort((a, b) => moment(b.startDate).diff(moment(a.startDate)));
-
-    return { current, future, past };
+      if (now.isBefore(start)) { future.push(session); }
+      else if (now.isSameOrBefore(end)) { current.push(session); }
+      else { past.push(session); }
+    })
+    return { future, current, past };
   }, [sessions]);
 
   return (
