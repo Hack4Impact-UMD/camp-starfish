@@ -45,7 +45,7 @@ export default function SessionsPage() {
         <Title order={2}>Sessions</Title>
         <Group gap="sm">
           {/* Edit / Done button */}
-          <ActionIcon>
+          <ActionIcon onClick={(prev) => setEditMode(!prev)}>
             <MdEdit size={30} />
           </ActionIcon>
 
