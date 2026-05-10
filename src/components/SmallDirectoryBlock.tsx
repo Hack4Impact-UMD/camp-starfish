@@ -14,7 +14,7 @@ import {
   IconArrowsVertical,
   IconAlertCircle,
 } from "@tabler/icons-react";
-import useAttendeesBySessionId from "@/hooks/attendees/useAttendeesBySessionId";
+import useListAttendees from "@/hooks/attendees/useListAttendees";
 import Profile from "@/assets/icons/Profile.svg";
 import Image from "next/image";
 
@@ -26,10 +26,10 @@ const INITIAL_VISIBILE_COUNT = 3;
 const LOAD_MORE_COUNT = 3;
 
 export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
-  const { data: people, isLoading, error } = useAttendeesBySessionId(sessionId);
+  const { data: people, isLoading, error } = useListAttendees(sessionId);
   const [searchQuery, setSearchQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState<"CAMPER" | "STAFF" | "ADMIN">(
-    "CAMPER"
+    "CAMPER",
   );
   const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBILE_COUNT);
   const [showAll, setShowAll] = useState(false);
@@ -69,10 +69,13 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
   }
 
   // filtering the people based on role in search
-  const filteredPeople = (people || []).filter(
+  const filteredPeople = (people || [])
+    .filter(
       (person) =>
         person.role === roleFilter &&
-        person.snapshot.name.firstName.toLowerCase().includes(searchQuery.toLowerCase())
+        person.snapshot.name.firstName
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase()),
     )
     .slice(0, showAll ? people?.length : visibleCount);
 
@@ -82,7 +85,9 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
       setShowAll(false);
       setVisibleCount(INITIAL_VISIBILE_COUNT);
     } else {
-      setVisibleCount((prev) => Math.min(prev + LOAD_MORE_COUNT , people?.length || 0));
+      setVisibleCount((prev) =>
+        Math.min(prev + LOAD_MORE_COUNT, people?.length || 0),
+      );
       if (visibleCount + LOAD_MORE_COUNT >= (people?.length || 0)) {
         setShowAll(true);
       }
@@ -138,7 +143,8 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
               />
               <div>
                 <p className="text-sm font-bold text-primary-5">
-                  {person.snapshot.name.firstName} {person.snapshot.name.lastName}
+                  {person.snapshot.name.firstName}{" "}
+                  {person.snapshot.name.lastName}
                   {"bunk" in person &&
                     person.bunk !== undefined &&
                     ` (${person.bunk})`}

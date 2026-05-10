@@ -1,9 +1,6 @@
 import { flexRender } from "@tanstack/react-table";
 import { useCallback, useMemo, useState } from "react";
-import {
-  Attendee,
-  StaffAttendee,
-} from "@/types/sessions/sessionTypes";
+import { Attendee, StaffAttendee } from "@/types/sessions/sessionTypes";
 import {
   Button,
   Container,
@@ -17,7 +14,7 @@ import {
   Text,
   Title,
 } from "@mantine/core";
-import useAttendeesBySessionId from "@/hooks/attendees/useAttendeesBySessionId";
+import useListAttendees from "@/hooks/attendees/useListAttendees";
 import { DirectoryTableCell } from "./DirectoryTableCell";
 import moment from "moment";
 import {
@@ -43,7 +40,7 @@ export default function DirectoryTableView({
     data: attendeeList,
     isLoading,
     isError,
-  } = useAttendeesBySessionId(sessionId);
+  } = useListAttendees(sessionId);
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
   const [sortNameOption, setSortNameOption] = useState<string | null>(null);
 
@@ -364,11 +361,7 @@ export default function DirectoryTableView({
           </Flex>
 
           <ScrollArea>
-            <Table
-              striped
-              highlightOnHover
-              className="w-full border-collapse"
-            >
+            <Table striped highlightOnHover className="w-full border-collapse">
               <thead>
                 {table.getHeaderGroups().map((hg) => (
                   <tr key={hg.id}>
