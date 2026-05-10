@@ -16,7 +16,7 @@ import {
 import { getFullName } from "@/types/users/userUtils";
 import moment from "moment";
 import useListAttendees from "@/hooks/attendees/useListAttendees";
-import useNightSchedulesBySessionId from "@/hooks/nightSchedules/useNightSchedulesBySessionId";
+import useNightScheduleList from "@/hooks/nightSchedules/useNightScheduleList";
 import {
   getAttendeesById,
   groupAttendeesByBunk,
@@ -40,7 +40,7 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
   const { data: attendees = [], status: attendeesStatus } =
     useListAttendees(sessionId);
   const { data: nightShifts = [], status: nightShiftsStatus } =
-    useNightSchedulesBySessionId(sessionId);
+    useNightScheduleList(sessionId);
 
   if (
     sessionStatus === "error" ||
