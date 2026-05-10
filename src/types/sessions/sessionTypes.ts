@@ -37,7 +37,7 @@ interface BaseAttendee {
     age: number;
     nonoList: number[];
   };
-  role: Role;
+  role: Extract<Role, "ADMIN" | "CAMPER" | "STAFF">;
 }
 
 export type AgeGroup = "OCP" | "NAV";
