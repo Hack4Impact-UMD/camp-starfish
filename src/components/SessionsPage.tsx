@@ -3,7 +3,6 @@
 import { useMemo, useState } from "react";
 import { Button, Group, Stack, Title, Menu, Text, ActionIcon, Tooltip } from "@mantine/core";
 import moment from "moment";
-import Image from "next/image";
 import { Session } from "@/types/sessions/sessionTypes";
 import SessionCard from "@/components/SessionCard";
 import { openCreateSessionModal } from "@/components/CreateSessionModal";
@@ -59,30 +58,10 @@ export default function SessionsPage() {
             </Menu.Target>
 
             <Menu.Dropdown>
-              <Menu.Item
-                leftSection={
-                  <Image
-                    src={pencilIcon}
-                    alt="Standard"
-                    width={16}
-                    height={16}
-                  />
-                }
-                onClick={openCreateSessionModal}
-              >
+              <Menu.Item onClick={openCreateSessionModal} >
                 Standard Session
               </Menu.Item>
-              <Menu.Item
-                leftSection={
-                  <Image
-                    src={pencilIcon}
-                    alt="Customized"
-                    width={16}
-                    height={16}
-                  />
-                }
-                onClick={openCreateSessionModal}
-              >
+              <Menu.Item onClick={openCreateSessionModal} >
                 Customized Session
               </Menu.Item>
             </Menu.Dropdown>
