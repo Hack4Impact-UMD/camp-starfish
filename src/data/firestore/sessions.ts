@@ -13,7 +13,6 @@ import {
   UpdateData,
   DocumentSnapshot,
   WithFieldValue,
-  Firestore
 } from "firebase/firestore";
 import {
   setDoc,

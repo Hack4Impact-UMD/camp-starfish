@@ -1,6 +1,6 @@
 import { AlbumItemReportStatus } from "@/types/albums/albumTypes";
 import { ProgramArea, SectionSchedule } from "@/types/scheduling/schedulingTypes";
-import { AgeGroup, Attendee, Bunk, Freeplay, NightSchedule, Post, SchedulingSectionType, Section, SectionType, Session } from "@/types/sessions/sessionTypes";
+import { AgeGroup, Bunk, Freeplay, NightSchedule, Post, SchedulingSectionType, SectionType } from "@/types/sessions/sessionTypes";
 import { Gender, Name, Role, User } from "@/types/users/userTypes";
 import { DistributiveOmit } from "@/utils/types/typeUtils";
 import { Timestamp } from "firebase/firestore";

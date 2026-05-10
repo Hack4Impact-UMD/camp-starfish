@@ -15,7 +15,7 @@ import useNotifications from "@/features/notifications/useNotifications";
 import { MdOpenInNew } from "react-icons/md";
 import { isBundleSectionSchedule } from "@/types/scheduling/schedulingTypeGuards";
 import useProgramAreaBatch from "@/hooks/programAreas/useProgramAreaBatch";
-import moment, { Moment } from "moment";
+import { Moment } from "moment";
 
 const baseExportButton = <Button rightSection={<MdOpenInNew />}>EXPORT</Button>;
 

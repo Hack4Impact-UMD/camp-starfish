@@ -14,13 +14,7 @@ import moment, { Moment } from "moment";
 import useCreateSection from "@/hooks/sections/useCreateSection";
 import useUpdateSection from "@/hooks/sections/useUpdateSection";
 import useDeleteSection from "@/hooks/sections/useDeleteSection";
-import { isSchedulingSectionType } from "@/types/sessions/sessionTypeGuards";
-import {
-  Section,
-  SchedulingSection,
-  CommonSection,
-  SectionType,
-} from "@/types/sessions/sessionTypes";
+import { SectionType } from "@/types/sessions/sessionTypes";
 import useSection from "@/hooks/sections/useSection";
 import { modals } from "@mantine/modals";
 

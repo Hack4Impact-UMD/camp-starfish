@@ -4,7 +4,6 @@ import { Button, TextInput, Stack, Group, Text, Box } from "@mantine/core";
 import moment from "moment";
 import useCreateSession from "@/hooks/sessions/useCreateSession";
 import { modals } from "@mantine/modals";
-import { SessionDoc } from "@/data/firestore/types/documents";
 
 export default function CreateSessionModal() {
   const [sessionName, setSessionName] = useState<string>("");
@@ -17,7 +16,7 @@ export default function CreateSessionModal() {
     if (sessionName.trim() === "" || !startDateStr || !endDateStr) {
       return;
     }
-    
+
     createSessionMutation.mutate({
       name: sessionName,
       startDate: moment(startDateStr).startOf("day"),

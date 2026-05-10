@@ -2,7 +2,7 @@
 
 import { Card, Stack, Title, Text, Button, ActionIcon } from "@mantine/core";
 import Image from "next/image";
-import moment, { Moment } from "moment";
+import { Moment } from "moment";
 import trashIcon from "@/assets/icons/trashIcon.svg";
 import { Session } from "@/types/sessions/sessionTypes";
 import { useRouter } from "next/navigation";

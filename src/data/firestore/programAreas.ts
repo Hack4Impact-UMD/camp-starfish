@@ -13,9 +13,8 @@ import {
   DocumentSnapshot,
   WithFieldValue
 } from "firebase/firestore";
-import { setDoc, getDoc, updateDoc, executeQuery, deleteDoc, batchGetDocs, mapSnapshotsToPaginatedQueryResult } from "./firestoreClientOperations";
+import { setDoc, getDoc, updateDoc, deleteDoc, batchGetDocs } from "./firestoreClientOperations";
 import { RootLevelCollection } from "./types/collections";
-import { PaginatedQueryResponse } from "./types/queries";
 
 function fromFirestore(snapshot: DocumentSnapshot<ProgramAreaDoc, ProgramAreaDoc> | QueryDocumentSnapshot<ProgramAreaDoc, ProgramAreaDoc>): ProgramArea {
   if (!snapshot.exists()) { throw Error("Document not found"); }

@@ -1,6 +1,6 @@
 import { createSectionDoc } from "@/data/firestore/sections";
 import { SectionType } from "@/types/sessions/sessionTypes";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { Timestamp } from "firebase/firestore";
 import { Moment } from "moment";
 
