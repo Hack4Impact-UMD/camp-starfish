@@ -2,7 +2,7 @@
 
 import { Card, Stack, Title, Text, Button, ActionIcon } from "@mantine/core";
 import Image from "next/image";
-import moment from "moment";
+import { Moment } from "moment";
 import trashIcon from "@/assets/icons/trashIcon.svg";
 import { Session } from "@/types/sessions/sessionTypes";
 import { useRouter } from "next/navigation";
@@ -19,7 +19,7 @@ export default function SessionCard({ session, editMode }: SessionCardProps) {
 
   const deleteSession = useDeleteSession();
 
-  const formatDate = (date: string) => moment(date).format("dddd, MMMM Do");
+  const formatDate = (date: Moment) => date.format("dddd, MMMM Do");
 
   return (
     <Card
@@ -36,12 +36,12 @@ export default function SessionCard({ session, editMode }: SessionCardProps) {
           <ConfirmationModal
             text={`Are you sure you want to delete the session "${session.name}"`}
             cannotUndo
-            onConfirm={() => deleteSession.mutate(session.id)}
+            onConfirm={() => deleteSession.mutate({ sessionId: session.id })}
           >
             <ActionIcon
               variant="transparent"
               radius="xl"
-              onClick={() => deleteSession.mutate(session.id)}
+              onClick={() => deleteSession.mutate({ sessionId: session.id })}
               className="hover:scale-110 transition-transform"
             >
               <Image src={trashIcon} alt="Delete" width={20} height={20} />

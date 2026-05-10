@@ -1,25 +1,33 @@
-import { createSection } from "@/data/firestore/sections";
-import useNotifications from "@/features/notifications/useNotifications";
-import { Section } from "@/types/sessions/sessionTypes";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { createSectionDoc } from "@/data/firestore/sections";
+import { SectionType } from "@/types/sessions/sessionTypes";
+import { useMutation } from "@tanstack/react-query";
+import { Timestamp } from "firebase/firestore";
+import { Moment } from "moment";
 
-interface UseCreateSectionVariables {
+interface CreateSectionRequest {
   sessionId: string;
-  section: Section;
+  name: string;
+  startDate: Moment;
+  endDate: Moment;
+  type: SectionType;
+}
+
+async function createSection(req: CreateSectionRequest) {
+  const { sessionId, ...rest } = req;
+  await createSectionDoc(sessionId, {
+    name: rest.name,
+    startDate: Timestamp.fromDate(rest.startDate.toDate()),
+    endDate: Timestamp.fromDate(rest.endDate.toDate()),
+    type: rest.type,
+    publishedAt: null
+  })
 }
 
 export default function useCreateSection() {
-  const queryClient = useQueryClient();
-  const notifications = useNotifications();
-
   return useMutation({
-    mutationFn: ({ sessionId, section }: UseCreateSectionVariables) => createSection(sessionId, section),
-    onSuccess: (_, { sessionId }) => {
-      queryClient.invalidateQueries({ queryKey: ['sessions', sessionId, 'sections'] });
-      notifications.success('Section created successfully!')
-    },
-    onError: () => {
-      notifications.error('Unable to create section. Please try again.');
+    mutationFn: (req: CreateSectionRequest) => createSection(req),
+    onSuccess: (_data, { sessionId }, _result, { client }) => {
+      client.invalidateQueries({ queryKey: ['sessions', sessionId, 'sections'] });
     }
   });
 }
