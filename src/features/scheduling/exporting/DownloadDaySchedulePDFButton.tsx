@@ -14,7 +14,7 @@ import { Button } from "@mantine/core";
 import useNotifications from "@/features/notifications/useNotifications";
 import { MdOpenInNew } from "react-icons/md";
 import { isBundleSectionSchedule } from "@/types/scheduling/schedulingTypeGuards";
-import useProgramAreas from "@/hooks/programAreas/useProgramAreas";
+import useProgramAreaBatch from "@/hooks/programAreas/useProgramAreaBatch";
 import moment from "moment";
 
 const baseExportButton = <Button rightSection={<MdOpenInNew />}>EXPORT</Button>;
@@ -46,7 +46,7 @@ export default function DownloadDaySchedulePDFButton(
     );
     return Array.from(programAreaIds);
   }, [scheduleQuery.data]);
-  const programAreasQuery = useProgramAreas(programAreaIds);
+  const programAreasQuery = useProgramAreaBatch(programAreaIds);
 
   const notifications = useNotifications();
 
