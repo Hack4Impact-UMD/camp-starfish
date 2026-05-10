@@ -17,15 +17,12 @@ export default function CreateSessionModal() {
     if (sessionName.trim() === "" || !startDateStr || !endDateStr) {
       return;
     }
-
-    const newSession: SessionDoc = {
+    
+    createSessionMutation.mutate({
       name: sessionName,
-      startDate: moment(startDateStr).startOf("day").toISOString(),
-      endDate: moment(endDateStr).endOf("day").toISOString(),
-      driveFolderId: "",
-    };
-
-    createSessionMutation.mutate(newSession);
+      startDate: moment(startDateStr).startOf("day"),
+      endDate: moment(endDateStr).endOf("day"),
+    });
   };
 
   return (

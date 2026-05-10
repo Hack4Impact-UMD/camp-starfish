@@ -144,12 +144,9 @@ export default function DirectoryTableView({
         },
 
         {
-          accessorFn: (row) => row.snapshot.dateOfBirth,
-          header: "DOB",
-          cell: (info) => {
-            const dob = info.getValue<string>();
-            return render(dob ? moment(dob).format("MM-YYYY") : "N/A");
-          },
+          accessorFn: (row) => row.snapshot.age,
+          header: "AGE",
+          cell: (info) => render(info.getValue()),
         },
 
         {

@@ -39,7 +39,7 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
   const { data: session, status: sessionStatus } = useSession(sessionId);
   const { data: attendees = [], status: attendeesStatus } =
     useListAttendees(sessionId);
-  const { data: nightShifts = [], status: nightShiftsStatus } =
+  const { data: nightShifts, status: nightShiftsStatus } =
     useNightScheduleList(sessionId);
 
   if (
@@ -60,7 +60,7 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
     <NightScheduleTableContent
       session={session}
       attendees={attendees}
-      nightShifts={nightShifts}
+      nightShifts={nightShifts.docs}
     />
   );
 }
@@ -117,7 +117,7 @@ function NightScheduleTableContent(props: NightScheduleTableContentProps) {
           );
           const staffOff = staffInBunk.filter((staffId: number) => {
             const staff = staffById[staffId];
-            return staff.daysOff.includes(date);
+            return staff.daysOff.some(dayOff => dayOff.isSame(date, 'day'));
           });
           return staffOff.map((staffId: number) => staffById[staffId]);
         }
@@ -133,7 +133,7 @@ function NightScheduleTableContent(props: NightScheduleTableContentProps) {
           const roverStaff = allStaffInBunk.filter((staffId: number) => {
             if (assignedStaff.has(staffId)) return false;
             const staff = staffById[staffId];
-            if (staff.daysOff.includes(date)) return false;
+            if (staff.daysOff.some(dayOff => dayOff.isSame(date, 'day'))) return false;
             return true;
           });
 
