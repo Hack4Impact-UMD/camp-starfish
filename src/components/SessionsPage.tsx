@@ -1,14 +1,14 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Button, Group, Stack, Title, Menu, Text, ActionIcon } from "@mantine/core";
+import { Button, Group, Stack, Title, Menu, Text, ActionIcon, Tooltip } from "@mantine/core";
 import moment from "moment";
 import Image from "next/image";
 import { Session } from "@/types/sessions/sessionTypes";
 import SessionCard from "@/components/SessionCard";
 import { openCreateSessionModal } from "@/components/CreateSessionModal";
 import useSessionList from "@/hooks/sessions/useSessionList";
-import { MdEdit } from "react-icons/md";
+import { MdCheck, MdEdit } from "react-icons/md";
 
 export default function SessionsPage() {
   const [editMode, setEditMode] = useState(false);
@@ -44,10 +44,11 @@ export default function SessionsPage() {
       <Group justify="space-between" align="center">
         <Title order={2}>Sessions</Title>
         <Group gap="sm">
-          {/* Edit / Done button */}
-          <ActionIcon onClick={(prev) => setEditMode(!prev)}>
-            <MdEdit size={30} />
-          </ActionIcon>
+          <Tooltip label="Toggle Edit Mode">
+            <ActionIcon onClick={() => setEditMode(prev => !prev)}>
+              {editMode ? <MdCheck size={30} /> : <MdEdit size={30} />}
+            </ActionIcon>
+          </Tooltip>
 
           {/* Create Session Dropdown */}
           <Menu shadow="md" width={200} position="bottom-end">
