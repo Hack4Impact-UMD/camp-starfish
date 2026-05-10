@@ -24,7 +24,7 @@ interface BaseSection {
 export interface CommonSection extends BaseSection { type: "COMMON" };
 export interface SchedulingSection extends BaseSection {
   type: SchedulingSectionType;
-  publishedAt?: Moment; // ISO-8601
+  publishedAt?: Moment;
 }
 export type Section = CommonSection | SchedulingSection;
 
