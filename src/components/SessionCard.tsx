@@ -55,10 +55,10 @@ export default function SessionCard({ session, editMode }: SessionCardProps) {
 
         <Stack className="gap-0 items-center">
           <Text size="sm">
-            <strong>From:</strong> {formatDate(session.startDate)}
+            <strong>Starts:</strong> {formatDate(session.startDate)}
           </Text>
           <Text size="sm">
-            <strong>To:</strong> {formatDate(session.endDate)}
+            <strong>Ends:</strong> {formatDate(session.endDate)}
           </Text>
         </Stack>
       </Stack>
