@@ -24,8 +24,6 @@ export default function SessionsPage() {
 
   const sessionsQuery = useSessionList({
     orderBy: [{ fieldPath: "startDate", direction: "desc" }],
-    startAt: [moment().add(6, "month").startOf("day").toDate()],
-    endAt: [moment().subtract(6, "month").startOf("day").toDate()],
     limit: 10,
   });
   const sessions = sessionsQuery.data?.pages.flatMap((page) => page.docs) ?? [];
