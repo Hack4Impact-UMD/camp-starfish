@@ -72,7 +72,7 @@ export default function SessionsPage() {
             renderItem={(session) => (
               <SessionCard
                 key={session.id}
-                session={session}
+                sessionId={session.id}
                 editMode={editMode}
               />
             )}
