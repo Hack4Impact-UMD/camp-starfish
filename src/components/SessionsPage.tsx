@@ -1,7 +1,16 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { Button, Group, Stack, Title, Menu, Text, ActionIcon, Tooltip } from "@mantine/core";
+import { useEffect, useMemo, useState } from "react";
+import {
+  Button,
+  Group,
+  Stack,
+  Title,
+  Menu,
+  Text,
+  ActionIcon,
+  Tooltip,
+} from "@mantine/core";
 import moment from "moment";
 import { Session } from "@/types/sessions/sessionTypes";
 import SessionCard from "@/components/SessionCard";
@@ -9,17 +18,27 @@ import { openCreateSessionModal } from "@/components/CreateSessionModal";
 import useSessionList from "@/hooks/sessions/useSessionList";
 import { MdCheck, MdEdit } from "react-icons/md";
 import CardGallery from "./CardGallery";
+import LoadingAnimation from "./LoadingAnimation";
+import { useInViewport } from "@mantine/hooks";
 
 export default function SessionsPage() {
   const [editMode, setEditMode] = useState(false);
 
   const sessionsQuery = useSessionList({
     orderBy: [{ fieldPath: "startDate", direction: "desc" }],
-    startAt: [moment().add(6, 'month').startOf('day').toDate()],
-    endAt: [moment().subtract(6, 'month').startOf('day').toDate()],
-    limit: 10
+    startAt: [moment().add(6, "month").startOf("day").toDate()],
+    endAt: [moment().subtract(6, "month").startOf("day").toDate()],
+    limit: 10,
   });
-  const sessions = sessionsQuery.data?.pages.flatMap(page => page.docs) ?? [];
+  const sessions = sessionsQuery.data?.pages.flatMap((page) => page.docs) ?? [];
+
+  const { ref, inViewport } = useInViewport();
+  const { hasNextPage, isFetchingNextPage, fetchNextPage } = sessionsQuery;
+  useEffect(() => {
+    if (inViewport && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [inViewport, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   // --- Categorize sessions ---
   const { future, current, past } = useMemo(() => {
@@ -28,14 +47,18 @@ export default function SessionsPage() {
     const future: Session[] = [];
     const past: Session[] = [];
 
-    sessions.forEach(session => {
+    sessions.forEach((session) => {
       const start = session.startDate;
       const end = session.endDate;
 
-      if (now.isBefore(start)) { future.push(session); }
-      else if (now.isSameOrBefore(end)) { current.push(session); }
-      else { past.push(session); }
-    })
+      if (now.isBefore(start)) {
+        future.push(session);
+      } else if (now.isSameOrBefore(end)) {
+        current.push(session);
+      } else {
+        past.push(session);
+      }
+    });
     return { future, current, past };
   }, [sessions]);
 
@@ -46,7 +69,7 @@ export default function SessionsPage() {
         <Title order={2}>Sessions</Title>
         <Group gap="sm">
           <Tooltip label="Toggle Edit Mode">
-            <ActionIcon onClick={() => setEditMode(prev => !prev)}>
+            <ActionIcon onClick={() => setEditMode((prev) => !prev)}>
               {editMode ? <MdCheck size={30} /> : <MdEdit size={30} />}
             </ActionIcon>
           </Tooltip>
@@ -54,39 +77,67 @@ export default function SessionsPage() {
           {/* Create Session Dropdown */}
           <Menu shadow="md" width={200} position="bottom-end">
             <Menu.Target>
-              <Button size="lg" color="green" radius="xl" rightSection={<MdCheck size={30} />}>
+              <Button
+                size="lg"
+                color="green"
+                radius="xl"
+                rightSection={<MdCheck size={30} />}
+              >
                 Create Session
               </Button>
             </Menu.Target>
 
             <Menu.Dropdown>
-              <Menu.Item onClick={openCreateSessionModal} >
+              <Menu.Item onClick={openCreateSessionModal}>
                 Standard Session
               </Menu.Item>
-              <Menu.Item onClick={openCreateSessionModal} >
+              <Menu.Item onClick={openCreateSessionModal}>
                 Customized Session
               </Menu.Item>
             </Menu.Dropdown>
           </Menu>
         </Group>
       </Group>
-
-
-      <CardGallery
-        items={sessions}
-        renderItem={(session) => <SessionCard key={session.id} session={session} editMode={editMode} />}
-        groups={{
-          defaultGroupLabel: "Unknown",
-          groupFunc: (session) => {
-            const start = session.startDate;
-            const end = session.endDate;
-            if (moment().isBefore(start)) { return "Future"; }
-            else if (moment().isSameOrBefore(end)) { return "Current"; }
-            else { return "Past"; }
-          },
-          groupLabels: ["Future", "Current", "Past"],
-        }}
-      />
+      {sessions.length > 0 && (
+        <>
+          <CardGallery
+            items={sessions}
+            renderItem={(session) => (
+              <SessionCard
+                key={session.id}
+                session={session}
+                editMode={editMode}
+              />
+            )}
+            groups={{
+              defaultGroupLabel: "Unknown",
+              groupFunc: (session) => {
+                const start = session.startDate;
+                const end = session.endDate;
+                if (moment().isBefore(start)) {
+                  return "Future";
+                } else if (moment().isSameOrBefore(end)) {
+                  return "Current";
+                } else {
+                  return "Past";
+                }
+              },
+              groupLabels: ["Future", "Current", "Past"],
+            }}
+          />
+          {sessionsQuery.isFetchingNextPage && (
+            <div className="w-1/3 self-center">
+              <LoadingAnimation />
+            </div>
+          )}
+          {!sessionsQuery.hasNextPage && (
+            <Title order={4} classNames={{ root: "self-center" }}>
+              All Done!
+            </Title>
+          )}
+          <div className="invisible" ref={ref} />
+        </>
+      )}
     </Stack>
   );
 }
