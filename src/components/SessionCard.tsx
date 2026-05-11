@@ -1,13 +1,12 @@
 "use client";
 
 import { Card, Stack, Title, Text, Button, ActionIcon } from "@mantine/core";
-import Image from "next/image";
 import { Moment } from "moment";
-import trashIcon from "@/assets/icons/trashIcon.svg";
 import { Session } from "@/types/sessions/sessionTypes";
 import { useRouter } from "next/navigation";
 import { useDeleteSession } from "@/hooks/sessions/useDeleteSession";
 import ConfirmationModal from "./ConfirmationModal";
+import { MdDelete } from "react-icons/md";
 
 interface SessionCardProps {
   session: Session;
@@ -27,8 +26,9 @@ export default function SessionCard({ session, editMode }: SessionCardProps) {
       shadow="md"
       radius="lg"
       classNames={{
-        root: "relative w-[260px] bg-neutral-1",
+        root: "bg-neutral-1 h-full w-full",
       }}
+      onDoubleClick={() => router.push(`/sessions/${session.id}`)}
     >
       {/* Trash Icon wrapper */}
       {editMode && (
@@ -44,7 +44,7 @@ export default function SessionCard({ session, editMode }: SessionCardProps) {
               onClick={() => deleteSession.mutate({ sessionId: session.id })}
               className="hover:scale-110 transition-transform"
             >
-              <Image src={trashIcon} alt="Delete" width={20} height={20} />
+              <MdDelete />
             </ActionIcon>
           </ConfirmationModal>
         </div>
@@ -63,15 +63,6 @@ export default function SessionCard({ session, editMode }: SessionCardProps) {
             <strong>To:</strong> {formatDate(session.endDate)}
           </Text>
         </Stack>
-
-        <Button
-          mt="sm"
-          color="green"
-          radius="xl"
-          onClick={() => router.push(`/sessions/${session.id}`)}
-        >
-          GO TO SCHEDULE
-        </Button>
       </Stack>
     </Card>
   );
