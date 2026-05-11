@@ -1,18 +1,16 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Button,
   Group,
   Stack,
   Title,
   Menu,
-  Text,
   ActionIcon,
   Tooltip,
 } from "@mantine/core";
 import moment from "moment";
-import { Session } from "@/types/sessions/sessionTypes";
 import SessionCard from "@/components/SessionCard";
 import { openCreateSessionModal } from "@/components/CreateSessionModal";
 import useSessionList from "@/hooks/sessions/useSessionList";
@@ -39,28 +37,6 @@ export default function SessionsPage() {
       fetchNextPage();
     }
   }, [inViewport, hasNextPage, isFetchingNextPage, fetchNextPage]);
-
-  // --- Categorize sessions ---
-  const { future, current, past } = useMemo(() => {
-    const now = moment();
-    const current: Session[] = [];
-    const future: Session[] = [];
-    const past: Session[] = [];
-
-    sessions.forEach((session) => {
-      const start = session.startDate;
-      const end = session.endDate;
-
-      if (now.isBefore(start)) {
-        future.push(session);
-      } else if (now.isSameOrBefore(end)) {
-        current.push(session);
-      } else {
-        past.push(session);
-      }
-    });
-    return { future, current, past };
-  }, [sessions]);
 
   return (
     <Stack gap={36} p="md">
