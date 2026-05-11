@@ -19,7 +19,7 @@ export default function SessionCard({ session, editMode }: SessionCardProps) {
 
   const deleteSession = useDeleteSession();
 
-  const formatDate = (date: Moment) => date.format("dddd, MMMM Do");
+  const formatDate = (date: Moment) => date.format("MMMM Do, YYYY");
 
   return (
     <Card
