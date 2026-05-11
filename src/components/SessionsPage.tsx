@@ -53,7 +53,7 @@ export default function SessionsPage() {
           {/* Create Session Dropdown */}
           <Menu shadow="md" width={200} position="bottom-end">
             <Menu.Target>
-              <Button size="lg" color="green" radius="xl">
+              <Button size="lg" color="green" radius="xl" rightSection={<MdCheck size={30} />}>
                 Create Session
               </Button>
             </Menu.Target>
