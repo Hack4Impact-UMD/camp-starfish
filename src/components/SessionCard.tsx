@@ -61,7 +61,6 @@ export default function SessionCard(props: SessionCardProps) {
           )}
           <Stack className="gap-sm p-sm items-center">
             <Title order={4}>{session.name}</Title>
-
             <Stack className="gap-0 items-center">
               <Text size="sm">
                 <strong>Starts:</strong> {formatDate(session.startDate)}
