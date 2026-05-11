@@ -1,12 +1,14 @@
 "use client";
 
-import { Card, Stack, Title, Text, Button, ActionIcon } from "@mantine/core";
+import { Card, Stack, Title, Text, ActionIcon } from "@mantine/core";
 import { Moment } from "moment";
 import { Session } from "@/types/sessions/sessionTypes";
 import { useRouter } from "next/navigation";
 import { useDeleteSession } from "@/hooks/sessions/useDeleteSession";
 import ConfirmationModal from "./ConfirmationModal";
 import { MdDelete } from "react-icons/md";
+import { useState } from "react";
+import classNames from "classnames";
 
 interface SessionCardProps {
   session: Session;
@@ -14,6 +16,8 @@ interface SessionCardProps {
 }
 
 export default function SessionCard({ session, editMode }: SessionCardProps) {
+  const [isSelected, setIsSelected] = useState<boolean>(false);
+
   const router = useRouter();
 
   const deleteSession = useDeleteSession();
@@ -23,14 +27,10 @@ export default function SessionCard({ session, editMode }: SessionCardProps) {
   return (
     <Card
       key={session.id}
-      shadow="md"
-      radius="lg"
-      classNames={{
-        root: "bg-neutral-1 h-full w-full",
-      }}
+      classNames={{ root: classNames({ "bg-neutral-2": isSelected }) }}
+      onClick={() => setIsSelected((prev) => !prev)}
       onDoubleClick={() => router.push(`/sessions/${session.id}`)}
     >
-      {/* Trash Icon wrapper */}
       {editMode && (
         <div className="absolute top-2.5 right-2.5 z-10">
           <ConfirmationModal
@@ -51,9 +51,7 @@ export default function SessionCard({ session, editMode }: SessionCardProps) {
       )}
 
       <Stack className="gap-sm p-sm items-center">
-        <Title order={4}>
-          {session.name}
-        </Title>
+        <Title order={4}>{session.name}</Title>
 
         <Stack className="gap-0 items-center">
           <Text size="sm">
