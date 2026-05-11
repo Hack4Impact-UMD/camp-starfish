@@ -37,10 +37,9 @@ export default function SessionsPage() {
   }, [inViewport, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   return (
-    <Stack gap={36} p="md">
-      {/* Top bar */}
-      <Group justify="space-between" align="center">
-        <Title order={2}>Sessions</Title>
+    <Stack className="gap-md p-md">
+      <Group className="justify-between items-center">
+        <Title order={1}>Sessions</Title>
         <Group gap="sm">
           <Tooltip label="Toggle Edit Mode">
             <ActionIcon onClick={() => setEditMode((prev) => !prev)}>
@@ -48,15 +47,9 @@ export default function SessionsPage() {
             </ActionIcon>
           </Tooltip>
 
-          {/* Create Session Dropdown */}
-          <Menu shadow="md" width={200} position="bottom-end">
+          <Menu>
             <Menu.Target>
-              <Button
-                size="lg"
-                color="green"
-                radius="xl"
-                rightSection={<MdCheck size={30} />}
-              >
+              <Button color="green" rightSection={<MdCheck size={30} />}>
                 Create Session
               </Button>
             </Menu.Target>
