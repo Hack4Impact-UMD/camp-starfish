@@ -8,6 +8,7 @@ import SessionCard from "@/components/SessionCard";
 import { openCreateSessionModal } from "@/components/CreateSessionModal";
 import useSessionList from "@/hooks/sessions/useSessionList";
 import { MdCheck, MdEdit } from "react-icons/md";
+import CardGallery from "./CardGallery";
 
 export default function SessionsPage() {
   const [editMode, setEditMode] = useState(false);
@@ -70,62 +71,22 @@ export default function SessionsPage() {
         </Group>
       </Group>
 
-      {/* Current Sessions */}
-      <Stack gap={12}>
-        <Title order={3}>Current Session</Title>
-        <Group justify="flex-start" wrap="wrap" gap="md">
-          {current.length ? (
-            current.map((session) => (
-              <SessionCard
-                key={session.id}
-                session={session}
-                editMode={editMode}
-              />
-            ))
-          ) : (
-            <Text c="dimmed">No current session</Text>
-          )}
-        </Group>
-      </Stack>
 
-      {/* Non-Current Sessions */}
-      <Stack gap={12}>
-        <Title order={3}>Non-Current Session</Title>
-
-        <Stack gap={4}>
-          <Title order={4}>Future Sessions</Title>
-          <Group justify="flex-start" wrap="wrap" gap="md">
-            {future.length ? (
-              future.map((session) => (
-                <SessionCard
-                  key={session.id}
-                  session={session}
-                  editMode={editMode}
-                />
-              ))
-            ) : (
-              <Text c="dimmed">No future sessions</Text>
-            )}
-          </Group>
-        </Stack>
-
-        <Stack gap={4} mt="md">
-          <Title order={4}>Past Sessions</Title>
-          <Group justify="flex-start" wrap="wrap" gap="md">
-            {past.length ? (
-              past.map((session) => (
-                <SessionCard
-                  key={session.id}
-                  session={session}
-                  editMode={editMode}
-                />
-              ))
-            ) : (
-              <Text c="dimmed">No past sessions</Text>
-            )}
-          </Group>
-        </Stack>
-      </Stack>
+      <CardGallery
+        items={sessions}
+        renderItem={(session) => <SessionCard key={session.id} session={session} editMode={editMode} />}
+        groups={{
+          defaultGroupLabel: "Unknown",
+          groupFunc: (session) => {
+            const start = session.startDate;
+            const end = session.endDate;
+            if (moment().isBefore(start)) { return "Future"; }
+            else if (moment().isSameOrBefore(end)) { return "Current"; }
+            else { return "Past"; }
+          },
+          groupLabels: ["Future", "Current", "Past"],
+        }}
+      />
     </Stack>
   );
 }
