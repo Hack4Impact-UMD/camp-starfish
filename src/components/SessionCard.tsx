@@ -44,18 +44,18 @@ export default function SessionCard({ session, editMode }: SessionCardProps) {
               onClick={() => deleteSession.mutate({ sessionId: session.id })}
               className="hover:scale-110 transition-transform"
             >
-              <MdDelete />
+              <MdDelete size={30} />
             </ActionIcon>
           </ConfirmationModal>
         </div>
       )}
 
-      <Stack align="center" gap="sm" p="sm">
-        <Title order={4} c="primary">
+      <Stack className="gap-sm p-sm items-center">
+        <Title order={4}>
           {session.name}
         </Title>
 
-        <Stack gap={0} align="center">
+        <Stack className="gap-0 items-center">
           <Text size="sm">
             <strong>From:</strong> {formatDate(session.startDate)}
           </Text>
