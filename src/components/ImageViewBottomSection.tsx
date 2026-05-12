@@ -5,7 +5,7 @@ import ReportIcon from "@/assets/icons/reportIcon.svg";
 import AddIcon from "@/assets/icons/addIcon.svg";
 import XIcon from "@/assets/icons/xIcon.svg";
 import CheckIcon from "@/assets/icons/checkIcon.svg";
-import { Switch } from "./Switch";
+import { Switch } from "@mantine/core";
 import { Role } from "@/types/users/userTypes";
 import { AlbumItem } from "@/types/albums/albumTypes";
 
@@ -140,7 +140,7 @@ export default function ImageViewBottomSection({
               </p>
               <Switch
                 checked={activeTab === "PENDING"}
-                onCheckedChange={(checked) =>
+                onChange={(checked) =>
                   setActiveTab(checked ? "PENDING" : "APPROVED")
                 }
               />
