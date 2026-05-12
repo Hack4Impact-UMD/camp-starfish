@@ -1,166 +1,110 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { Button, Group, Stack, Title, Menu, Text } from "@mantine/core";
+import { useEffect, useState } from "react";
+import {
+  Button,
+  Group,
+  Stack,
+  Title,
+  Menu,
+  ActionIcon,
+  Tooltip,
+} from "@mantine/core";
 import moment from "moment";
-import Image from "next/image";
-import { Session } from "@/types/sessions/sessionTypes";
-import pencilIcon from "@/assets/icons/pencilIcon.svg";
 import SessionCard from "@/components/SessionCard";
 import { openCreateSessionModal } from "@/components/CreateSessionModal";
+import useSessionList from "@/hooks/sessions/useSessionList";
+import { MdCheck, MdEdit } from "react-icons/md";
+import CardGallery from "./CardGallery";
+import LoadingAnimation from "./LoadingAnimation";
+import { useInViewport } from "@mantine/hooks";
 
-interface SessionsPageProps {
-  sessions: Session[];
-}
-
-export default function SessionsPage({ sessions }: SessionsPageProps) {
+export default function SessionsPage() {
   const [editMode, setEditMode] = useState(false);
 
-  // --- Categorize sessions ---
-  const { current, future, past } = useMemo(() => {
-    const now = moment();
-    const current: Session[] = [];
-    const future: Session[] = [];
-    const past: Session[] = [];
+  const sessionsQuery = useSessionList({
+    orderBy: [{ fieldPath: "startDate", direction: "desc" }],
+    limit: 10,
+  });
+  const sessions = sessionsQuery.data?.pages.flatMap((page) => page.docs) ?? [];
 
-    for (const s of sessions) {
-      const start = moment(s.startDate);
-      const end = moment(s.endDate);
-
-      if (now.isSameOrAfter(start) && now.isBefore(end)) current.push(s);
-      else if (start.isAfter(now)) future.push(s);
-      else past.push(s);
+  const { ref, inViewport } = useInViewport();
+  const { hasNextPage, isFetchingNextPage, fetchNextPage } = sessionsQuery;
+  useEffect(() => {
+    if (inViewport && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
     }
-
-    future.sort((a, b) => moment(a.startDate).diff(moment(b.startDate)));
-    past.sort((a, b) => moment(b.startDate).diff(moment(a.startDate)));
-
-    return { current, future, past };
-  }, [sessions]);
+  }, [inViewport, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   return (
-    <Stack gap={36} p="md">
-      {/* Top bar */}
-      <Group justify="space-between" align="center">
-        <Title order={2}>Sessions</Title>
+    <Stack className="gap-md p-md">
+      <Group className="justify-between items-center">
+        <Title order={1}>Sessions</Title>
         <Group gap="sm">
-          {/* Edit / Done button */}
-          <Button
-            size="lg"
-            radius="xl"
-            leftSection={
-              <Image
-                src={pencilIcon}
-                alt="Edit"
-                width={18}
-                height={18}
-                style={{
-                  filter:
-                    "invert(100%) sepia(100%) saturate(0%) hue-rotate(180deg)",
-                }}
-              />
-            }
-            onClick={() => setEditMode((prev) => !prev)}
-          >
-            {editMode ? "Done" : "Edit"}
-          </Button>
+          <Tooltip label="Toggle Edit Mode">
+            <ActionIcon onClick={() => setEditMode((prev) => !prev)}>
+              {editMode ? <MdCheck size={30} /> : <MdEdit size={30} />}
+            </ActionIcon>
+          </Tooltip>
 
-          {/* Create Session Dropdown */}
-          <Menu shadow="md" width={200} position="bottom-end">
+          <Menu>
             <Menu.Target>
-              <Button size="lg" color="green" radius="xl">
+              <Button color="green" rightSection={<MdCheck size={30} />}>
                 Create Session
               </Button>
             </Menu.Target>
 
             <Menu.Dropdown>
-              <Menu.Item
-                leftSection={
-                  <Image
-                    src={pencilIcon}
-                    alt="Standard"
-                    width={16}
-                    height={16}
-                  />
-                }
-                onClick={openCreateSessionModal}
-              >
+              <Menu.Item onClick={openCreateSessionModal}>
                 Standard Session
               </Menu.Item>
-              <Menu.Item
-                leftSection={
-                  <Image
-                    src={pencilIcon}
-                    alt="Customized"
-                    width={16}
-                    height={16}
-                  />
-                }
-                onClick={openCreateSessionModal}
-              >
+              <Menu.Item onClick={openCreateSessionModal}>
                 Customized Session
               </Menu.Item>
             </Menu.Dropdown>
           </Menu>
         </Group>
       </Group>
-
-      {/* Current Sessions */}
-      <Stack gap={12}>
-        <Title order={3}>Current Session</Title>
-        <Group justify="flex-start" wrap="wrap" gap="md">
-          {current.length ? (
-            current.map((session) => (
+      {sessions.length > 0 && (
+        <>
+          <CardGallery
+            items={sessions}
+            renderItem={(session) => (
               <SessionCard
                 key={session.id}
-                session={session}
+                sessionId={session.id}
                 editMode={editMode}
               />
-            ))
-          ) : (
-            <Text c="dimmed">No current session</Text>
+            )}
+            groups={{
+              defaultGroupLabel: "Unknown",
+              groupFunc: (session) => {
+                const start = session.startDate;
+                const end = session.endDate;
+                if (moment().isBefore(start)) {
+                  return "Future";
+                } else if (moment().isSameOrBefore(end)) {
+                  return "Current";
+                } else {
+                  return "Past";
+                }
+              },
+              groupLabels: ["Future", "Current", "Past"],
+            }}
+          />
+          {sessionsQuery.isFetchingNextPage && (
+            <div className="w-1/3 self-center">
+              <LoadingAnimation />
+            </div>
           )}
-        </Group>
-      </Stack>
-
-      {/* Non-Current Sessions */}
-      <Stack gap={12}>
-        <Title order={3}>Non-Current Session</Title>
-
-        <Stack gap={4}>
-          <Title order={4}>Future Sessions</Title>
-          <Group justify="flex-start" wrap="wrap" gap="md">
-            {future.length ? (
-              future.map((session) => (
-                <SessionCard
-                  key={session.id}
-                  session={session}
-                  editMode={editMode}
-                />
-              ))
-            ) : (
-              <Text c="dimmed">No future sessions</Text>
-            )}
-          </Group>
-        </Stack>
-
-        <Stack gap={4} mt="md">
-          <Title order={4}>Past Sessions</Title>
-          <Group justify="flex-start" wrap="wrap" gap="md">
-            {past.length ? (
-              past.map((session) => (
-                <SessionCard
-                  key={session.id}
-                  session={session}
-                  editMode={editMode}
-                />
-              ))
-            ) : (
-              <Text c="dimmed">No past sessions</Text>
-            )}
-          </Group>
-        </Stack>
-      </Stack>
+          {!sessionsQuery.hasNextPage && (
+            <Title order={4} classNames={{ root: "self-center" }}>
+              All Done!
+            </Title>
+          )}
+          <div className="invisible" ref={ref} />
+        </>
+      )}
     </Stack>
   );
 }

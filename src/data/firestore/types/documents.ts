@@ -1,7 +1,7 @@
 import { AlbumItemReportStatus } from "@/types/albums/albumTypes";
 import { ProgramArea, SectionSchedule } from "@/types/scheduling/schedulingTypes";
-import { Attendee, Bunk, Freeplay, NightSchedule, Post, Section, Session } from "@/types/sessions/sessionTypes";
-import { User } from "@/types/users/userTypes";
+import { AgeGroup, Bunk, Freeplay, NightSchedule, Post, SchedulingSectionType, SectionType } from "@/types/sessions/sessionTypes";
+import { Gender, Name, Role, User } from "@/types/users/userTypes";
 import { DistributiveOmit } from "@/utils/types/typeUtils";
 import { Timestamp } from "firebase/firestore";
 
@@ -24,6 +24,8 @@ export interface AlbumItemDoc {
   }
 }
 
+export interface TagDirectoryDoc { [userId: number]: string; }
+
 interface BaseAlbumItemReportDoc {
   status: AlbumItemReportStatus;
   reporterId: number;
@@ -41,9 +43,62 @@ export type AlbumItemReportDoc = PendingAlbumItemReportDoc | ResolvedAlbumItemRe
 
 export type UserDoc = DistributiveOmit<User, "id">;
 
-export type SessionDoc = Omit<Session, "id">;
-export type AttendeeDoc = DistributiveOmit<Attendee, "sessionId" | "attendeeId">;
-export type SectionDoc = DistributiveOmit<Section, "id" | "sessionId">;
+export interface SessionDoc {
+  name: string;
+  startDate: Timestamp;
+  endDate: Timestamp;
+  linkedAlbumId?: string;
+  driveFolderId?: string;
+}
+
+interface BaseAttendeeDoc {
+  snapshot: {
+    name: Name;
+    gender: Gender;
+    age: number;
+    nonoList: number[];
+  }
+  role: Role;
+}
+
+interface CamperAttendeeDoc extends BaseAttendeeDoc {
+  role: "CAMPER";
+  ageGroup: AgeGroup;
+  level: 1 | 2 | 3 | 4 | 5;
+  bunk: number;
+  isOptedOutFromSwim: boolean;
+}
+
+interface StaffAttendeeDoc extends BaseAttendeeDoc {
+  role: "STAFF";
+  programCounselorFor?: string;
+  bunk: number;
+  isLeadBunkCounselor: boolean;
+  daysOff: Timestamp[];
+  snapshot: BaseAttendeeDoc['snapshot'] & { yesyesList: number[]; };
+}
+
+interface AdminAttendeeDoc extends BaseAttendeeDoc {
+  role: "ADMIN";
+  daysOff: Timestamp[];
+  snapshot: BaseAttendeeDoc['snapshot'] & { yesyesList: number[]; };
+}
+
+export type AttendeeDoc = CamperAttendeeDoc | StaffAttendeeDoc | AdminAttendeeDoc;
+
+interface BaseSectionDoc {
+  name: string;
+  type: SectionType;
+  startDate: Timestamp;
+  endDate: Timestamp;
+}
+export interface CommonSectionDoc extends BaseSectionDoc { type: "COMMON" };
+export interface SchedulingSectionDoc extends BaseSectionDoc {
+  type: SchedulingSectionType;
+  publishedAt: Timestamp | null;
+}
+export type SectionDoc = CommonSectionDoc | SchedulingSectionDoc;
+
 export type SectionScheduleDoc = DistributiveOmit<SectionSchedule, "sessionId" | "sectionId">;
 export type BunkDoc = Omit<Bunk, "bunkNum" | "sessionId">;
 export type NightScheduleDoc = Omit<NightSchedule, "date" | "sessionId">;
