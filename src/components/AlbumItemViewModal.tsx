@@ -8,38 +8,44 @@ import LeftArrowIcon from "@/assets/icons/leftArrow.svg";
 import RightArrowIcon from "@/assets/icons/rightArrow.svg";
 import ImageViewBottomSection from "@/components/ImageViewBottomSection";
 import { Role } from "@/types/users/userTypes";
-import { AlbumItem } from "@/types/albums/albumTypes";
-import { downloadImage } from "@/data/storage/storageClientOperations";
+import { modals } from "@mantine/modals";
+import useAlbumItem from "@/hooks/albumItems/useAlbumItem";
+import useAlbumItemSrc from "@/hooks/albumItems/useAlbumItemSrc";
 
 
 interface ImageViewProps {
-  image: AlbumItem;
+  albumId: string;
+  albumItemId: string;
   onClose: () => void;
   onLeftClick: () => void;
   onRightClick: () => void;
 }
 
 
-export default function ImageView({
-  image,
+export function AlbumItemViewModal({
+  albumId, albumItemId,
   onClose,
   onLeftClick,
   onRightClick,
 }: ImageViewProps) {
+
+  const albumItemQuery = useAlbumItem({ albumId, albumItemId });
+  const albumItemSrcQuery = useAlbumItemSrc(albumId, albumItemId);
+
+
   const auth = useAuth();
   const userRole: Role = auth.token?.claims.role as Role;
 
   const handleDownload = async () => {
-    try {
-      await downloadImage(image.src, image.name || "downloaded-image");
-    } catch (error) {
-      console.error("Failed to download image:", error);
-    }
+    //try {
+    //  await downloadImage(image.src, image.name || "downloaded-image");
+    //} catch (error) {
+    //  console.error("Failed to download image:", error);
+    //}
   };
 
-  /**
-   * Placeholder for future implementation of the "Move To" feature
-   */
+  if (!albumItemQuery.data || !albumItemSrcQuery.data) return <></>;
+
   const handleMoveTo = () => {
     alert("Move To Clicked")
   };
@@ -52,7 +58,7 @@ export default function ImageView({
           <button onClick={onClose} aria-label="Close">
             <Image src={CloseIcon.src} alt="X Icon" width={32} height={32} />
           </button>
-          <p className="text-xl font-lato"> {image.name} </p>
+          <p className="text-xl font-lato"> {albumItemQuery.data.name} </p>
         </div>
 
         <div className="flex flex-row items-stretch sm:items-center gap-2 sm:gap-4">
@@ -106,7 +112,7 @@ export default function ImageView({
           />
         </button>
         <Image
-          src={image.src}
+          src={""}
           alt="Selected Image"
           width={500}
           height={500}
@@ -127,8 +133,15 @@ export default function ImageView({
 
       {/* Bottom Section: Displays tags and moderation controls if applicable */}
       <ImageViewBottomSection
-        image={image}
+        image={albumItemQuery.data}
       />
     </div>
   );
+}
+
+export default function openAlbumItemViewModal(albumId: string, albumItemId: string) {
+  modals.open({
+    title: "Album Item View",
+    children: <AlbumItemViewModal albumId={albumId} albumItemId={albumItemId} onClose={( ) => {}} onLeftClick={( ) => {}} onRightClick={( ) => {}} />,
+  });
 }
