@@ -55,7 +55,6 @@ export function AlbumItemViewModal({
       <div className="w-full flex flex-row justify-between items-start sm:items-center gap-4 sm:gap-0 px-6 sm:px-10 pt-6 sm:pt-8 pb-4 text-white">
         <div className="flex flex-row items-center space-x-4 sm:space-x-10">
           <ActionIcon onClick={onClose} aria-label="Close Modal">
-            {" "}
             <MdClose size={30} />
           </ActionIcon>
           <p className="text-xl font-lato"> {albumItemQuery.data.name} </p>
@@ -67,7 +66,7 @@ export function AlbumItemViewModal({
             rightSection={<MdOutlineFileDownload size={20} />}
             aria-label="Download Album Item"
           >
-            DOWNLOAD
+            Download
           </Button>
         </div>
       </div>
@@ -83,7 +82,6 @@ export function AlbumItemViewModal({
           height={500}
         />
         <ActionIcon onClick={onRightClick} aria-label="Next Item">
-          {" "}
           <MdArrowForward size={50} />
         </ActionIcon>
       </div>
