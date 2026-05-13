@@ -18,16 +18,16 @@ export default function AlbumItemCard(props: AlbumItemCardProps) {
 
   const albumItemSrcQuery = useAlbumItemSrc(albumId, albumItemId);
 
-  let albumItemContent: JSX.Element;
+  let cardContent: JSX.Element;
   switch (albumItemSrcQuery.status) {
     case "pending":
-      albumItemContent = <div><LoadingAnimation /></div>;
+      cardContent = <div><LoadingAnimation /></div>;
       break;
     case "error":
-      albumItemContent = <div className="flex justify-center items-center w-full h-full"><MdError className="text-error" size={60}/></div>;
+      cardContent = <div className="flex justify-center items-center w-full h-full"><MdError className="text-error" size={60}/></div>;
       break;
     case "success":
-      albumItemContent = (
+      cardContent = (
       <BackgroundImage className="bg-contain bg-no-repeat w-full h-full p-2" src={albumItemSrcQuery.data}>
         <div className={classNames("flex justify-center items-center rounded-sm bg-[#ffffffc0] w-8 h-8", {
           'opacity-0 group-hover:opacity-100 transition duration-300': !isSelected,
@@ -46,7 +46,7 @@ export default function AlbumItemCard(props: AlbumItemCardProps) {
       'border-transparent': !isSelected,
       'border-4': albumItemSrcQuery.isSuccess
     }) }}>
-      {albumItemContent}
+      {cardContent}
     </Card>
   )
 }
