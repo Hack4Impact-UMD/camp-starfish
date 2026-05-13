@@ -79,7 +79,7 @@ export function AlbumItemViewModal({
           <MdArrowBack size={50} />
         </button>
         <Image
-          src={""}
+          src={albumItemSrcQuery.data}
           alt="Selected Image"
           width={500}
           height={500}
