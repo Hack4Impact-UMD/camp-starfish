@@ -1,10 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "@/auth/useAuth";
 import Image from "next/image";
-import ReportIcon from "@/assets/icons/reportIcon.svg";
-import AddIcon from "@/assets/icons/addIcon.svg";
-import XIcon from "@/assets/icons/xIcon.svg";
-import CheckIcon from "@/assets/icons/checkIcon.svg";
+import { MdAdd, MdCheck, MdClose, MdFlag } from "react-icons/md";
 import { Switch } from "@mantine/core";
 import { Role } from "@/types/users/userTypes";
 import { AlbumItem } from "@/types/albums/albumTypes";
@@ -39,12 +36,7 @@ export default function ImageViewBottomSection({
         </p>
         <button className="bg-camp-primary flex flex-row justify-center space-x-4 p-2 rounded-3xl w-52">
           <p className="text-base sm:text-lg font-lato">REPORT</p>
-          <Image
-            src={ReportIcon.src}
-            alt="Report Icon"
-            width={18}
-            height={18}
-          />
+          <MdFlag size={20} />
         </button>
       </div>
     );
@@ -76,7 +68,7 @@ export default function ImageViewBottomSection({
             aria-label="Reject Tag"
             className="inline-flex items-center justify-center min-w-[22px] min-h-[22px]"
           >
-            <Image src={XIcon.src} alt="Remove Icon" width={18} height={18} />
+            <MdClose size={20} />
           </button>
           {isPending && (
             <button
@@ -84,12 +76,7 @@ export default function ImageViewBottomSection({
               aria-label="Approve Tag"
               className="inline-flex items-center justify-center min-w-[22px] min-h-[22px]"
             >
-              <Image
-                src={CheckIcon.src}
-                alt="Approve Icon"
-                width={19}
-                height={19}
-              />
+              <MdCheck size={20} />
             </button>
           )}
         </>
@@ -180,12 +167,7 @@ export default function ImageViewBottomSection({
                 className="bg-camp-primary flex flex-row justify-center space-x-2 p-2 px-4 sm:px-6 rounded-3xl shrink-0"
               >
                 <p className="text-base sm:text-lg font-lato">ADD TAG</p>
-                <Image
-                  src={AddIcon.src}
-                  alt="Add Icon"
-                  width={28}
-                  height={28}
-                />
+                <MdAdd size={30} />
               </button>
             </div>
           )}

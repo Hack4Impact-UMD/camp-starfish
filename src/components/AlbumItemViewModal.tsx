@@ -94,9 +94,9 @@ export function AlbumItemViewModal({
       </div>
 
       {/* Bottom Section: Displays tags and moderation controls if applicable */}
-      {/* <ImageViewBottomSection
+      <ImageViewBottomSection
         image={albumItemQuery.data}
-      /> */}
+      />
     </div>
   );
 }
