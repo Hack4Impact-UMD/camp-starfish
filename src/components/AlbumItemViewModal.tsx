@@ -9,8 +9,8 @@ import useAlbumItemSrc from "@/hooks/albumItems/useAlbumItemSrc";
 import {
   MdClose,
   MdOutlineFileDownload,
-  MdArrowBack,
-  MdArrowForward,
+  MdChevronLeft,
+  MdChevronRight,
 } from "react-icons/md";
 import { ActionIcon, Button } from "@mantine/core";
 
@@ -73,7 +73,7 @@ export function AlbumItemViewModal({
 
       <div className="relative flex flex-grow items-center justify-center w-full px-4 max-w-full sm:max-w-5xl">
         <ActionIcon onClick={onLeftClick} aria-label="Previous Item">
-          <MdArrowBack size={50} />
+          <MdChevronLeft size={50} />
         </ActionIcon>
         <Image
           src={albumItemSrcQuery.data}
@@ -82,7 +82,7 @@ export function AlbumItemViewModal({
           height={500}
         />
         <ActionIcon onClick={onRightClick} aria-label="Next Item">
-          <MdArrowForward size={50} />
+          <MdChevronRight size={50} />
         </ActionIcon>
       </div>
 
