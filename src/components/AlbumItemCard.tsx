@@ -6,6 +6,7 @@ import LoadingAnimation from "./LoadingAnimation";
 import { MdError } from "react-icons/md";
 import classNames from "classnames";
 import { JSX } from "react";
+import openAlbumItemViewModal from "./AlbumItemViewModal";
 
 interface AlbumItemCardProps {
   albumId: string;
@@ -45,7 +46,7 @@ export default function AlbumItemCard(props: AlbumItemCardProps) {
       'border-neutral-8': isSelected,
       'border-transparent': !isSelected,
       'border-4': albumItemSrcQuery.isSuccess
-    }) }}>
+    }) }} onDoubleClick={() => openAlbumItemViewModal(albumId, albumItemId)}>
       {cardContent}
     </Card>
   )
