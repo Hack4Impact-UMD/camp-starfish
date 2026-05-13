@@ -97,7 +97,6 @@ export function AlbumItemViewModal({
         </div>
       </div>
 
-      {/* Main Image Display Area with navigation arrows */}
       <div className="relative flex flex-grow items-center justify-center w-full px-4 max-w-full sm:max-w-5xl">
         <button
           onClick={onLeftClick}
