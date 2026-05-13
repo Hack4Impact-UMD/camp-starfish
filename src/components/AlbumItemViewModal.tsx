@@ -141,7 +141,8 @@ export function AlbumItemViewModal({
 
 export default function openAlbumItemViewModal(albumId: string, albumItemId: string) {
   modals.open({
-    title: "Album Item View",
     children: <AlbumItemViewModal albumId={albumId} albumItemId={albumItemId} onClose={( ) => {}} onLeftClick={( ) => {}} onRightClick={( ) => {}} />,
+    fullScreen: true,
+    withCloseButton: false
   });
 }
