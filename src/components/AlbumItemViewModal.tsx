@@ -1,17 +1,12 @@
 import React from "react";
 import { useAuth } from "@/auth/useAuth";
 import Image from "next/image";
-import CloseIcon from "@/assets/icons/closeIcon.svg";
-import DownloadIcon from "@/assets/icons/downloadIcon.svg";
-import FolderMoveIcon from "@/assets/icons/folderMoveIcon.svg";
-import LeftArrowIcon from "@/assets/icons/leftArrow.svg";
-import RightArrowIcon from "@/assets/icons/rightArrow.svg";
 import ImageViewBottomSection from "@/components/ImageViewBottomSection";
 import { Role } from "@/types/users/userTypes";
 import { modals } from "@mantine/modals";
 import useAlbumItem from "@/hooks/albumItems/useAlbumItem";
 import useAlbumItemSrc from "@/hooks/albumItems/useAlbumItemSrc";
-
+import { MdClose, MdOutlineFileDownload, MdArrowBack, MdArrowForward } from "react-icons/md";
 
 interface ImageViewProps {
   albumId: string;
@@ -56,29 +51,12 @@ export function AlbumItemViewModal({
       <div className="w-full flex flex-row justify-between items-start sm:items-center gap-4 sm:gap-0 px-6 sm:px-10 pt-6 sm:pt-8 pb-4 text-white">
         <div className="flex flex-row items-center space-x-4 sm:space-x-10">
           <button onClick={onClose} aria-label="Close">
-            <Image src={CloseIcon.src} alt="X Icon" width={32} height={32} />
+            <MdClose size={30} />
           </button>
           <p className="text-xl font-lato"> {albumItemQuery.data.name} </p>
         </div>
 
         <div className="flex flex-row items-stretch sm:items-center gap-2 sm:gap-4">
-          {userRole !== "PARENT" && (
-            <button
-              onClick={handleMoveTo}
-              className="bg-camp-primary flex flex-row justify-center gap-4 p-2 rounded-3xl w-12 md:w-64 border border-camp-buttons-neutral"
-              aria-label="Move Image"
-            >
-              <p className="hidden md:inline text-sm md:text-lg font-lato">
-                MOVE TO
-              </p>
-              <Image
-                src={FolderMoveIcon.src}
-                alt="Folder Move Icon"
-                width={25}
-                height={25}
-              />
-            </button>
-          )}
           <button
             onClick={handleDownload}
             className="bg-camp-tert-blue flex flex-row justify-center gap-4 p-2 rounded-3xl w-12 md:w-64"
@@ -87,12 +65,7 @@ export function AlbumItemViewModal({
             <p className="hidden md:inline text-sm md:text-lg font-lato">
               DOWNLOAD
             </p>
-            <Image
-              src={DownloadIcon.src}
-              alt="Download Icon"
-              width={18}
-              height={18}
-            />
+            <MdOutlineFileDownload size={20} />
           </button>
         </div>
       </div>
@@ -103,12 +76,7 @@ export function AlbumItemViewModal({
           className="absolute left-2 sm:left-0"
           aria-label="Previous Image"
         >
-          <Image
-            src={LeftArrowIcon.src}
-            alt="Left Arrow Icon"
-            width={50}
-            height={50}
-          />
+          <MdArrowBack size={50} />
         </button>
         <Image
           src={""}
@@ -121,19 +89,14 @@ export function AlbumItemViewModal({
           className="absolute right-2 sm:right-0"
           aria-label="Next Image"
         >
-          <Image
-            src={RightArrowIcon.src}
-            alt="Right Arrow Icon"
-            width={50}
-            height={50}
-          />
+          <MdArrowForward size={50} />
         </button>
       </div>
 
       {/* Bottom Section: Displays tags and moderation controls if applicable */}
-      <ImageViewBottomSection
+      {/* <ImageViewBottomSection
         image={albumItemQuery.data}
-      />
+      /> */}
     </div>
   );
 }
