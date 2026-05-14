@@ -49,35 +49,44 @@ export function AlbumItemViewModal({
   };
 
   return (
-    <div onClick={modals.closeAll} className="w-full h-full bg-black flex flex-col items-center justify-between">
+    <div
+      onClick={modals.closeAll}
+      className="w-full h-full bg-black flex flex-col items-center justify-between"
+    >
       <div className="w-full flex flex-row justify-between items-start max-h-1/10 sm:items-center gap-4 sm:gap-0 px-6 sm:px-10 pt-6 sm:pt-8 pb-4">
         <div className="flex flex-row items-center space-x-4 sm:space-x-10">
-          <ActionIcon variant="transparent" onClick={onClose} aria-label="Close Modal">
+          <ActionIcon
+            variant="transparent"
+            onClick={onClose}
+            aria-label="Close Modal"
+          >
             <MdClose className="text-white active:outline-none" size={30} />
           </ActionIcon>
-          <Title order={5} classNames={{ root: "text-white" }}>{albumItemQuery.data.name}</Title>
+          <Title order={5} classNames={{ root: "text-white" }}>
+            {albumItemQuery.data.name}
+          </Title>
         </div>
-          <Button
-            color="aqua"
-            rightSection={<MdOutlineFileDownload size={20} />}
-            aria-label="Download Album Item"
-          >
-            Download
-          </Button>
+        <Button
+          color="aqua"
+          rightSection={<MdOutlineFileDownload size={20} />}
+          aria-label="Download Album Item"
+        >
+          Download
+        </Button>
       </div>
 
-      <div className="flex grow items-center justify-center w-full min-h-4/5 max-h-9/10 gap-4">
+      <div className="flex grow items-center justify-center w-full gap-4">
         <ActionIcon onClick={onLeftClick} aria-label="Previous Item">
           <MdChevronLeft size={50} />
         </ActionIcon>
-        <Image
+        <div>        <Image
           src={albumItemSrcQuery.data}
-          alt="Selected Image"
-          className=""
+          alt={albumItemQuery.data.name}
           width={200}
           height={200}
           onClick={(e) => e.stopPropagation()}
-        />
+        /></div>
+
         <ActionIcon onClick={onRightClick} aria-label="Next Item">
           <MdChevronRight size={50} />
         </ActionIcon>
@@ -95,8 +104,8 @@ export default function openAlbumItemViewModal(
 ) {
   modals.open({
     classNames: {
-      content: 'bg-black',
-      body: 'w-full h-full',
+      content: "bg-black",
+      body: "w-full h-full",
     },
     children: (
       <AlbumItemViewModal
