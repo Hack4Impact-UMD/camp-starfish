@@ -1,6 +1,6 @@
 import { updateAlbumItemDoc } from "@/data/firestore/albumItems";
 import { useMutation } from "@tanstack/react-query";
-import { arrayRemove, arrayUnion } from "firebase/firestore";
+import { arrayRemove } from "firebase/firestore";
 
 interface RejectPendingTagRequest {
   albumId: string;

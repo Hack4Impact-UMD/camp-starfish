@@ -6,7 +6,8 @@ import { Role } from "@/types/users/userTypes";
 import { AlbumItemTagStatus } from "@/types/albums/albumTypes";
 import useAlbumItem from "@/hooks/albumItems/useAlbumItem";
 import useTagDirectory from "@/hooks/tags/useTagDirectory";
-import useCreateAlbumItemReport from "@/features/albums/albumItemReporting/useCreateAlbumItemReport";
+import useApprovePendingTag from "@/features/albums/albumItemTagging/useApprovePendingTag";
+import useRejectPendingTag from "@/features/albums/albumItemTagging/useRejectPendingTag";
 
 interface ImageViewBottomSectionProps {
   albumId: string;
@@ -22,6 +23,9 @@ export default function AlbumItemViewModalBottomSection(props: ImageViewBottomSe
 
   const albumItemQuery = useAlbumItem({ albumId, albumItemId });
   const tagDirectoryQuery = useTagDirectory();
+
+  const approvePendingTagMutation = useApprovePendingTag();
+  const rejectPendingTagMutation = useRejectPendingTag();
 
   const auth = useAuth();
   const userRole: Role = auth.token?.claims.role as Role;
@@ -55,18 +59,18 @@ export default function AlbumItemViewModalBottomSection(props: ImageViewBottomSe
   // --- Guard clause for users without tag access ---
   if (!canViewTags) return null;
 
-  const renderTag = (tagId: number, isApproved: boolean) => (
+  const renderTag = (tagId: number, tagStatus: AlbumItemTagStatus) => (
     <Badge
       key={tagId}
       variant="light"
       rightSection={
         <>
-          {!isApproved && (
-            <ActionIcon variant="transparent" size="sm">
+          {tagStatus === "PENDING" && (
+            <ActionIcon variant="transparent" size="sm" onClick={() => approvePendingTagMutation.mutate({ albumId, albumItemId, tagId })}>
               <MdCheck size={20} />
             </ActionIcon>
           )}
-          <ActionIcon variant="transparent" size="sm">
+          <ActionIcon variant="transparent" size="sm" onClick={() => rejectPendingTagMutation.mutate({ albumId, albumItemId, tagId })}>
             <MdClose size={20} />
           </ActionIcon>
         </>
@@ -95,7 +99,7 @@ export default function AlbumItemViewModalBottomSection(props: ImageViewBottomSe
         {(activeTab === "APPROVED"
           ? albumItem.tagIds.approved
           : albumItem.tagIds.inReview
-        ).map((tag) => renderTag(tag, activeTab === "APPROVED"))}
+        ).map((tag) => renderTag(tag, activeTab))}
       </div>
 
       {canModerateTags && (
