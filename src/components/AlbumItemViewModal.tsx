@@ -11,7 +11,7 @@ import {
 import { ActionIcon, Button, Image, Title } from "@mantine/core";
 import useDownloadAlbumItem from "@/features/albums/downloading/useDownloadAlbumItem";
 import useNotifications from "@/features/notifications/useNotifications";
-import ImageViewBottomSection from "./ImageViewBottomSection";
+import AlbumItemViewModalBottomSection from "./AlbumItemViewModalBottomSection";
 
 interface ImageViewProps {
   albumId: string;
@@ -55,7 +55,15 @@ export function AlbumItemViewModal(props: ImageViewProps) {
           aria-label="Download Album Item"
           onClick={(e) => {
             e.stopPropagation();
-            downloadAlbumItemMutation.mutate({ albumId, albumItemId }, { onError: () => notifications.error(`Failed to download "${albumItemQuery.data.name}"`) });
+            downloadAlbumItemMutation.mutate(
+              { albumId, albumItemId },
+              {
+                onError: () =>
+                  notifications.error(
+                    `Failed to download "${albumItemQuery.data.name}"`,
+                  ),
+              },
+            );
           }}
         >
           Download
@@ -63,10 +71,13 @@ export function AlbumItemViewModal(props: ImageViewProps) {
       </div>
 
       <div className="flex grow items-center justify-center w-full gap-4">
-        <ActionIcon onClick={(e) => {
-          e.stopPropagation();
-          onLeftClick();
-        }} aria-label="Previous Item">
+        <ActionIcon
+          onClick={(e) => {
+            e.stopPropagation();
+            onLeftClick();
+          }}
+          aria-label="Previous Item"
+        >
           <MdChevronLeft size={50} />
         </ActionIcon>
         <div>
@@ -78,15 +89,18 @@ export function AlbumItemViewModal(props: ImageViewProps) {
             onClick={(e) => e.stopPropagation()}
           />
         </div>
-        <ActionIcon onClick={(e) => {
-          e.stopPropagation();
-          onRightClick();
-        }} aria-label="Next Item">
+        <ActionIcon
+          onClick={(e) => {
+            e.stopPropagation();
+            onRightClick();
+          }}
+          aria-label="Next Item"
+        >
           <MdChevronRight size={50} />
         </ActionIcon>
       </div>
 
-      <ImageViewBottomSection image={albumItemQuery.data} />
+      <AlbumItemViewModalBottomSection albumId={albumId} albumItemId={albumItemId} />
     </div>
   );
 }
