@@ -3,7 +3,7 @@ import { useAuth } from "@/auth/useAuth";
 import { MdAdd, MdCheck, MdClose, MdFlag } from "react-icons/md";
 import { ActionIcon, Badge, Button, Select, Text } from "@mantine/core";
 import { Role } from "@/types/users/userTypes";
-import { AlbumItem } from "@/types/albums/albumTypes";
+import { AlbumItemTagStatus } from "@/types/albums/albumTypes";
 import useAlbumItem from "@/hooks/albumItems/useAlbumItem";
 import useTagDirectory from "@/hooks/tags/useTagDirectory";
 
@@ -12,12 +12,10 @@ interface ImageViewBottomSectionProps {
   albumItemId: string;
 }
 
-export default function AlbumItemViewModalBottomSection(
-  props: ImageViewBottomSectionProps,
-) {
+export default function AlbumItemViewModalBottomSection(props: ImageViewBottomSectionProps) {
   const { albumId, albumItemId } = props;
 
-  const [activeTab, setActiveTab] = useState<"APPROVED" | "PENDING">(
+  const [activeTab, setActiveTab] = useState<AlbumItemTagStatus>(
     "APPROVED",
   );
 
@@ -88,11 +86,11 @@ export default function AlbumItemViewModalBottomSection(
           label="Tag Status"
           data={["APPROVED", "PENDING"]}
           value={activeTab}
-          onChange={(value) => setActiveTab(value as "APPROVED" | "PENDING")}
+          onChange={(value) => setActiveTab(value as AlbumItemTagStatus)}
         />
       )}
 
-      <div className="">
+      <div>
         {(activeTab === "APPROVED"
           ? albumItem.tagIds.approved
           : albumItem.tagIds.inReview
