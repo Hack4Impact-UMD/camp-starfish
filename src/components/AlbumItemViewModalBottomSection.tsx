@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/auth/useAuth";
 import Image from "next/image";
-import { MdAdd, MdCheck, MdClose, MdFlag } from "react-icons/md";
-import { ActionIcon, Badge, Switch } from "@mantine/core";
+import { MdAdd, MdCheck, MdClose, MdFlag } from "react-icons/md";import { ActionIcon, Badge, Select, Switch } from "@mantine/core";
 import { Role } from "@/types/users/userTypes";
 import { AlbumItem } from "@/types/albums/albumTypes";
 import useAlbumItem from "@/hooks/albumItems/useAlbumItem";
@@ -18,9 +17,7 @@ export default function AlbumItemViewModalBottomSection(
 ) {
   const { albumId, albumItemId } = props;
 
-  const [activeTab, setActiveTab] = useState<"APPROVED" | "PENDING">(
-    "APPROVED",
-  );
+  const [activeTab, setActiveTab] = useState<"APPROVED" | "PENDING">("APPROVED");
 
   const albumItemQuery = useAlbumItem({ albumId, albumItemId });
   const tagDirectoryQuery = useTagDirectory();
@@ -30,8 +27,8 @@ export default function AlbumItemViewModalBottomSection(
 
   if (!albumItemQuery.isSuccess || !tagDirectoryQuery.isSuccess) return <></>;
 
-  const localTags = albumItemQuery.data.tagIds;
-  console.log(localTags);
+  const albumItem = albumItemQuery.data;
+  const tagDirectory = tagDirectoryQuery.data;
 
   const canModerateTags = userRole === "ADMIN" || userRole === "PHOTOGRAPHER";
   const canViewTags = canModerateTags || userRole === "STAFF";
@@ -60,7 +57,7 @@ export default function AlbumItemViewModalBottomSection(
       {!isApproved && <ActionIcon variant="transparent" size="sm"><MdCheck size={20} /></ActionIcon>}
       <ActionIcon variant="transparent" size="sm"><MdClose size={20} /></ActionIcon>
     </>}>
-      {tagDirectoryQuery.data[tagId]}
+      {tagDirectory[tagId]}
     </Badge>
   );
 
@@ -73,23 +70,8 @@ export default function AlbumItemViewModalBottomSection(
         <Select label="Tag Status" data={["APPROVED", "PENDING"]} value={activeTab} onChange={(value) => setActiveTab(value as "APPROVED" | "PENDING")} />
       )}
 
-      {/* Tags List */}
       <div className="overflow-x-auto whitespace-nowrap flex gap-2 w-full">
-        {/* Staff View: Only approved tags without moderation ability */}
-        {!canModerateTags && canViewTags ? (
-          <>
-            {albumItemQuery.data.tagIds.approved.map((tag) =>
-              renderTag(tag, false),
-            )}
-          </>
-        ) : (
-          // Photographer and Admin View: Can toggle between Approved and Pending tags with ability to moderate
-          <>
-            {albumItemQuery.data.tagIds.inReview.map((tag) =>
-              renderTag(tag, activeTab === "PENDING"),
-            )}
-          </>
-        )}
+        {(activeTab === "APPROVED" ? albumItem.tagIds.approved : albumItem.tagIds.inReview).map(tag => renderTag(tag, activeTab === "APPROVED"))}
       </div>
 
       {/* Add Tag button: Only visible for pending tags and moderators */}
