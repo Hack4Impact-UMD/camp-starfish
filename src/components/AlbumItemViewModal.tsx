@@ -11,6 +11,7 @@ import {
 import { ActionIcon, Button, Image, Title } from "@mantine/core";
 import useDownloadAlbumItem from "@/features/albums/downloading/useDownloadAlbumItem";
 import useNotifications from "@/features/notifications/useNotifications";
+import ImageViewBottomSection from "./ImageViewBottomSection";
 
 interface ImageViewProps {
   albumId: string;
@@ -85,8 +86,7 @@ export function AlbumItemViewModal(props: ImageViewProps) {
         </ActionIcon>
       </div>
 
-      {/* Bottom Section: Displays tags and moderation controls if applicable */}
-      {/* <ImageViewBottomSection image={albumItemQuery.data} /> */}
+      <ImageViewBottomSection image={albumItemQuery.data} />
     </div>
   );
 }

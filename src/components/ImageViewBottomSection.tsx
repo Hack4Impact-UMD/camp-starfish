@@ -1,24 +1,33 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/auth/useAuth";
 import Image from "next/image";
 import { MdAdd, MdCheck, MdClose, MdFlag } from "react-icons/md";
 import { Switch } from "@mantine/core";
 import { Role } from "@/types/users/userTypes";
 import { AlbumItem } from "@/types/albums/albumTypes";
+import useAlbumItem from "@/hooks/albumItems/useAlbumItem";
 
 type ImageTags = AlbumItem["tagIds"];
 
 interface ImageViewBottomSectionProps {
-  image: AlbumItem;
+  albumId: string;
+  albumItemId: string;
 }
 
-export default function ImageViewBottomSection({
-  image,
-}: ImageViewBottomSectionProps) {
+export default function ImageViewBottomSection(props: ImageViewBottomSectionProps) {
+  const { albumId, albumItemId } = props;
+
   const [activeTab, setActiveTab] = useState<"APPROVED" | "PENDING">(
     "APPROVED"
   );
-  const [localTags, setLocalTags] = useState<ImageTags>(image.tagIds);
+
+  const albumItemQuery = useAlbumItem({ albumId, albumItemId });
+
+  const [localTags, setLocalTags] = useState<ImageTags | undefined>(albumItemQuery.data?.tagIds);
+
+  useEffect(() => {
+    setLocalTags(albumItemQuery.data?.tagIds);
+  }, [albumItemQuery.data])
 
   const auth = useAuth();
   const userRole: Role = auth.token?.claims.role as Role;
@@ -64,7 +73,6 @@ export default function ImageViewBottomSection({
       {canModerateTags && (
         <>
           <button
-            onClick={() => handleRejectTag(tagId)}
             aria-label="Reject Tag"
             className="inline-flex items-center justify-center min-w-[22px] min-h-[22px]"
           >
@@ -72,7 +80,6 @@ export default function ImageViewBottomSection({
           </button>
           {isPending && (
             <button
-              onClick={() => handleApproveTag(tagId)}
               aria-label="Approve Tag"
               className="inline-flex items-center justify-center min-w-[22px] min-h-[22px]"
             >
@@ -83,37 +90,6 @@ export default function ImageViewBottomSection({
       )}
     </div>
   );
-
- /**
-   * Approve a tag by moving it from 'inReview' to 'approved'
-   */
-  const handleApproveTag = (tagId: number) => {
-    const updatedTags: ImageTags = {
-      approved: [...localTags.approved, tagId],
-      inReview: localTags.inReview.filter((t) => t !== tagId),
-    };
-
-    setLocalTags(updatedTags);
-  };
-
-  /**
-   * Reject a tag by removing it from both 'approved' and 'inReview'
-   */
-  const handleRejectTag = (tagId: number) => {
-    const updatedTags: ImageTags = {
-      approved: localTags.approved.filter((t) => t !== tagId),
-      inReview: localTags.inReview.filter((t) => t !== tagId),
-    };
-
-    setLocalTags(updatedTags);
-  };
-
-  /**
-   * Placeholder for tag creation flow
-   */
-  const handleAddTag = () => {
-    alert("Add Tag Clicked");
-  };
 
   return (
     <div className="w-full">
@@ -162,7 +138,6 @@ export default function ImageViewBottomSection({
           {activeTab === "PENDING" && canModerateTags && (
             <div className="bg-white flex justify-end">
               <button
-                onClick={handleAddTag}
                 aria-label="Add Tag"
                 className="bg-camp-primary flex flex-row justify-center space-x-2 p-2 px-4 sm:px-6 rounded-3xl shrink-0"
               >
