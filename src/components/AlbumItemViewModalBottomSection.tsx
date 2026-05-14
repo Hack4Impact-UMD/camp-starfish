@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/auth/useAuth";
 import Image from "next/image";
 import { MdAdd, MdCheck, MdClose, MdFlag } from "react-icons/md";
-import { Badge, Switch } from "@mantine/core";
+import { ActionIcon, Badge, Switch } from "@mantine/core";
 import { Role } from "@/types/users/userTypes";
 import { AlbumItem } from "@/types/albums/albumTypes";
 import useAlbumItem from "@/hooks/albumItems/useAlbumItem";
@@ -55,8 +55,11 @@ export default function AlbumItemViewModalBottomSection(
   // --- Guard clause for users without tag access ---
   if (!canViewTags) return null;
 
-  const renderTag = (tagId: number, isPending: boolean) => (
-    <Badge key={tagId} variant="light">
+  const renderTag = (tagId: number, isApproved: boolean) => (
+    <Badge key={tagId} variant="light" rightSection={<>
+      {!isApproved && <ActionIcon variant="transparent" size="sm"><MdCheck size={20} /></ActionIcon>}
+      <ActionIcon variant="transparent" size="sm"><MdClose size={20} /></ActionIcon>
+    </>}>
       {tagDirectoryQuery.data[tagId]}
     </Badge>
   );

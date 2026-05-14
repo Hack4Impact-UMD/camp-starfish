@@ -2,6 +2,7 @@ import { MantineThemeOverride } from "@mantine/core";
 import globalTheme from "./globalTheme";
 import ActionIconThemeExtension from "./components/ActionIconThemeExtension";
 import AnchorThemeExtension from "./components/AnchorThemeExtension";
+import BadgeThemeExtension from "./components/BadgeThemeExtension";
 import ButtonThemeExtension from "./components/ButtonThemeExtension";
 import CardThemeExtension from "./components/CardThemeExtension";
 import DatePickerInputThemeExtension from "./components/DatePickerInputThemeExtension";
@@ -23,6 +24,7 @@ const theme: MantineThemeOverride = {
   components: {
     ActionIcon: ActionIconThemeExtension,
     Anchor: AnchorThemeExtension,
+    Badge: BadgeThemeExtension,
     Button: ButtonThemeExtension,
     Card: CardThemeExtension,
     DatePickerInput: DatePickerInputThemeExtension,
