@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useAuth } from "@/auth/useAuth";
 import ImageViewBottomSection from "@/components/ImageViewBottomSection";
 import { Role } from "@/types/users/userTypes";
@@ -12,6 +12,8 @@ import {
   MdChevronRight,
 } from "react-icons/md";
 import { ActionIcon, Button, Image, Title } from "@mantine/core";
+import useDownloadAlbumItem from "@/features/albums/downloading/useDownloadAlbumItem";
+import useNotifications from "@/features/notifications/useNotifications";
 
 interface ImageViewProps {
   albumId: string;
@@ -34,19 +36,11 @@ export function AlbumItemViewModal({
   const auth = useAuth();
   const userRole: Role = auth.token?.claims.role as Role;
 
-  const handleDownload = async () => {
-    //try {
-    //  await downloadImage(image.src, image.name || "downloaded-image");
-    //} catch (error) {
-    //  console.error("Failed to download image:", error);
-    //}
-  };
+  const downloadAlbumItemMutation = useDownloadAlbumItem();
+
+  const notifications = useNotifications();
 
   if (!albumItemQuery.data || !albumItemSrcQuery.data) return <></>;
-
-  const handleMoveTo = () => {
-    alert("Move To Clicked");
-  };
 
   return (
     <div
@@ -72,6 +66,7 @@ export function AlbumItemViewModal({
           aria-label="Download Album Item"
           onClick={(e) => {
             e.stopPropagation();
+            downloadAlbumItemMutation.mutate({ albumId, albumItemId }, { onError: () => notifications.error(`Failed to download "${albumItemQuery.data.name}"`) });
           }}
         >
           Download
