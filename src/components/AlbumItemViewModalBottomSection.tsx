@@ -13,11 +13,13 @@ interface ImageViewBottomSectionProps {
   albumItemId: string;
 }
 
-export default function AlbumItemViewModalBottomSection(props: ImageViewBottomSectionProps) {
+export default function AlbumItemViewModalBottomSection(
+  props: ImageViewBottomSectionProps,
+) {
   const { albumId, albumItemId } = props;
 
   const [activeTab, setActiveTab] = useState<"APPROVED" | "PENDING">(
-    "APPROVED"
+    "APPROVED",
   );
 
   const albumItemQuery = useAlbumItem({ albumId, albumItemId });
@@ -26,10 +28,10 @@ export default function AlbumItemViewModalBottomSection(props: ImageViewBottomSe
   const auth = useAuth();
   const userRole: Role = auth.token?.claims.role as Role;
 
-  if (!albumItemQuery.isSuccess || !tagDirectoryQuery.isSuccess) return <></>
+  if (!albumItemQuery.isSuccess || !tagDirectoryQuery.isSuccess) return <></>;
 
   const localTags = albumItemQuery.data.tagIds;
-  console.log(localTags)
+  console.log(localTags);
 
   const canModerateTags = userRole === "ADMIN" || userRole === "PHOTOGRAPHER";
   const canViewTags = canModerateTags || userRole === "STAFF";
@@ -53,61 +55,71 @@ export default function AlbumItemViewModalBottomSection(props: ImageViewBottomSe
   // --- Guard clause for users without tag access ---
   if (!canViewTags) return null;
 
-  const renderTag = (tagId: number, isPending: boolean) => <Badge key={tagId} variant="light">{tagDirectoryQuery.data[tagId]}</Badge>;
+  const renderTag = (tagId: number, isPending: boolean) => (
+    <Badge key={tagId} variant="light">
+      {tagDirectoryQuery.data[tagId]}
+    </Badge>
+  );
 
   return (
-    <div className="w-full bg-white rounded-t-2xl flex sm:flex-row sm:items-center items-start p-4 gap-4 sm:pl-10 sm:pr-10" onClick={(e) => e.stopPropagation()}>
-          {canModerateTags ? (
-            <div className="flex items-center space-x-2 mb-2 sm:mb-0">
-              <p className="text-black text-base sm:text-lg font-lato font-semibold">
-                APPROVED
-              </p>
-              <Switch
-                checked={activeTab === "PENDING"}
-                onChange={(checked) =>
-                  setActiveTab(checked ? "PENDING" : "APPROVED")
-                }
-              />
-              <p className="text-black text-base sm:text-lg font-lato font-semibold">
-                PENDING
-              </p>
-            </div>
-          ) : (
-            <div className="m-2 mb-2 sm:mb-0 whitespace-nowrap">
-              <p className="text-black text-base sm:text-lg font-lato font-semibold">
-                APPROVED TAGS
-              </p>
-            </div>
-          )}
-
-          {/* Tags List */}
-          <div className="overflow-x-auto whitespace-nowrap flex gap-2 w-full">
-            {/* Staff View: Only approved tags without moderation ability */}
-            {!canModerateTags && canViewTags ? (
-              <> 
-                {albumItemQuery.data.tagIds.approved.map((tag) => renderTag(tag, false))} 
-              </>
-            ) : (
-              // Photographer and Admin View: Can toggle between Approved and Pending tags with ability to moderate
-              <>
-                {albumItemQuery.data.tagIds.inReview.map((tag) => renderTag(tag, activeTab === "PENDING"))}
-              </>
-            )}
-          </div>
-
-          {/* Add Tag button: Only visible for pending tags and moderators */}
-          {activeTab === "PENDING" && canModerateTags && (
-            <div className="bg-white flex justify-end">
-              <button
-                aria-label="Add Tag"
-                className="bg-camp-primary flex flex-row justify-center space-x-2 p-2 px-4 sm:px-6 rounded-3xl shrink-0"
-              >
-                <p className="text-base sm:text-lg font-lato">ADD TAG</p>
-                <MdAdd size={30} />
-              </button>
-            </div>
-          )}
+    <div
+      className="w-full bg-white rounded-t-2xl flex sm:flex-row sm:items-center items-start p-4 gap-4 sm:pl-10 sm:pr-10"
+      onClick={(e) => e.stopPropagation()}
+    >
+      {canModerateTags ? (
+        <div className="flex items-center space-x-2 mb-2 sm:mb-0">
+          <p className="text-black text-base sm:text-lg font-lato font-semibold">
+            APPROVED
+          </p>
+          <Switch
+            checked={activeTab === "PENDING"}
+            onChange={(checked) =>
+              setActiveTab(checked ? "PENDING" : "APPROVED")
+            }
+          />
+          <p className="text-black text-base sm:text-lg font-lato font-semibold">
+            PENDING
+          </p>
         </div>
+      ) : (
+        <div className="m-2 mb-2 sm:mb-0 whitespace-nowrap">
+          <p className="text-black text-base sm:text-lg font-lato font-semibold">
+            APPROVED TAGS
+          </p>
+        </div>
+      )}
 
+      {/* Tags List */}
+      <div className="overflow-x-auto whitespace-nowrap flex gap-2 w-full">
+        {/* Staff View: Only approved tags without moderation ability */}
+        {!canModerateTags && canViewTags ? (
+          <>
+            {albumItemQuery.data.tagIds.approved.map((tag) =>
+              renderTag(tag, false),
+            )}
+          </>
+        ) : (
+          // Photographer and Admin View: Can toggle between Approved and Pending tags with ability to moderate
+          <>
+            {albumItemQuery.data.tagIds.inReview.map((tag) =>
+              renderTag(tag, activeTab === "PENDING"),
+            )}
+          </>
+        )}
+      </div>
+
+      {/* Add Tag button: Only visible for pending tags and moderators */}
+      {activeTab === "PENDING" && canModerateTags && (
+        <div className="bg-white flex justify-end">
+          <button
+            aria-label="Add Tag"
+            className="bg-camp-primary flex flex-row justify-center space-x-2 p-2 px-4 sm:px-6 rounded-3xl shrink-0"
+          >
+            <p className="text-base sm:text-lg font-lato">ADD TAG</p>
+            <MdAdd size={30} />
+          </button>
+        </div>
+      )}
+    </div>
   );
 }
