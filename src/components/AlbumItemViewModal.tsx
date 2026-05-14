@@ -79,13 +79,15 @@ export function AlbumItemViewModal({
         <ActionIcon onClick={onLeftClick} aria-label="Previous Item">
           <MdChevronLeft size={50} />
         </ActionIcon>
-        <div>        <Image
-          src={albumItemSrcQuery.data}
-          alt={albumItemQuery.data.name}
-          width={200}
-          height={200}
-          onClick={(e) => e.stopPropagation()}
-        /></div>
+        <div>
+          <Image
+            src={albumItemSrcQuery.data}
+            alt={albumItemQuery.data.name}
+            width={200}
+            height={200}
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
 
         <ActionIcon onClick={onRightClick} aria-label="Next Item">
           <MdChevronRight size={50} />
