@@ -95,7 +95,7 @@ export default function AlbumItemViewModalBottomSection(props: ImageViewBottomSe
         />
       )}
 
-      <div>
+      <div className="flex gap-2">
         {(activeTab === "APPROVED"
           ? albumItem.tagIds.approved
           : albumItem.tagIds.inReview
