@@ -13,6 +13,7 @@ import ModalThemeExtension from "./components/ModalThemeExtension";
 import MultiSelectThemeExtension from "./components/MultiSelectThemeExtension";
 import NotificationThemeExtension from "./components/NotificationThemeExtension";
 import RadioThemeExtension from "./components/RadioThemeExtension";
+import SelectThemeExtension from "./components/SelectThemeExtension";
 import TextInputThemeExtension from "./components/TextInputThemeExtension";
 import TextThemeExtension from "./components/TextThemeExtension";
 import TitleThemeExtension from "./components/TitleThemeExtension";
@@ -36,6 +37,7 @@ const theme: MantineThemeOverride = {
     MultiSelect: MultiSelectThemeExtension,
     Notification: NotificationThemeExtension,
     Radio: RadioThemeExtension,
+    Select: SelectThemeExtension,
     TextInput: TextInputThemeExtension,
     Text: TextThemeExtension,
     Title: TitleThemeExtension,

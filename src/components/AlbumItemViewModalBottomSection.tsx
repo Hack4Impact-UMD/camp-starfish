@@ -69,27 +69,8 @@ export default function AlbumItemViewModalBottomSection(
       className="w-full bg-white rounded-t-2xl flex sm:flex-row sm:items-center items-start p-4 gap-4 sm:pl-10 sm:pr-10"
       onClick={(e) => e.stopPropagation()}
     >
-      {canModerateTags ? (
-        <div className="flex items-center space-x-2 mb-2 sm:mb-0">
-          <p className="text-black text-base sm:text-lg font-lato font-semibold">
-            APPROVED
-          </p>
-          <Switch
-            checked={activeTab === "PENDING"}
-            onChange={(checked) =>
-              setActiveTab(checked ? "PENDING" : "APPROVED")
-            }
-          />
-          <p className="text-black text-base sm:text-lg font-lato font-semibold">
-            PENDING
-          </p>
-        </div>
-      ) : (
-        <div className="m-2 mb-2 sm:mb-0 whitespace-nowrap">
-          <p className="text-black text-base sm:text-lg font-lato font-semibold">
-            APPROVED TAGS
-          </p>
-        </div>
+      {canModerateTags && (
+        <Select label="Tag Status" data={["APPROVED", "PENDING"]} value={activeTab} onChange={(value) => setActiveTab(value as "APPROVED" | "PENDING")} />
       )}
 
       {/* Tags List */}
