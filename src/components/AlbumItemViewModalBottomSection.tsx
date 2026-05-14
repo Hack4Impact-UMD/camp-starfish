@@ -2,12 +2,11 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/auth/useAuth";
 import Image from "next/image";
 import { MdAdd, MdCheck, MdClose, MdFlag } from "react-icons/md";
-import { Switch } from "@mantine/core";
+import { Badge, Switch } from "@mantine/core";
 import { Role } from "@/types/users/userTypes";
 import { AlbumItem } from "@/types/albums/albumTypes";
 import useAlbumItem from "@/hooks/albumItems/useAlbumItem";
-
-type ImageTags = AlbumItem["tagIds"];
+import useTagDirectory from "@/hooks/tags/useTagDirectory";
 
 interface ImageViewBottomSectionProps {
   albumId: string;
@@ -22,15 +21,15 @@ export default function AlbumItemViewModalBottomSection(props: ImageViewBottomSe
   );
 
   const albumItemQuery = useAlbumItem({ albumId, albumItemId });
-
-  const [localTags, setLocalTags] = useState<ImageTags | undefined>(albumItemQuery.data?.tagIds);
-
-  useEffect(() => {
-    setLocalTags(albumItemQuery.data?.tagIds);
-  }, [albumItemQuery.data])
+  const tagDirectoryQuery = useTagDirectory();
 
   const auth = useAuth();
   const userRole: Role = auth.token?.claims.role as Role;
+
+  if (!albumItemQuery.isSuccess || !tagDirectoryQuery.isSuccess) return <></>
+
+  const localTags = albumItemQuery.data.tagIds;
+  console.log(localTags)
 
   const canModerateTags = userRole === "ADMIN" || userRole === "PHOTOGRAPHER";
   const canViewTags = canModerateTags || userRole === "STAFF";
@@ -54,48 +53,10 @@ export default function AlbumItemViewModalBottomSection(props: ImageViewBottomSe
   // --- Guard clause for users without tag access ---
   if (!canViewTags) return null;
 
-  // --- Tag display logic based on tab ---
-  const tagsToShow =
-    activeTab === "APPROVED" ? localTags.approved : localTags.inReview;
-
-  /**
-   * Renders an individual tag with optional moderation controls
-   * Displays tag name and, if the user can moderate, shows buttons to approve or reject
-   */
-  const renderTag = (tagId: number, isPending: boolean) => (
-    <div
-      key={tagId}
-      className="bg-[#E6EAEC] px-4 py-2 rounded-3xl flex items-center gap-2"
-    >
-      <p className="text-black text-sm sm:text-base">
-        Tag #{tagId}
-      </p>
-      {canModerateTags && (
-        <>
-          <button
-            aria-label="Reject Tag"
-            className="inline-flex items-center justify-center min-w-[22px] min-h-[22px]"
-          >
-            <MdClose size={20} />
-          </button>
-          {isPending && (
-            <button
-              aria-label="Approve Tag"
-              className="inline-flex items-center justify-center min-w-[22px] min-h-[22px]"
-            >
-              <MdCheck size={20} />
-            </button>
-          )}
-        </>
-      )}
-    </div>
-  );
+  const renderTag = (tagId: number, isPending: boolean) => <Badge key={tagId} variant="light">{tagDirectoryQuery.data[tagId]}</Badge>;
 
   return (
-    <div className="w-full">
-      <div className="w-full bg-camp-white rounded-t-2xl">
-        <div className="flex flex-col sm:flex-row sm:items-center items-start p-4 gap-4 sm:pl-10 sm:pr-10">
-          {/* Header: Toggle for moderators, label for Staff */}
+    <div className="w-full bg-white rounded-t-2xl flex sm:flex-row sm:items-center items-start p-4 gap-4 sm:pl-10 sm:pr-10" onClick={(e) => e.stopPropagation()}>
           {canModerateTags ? (
             <div className="flex items-center space-x-2 mb-2 sm:mb-0">
               <p className="text-black text-base sm:text-lg font-lato font-semibold">
@@ -124,12 +85,12 @@ export default function AlbumItemViewModalBottomSection(props: ImageViewBottomSe
             {/* Staff View: Only approved tags without moderation ability */}
             {!canModerateTags && canViewTags ? (
               <> 
-                {localTags.approved.map((tag) => renderTag(tag, false))} 
+                {albumItemQuery.data.tagIds.approved.map((tag) => renderTag(tag, false))} 
               </>
             ) : (
               // Photographer and Admin View: Can toggle between Approved and Pending tags with ability to moderate
               <>
-                {tagsToShow.map((tag) => renderTag(tag, activeTab === "PENDING"))}
+                {albumItemQuery.data.tagIds.inReview.map((tag) => renderTag(tag, activeTab === "PENDING"))}
               </>
             )}
           </div>
@@ -147,7 +108,6 @@ export default function AlbumItemViewModalBottomSection(props: ImageViewBottomSe
             </div>
           )}
         </div>
-      </div>
-    </div>
+
   );
 }
