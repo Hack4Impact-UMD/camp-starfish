@@ -1,7 +1,6 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useAuth } from "@/auth/useAuth";
-import Image from "next/image";
-import { MdAdd, MdCheck, MdClose, MdFlag } from "react-icons/md";import { ActionIcon, Badge, Select, Switch } from "@mantine/core";
+import { MdAdd, MdCheck, MdClose, MdFlag } from "react-icons/md";import { ActionIcon, Badge, Button, Select, Switch } from "@mantine/core";
 import { Role } from "@/types/users/userTypes";
 import { AlbumItem } from "@/types/albums/albumTypes";
 import useAlbumItem from "@/hooks/albumItems/useAlbumItem";
@@ -67,24 +66,15 @@ export default function AlbumItemViewModalBottomSection(
       onClick={(e) => e.stopPropagation()}
     >
       {canModerateTags && (
-        <Select label="Tag Status" data={["APPROVED", "PENDING"]} value={activeTab} onChange={(value) => setActiveTab(value as "APPROVED" | "PENDING")} />
+        <Select className="min-w-fit" label="Tag Status" data={["APPROVED", "PENDING"]} value={activeTab} onChange={(value) => setActiveTab(value as "APPROVED" | "PENDING")} />
       )}
 
-      <div className="overflow-x-auto whitespace-nowrap flex gap-2 w-full">
+      <div className="">
         {(activeTab === "APPROVED" ? albumItem.tagIds.approved : albumItem.tagIds.inReview).map(tag => renderTag(tag, activeTab === "APPROVED"))}
       </div>
 
-      {/* Add Tag button: Only visible for pending tags and moderators */}
-      {activeTab === "PENDING" && canModerateTags && (
-        <div className="bg-white flex justify-end">
-          <button
-            aria-label="Add Tag"
-            className="bg-camp-primary flex flex-row justify-center space-x-2 p-2 px-4 sm:px-6 rounded-3xl shrink-0"
-          >
-            <p className="text-base sm:text-lg font-lato">ADD TAG</p>
-            <MdAdd size={30} />
-          </button>
-        </div>
+      {canModerateTags && (
+        <Button className="min-w-fit" aria-label="Add Tags" rightSection={<MdAdd size={20} />}>Add Tag</Button>
       )}
     </div>
   );
