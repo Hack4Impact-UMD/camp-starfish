@@ -370,7 +370,7 @@ There is **no unit test framework wired up** (no Jest/Vitest config, no `.test.*
 
 ### High-priority gaps
 4. **No moderation UI.** `albumItemReports` infrastructure (Cloud Function, hooks, types) exists, but there is no admin route to review/resolve pending reports.
-5. **Missing routes referenced in UI.** `EmployeeHomePage` exposes "PROGRAMS" and "CAMPERS" cards, but `/programs` and `/campers` routes do not exist in `src/app/`.
+5. **Missing routes referenced in UI.** `EmployeeHomePage` exposes "SESSIONS" and "CAMPERS" cards, but `/sessions` and `/campers` routes do not exist in `src/app/`.
 6. **`SmallDirectoryBlock`** logs `"Redirect to expanded directory view"` instead of navigating — placeholder.
 7. **Apps Script preference sync TODO**: `preferencesSheets.ts` has a comment to re-enable syncing Firestore updates back into the preferences spreadsheet.
 

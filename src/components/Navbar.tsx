@@ -9,7 +9,7 @@ import { Role } from "@/types/users/userTypes";
 import Image from "next/image";
 
 const navbarLinks: { name: string; href: string; roles: Role[] }[] = [
-  { name: "Programs", href: "/programs", roles: ["STAFF", "ADMIN"] },
+  { name: "Sessions", href: "/sessions", roles: ["STAFF", "ADMIN"] },
   {
     name: "Campers",
     href: "/campers",
