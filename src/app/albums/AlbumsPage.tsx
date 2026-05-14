@@ -5,7 +5,7 @@ import AlbumCard from "../../components/AlbumCard";
 import { openEditAlbumModal } from "@/components/EditAlbumModal";
 import CardGallery from "@/components/CardGallery";
 import { Album } from "@/types/albums/albumTypes";
-import useAlbums from "@/hooks/albums/useAlbums";
+import useAlbumList from "@/hooks/albums/useAlbumList";
 import ErrorPage from "../error";
 import LoadingPage from "../loading";
 import {
@@ -49,7 +49,7 @@ export default function AlbumsPage() {
     AlbumsPageSortOption.NEWEST_TO_OLDEST,
   );
 
-  const albumsQuery = useAlbums({
+  const albumsQuery = useAlbumList({
     ...sortQueryOptions[sortOption],
     limit: 10,
     limitToLast: undefined,
@@ -73,7 +73,9 @@ export default function AlbumsPage() {
   return (
     <div className="flex flex-col w-6/7 grow mx-auto px-4 py-6 gap-6">
       <div className="flex items-center justify-between">
-        <Title order={1} className="uppercase">Albums</Title>
+        <Title order={1} className="uppercase">
+          Albums
+        </Title>
         <div className="flex items-center gap-4 ml-auto">
           <Menu>
             <Tooltip label="Sort">

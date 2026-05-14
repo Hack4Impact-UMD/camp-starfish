@@ -14,13 +14,7 @@ import moment, { Moment } from "moment";
 import useCreateSection from "@/hooks/sections/useCreateSection";
 import useUpdateSection from "@/hooks/sections/useUpdateSection";
 import useDeleteSection from "@/hooks/sections/useDeleteSection";
-import { isSchedulingSectionType } from "@/types/sessions/sessionTypeGuards";
-import {
-  Section,
-  SchedulingSection,
-  CommonSection,
-  SectionType,
-} from "@/types/sessions/sessionTypes";
+import { SectionType } from "@/types/sessions/sessionTypes";
 import useSection from "@/hooks/sections/useSection";
 import { modals } from "@mantine/modals";
 
@@ -67,41 +61,16 @@ export default function EditSectionModal({
 
   const handleSubmit = () => {
     if (!startDate || !endDate || !name || !scheduleType) return;
-    const baseSectionData = {
-      name,
-      type: scheduleType,
-      startDate: startDate.toISOString(),
-      endDate: endDate.toISOString(),
-    };
-
-    let sectionData: Section;
-    if (isSchedulingSectionType(scheduleType)) {
-      sectionData = {
-        ...baseSectionData,
-        type: scheduleType,
-        isScheduleOutdated: false,
-        id: sectionId || "",
-        sessionId
-      } satisfies SchedulingSection;
-    } else {
-      sectionData = {
-        ...baseSectionData,
-        type: "COMMON",
-        id: sectionId || "",
-        sessionId        
-      } satisfies CommonSection;
-    }
-
     if (isEditMode) {
       updateMutation.mutate(
-        { sessionId, sectionId, updates: sectionData },
+        { sessionId, sectionId, name, startDate, endDate, type: scheduleType },
         {
           onSuccess: () => modals.closeAll(),
         },
       );
     } else {
       createMutation.mutate(
-        { sessionId, section: sectionData },
+        { sessionId, name, startDate, endDate, type: scheduleType },
         {
           onSuccess: () => modals.closeAll(),
         },

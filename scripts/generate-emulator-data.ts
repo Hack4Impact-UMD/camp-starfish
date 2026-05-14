@@ -105,8 +105,8 @@ export function generateSession(): Session {
   return {
     id: faker.string.uuid(),
     name: faker.lorem.words({ min: 2, max: 5 }),
-    startDate: startDate.toISOString(),
-    endDate: endDate.toISOString(),
+    startDate: moment(startDate),
+    endDate: moment(endDate),
     driveFolderId: '',
   }
 }
@@ -121,8 +121,8 @@ export function generateSections(session: Session): Section[] {
     name: faker.lorem.words({ min: 2, max: 5 }),
     type: "COMMON",
     sessionId: session.id,
-    startDate: startDate.toISOString(),
-    endDate: startDate.clone().add(1, 'day').toISOString()
+    startDate: startDate,
+    endDate: startDate.clone().add(1, 'day')
   }
 
   const endingSection: CommonSection = {
@@ -130,8 +130,8 @@ export function generateSections(session: Session): Section[] {
     name: faker.lorem.words({ min: 2, max: 5 }),
     type: "COMMON",
     sessionId: session.id,
-    startDate: endDate.clone().subtract(1, 'day').toISOString(),
-    endDate: endDate.toISOString()
+    startDate: endDate.clone().subtract(1, 'day'),
+    endDate: endDate
   }
 
   let currDate = startDate.clone().add(1, 'day');
@@ -144,18 +144,16 @@ export function generateSections(session: Session): Section[] {
         name: faker.lorem.words({ min: 2, max: 5 }),
         type: "BUNDLE",
         sessionId: session.id,
-        startDate: currDate.toISOString(),
-        endDate: currDate.clone().add(3, 'days').toISOString(),
-        isScheduleOutdated: faker.datatype.boolean(),
+        startDate: currDate,
+        endDate: currDate.clone().add(3, 'days'),
       } satisfies SchedulingSection);
       sections.push({
         id: faker.string.uuid(),
         name: faker.lorem.words({ min: 2, max: 5 }),
         type: faker.datatype.boolean() ? "BUNK-JAMBO" : "NON-BUNK-JAMBO",
         sessionId: session.id,
-        startDate: currDate.toISOString(),
-        endDate: currDate.clone().add(3, 'days').toISOString(),
-        isScheduleOutdated: faker.datatype.boolean(),
+        startDate: currDate,
+        endDate: currDate.clone().add(3, 'days'),
       } satisfies SchedulingSection);
       currDate.add(4, 'days')
       continue;
@@ -166,9 +164,8 @@ export function generateSections(session: Session): Section[] {
         name: faker.lorem.words({ min: 2, max: 5 }),
         type: faker.datatype.boolean() ? "BUNK-JAMBO" : "NON-BUNK-JAMBO",
         sessionId: session.id,
-        startDate: currDate.toISOString(),
-        endDate: currDate.clone().add(3, 'days').toISOString(),
-        isScheduleOutdated: faker.datatype.boolean(),
+        startDate: currDate,
+        endDate: currDate.clone().add(3, 'days'),
       } satisfies SchedulingSection)
     }
     currDate.add(daysLeft, 'days');
