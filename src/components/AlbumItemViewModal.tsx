@@ -50,7 +50,7 @@ export function AlbumItemViewModal({
 
   return (
     <div onClick={modals.closeAll} className="w-full h-full bg-black flex flex-col items-center justify-between">
-      <div className="w-full flex flex-row justify-between items-start max-h-1/10 sm:items-center gap-4 sm:gap-0 px-6 sm:px-10 pt-6 sm:pt-8 pb-4 border-white border-4">
+      <div className="w-full flex flex-row justify-between items-start max-h-1/10 sm:items-center gap-4 sm:gap-0 px-6 sm:px-10 pt-6 sm:pt-8 pb-4">
         <div className="flex flex-row items-center space-x-4 sm:space-x-10">
           <ActionIcon variant="transparent" onClick={onClose} aria-label="Close Modal">
             <MdClose className="text-white active:outline-none" size={30} />
