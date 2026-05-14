@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "@/auth/useAuth";
-import { MdAdd, MdCheck, MdClose, MdFlag } from "react-icons/md";import { ActionIcon, Badge, Button, Select, Switch } from "@mantine/core";
+import { MdAdd, MdCheck, MdClose, MdFlag } from "react-icons/md";
+import { ActionIcon, Badge, Button, Select, Text } from "@mantine/core";
 import { Role } from "@/types/users/userTypes";
 import { AlbumItem } from "@/types/albums/albumTypes";
 import useAlbumItem from "@/hooks/albumItems/useAlbumItem";
@@ -16,7 +17,9 @@ export default function AlbumItemViewModalBottomSection(
 ) {
   const { albumId, albumItemId } = props;
 
-  const [activeTab, setActiveTab] = useState<"APPROVED" | "PENDING">("APPROVED");
+  const [activeTab, setActiveTab] = useState<"APPROVED" | "PENDING">(
+    "APPROVED",
+  );
 
   const albumItemQuery = useAlbumItem({ albumId, albumItemId });
   const tagDirectoryQuery = useTagDirectory();
@@ -33,17 +36,19 @@ export default function AlbumItemViewModalBottomSection(
   const canViewTags = canModerateTags || userRole === "STAFF";
 
   // --- Parent-only view: show report button ---
-  if (userRole === "PARENT") {
+  if (userRole === "ADMIN") {
     return (
-      <div className="w-full bg-camp-white rounded-t-2xl flex flex-row items-center justify-center gap-4 sm:gap-10 p-4 sm:px-10">
-        <p className="font-lato text-base sm:text-lg text-center sm:text-left text-camp-primary">
+      <div
+        className="w-full bg-white rounded-t-2xl flex justify-center items-center py-md gap-4"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <Text>
           Something wrong with this image? Report your issue to the Camp
-          Starfish team
-        </p>
-        <button className="bg-camp-primary flex flex-row justify-center space-x-4 p-2 rounded-3xl w-52">
-          <p className="text-base sm:text-lg font-lato">REPORT</p>
-          <MdFlag size={20} />
-        </button>
+          Starfish team!
+        </Text>
+        <Button aria-label="Report" rightSection={<MdFlag size={20} />}>
+          Report
+        </Button>
       </div>
     );
   }
@@ -52,29 +57,56 @@ export default function AlbumItemViewModalBottomSection(
   if (!canViewTags) return null;
 
   const renderTag = (tagId: number, isApproved: boolean) => (
-    <Badge key={tagId} variant="light" rightSection={<>
-      {!isApproved && <ActionIcon variant="transparent" size="sm"><MdCheck size={20} /></ActionIcon>}
-      <ActionIcon variant="transparent" size="sm"><MdClose size={20} /></ActionIcon>
-    </>}>
+    <Badge
+      key={tagId}
+      variant="light"
+      rightSection={
+        <>
+          {!isApproved && (
+            <ActionIcon variant="transparent" size="sm">
+              <MdCheck size={20} />
+            </ActionIcon>
+          )}
+          <ActionIcon variant="transparent" size="sm">
+            <MdClose size={20} />
+          </ActionIcon>
+        </>
+      }
+    >
       {tagDirectory[tagId]}
     </Badge>
   );
 
   return (
     <div
-      className="w-full bg-white rounded-t-2xl flex sm:flex-row sm:items-center items-start p-4 gap-4 sm:pl-10 sm:pr-10"
+      className="w-full bg-white rounded-t-2xl flex justify-center items-center py-md gap-4"
       onClick={(e) => e.stopPropagation()}
     >
       {canModerateTags && (
-        <Select className="min-w-fit" label="Tag Status" data={["APPROVED", "PENDING"]} value={activeTab} onChange={(value) => setActiveTab(value as "APPROVED" | "PENDING")} />
+        <Select
+          className="min-w-fit"
+          label="Tag Status"
+          data={["APPROVED", "PENDING"]}
+          value={activeTab}
+          onChange={(value) => setActiveTab(value as "APPROVED" | "PENDING")}
+        />
       )}
 
       <div className="">
-        {(activeTab === "APPROVED" ? albumItem.tagIds.approved : albumItem.tagIds.inReview).map(tag => renderTag(tag, activeTab === "APPROVED"))}
+        {(activeTab === "APPROVED"
+          ? albumItem.tagIds.approved
+          : albumItem.tagIds.inReview
+        ).map((tag) => renderTag(tag, activeTab === "APPROVED"))}
       </div>
 
       {canModerateTags && (
-        <Button className="min-w-fit" aria-label="Add Tags" rightSection={<MdAdd size={20} />}>Add Tag</Button>
+        <Button
+          className="min-w-fit"
+          aria-label="Add Tags"
+          rightSection={<MdAdd size={20} />}
+        >
+          Add Tag
+        </Button>
       )}
     </div>
   );
