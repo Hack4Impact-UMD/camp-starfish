@@ -14,7 +14,7 @@ interface ImageViewBottomSectionProps {
   albumItemId: string;
 }
 
-export default function ImageViewBottomSection(props: ImageViewBottomSectionProps) {
+export default function AlbumItemViewModalBottomSection(props: ImageViewBottomSectionProps) {
   const { albumId, albumItemId } = props;
 
   const [activeTab, setActiveTab] = useState<"APPROVED" | "PENDING">(
