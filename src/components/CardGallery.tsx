@@ -1,6 +1,7 @@
 "use client";
 
 import { JSX, useState } from "react";
+import { Checkbox, Group, SimpleGrid, Stack, Title } from "@mantine/core";
 
 export interface GroupOptions<T> {
   groupLabels: string[];
@@ -12,86 +13,118 @@ interface CardGalleryProps<T> {
   items: T[];
   renderItem: (item: T, isSelected: boolean) => JSX.Element;
   groups?: GroupOptions<T>;
+  // Controlled selection — when provided, the parent owns selection state
+  selectedItemIds?: string[];
+  onToggleItem?: (id: string) => void;
+  onToggleGroup?: (label: string, checked: boolean) => void;
 }
 
 export default function CardGallery<T extends { id: string }>(
   props: CardGalleryProps<T>
 ) {
   const { items, renderItem, groups } = props;
-  const [selectedItemIds, setSelectedItemIds] = useState<string[]>([]);
+  const [internalSelectedIds, setInternalSelectedIds] = useState<string[]>([]);
+
+  const isControlled = props.selectedItemIds !== undefined;
+  const selectedItemIds = isControlled ? props.selectedItemIds! : internalSelectedIds;
+
+  // Build item groups up-front so both toggleGroup and the render can reference it
+  const itemGroups: { [groupLabel: string]: T[] } = {};
+  if (groups) {
+    const { groupLabels, defaultGroupLabel, groupFunc } = groups;
+    items.forEach((item: T) => {
+      let label = groupFunc(item);
+      if (groupLabels.indexOf(label) === -1) label = defaultGroupLabel;
+      itemGroups[label] = itemGroups[label] || [];
+      itemGroups[label].push(item);
+    });
+  }
 
   const toggleItem = (itemId: string) => {
-    setSelectedItemIds((prev: string[]) => {
-      if (prev.indexOf(itemId) === -1) {
-        return [...prev, itemId];
-      }
-      return prev.filter((id: string) => id !== itemId);
-    });
+    if (isControlled) {
+      props.onToggleItem?.(itemId);
+    } else {
+      setInternalSelectedIds((prev) =>
+        prev.indexOf(itemId) === -1
+          ? [...prev, itemId]
+          : prev.filter((id) => id !== itemId)
+      );
+    }
+  };
+
+  const toggleGroup = (label: string, checked: boolean) => {
+    if (isControlled) {
+      props.onToggleGroup?.(label, checked);
+    } else {
+      setInternalSelectedIds((prev) => {
+        if (checked) {
+          return Array.from(new Set([...prev, ...itemGroups[label].map((item) => item.id)]));
+        }
+        return prev.filter((id) => !itemGroups[label].some((item) => item.id === id));
+      });
+    }
   };
 
   if (!groups) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-6">
-        {items.map((item: T) => (
-          <div onClick={() => toggleItem(item.id)} key={item.id}>
-            {renderItem(item, selectedItemIds.indexOf(item.id) !== -1)}
-          </div>
-        ))}
-      </div>
+      <SimpleGrid cols={{ base: 1, sm: 2, md: 3, lg: 4 }} spacing="lg" mt="md">
+        {items.map((item: T) => {
+          const isSelected = selectedItemIds.indexOf(item.id) !== -1;
+          return (
+            <div
+              role="button"
+              tabIndex={0}
+              onClick={() => toggleItem(item.id)}
+              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggleItem(item.id); } }}
+              key={item.id}
+              aria-pressed={isSelected}
+              className="cursor-pointer rounded-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-5"
+            >
+              {renderItem(item, isSelected)}
+            </div>
+          );
+        })}
+      </SimpleGrid>
     );
   }
 
-  const { groupLabels, defaultGroupLabel, groupFunc } = groups;
-  const itemGroups: { [groupLabel: string]: T[] } = {};
-  items.forEach((item: T) => {
-    let label = groupFunc(item);
-    if (groupLabels.indexOf(label) === -1) {
-      label = defaultGroupLabel;
-    }
-    itemGroups[label] = itemGroups[label] || [];
-    itemGroups[label].push(item);
-  });
-
-  const toggleGroup = (label: string, checked: boolean) => {
-    setSelectedItemIds((prev: string[]) => {
-      if (checked) {
-        return Array.from(
-          new Set([...prev, ...itemGroups[label].map((item: T) => item.id)])
-        );
-      }
-      return prev.filter(
-        (id: string) => !itemGroups[label].some((item: T) => item.id === id)
-      );
-    });
-  };
-
-  groupLabels.push(defaultGroupLabel);
+  const { groupLabels, defaultGroupLabel } = groups;
+  const labels = [...groupLabels, defaultGroupLabel];
   return (
-    <div className="mt-6 space-y-8">
-      {groupLabels.map(
+    <Stack gap="xl" mt="md">
+      {labels.map(
         (label: string) =>
           itemGroups[label] && (
-            <div key={label}>
-              <div className="flex items-center gap-8 mb-4">
-                <h2 className="text-xl font-lato text-camp-primary">{label}</h2>
-                <input
-                  type="checkbox"
+            <Stack gap="md" key={label}>
+              <Group gap="lg" align="center">
+                <Title order={4}>{label}</Title>
+                <Checkbox
                   checked={itemGroups[label].every(
                     (item: T) => selectedItemIds.indexOf(item.id) !== -1
                   )}
-                  onChange={(event) => toggleGroup(label, event.target.checked)}
+                  onChange={(event) => toggleGroup(label, event.currentTarget.checked)}
+                  aria-label={`Select all in ${label}`}
                 />
-              </div>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {itemGroups[label].map((item: T) => (
-                  <div onClick={() => toggleItem(item.id)} key={item.id}>
-                    {renderItem(item, selectedItemIds.indexOf(item.id) !== -1)}
-                  </div>
-                ))}
-              </div>
-            </div>
+              </Group>
+              <SimpleGrid cols={{ base: 2, md: 3, lg: 6 }} spacing="xs">
+                {itemGroups[label].map((item: T) => {
+                  const isSelected = selectedItemIds.indexOf(item.id) !== -1;
+                  return (
+                    <button
+                      type="button"
+                      onClick={() => toggleItem(item.id)}
+                      key={item.id}
+                      aria-pressed={isSelected}
+                      className="text-left p-0 bg-transparent border-0 cursor-pointer rounded-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-5"
+                    >
+                      {renderItem(item, isSelected)}
+                    </button>
+                  );
+                })}
+              </SimpleGrid>
+            </Stack>
           )
       )}
-    </div>
+    </Stack>
   );
 }

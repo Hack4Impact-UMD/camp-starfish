@@ -3,6 +3,8 @@ import {
   MdOutlineFileUpload,
   MdOutlineFileDownload,
   MdPendingActions,
+  MdDelete,
+  MdClose,
 } from "react-icons/md";
 import Link from "next/link";
 import AlbumItemCard from "@/components/AlbumItemCard";
@@ -11,8 +13,12 @@ import TagSelect from "@/components/TagSelect";
 import { Album, AlbumItem } from "@/types/albums/albumTypes";
 import { FirestoreQueryOptions } from "@/data/firestore/types/queries";
 import { AlbumItemDoc } from "@/data/firestore/types/documents";
+import { deleteAlbumItemDoc } from "@/data/firestore/albumItems";
 import useAlbum from "@/hooks/albums/useAlbum";
 import useAlbumItemsList from "@/hooks/albumItems/useAlbumItemsList";
+import { getAlbumItemBlob } from "@/hooks/albumItems/useAlbumItemBlob";
+import { downloadFilesLocally } from "@/hooks/useDownloadFilesLocally";
+import useNotifications from "@/features/notifications/useNotifications";
 import {
   ActionIcon,
   Anchor,
@@ -20,6 +26,7 @@ import {
   Button,
   Indicator,
   Menu,
+  Text,
   Title,
   Tooltip,
 } from "@mantine/core";
@@ -30,6 +37,7 @@ import useDownloadAlbum from "@/features/albums/downloading/useDownloadAlbum";
 import openUploadAlbumItemsModal from "@/components/UploadAlbumItemsModal/UploadAlbumItemsModal";
 import { useInViewport } from "@mantine/hooks";
 import LoadingAnimation from "@/components/LoadingAnimation";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 const enum AlbumPageSortOption {
   NEWEST_TO_OLDEST = "Newest → Oldest",
@@ -76,9 +84,11 @@ interface AlbumPageContentProps {
 export function AlbumPageContent(props: AlbumPageContentProps) {
   const { album } = props;
 
+  // ── All hooks must be called unconditionally before any early returns ──
   const [sortOption, setSortOption] = useState<AlbumPageSortOption>(
     AlbumPageSortOption.NEWEST_TO_OLDEST,
   );
+  const [selectedItemIds, setSelectedItemIds] = useState<string[]>([]);
 
   const albumItemsQuery = useAlbumItemsList(album.id, {
     ...sortQueryOptions[sortOption],
@@ -95,6 +105,51 @@ export function AlbumPageContent(props: AlbumPageContentProps) {
   }, [inViewport, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   const downloadAlbumMutation = useDownloadAlbum();
+  const queryClient = useQueryClient();
+  const notifications = useNotifications();
+
+  // Derive albumItems before early returns so mutation closures can reference it
+  const albumItems: AlbumItem[] =
+    albumItemsQuery.data?.pages.flatMap((page) => page.docs) ?? [];
+
+  const downloadSelectedMutation = useMutation({
+    mutationFn: async (ids: string[]) => {
+      const selectedItems = albumItems.filter((item) => ids.includes(item.id));
+      const blobs = await Promise.all(
+        selectedItems.map((item) =>
+          queryClient.fetchQuery({
+            queryKey: ["albums", album.id, "albumItems", item.id, "blob"],
+            queryFn: () => getAlbumItemBlob(album.id, item.id),
+          })
+        )
+      );
+      await downloadFilesLocally({
+        items: selectedItems.map((item, i) => ({
+          blob: blobs[i],
+          filename: item.name,
+        })),
+        zipFileName: `${album.name}-selected.zip`,
+      });
+    },
+    onSuccess: (_, ids) =>
+      notifications.success(`Downloaded ${ids.length} item${ids.length !== 1 ? "s" : ""}.`),
+    onError: () => notifications.error("Failed to download selected items."),
+  });
+
+  const deleteSelectedMutation = useMutation({
+    mutationFn: async (ids: string[]) => {
+      await Promise.all(ids.map((id) => deleteAlbumItemDoc(album.id, id)));
+    },
+    onSuccess: (_, ids) => {
+      queryClient.invalidateQueries({
+        queryKey: ["albums", album.id, "albumItems"],
+      });
+      setSelectedItemIds([]);
+      notifications.success(`Deleted ${ids.length} item${ids.length !== 1 ? "s" : ""}.`);
+    },
+    onError: () => notifications.error("Failed to delete selected items."),
+  });
+  // ── End of hooks ──
 
   if (albumItemsQuery.isPending) {
     return <LoadingPage />;
@@ -102,8 +157,31 @@ export function AlbumPageContent(props: AlbumPageContentProps) {
     return <ErrorPage error={albumItemsQuery.error} />;
   }
 
-  const albumItems =
-    albumItemsQuery.data.pages.flatMap((page) => page.docs) || [];
+  // Selection handlers
+  const handleToggleItem = (id: string) => {
+    setSelectedItemIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    );
+  };
+
+  const handleToggleGroup = (label: string, checked: boolean) => {
+    const groupItems = albumItems.filter(
+      (item) => item.dateTaken.format("YYYY-MM-DD") === label
+    );
+    setSelectedItemIds((prev) => {
+      if (checked) {
+        return Array.from(new Set([...prev, ...groupItems.map((item) => item.id)]));
+      }
+      return prev.filter((id) => !groupItems.some((item) => item.id === id));
+    });
+  };
+
+  const handleSelectAll = () =>
+    setSelectedItemIds(albumItems.map((item) => item.id));
+
+  const handleClearSelection = () => setSelectedItemIds([]);
+
+  const selectionActive = selectedItemIds.length > 0;
 
   return (
     <div className="flex flex-col w-6/7 grow mx-auto px-4 py-6 gap-6">
@@ -118,60 +196,116 @@ export function AlbumPageContent(props: AlbumPageContentProps) {
             </Anchor>
           ))}
         </Breadcrumbs>
-        <div className="flex items-start gap-4 shrink-0">
-          <TagSelect />
-          <Menu>
-            <Tooltip label="Sort">
-              <Menu.Target>
-                <ActionIcon variant="transparent">
-                  <MdSort size={50} />
-                </ActionIcon>
-              </Menu.Target>
-            </Tooltip>
-            <Menu.Dropdown>
-              {[
-                AlbumPageSortOption.NEWEST_TO_OLDEST,
-                AlbumPageSortOption.OLDEST_TO_NEWEST,
-                AlbumPageSortOption.A_TO_Z,
-                AlbumPageSortOption.Z_TO_A,
-              ].map((option) => (
-                <Menu.Item key={option} onClick={() => setSortOption(option)}>
-                  {option}
-                </Menu.Item>
-              ))}
-            </Menu.Dropdown>
-          </Menu>
-          <Link href="/albums/pending">
-            <Tooltip label="Pending Items">
-              <Indicator color="error" offset={7}>
-                <ActionIcon variant="outline">
-                  <MdPendingActions size={30} />
-                </ActionIcon>
-              </Indicator>
-            </Tooltip>
-          </Link>
-          <Tooltip label="Upload Items">
-            <ActionIcon
-              color="aqua"
-              onClick={() => openUploadAlbumItemsModal(album.id)}
+
+        {selectionActive ? (
+          <div className="flex items-center gap-2 bg-[#002d45] rounded-md px-4 py-2 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] shrink-0">
+            <Text c="white" fw={700} size="sm" className="px-1 whitespace-nowrap">
+              {selectedItemIds.length} selected
+            </Text>
+            <Button
+              variant="outline"
+              color="white"
+              radius="xl"
+              size="sm"
+              onClick={handleSelectAll}
             >
-              <MdOutlineFileUpload size={40} />
-            </ActionIcon>
-          </Tooltip>
-          <Tooltip label="Download Album">
+              Select All
+            </Button>
+            <Tooltip label="Download selected" withArrow>
+              <Button
+                variant="outline"
+                color="white"
+                radius="xl"
+                size="sm"
+                px="sm"
+                onClick={() => downloadSelectedMutation.mutate(selectedItemIds)}
+                loading={downloadSelectedMutation.isPending}
+                aria-label="Download selected items"
+              >
+                <MdOutlineFileDownload size={16} />
+              </Button>
+            </Tooltip>
+            <Tooltip label="Delete selected" withArrow>
+              <Button
+                variant="outline"
+                color="white"
+                radius="xl"
+                size="sm"
+                px="sm"
+                onClick={() => deleteSelectedMutation.mutate(selectedItemIds)}
+                loading={deleteSelectedMutation.isPending}
+                aria-label="Delete selected items"
+              >
+                <MdDelete size={16} />
+              </Button>
+            </Tooltip>
             <ActionIcon
-              color="aqua"
-              onClick={() =>
-                downloadAlbumMutation.mutate({
-                  albumId: album.id,
-                  queryOptions: sortQueryOptions[sortOption],
-                })
-              }
+              variant="transparent"
+              color="white"
+              size="md"
+              radius="xl"
+              onClick={handleClearSelection}
+              aria-label="Clear selection"
             >
-              <MdOutlineFileDownload size={40} />
+              <MdClose size={16} />
             </ActionIcon>
-          </Tooltip>
-        </div>
+          </div>
+        ) : (
+          <div className="flex items-start gap-4 shrink-0">
+            <TagSelect />
+            <Menu>
+              <Tooltip label="Sort">
+                <Menu.Target>
+                  <ActionIcon variant="transparent">
+                    <MdSort size={50} />
+                  </ActionIcon>
+                </Menu.Target>
+              </Tooltip>
+              <Menu.Dropdown>
+                {[
+                  AlbumPageSortOption.NEWEST_TO_OLDEST,
+                  AlbumPageSortOption.OLDEST_TO_NEWEST,
+                  AlbumPageSortOption.A_TO_Z,
+                  AlbumPageSortOption.Z_TO_A,
+                ].map((option) => (
+                  <Menu.Item key={option} onClick={() => setSortOption(option)}>
+                    {option}
+                  </Menu.Item>
+                ))}
+              </Menu.Dropdown>
+            </Menu>
+            <Link href="/albums/pending">
+              <Tooltip label="Pending Items">
+                <Indicator color="error" offset={7}>
+                  <ActionIcon variant="outline">
+                    <MdPendingActions size={30} />
+                  </ActionIcon>
+                </Indicator>
+              </Tooltip>
+            </Link>
+            <Tooltip label="Upload Items">
+              <ActionIcon
+                color="aqua"
+                onClick={() => openUploadAlbumItemsModal(album.id)}
+              >
+                <MdOutlineFileUpload size={40} />
+              </ActionIcon>
+            </Tooltip>
+            <Tooltip label="Download Album">
+              <ActionIcon
+                color="aqua"
+                onClick={() =>
+                  downloadAlbumMutation.mutate({
+                    albumId: album.id,
+                    queryOptions: sortQueryOptions[sortOption],
+                  })
+                }
+              >
+                <MdOutlineFileDownload size={40} />
+              </ActionIcon>
+            </Tooltip>
+          </div>
+        )}
       </div>
 
       {albumItems.length === 0 ? (
@@ -189,6 +323,9 @@ export function AlbumPageContent(props: AlbumPageContentProps) {
         <>
           <CardGallery<AlbumItem>
             items={albumItems}
+            selectedItemIds={selectedItemIds}
+            onToggleItem={handleToggleItem}
+            onToggleGroup={handleToggleGroup}
             renderItem={(image: AlbumItem, isSelected: boolean) => (
               <AlbumItemCard
                 albumId={album.id}

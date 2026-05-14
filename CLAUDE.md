@@ -23,7 +23,7 @@ Repository: `Hack4Impact-UMD/camp-starfish`. Production target: Firebase Hosting
 - **Framework**: Next.js `^15.5.9` (App Router, Turbopack dev)
 - **React**: `^19.2.0`
 - **Language**: TypeScript `^5.9.3` (target `ES2024`, `@/*` → `./src/*`)
-- **UI Components**: Mantine `^8.3.18` (core, form, hooks, modals, notifications, carousel, dates, dropzone)
+- **UI Components**: Mantine `^8.3.18` (core, form, hooks, modals, notifications, carousel, dates, dropzone) + Radix Dialog
 - **Styling**: Tailwind CSS `^4.2.1` via `@tailwindcss/postcss` + `tailwind-preset-mantine` (theme bridge)
 - **Data Fetching**: TanStack Query `^5.90.6`
 - **Forms**: TanStack Form `^1.27.7`
@@ -115,9 +115,9 @@ camp-starfish/
 `loading.tsx` and `error.tsx` provide the App Router boundaries.
 
 ### `src/components/`
-Reusable UI building blocks (~28 files). Highlights:
+Reusable UI building blocks (~28 files). Most are Mantine-first; layout-only Tailwind utilities are still allowed but Mantine components handle theming/state. Highlights:
 - **Layout**: `Navbar`, `Footer`, `Providers`, `BackgroundPattern`
-- **Cards**: `AlbumCard`, `SessionCard`, `ImageCard`, `GalleryCardOne`, `CardGallery`
+- **Cards**: `AlbumCard` (Mantine `Card` with overlaid download `ActionIcon`), `SessionCard`, `ImageCard` (Mantine `Card` + `Checkbox` + `Image`), `GalleryCardOne`, `CardGallery` (Mantine `SimpleGrid` / `Stack` / `Checkbox` for grouping & selection)
 - **Activity grid**: `ActivityGrid`, `ActivityGridRow`, `ActivityGridCell`
 - **Modals**: `ActivityModal`, `AssignActivityModal`, `EditSectionModal`, `FileUploadModal`, `CreateSessionModal`, `EditAlbumModal`, `ConfirmationModal`
 - **Tables**: `DirectoryTableView`, `DirectoryTableCell`, `NightScheduleTable`
@@ -138,8 +138,8 @@ Reusable UI building blocks (~28 files). Highlights:
 ### `src/data/`
 Thin abstraction over Firestore and Storage. **All client reads/writes go through here** — components/hooks should not call Firebase SDK directly.
 - `firestoreClientOperations.ts` — query/paginate/get/set/delete primitives.
-- Per-collection modules: `albums.ts`, `albumItems.ts`, `albumItemReports.ts`, `sessions.ts`, `sections.ts`, `sectionSchedules.ts`, `attendees.ts`, `nightSchedules.ts`, `freeplays.ts`, `programAreas.ts`, `users.ts`.
-- `storage/storageClientOperations.ts` — file upload/download.
+- Per-collection modules: `albums.ts`, `albumItems.ts` (includes `getAlbumItemDocs(albumId)` for listing every item — used by the album download flow), `albumItemReports.ts`, `sessions.ts`, `sections.ts`, `sectionSchedules.ts`, `attendees.ts`, `nightSchedules.ts`, `freeplays.ts`, `programAreas.ts`, `users.ts`.
+- `storage/storageClientOperations.ts` — file upload/download. Album-item blobs live at `albums/{albumId}/albumItems/{albumItemId}` (thumbnails at `albums/{albumId}/thumbnail`).
 - `appsScriptService.ts` — Calls into Apps Script-backed Cloud Functions.
 - `types/collections.ts`, `types/documents.ts` — Collection name constants and Firestore document shapes.
 
@@ -148,11 +148,11 @@ Domain-specific logic (not pure UI, not pure data).
 - **Scheduling/generation**: `BundleScheduler`, `BunkJamboreeScheduler`, `NonBunkJamboreeScheduler`, `SessionScheduler`, `FreeplayScheduler`.
 - **Scheduling/lifecycle**: `publishSectionSchedule.ts`, `unpublishSectionSchedule.ts`.
 - **Scheduling/exporting**: `DaySchedulePDF.tsx`, `CamperPreferencesSheet.tsx`, `BlockRatiosGrid.tsx`, `CamperGrid.tsx`, `EmployeeGrid.tsx`, `ProgramAreaGrid.tsx`, `DownloadDaySchedulePDFButton.tsx`.
-- **Albums**: `linkAlbumAndSession.ts`, `unlinkAlbumAndSession.ts`, `albumItemReporting/useCreateAlbumItemReport.ts`, `useResolveAlbumItemReport.ts`.
+- **Albums**: `linkAlbumAndSession.ts`, `unlinkAlbumAndSession.ts`, `downloadAlbum.ts` (zips every item in an album with JSZip and triggers a browser download), `albumItemReporting/useCreateAlbumItemReport.ts`, `useResolveAlbumItemReport.ts`.
 - **Notifications**: `useNotifications.tsx` (Mantine notifications wrapper).
 
 ### `src/hooks/`
-TanStack Query hooks per resource. Naming convention: `use<Verb><Resource>` (e.g. `useCreateSession`, `useAttendeesBySessionId`). 24+ hooks across albums, album items, sessions, sections, schedules, attendees, night schedules, program areas, freeplays.
+TanStack Query hooks per resource. Naming convention: `use<Verb><Resource>` (e.g. `useCreateSession`, `useAttendeesBySessionId`). 24+ hooks across albums, album items, sessions, sections, schedules, attendees, night schedules, program areas, freeplays. `useDownloadAlbum` wraps the album download flow as a TanStack mutation.
 
 ### `src/types/`
 Domain types organized by resource:
@@ -253,7 +253,7 @@ When adding new UI:
 - The `checkAllowlist` Cloud Function assigns the role at user-creation time.
 - Client guard: `src/auth/RequireAuth.tsx` wraps protected routes and accepts an array of allowed roles.
 - Server guard: `firestore.rules` enforces `isStaff()`, `isAdmin()`, `isStaffOrAdmin()` on every collection.
-- Currently `firestore.rules` is not complete. Rules need to be updated to give users with PARENT, CAMPER, and PHOTOGRAPHER roles the correct permissions.
+- Currently `firestore.rules` does **not** grant PARENT or PHOTOGRAPHER read access to any collection — yet `/albums` is gated client-side to also allow PARENT/PHOTOGRAPHER. **This is a contradiction worth verifying.** (See Issues §11.)
 
 ---
 
@@ -272,9 +272,14 @@ sessions/{sessionId}
 
 albums/{albumId}
   └─ albumItems/{albumItemId}
-    └─ albumItemReports/{reportId}
 
-users/{userId}
+albumItemReports/{reportId}     # top-level (moderation)
+
+campers/{camperId}
+parents/{parentId}
+staff/{staffId}
+admins/{adminId}
+photographers/{photographerId}
 
 programAreas/{areaId}
 posts/{postId}
@@ -320,6 +325,8 @@ Ports (see `firebase.json`):
 - Hosting: `5000`
 - Storage: `9199`
 - Emulator UI: `4000`
+
+> The README's command (`firebase emulators:start ./testData`) references a path that does not exist in this repo. The correct path is `./test/emulatorData`.
 
 ### Cloud Functions
 ```bash
@@ -382,6 +389,21 @@ There is **no unit test framework wired up** (no Jest/Vitest config, no `.test.*
 
 ---
 
+## 11.5. Album Download Feature
+
+Per-album zip download is wired up end-to-end on the client:
+
+- **Utility**: [src/features/albums/downloadAlbum.ts](src/features/albums/downloadAlbum.ts)
+  - Calls `getAlbumItemDocs(album.id)` to enumerate every item.
+  - Resolves each item's storage URL (`albums/{albumId}/albumItems/{albumItemId}`), fetches the blob (concurrency cap of 6), and adds it to a `JSZip` archive with collision-safe filenames.
+  - Generates the zip in memory and triggers a browser download via a temporary anchor + `URL.createObjectURL`.
+  - Optional `onProgress` callback exposes `{ total, completed }` for callers that want a progress UI (none of the current callers consume it).
+- **Hook**: [src/hooks/albums/useDownloadAlbum.ts](src/hooks/albums/useDownloadAlbum.ts) — TanStack `useMutation` wrapper over the utility, keyed `["albums", "download"]`. Surface success/error via the existing `useNotifications` hook.
+- **Entry points**:
+  - [src/components/AlbumCard.tsx](src/components/AlbumCard.tsx) — overlay download `ActionIcon` on the thumbnail (matches the Figma "Album page (Parents)" design). `event.stopPropagation()` prevents the card's double-click navigation when the download button is clicked.
+  - [src/app/albums/[albumId]/AlbumPage.tsx](src/app/albums/[albumId]/AlbumPage.tsx) — toolbar download button alongside filter/upload actions.
+- **Constraints**: download is fully client-side, so a parent on a slow connection downloading a large album will hold the blobs in memory before the zip is generated. If this becomes a problem, move zipping to a Cloud Function and stream the response.
+
 ## 12. Conventions & Guidelines
 
 - **Imports**: use the `@/*` alias for everything under `src/`. ESLint is configured with `import/no-unresolved` as an error.
@@ -394,7 +416,28 @@ There is **no unit test framework wired up** (no Jest/Vitest config, no `.test.*
 
 ---
 
-## 13. Quick Reference — Where to Look
+## 13. Environment Variables
+
+Not committed. Expected at minimum:
+
+### Frontend (`.env.local`)
+- `NEXT_PUBLIC_FIREBASE_API_KEY`
+- `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN`
+- `NEXT_PUBLIC_FIREBASE_PROJECT_ID`
+- `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET`
+- `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID`
+- `NEXT_PUBLIC_FIREBASE_APP_ID`
+
+### Functions (`.env.production` copied to `functions/.env` at deploy)
+- `DEV_EMAILS` — comma-separated allowlist treated as ADMIN.
+- `NPO_EMAILS` — comma-separated allowlist treated as ADMIN.
+- Google OAuth2 credentials for the Drive integration.
+
+`firebase.json` `functions.predeploy` copies `.env.production` into `functions/` and removes it postdeploy.
+
+---
+
+## 14. Quick Reference — Where to Look
 
 | If you need to… | Look in… |
 |---|---|
@@ -411,7 +454,7 @@ There is **no unit test framework wired up** (no Jest/Vitest config, no `.test.*
 
 ---
 
-## 14. Team
+## 15. Team
 
 | Name | Role | Contact |
 |---|---|---|
