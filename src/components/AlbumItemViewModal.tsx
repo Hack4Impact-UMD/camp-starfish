@@ -1,6 +1,5 @@
 import React from "react";
 import { useAuth } from "@/auth/useAuth";
-import Image from "next/image";
 import ImageViewBottomSection from "@/components/ImageViewBottomSection";
 import { Role } from "@/types/users/userTypes";
 import { modals } from "@mantine/modals";
@@ -12,7 +11,7 @@ import {
   MdChevronLeft,
   MdChevronRight,
 } from "react-icons/md";
-import { ActionIcon, Button } from "@mantine/core";
+import { ActionIcon, Button, Image, Title } from "@mantine/core";
 
 interface ImageViewProps {
   albumId: string;
@@ -50,17 +49,14 @@ export function AlbumItemViewModal({
   };
 
   return (
-    <div className="fixed w-full h-full inset-0 bg-black bg-opacity-90 flex flex-col items-center justify-between">
-      {/* Header Section: Close button, image name, and action buttons */}
-      <div className="w-full flex flex-row justify-between items-start sm:items-center gap-4 sm:gap-0 px-6 sm:px-10 pt-6 sm:pt-8 pb-4 text-white">
+    <div onClick={modals.closeAll} className="w-full h-full bg-black flex flex-col items-center justify-between">
+      <div className="w-full flex flex-row justify-between items-start max-h-1/10 sm:items-center gap-4 sm:gap-0 px-6 sm:px-10 pt-6 sm:pt-8 pb-4 border-white border-4">
         <div className="flex flex-row items-center space-x-4 sm:space-x-10">
-          <ActionIcon onClick={onClose} aria-label="Close Modal">
-            <MdClose size={30} />
+          <ActionIcon variant="transparent" onClick={onClose} aria-label="Close Modal">
+            <MdClose className="text-white active:outline-none" size={30} />
           </ActionIcon>
-          <p className="text-xl font-lato"> {albumItemQuery.data.name} </p>
+          <Title order={5} classNames={{ root: "text-white" }}>{albumItemQuery.data.name}</Title>
         </div>
-
-        <div className="flex flex-row items-stretch sm:items-center gap-2 sm:gap-4">
           <Button
             color="aqua"
             rightSection={<MdOutlineFileDownload size={20} />}
@@ -68,18 +64,19 @@ export function AlbumItemViewModal({
           >
             Download
           </Button>
-        </div>
       </div>
 
-      <div className="relative flex flex-grow items-center justify-center w-full px-4 max-w-full sm:max-w-5xl">
+      <div className="flex grow items-center justify-center w-full min-h-4/5 max-h-9/10 gap-4">
         <ActionIcon onClick={onLeftClick} aria-label="Previous Item">
           <MdChevronLeft size={50} />
         </ActionIcon>
         <Image
           src={albumItemSrcQuery.data}
           alt="Selected Image"
-          width={500}
-          height={500}
+          className=""
+          width={200}
+          height={200}
+          onClick={(e) => e.stopPropagation()}
         />
         <ActionIcon onClick={onRightClick} aria-label="Next Item">
           <MdChevronRight size={50} />
@@ -87,7 +84,7 @@ export function AlbumItemViewModal({
       </div>
 
       {/* Bottom Section: Displays tags and moderation controls if applicable */}
-      <ImageViewBottomSection image={albumItemQuery.data} />
+      {/* <ImageViewBottomSection image={albumItemQuery.data} /> */}
     </div>
   );
 }
@@ -97,6 +94,10 @@ export default function openAlbumItemViewModal(
   albumItemId: string,
 ) {
   modals.open({
+    classNames: {
+      content: 'bg-black',
+      body: 'w-full h-full',
+    },
     children: (
       <AlbumItemViewModal
         albumId={albumId}
