@@ -53,7 +53,7 @@ export function AlbumItemViewModal({
       onClick={modals.closeAll}
       className="w-full h-full bg-black flex flex-col items-center justify-between"
     >
-      <div className="w-full flex flex-row justify-between items-start max-h-1/10 sm:items-center gap-4 sm:gap-0 px-6 sm:px-10 pt-6 sm:pt-8 pb-4">
+      <div className="w-full flex flex-row justify-between items-start max-h-1/10 px-sm py-sm">
         <div className="flex flex-row items-center space-x-4 sm:space-x-10">
           <ActionIcon
             variant="transparent"
@@ -70,13 +70,19 @@ export function AlbumItemViewModal({
           color="aqua"
           rightSection={<MdOutlineFileDownload size={20} />}
           aria-label="Download Album Item"
+          onClick={(e) => {
+            e.stopPropagation();
+          }}
         >
           Download
         </Button>
       </div>
 
       <div className="flex grow items-center justify-center w-full gap-4">
-        <ActionIcon onClick={onLeftClick} aria-label="Previous Item">
+        <ActionIcon onClick={(e) => {
+          e.stopPropagation();
+          onLeftClick();
+        }} aria-label="Previous Item">
           <MdChevronLeft size={50} />
         </ActionIcon>
         <div>
@@ -88,8 +94,10 @@ export function AlbumItemViewModal({
             onClick={(e) => e.stopPropagation()}
           />
         </div>
-
-        <ActionIcon onClick={onRightClick} aria-label="Next Item">
+        <ActionIcon onClick={(e) => {
+          e.stopPropagation();
+          onRightClick();
+        }} aria-label="Next Item">
           <MdChevronRight size={50} />
         </ActionIcon>
       </div>
