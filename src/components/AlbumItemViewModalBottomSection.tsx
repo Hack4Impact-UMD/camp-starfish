@@ -6,6 +6,7 @@ import { Role } from "@/types/users/userTypes";
 import { AlbumItemTagStatus } from "@/types/albums/albumTypes";
 import useAlbumItem from "@/hooks/albumItems/useAlbumItem";
 import useTagDirectory from "@/hooks/tags/useTagDirectory";
+import useCreateAlbumItemReport from "@/features/albums/albumItemReporting/useCreateAlbumItemReport";
 
 interface ImageViewBottomSectionProps {
   albumId: string;
@@ -34,7 +35,7 @@ export default function AlbumItemViewModalBottomSection(props: ImageViewBottomSe
   const canViewTags = canModerateTags || userRole === "STAFF";
 
   // --- Parent-only view: show report button ---
-  if (userRole === "ADMIN") {
+  if (userRole === "PARENT") {
     return (
       <div
         className="w-full bg-white rounded-t-2xl flex justify-center items-center py-md gap-4"
@@ -77,7 +78,7 @@ export default function AlbumItemViewModalBottomSection(props: ImageViewBottomSe
 
   return (
     <div
-      className="w-full bg-white rounded-t-2xl flex justify-center items-center py-md gap-4"
+      className="w-full bg-white rounded-t-2xl flex justify-start items-center px-lg py-md gap-4"
       onClick={(e) => e.stopPropagation()}
     >
       {canModerateTags && (
