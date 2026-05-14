@@ -1,7 +1,4 @@
-import React, { useState } from "react";
-import { useAuth } from "@/auth/useAuth";
-import ImageViewBottomSection from "@/components/ImageViewBottomSection";
-import { Role } from "@/types/users/userTypes";
+import React from "react";
 import { modals } from "@mantine/modals";
 import useAlbumItem from "@/hooks/albumItems/useAlbumItem";
 import useAlbumItemSrc from "@/hooks/albumItems/useAlbumItemSrc";
@@ -23,21 +20,12 @@ interface ImageViewProps {
   onRightClick: () => void;
 }
 
-export function AlbumItemViewModal({
-  albumId,
-  albumItemId,
-  onClose,
-  onLeftClick,
-  onRightClick,
-}: ImageViewProps) {
+export function AlbumItemViewModal(props: ImageViewProps) {
+  const { albumId, albumItemId, onClose, onLeftClick, onRightClick } = props;
+
   const albumItemQuery = useAlbumItem({ albumId, albumItemId });
   const albumItemSrcQuery = useAlbumItemSrc(albumId, albumItemId);
-
-  const auth = useAuth();
-  const userRole: Role = auth.token?.claims.role as Role;
-
   const downloadAlbumItemMutation = useDownloadAlbumItem();
-
   const notifications = useNotifications();
 
   if (!albumItemQuery.data || !albumItemSrcQuery.data) return <></>;
