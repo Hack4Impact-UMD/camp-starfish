@@ -8,8 +8,7 @@ import useAlbumItem from "@/hooks/albumItems/useAlbumItem";
 import useTagDirectory from "@/hooks/tags/useTagDirectory";
 import useApprovePendingTag from "@/features/albums/albumItemTagging/useApprovePendingTag";
 import useRejectPendingTag from "@/features/albums/albumItemTagging/useRejectPendingTag";
-
-
+import useDeleteApprovedTag from "@/features/albums/albumItemTagging/useDeleteApprovedTag";
 
 interface TagSectionProps {
   albumId: string;
@@ -26,6 +25,7 @@ export default function AlbumItemViewModalTagSection(props: TagSectionProps) {
 
   const approvePendingTagMutation = useApprovePendingTag();
   const rejectPendingTagMutation = useRejectPendingTag();
+  const deleteApprovedTagMutation = useDeleteApprovedTag();
 
   const auth = useAuth();
   const userRole: Role = auth.token?.claims.role as Role;
@@ -62,7 +62,7 @@ export default function AlbumItemViewModalTagSection(props: TagSectionProps) {
             variant="transparent"
             size="sm"
             onClick={() =>
-              rejectPendingTagMutation.mutate({ albumId, albumItemId, tagId })
+              (tagStatus === "APPROVED" ? deleteApprovedTagMutation : rejectPendingTagMutation).mutate({ albumId, albumItemId, tagId })
             }
           >
             <MdClose size={20} />
