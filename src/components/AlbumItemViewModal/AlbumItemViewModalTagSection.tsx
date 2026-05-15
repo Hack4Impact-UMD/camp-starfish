@@ -41,6 +41,7 @@ export default function AlbumItemViewModalTagSection(props: TagSectionProps) {
     <Badge
       key={tagId}
       variant="light"
+      size="xl"
       rightSection={
         <>
           {tagStatus === "PENDING" && (
