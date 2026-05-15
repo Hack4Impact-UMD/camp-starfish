@@ -1,12 +1,7 @@
 import { Button, Text } from "@mantine/core";
 import { MdFlag } from "react-icons/md";
 
-interface ReportSectionProps {
-  albumId: string;
-  albumItemId: string;
-}
-
-export default function AlbumItemViewModalReportSection(props: ReportSectionProps) {
+export default function AlbumItemViewModalReportSection() {
   return (
     <div className="w-full bg-white rounded-t-2xl flex justify-center items-center px-lg py-md gap-4">
       <Text>

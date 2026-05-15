@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "@/auth/useAuth";
-import { MdAdd, MdCheck, MdClose, MdFlag } from "react-icons/md";
-import { ActionIcon, Badge, Button, Select, Text } from "@mantine/core";
+import { MdAdd, MdCheck, MdClose } from "react-icons/md";
+import { ActionIcon, Badge, Button, Select } from "@mantine/core";
 import { Role } from "@/types/users/userTypes";
 import { AlbumItemTagStatus } from "@/types/albums/albumTypes";
 import useAlbumItem from "@/hooks/albumItems/useAlbumItem";
