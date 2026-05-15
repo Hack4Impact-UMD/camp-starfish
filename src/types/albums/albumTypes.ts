@@ -22,6 +22,8 @@ export interface AlbumItem {
   }
 }
 
+export type AlbumItemTagStatus = "APPROVED" | "PENDING";
+
 export type PhotoPermissions = "PUBLIC" | "PRIVATE"
 
 export interface TagDirectory {
