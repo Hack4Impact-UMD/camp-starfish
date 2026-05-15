@@ -9,17 +9,17 @@ import useTagDirectory from "@/hooks/tags/useTagDirectory";
 import useApprovePendingTag from "@/features/albums/albumItemTagging/useApprovePendingTag";
 import useRejectPendingTag from "@/features/albums/albumItemTagging/useRejectPendingTag";
 
-interface ImageViewBottomSectionProps {
+
+
+interface TagSectionProps {
   albumId: string;
   albumItemId: string;
 }
 
-export default function AlbumItemViewModalBottomSection(props: ImageViewBottomSectionProps) {
+export default function AlbumItemViewModalTagSection(props: TagSectionProps) {
   const { albumId, albumItemId } = props;
 
-  const [activeTab, setActiveTab] = useState<AlbumItemTagStatus>(
-    "APPROVED",
-  );
+  const [activeTab, setActiveTab] = useState<AlbumItemTagStatus>("APPROVED");
 
   const albumItemQuery = useAlbumItem({ albumId, albumItemId });
   const tagDirectoryQuery = useTagDirectory();
@@ -36,28 +36,6 @@ export default function AlbumItemViewModalBottomSection(props: ImageViewBottomSe
   const tagDirectory = tagDirectoryQuery.data;
 
   const canModerateTags = userRole === "ADMIN" || userRole === "PHOTOGRAPHER";
-  const canViewTags = canModerateTags || userRole === "STAFF";
-
-  // --- Parent-only view: show report button ---
-  if (userRole === "PARENT") {
-    return (
-      <div
-        className="w-full bg-white rounded-t-2xl flex justify-center items-center py-md gap-4"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <Text>
-          Something wrong with this image? Report your issue to the Camp
-          Starfish team!
-        </Text>
-        <Button aria-label="Report" rightSection={<MdFlag size={20} />}>
-          Report
-        </Button>
-      </div>
-    );
-  }
-
-  // --- Guard clause for users without tag access ---
-  if (!canViewTags) return null;
 
   const renderTag = (tagId: number, tagStatus: AlbumItemTagStatus) => (
     <Badge
@@ -66,11 +44,27 @@ export default function AlbumItemViewModalBottomSection(props: ImageViewBottomSe
       rightSection={
         <>
           {tagStatus === "PENDING" && (
-            <ActionIcon variant="transparent" size="sm" onClick={() => approvePendingTagMutation.mutate({ albumId, albumItemId, tagId })}>
+            <ActionIcon
+              variant="transparent"
+              size="sm"
+              onClick={() =>
+                approvePendingTagMutation.mutate({
+                  albumId,
+                  albumItemId,
+                  tagId,
+                })
+              }
+            >
               <MdCheck size={20} />
             </ActionIcon>
           )}
-          <ActionIcon variant="transparent" size="sm" onClick={() => rejectPendingTagMutation.mutate({ albumId, albumItemId, tagId })}>
+          <ActionIcon
+            variant="transparent"
+            size="sm"
+            onClick={() =>
+              rejectPendingTagMutation.mutate({ albumId, albumItemId, tagId })
+            }
+          >
             <MdClose size={20} />
           </ActionIcon>
         </>

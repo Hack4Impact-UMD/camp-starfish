@@ -11,7 +11,11 @@ import {
 import { ActionIcon, Button, Image, Title } from "@mantine/core";
 import useDownloadAlbumItem from "@/features/albums/downloading/useDownloadAlbumItem";
 import useNotifications from "@/features/notifications/useNotifications";
-import AlbumItemViewModalBottomSection from "./AlbumItemViewModalBottomSection";
+import AlbumItemViewModalTagSection from "./AlbumItemViewModalTagSection";
+import AlbumItemViewModalReportSection from "./AlbumItemViewModalReportSection";
+import { useAuth } from "@/auth/useAuth";
+import { Role } from "@/types/users/userTypes";
+import RequireAuth from "@/auth/RequireAuth";
 
 interface ImageViewProps {
   albumId: string;
@@ -28,6 +32,9 @@ export function AlbumItemViewModal(props: ImageViewProps) {
   const albumItemSrcQuery = useAlbumItemSrc(albumId, albumItemId);
   const downloadAlbumItemMutation = useDownloadAlbumItem();
   const notifications = useNotifications();
+
+  const auth = useAuth();
+  const role = auth.token?.claims.role as Role | undefined;
 
   if (!albumItemQuery.data || !albumItemSrcQuery.data) return <></>;
 
@@ -100,7 +107,19 @@ export function AlbumItemViewModal(props: ImageViewProps) {
         </ActionIcon>
       </div>
 
-      <AlbumItemViewModalBottomSection albumId={albumId} albumItemId={albumItemId} />
+      <RequireAuth
+        authCases={[
+          {
+            authFn: () => role === "PARENT",
+            component: <AlbumItemViewModalTagSection albumId={albumId} albumItemId={albumItemId} />,
+          },
+          {
+            authFn: () => !!role && (["ADMIN", "PHOTOGRAPHER", "STAFF"] as Role[]).includes(role),
+            component: <AlbumItemViewModalTagSection albumId={albumId} albumItemId={albumItemId} />,
+          }
+        ]}
+        fallbackComponent={<></>}
+      />
     </div>
   );
 }
