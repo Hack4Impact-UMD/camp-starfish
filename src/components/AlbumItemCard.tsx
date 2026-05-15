@@ -6,7 +6,7 @@ import LoadingAnimation from "./LoadingAnimation";
 import { MdError } from "react-icons/md";
 import classNames from "classnames";
 import { JSX } from "react";
-import openAlbumItemViewModal from "./AlbumItemViewModal";
+import openAlbumItemViewModal from "./AlbumItemViewModal/AlbumItemViewModal";
 
 interface AlbumItemCardProps {
   albumId: string;
