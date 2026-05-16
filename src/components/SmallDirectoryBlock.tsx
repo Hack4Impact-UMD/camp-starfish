@@ -137,11 +137,6 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
           <div key={person.attendeeId}>
             <div className="flex items-center gap-[32px]">
               <MdAccountCircle />
-              <Image
-                className="shrink-0 w-[32px] h-[32px]"
-                src={Profile}
-                alt="Profile"
-              />
               <div>
                 <p className="text-sm font-bold text-primary-5">
                   {person.snapshot.name.firstName}{" "}
