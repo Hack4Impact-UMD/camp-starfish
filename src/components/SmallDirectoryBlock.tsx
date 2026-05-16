@@ -16,7 +16,6 @@ import {
 } from "@tabler/icons-react";
 import useListAttendees from "@/hooks/attendees/useListAttendees";
 import { MdAccountCircle } from "react-icons/md";
-import Image from "next/image";
 
 type SmallDirectoryBlockProps = {
   sessionId: string;

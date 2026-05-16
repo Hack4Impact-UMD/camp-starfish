@@ -3,7 +3,6 @@ import h4ILogo from "../assets/icons/h4ILogo.png";
 import Link from "next/link";
 import Image from "next/image";
 import {
-  FaF,
   FaFacebook,
   FaInstagram,
   FaLinkedin,

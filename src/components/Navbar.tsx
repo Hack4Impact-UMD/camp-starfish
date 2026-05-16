@@ -4,7 +4,6 @@ import React from "react";
 import Link from "next/link";
 import darkBgLogo from "../assets/logos/darkBgLogo.png";
 import { MdAccountCircle } from "react-icons/md";
-import profile from "../assets/logos/Profile.png";
 import { useAuth } from "@/auth/useAuth";
 import { Role } from "@/types/users/userTypes";
 import Image from "next/image";
