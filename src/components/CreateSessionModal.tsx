@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { DatePicker, DatesRangeValue } from "@mantine/dates";
+import { DatePickerInput, DatesRangeValue } from "@mantine/dates";
 import { Button, TextInput, Stack, Group, Text, Box } from "@mantine/core";
 import moment from "moment";
 import useCreateSession from "@/hooks/sessions/useCreateSession";
@@ -21,6 +21,8 @@ export default function CreateSessionModal() {
       name: sessionName,
       startDate: moment(startDateStr).startOf("day"),
       endDate: moment(endDateStr).endOf("day"),
+    }, {
+      onSuccess: () => modals.closeAll()
     });
   };
 
@@ -34,59 +36,23 @@ export default function CreateSessionModal() {
           onChange={(e) => setSessionName(e.currentTarget.value)}
           className="w-full"
         />
-
-        {/* Date Picker */}
-        <Stack className="items-center gap-lg">
-          <Group className="w-full items-center gap-[5px]">
-            <TextInput
-              label="Start Date"
-              placeholder="Start Date"
-              className="w-1/4"
-              value={
-                dateRange[0] ? moment(dateRange[0]).format("MMM D, YYYY") : ""
-              }
-              disabled
-              classNames={{
-                root: "grow",
-              }}
-            />
-
-            <Text>To</Text>
-
-            <TextInput
-              label="End Date"
-              placeholder="End Date"
-              className="w-1/4 placeholder:text-neutral-400"
-              value={
-                dateRange[1] ? moment(dateRange[1]).format("MMM D, YYYY") : ""
-              }
-              disabled
-              classNames={{
-                root: "grow",
-              }}
-            />
-          </Group>
-
-          <DatePicker
-            type="range"
-            value={dateRange}
-            onChange={setDateRange}
-            numberOfColumns={1}
-            size="md"
-            withCellSpacing={false}
-          />
-        </Stack>
-
+        <DatePickerInput
+          label="Dates"
+          placeholder="Select session dates"
+          type="range"
+          value={dateRange}
+          onChange={setDateRange}
+          valueFormat="MMM DD, YYYY"
+        />
         <Group className="justify-center gap-md">
           <Button
             color="neutral"
-            className=" "
             onClick={() => modals.closeAll()}
           >
             CANCEL
           </Button>
 
-          <Button color="green" className="w-[100px]" onClick={handleGenerate}>
+          <Button color="green" onClick={handleGenerate} loading={createSessionMutation.isPending}>
             DONE
           </Button>
         </Group>
