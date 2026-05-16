@@ -2,8 +2,8 @@
 
 import { redirect } from "next/navigation";
 import PolaroidPhotos1 from "../assets/images/PolaroidPhotos1.png";
-import albumIcon from "@/assets/icons/albumIcon.svg";
 import Image from "next/image";
+import { MdImage } from "react-icons/md";
 
 type GalleryCardProps = {
   title: string;
@@ -21,11 +21,11 @@ export default function GalleryCardOne({
       className="flex flex-col justify-center items-center px-[36px] py-[40px] w-[370px] gap-[8px] rounded-[8px] shadow-[0px_0px_16px_-2px_rgba(0,0,0,0.30)]"
       onClick={() => redirect(href)}
     >
-      <span className="flex flex-row gap-[8px]">
+      <span className="flex flex-row gap-[8px] items-center">
         <h3 className="font-lato text-[32px] font-black text-camp-primary">
           {title}
         </h3>
-        <Image src={albumIcon.src} alt="Album Icon" width={28} height={28} />
+        <MdImage size={30} />
       </span>
       <p className="text-center text-[20px] font-normal text-modalSecondaryTitle">
         {description}
