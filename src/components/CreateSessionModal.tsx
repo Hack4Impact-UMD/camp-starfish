@@ -51,7 +51,7 @@ export default function CreateSessionModal() {
             CANCEL
           </Button>
 
-          <Button color="green" className="w-[100px]" onClick={handleGenerate}>
+          <Button color="green" onClick={handleGenerate}>
             DONE
           </Button>
         </Group>
