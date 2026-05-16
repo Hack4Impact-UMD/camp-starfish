@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { DatePicker, DatePickerInput, DatesRangeValue } from "@mantine/dates";
+import { DatePickerInput, DatesRangeValue } from "@mantine/dates";
 import { Button, TextInput, Stack, Group, Text, Box } from "@mantine/core";
 import moment from "moment";
 import useCreateSession from "@/hooks/sessions/useCreateSession";
@@ -21,6 +21,8 @@ export default function CreateSessionModal() {
       name: sessionName,
       startDate: moment(startDateStr).startOf("day"),
       endDate: moment(endDateStr).endOf("day"),
+    }, {
+      onSuccess: () => modals.closeAll()
     });
   };
 
@@ -45,13 +47,12 @@ export default function CreateSessionModal() {
         <Group className="justify-center gap-md">
           <Button
             color="neutral"
-            className=" "
             onClick={() => modals.closeAll()}
           >
             CANCEL
           </Button>
 
-          <Button color="green" onClick={handleGenerate}>
+          <Button color="green" onClick={handleGenerate} loading={createSessionMutation.isPending}>
             DONE
           </Button>
         </Group>
