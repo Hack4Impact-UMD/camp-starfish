@@ -14,7 +14,7 @@ import moment from "moment";
 import SessionCard from "@/components/SessionCard";
 import { openCreateSessionModal } from "@/components/CreateSessionModal";
 import useSessionList from "@/hooks/sessions/useSessionList";
-import { MdCheck, MdEdit } from "react-icons/md";
+import { MdAdd, MdCheck, MdEdit } from "react-icons/md";
 import CardGallery from "./CardGallery";
 import LoadingAnimation from "./LoadingAnimation";
 import { useInViewport } from "@mantine/hooks";
@@ -49,7 +49,7 @@ export default function SessionsPage() {
 
           <Menu>
             <Menu.Target>
-              <Button color="green" rightSection={<MdCheck size={30} />}>
+              <Button color="green" rightSection={<MdAdd size={30} />}>
                 Create Session
               </Button>
             </Menu.Target>
