@@ -25,10 +25,8 @@ import {
   ColumnDef,
   getPaginationRowModel,
 } from "@tanstack/react-table";
-
+import { MdSearch } from "react-icons/md";
 import LoadingPage from "@/app/loading";
-
-import { IconSearch } from "@tabler/icons-react";
 
 type LargeDirectoryBlockProps = {
   sessionId: string;
@@ -316,7 +314,7 @@ export default function DirectoryTableView({
                   "w-[342px] bg-white! border! border-neutral-4! text-neutral-7",
               }}
               leftSection={
-                <IconSearch size={16} stroke={1.5} className="text-neutral-5" />
+                <MdSearch size={16} className="text-neutral-5" />
               }
             />
 
