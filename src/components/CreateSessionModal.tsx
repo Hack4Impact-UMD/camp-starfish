@@ -40,6 +40,7 @@ export default function CreateSessionModal() {
           type="range"
           value={dateRange}
           onChange={setDateRange}
+          valueFormat="MMM DD, YYYY"
         />
         <Group className="justify-center gap-md">
           <Button
