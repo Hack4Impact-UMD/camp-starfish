@@ -1,30 +1,47 @@
 import darkBgLogo from "../assets/logos/darkBgLogo.png";
-import facebookIcon from "../assets/icons/facebookIcon.png";
-import instagramIcon from "../assets/icons/instagramIcon.png";
-import linkedinIcon from "../assets/icons/linkedinIcon.png";
-import youtubeIcon from "../assets/icons/youtubeIcon.png";
 import h4ILogo from "../assets/icons/h4ILogo.png";
 import Link from "next/link";
 import Image from "next/image";
+import {
+  FaFacebook,
+  FaInstagram,
+  FaLinkedin,
+  FaYoutube,
+} from "react-icons/fa6";
+import { ActionIcon } from "@mantine/core";
 
 export default function Footer() {
   return (
     <div className="w-full h-[280px] bg-camp-primary">
       <div className="flex pb-[34px] justify-around items-end h-full flex-wrap font-lato">
         <div className="flex flex-col w-[208px] gap-[24px]">
-          <Image src={darkBgLogo.src} className="h-[148px]" alt="Logo" width={222} height={214.37} />
+          <Image
+            src={darkBgLogo.src}
+            className="h-[148px]"
+            alt="Logo"
+            width={222}
+            height={214.37}
+          />
           <div className="flex flex-row gap-[12px]">
             <Link href="https://www.facebook.com/campstarfish/">
-              <Image src={facebookIcon.src} className="h-[32px]" alt="Facebook" width={32} height={32} />
+              <ActionIcon color="orange" size="md">
+                <FaFacebook />
+              </ActionIcon>
             </Link>
             <Link href="https://www.instagram.com/campstarfishrindge">
-              <Image src={instagramIcon.src} className="h-[32px]" alt="Instagram" width={32} height={32} />
+              <ActionIcon color="orange" size="md">
+                <FaInstagram />
+              </ActionIcon>
             </Link>
             <Link href="https://www.linkedin.com/company/camp-starfish/">
-              <Image src={linkedinIcon.src} className="h-[32px]" alt="LinkedIn" width={32} height={32} />
+              <ActionIcon color="orange" size="md">
+                <FaLinkedin />
+              </ActionIcon>
             </Link>
             <Link href="https://www.youtube.com/@CampStarfish">
-              <Image src={youtubeIcon.src} className="h-[32px]" alt="YouTube" width={32} height={32} />
+              <ActionIcon color="orange" size="md">
+                <FaYoutube />
+              </ActionIcon>
             </Link>
           </div>
         </div>
@@ -70,12 +87,20 @@ export default function Footer() {
             </a>
           </p>
         </div>
-        <Link href="https://umd.hack4impact.org/ourwork/camp-starfish" target="_blank">
+        <Link
+          href="https://umd.hack4impact.org/ourwork/camp-starfish"
+          target="_blank"
+        >
           <div className="flex flex-row justify-center items-end gap-[12px]">
             <p>
               Built By<br></br>Hack4Impact-UMD
             </p>{" "}
-            <Image src={h4ILogo.src} alt="Hack4Impact-UMD Logo" width={40} height={40} />
+            <Image
+              src={h4ILogo.src}
+              alt="Hack4Impact-UMD Logo"
+              width={40}
+              height={40}
+            />
           </div>
         </Link>
       </div>
