@@ -2,11 +2,11 @@
 import React, { useState } from "react";
 import GoogleIcon from "@/assets/icons/Google.svg";
 import MicrosoftIcon from "@/assets/icons/Microsoft.svg";
-import ErrorIcon from "@/assets/icons/errorIcon.svg";
 import BackgroundPattern from "@/components/BackgroundPattern";
 import { signInWithGooglePopup } from "@/auth/authN";
 import Image from "next/image";
 import { signInWithMicrosoftPopup } from "@/auth/authN";
+import { MdError } from "react-icons/md";
 
 export default function LoginPage() {
   const [error, setError] = useState<string>("");
@@ -66,7 +66,7 @@ export default function LoginPage() {
         {/* Error Message */}
         {error && (
           <div className="flex flex-row w-5/6 mt-[14px]">
-            <Image src={ErrorIcon.src} alt="Error Icon" width={32} height={32} />
+            <MdError className="text-error" size={32} />
             <p className="text-[#D32F2F] text-sm font-lato text-left pl-2">
               {error}
             </p>

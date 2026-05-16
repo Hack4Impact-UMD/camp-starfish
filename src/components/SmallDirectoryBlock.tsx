@@ -15,8 +15,7 @@ import {
   IconAlertCircle,
 } from "@tabler/icons-react";
 import useListAttendees from "@/hooks/attendees/useListAttendees";
-import Profile from "@/assets/icons/Profile.svg";
-import Image from "next/image";
+import { MdAccountCircle } from "react-icons/md";
 
 type SmallDirectoryBlockProps = {
   sessionId: string;
@@ -136,11 +135,7 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
         {filteredPeople.map((person) => (
           <div key={person.attendeeId}>
             <div className="flex items-center gap-[32px]">
-              <Image
-                className="shrink-0 w-[32px] h-[32px]"
-                src={Profile}
-                alt="Profile"
-              />
+              <MdAccountCircle />
               <div>
                 <p className="text-sm font-bold text-primary-5">
                   {person.snapshot.name.firstName}{" "}
