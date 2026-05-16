@@ -7,13 +7,7 @@ import {
   ActionIcon,
   RadioGroup,
 } from "@mantine/core";
-import {
-  IconSearch,
-  IconChevronDown,
-  IconChevronUp,
-  IconArrowsVertical,
-  IconAlertCircle,
-} from "@tabler/icons-react";
+import { MdSearch, MdKeyboardArrowDown, MdKeyboardArrowUp, MdErrorOutline, MdFullscreen } from "react-icons/md";
 import useListAttendees from "@/hooks/attendees/useListAttendees";
 import { MdAccountCircle } from "react-icons/md";
 
@@ -53,7 +47,7 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
           <h2 className="text-xl font-black">DIRECTORY</h2>
         </div>
         <div className="flex items-start gap-3 p-3 bg-error-0 border border-error-5 rounded-md">
-          <IconAlertCircle size={16} className="text-error-5 mt-0.5" />
+          <MdErrorOutline size={16} className="text-error-5 mt-0.5" />
           <div>
             <p className="font-semibold text-error-5 mb-1">Error</p>
             <p className="text-sm text-error-5">
@@ -104,14 +98,14 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
           onClick={() => console.log("Redirect to expanded directory view")}
           aria-label="Expand directory view"
         >
-          <IconArrowsVertical size={25} className="rotate-45" />
+          <MdFullscreen size={25} />
         </ActionIcon>
       </div>
 
       {/* search bar */}
       <TextInput
         placeholder="Search directory..."
-        leftSection={<IconSearch size={16} />}
+        leftSection={<MdSearch size={16} />}
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.currentTarget.value)}
         radius={7}
@@ -164,9 +158,9 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
           mt="md"
           rightSection={
             showAll ? (
-              <IconChevronUp size={16} />
+              <MdKeyboardArrowUp size={16} />
             ) : (
-              <IconChevronDown size={16} />
+              <MdKeyboardArrowDown size={16} />
             )
           }
           onClick={handleViewMore}
