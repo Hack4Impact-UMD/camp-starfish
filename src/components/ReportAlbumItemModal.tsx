@@ -32,7 +32,7 @@ export function ReportAlbumItemModal(props: ReportAlbumItemModalProps) {
     });
   };
 
-  const handleClose = () => modals.closeAll();
+  const handleClose = () => modals.close(getReportAlbumItemModalId(props));
 
   if (createAlbumItemReportMutation.isSuccess) {
     return (
@@ -65,6 +65,7 @@ export function ReportAlbumItemModal(props: ReportAlbumItemModalProps) {
           value={reportMessage}
           onChange={(e) => setReportMessage(e.currentTarget.value)}
           disabled={createAlbumItemReportMutation.isPending}
+          error={createAlbumItemReportMutation.isError ? createAlbumItemReportMutation.error.message : undefined}
         />
         <Group className="flex flex-row justify-center w-full">
           <Button
@@ -90,15 +91,18 @@ export function ReportAlbumItemModal(props: ReportAlbumItemModalProps) {
   );
 }
 
+function getReportAlbumItemModalId(props: ReportAlbumItemModalProps) {
+  return `report-album-item-modal-${props.albumId}-${props.albumItemId}`;
+}
+
 export default function openPhotoReportingModal(
   albumId: string,
   albumItemId: string,
 ) {
   modals.open({
     title: "Report Item",
-    children: (
-      <ReportAlbumItemModal albumId={albumId} albumItemId={albumItemId} />
-    ),
+    children: <ReportAlbumItemModal albumId={albumId} albumItemId={albumItemId} />,
+    modalId: getReportAlbumItemModalId({ albumId, albumItemId }),
     centered: true,
     size: "lg",
   });
