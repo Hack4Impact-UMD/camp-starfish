@@ -1,5 +1,5 @@
 import { Session } from "@/types/sessions/sessionTypes";
-import { Container, Flex, Title, Text } from "@mantine/core";
+import { Flex, Title, Text } from "@mantine/core";
 import moment from "moment";
 import SessionCalendar from "./SessionCalendar";
 
