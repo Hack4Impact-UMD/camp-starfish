@@ -171,7 +171,7 @@ export function EditSectionModalContent(props: EditSectionModalContentProps) {
         </Radio.Group>
 
         <Group className="justify-center gap-sm">
-          {true && (
+          {isEditMode && (
             <Button
               color="error"
               onClick={handleDelete}
