@@ -42,7 +42,7 @@ export function ReportAlbumItemModal(props: ReportAlbumItemModalProps) {
           Report sent!
         </Title>
         <Text className="text-neutral text-center">
-          Our team will review your issue and email you soon
+          Our team will review your issue and get back to you soon
         </Text>
         <Button color="gray" className="text-black" onClick={handleClose}>
           Close
