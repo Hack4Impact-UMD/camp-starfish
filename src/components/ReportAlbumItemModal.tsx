@@ -7,12 +7,12 @@ import { MdFlag } from "react-icons/md";
 import { useAuth } from "@/auth/useAuth";
 import useCreateAlbumItemReport from "@/features/albums/albumItemReporting/useCreateAlbumItemReport";
 
-interface PhotoReportingProps {
+interface ReportAlbumItemModalProps {
   albumId: string;
   albumItemId: string;
 }
 
-export function PhotoReporting({ albumId, albumItemId }: PhotoReportingProps) {
+export function ReportAlbumItemModal({ albumId, albumItemId }: ReportAlbumItemModalProps) {
   const auth = useAuth();
   const reporterId = auth.token?.claims.campminderId as number | undefined;
 
@@ -101,6 +101,6 @@ export default function openPhotoReportingModal(albumId: string, albumItemId: st
     classNames: { header: "hidden", body: "p-0" },
     centered: true,
     size: 576,
-    children: <PhotoReporting albumId={albumId} albumItemId={albumItemId} />,
+    children: <ReportAlbumItemModal albumId={albumId} albumItemId={albumItemId} />,
   });
 }
