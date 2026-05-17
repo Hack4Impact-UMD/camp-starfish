@@ -12,26 +12,25 @@ interface ReportAlbumItemModalProps {
   albumItemId: string;
 }
 
-export function ReportAlbumItemModal({ albumId, albumItemId }: ReportAlbumItemModalProps) {
+export function ReportAlbumItemModal({
+  albumId,
+  albumItemId,
+}: ReportAlbumItemModalProps) {
   const auth = useAuth();
   const reporterId = auth.token?.claims.campminderId as number | undefined;
 
   const [reportMessage, setReportMessage] = useState("");
   const createAlbumItemReportMutation = useCreateAlbumItemReport();
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (reporterId === undefined) return;
-    try {
-      await createAlbumItemReportMutation.mutateAsync({
-        albumId,
-        albumItemId,
-        reporterId,
-        reportMessage: reportMessage.trim(),
-      });
-    } catch {
-      // Surfaced via createReport.isError below
-    }
+    createAlbumItemReportMutation.mutate({
+      albumId,
+      albumItemId,
+      reporterId,
+      reportMessage: reportMessage.trim(),
+    });
   };
 
   const handleClose = () => modals.closeAll();
@@ -40,11 +39,18 @@ export function ReportAlbumItemModal({ albumId, albumItemId }: ReportAlbumItemMo
     return (
       <Stack align="center" gap="md" px={56} py={40} className="w-[576px]">
         <MdFlag size={48} className="text-green-5" />
-        <Title order={3} className="text-center">Report sent!</Title>
+        <Title order={3} className="text-center">
+          Report sent!
+        </Title>
         <Text c="neutral.5" ta="center">
           Our team will review your issue and email you soon
         </Text>
-        <Button color="gray" className="text-black" w={216} onClick={handleClose}>
+        <Button
+          color="gray"
+          className="text-black"
+          w={216}
+          onClick={handleClose}
+        >
           Close
         </Button>
       </Stack>
@@ -55,7 +61,9 @@ export function ReportAlbumItemModal({ albumId, albumItemId }: ReportAlbumItemMo
     <form onSubmit={handleSubmit}>
       <Stack align="center" gap="lg" px={56} py={40} className="w-[576px]">
         <Stack align="center" gap="xs">
-          <Title order={3} className="text-center">Report a photo</Title>
+          <Title order={3} className="text-center">
+            Report a photo
+          </Title>
           <Text c="neutral.5" ta="center">
             We will share your issue with the team for review
           </Text>
@@ -95,12 +103,17 @@ export function ReportAlbumItemModal({ albumId, albumItemId }: ReportAlbumItemMo
   );
 }
 
-export default function openPhotoReportingModal(albumId: string, albumItemId: string) {
+export default function openPhotoReportingModal(
+  albumId: string,
+  albumItemId: string,
+) {
   modals.open({
     withCloseButton: false,
     classNames: { header: "hidden", body: "p-0" },
     centered: true,
     size: 576,
-    children: <ReportAlbumItemModal albumId={albumId} albumItemId={albumItemId} />,
+    children: (
+      <ReportAlbumItemModal albumId={albumId} albumItemId={albumItemId} />
+    ),
   });
 }
