@@ -71,10 +71,10 @@ export function ReportAlbumItemModal(props: ReportAlbumItemModalProps) {
           onChange={(e) => setReportMessage(e.currentTarget.value)}
           disabled={createAlbumItemReportMutation.isPending}
         />
-        <Group>
+        <Group className="flex flex-row justify-center w-full">
           <Button
             color="gray"
-            className="w-1/2 text-black"
+            className="w-1/3 text-black"
             onClick={handleClose}
             disabled={createAlbumItemReportMutation.isPending}
           >
@@ -83,7 +83,7 @@ export function ReportAlbumItemModal(props: ReportAlbumItemModalProps) {
           <Button
             type="submit"
             color="green"
-            className="w-1/2"
+            className="w-1/3"
             loading={createAlbumItemReportMutation.isPending}
             disabled={!reportMessage.trim() || reporterId === undefined}
           >
