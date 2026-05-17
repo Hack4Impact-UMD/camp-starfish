@@ -5,8 +5,7 @@ import { SimpleGrid, Text, Box } from "@mantine/core";
 import { Session } from "@/types/sessions/sessionTypes";
 import moment from "moment";
 import classNames from "classnames";
-import { modals } from "@mantine/modals";
-import EditSectionModal from "@/components/EditSectionModal";
+import openEditSectionModal from "@/components/EditSectionModal";
 
 interface SessionCalendarProps {
   session: Session;
@@ -33,26 +32,11 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
   };
 
   const handlePointerUp = () => {
-    if (isSelecting) {
-      modals.open({
-        title: "Create Section",
-        children: (
-          <EditSectionModal
-            selectedStartDate={
-              firstSelectedDate.isSameOrBefore(secondSelectedDate)
-                ? firstSelectedDate
-                : secondSelectedDate
-            }
-            selectedEndDate={
-              firstSelectedDate.isSameOrBefore(secondSelectedDate)
-                ? secondSelectedDate
-                : firstSelectedDate
-            }
-            sessionId={session.id}
-          />
-        ),
-      });
-    }
+    if (isSelecting) { openEditSectionModal({
+      sessionId: session.id,
+      selectedStartDate: firstSelectedDate,
+      selectedEndDate: secondSelectedDate,
+    }); }
     setFirstSelectedDate(null);
     setSecondSelectedDate(null);
   };

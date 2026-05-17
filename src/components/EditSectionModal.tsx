@@ -25,7 +25,7 @@ interface EditSectionModalProps {
   selectedEndDate?: Moment;
 }
 
-export default function EditSectionModal({
+export function EditSectionModal({
   sessionId,
   sectionId,
   selectedStartDate,
@@ -200,4 +200,13 @@ export default function EditSectionModal({
       </Stack>
     </Box>
   );
+}
+
+export default function openEditSectionModal(props: EditSectionModalProps) {
+  modals.open({
+    title: "Create Section",
+    children: (
+      <EditSectionModal {...props} />
+    ),
+  });
 }
