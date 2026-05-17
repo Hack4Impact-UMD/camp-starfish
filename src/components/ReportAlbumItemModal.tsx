@@ -44,9 +44,7 @@ export function ReportAlbumItemModal(props: ReportAlbumItemModalProps) {
         <Text className="text-neutral text-center">
           Our team will review your issue and email you soon
         </Text>
-        <Button color="gray" className="text-black"
-          onClick={handleClose}
-        >
+        <Button color="gray" className="text-black" onClick={handleClose}>
           Close
         </Button>
       </Stack>
@@ -56,12 +54,9 @@ export function ReportAlbumItemModal(props: ReportAlbumItemModalProps) {
   return (
     <form onSubmit={handleSubmit}>
       <Stack className="items-center gap-lg px-xl py-xl">
-          <Title order={3} className="text-center">
-            Report a photo
-          </Title>
-          <Text  className="text-neutral text-center">
-            We will share your issue with the team for review
-          </Text>
+        <Text className="text-neutral text-center">
+          We will share your issue with the team for review
+        </Text>
         <Textarea
           autosize
           minRows={5}
@@ -101,7 +96,9 @@ export default function openPhotoReportingModal(
 ) {
   modals.open({
     title: "Report Item",
-    children: <ReportAlbumItemModal albumId={albumId} albumItemId={albumItemId} />,
+    children: (
+      <ReportAlbumItemModal albumId={albumId} albumItemId={albumItemId} />
+    ),
     centered: true,
     size: "lg",
   });
