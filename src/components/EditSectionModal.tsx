@@ -202,7 +202,7 @@ export function EditSectionModalContent(props: EditSectionModalContentProps) {
 
 export default function openEditSectionModal(props: EditSectionModalProps) {
   modals.open({
-    title: "Create Section",
+    title: props.sectionId ? "Edit Section" : "Create Section",
     children: <EditSectionModal {...props} />,
   });
 }
