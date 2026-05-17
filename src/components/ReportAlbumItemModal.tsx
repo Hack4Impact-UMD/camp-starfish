@@ -21,7 +21,7 @@ export function ReportAlbumItemModal(props: ReportAlbumItemModalProps) {
   const [reportMessage, setReportMessage] = useState("");
   const createAlbumItemReportMutation = useCreateAlbumItemReport();
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: React.SubmitEvent) => {
     e.preventDefault();
     if (reporterId === undefined) return;
     createAlbumItemReportMutation.mutate({
