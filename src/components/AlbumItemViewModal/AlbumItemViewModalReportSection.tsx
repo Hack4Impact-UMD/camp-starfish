@@ -12,7 +12,7 @@ export default function AlbumItemViewModalReportSection(
 ) {
   const { albumId, albumItemId } = props;
   return (
-    <div className="w-full bg-white rounded-t-2xl flex justify-center items-center px-lg py-md gap-4">
+    <div className="w-full bg-white rounded-t-2xl flex justify-center items-center px-lg py-md gap-4" onClick={(e) => e.stopPropagation()}>
       <Text>
         Something wrong with this image? Report your issue to the Camp Starfish
         team!
