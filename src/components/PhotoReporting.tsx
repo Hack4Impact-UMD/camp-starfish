@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Button, Group, Stack, Text, Textarea, Title } from "@mantine/core";
 import { modals } from "@mantine/modals";
-import { MdError, MdFlag } from "react-icons/md";
+import { MdFlag } from "react-icons/md";
 import { useAuth } from "@/auth/useAuth";
 import useCreateAlbumItemReport from "@/features/albums/albumItemReporting/useCreateAlbumItemReport";
 
@@ -47,26 +47,6 @@ export function PhotoReporting({ albumId, albumItemId }: PhotoReportingProps) {
         <Button color="gray" className="text-black" w={216} onClick={handleClose}>
           Close
         </Button>
-      </Stack>
-    );
-  }
-
-  if (createAlbumItemReportMutation.isError) {
-    return (
-      <Stack align="center" gap="md" px={56} py={40} className="w-[576px]">
-        <MdError size={48} className="text-error" />
-        <Title order={3} className="text-center">Error reporting</Title>
-        <Text c="neutral.5" ta="center">
-          Please try again later or contact support
-        </Text>
-        <Group>
-          <Button color="gray" className="text-black" w={200} onClick={handleClose}>
-            Close
-          </Button>
-          <Button color="blue" w={200} onClick={() => createAlbumItemReportMutation.reset()}>
-            Try again
-          </Button>
-        </Group>
       </Stack>
     );
   }
