@@ -19,6 +19,10 @@ import useSection from "@/hooks/sections/useSection";
 import { modals } from "@mantine/modals";
 import ErrorPage from "@/app/error";
 import LoadingAnimation from "./LoadingAnimation";
+import {
+  getFullSectionTypeName,
+  sectionTypes,
+} from "@/types/sessions/sessionUtils";
 
 type EditSectionModalProps =
   | {
@@ -165,19 +169,9 @@ export function EditSectionModalContent(props: EditSectionModalContentProps) {
           }}
         >
           <Stack className="gap-xs">
-            <Radio
-              value={"BUNK-JAMBO" satisfies SectionType}
-              label="Bunk Jamboree"
-            />
-            <Radio
-              value={"NON-BUNK-JAMBO" satisfies SectionType}
-              label="Non-Bunk Jamboree"
-            />
-            <Radio value={"BUNDLE" satisfies SectionType} label="Bundle" />
-            <Radio
-              value={"COMMON" satisfies SectionType}
-              label="Non-Scheduling"
-            />
+            {sectionTypes.map((type: SectionType) => (
+              <Radio value={type} label={getFullSectionTypeName(type)} />
+            ))}
           </Stack>
         </Radio.Group>
 
