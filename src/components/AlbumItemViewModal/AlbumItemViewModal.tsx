@@ -111,7 +111,7 @@ export function AlbumItemViewModal(props: ImageViewProps) {
         authCases={[
           {
             authFn: () => role === "PARENT",
-            component: <AlbumItemViewModalReportSection />,
+            component: <AlbumItemViewModalReportSection albumId={albumId} albumItemId={albumItemId} />,
           },
           {
             authFn: () => !!role && (["ADMIN", "PHOTOGRAPHER", "STAFF"] as Role[]).includes(role),
