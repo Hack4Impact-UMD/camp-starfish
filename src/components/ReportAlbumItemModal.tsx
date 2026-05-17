@@ -12,10 +12,9 @@ interface ReportAlbumItemModalProps {
   albumItemId: string;
 }
 
-export function ReportAlbumItemModal({
-  albumId,
-  albumItemId,
-}: ReportAlbumItemModalProps) {
+export function ReportAlbumItemModal(props: ReportAlbumItemModalProps) {
+  const { albumId, albumItemId } = props;
+
   const auth = useAuth();
   const reporterId = auth.token?.claims.campminderId as number | undefined;
 
@@ -37,18 +36,15 @@ export function ReportAlbumItemModal({
 
   if (createAlbumItemReportMutation.isSuccess) {
     return (
-      <Stack align="center" gap="md" px={56} py={40} className="w-[576px]">
-        <MdFlag size={48} className="text-green-5" />
+      <Stack className="items-center gap-md px-lg py-xl">
+        <MdFlag size={48} className="text-green" />
         <Title order={3} className="text-center">
           Report sent!
         </Title>
-        <Text c="neutral.5" ta="center">
+        <Text className="text-neutral text-center">
           Our team will review your issue and email you soon
         </Text>
-        <Button
-          color="gray"
-          className="text-black"
-          w={216}
+        <Button color="gray" className="text-black"
           onClick={handleClose}
         >
           Close
@@ -59,20 +55,17 @@ export function ReportAlbumItemModal({
 
   return (
     <form onSubmit={handleSubmit}>
-      <Stack align="center" gap="lg" px={56} py={40} className="w-[576px]">
-        <Stack align="center" gap="xs">
+      <Stack className="items-center gap-lg px-xl py-xl">
           <Title order={3} className="text-center">
             Report a photo
           </Title>
-          <Text c="neutral.5" ta="center">
+          <Text  className="text-neutral text-center">
             We will share your issue with the team for review
           </Text>
-        </Stack>
         <Textarea
           autosize
           minRows={5}
-          maxRows={5}
-          w="100%"
+          className="w-full"
           placeholder="Describe your issue"
           value={reportMessage}
           onChange={(e) => setReportMessage(e.currentTarget.value)}
@@ -81,8 +74,7 @@ export function ReportAlbumItemModal({
         <Group>
           <Button
             color="gray"
-            className="text-black"
-            w={216}
+            className="w-1/2 text-black"
             onClick={handleClose}
             disabled={createAlbumItemReportMutation.isPending}
           >
@@ -91,7 +83,7 @@ export function ReportAlbumItemModal({
           <Button
             type="submit"
             color="green"
-            w={216}
+            className="w-1/2"
             loading={createAlbumItemReportMutation.isPending}
             disabled={!reportMessage.trim() || reporterId === undefined}
           >
@@ -108,12 +100,9 @@ export default function openPhotoReportingModal(
   albumItemId: string,
 ) {
   modals.open({
-    withCloseButton: false,
-    classNames: { header: "hidden", body: "p-0" },
+    title: "Report Item",
+    children: <ReportAlbumItemModal albumId={albumId} albumItemId={albumItemId} />,
     centered: true,
-    size: 576,
-    children: (
-      <ReportAlbumItemModal albumId={albumId} albumItemId={albumItemId} />
-    ),
+    size: "lg",
   });
 }
