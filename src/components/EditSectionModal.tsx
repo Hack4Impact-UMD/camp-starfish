@@ -6,8 +6,6 @@ import {
   TextInput,
   Stack,
   Box,
-  Text,
-  LoadingOverlay,
 } from "@mantine/core";
 import { DatePickerInput, DatesRangeValue } from "@mantine/dates";
 import moment, { Moment } from "moment";
@@ -167,7 +165,7 @@ export function EditSectionModalContent(props: EditSectionModalContentProps) {
         >
           <Stack className="gap-xs">
             {sectionTypes.map((type: SectionType) => (
-              <Radio value={type} label={getFullSectionTypeName(type)} />
+              <Radio key={type} value={type} label={getFullSectionTypeName(type)} />
             ))}
           </Stack>
         </Radio.Group>
