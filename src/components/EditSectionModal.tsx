@@ -192,7 +192,7 @@ export function EditSectionModalContent(props: EditSectionModalContentProps) {
             }
             disabled={!name || !dateRange[0] || !dateRange[1] || !scheduleType || mutationIsPending}
           >
-            {isEditMode ? "Save Changes" : "Create Section"}
+            {isEditMode ? "Update Section" : "Create Section"}
           </Button>
         </Group>
       </Stack>
@@ -202,7 +202,7 @@ export function EditSectionModalContent(props: EditSectionModalContentProps) {
 
 export default function openEditSectionModal(props: EditSectionModalProps) {
   modals.open({
-    title: props.sectionId ? "Edit Section" : "Create Section",
+    title: props.sectionId ? "Update Section" : "Create Section",
     children: <EditSectionModal {...props} />,
   });
 }
