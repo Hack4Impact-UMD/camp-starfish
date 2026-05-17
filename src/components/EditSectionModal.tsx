@@ -164,9 +164,6 @@ export function EditSectionModalContent(props: EditSectionModalContentProps) {
           onChange={(newScheduleType) =>
             setScheduleType(newScheduleType as SectionType)
           }
-          classNames={{
-            label: "text-md",
-          }}
         >
           <Stack className="gap-xs">
             {sectionTypes.map((type: SectionType) => (
@@ -176,15 +173,12 @@ export function EditSectionModalContent(props: EditSectionModalContentProps) {
         </Radio.Group>
 
         <Group className="justify-center gap-sm">
-          {isEditMode && (
+          {true && (
             <Button
               color="error"
               onClick={handleDelete}
               loading={deleteSectionMutation.isPending}
               disabled={mutationIsPending}
-              classNames={{
-                root: "flex-1",
-              }}
             >
               Delete
             </Button>
@@ -196,10 +190,7 @@ export function EditSectionModalContent(props: EditSectionModalContentProps) {
                 ? updateSectionMutation.isPending
                 : createSectionMutation.isPending
             }
-            disabled={!name || !dateRange[0] || mutationIsPending}
-            classNames={{
-              root: "flex-1",
-            }}
+            disabled={!name || !dateRange[0] || !dateRange[1] || !scheduleType || mutationIsPending}
           >
             {isEditMode ? "Save Changes" : "Create Section"}
           </Button>
