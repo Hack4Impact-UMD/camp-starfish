@@ -2,17 +2,14 @@
 
 import useAlbumItemSrc from "@/hooks/albumItems/useAlbumItemSrc";
 import {
-  ActionIcon,
   BackgroundImage,
   Card,
   Checkbox,
-  Tooltip,
 } from "@mantine/core";
 import LoadingAnimation from "./LoadingAnimation";
-import { MdError, MdOutlineFlag } from "react-icons/md";
+import { MdError } from "react-icons/md";
 import classNames from "classnames";
 import { JSX } from "react";
-import openPhotoReportingModal from "./ReportAlbumItemModal";
 import openAlbumItemViewModal from "./AlbumItemViewModal/AlbumItemViewModal";
 
 interface AlbumItemCardProps {
@@ -48,37 +45,22 @@ export default function AlbumItemCard(props: AlbumItemCardProps) {
           className="bg-contain bg-no-repeat w-full h-full p-2"
           src={albumItemSrcQuery.data}
         >
-          <div className="flex justify-between items-start w-full">
-            <div
-              className={classNames(
-                "flex justify-center items-center rounded-sm bg-[#ffffffc0] w-8 h-8",
-                {
-                  "opacity-0 group-hover:opacity-100 transition duration-300":
-                    !isSelected,
-                },
-              )}
-            >
-              <Checkbox
-                color="neutral.8"
-                classNames={{
-                  input: "rounded-sm",
-                }}
-                checked={isSelected}
-              />
-            </div>
-            <Tooltip label="Report photo">
-              <ActionIcon
-                variant="filled"
-                color="white"
-                className="opacity-0 group-hover:opacity-100 transition duration-300 text-error"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  openPhotoReportingModal(albumId, albumItemId);
-                }}
-              >
-                <MdOutlineFlag size={20} />
-              </ActionIcon>
-            </Tooltip>
+          <div
+            className={classNames(
+              "flex justify-center items-center rounded-sm bg-[#ffffffc0] w-8 h-8",
+              {
+                "opacity-0 group-hover:opacity-100 transition duration-300":
+                  !isSelected,
+              },
+            )}
+          >
+            <Checkbox
+              color="neutral.8"
+              classNames={{
+                input: "rounded-sm",
+              }}
+              checked={isSelected}
+            />
           </div>
         </BackgroundImage>
       );
