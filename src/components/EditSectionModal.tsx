@@ -32,32 +32,29 @@ type EditSectionModalProps =
       initialEndDate?: never;
     };
 
-export function EditSectionModal({
-  sessionId,
-  sectionId,
-  initialStartDate,
-  initialEndDate,
-}: EditSectionModalProps) {
-  const { data: section, isLoading: isLoadingSection } = useSection(
-    sessionId,
-    sectionId || "",
-  );
+export function EditSectionModal(props: EditSectionModalProps) {
+  const { sessionId, sectionId, initialStartDate, initialEndDate } = props;
+
+  const sectionQuery = useSection(sessionId, sectionId);
   const isEditMode = !!sectionId;
 
+  if (sectionQuery.isError || sectionQuery.isLoading) return <></>
+  const section = sectionQuery.data;
+
   const [startDate, setStartDate] = useState<Moment | null>(
-    (isEditMode ? moment(section?.startDate) : initialStartDate) ?? null,
+    (isEditMode ? moment(section!.startDate) : initialStartDate) ?? null,
   );
   const [endDate, setEndDate] = useState<Moment | null>(
-    (isEditMode ? moment(section?.endDate) : initialEndDate) ?? null,
+    (isEditMode ? moment(section!.endDate) : initialEndDate) ?? null,
   );
   const [scheduleType, setScheduleType] = useState<SectionType | null>(
     section?.type ?? null,
   );
   const [name, setName] = useState<string>(section?.name ?? "");
 
-  const createMutation = useCreateSection();
-  const updateMutation = useUpdateSection();
-  const deleteMutation = useDeleteSection();
+  const createSectionMutation = useCreateSection();
+  const updateSectionMutation = useUpdateSection();
+  const deleteSectionMutation = useDeleteSection();
 
   const handleStartDateChange = (value: string | null) => {
     setStartDate(value ? moment(value) : null);
@@ -69,14 +66,14 @@ export function EditSectionModal({
   const handleSubmit = () => {
     if (!startDate || !endDate || !name || !scheduleType) return;
     if (isEditMode) {
-      updateMutation.mutate(
+      updateSectionMutation.mutate(
         { sessionId, sectionId, name, startDate, endDate, type: scheduleType },
         {
           onSuccess: () => modals.closeAll(),
         },
       );
     } else {
-      createMutation.mutate(
+      createSectionMutation.mutate(
         { sessionId, name, startDate, endDate, type: scheduleType },
         {
           onSuccess: () => modals.closeAll(),
@@ -87,14 +84,14 @@ export function EditSectionModal({
 
   const handleDelete = () => {
     if (!sectionId) return;
-    deleteMutation.mutate({ sessionId, sectionId });
+    deleteSectionMutation.mutate({ sessionId, sectionId });
   };
 
   const isLoading =
-    createMutation.isPending ||
-    updateMutation.isPending ||
-    deleteMutation.isPending ||
-    isLoadingSection;
+    createSectionMutation.isPending ||
+    updateSectionMutation.isPending ||
+    deleteSectionMutation.isPending ||
+    sectionQuery.isLoading;
 
   return (
     <Box className="p-lg bg-white m-auto">
@@ -184,7 +181,7 @@ export function EditSectionModal({
             <Button
               color="error"
               onClick={handleDelete}
-              loading={deleteMutation.isPending}
+              loading={deleteSectionMutation.isPending}
               disabled={isLoading}
               classNames={{
                 root: "flex-1",
@@ -195,7 +192,7 @@ export function EditSectionModal({
           )}
           <Button
             onClick={handleSubmit}
-            loading={createMutation.isPending || updateMutation.isPending}
+            loading={createSectionMutation.isPending || updateSectionMutation.isPending}
             disabled={!name || !startDate || isLoading}
             classNames={{
               root: "flex-1",
