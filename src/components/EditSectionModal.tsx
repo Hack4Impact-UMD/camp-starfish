@@ -14,9 +14,11 @@ import moment, { Moment } from "moment";
 import useCreateSection from "@/hooks/sections/useCreateSection";
 import useUpdateSection from "@/hooks/sections/useUpdateSection";
 import useDeleteSection from "@/hooks/sections/useDeleteSection";
-import { SectionType } from "@/types/sessions/sessionTypes";
+import { Section, SectionType } from "@/types/sessions/sessionTypes";
 import useSection from "@/hooks/sections/useSection";
 import { modals } from "@mantine/modals";
+import ErrorPage from "@/app/error";
+import LoadingAnimation from "./LoadingAnimation";
 
 type EditSectionModalProps =
   | {
@@ -34,18 +36,42 @@ type EditSectionModalProps =
 
 export function EditSectionModal(props: EditSectionModalProps) {
   const { sessionId, sectionId, initialStartDate, initialEndDate } = props;
-
   const sectionQuery = useSection(sessionId, sectionId);
-  const isEditMode = !!sectionId;
 
-  if (sectionQuery.isError || sectionQuery.isLoading) return <></>
-  const section = sectionQuery.data;
+  if (sectionQuery.isError) {
+    return <ErrorPage error={sectionQuery.error} />
+  } else if (sectionQuery.isLoading) {
+    return <LoadingAnimation />;
+  } else if (sectionId && sectionQuery.isSuccess) {
+    return <EditSectionModalContent section={sectionQuery.data} />
+  }
+  return <EditSectionModalContent sessionId={sessionId} initialStartDate={initialStartDate} initialEndDate={initialEndDate} />
+}
+
+type EditSectionModalContentProps =
+  | {
+    section: Section;
+    sessionId?: never;
+    initialStartDate?: never;
+    initialEndDate?: never;
+  }
+  | {
+    sessionId: string;
+    initialStartDate?: Moment;
+    initialEndDate?: Moment;
+    section?: never;
+  }
+
+export function EditSectionModalContent(props: EditSectionModalContentProps) {
+  const { sessionId, section, initialStartDate, initialEndDate } = props;
+
+  const isEditMode = !!section;
 
   const [startDate, setStartDate] = useState<Moment | null>(
-    (isEditMode ? moment(section!.startDate) : initialStartDate) ?? null,
+    (isEditMode ? moment(section.startDate) : initialStartDate) ?? null,
   );
   const [endDate, setEndDate] = useState<Moment | null>(
-    (isEditMode ? moment(section!.endDate) : initialEndDate) ?? null,
+    (isEditMode ? moment(section.endDate) : initialEndDate) ?? null,
   );
   const [scheduleType, setScheduleType] = useState<SectionType | null>(
     section?.type ?? null,
@@ -67,7 +93,7 @@ export function EditSectionModal(props: EditSectionModalProps) {
     if (!startDate || !endDate || !name || !scheduleType) return;
     if (isEditMode) {
       updateSectionMutation.mutate(
-        { sessionId, sectionId, name, startDate, endDate, type: scheduleType },
+        { sessionId: section.sessionId, sectionId: section.id, name, startDate, endDate, type: scheduleType },
         {
           onSuccess: () => modals.closeAll(),
         },
@@ -83,15 +109,14 @@ export function EditSectionModal(props: EditSectionModalProps) {
   };
 
   const handleDelete = () => {
-    if (!sectionId) return;
-    deleteSectionMutation.mutate({ sessionId, sectionId });
+    if (!isEditMode) return;
+    deleteSectionMutation.mutate({ sessionId: section.sessionId, sectionId: section.id });
   };
 
   const isLoading =
     createSectionMutation.isPending ||
     updateSectionMutation.isPending ||
-    deleteSectionMutation.isPending ||
-    sectionQuery.isLoading;
+    deleteSectionMutation.isPending;
 
   return (
     <Box className="p-lg bg-white m-auto">
