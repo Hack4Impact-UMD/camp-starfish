@@ -9,7 +9,7 @@ import {
   Text,
   LoadingOverlay,
 } from "@mantine/core";
-import { DatePickerInput } from "@mantine/dates";
+import { DatePickerInput, DatesRangeValue } from "@mantine/dates";
 import moment, { Moment } from "moment";
 import useCreateSection from "@/hooks/sections/useCreateSection";
 import useUpdateSection from "@/hooks/sections/useUpdateSection";
@@ -67,12 +67,10 @@ export function EditSectionModalContent(props: EditSectionModalContentProps) {
 
   const isEditMode = !!section;
 
-  const [startDate, setStartDate] = useState<Moment | null>(
-    (isEditMode ? moment(section.startDate) : initialStartDate) ?? null,
-  );
-  const [endDate, setEndDate] = useState<Moment | null>(
-    (isEditMode ? moment(section.endDate) : initialEndDate) ?? null,
-  );
+  const [dateRange, setDateRange] = useState<DatesRangeValue>([
+    (isEditMode ? moment(section.startDate).toDate() : initialStartDate?.toDate()) ?? null,
+    (isEditMode ? moment(section.endDate).toDate() : initialEndDate?.toDate()) ?? null,
+  ]);
   const [scheduleType, setScheduleType] = useState<SectionType | null>(
     section?.type ?? null,
   );
@@ -82,25 +80,18 @@ export function EditSectionModalContent(props: EditSectionModalContentProps) {
   const updateSectionMutation = useUpdateSection();
   const deleteSectionMutation = useDeleteSection();
 
-  const handleStartDateChange = (value: string | null) => {
-    setStartDate(value ? moment(value) : null);
-  };
-  const handleEndDateChange = (value: string | null) => {
-    setEndDate(value ? moment(value) : null);
-  };
-
   const handleSubmit = () => {
-    if (!startDate || !endDate || !name || !scheduleType) return;
+    if (!dateRange[0] || !dateRange[1] || !name || !scheduleType) return;
     if (isEditMode) {
       updateSectionMutation.mutate(
-        { sessionId: section.sessionId, sectionId: section.id, name, startDate, endDate, type: scheduleType },
+        { sessionId: section.sessionId, sectionId: section.id, name, startDate: moment(dateRange[0]), endDate: moment(dateRange[1]), type: scheduleType },
         {
           onSuccess: () => modals.closeAll(),
         },
       );
     } else {
       createSectionMutation.mutate(
-        { sessionId, name, startDate, endDate, type: scheduleType },
+        { sessionId, name, startDate: moment(dateRange[0]), endDate: moment(dateRange[1]), type: scheduleType },
         {
           onSuccess: () => modals.closeAll(),
         },
@@ -128,35 +119,14 @@ export function EditSectionModalContent(props: EditSectionModalContentProps) {
       />
 
       <Stack className="gap-md">
-        {/* Date range selection (start date to end date) */}
-        <Box>
-          <Text className="mb-sm">Date(s)</Text>
-          <Group>
-            {/* Start date (user selectable via calendar) */}
-            <DatePickerInput
-              placeholder="Start Date"
-              value={startDate?.toDate()}
-              onChange={handleStartDateChange}
-              valueFormat="ddd, MMM D"
-              classNames={{
-                root: "flex-1",
-                input: "size-sm rounded-md w-full",
-              }}
-            />
-            <Text>to</Text>
-            {/* End date (user selectable via calendar) */}
-            <DatePickerInput
-              placeholder="End Date"
-              value={endDate?.toDate()}
-              onChange={handleEndDateChange}
-              valueFormat="ddd, MMM D"
-              classNames={{
-                root: "flex-1",
-                input: "size-sm rounded-md w-full",
-              }}
-            />
-          </Group>
-        </Box>
+        <DatePickerInput
+          label="Dates"
+          placeholder="Select session dates"
+          type="range"
+          value={dateRange}
+          onChange={setDateRange}
+          valueFormat="MMM DD, YYYY"
+        />
 
         {/* Schedule type radio selection */}
         <Box>
@@ -217,8 +187,8 @@ export function EditSectionModalContent(props: EditSectionModalContentProps) {
           )}
           <Button
             onClick={handleSubmit}
-            loading={createSectionMutation.isPending || updateSectionMutation.isPending}
-            disabled={!name || !startDate || isLoading}
+            loading={isEditMode ? updateSectionMutation.isPending : createSectionMutation.isPending}
+            disabled={!name || !dateRange[0] || isLoading}
             classNames={{
               root: "flex-1",
             }}
