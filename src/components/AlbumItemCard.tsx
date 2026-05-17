@@ -7,6 +7,7 @@ import { MdError, MdOutlineFlag } from "react-icons/md";
 import classNames from "classnames";
 import { JSX } from "react";
 import openPhotoReportingModal from "./PhotoReporting";
+import openAlbumItemViewModal from "./AlbumItemViewModal/AlbumItemViewModal";
 
 interface AlbumItemCardProps {
   albumId: string;
@@ -19,16 +20,16 @@ export default function AlbumItemCard(props: AlbumItemCardProps) {
 
   const albumItemSrcQuery = useAlbumItemSrc(albumId, albumItemId);
 
-  let albumItemContent: JSX.Element;
+  let cardContent: JSX.Element;
   switch (albumItemSrcQuery.status) {
     case "pending":
-      albumItemContent = <div><LoadingAnimation /></div>;
+      cardContent = <div><LoadingAnimation /></div>;
       break;
     case "error":
-      albumItemContent = <div className="flex justify-center items-center w-full h-full"><MdError className="text-error" size={60}/></div>;
+      cardContent = <div className="flex justify-center items-center w-full h-full"><MdError className="text-error" size={60}/></div>;
       break;
     case "success":
-      albumItemContent = (
+      cardContent = (
       <BackgroundImage className="bg-contain bg-no-repeat w-full h-full p-2" src={albumItemSrcQuery.data}>
         <div className="flex justify-between items-start w-full">
           <div className={classNames("flex justify-center items-center rounded-sm bg-[#ffffffc0] w-8 h-8", {
@@ -61,8 +62,8 @@ export default function AlbumItemCard(props: AlbumItemCardProps) {
       'border-neutral-8': isSelected,
       'border-transparent': !isSelected,
       'border-4': albumItemSrcQuery.isSuccess
-    }) }}>
-      {albumItemContent}
+    }) }} onDoubleClick={() => openAlbumItemViewModal(albumId, albumItemId)}>
+      {cardContent}
     </Card>
   )
 }
