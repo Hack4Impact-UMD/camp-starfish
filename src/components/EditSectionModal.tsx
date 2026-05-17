@@ -18,18 +18,25 @@ import { SectionType } from "@/types/sessions/sessionTypes";
 import useSection from "@/hooks/sections/useSection";
 import { modals } from "@mantine/modals";
 
-interface EditSectionModalProps {
-  sessionId: string;
-  sectionId?: string;
-  selectedStartDate?: Moment;
-  selectedEndDate?: Moment;
-}
+type EditSectionModalProps =
+  | {
+      sessionId: string;
+      sectionId?: never;
+      initialStartDate: Moment;
+      initialEndDate: Moment;
+    }
+  | {
+      sessionId: string;
+      sectionId: string;
+      initialStartDate?: never;
+      initialEndDate?: never;
+    };
 
 export function EditSectionModal({
   sessionId,
   sectionId,
-  selectedStartDate,
-  selectedEndDate,
+  initialStartDate,
+  initialEndDate,
 }: EditSectionModalProps) {
   const { data: section, isLoading: isLoadingSection } = useSection(
     sessionId,
@@ -38,10 +45,10 @@ export function EditSectionModal({
   const isEditMode = !!sectionId;
 
   const [startDate, setStartDate] = useState<Moment | null>(
-    (isEditMode ? moment(section?.startDate) : selectedStartDate) ?? null,
+    (isEditMode ? moment(section?.startDate) : initialStartDate) ?? null,
   );
   const [endDate, setEndDate] = useState<Moment | null>(
-    (isEditMode ? moment(section?.endDate) : selectedEndDate) ?? null,
+    (isEditMode ? moment(section?.endDate) : initialEndDate) ?? null,
   );
   const [scheduleType, setScheduleType] = useState<SectionType | null>(
     section?.type ?? null,
@@ -205,8 +212,6 @@ export function EditSectionModal({
 export default function openEditSectionModal(props: EditSectionModalProps) {
   modals.open({
     title: "Create Section",
-    children: (
-      <EditSectionModal {...props} />
-    ),
+    children: <EditSectionModal {...props} />,
   });
 }

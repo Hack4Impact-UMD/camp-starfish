@@ -32,11 +32,13 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
   };
 
   const handlePointerUp = () => {
-    if (isSelecting) { openEditSectionModal({
-      sessionId: session.id,
-      selectedStartDate: firstSelectedDate,
-      selectedEndDate: secondSelectedDate,
-    }); }
+    if (isSelecting) {
+      openEditSectionModal({
+        sessionId: session.id,
+        initialStartDate: firstSelectedDate,
+        initialEndDate: secondSelectedDate,
+      });
+    }
     setFirstSelectedDate(null);
     setSecondSelectedDate(null);
   };
