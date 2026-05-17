@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { DatePickerInput, DatesRangeValue } from "@mantine/dates";
-import { Button, TextInput, Stack, Group, Text, Box } from "@mantine/core";
+import { Button, TextInput, Stack, Group, Box } from "@mantine/core";
 import moment from "moment";
 import useCreateSession from "@/hooks/sessions/useCreateSession";
 import { modals } from "@mantine/modals";
