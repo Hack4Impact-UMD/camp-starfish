@@ -17,13 +17,13 @@ export function PhotoReporting({ albumId, albumItemId }: PhotoReportingProps) {
   const reporterId = auth.token?.claims.campminderId as number | undefined;
 
   const [reportMessage, setReportMessage] = useState("");
-  const createReport = useCreateAlbumItemReport();
+  const createAlbumItemReportMutation = useCreateAlbumItemReport();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (reporterId === undefined) return;
     try {
-      await createReport.mutateAsync({
+      await createAlbumItemReportMutation.mutateAsync({
         albumId,
         albumItemId,
         reporterId,
@@ -36,7 +36,7 @@ export function PhotoReporting({ albumId, albumItemId }: PhotoReportingProps) {
 
   const handleClose = () => modals.closeAll();
 
-  if (createReport.isSuccess) {
+  if (createAlbumItemReportMutation.isSuccess) {
     return (
       <Stack align="center" gap="md" px={56} py={40} className="w-[576px]">
         <MdFlag size={48} className="text-green-5" />
@@ -51,7 +51,7 @@ export function PhotoReporting({ albumId, albumItemId }: PhotoReportingProps) {
     );
   }
 
-  if (createReport.isError) {
+  if (createAlbumItemReportMutation.isError) {
     return (
       <Stack align="center" gap="md" px={56} py={40} className="w-[576px]">
         <MdError size={48} className="text-error" />
@@ -63,7 +63,7 @@ export function PhotoReporting({ albumId, albumItemId }: PhotoReportingProps) {
           <Button color="gray" className="text-black" w={200} onClick={handleClose}>
             Close
           </Button>
-          <Button color="blue" w={200} onClick={() => createReport.reset()}>
+          <Button color="blue" w={200} onClick={() => createAlbumItemReportMutation.reset()}>
             Try again
           </Button>
         </Group>
@@ -88,7 +88,7 @@ export function PhotoReporting({ albumId, albumItemId }: PhotoReportingProps) {
           placeholder="Describe your issue"
           value={reportMessage}
           onChange={(e) => setReportMessage(e.currentTarget.value)}
-          disabled={createReport.isPending}
+          disabled={createAlbumItemReportMutation.isPending}
         />
         <Group>
           <Button
@@ -96,7 +96,7 @@ export function PhotoReporting({ albumId, albumItemId }: PhotoReportingProps) {
             className="text-black"
             w={216}
             onClick={handleClose}
-            disabled={createReport.isPending}
+            disabled={createAlbumItemReportMutation.isPending}
           >
             Close
           </Button>
@@ -104,7 +104,7 @@ export function PhotoReporting({ albumId, albumItemId }: PhotoReportingProps) {
             type="submit"
             color="green"
             w={216}
-            loading={createReport.isPending}
+            loading={createAlbumItemReportMutation.isPending}
             disabled={!reportMessage.trim() || reporterId === undefined}
           >
             Report
