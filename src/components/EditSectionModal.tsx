@@ -104,24 +104,17 @@ export function EditSectionModalContent(props: EditSectionModalContentProps) {
     deleteSectionMutation.mutate({ sessionId: section.sessionId, sectionId: section.id });
   };
 
-  const isLoading =
+  const mutationIsPending =
     createSectionMutation.isPending ||
     updateSectionMutation.isPending ||
     deleteSectionMutation.isPending;
 
   return (
     <Box className="p-lg bg-white m-auto">
-      <LoadingOverlay
-        visible={isLoading}
-        classNames={{
-          overlay: "blur-xs",
-        }}
-      />
-
       <Stack className="gap-md">
         <DatePickerInput
           label="Dates"
-          placeholder="Select session dates"
+          placeholder="Select section dates"
           type="range"
           value={dateRange}
           onChange={setDateRange}
@@ -177,7 +170,7 @@ export function EditSectionModalContent(props: EditSectionModalContentProps) {
               color="error"
               onClick={handleDelete}
               loading={deleteSectionMutation.isPending}
-              disabled={isLoading}
+              disabled={mutationIsPending}
               classNames={{
                 root: "flex-1",
               }}
@@ -188,7 +181,7 @@ export function EditSectionModalContent(props: EditSectionModalContentProps) {
           <Button
             onClick={handleSubmit}
             loading={isEditMode ? updateSectionMutation.isPending : createSectionMutation.isPending}
-            disabled={!name || !dateRange[0] || isLoading}
+            disabled={!name || !dateRange[0] || mutationIsPending}
             classNames={{
               root: "flex-1",
             }}
