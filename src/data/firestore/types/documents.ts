@@ -24,7 +24,7 @@ export interface AlbumItemDoc {
   }
 }
 
-export interface TagDirectoryDoc {
+export interface UserDirectoryDoc {
   [userId: number]: {
     name: Name;
     role: Role;

@@ -2,7 +2,7 @@ import { RootLevelCollection } from "@/data/firestore/types/collections";
 import { Name } from "@/types/users/userTypes";
 import { onDocumentCreated, onDocumentUpdated } from "firebase-functions/firestore";
 import { adminDb } from "../config/firebaseAdminConfig";
-import { aggregateTagDirectoryDocs, createTagDirectoryDoc, executeTagDirectoryQuery, updateTagDirectoryDoc } from "../data/firestore/tagDirectory";
+import { aggregateUserDirectoryDocs, createUserDirectoryDoc, executeUserDirectoryQuery, updateUserDirectoryDoc } from "../data/firestore/userDirectory";
 import { getFullName } from "@/types/users/userUtils";
 import { FieldValue } from "firebase-admin/firestore";
 
@@ -11,19 +11,19 @@ const onUserCreated = onDocumentCreated(`/${RootLevelCollection.USERS}/{userId}`
   const name: Name = event.data?.data()?.name;
   const fullName: string = getFullName(name);
   adminDb.runTransaction(async (transaction) => {
-    const { docCount } = await aggregateTagDirectoryDocs({
+    const { docCount } = await aggregateUserDirectoryDocs({
       transaction,
       aggregationQueryOptions: { aggregations: [{ aggregateFieldName: 'docCount', operation: 'count' }] }
     }) as { docCount: number };
     if (docCount === 0) {
-      await createTagDirectoryDoc(0, { [Number(userId)]: fullName }, transaction);
+      await createUserDirectoryDoc(0, { [Number(userId)]: fullName }, transaction);
       return;
     }
 
     try {
-      await updateTagDirectoryDoc(docCount - 1, { [userId]: fullName }, transaction);
+      await updateUserDirectoryDoc(docCount - 1, { [userId]: fullName }, transaction);
     } catch {
-      await createTagDirectoryDoc(docCount, { [userId]: fullName }, transaction);
+      await createUserDirectoryDoc(docCount, { [userId]: fullName }, transaction);
     }
   })
 });
@@ -39,7 +39,7 @@ const onUserUpdated = onDocumentUpdated(`/${RootLevelCollection.USERS}/{userId}`
     return;
   }
   await adminDb.runTransaction(async (transaction) => {
-    const docs = await executeTagDirectoryQuery({
+    const docs = await executeUserDirectoryQuery({
       transaction,
       queryOptions: {
         // @ts-expect-error - TypeScript doesn't recognize arbitrary keys
@@ -53,14 +53,14 @@ const onUserUpdated = onDocumentUpdated(`/${RootLevelCollection.USERS}/{userId}`
     
     const doc = docs[0];
     try {
-      await updateTagDirectoryDoc(doc.page, { [userId]: afterFullName }, transaction);
+      await updateUserDirectoryDoc(doc.page, { [userId]: afterFullName }, transaction);
     } catch {
-      await updateTagDirectoryDoc(doc.page, { [userId]: FieldValue.delete() }, transaction);
-      const { docCount } = await aggregateTagDirectoryDocs({
+      await updateUserDirectoryDoc(doc.page, { [userId]: FieldValue.delete() }, transaction);
+      const { docCount } = await aggregateUserDirectoryDocs({
         transaction,
         aggregationQueryOptions: { aggregations: [{ aggregateFieldName: 'docCount', operation: 'count' }] }
       }) as { docCount: number };
-      await createTagDirectoryDoc(docCount, { [userId]: afterFullName }, transaction);
+      await createUserDirectoryDoc(docCount, { [userId]: afterFullName }, transaction);
     }
     
   })

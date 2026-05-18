@@ -27,7 +27,7 @@ export type AlbumItemTagStatus = "APPROVED" | "PENDING";
 
 export type PhotoPermissions = "PUBLIC" | "PRIVATE"
 
-export interface TagDirectory {
+export interface UserDirectory {
   page: number;
   [userId: number]: {
     name: Name;
@@ -47,7 +47,7 @@ interface BaseAlbumItemReport {
   reportedAt: Moment;
 }
 
-export interface PendingAlbumItemReport extends BaseAlbumItemReport { status: 'PENDING' }; 
+export interface PendingAlbumItemReport extends BaseAlbumItemReport { status: 'PENDING' };
 export interface ResolvedAlbumItemReport extends BaseAlbumItemReport {
   status: 'RESOLVED';
   resolverId: number;

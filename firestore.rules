@@ -19,7 +19,7 @@ service cloud.firestore {
       return isStaff() || isAdmin();
     }
 
-    match /tagDirectory/{pageId} {
+    match /userDirectory/{pageId} {
       allow read, write: if isStaffOrAdmin();
     }
 
