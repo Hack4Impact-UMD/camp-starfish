@@ -24,7 +24,12 @@ export interface AlbumItemDoc {
   }
 }
 
-export interface TagDirectoryDoc { [userId: number]: string; }
+export interface TagDirectoryDoc {
+  [userId: number]: {
+    name: Name;
+    role: Role;
+  };
+}
 
 interface BaseAlbumItemReportDoc {
   status: AlbumItemReportStatus;

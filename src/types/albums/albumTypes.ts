@@ -1,4 +1,5 @@
 import { Moment } from "moment";
+import { Name, Role } from "../users/userTypes";
 
 export interface Album {
   id: string;
@@ -28,7 +29,10 @@ export type PhotoPermissions = "PUBLIC" | "PRIVATE"
 
 export interface TagDirectory {
   page: number;
-  [userId: number]: string;
+  [userId: number]: {
+    name: Name;
+    role: Role;
+  };
 }
 
 export type AlbumItemReportStatus = 'PENDING' | 'RESOLVED';
