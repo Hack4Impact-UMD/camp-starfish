@@ -31,7 +31,6 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
     "CAMPER",
   );
   const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBILE_COUNT);
-  const [showAll, setShowAll] = useState(false);
 
   const userDirectoryQuery = useUserDirectory();
 
@@ -79,22 +78,7 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
           .toLowerCase()
           .includes(searchQuery.toLowerCase()),
     )
-    .slice(0, showAll ? people?.length : visibleCount);
-
-  // view more button that displays (all) people when clicked
-  const handleViewMore = () => {
-    if (showAll) {
-      setShowAll(false);
-      setVisibleCount(INITIAL_VISIBILE_COUNT);
-    } else {
-      setVisibleCount((prev) =>
-        Math.min(prev + LOAD_MORE_COUNT, people?.length || 0),
-      );
-      if (visibleCount + LOAD_MORE_COUNT >= (people?.length || 0)) {
-        setShowAll(true);
-      }
-    }
-  };
+    .slice(0, people?.length);
 
   return (
     <div className="max-w-[344px] border-[1.3px] border-black p-4 bg-neutral-2">
@@ -156,26 +140,6 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
 
       {filteredPeople.length === 0 && (
         <p className="text-neutral-5 text-center my-4">No people found</p>
-      )}
-
-      {/* bottom button */}
-      {(people?.length || 0) > INITIAL_VISIBILE_COUNT && (
-        <Button
-          variant="subtle"
-          size="sm"
-          fullWidth
-          mt="md"
-          rightSection={
-            showAll ? (
-              <MdKeyboardArrowUp size={16} />
-            ) : (
-              <MdKeyboardArrowDown size={16} />
-            )
-          }
-          onClick={handleViewMore}
-        >
-          {showAll ? "Show less" : "View more"}
-        </Button>
       )}
     </div>
   );
