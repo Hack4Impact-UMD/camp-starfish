@@ -9,21 +9,15 @@ import {
 } from "@mantine/core";
 import {
   MdSearch,
-  MdKeyboardArrowDown,
-  MdKeyboardArrowUp,
   MdErrorOutline,
   MdFullscreen,
 } from "react-icons/md";
-import useListAttendees from "@/hooks/attendees/useListAttendees";
 import { MdAccountCircle } from "react-icons/md";
 import useUserDirectory from "@/hooks/users/useUserDirectory";
 
 type SmallDirectoryBlockProps = {
   sessionId: string;
 };
-
-const INITIAL_VISIBILE_COUNT = 3;
-const LOAD_MORE_COUNT = 3;
 
 export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
   const [searchQuery, setSearchQuery] = useState("");
@@ -100,7 +94,6 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
         leftSection={<MdSearch size={16} />}
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.currentTarget.value)}
-        radius={7}
       />
 
       <RadioGroup
