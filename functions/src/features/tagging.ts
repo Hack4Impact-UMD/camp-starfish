@@ -12,29 +12,7 @@ import { UserDirectoryItem } from "@/types/albums/albumTypes";
 const onUserCreated = onDocumentCreated(`/${RootLevelCollection.USERS}/{userId}`, async (event) => {
   const { userId } = event.params;
   const userDoc = event.data?.data() as UserDoc;
-  const directoryData = {
-    [Number(userId)]: {
-      name: userDoc.name,
-      role: userDoc.role
-    }
-  }
-  
-  adminDb.runTransaction(async (transaction) => {
-    const { docCount } = await aggregateUserDirectoryDocs({
-      transaction,
-      aggregationQueryOptions: { aggregations: [{ aggregateFieldName: 'docCount', operation: 'count' }] }
-    }) as { docCount: number };
-    if (docCount === 0) {
-      await createUserDirectoryDoc(0, directoryData, transaction);
-      return;
-    }
-
-    try {
-      await updateUserDirectoryDoc(docCount - 1, directoryData, transaction);
-    } catch {
-      await createUserDirectoryDoc(docCount, directoryData, transaction);
-    }
-  })
+  await appendUserDirectoryItem(userId, { name: userDoc.name, role: userDoc.role });
 });
 
 const onUserUpdated = onDocumentUpdated(`/${RootLevelCollection.USERS}/{userId}`, async (event) => {
@@ -58,6 +36,7 @@ const onUserUpdated = onDocumentUpdated(`/${RootLevelCollection.USERS}/{userId}`
     });
 
     if (docs.length === 0) {
+      await appendUserDirectoryItem(userId, { name: afterData.name, role: afterData.role });
       return;
     }
     
@@ -74,6 +53,26 @@ const onUserUpdated = onDocumentUpdated(`/${RootLevelCollection.USERS}/{userId}`
     }
   })
 });
+
+async function appendUserDirectoryItem(userId: string, directoryItem: UserDirectoryItem) {
+  const directoryData = { [userId]: directoryItem };
+  await adminDb.runTransaction(async (transaction) => {
+    const { docCount } = await aggregateUserDirectoryDocs({
+      transaction,
+      aggregationQueryOptions: { aggregations: [{ aggregateFieldName: 'docCount', operation: 'count' }] }
+    }) as { docCount: number };
+    if (docCount === 0) {
+      await createUserDirectoryDoc(0, directoryData, transaction);
+      return;
+    }
+
+    try {
+      await updateUserDirectoryDoc(docCount - 1, directoryData, transaction);
+    } catch {
+      await createUserDirectoryDoc(docCount, directoryData, transaction);
+    }
+  })
+}
 
 export const taggingCloudFunctions = {
   onUserCreated,
