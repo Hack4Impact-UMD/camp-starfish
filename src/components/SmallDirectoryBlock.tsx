@@ -7,9 +7,16 @@ import {
   ActionIcon,
   RadioGroup,
 } from "@mantine/core";
-import { MdSearch, MdKeyboardArrowDown, MdKeyboardArrowUp, MdErrorOutline, MdFullscreen } from "react-icons/md";
+import {
+  MdSearch,
+  MdKeyboardArrowDown,
+  MdKeyboardArrowUp,
+  MdErrorOutline,
+  MdFullscreen,
+} from "react-icons/md";
 import useListAttendees from "@/hooks/attendees/useListAttendees";
 import { MdAccountCircle } from "react-icons/md";
+import useUserDirectory from "@/hooks/users/useUserDirectory";
 
 type SmallDirectoryBlockProps = {
   sessionId: string;
@@ -19,7 +26,6 @@ const INITIAL_VISIBILE_COUNT = 3;
 const LOAD_MORE_COUNT = 3;
 
 export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
-  const { data: people, isLoading, error } = useListAttendees(sessionId);
   const [searchQuery, setSearchQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState<"CAMPER" | "STAFF" | "ADMIN">(
     "CAMPER",
@@ -27,7 +33,9 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
   const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBILE_COUNT);
   const [showAll, setShowAll] = useState(false);
 
-  if (isLoading) {
+  const userDirectoryQuery = useUserDirectory();
+
+  if (userDirectoryQuery.isPending) {
     return (
       <div className="max-w-[400px] m-[50px] border-[1.3px] border-black p-4 bg-neutral-2">
         <div className="flex justify-between items-center mb-4">
@@ -40,7 +48,7 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
     );
   }
 
-  if (error) {
+  if (userDirectoryQuery.isError) {
     return (
       <div className="max-w-[400px] m-[50px] border-[1.3px] border-black p-4 bg-neutral-2">
         <div className="flex justify-between items-center mb-4">
@@ -51,8 +59,8 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
           <div>
             <p className="font-semibold text-error-5 mb-1">Error</p>
             <p className="text-sm text-error-5">
-              {error instanceof Error
-                ? error.message
+              {userDirectoryQuery.error instanceof Error
+                ? userDirectoryQuery.error.message
                 : "Failed to load directory data"}
             </p>
           </div>
@@ -61,6 +69,7 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
     );
   }
 
+  const people = [];
   // filtering the people based on role in search
   const filteredPeople = (people || [])
     .filter(
@@ -88,7 +97,7 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
   };
 
   return (
-    <div className="max-w-[344px] m-[50px] border-[1.3px] border-black p-4 bg-neutral-2">
+    <div className="max-w-[344px] border-[1.3px] border-black p-4 bg-neutral-2">
       {/* header with directory and expand button */}
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-black">DIRECTORY</h2>
