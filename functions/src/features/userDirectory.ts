@@ -14,7 +14,7 @@ const onUserCreated = onDocumentCreated(`/${RootLevelCollection.USERS}/{userId}`
 
 const onUserUpdated = onDocumentUpdated(`/${RootLevelCollection.USERS}/{userId}`, async (event) => {
   const { userId } = event.params;
-  const afterData = event.data?.after.data().name;
+  const afterData = event.data?.after.data() as UserDoc;
 
   const directoryDataUpdates = {
     [Number(userId)]: {
