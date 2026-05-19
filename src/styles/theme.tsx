@@ -17,6 +17,7 @@ import RadioGroupThemeExtension from "./components/RadioGroupThemeExtension";
 import SelectThemeExtension from "./components/SelectThemeExtension";
 import TextInputThemeExtension from "./components/TextInputThemeExtension";
 import TextThemeExtension from "./components/TextThemeExtension";
+import TextareaThemeExtension from "./components/TextareaThemeExtension";
 import TitleThemeExtension from "./components/TitleThemeExtension";
 import TooltipThemeExtension from "./components/TooltipThemeExtension";
 
@@ -40,6 +41,7 @@ const theme: MantineThemeOverride = {
     Select: SelectThemeExtension,
     TextInput: TextInputThemeExtension,
     Text: TextThemeExtension,
+    Textarea: TextareaThemeExtension,
     Title: TitleThemeExtension,
     Tooltip: TooltipThemeExtension
   }

@@ -3,6 +3,7 @@
 import { Loader, MultiSelect } from "@mantine/core";
 import useUserDirectory from "@/hooks/users/useUserDirectory";
 import { MdError } from "react-icons/md";
+import { getFullName } from "@/types/users/userUtils";
 
 export default function TagSelect() {
   const userDirectoryQuery = useUserDirectory();
@@ -28,7 +29,7 @@ export default function TagSelect() {
   return (
     <MultiSelect
       placeholder="Search tags"
-      data={tagOptions.map(([_userId, fullName]) => fullName)}
+      data={tagOptions.map(([_userId, info]) => getFullName(info.name))}
       searchable
       maxValues={5}
     />

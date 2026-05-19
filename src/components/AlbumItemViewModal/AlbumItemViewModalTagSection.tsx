@@ -9,6 +9,7 @@ import useUserDirectory from "@/hooks/users/useUserDirectory";
 import useApprovePendingTag from "@/features/albums/albumItemTagging/useApprovePendingTag";
 import useRejectPendingTag from "@/features/albums/albumItemTagging/useRejectPendingTag";
 import useDeleteApprovedTag from "@/features/albums/albumItemTagging/useDeleteApprovedTag";
+import { getFullName } from "@/types/users/userUtils";
 
 interface TagSectionProps {
   albumId: string;
@@ -74,7 +75,7 @@ export default function AlbumItemViewModalTagSection(props: TagSectionProps) {
         </>
       }
     >
-      {userDirectory[tagId]}
+      {getFullName(userDirectory[tagId].name)}
     </Badge>
   );
 

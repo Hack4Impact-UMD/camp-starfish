@@ -1,4 +1,4 @@
-import { AlbumItemReportStatus } from "@/types/albums/albumTypes";
+import { AlbumItemReportStatus, UserDirectory } from "@/types/albums/albumTypes";
 import { ProgramArea, SectionSchedule } from "@/types/scheduling/schedulingTypes";
 import { AgeGroup, Bunk, Freeplay, NightSchedule, Post, SchedulingSectionType, SectionType } from "@/types/sessions/sessionTypes";
 import { Gender, Name, Role, User } from "@/types/users/userTypes";
@@ -24,12 +24,7 @@ export interface AlbumItemDoc {
   }
 }
 
-export interface UserDirectoryDoc {
-  [userId: number]: {
-    name: Name;
-    role: Role;
-  };
-}
+export type UserDirectoryDoc = Omit<UserDirectory, "page">;
 
 interface BaseAlbumItemReportDoc {
   status: AlbumItemReportStatus;
