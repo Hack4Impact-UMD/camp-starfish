@@ -30,7 +30,6 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
   const [roleFilter, setRoleFilter] = useState<"CAMPER" | "STAFF" | "ADMIN">(
     "CAMPER",
   );
-  const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBILE_COUNT);
 
   const userDirectoryQuery = useUserDirectory();
 
