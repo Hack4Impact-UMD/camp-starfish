@@ -1,12 +1,9 @@
 import { RootLevelCollection } from "@/data/firestore/types/collections";
-import { Name, Role } from "@/types/users/userTypes";
 import { onDocumentCreated, onDocumentUpdated } from "firebase-functions/firestore";
 import { adminDb } from "../config/firebaseAdminConfig";
 import { aggregateUserDirectoryDocs, createUserDirectoryDoc, executeUserDirectoryQuery, updateUserDirectoryDoc } from "../data/firestore/userDirectory";
-import { getFullName } from "@/types/users/userUtils";
-import { FieldValue, UpdateData } from "firebase-admin/firestore";
-import { UserDirectoryDoc, UserDoc } from "@/data/firestore/types/documents";
-import { diff } from "@/utils/data/diff";
+import { FieldValue } from "firebase-admin/firestore";
+import { UserDoc } from "@/data/firestore/types/documents";
 import { UserDirectoryItem } from "@/types/albums/albumTypes";
 
 const onUserCreated = onDocumentCreated(`/${RootLevelCollection.USERS}/{userId}`, async (event) => {
