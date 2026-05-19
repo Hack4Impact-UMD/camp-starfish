@@ -27,12 +27,14 @@ export type AlbumItemTagStatus = "APPROVED" | "PENDING";
 
 export type PhotoPermissions = "PUBLIC" | "PRIVATE"
 
+export interface UserDirectoryItem {
+  name: Name;
+  role: Role;
+};
+
 export interface UserDirectory {
   page: number;
-  [userId: number]: {
-    name: Name;
-    role: Role;
-  };
+  [userId: number]: UserDirectoryItem;
 }
 
 export type AlbumItemReportStatus = 'PENDING' | 'RESOLVED';
