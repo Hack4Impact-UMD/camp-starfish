@@ -30,7 +30,7 @@ export default function SessionPage(props: SessionPageProps) {
             : `-${sessionEndDate.format("MMMM YYYY")}`}
         </Text>
       </Flex>
-      <div className="flex flex-row w-full">
+      <div className="flex flex-row w-full gap-lg">
         <SessionCalendar session={session} />
         <SmallDirectoryBlock sessionId={session.id} />
       </div>
