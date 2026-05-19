@@ -36,7 +36,7 @@ const onUserUpdated = onDocumentUpdated(`/${RootLevelCollection.USERS}/{userId}`
       await appendUserDirectoryItem(userId, { name: afterData.name, role: afterData.role });
       return;
     }
-    
+
     const doc = docs[0];
     try {
       await updateUserDirectoryDoc(doc.page, directoryDataUpdates, transaction);
@@ -71,7 +71,7 @@ async function appendUserDirectoryItem(userId: string, directoryItem: UserDirect
   })
 }
 
-export const taggingCloudFunctions = {
+export const userDirectoryCloudFunctions = {
   onUserCreated,
   onUserUpdated
 }

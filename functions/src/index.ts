@@ -3,7 +3,7 @@ import { googleOAuth2CloudFunctions } from "./features/googleOAuth2";
 import { googleAppsScriptCloudFunctions } from "./features/googleAppsScript";
 import { albumsCloudFunctions } from "./features/albums";
 import { createAlbumItemReportCloudFunction } from "./features/albumItemReporting";
-import { taggingCloudFunctions } from "./features/tagging";
+import { userDirectoryCloudFunctions } from "./features/userDirectory";
 
 module.exports = {
   ...accountManagementCloudFunctions,
@@ -11,5 +11,5 @@ module.exports = {
   ...googleAppsScriptCloudFunctions,
   ...albumsCloudFunctions,
   createAlbumItemReportCloudFunction,
-  ...taggingCloudFunctions
+  ...userDirectoryCloudFunctions
 }
