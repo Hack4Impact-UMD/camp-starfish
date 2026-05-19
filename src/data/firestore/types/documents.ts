@@ -1,4 +1,4 @@
-import { AlbumItemReportStatus, UserDirectory, UserDirectoryItem } from "@/types/albums/albumTypes";
+import { AlbumItemReportStatus, UserDirectory } from "@/types/albums/albumTypes";
 import { ProgramArea, SectionSchedule } from "@/types/scheduling/schedulingTypes";
 import { AgeGroup, Bunk, Freeplay, NightSchedule, Post, SchedulingSectionType, SectionType } from "@/types/sessions/sessionTypes";
 import { Gender, Name, Role, User } from "@/types/users/userTypes";
