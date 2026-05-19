@@ -1,4 +1,5 @@
 import { Moment } from "moment";
+import { Name, Role } from "../users/userTypes";
 
 export interface Album {
   id: string;
@@ -26,9 +27,14 @@ export type AlbumItemTagStatus = "APPROVED" | "PENDING";
 
 export type PhotoPermissions = "PUBLIC" | "PRIVATE"
 
-export interface TagDirectory {
+export interface UserDirectoryItem {
+  name: Name;
+  role: Role;
+};
+
+export interface UserDirectory {
   page: number;
-  [userId: number]: string;
+  [userId: number]: UserDirectoryItem;
 }
 
 export type AlbumItemReportStatus = 'PENDING' | 'RESOLVED';
@@ -43,7 +49,7 @@ interface BaseAlbumItemReport {
   reportedAt: Moment;
 }
 
-export interface PendingAlbumItemReport extends BaseAlbumItemReport { status: 'PENDING' }; 
+export interface PendingAlbumItemReport extends BaseAlbumItemReport { status: 'PENDING' };
 export interface ResolvedAlbumItemReport extends BaseAlbumItemReport {
   status: 'RESOLVED';
   resolverId: number;

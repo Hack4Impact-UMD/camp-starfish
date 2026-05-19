@@ -5,10 +5,11 @@ import { ActionIcon, Badge, Button, Select } from "@mantine/core";
 import { Role } from "@/types/users/userTypes";
 import { AlbumItemTagStatus } from "@/types/albums/albumTypes";
 import useAlbumItem from "@/hooks/albumItems/useAlbumItem";
-import useTagDirectory from "@/hooks/tags/useTagDirectory";
+import useUserDirectory from "@/hooks/users/useUserDirectory";
 import useApprovePendingTag from "@/features/albums/albumItemTagging/useApprovePendingTag";
 import useRejectPendingTag from "@/features/albums/albumItemTagging/useRejectPendingTag";
 import useDeleteApprovedTag from "@/features/albums/albumItemTagging/useDeleteApprovedTag";
+import { getFullName } from "@/types/users/userUtils";
 
 interface TagSectionProps {
   albumId: string;
@@ -21,7 +22,7 @@ export default function AlbumItemViewModalTagSection(props: TagSectionProps) {
   const [activeTab, setActiveTab] = useState<AlbumItemTagStatus>("APPROVED");
 
   const albumItemQuery = useAlbumItem({ albumId, albumItemId });
-  const tagDirectoryQuery = useTagDirectory();
+  const userDirectoryQuery = useUserDirectory();
 
   const approvePendingTagMutation = useApprovePendingTag();
   const rejectPendingTagMutation = useRejectPendingTag();
@@ -30,10 +31,10 @@ export default function AlbumItemViewModalTagSection(props: TagSectionProps) {
   const auth = useAuth();
   const userRole: Role = auth.token?.claims.role as Role;
 
-  if (!albumItemQuery.isSuccess || !tagDirectoryQuery.isSuccess) return <></>;
+  if (!albumItemQuery.isSuccess || !userDirectoryQuery.isSuccess) return <></>;
 
   const albumItem = albumItemQuery.data;
-  const tagDirectory = tagDirectoryQuery.data;
+  const userDirectory = userDirectoryQuery.data;
 
   const canModerateTags = userRole === "ADMIN" || userRole === "PHOTOGRAPHER";
 
@@ -63,7 +64,10 @@ export default function AlbumItemViewModalTagSection(props: TagSectionProps) {
             variant="transparent"
             size="sm"
             onClick={() =>
-              (tagStatus === "APPROVED" ? deleteApprovedTagMutation : rejectPendingTagMutation).mutate({ albumId, albumItemId, tagId })
+              (tagStatus === "APPROVED"
+                ? deleteApprovedTagMutation
+                : rejectPendingTagMutation
+              ).mutate({ albumId, albumItemId, tagId })
             }
           >
             <MdClose size={20} />
@@ -71,7 +75,7 @@ export default function AlbumItemViewModalTagSection(props: TagSectionProps) {
         </>
       }
     >
-      {tagDirectory[tagId]}
+      {getFullName(userDirectory[tagId].name)}
     </Badge>
   );
 
