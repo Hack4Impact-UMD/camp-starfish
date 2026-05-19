@@ -2,6 +2,7 @@ import { Session } from "@/types/sessions/sessionTypes";
 import { Flex, Title, Text } from "@mantine/core";
 import moment from "moment";
 import SessionCalendar from "./SessionCalendar";
+import { SmallDirectoryBlock } from "@/components/SmallDirectoryBlock";
 
 interface SessionPageProps {
   session: Session;
@@ -29,7 +30,10 @@ export default function SessionPage(props: SessionPageProps) {
             : `-${sessionEndDate.format("MMMM YYYY")}`}
         </Text>
       </Flex>
-      <SessionCalendar session={session} />
+      <div className="flex flex-row w-full">
+        <SessionCalendar session={session} />
+        <SmallDirectoryBlock sessionId={session.id} />
+      </div>
     </Flex>
   );
 }
