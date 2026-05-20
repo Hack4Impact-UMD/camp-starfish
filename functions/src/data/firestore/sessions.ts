@@ -31,8 +31,10 @@ function fromFirestore(snapshot: DocumentSnapshot<SessionDoc, SessionDoc> | Quer
     startDate: moment(sessionDoc.startDate.toDate()),
     endDate: moment(sessionDoc.endDate.toDate()),
     driveFolderId: sessionDoc.driveFolderId,
-    linkedAlbumId: sessionDoc.linkedAlbumId
-  };}
+    linkedAlbumId: sessionDoc.linkedAlbumId,
+    attendeeIds: sessionDoc.attendeeIds
+  };
+}
 
 export async function getSessionDoc(id: string, transaction?: Transaction): Promise<Session> {
   const snapshot = await getDoc<SessionDoc>(adminDb.collection(RootLevelCollection.SESSIONS).doc(id) as DocumentReference<SessionDoc, SessionDoc>, transaction);
