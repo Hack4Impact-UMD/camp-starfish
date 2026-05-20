@@ -11,6 +11,7 @@ import { MdSearch, MdErrorOutline, MdFullscreen } from "react-icons/md";
 import { MdAccountCircle } from "react-icons/md";
 import useUserDirectory from "@/hooks/users/useUserDirectory";
 import { getFullName } from "@/types/users/userUtils";
+import useBunkList from "@/hooks/bunks/useBunkList";
 
 type SmallDirectoryBlockProps = {
   sessionId: string;
@@ -23,6 +24,7 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
   );
 
   const userDirectoryQuery = useUserDirectory();
+  const bunksQuery = useBunkList(sessionId);
 
   const usersToDisplay = useMemo(() => {
     if (!userDirectoryQuery.data) return [];
@@ -39,6 +41,15 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
             .includes(searchQuery.toLowerCase()),
       );
   }, [userDirectoryQuery.data]);
+
+  const usersToBunk = useMemo(() => {
+    if (!bunksQuery.data) return [];
+    const usersToBunk: { [userId: number]: number; } = {};
+    bunksQuery.data.pages.flatMap(page => page.docs).forEach((bunk) => {
+      [...bunk.camperIds, ...bunk.counselorIds].forEach(userId => usersToBunk[userId] = bunk.bunkNum);
+    });
+    return usersToBunk;
+  }, [bunksQuery.data]);   
 
   if (userDirectoryQuery.isPending) {
     return (
@@ -118,10 +129,7 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
               <MdAccountCircle />
               <div>
                 <p className="text-sm font-bold text-primary-5">
-                  {getFullName(user.name)}
-                  {/* {"bunk" in person &&
-                    person.bunk !== undefined &&
-                    ` (${person.bunk})`} */}
+                  {getFullName(user.name)}{usersToBunk[user.id] && ` (${usersToBunk[user.id]})`}
                 </p>
               </div>
             </div>
