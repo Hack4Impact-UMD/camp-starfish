@@ -7,11 +7,7 @@ import {
   ActionIcon,
   RadioGroup,
 } from "@mantine/core";
-import {
-  MdSearch,
-  MdErrorOutline,
-  MdFullscreen,
-} from "react-icons/md";
+import { MdSearch, MdErrorOutline, MdFullscreen } from "react-icons/md";
 import { MdAccountCircle } from "react-icons/md";
 import useUserDirectory from "@/hooks/users/useUserDirectory";
 import { getFullName } from "@/types/users/userUtils";
@@ -30,10 +26,17 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
 
   const usersToDisplay = useMemo(() => {
     if (!userDirectoryQuery.data) return [];
-    Object.keys(userDirectoryQuery.data).map((userId) => ({
-      id: Number(userId),
-      ...userDirectoryQuery.data[Number(userId)],
-    })).filter(user => user.role === roleFilter).filter(user => getFullName(user.name).toLowerCase().includes(searchQuery.toLowerCase()));
+    return Object.keys(userDirectoryQuery.data)
+      .map((userId) => ({
+        id: Number(userId),
+        ...userDirectoryQuery.data[Number(userId)],
+      }))
+      .filter((user) => user.role === roleFilter)
+      .filter((user) =>
+        getFullName(user.name)
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase()),
+      );
   }, [userDirectoryQuery.data]);
 
   if (userDirectoryQuery.isPending) {
@@ -69,18 +72,6 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
       </div>
     );
   }
-
-  const people = [];
-  // filtering the people based on role in search
-  const filteredPeople = (people || [])
-    .filter(
-      (person) =>
-        person.role === roleFilter &&
-        person.snapshot.name.firstName
-          .toLowerCase()
-          .includes(searchQuery.toLowerCase()),
-    )
-    .slice(0, people?.length);
 
   return (
     <div className="max-w-[344px] border-[1.3px] border-black p-4 bg-neutral-2">
@@ -120,17 +111,16 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
       </RadioGroup>
 
       <div className="flex flex-col gap-4 mt-7">
-        {filteredPeople.map((person) => (
-          <div key={person.attendeeId}>
+        {usersToDisplay.map((user) => (
+          <div key={user.id}>
             <div className="flex items-center gap-[32px]">
               <MdAccountCircle />
               <div>
                 <p className="text-sm font-bold text-primary-5">
-                  {person.snapshot.name.firstName}{" "}
-                  {person.snapshot.name.lastName}
-                  {"bunk" in person &&
+                  {getFullName(user.name)}
+                  {/* {"bunk" in person &&
                     person.bunk !== undefined &&
-                    ` (${person.bunk})`}
+                    ` (${person.bunk})`} */}
                 </p>
               </div>
             </div>
@@ -139,8 +129,8 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
         ))}
       </div>
 
-      {filteredPeople.length === 0 && (
-        <p className="text-neutral-5 text-center my-4">No people found</p>
+      {usersToDisplay.length === 0 && (
+        <p className="text-neutral-5 text-center my-4">No users found</p>
       )}
     </div>
   );
