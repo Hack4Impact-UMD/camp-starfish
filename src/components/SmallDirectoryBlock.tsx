@@ -31,11 +31,12 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
         id: Number(userId),
         ...userDirectoryQuery.data[Number(userId)],
       }))
-      .filter((user) => user.role === roleFilter)
-      .filter((user) =>
-        getFullName(user.name)
-          .toLowerCase()
-          .includes(searchQuery.toLowerCase()),
+      .filter(
+        (user) =>
+          user.role === roleFilter &&
+          getFullName(user.name)
+            .toLowerCase()
+            .includes(searchQuery.toLowerCase()),
       );
   }, [userDirectoryQuery.data]);
 
