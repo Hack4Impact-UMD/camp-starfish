@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   TextInput,
   Radio,
@@ -14,6 +14,7 @@ import {
 } from "react-icons/md";
 import { MdAccountCircle } from "react-icons/md";
 import useUserDirectory from "@/hooks/users/useUserDirectory";
+import { getFullName } from "@/types/users/userUtils";
 
 type SmallDirectoryBlockProps = {
   sessionId: string;
@@ -26,6 +27,14 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
   );
 
   const userDirectoryQuery = useUserDirectory();
+
+  const usersToDisplay = useMemo(() => {
+    if (!userDirectoryQuery.data) return [];
+    Object.keys(userDirectoryQuery.data).map((userId) => ({
+      id: Number(userId),
+      ...userDirectoryQuery.data[Number(userId)],
+    })).filter(user => user.role === roleFilter).filter(user => getFullName(user.name).toLowerCase().includes(searchQuery.toLowerCase()));
+  }, [userDirectoryQuery.data]);
 
   if (userDirectoryQuery.isPending) {
     return (
