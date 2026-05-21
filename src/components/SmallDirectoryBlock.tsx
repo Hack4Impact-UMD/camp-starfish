@@ -12,6 +12,7 @@ import { MdAccountCircle } from "react-icons/md";
 import useUserDirectory from "@/hooks/users/useUserDirectory";
 import { getFullName } from "@/types/users/userUtils";
 import useBunkList from "@/hooks/bunks/useBunkList";
+import useSession from "@/hooks/sessions/useSession";
 
 type SmallDirectoryBlockProps = {
   sessionId: string;
@@ -23,12 +24,14 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
     "CAMPER",
   );
 
+  const sessionQuery = useSession(sessionId);
   const userDirectoryQuery = useUserDirectory();
   const bunksQuery = useBunkList(sessionId);
 
-  const usersToDisplay = useMemo(() => {
-    if (!userDirectoryQuery.data) return [];
+  const attendeesToDisplay = useMemo(() => {
+    if (!userDirectoryQuery.data || !sessionQuery.data) return [];
     return Object.keys(userDirectoryQuery.data)
+      .filter(userId => sessionQuery.data.attendeeIds.includes(Number(userId)))
       .map((userId) => ({
         id: Number(userId),
         ...userDirectoryQuery.data[Number(userId)],
@@ -40,7 +43,7 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
             .toLowerCase()
             .includes(searchQuery.toLowerCase()),
       );
-  }, [userDirectoryQuery.data]);
+  }, [sessionQuery.data, userDirectoryQuery.data]);
 
   const usersToBunk = useMemo(() => {
     if (!bunksQuery.data) return [];
@@ -123,13 +126,13 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
       </RadioGroup>
 
       <div className="flex flex-col gap-4 mt-7">
-        {usersToDisplay.map((user) => (
-          <div key={user.id}>
+        {attendeesToDisplay.map((attendee) => (
+          <div key={attendee.id}>
             <div className="flex items-center gap-[32px]">
               <MdAccountCircle />
               <div>
                 <p className="text-sm font-bold text-primary-5">
-                  {getFullName(user.name)}{usersToBunk[user.id] && ` (${usersToBunk[user.id]})`}
+                  {getFullName(attendee.name)}{usersToBunk[attendee.id] && ` (${usersToBunk[attendee.id]})`}
                 </p>
               </div>
             </div>
@@ -138,7 +141,7 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
         ))}
       </div>
 
-      {usersToDisplay.length === 0 && (
+      {attendeesToDisplay.length === 0 && (
         <p className="text-neutral-5 text-center my-4">No users found</p>
       )}
     </div>
