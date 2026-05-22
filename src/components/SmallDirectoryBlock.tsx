@@ -6,6 +6,8 @@ import {
   Button,
   ActionIcon,
   RadioGroup,
+  Title,
+  Anchor,
 } from "@mantine/core";
 import { MdSearch, MdErrorOutline, MdFullscreen } from "react-icons/md";
 import { MdAccountCircle } from "react-icons/md";
@@ -31,7 +33,9 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
   const attendeesToDisplay = useMemo(() => {
     if (!userDirectoryQuery.data || !sessionQuery.data) return [];
     return Object.keys(userDirectoryQuery.data)
-      .filter(userId => sessionQuery.data.attendeeIds.includes(Number(userId)))
+      .filter((userId) =>
+        sessionQuery.data.attendeeIds.includes(Number(userId)),
+      )
       .map((userId) => ({
         id: Number(userId),
         ...userDirectoryQuery.data[Number(userId)],
@@ -43,18 +47,33 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
             .toLowerCase()
             .includes(searchQuery.toLowerCase()),
       );
-  }, [sessionQuery, userDirectoryQuery, sessionQuery.data, userDirectoryQuery.data, roleFilter, searchQuery]);
+  }, [
+    sessionQuery,
+    userDirectoryQuery,
+    sessionQuery.data,
+    userDirectoryQuery.data,
+    roleFilter,
+    searchQuery,
+  ]);
 
   const usersToBunk = useMemo(() => {
     if (!bunksQuery.data) return [];
-    const usersToBunk: { [userId: number]: number; } = {};
-    bunksQuery.data.pages.flatMap(page => page.docs).forEach((bunk) => {
-      [...bunk.camperIds, ...bunk.counselorIds].forEach(userId => usersToBunk[userId] = bunk.bunkNum);
-    });
+    const usersToBunk: { [userId: number]: number } = {};
+    bunksQuery.data.pages
+      .flatMap((page) => page.docs)
+      .forEach((bunk) => {
+        [...bunk.camperIds, ...bunk.counselorIds].forEach(
+          (userId) => (usersToBunk[userId] = bunk.bunkNum),
+        );
+      });
     return usersToBunk;
-  }, [bunksQuery.data]);   
+  }, [bunksQuery.data]);
 
-  if (userDirectoryQuery.isPending || sessionQuery.isPending || bunksQuery.isPending) {
+  if (
+    userDirectoryQuery.isPending ||
+    sessionQuery.isPending ||
+    bunksQuery.isPending
+  ) {
     return (
       <div className="max-w-[400px] m-[50px] border-[1.3px] border-black p-4 bg-neutral-2">
         <div className="flex justify-between items-center mb-4">
@@ -67,7 +86,11 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
     );
   }
 
-  if (userDirectoryQuery.isError || sessionQuery.isError || bunksQuery.isError) {
+  if (
+    userDirectoryQuery.isError ||
+    sessionQuery.isError ||
+    bunksQuery.isError
+  ) {
     return (
       <div className="max-w-[400px] m-[50px] border-[1.3px] border-black p-4 bg-neutral-2">
         <div className="flex justify-between items-center mb-4">
@@ -89,18 +112,18 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
   }
 
   return (
-    <div className="max-w-[344px] border-[1.3px] border-black p-4 bg-neutral-2">
-      {/* header with directory and expand button */}
+    <div className="border border-black p-4 bg-neutral-2">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-black">DIRECTORY</h2>
-        <ActionIcon
-          variant="transparent"
-          size="md"
-          onClick={() => console.log("Redirect to expanded directory view")}
-          aria-label="Expand directory view"
-        >
-          <MdFullscreen size={25} />
-        </ActionIcon>
+        <Title order={2}>Directory</Title>
+        <Anchor href={`/sessions/${sessionId}/directory`}>
+          <ActionIcon
+            variant="transparent"
+            size="md"
+            aria-label="Expand directory view"
+          >
+            <MdFullscreen size={25} />
+          </ActionIcon>
+        </Anchor>
       </div>
 
       {/* search bar */}
@@ -132,7 +155,8 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
               <MdAccountCircle />
               <div>
                 <p className="text-sm font-bold text-primary-5">
-                  {getFullName(attendee.name)}{usersToBunk[attendee.id] && ` (${usersToBunk[attendee.id]})`}
+                  {getFullName(attendee.name)}
+                  {usersToBunk[attendee.id] && ` (${usersToBunk[attendee.id]})`}
                 </p>
               </div>
             </div>
