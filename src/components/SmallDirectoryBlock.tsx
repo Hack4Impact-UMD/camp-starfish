@@ -8,6 +8,7 @@ import {
   RadioGroup,
   Title,
   Anchor,
+  ScrollArea,
 } from "@mantine/core";
 import { MdSearch, MdErrorOutline, MdFullscreen } from "react-icons/md";
 import { MdAccountCircle } from "react-icons/md";
@@ -75,11 +76,11 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
     bunksQuery.isPending
   ) {
     return (
-      <div className="max-w-[400px] m-[50px] border-[1.3px] border-black p-4 bg-neutral-2">
+      <div className="max-w-100 m-12.5 border-[1.3px] border-black p-4 bg-neutral-2">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-black">DIRECTORY</h2>
         </div>
-        <div className="flex flex-col items-center justify-center min-h-[200px]">
+        <div className="flex flex-col items-center justify-center min-h-50">
           <p className="text-neutral-5 text-sm">Loading directory...</p>
         </div>
       </div>
@@ -92,7 +93,7 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
     bunksQuery.isError
   ) {
     return (
-      <div className="max-w-[400px] m-[50px] border-[1.3px] border-black p-4 bg-neutral-2">
+      <div className="max-w-100 m-12.5 border-[1.3px] border-black p-4 bg-neutral-2">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-black">DIRECTORY</h2>
         </div>
@@ -146,10 +147,11 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
         </div>
       </RadioGroup>
 
+      <ScrollArea>
       <div className="flex flex-col gap-4 mt-7 border-2 border-red">
         {attendeesToDisplay.map((attendee) => (
           <div key={attendee.id}>
-            <div className="flex items-center gap-[32px]">
+            <div className="flex items-center gap-8">
               <MdAccountCircle />
               <div>
                 <p className="text-sm font-bold text-primary-5">
@@ -162,6 +164,7 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
           </div>
         ))}
       </div>
+      </ScrollArea>
 
       {attendeesToDisplay.length === 0 && (
         <p className="text-neutral-5 text-center my-4">No users found</p>
