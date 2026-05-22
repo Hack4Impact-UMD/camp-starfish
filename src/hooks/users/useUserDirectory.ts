@@ -4,15 +4,15 @@ import { useQuery } from "@tanstack/react-query";
 
 export async function getUserDirectory(): Promise<Omit<UserDirectory, 'page'>> {
   const pages = await executeUserDirectoryQuery();
-  const combinedTags = pages.reduce((acc, page) => ({ ...acc, ...page }), {});
+  const fullDirectory = pages.reduce((acc, page) => ({ ...acc, ...page }), {});
   // @ts-expect-error - Typescript doesn't recognize arbitrary keys
-  delete combinedTags.page;
-  return combinedTags;
+  delete fullDirectory.page;
+  return fullDirectory;
 }
 
 export default function useUserDirectory() {
   return useQuery({
-    queryKey: ['tags'],
+    queryKey: ['user-directory'],
     queryFn: getUserDirectory
   })
 }
