@@ -43,7 +43,7 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
             .toLowerCase()
             .includes(searchQuery.toLowerCase()),
       );
-  }, [sessionQuery.data, userDirectoryQuery.data]);
+  }, [sessionQuery, userDirectoryQuery, sessionQuery.data, userDirectoryQuery.data, roleFilter, searchQuery]);
 
   const usersToBunk = useMemo(() => {
     if (!bunksQuery.data) return [];
@@ -54,7 +54,7 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
     return usersToBunk;
   }, [bunksQuery.data]);   
 
-  if (userDirectoryQuery.isPending) {
+  if (userDirectoryQuery.isPending || sessionQuery.isPending || bunksQuery.isPending) {
     return (
       <div className="max-w-[400px] m-[50px] border-[1.3px] border-black p-4 bg-neutral-2">
         <div className="flex justify-between items-center mb-4">
@@ -67,7 +67,7 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
     );
   }
 
-  if (userDirectoryQuery.isError) {
+  if (userDirectoryQuery.isError || sessionQuery.isError || bunksQuery.isError) {
     return (
       <div className="max-w-[400px] m-[50px] border-[1.3px] border-black p-4 bg-neutral-2">
         <div className="flex justify-between items-center mb-4">
@@ -125,7 +125,7 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
         </div>
       </RadioGroup>
 
-      <div className="flex flex-col gap-4 mt-7">
+      <div className="flex flex-col gap-4 mt-7 border-2 border-red">
         {attendeesToDisplay.map((attendee) => (
           <div key={attendee.id}>
             <div className="flex items-center gap-[32px]">
