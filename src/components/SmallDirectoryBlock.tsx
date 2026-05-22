@@ -126,7 +126,6 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
         </Anchor>
       </div>
 
-      {/* search bar */}
       <TextInput
         placeholder="Search directory..."
         leftSection={<MdSearch size={16} />}
@@ -140,7 +139,6 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
           setRoleFilter(value as "CAMPER" | "STAFF" | "ADMIN")
         }
       >
-        {/* radio options to choose */}
         <div className="flex gap-4 mt-4">
           <Radio value="CAMPER" label="Campers" />
           <Radio value="STAFF" label="Staff" />
