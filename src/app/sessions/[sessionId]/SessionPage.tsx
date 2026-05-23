@@ -16,7 +16,7 @@ export default function SessionPage(props: SessionPageProps) {
 
   return (
     <Flex className="flex-col self-center w-4/5 gap-5">
-      <Flex className="flex-row items-center gap-lg border-red-500">
+      <Flex className="flex-row items-center gap-lg">
         <Title
           order={1}
           className="font-black bg-none cursor-pointer hover:bg-[url(../assets/underline.svg)] hover:bg-no-repeat hover:bg-bottom hover:bg-contain"
@@ -31,7 +31,9 @@ export default function SessionPage(props: SessionPageProps) {
         </Text>
       </Flex>
       <div className="flex flex-row w-full gap-lg">
-        <SessionCalendar session={session} />
+        <div className="w-full">
+          <SessionCalendar session={session} />
+        </div>
         <SmallDirectoryBlock sessionId={session.id} />
       </div>
     </Flex>
