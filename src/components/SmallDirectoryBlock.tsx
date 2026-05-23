@@ -49,8 +49,6 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
             .includes(searchQuery.toLowerCase()),
       );
   }, [
-    sessionQuery,
-    userDirectoryQuery,
     sessionQuery.data,
     userDirectoryQuery.data,
     roleFilter,
