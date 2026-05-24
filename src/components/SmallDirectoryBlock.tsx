@@ -116,7 +116,7 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
             ))}
           </div>
         </RadioGroup>
-        {false ? (
+        {attendeesToDisplay.length > 0 ? (
           <ScrollArea.Autosize mah={500}>
             {attendeesToDisplay.map((attendee) => (
               <div
