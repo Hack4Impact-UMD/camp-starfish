@@ -15,6 +15,7 @@ import {
   MdErrorOutline,
   MdFullscreen,
   MdWarningAmber,
+  MdClose,
 } from "react-icons/md";
 import { MdAccountCircle } from "react-icons/md";
 import useUserDirectory from "@/hooks/users/useUserDirectory";
@@ -35,6 +36,7 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
   const [roleFilter, setRoleFilter] = useState<"CAMPER" | "STAFF" | "ADMIN">(
     "CAMPER",
   );
+  const [isBunkErrorOpen, setIsBunkErrorOpen] = useState<boolean>(true);
 
   const sessionQuery = useSession(sessionId);
   const userDirectoryQuery = useUserDirectory();
@@ -87,10 +89,13 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
   } else {
     smallDirectoryBlockContent = (
       <>
-        {true && (
+        {bunksQuery.isError && isBunkErrorOpen && (
           <div className="flex items-center gap-sm p-sm bg-warning-0 border border-warning rounded-md">
             <MdWarningAmber size={20} className="text-warning" />
             <Text className="text-warning">Unable to load bunk data</Text>
+            <ActionIcon variant="transparent" size="md" onClick={() => setIsBunkErrorOpen(false)}>
+              <MdClose size={20} />
+            </ActionIcon>
           </div>
         )}
         <TextInput
@@ -142,10 +147,10 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
         <Anchor href={`/sessions/${sessionId}/directory`}>
           <ActionIcon
             variant="transparent"
-            size="md"
+            size="lg"
             aria-label="Expand directory view"
           >
-            <MdFullscreen size={25} />
+            <MdFullscreen size={30} />
           </ActionIcon>
         </Anchor>
       </div>
