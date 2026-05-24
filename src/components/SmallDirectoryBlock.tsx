@@ -96,27 +96,30 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
             <Radio value="ADMIN" label="Admin" />
           </div>
         </RadioGroup>
-        <ScrollArea.Autosize mah={400}>
-          <div className="flex flex-col gap-4 mt-7">
-            {attendeesToDisplay.map((attendee) => (
-              <div key={attendee.id}>
-                <div className="flex items-center gap-8">
-                  <MdAccountCircle />
-                  <div>
-                    <p className="text-sm font-bold text-primary-5">
-                      {getFullName(attendee.name)}
-                      {usersToBunk[attendee.id] &&
-                        ` (${usersToBunk[attendee.id]})`}
-                    </p>
+        {attendeesToDisplay.length > 0 ? (
+          <ScrollArea.Autosize mah={400}>
+            <div className="flex flex-col gap-4 mt-7">
+              {attendeesToDisplay.map((attendee) => (
+                <div key={attendee.id}>
+                  <div className="flex items-center gap-8">
+                    <MdAccountCircle />
+                    <div>
+                      <p className="text-sm font-bold text-primary-5">
+                        {getFullName(attendee.name)}
+                        {usersToBunk[attendee.id] &&
+                          ` (${usersToBunk[attendee.id]})`}
+                      </p>
+                    </div>
                   </div>
+                  <hr className="mt-2 border-neutral-3" />
                 </div>
-                <hr className="mt-2 border-neutral-3" />
-              </div>
-            ))}
-          </div>
-        </ScrollArea.Autosize>
-        {attendeesToDisplay.length === 0 && (
-          <p className="text-neutral-5 text-center my-4">No users found</p>
+              ))}
+            </div>
+          </ScrollArea.Autosize>
+        ) : (
+          <Text className="text-neutral-5 text-center my-4">
+            No attendees found
+          </Text>
         )}
       </>
     );
