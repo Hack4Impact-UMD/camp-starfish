@@ -110,13 +110,13 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
             setRoleFilter(value as "CAMPER" | "STAFF" | "ADMIN")
           }
         >
-          <div className="flex gap-4 mt-4">
+          <div className="flex gap-md mt-md">
             {attendeeRoles.map((attendeeRole) => (
               <Radio value={attendeeRole} label={getPluralRole(attendeeRole)} />
             ))}
           </div>
         </RadioGroup>
-        {attendeesToDisplay.length > 0 ? (
+        {false ? (
           <ScrollArea.Autosize mah={500}>
             {attendeesToDisplay.map((attendee) => (
               <div
@@ -132,7 +132,7 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
             ))}
           </ScrollArea.Autosize>
         ) : (
-          <Text className="text-neutral-5 text-center my-4">
+          <Text className="text-neutral text-center my-md">
             No attendees found
           </Text>
         )}
