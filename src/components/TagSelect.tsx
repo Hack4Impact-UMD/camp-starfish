@@ -7,7 +7,6 @@ import { getFullName } from "@/types/users/userUtils";
 
 export default function TagSelect() {
   const userDirectoryQuery = useUserDirectory();
-  const tagOptions = Object.entries(userDirectoryQuery.data || {});
 
   if (userDirectoryQuery.isPending) {
     return (
@@ -26,10 +25,13 @@ export default function TagSelect() {
     );
   }
 
+  const userDirectory = userDirectoryQuery.data;
   return (
     <MultiSelect
       placeholder="Search tags"
-      data={tagOptions.map(([_userId, info]) => getFullName(info.name))}
+      data={Object.keys(userDirectory)}
+      renderOption={(optionInput) => getFullName(userDirectory[Number(optionInput.option.value)].name)}
+      filter={(filterObj) => filterObj.options.filter((option) => getFullName(userDirectory[Number(option.value)].name).toLowerCase().includes(filterObj.search.toLowerCase())).slice(0, filterObj.limit)}
       searchable
       maxValues={5}
     />
