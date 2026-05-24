@@ -31,7 +31,7 @@ export default function TagSelect() {
       placeholder="Search tags"
       data={Object.keys(userDirectory)}
       renderOption={(optionInput) => getFullName(userDirectory[Number(optionInput.option.value)].name)}
-      filter={(filterObj) => filterObj.options.filter((option) => getFullName(userDirectory[Number(option.value)].name).toLowerCase().includes(filterObj.search.toLowerCase())).slice(0, filterObj.limit)}
+      filter={(filterObj) => filterObj.options.filter((option) => 'value' in option && getFullName(userDirectory[Number(option.value)].name).toLowerCase().includes(filterObj.search.toLowerCase())).slice(0, filterObj.limit)}
       searchable
       maxValues={5}
     />
