@@ -97,21 +97,16 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
           </div>
         </RadioGroup>
         {attendeesToDisplay.length > 0 ? (
-          <ScrollArea.Autosize mah={400}>
-            <div className="flex flex-col gap-4 mt-7">
+          <ScrollArea.Autosize mah={500}>
+            <div className="flex flex-col gap-4 mt-md">
               {attendeesToDisplay.map((attendee) => (
-                <div key={attendee.id}>
-                  <div className="flex items-center gap-8">
-                    <MdAccountCircle />
-                    <div>
-                      <p className="text-sm font-bold text-primary-5">
-                        {getFullName(attendee.name)}
-                        {usersToBunk[attendee.id] &&
-                          ` (${usersToBunk[attendee.id]})`}
-                      </p>
-                    </div>
-                  </div>
-                  <hr className="mt-2 border-neutral-3" />
+                <div className="flex items-center gap-8" key={attendee.id}>
+                  <MdAccountCircle />
+                  <Text className="font-bold">
+                    {getFullName(attendee.name)}
+                    {usersToBunk[attendee.id] &&
+                      ` (${usersToBunk[attendee.id]})`}
+                  </Text>
                 </div>
               ))}
             </div>
