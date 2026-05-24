@@ -9,6 +9,7 @@ import {
   Anchor,
   ScrollArea,
   Text,
+  Tooltip,
 } from "@mantine/core";
 import {
   MdSearch,
@@ -93,8 +94,15 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
           <div className="flex items-center gap-sm p-sm bg-warning-0 border border-warning rounded-md">
             <MdWarningAmber size={20} className="text-warning" />
             <Text className="text-warning">Unable to load bunk data</Text>
-            <ActionIcon variant="transparent" size="md" onClick={() => setIsBunkErrorOpen(false)}>
-              <MdClose size={20} />
+            <ActionIcon
+              variant="transparent"
+              size="md"
+              aria-label="Close"
+              onClick={() => setIsBunkErrorOpen(false)}
+            >
+              <Tooltip label="Close">
+                <MdClose size={20} />
+              </Tooltip>
             </ActionIcon>
           </div>
         )}
@@ -112,7 +120,11 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
         >
           <div className="flex gap-md mt-md">
             {attendeeRoles.map((attendeeRole) => (
-              <Radio key={attendeeRole} value={attendeeRole} label={getPluralRole(attendeeRole)} />
+              <Radio
+                key={attendeeRole}
+                value={attendeeRole}
+                label={getPluralRole(attendeeRole)}
+              />
             ))}
           </div>
         </RadioGroup>
@@ -150,7 +162,9 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
             size="lg"
             aria-label="Expand directory view"
           >
-            <MdFullscreen size={30} />
+            <Tooltip label="Expand directory view">
+              <MdFullscreen size={30} />
+            </Tooltip>
           </ActionIcon>
         </Anchor>
       </div>
