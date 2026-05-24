@@ -29,6 +29,8 @@ export interface SchedulingSection extends BaseSection {
 }
 export type Section = CommonSection | SchedulingSection;
 
+export type AttendeeRole = Extract<Role, "ADMIN" | "CAMPER" | "STAFF">;
+
 interface BaseAttendee {
   attendeeId: number;
   sessionId: string;
@@ -38,7 +40,7 @@ interface BaseAttendee {
     age: number;
     nonoList: number[];
   };
-  role: Extract<Role, "ADMIN" | "CAMPER" | "STAFF">;
+  role: AttendeeRole;
 }
 
 export type AgeGroup = "OCP" | "NAV";
