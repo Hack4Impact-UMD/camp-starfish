@@ -50,7 +50,7 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
   }
 
   return (
-    <SimpleGrid className="grid-cols-7 gap-0 select-none">
+    <SimpleGrid className="grid-cols-7 gap-0 select-none w-full">
       {weekdaysShort().map((day) => (
         <Box
           key={day}
