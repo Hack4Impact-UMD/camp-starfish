@@ -14,7 +14,8 @@ async function createSession(req: CreateSessionRequest) {
   await createSessionDoc({
     name,
     startDate: Timestamp.fromDate(startDate.toDate()),
-    endDate: Timestamp.fromDate(endDate.toDate())
+    endDate: Timestamp.fromDate(endDate.toDate()),
+    attendeeIds: []
   });
 }
 
