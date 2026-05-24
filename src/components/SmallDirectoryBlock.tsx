@@ -91,9 +91,7 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
           }
         >
           <div className="flex gap-4 mt-4">
-            <Radio value="CAMPER" label="Campers" />
-            <Radio value="STAFF" label="Staff" />
-            <Radio value="ADMIN" label="Admin" />
+            {attendeeRoles.map(attendeeRole => <Radio value={attendeeRole} label={getPluralRole(attendeeRole)} />)}
           </div>
         </RadioGroup>
         {attendeesToDisplay.length > 0 ? (
