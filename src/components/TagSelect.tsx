@@ -1,6 +1,6 @@
 "use client";
 
-import { Loader, MultiSelect } from "@mantine/core";
+import { Loader, MultiSelect, Text, Title } from "@mantine/core";
 import useUserDirectory from "@/hooks/users/useUserDirectory";
 import { MdError } from "react-icons/md";
 import { getFullName } from "@/types/users/userUtils";
@@ -30,7 +30,10 @@ export default function TagSelect() {
     <MultiSelect
       placeholder="Search tags"
       data={Object.keys(userDirectory)}
-      renderOption={(optionInput) => getFullName(userDirectory[Number(optionInput.option.value)].name)}
+      renderOption={(optionInput) => <div className="flex flex-col">
+        <Text className="text-sm">{getFullName(userDirectory[Number(optionInput.option.value)].name)}</Text>
+        <Text className="text-xs">ID: {optionInput.option.value}</Text>
+      </div>}
       filter={(filterObj) => filterObj.options.filter((option) => 'value' in option && getFullName(userDirectory[Number(option.value)].name).toLowerCase().includes(filterObj.search.toLowerCase())).slice(0, filterObj.limit)}
       searchable
       maxValues={5}
