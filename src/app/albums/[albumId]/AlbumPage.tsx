@@ -141,7 +141,7 @@ export function AlbumPageContent(props: AlbumPageContentProps) {
               ))}
             </Menu.Dropdown>
           </Menu>
-          <Link href="/albums/pending">
+          <Link href={`/albums/${album.id}/pending`}>
             <Tooltip label="Pending Items">
               <Indicator color="error" offset={7}>
                 <ActionIcon variant="outline">
