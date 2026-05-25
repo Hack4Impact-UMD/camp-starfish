@@ -17,19 +17,19 @@ interface PendingPageProps {
 export default function PendingPage(props: PendingPageProps) {\
   const { albumId } = props;
 
-  const albumItemsQuery = useAlbumItemList(albumId, {
+  const pendingAlbumItemsQuery = useAlbumItemList(albumId, {
     where: [{ fieldPath: 'inReview', operation: '==', value: true }]
   });
 
   const router = useRouter();
 
-  if (albumItemsQuery.isError) {
-    return <ErrorPage error={albumItemsQuery.error} />
-  } else if (albumItemsQuery.isPending) {
+  if (pendingAlbumItemsQuery.isError) {
+    return <ErrorPage error={pendingAlbumItemsQuery.error} />
+  } else if (pendingAlbumItemsQuery.isPending) {
     return <LoadingAnimation />
   }
 
-  const albumItems = albumItemsQuery.data.pages.flatMap(page => page.docs);
+  const pendingAlbumItems = pendingAlbumItemsQuery.data.pages.flatMap(page => page.docs);
 
   const groups: GroupOptions<AlbumItem> = {
     groupLabels: ["album-1"],
@@ -69,7 +69,7 @@ export default function PendingPage(props: PendingPageProps) {\
         {/* Photo Grid */}
         <div className="mt-6 space-y-8">
           <CardGallery
-            items={albumItems}
+            items={pendingAlbumItems}
             groups={groups}
             renderItem={(item) => (
               <PendingImageCard
