@@ -1,45 +1,12 @@
-import React, { useState } from "react";
-import TestPicture from "@/assets/images/TestPicture.png";
-import PolaroidPhotos1 from "@/assets/images/PolaroidPhotos1.png";
-import filterIcon from "@/assets/icons/filterIcon.svg";
-import uploadIcon from "@/assets/icons/uploadIcon.svg";
+import React from "react";
 import PendingImageCard from "@/components/PendingImageCard";
 import ConfirmationModal from "@/components/ConfirmationModal";
 import CardGallery, { GroupOptions } from "@/components/CardGallery";
-import backIcon from "@/assets/icons/backIcon.svg";
 import { useRouter } from "next/navigation";
 import { ImageID } from "@/types/albumTypes";
 
-interface Photo {
-  id: string;
-  src: string;
-  album: string;
-}
-
 const PendingPage: React.FC = () => {
   const router = useRouter();
-
-  // // Photos have album fields from the start
-  // const [photos, setPhotos] = useState<Photo[]>([
-  //   { id: "photo-1", src: TestPicture.src, album: "Album1" },
-  //   { id: "photo-2", src: TestPicture.src, album: "Album1" },
-  //   { id: "photo-3", src: TestPicture.src, album: "Album1" },
-  //   { id: "photo-4", src: PolaroidPhotos1.src, album: "Album1" },
-  //   { id: "photo-5", src: TestPicture.src, album: "Album1" },
-  //   { id: "photo-6", src: TestPicture.src, album: "Album1" },
-  //   { id: "photo-7", src: PolaroidPhotos1.src, album: "Album2" },
-  //   { id: "photo-8", src: TestPicture.src, album: "Album2" },
-  // ]);
-
-  const photos: ImageID[] = Array(8).fill({
-    id: "photo-1",
-    inReview: true,
-    dateTaken: "2024-06-01T12:00:00Z",
-    name: "Test Photo",
-    tags: "ALL",
-    src: TestPicture.src, // Replace with actual image URL
-    albumId: "album-1",
-  });
 
   const groups: GroupOptions<ImageID> = {
     groupLabels: ["album-1"],
