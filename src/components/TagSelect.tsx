@@ -34,7 +34,7 @@ export default function TagSelect() {
         <Text className="text-sm">{getFullName(userDirectory[Number(optionInput.option.value)].name)}</Text>
         <Text className="text-xs">ID: {optionInput.option.value}</Text>
       </div>}
-      renderPill={(optionInput) => <Pill withRemoveButton>{getFullName(userDirectory[Number(optionInput.option.value)].name)}</Pill>}
+      renderPill={(optionInput) => <Pill>{getFullName(userDirectory[Number(optionInput.option.value)].name)}</Pill>}
       filter={(filterObj) => filterObj.options.filter((option) => 'value' in option && getFullName(userDirectory[Number(option.value)].name).toLowerCase().includes(filterObj.search.toLowerCase())).slice(0, filterObj.limit)}
       searchable
       hidePickedOptions
