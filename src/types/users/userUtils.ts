@@ -1,12 +1,23 @@
 import { AttendeeRole } from "../sessions/sessionTypes";
-import { Name, Role } from "./userTypes";
+import { EmployeeRole, Name, Role } from "./userTypes";
 
 export function getFullName(name: Name) {
   return `${name.firstName} ${name.middleName ? `${name.middleName} ` : ''}${name.lastName}`
 }
 
 export const roles: Role[] = ["CAMPER", "PARENT", "PHOTOGRAPHER", "STAFF", "ADMIN"];
+export const employeeRoles: EmployeeRole[] = ["STAFF", "PHOTOGRAPHER", "ADMIN"];
 export const attendeeRoles: AttendeeRole[] = ["CAMPER", "STAFF", "ADMIN"];
+
+export function isEmployeeRole(role: Role): role is EmployeeRole {
+  // @ts-expect-error - Type 'Role' is not assignable to type 'EmployeeRole', but this is a type guard
+  return employeeRoles.includes(role);
+}
+
+export function isAttendeeRole(role: Role): role is AttendeeRole {
+  // @ts-expect-error - Type 'Role' is not assignable to type 'EmployeeRole', but this is a type guard
+  return attendeeRoles.includes(role);
+}
 
 export function getPluralRole(role: Role) {
   switch (role) {
