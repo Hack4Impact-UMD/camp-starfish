@@ -49,6 +49,7 @@ export interface SessionDoc {
   endDate: Timestamp;
   linkedAlbumId?: string;
   driveFolderId?: string;
+  attendeeIds: number[];
 }
 
 interface BaseAttendeeDoc {
