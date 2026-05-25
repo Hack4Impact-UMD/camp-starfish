@@ -8,6 +8,7 @@ import ErrorPage from "@/app/error";
 import LoadingAnimation from "@/components/LoadingAnimation";
 import { UploadAlbumItemsModal } from "@/components/UploadAlbumItemsModal/UploadAlbumItemsModal";
 import { MdArrowBack, MdOutlineFileUpload, MdSort } from "react-icons/md";
+import { AlbumItem } from "@/types/albums/albumTypes";
 
 interface PendingPageProps {
   albumId: string;
@@ -30,7 +31,7 @@ export default function PendingPage(props: PendingPageProps) {\
 
   const albumItems = albumItemsQuery.data.pages.flatMap(page => page.docs);
 
-  const groups: GroupOptions<ImageID> = {
+  const groups: GroupOptions<AlbumItem> = {
     groupLabels: ["album-1"],
     defaultGroupLabel: "Other",
     groupFunc: (photo) => photo.albumId,
@@ -68,7 +69,7 @@ export default function PendingPage(props: PendingPageProps) {\
         {/* Photo Grid */}
         <div className="mt-6 space-y-8">
           <CardGallery
-            items={photos}
+            items={albumItems}
             groups={groups}
             renderItem={(item) => (
               <PendingImageCard
