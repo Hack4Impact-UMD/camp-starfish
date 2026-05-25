@@ -5,7 +5,7 @@ import CardGallery, { GroupOptions } from "@/components/CardGallery";
 import { useRouter } from "next/navigation";
 import { ImageID } from "@/types/albumTypes";
 
-const PendingPage: React.FC = () => {
+export default function PendingPage() {
   const router = useRouter();
 
   const groups: GroupOptions<ImageID> = {
@@ -78,5 +78,3 @@ const PendingPage: React.FC = () => {
     </div>
   );
 };
-
-export default PendingPage;
