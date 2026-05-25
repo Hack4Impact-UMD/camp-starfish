@@ -37,6 +37,7 @@ export default function TagSelect() {
       renderPill={(optionInput) => <Pill withRemoveButton>{getFullName(userDirectory[Number(optionInput.option.value)].name)}</Pill>}
       filter={(filterObj) => filterObj.options.filter((option) => 'value' in option && getFullName(userDirectory[Number(option.value)].name).toLowerCase().includes(filterObj.search.toLowerCase())).slice(0, filterObj.limit)}
       searchable
+      hidePickedOptions
       maxValues={5}
     />
   );
