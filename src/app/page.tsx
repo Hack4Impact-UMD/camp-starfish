@@ -2,31 +2,35 @@
 
 import RequireAuth from "@/auth/RequireAuth";
 import LoginPage from "./LoginPage";
-import RoleBasedPage from "@/auth/RoleBasedPage";
 import EmployeeHomePage from "./EmployeeHomePage";
 import ParentHomePage from "./ParentHomePage";
+import { useAuth } from "@/auth/useAuth";
+import { Role } from "@/types/users/userTypes";
 
 import { MantineProvider } from '@mantine/core';
 import { theme } from '../styles/theme';
 
 export default function HomePage() {
+  const { token } = useAuth();
+  const role = token?.claims.role as Role | undefined;
+
   return (
-    <MantineProvider theme={theme}>
-      <RequireAuth
-        allowedRoles={["ADMIN", "PARENT", "PHOTOGRAPHER", "STAFF"]}
-        allowUnauthenticated
-      >
-        <RoleBasedPage
-          rolePages={{
-            ADMIN: <EmployeeHomePage />,
-            PARENT: <ParentHomePage />,
-            PHOTOGRAPHER: <EmployeeHomePage />,
-            STAFF: <EmployeeHomePage />,
-          }}
-          unauthenticatedPage={<LoginPage />}
-        />
-      </RequireAuth>
-    </MantineProvider>
-    
+    <RequireAuth
+      authCases={[
+        {
+          authFn: () => !token,
+          component: <LoginPage />,
+        },
+        {
+          authFn: () => role === "PARENT",
+          component: <ParentHomePage />,
+        },
+        {
+          authFn: () =>
+            role === "ADMIN" || role === "PHOTOGRAPHER" || role === "STAFF",
+          component: <EmployeeHomePage />,
+        },
+      ]}
+    />
   );
 }

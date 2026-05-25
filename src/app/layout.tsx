@@ -1,5 +1,3 @@
-import "@mantine/core/styles.css";
-import "@mantine/notifications/styles.css"
 import "./globals.css";
 
 import type { Metadata } from "next";
@@ -9,6 +7,9 @@ import localFont from "next/font/local";
 import { NextFontWithVariable } from "next/dist/compiled/@next/font";
 import { CampStarfishFont, campStarfishFonts } from "@/styles/fonts";
 import Providers from "@/components/Providers";
+import { TanStackDevtools } from "@tanstack/react-devtools";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { FormDevtoolsPanel } from "@tanstack/react-form-devtools";
 
 const lato = localFont({
   src: [
@@ -153,15 +154,25 @@ export default function RootLayout({
           .join(" ")} antialiased w-full min-h-screen flex flex-col`}
       >
         <Providers>
-          <>
-            <div className="w-full">
-              <Navbar />
-            </div>
-            <div className="flex-grow w-full">{children}</div>
-            <div className="w-full">
-              <Footer />
-            </div>
-          </>
+          <div className="w-full">
+            <Navbar />
+          </div>
+          <div className="flex flex-col grow w-full bg-neutral-1">{children}</div>
+          <div className="w-full">
+            <Footer />
+          </div>
+          {process.env.NODE_ENV !== 'production' && <TanStackDevtools
+            plugins={[
+              {
+                name: "Query",
+                render: <ReactQueryDevtools />,
+              },
+              {
+                name: "Form",
+                render: <FormDevtoolsPanel />
+              },
+            ]}
+          />}
         </Providers>
       </body>
     </html>
