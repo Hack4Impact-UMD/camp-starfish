@@ -3,10 +3,15 @@ import PendingImageCard from "@/components/PendingImageCard";
 import ConfirmationModal from "@/components/ConfirmationModal";
 import CardGallery, { GroupOptions } from "@/components/CardGallery";
 import { useRouter } from "next/navigation";
-import { ImageID } from "@/types/albumTypes";
+import { AlbumItem } from "@/types/albums/albumTypes";
+import useAlbumItemList from "@/hooks/albumItems/useAlbumItemList";
 
 export default function PendingPage() {
   const router = useRouter();
+
+  const albumItemsQuery = useAlbumItemList('collectionGroup', {
+    where: [{ fieldPath: 'inReview', operation: '==', value: true }]
+  })
 
   const groups: GroupOptions<ImageID> = {
     groupLabels: ["album-1"],

@@ -5,10 +5,10 @@ import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { TanstackQueryFirestorePageParam } from "../types/tanstackQueryTypes";
 import { FirestoreQueryOptions } from "@/data/firestore/types/queries";
 
-export default function useAlbumItemList(albumId: string, firestoreQueryOptions?: FirestoreQueryOptions<AlbumItemDoc>, enabled: boolean = true) {
+export default function useAlbumItemList(albumId: string | 'collectionGroup', firestoreQueryOptions?: FirestoreQueryOptions<AlbumItemDoc>, enabled: boolean = true) {
   const queryClient = useQueryClient();
   return useInfiniteQuery({
-    queryKey: ['albums', albumId, 'albumItems', firestoreQueryOptions],
+    queryKey: albumId === 'collectionGroup' ? ['albumItems', 'collectionGroup', firestoreQueryOptions] : ['albums', albumId, 'albumItems', firestoreQueryOptions],
     queryFn: async ({ pageParam }) => {
       const updatedQueryOptions = firestoreQueryOptions ? { ...firestoreQueryOptions } : {};
       if (pageParam) {
@@ -21,7 +21,7 @@ export default function useAlbumItemList(albumId: string, firestoreQueryOptions?
         }
       }
       const albumItemsPage = await listAlbumItemDocs(albumId, updatedQueryOptions);
-      albumItemsPage.docs.forEach((albumItem: AlbumItem) => queryClient.setQueryData(['albums', albumId, 'albumItems', albumItem.id], albumItem))
+      albumItemsPage.docs.forEach((albumItem: AlbumItem) => queryClient.setQueryData(['albums', albumItem.albumId, 'albumItems', albumItem.id], albumItem))
       return albumItemsPage;
     },
     initialPageParam: undefined as TanstackQueryFirestorePageParam<AlbumItemDoc> | undefined,
