@@ -12,7 +12,7 @@ import { Album, AlbumItem } from "@/types/albums/albumTypes";
 import { FirestoreQueryOptions } from "@/data/firestore/types/queries";
 import { AlbumItemDoc } from "@/data/firestore/types/documents";
 import useAlbum from "@/hooks/albums/useAlbum";
-import useAlbumItemsList from "@/hooks/albumItems/useAlbumItemsList";
+import useAlbumItemList from "@/hooks/albumItems/useAlbumItemList";
 import {
   ActionIcon,
   Anchor,
@@ -80,7 +80,7 @@ export function AlbumPageContent(props: AlbumPageContentProps) {
     AlbumPageSortOption.NEWEST_TO_OLDEST,
   );
 
-  const albumItemsQuery = useAlbumItemsList(album.id, {
+  const albumItemsQuery = useAlbumItemList(album.id, {
     ...sortQueryOptions[sortOption],
     limit: 10,
     limitToLast: undefined,
