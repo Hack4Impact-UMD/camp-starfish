@@ -14,7 +14,7 @@ interface PendingPageProps {
   albumId: string;
 }
 
-export default function PendingPage(props: PendingPageProps) {\
+export default function PendingPage(props: PendingPageProps) {
   const { albumId } = props;
 
   const pendingAlbumItemsQuery = useAlbumItemList(albumId, {
