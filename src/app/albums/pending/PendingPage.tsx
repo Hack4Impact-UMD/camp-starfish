@@ -7,6 +7,7 @@ import useAlbumItemList from "@/hooks/albumItems/useAlbumItemList";
 import ErrorPage from "@/app/error";
 import LoadingAnimation from "@/components/LoadingAnimation";
 import { UploadAlbumItemsModal } from "@/components/UploadAlbumItemsModal/UploadAlbumItemsModal";
+import { MdArrowBack, MdOutlineFileUpload, MdSort } from "react-icons/md";
 
 interface PendingPageProps {
   albumId: string;
@@ -42,12 +43,7 @@ export default function PendingPage(props: PendingPageProps) {\
         {/* Top Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <img
-              src={backIcon.src}
-              alt="Back"
-              className="w-8 h-8 cursor-pointer"
-              onClick={() => router.back()}
-            />
+            <MdArrowBack />
             <h1 className="text-4xl font-lato font-bold text-camp-primary">Pending</h1>
           </div>
 
@@ -62,17 +58,9 @@ export default function PendingPage(props: PendingPageProps) {\
                 </button>
               }
             />
-            <img
-              className="w-[72px] h-[72px] flex-none cursor-pointer"
-              src={filterIcon.src}
-              alt="Filter"
-            />
+            <MdSort />
             <div className="w-[72px] h-[72px] flex items-center justify-center rounded-full bg-[#00B6CE]">
-              <img
-                className="w-[40px] h-[40px] flex-none cursor-pointer"
-                src={uploadIcon.src}
-                alt="Upload"
-              />
+              <MdOutlineFileUpload />
             </div>
           </div>
         </div>
