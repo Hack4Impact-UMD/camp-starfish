@@ -3,15 +3,31 @@ import PendingImageCard from "@/components/PendingImageCard";
 import ConfirmationModal from "@/components/ConfirmationModal";
 import CardGallery, { GroupOptions } from "@/components/CardGallery";
 import { useRouter } from "next/navigation";
-import { AlbumItem } from "@/types/albums/albumTypes";
 import useAlbumItemList from "@/hooks/albumItems/useAlbumItemList";
+import ErrorPage from "@/app/error";
+import LoadingAnimation from "@/components/LoadingAnimation";
+import { UploadAlbumItemsModal } from "@/components/UploadAlbumItemsModal/UploadAlbumItemsModal";
 
-export default function PendingPage() {
+interface PendingPageProps {
+  albumId: string;
+}
+
+export default function PendingPage(props: PendingPageProps) {\
+  const { albumId } = props;
+
+  const albumItemsQuery = useAlbumItemList(albumId, {
+    where: [{ fieldPath: 'inReview', operation: '==', value: true }]
+  });
+
   const router = useRouter();
 
-  const albumItemsQuery = useAlbumItemList('collectionGroup', {
-    where: [{ fieldPath: 'inReview', operation: '==', value: true }]
-  })
+  if (albumItemsQuery.isError) {
+    return <ErrorPage error={albumItemsQuery.error} />
+  } else if (albumItemsQuery.isPending) {
+    return <LoadingAnimation />
+  }
+
+  const albumItems = albumItemsQuery.data.pages.flatMap(page => page.docs);
 
   const groups: GroupOptions<ImageID> = {
     groupLabels: ["album-1"],
