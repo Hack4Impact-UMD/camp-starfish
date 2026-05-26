@@ -1,119 +1,53 @@
-import { ReactNode } from 'react';
-import { GenericModalProps } from '../modals/GenericModal';
-import GenericModal from '../modals/GenericModal';
+import { modals } from "@mantine/modals";
+import { Title, Text } from "@mantine/core";
+import { MdWarningAmber } from "react-icons/md";
 
-export interface ConfirmationModalContentProps {
-    message?: string | ReactNode;
-    warningText?: string | ReactNode;
-    onConfirm: () => void;
-    onCancel: () => void;
-    confirmLabel?: string;
-    cancelLabel?: string;
-    loading?: boolean;
-    dangerous?: boolean;
+interface ConfirmationModalProps {
+  title?: string;
+  message?: string;
+  onConfirm: (() => void) | (() => Promise<void>);
+  loading?: boolean;
+  disabled?: boolean;
 }
 
-export interface ConfirmationModalProps extends Omit<GenericModalProps, 'children' | 'closeOnClickOutside' | 'withCloseButton' | 'title'> {
-    title?: string | ReactNode;
-    message?: string | ReactNode;
-    warningText?: string | ReactNode;
-    onConfirm: () => void;
-    onCancel?: () => void; 
-    confirmLabel?: string;
-    cancelLabel?: string;
-    loading?: boolean;
-    dangerous?: boolean;
+type ConfirmationModalContentProps = Required<Pick<ConfirmationModalProps, "title" | "message">>;
+
+export function ConfirmationModalContent(props: ConfirmationModalContentProps) {
+  const { title, message } = props;
+  return (
+    <div className="flex flex-col justify-center items-center gap-md">
+      <Title order={4} className="text-center">{title}</Title>
+      <div className="flex flex-row items-center justify-betweengap-xs">
+        <MdWarningAmber className="min-w-1/10 text-warning" size={24} />
+        <Text className="text-neutral">{message}</Text>
+      </div>
+    </div>
+  );
 }
 
-export interface OpenConfirmationModalOptions extends Omit<ConfirmationModalProps, 'opened' | 'onClose'> {}
-
-/**
- * Confirmation Modal Content (used by both standalone and modal manager)
- */
-export function ConfirmationModalContent({
-    message,
-    warningText,
+export default function openConfirmationModal(props: ConfirmationModalProps) {
+  const {
+    title = "Are you sure you want to perform this action?",
+    message = "WARNING: This action cannot be undone.",
     onConfirm,
-    onCancel,
-    confirmLabel = 'CONFIRM',
-    cancelLabel = 'CANCEL',
     loading = false,
-    dangerous = false,
-}: ConfirmationModalContentProps) {
-    return (
-        <div className="flex flex-col gap-8">
-            {message && (
-                <p className="text-base text-gray-800 text-center">
-                    {message}
-                </p>
-            )}
-            {warningText && (
-                <p className="text-sm text-gray-600 text-center">
-                    {warningText}
-                </p>
-            )}
-            
-            <div className="flex justify-center gap-4">
-                <button
-                    onClick={onCancel}
-                    disabled={loading}
-                    className="px-12 py-3 text-sm font-bold text-gray-700 bg-gray-300 rounded-full hover:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors uppercase tracking-wide"
-                >
-                    {cancelLabel}
-                </button>
-                <button
-                    onClick={onConfirm}
-                    disabled={loading}
-                    className={`px-12 py-3 text-sm font-bold text-white rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wide ${
-                        dangerous
-                        ? 'bg-red-500 hover:bg-red-600'
-                        : 'bg-blue-600 hover:bg-blue-700'
-                    }`}
-                >
-                    {loading ? 'LOADING...' : confirmLabel}
-                </button>
-            </div>
-        </div>
-    );
-}
-
-export function ConfirmationModal({
-    opened,
-    onClose,
-    title,
-    message,
-    warningText,
+    disabled = false,
+  } = props;
+  modals.openConfirmModal({
+    children: <ConfirmationModalContent title={title} message={message} />,
+    classNames: {
+        content: 'p-lg rounded-sm'
+    },
+    labels: {
+      confirm: "Confirm",
+      cancel: "Cancel",
+    },
     onConfirm,
-    onCancel,
-    confirmLabel,
-    cancelLabel,
-    loading = false,
-    dangerous = false,
-    size = 'md',
-}: ConfirmationModalProps) {
-    const handleCancel = onCancel || onClose;
-
-    return (
-        <GenericModal
-            opened={opened}
-            onClose={onClose}
-            title={title}
-            size={size}
-            centered
-            closeOnClickOutside={!loading}
-            withCloseButton={false}
-            borderColor="border-purple-500"
-        >
-            <ConfirmationModalContent
-                message={message}
-                warningText={warningText}
-                onConfirm={onConfirm}
-                onCancel={handleCancel}
-                confirmLabel={confirmLabel}
-                cancelLabel={cancelLabel}
-                loading={loading}
-                dangerous={dangerous}
-            />
-        </GenericModal>
-    );
+    confirmProps: { color: "error", loading, disabled },
+    cancelProps: { color: "gray", disabled },
+    groupProps: { className: "flex flex-row justify-center" },
+    withCloseButton: false,
+    closeOnConfirm: true,
+    closeOnCancel: true,
+  });
 }
