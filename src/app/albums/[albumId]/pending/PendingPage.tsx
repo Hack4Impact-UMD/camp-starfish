@@ -60,7 +60,7 @@ export default function PendingPage(props: PendingPageProps) {
   return (
     <div className="flex flex-col w-6/7 grow mx-auto px-4 py-6 gap-6">
       <div className="flex flex-col gap-xs">
-        <Breadcrumbs classNames={{ separator: "text-3xl" }} separator=">>">
+        <Breadcrumbs separator=">>">
           {[
             { title: "ALBUMS", href: "/albums" },
             { title: album.name, href: `/albums/${album.id}` },
