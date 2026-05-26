@@ -31,7 +31,7 @@ import openUploadAlbumItemsModal from "@/components/UploadAlbumItemsModal/Upload
 import { useInViewport } from "@mantine/hooks";
 import LoadingAnimation from "@/components/LoadingAnimation";
 
-const enum AlbumPageSortOption {
+export const enum AlbumItemSortOption {
   NEWEST_TO_OLDEST = "Newest → Oldest",
   OLDEST_TO_NEWEST = "Oldest → Newest",
   A_TO_Z = "A → Z",
@@ -39,7 +39,7 @@ const enum AlbumPageSortOption {
 }
 
 const sortQueryOptions: Record<
-  AlbumPageSortOption,
+  AlbumItemSortOption,
   FirestoreQueryOptions<AlbumItemDoc>
 > = {
   "Newest → Oldest": {
@@ -76,8 +76,8 @@ interface AlbumPageContentProps {
 export function AlbumPageContent(props: AlbumPageContentProps) {
   const { album } = props;
 
-  const [sortOption, setSortOption] = useState<AlbumPageSortOption>(
-    AlbumPageSortOption.NEWEST_TO_OLDEST,
+  const [sortOption, setSortOption] = useState<AlbumItemSortOption>(
+    AlbumItemSortOption.NEWEST_TO_OLDEST,
   );
 
   const albumItemsQuery = useAlbumItemList(album.id, {
@@ -130,10 +130,10 @@ export function AlbumPageContent(props: AlbumPageContentProps) {
             </Tooltip>
             <Menu.Dropdown>
               {[
-                AlbumPageSortOption.NEWEST_TO_OLDEST,
-                AlbumPageSortOption.OLDEST_TO_NEWEST,
-                AlbumPageSortOption.A_TO_Z,
-                AlbumPageSortOption.Z_TO_A,
+                AlbumItemSortOption.NEWEST_TO_OLDEST,
+                AlbumItemSortOption.OLDEST_TO_NEWEST,
+                AlbumItemSortOption.A_TO_Z,
+                AlbumItemSortOption.Z_TO_A,
               ].map((option) => (
                 <Menu.Item key={option} onClick={() => setSortOption(option)}>
                   {option}
