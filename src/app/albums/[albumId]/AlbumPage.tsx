@@ -38,7 +38,7 @@ export const enum AlbumItemSortOption {
   Z_TO_A = "Z → A",
 }
 
-const sortQueryOptions: Record<
+export const albumItemSortOptionQueryOptions: Record<
   AlbumItemSortOption,
   FirestoreQueryOptions<AlbumItemDoc>
 > = {
@@ -81,7 +81,7 @@ export function AlbumPageContent(props: AlbumPageContentProps) {
   );
 
   const albumItemsQuery = useAlbumItemList(album.id, {
-    ...sortQueryOptions[sortOption],
+    ...albumItemSortOptionQueryOptions[sortOption],
     limit: 10,
     limitToLast: undefined,
   });
@@ -164,7 +164,7 @@ export function AlbumPageContent(props: AlbumPageContentProps) {
               onClick={() =>
                 downloadAlbumMutation.mutate({
                   albumId: album.id,
-                  queryOptions: sortQueryOptions[sortOption],
+                  queryOptions: albumItemSortOptionQueryOptions[sortOption],
                 })
               }
             >

@@ -19,7 +19,7 @@ import {
   Tooltip,
 } from "@mantine/core";
 import useAlbum from "@/hooks/albums/useAlbum";
-import { AlbumItemSortOption } from "../AlbumPage";
+import { AlbumItemSortOption, albumItemSortOptionQueryOptions } from "../AlbumPage";
 import openConfirmationModal from "@/components/modals/ConfirmationModal";
 import useApprovePendingAlbumItems from "@/hooks/albumItems/pendingItems/useApprovePendingAlbumItems";
 import useRejectPendingAlbumItems from "@/hooks/albumItems/pendingItems/useRejectPendingAlbumItems";
@@ -38,6 +38,9 @@ export default function PendingPage(props: PendingPageProps) {
   const albumQuery = useAlbum(albumId);
   const pendingAlbumItemsQuery = useAlbumItemList(albumId, {
     where: [{ fieldPath: "inReview", operation: "==", value: true }],
+    ...albumItemSortOptionQueryOptions[sortOption],
+    limit: 10,
+    limitToLast: undefined
   });
 
   const approvePendingAlbumItemsMutation = useApprovePendingAlbumItems();
