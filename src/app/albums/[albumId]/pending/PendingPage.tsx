@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import PendingImageCard from "@/components/PendingImageCard";
 import ConfirmationModal from "@/components/ConfirmationModal";
 import CardGallery, { GroupOptions } from "@/components/CardGallery";
