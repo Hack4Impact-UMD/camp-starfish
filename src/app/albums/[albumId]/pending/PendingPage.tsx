@@ -20,6 +20,7 @@ import {
 } from "@mantine/core";
 import useAlbum from "@/hooks/albums/useAlbum";
 import { AlbumItemSortOption } from "../AlbumPage";
+import openConfirmationModal from "@/components/modals/ConfirmationModal";
 
 interface PendingPageProps {
   albumId: string;
@@ -75,8 +76,16 @@ export default function PendingPage(props: PendingPageProps) {
           <Title order={1}>Pending</Title>
 
         <div className="flex items-center gap-4">
-          <Button color="green">Approve All</Button>
-          <Button color="error">Reject All</Button>
+          <Button color="green" onClick={() => openConfirmationModal({
+            title: `Are you sure you want to approve all pending items in ${album.name}?`,
+            message: "WARNING: This action cannot be easily undone.",
+            onConfirm: () => console.log('approved all')
+          })}>Approve All</Button>
+          <Button color="error" onClick={() => openConfirmationModal({
+            title: `Are you sure you want to reject all pending items in ${album.name}?`,
+            message: "WARNING: This action cannot be easily undone.",
+            onConfirm: () => console.log('rejected all')
+          })}>Reject All</Button>
           <Menu>
             <Tooltip label="Sort">
               <Menu.Target>
