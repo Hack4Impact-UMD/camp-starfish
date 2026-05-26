@@ -59,10 +59,10 @@ export default function PendingPage(props: PendingPageProps) {
   const approvePendingAlbumItemsMutation = useApprovePendingAlbumItems();
   const rejectPendingAlbumItemsMutation = useRejectPendingAlbumItems();
 
-  const router = useRouter();
-
   if (albumQuery.isError || pendingAlbumItemsQuery.isError) {
-    return <ErrorPage error={pendingAlbumItemsQuery.error} />;
+    return (
+      <ErrorPage error={albumQuery.error || pendingAlbumItemsQuery.error} />
+    );
   } else if (albumQuery.isPending || pendingAlbumItemsQuery.isPending) {
     return <LoadingAnimation />;
   }
@@ -154,20 +154,11 @@ export default function PendingPage(props: PendingPageProps) {
         </div>
       ) : (
         <div className="mt-6 space-y-8">
-          {/* <CardGallery
+          <CardGallery
           items={pendingAlbumItems}
           groups={groups}
-          renderItem={(item) => (
-            <PendingImageCard
-              key={item.id}
-              src={item.src}
-              alt={`Thumbnail ${item.id}`}
-              status="none"
-              onApprove={() => console.log("Approve", item.id)}
-              onReject={() => console.log("Reject", item.id)}
-            />
-          )}
-        /> */}
+          renderItem={(item, isSelected) => <PendingAlbumItemCard albumId={item.albumId} albumItemId={item.id} isSelected={isSelected} /> }
+        />
           {!pendingAlbumItemsQuery.hasNextPage && (
             <Title order={4} classNames={{ root: "self-center" }}>
               All Done!
