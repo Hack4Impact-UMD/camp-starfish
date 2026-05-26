@@ -58,7 +58,7 @@ export default function PendingPage(props: PendingPageProps) {
 
   return (
     <div className="flex flex-col w-6/7 grow mx-auto px-4 py-6 gap-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-xs">
         <Breadcrumbs classNames={{ separator: "text-3xl" }} separator=">>">
           {[
             { title: "ALBUMS", href: "/albums" },
@@ -66,10 +66,13 @@ export default function PendingPage(props: PendingPageProps) {
             { title: "Pending", href: "#" },
           ].map((breadcrumb) => (
             <Anchor href={breadcrumb.href} key={breadcrumb.title}>
-              <Title order={1}>{breadcrumb.title}</Title>
+              <Title order={6}>{breadcrumb.title}</Title>
             </Anchor>
           ))}
         </Breadcrumbs>
+
+      <div className="flex items-center justify-between">
+          <Title order={1}>Pending</Title>
 
         <div className="flex items-center gap-4">
           <Button color="green">Approve All</Button>
@@ -96,6 +99,7 @@ export default function PendingPage(props: PendingPageProps) {
             </Menu.Dropdown>
           </Menu>
         </div>
+      </div>
       </div>
 
       {/* Photo Grid */}
