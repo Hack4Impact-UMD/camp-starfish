@@ -1,6 +1,6 @@
 "use client";
 
-import { Loader, MultiSelect, Pill, Text, Title } from "@mantine/core";
+import { Loader, MultiSelect, Pill, Text } from "@mantine/core";
 import useUserDirectory from "@/hooks/users/useUserDirectory";
 import { MdError } from "react-icons/md";
 import { getFullName } from "@/types/users/userUtils";
