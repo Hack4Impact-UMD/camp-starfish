@@ -19,7 +19,10 @@ import {
   Tooltip,
 } from "@mantine/core";
 import useAlbum from "@/hooks/albums/useAlbum";
-import { AlbumItemSortOption, albumItemSortOptionQueryOptions } from "../AlbumPage";
+import {
+  AlbumItemSortOption,
+  albumItemSortOptionQueryOptions,
+} from "../AlbumPage";
 import openConfirmationModal from "@/components/modals/ConfirmationModal";
 import useApprovePendingAlbumItems from "@/hooks/albumItems/pendingItems/useApprovePendingAlbumItems";
 import useRejectPendingAlbumItems from "@/hooks/albumItems/pendingItems/useRejectPendingAlbumItems";
@@ -41,17 +44,17 @@ export default function PendingPage(props: PendingPageProps) {
     where: [{ fieldPath: "inReview", operation: "==", value: true }],
     ...albumItemSortOptionQueryOptions[sortOption],
     limit: 10,
-    limitToLast: undefined
+    limitToLast: undefined,
   });
 
   const { ref, inViewport } = useInViewport();
-  const { hasNextPage, isFetchingNextPage, fetchNextPage } = pendingAlbumItemsQuery;
+  const { hasNextPage, isFetchingNextPage, fetchNextPage } =
+    pendingAlbumItemsQuery;
   useEffect(() => {
     if (inViewport && hasNextPage && !isFetchingNextPage) {
       fetchNextPage();
     }
   }, [inViewport, hasNextPage, isFetchingNextPage, fetchNextPage]);
-
 
   const approvePendingAlbumItemsMutation = useApprovePendingAlbumItems();
   const rejectPendingAlbumItemsMutation = useRejectPendingAlbumItems();
@@ -90,43 +93,59 @@ export default function PendingPage(props: PendingPageProps) {
           ))}
         </Breadcrumbs>
 
-      <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between">
           <Title order={1}>Pending</Title>
 
-        <div className="flex items-center gap-4">
-          <Button color="green" onClick={() => openConfirmationModal({
-            title: `Are you sure you want to approve all pending items in ${album.name}?`,
-            message: "WARNING: This action cannot be easily undone.",
-            onConfirm: () => approvePendingAlbumItemsMutation.mutate({ albumId })
-          })}>Approve All</Button>
-          <Button color="error" onClick={() => openConfirmationModal({
-            title: `Are you sure you want to reject all pending items in ${album.name}?`,
-            message: "WARNING: This action cannot be easily undone.",
-            onConfirm: () => rejectPendingAlbumItemsMutation.mutate({ albumId })
-          })}>Reject All</Button>
-          <Menu>
-            <Tooltip label="Sort">
-              <Menu.Target>
-                <ActionIcon variant="transparent">
-                  <MdSort size={50} />
-                </ActionIcon>
-              </Menu.Target>
-            </Tooltip>
-            <Menu.Dropdown>
-              {[
-                AlbumItemSortOption.NEWEST_TO_OLDEST,
-                AlbumItemSortOption.OLDEST_TO_NEWEST,
-                AlbumItemSortOption.A_TO_Z,
-                AlbumItemSortOption.Z_TO_A,
-              ].map((option) => (
-                <Menu.Item key={option} onClick={() => setSortOption(option)}>
-                  {option}
-                </Menu.Item>
-              ))}
-            </Menu.Dropdown>
-          </Menu>
+          <div className="flex items-center gap-4">
+            <Button
+              color="green"
+              onClick={() =>
+                openConfirmationModal({
+                  title: `Are you sure you want to approve all pending items in ${album.name}?`,
+                  message: "WARNING: This action cannot be easily undone.",
+                  onConfirm: () =>
+                    approvePendingAlbumItemsMutation.mutate({ albumId }),
+                })
+              }
+            >
+              Approve All
+            </Button>
+            <Button
+              color="error"
+              onClick={() =>
+                openConfirmationModal({
+                  title: `Are you sure you want to reject all pending items in ${album.name}?`,
+                  message: "WARNING: This action cannot be easily undone.",
+                  onConfirm: () =>
+                    rejectPendingAlbumItemsMutation.mutate({ albumId }),
+                })
+              }
+            >
+              Reject All
+            </Button>
+            <Menu>
+              <Tooltip label="Sort">
+                <Menu.Target>
+                  <ActionIcon variant="transparent">
+                    <MdSort size={50} />
+                  </ActionIcon>
+                </Menu.Target>
+              </Tooltip>
+              <Menu.Dropdown>
+                {[
+                  AlbumItemSortOption.NEWEST_TO_OLDEST,
+                  AlbumItemSortOption.OLDEST_TO_NEWEST,
+                  AlbumItemSortOption.A_TO_Z,
+                  AlbumItemSortOption.Z_TO_A,
+                ].map((option) => (
+                  <Menu.Item key={option} onClick={() => setSortOption(option)}>
+                    {option}
+                  </Menu.Item>
+                ))}
+              </Menu.Dropdown>
+            </Menu>
+          </div>
         </div>
-      </div>
       </div>
 
       {pendingAlbumItems.length === 0 ? (
@@ -134,8 +153,8 @@ export default function PendingPage(props: PendingPageProps) {
           <Title order={4}>No pending items!</Title>
         </div>
       ) : (
-      <div className="mt-6 space-y-8">
-        {/* <CardGallery
+        <div className="mt-6 space-y-8">
+          {/* <CardGallery
           items={pendingAlbumItems}
           groups={groups}
           renderItem={(item) => (
@@ -149,13 +168,14 @@ export default function PendingPage(props: PendingPageProps) {
             />
           )}
         /> */}
-                  {!pendingAlbumItemsQuery.hasNextPage && (
-                    <Title order={4} classNames={{ root: "self-center" }}>
-                      All Done!
-                    </Title>
-                  )}
-                  <div className="invisible" ref={ref} />
-      </div>)}
+          {!pendingAlbumItemsQuery.hasNextPage && (
+            <Title order={4} classNames={{ root: "self-center" }}>
+              All Done!
+            </Title>
+          )}
+          <div className="invisible" ref={ref} />
+        </div>
+      )}
     </div>
   );
 }
