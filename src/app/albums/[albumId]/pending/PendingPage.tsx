@@ -21,6 +21,8 @@ import {
 import useAlbum from "@/hooks/albums/useAlbum";
 import { AlbumItemSortOption } from "../AlbumPage";
 import openConfirmationModal from "@/components/modals/ConfirmationModal";
+import useApprovePendingAlbumItems from "@/hooks/albumItems/pendingItems/useApprovePendingAlbumItems";
+import useRejectPendingAlbumItems from "@/hooks/albumItems/pendingItems/useRejectPendingAlbumItems";
 
 interface PendingPageProps {
   albumId: string;
@@ -37,6 +39,9 @@ export default function PendingPage(props: PendingPageProps) {
   const pendingAlbumItemsQuery = useAlbumItemList(albumId, {
     where: [{ fieldPath: "inReview", operation: "==", value: true }],
   });
+
+  const approvePendingAlbumItemsMutation = useApprovePendingAlbumItems();
+  const rejectPendingAlbumItemsMutation = useRejectPendingAlbumItems();
 
   const router = useRouter();
 
@@ -79,12 +84,12 @@ export default function PendingPage(props: PendingPageProps) {
           <Button color="green" onClick={() => openConfirmationModal({
             title: `Are you sure you want to approve all pending items in ${album.name}?`,
             message: "WARNING: This action cannot be easily undone.",
-            onConfirm: () => console.log('approved all')
+            onConfirm: () => approvePendingAlbumItemsMutation.mutate({ albumId })
           })}>Approve All</Button>
           <Button color="error" onClick={() => openConfirmationModal({
             title: `Are you sure you want to reject all pending items in ${album.name}?`,
             message: "WARNING: This action cannot be easily undone.",
-            onConfirm: () => console.log('rejected all')
+            onConfirm: () => rejectPendingAlbumItemsMutation.mutate({ albumId })
           })}>Reject All</Button>
           <Menu>
             <Tooltip label="Sort">
