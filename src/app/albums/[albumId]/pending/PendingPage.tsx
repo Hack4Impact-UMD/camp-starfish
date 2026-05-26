@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import PendingImageCard from "@/components/PendingImageCard";
+import PendingAlbumItemCard from "@/components/PendingAlbumItemCard";
 import ConfirmationModal from "@/components/ConfirmationModal";
 import CardGallery, { GroupOptions } from "@/components/CardGallery";
 import { useRouter } from "next/navigation";

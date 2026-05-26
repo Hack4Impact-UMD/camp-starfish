@@ -4,7 +4,7 @@ import crossIcon from "@/assets/icons/crossIcon.svg";
 
 type PhotoStatus = "approved" | "rejected" | "none";
 
-interface PendingImageCardProps {
+interface PendingAlbumItemCardProps {
     src: string;
     alt?: string;
     status: PhotoStatus;
@@ -12,7 +12,9 @@ interface PendingImageCardProps {
     onReject: () => void;
 }
 
-const PendingImageCard: React.FC<PendingImageCardProps> = ({ src, alt = "Pending Photo" }) => {
+export default function PendingAlbumItemCard(props: PendingAlbumItemCardProps) {
+    const { src, alt, status: initialStatus, onApprove, onReject } = props;
+    
     const [status, setStatus] = useState<PhotoStatus>("none");
 
     const handleApprove = () => {
@@ -58,5 +60,3 @@ const PendingImageCard: React.FC<PendingImageCardProps> = ({ src, alt = "Pending
         </div>
     );
 };
-
-export default PendingImageCard;
