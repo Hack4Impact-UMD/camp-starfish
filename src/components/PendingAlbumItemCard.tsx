@@ -1,31 +1,24 @@
 import React, { useState } from "react";
 import checkIcon from "@/assets/icons/checkIcon.svg";
 import crossIcon from "@/assets/icons/crossIcon.svg";
-
-type PhotoStatus = "approved" | "rejected" | "none";
+import useAlbumItem from "@/hooks/albumItems/useAlbumItem";
+import useRejectPendingAlbumItems from "@/hooks/albumItems/pendingItems/useRejectPendingAlbumItems";
+import useApprovePendingAlbumItems from "@/hooks/albumItems/pendingItems/useApprovePendingAlbumItems";
+import useAlbumItemBlob from "@/hooks/albumItems/useAlbumItemBlob";
 
 interface PendingAlbumItemCardProps {
-    src: string;
-    alt?: string;
-    status: PhotoStatus;
-    onApprove: () => void;
-    onReject: () => void;
+    albumId: string;
+    albumItemId: string;
 }
 
 export default function PendingAlbumItemCard(props: PendingAlbumItemCardProps) {
-    const { src, alt, status: initialStatus, onApprove, onReject } = props;
-    
-    const [status, setStatus] = useState<PhotoStatus>("none");
+    const { albumId, albumItemId } = props;
 
-    const handleApprove = () => {
-        setStatus((prev) => (prev === "approved" ? "none" : "approved"));
-        // onApprove(); will do something
-    };
+    const albumItemQuery = useAlbumItem({ albumId, albumItemId });
+    const albumItemBlobQuery = useAlbumItemBlob(albumId, albumItemId);
 
-    const handleReject = () => {
-        setStatus((prev) => (prev === "rejected" ? "none" : "rejected"));
-        // onReject(); will do something
-    };
+    const approvePendingAlbumItemsMutation = useApprovePendingAlbumItems();
+    const rejectPendingAlbumItemsMutation = useRejectPendingAlbumItems();
 
     return (
         <div className="relative group w-full rounded overflow-hidden shadow-md">
