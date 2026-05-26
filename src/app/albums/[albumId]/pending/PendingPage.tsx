@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import PendingImageCard from "@/components/PendingImageCard";
 import ConfirmationModal from "@/components/ConfirmationModal";
 import CardGallery, { GroupOptions } from "@/components/CardGallery";
@@ -23,6 +23,7 @@ import { AlbumItemSortOption, albumItemSortOptionQueryOptions } from "../AlbumPa
 import openConfirmationModal from "@/components/modals/ConfirmationModal";
 import useApprovePendingAlbumItems from "@/hooks/albumItems/pendingItems/useApprovePendingAlbumItems";
 import useRejectPendingAlbumItems from "@/hooks/albumItems/pendingItems/useRejectPendingAlbumItems";
+import { useInViewport } from "@mantine/hooks";
 
 interface PendingPageProps {
   albumId: string;
@@ -42,6 +43,15 @@ export default function PendingPage(props: PendingPageProps) {
     limit: 10,
     limitToLast: undefined
   });
+
+  const { ref, inViewport } = useInViewport();
+  const { hasNextPage, isFetchingNextPage, fetchNextPage } = pendingAlbumItemsQuery;
+  useEffect(() => {
+    if (inViewport && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [inViewport, hasNextPage, isFetchingNextPage, fetchNextPage]);
+
 
   const approvePendingAlbumItemsMutation = useApprovePendingAlbumItems();
   const rejectPendingAlbumItemsMutation = useRejectPendingAlbumItems();
@@ -119,7 +129,11 @@ export default function PendingPage(props: PendingPageProps) {
       </div>
       </div>
 
-      {/* Photo Grid */}
+      {pendingAlbumItems.length === 0 ? (
+        <div className="flex flex-col justify-center items-center grow bg-neutral-3 gap-4">
+          <Title order={4}>No pending items!</Title>
+        </div>
+      ) : (
       <div className="mt-6 space-y-8">
         {/* <CardGallery
           items={pendingAlbumItems}
@@ -135,7 +149,13 @@ export default function PendingPage(props: PendingPageProps) {
             />
           )}
         /> */}
-      </div>
+                  {!pendingAlbumItemsQuery.hasNextPage && (
+                    <Title order={4} classNames={{ root: "self-center" }}>
+                      All Done!
+                    </Title>
+                  )}
+                  <div className="invisible" ref={ref} />
+      </div>)}
     </div>
   );
 }
