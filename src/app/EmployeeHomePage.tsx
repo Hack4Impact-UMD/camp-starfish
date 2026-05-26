@@ -2,6 +2,7 @@
 
 import { useAuth } from "@/auth/useAuth";
 import GalleryCardOne from "../components/GalleryCardOne";
+import React from 'react';
 
 export default function EmployeeHomePage() {
   const auth = useAuth();
