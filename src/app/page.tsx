@@ -7,9 +7,6 @@ import ParentHomePage from "./ParentHomePage";
 import { useAuth } from "@/auth/useAuth";
 import { Role } from "@/types/users/userTypes";
 
-import { MantineProvider } from '@mantine/core';
-import { theme } from '../styles/theme';
-
 export default function HomePage() {
   const { token } = useAuth();
   const role = token?.claims.role as Role | undefined;
