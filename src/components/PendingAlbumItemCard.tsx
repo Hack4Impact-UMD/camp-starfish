@@ -3,11 +3,12 @@ import useAlbumItem from "@/hooks/albumItems/useAlbumItem";
 import useRejectPendingAlbumItems from "@/hooks/albumItems/pendingItems/useRejectPendingAlbumItems";
 import useApprovePendingAlbumItems from "@/hooks/albumItems/pendingItems/useApprovePendingAlbumItems";
 import useAlbumItemBlob from "@/hooks/albumItems/useAlbumItemBlob";
-import { BackgroundImage, Card, Image, Overlay } from "@mantine/core";
+import { ActionIcon, BackgroundImage, Card, Checkbox, Image, Overlay, Text } from "@mantine/core";
 import classNames from "classnames";
 import useAlbumItemSrc from "@/hooks/albumItems/useAlbumItemSrc";
 import LoadingAnimation from "./LoadingAnimation";
-import { MdError } from "react-icons/md";
+import { MdCheck, MdClose, MdError } from "react-icons/md";
+import { useHover } from "@mantine/hooks";
 
 interface PendingAlbumItemCardProps {
     albumId: string;
@@ -24,7 +25,7 @@ export default function PendingAlbumItemCard(props: PendingAlbumItemCardProps) {
     const approvePendingAlbumItemsMutation = useApprovePendingAlbumItems();
     const rejectPendingAlbumItemsMutation = useRejectPendingAlbumItems();
 
-    console.log(albumItemSrcQuery.data)
+    const { ref, hovered } = useHover();
 
     let cardContent: JSX.Element;
     switch (albumItemSrcQuery.status) {
@@ -36,7 +37,40 @@ export default function PendingAlbumItemCard(props: PendingAlbumItemCardProps) {
             break;
         case "success":
             cardContent = (
-                <Image src={albumItemSrcQuery.data} alt={albumItemQuery.data?.name ?? albumItemId} width={100} height={100} className="object-contain w-full h-full" unoptimized/>
+                <>
+                    <Image src={albumItemSrcQuery.data} alt={albumItemQuery.data?.name ?? albumItemId} width={100} height={100} className="object-contain w-full h-full" unoptimized/>
+                    {hovered && (
+                        <Overlay className="flex flex-row justify-between items-start bg-transparent p-xs">
+          <div
+            className={classNames(
+              "flex justify-center items-center rounded-sm bg-[#ffffffc0] w-8 h-8",
+              {
+                "opacity-0 group-hover:opacity-100 transition duration-300":
+                  !isSelected,
+              },
+            )}
+          >
+            <Checkbox
+              color="neutral.8"
+              classNames={{
+                input: "rounded-sm",
+              }}
+              checked={isSelected}
+            />
+          </div>
+                            
+                            <div className="flex flex-row w-fit h-fit bg-[#ffffffc0] rounded-sm gap-xs">
+                            <ActionIcon color="success" size="md">
+                                <MdCheck size={20} />
+                            </ActionIcon>
+                            <ActionIcon color="error" size="md">
+                                <MdClose size={20} />
+                            </ActionIcon>                            
+                            </div>
+
+                        </Overlay>
+                    )}
+                </>
             )
     }
 
@@ -49,6 +83,7 @@ export default function PendingAlbumItemCard(props: PendingAlbumItemCardProps) {
                   "border-4": albumItemSrcQuery.isSuccess,
                 }),
               }}
+              ref={ref}
             >
               {cardContent}
             </Card>
