@@ -137,6 +137,27 @@ export default function PendingPage(props: PendingPageProps) {
           </div>
 
           <div className="flex items-center gap-4">
+            <Menu>
+              <Tooltip label="Sort">
+                <Menu.Target>
+                  <ActionIcon variant="transparent">
+                    <MdSort size={50} />
+                  </ActionIcon>
+                </Menu.Target>
+              </Tooltip>
+              <Menu.Dropdown>
+                {[
+                  AlbumItemSortOption.NEWEST_TO_OLDEST,
+                  AlbumItemSortOption.OLDEST_TO_NEWEST,
+                  AlbumItemSortOption.A_TO_Z,
+                  AlbumItemSortOption.Z_TO_A,
+                ].map((option) => (
+                  <Menu.Item key={option} onClick={() => setSortOption(option)}>
+                    {option}
+                  </Menu.Item>
+                ))}
+              </Menu.Dropdown>
+            </Menu>
             <Button
               color="green"
               onClick={() =>
@@ -163,27 +184,6 @@ export default function PendingPage(props: PendingPageProps) {
             >
               Reject All
             </Button>
-            <Menu>
-              <Tooltip label="Sort">
-                <Menu.Target>
-                  <ActionIcon variant="transparent">
-                    <MdSort size={50} />
-                  </ActionIcon>
-                </Menu.Target>
-              </Tooltip>
-              <Menu.Dropdown>
-                {[
-                  AlbumItemSortOption.NEWEST_TO_OLDEST,
-                  AlbumItemSortOption.OLDEST_TO_NEWEST,
-                  AlbumItemSortOption.A_TO_Z,
-                  AlbumItemSortOption.Z_TO_A,
-                ].map((option) => (
-                  <Menu.Item key={option} onClick={() => setSortOption(option)}>
-                    {option}
-                  </Menu.Item>
-                ))}
-              </Menu.Dropdown>
-            </Menu>
           </div>
         </div>
       </div>
