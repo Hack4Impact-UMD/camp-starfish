@@ -5,7 +5,6 @@ import useAlbumItemList from "@/hooks/albumItems/useAlbumItemList";
 import ErrorPage from "@/app/error";
 import LoadingAnimation from "@/components/LoadingAnimation";
 import { MdArrowBack, MdSort } from "react-icons/md";
-import { AlbumItem } from "@/types/albums/albumTypes";
 import {
   ActionIcon,
   Anchor,
@@ -85,7 +84,14 @@ export default function PendingPage(props: PendingPageProps) {
         </Breadcrumbs>
 
         <div className="flex items-center justify-between">
-          <Title order={1}>Pending</Title>
+          <div className="flex gap-xs items-center">
+            <Anchor href={`/albums/${album.id}`}>
+              <ActionIcon variant="transparent">
+                <MdArrowBack size={40} />
+              </ActionIcon>
+            </Anchor>
+            <Title order={1}>Pending</Title>
+          </div>
 
           <div className="flex items-center gap-4">
             <Button
@@ -146,9 +152,15 @@ export default function PendingPage(props: PendingPageProps) {
       ) : (
         <div className="mt-6 space-y-8">
           <CardGallery
-          items={pendingAlbumItems}
-          renderItem={(item, isSelected) => <PendingAlbumItemCard albumId={item.albumId} albumItemId={item.id} isSelected={isSelected} /> }
-        />
+            items={pendingAlbumItems}
+            renderItem={(item, isSelected) => (
+              <PendingAlbumItemCard
+                albumId={item.albumId}
+                albumItemId={item.id}
+                isSelected={isSelected}
+              />
+            )}
+          />
           {!pendingAlbumItemsQuery.hasNextPage && (
             <Title order={4} classNames={{ root: "self-center" }}>
               All Done!
