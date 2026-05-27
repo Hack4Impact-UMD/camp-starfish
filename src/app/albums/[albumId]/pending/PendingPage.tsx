@@ -150,7 +150,7 @@ export default function PendingPage(props: PendingPageProps) {
           <Title order={4}>No pending items!</Title>
         </div>
       ) : (
-        <div className="mt-6 space-y-8">
+        <>
           <CardGallery
             items={pendingAlbumItems}
             renderItem={(item, isSelected) => (
@@ -167,7 +167,7 @@ export default function PendingPage(props: PendingPageProps) {
             </Title>
           )}
           <div className="invisible" ref={ref} />
-        </div>
+        </>
       )}
     </div>
   );
