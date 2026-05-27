@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
+import { JSX, useEffect, useState } from "react";
 import PendingAlbumItemCard from "@/components/PendingAlbumItemCard";
 import CardGallery from "@/components/CardGallery";
 import useAlbumItemList from "@/hooks/albumItems/useAlbumItemList";
 import ErrorPage from "@/app/error";
 import LoadingAnimation from "@/components/LoadingAnimation";
-import { MdArrowBack, MdSort } from "react-icons/md";
+import { MdArrowBack, MdError, MdSort } from "react-icons/md";
 import {
   ActionIcon,
   Anchor,
@@ -55,18 +55,62 @@ export default function PendingPage(props: PendingPageProps) {
   const approvePendingAlbumItemsMutation = useApprovePendingAlbumItems();
   const rejectPendingAlbumItemsMutation = useRejectPendingAlbumItems();
 
-  if (albumQuery.isError || pendingAlbumItemsQuery.isError) {
-    return (
-      <ErrorPage error={albumQuery.error || pendingAlbumItemsQuery.error} />
-    );
+  if (albumQuery.isError) {
+    return <ErrorPage error={albumQuery.error} />;
   } else if (albumQuery.isPending || pendingAlbumItemsQuery.isPending) {
     return <LoadingAnimation />;
   }
 
   const album = albumQuery.data;
-  const pendingAlbumItems = pendingAlbumItemsQuery.data.pages.flatMap(
-    (page) => page.docs,
-  );
+
+  let albumItemContent: JSX.Element;
+  if (pendingAlbumItemsQuery.isError) {
+    albumItemContent = (
+      <div className="flex flex-row justify-center items-center grow bg-neutral-3 gap-4">
+        <MdError className="text-error" />
+        <Title order={4}>No pending items!</Title>
+      </div>
+    );
+  } else if (pendingAlbumItemsQuery.isPending) {
+    albumItemContent = (
+      <div className="flex flex-row justify-center items-center grow bg-neutral-3 gap-4">
+        <MdError className="text-error" />
+        <Title order={4}>No pending items!</Title>
+      </div>
+    );
+  } else {
+    const pendingAlbumItems = pendingAlbumItemsQuery.data.pages.flatMap(
+      (page) => page.docs,
+    );
+    if (pendingAlbumItems.length === 0) {
+      albumItemContent = (
+        <div className="flex flex-col justify-center items-center grow bg-neutral-3 gap-4">
+          <Title order={4}>No pending items!</Title>
+        </div>
+      );
+    } else {
+      albumItemContent = (
+        <>
+          <CardGallery
+            items={pendingAlbumItems}
+            renderItem={(item, isSelected) => (
+              <PendingAlbumItemCard
+                albumId={item.albumId}
+                albumItemId={item.id}
+                isSelected={isSelected}
+              />
+            )}
+          />
+          {!pendingAlbumItemsQuery.hasNextPage && (
+            <Title order={4} classNames={{ root: "self-center" }}>
+              All Done!
+            </Title>
+          )}
+          <div className="invisible" ref={ref} />
+        </>
+      );
+    }
+  }
 
   return (
     <div className="flex flex-col w-6/7 grow mx-auto px-4 py-6 gap-6">
@@ -144,31 +188,7 @@ export default function PendingPage(props: PendingPageProps) {
           </div>
         </div>
       </div>
-
-      {pendingAlbumItems.length === 0 ? (
-        <div className="flex flex-col justify-center items-center grow bg-neutral-3 gap-4">
-          <Title order={4}>No pending items!</Title>
-        </div>
-      ) : (
-        <>
-          <CardGallery
-            items={pendingAlbumItems}
-            renderItem={(item, isSelected) => (
-              <PendingAlbumItemCard
-                albumId={item.albumId}
-                albumItemId={item.id}
-                isSelected={isSelected}
-              />
-            )}
-          />
-          {!pendingAlbumItemsQuery.hasNextPage && (
-            <Title order={4} classNames={{ root: "self-center" }}>
-              All Done!
-            </Title>
-          )}
-          <div className="invisible" ref={ref} />
-        </>
-      )}
+      {albumItemContent}
     </div>
   );
 }
