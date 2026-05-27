@@ -81,6 +81,7 @@ export function AlbumPageContent(props: AlbumPageContentProps) {
   );
 
   const albumItemsQuery = useAlbumItemList(album.id, {
+    where: [{ fieldPath: "inReview", operation: "==", value: false }],
     ...albumItemSortOptionQueryOptions[sortOption],
     limit: 10,
     limitToLast: undefined,
