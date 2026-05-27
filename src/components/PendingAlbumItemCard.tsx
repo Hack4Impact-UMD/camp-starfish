@@ -67,10 +67,16 @@ export default function PendingAlbumItemCard(props: PendingAlbumItemCardProps) {
               </div>
 
               <div className="flex flex-row w-fit h-fit bg-[#ffffffc0] rounded-sm gap-xs">
-                <ActionIcon color="success" size="md">
+                <ActionIcon color="success" size="md" onClick={(event) => {
+                  event.stopPropagation();
+                  approvePendingAlbumItemsMutation.mutate({ albumId, albumItemId });
+                }}>
                   <MdCheck size={20} />
                 </ActionIcon>
-                <ActionIcon color="error" size="md">
+                <ActionIcon color="error" size="md" onClick={(event) => {
+                  event.stopPropagation();
+                  rejectPendingAlbumItemsMutation.mutate({ albumId, albumItemId });
+                }}>
                   <MdClose size={20} />
                 </ActionIcon>
               </div>
