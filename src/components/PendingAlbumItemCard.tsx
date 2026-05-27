@@ -1,16 +1,13 @@
-import React, { JSX, useState } from "react";
+import { JSX } from "react";
 import useAlbumItem from "@/hooks/albumItems/useAlbumItem";
 import useRejectPendingAlbumItems from "@/hooks/albumItems/pendingItems/useRejectPendingAlbumItems";
 import useApprovePendingAlbumItems from "@/hooks/albumItems/pendingItems/useApprovePendingAlbumItems";
-import useAlbumItemBlob from "@/hooks/albumItems/useAlbumItemBlob";
 import {
   ActionIcon,
-  BackgroundImage,
   Card,
   Checkbox,
   Image,
   Overlay,
-  Text,
 } from "@mantine/core";
 import classNames from "classnames";
 import useAlbumItemSrc from "@/hooks/albumItems/useAlbumItemSrc";
@@ -52,6 +49,7 @@ export default function PendingAlbumItemCard(props: PendingAlbumItemCardProps) {
             width={100}
             height={100}
             className="object-contain w-full h-full"
+            // @ts-expect-error - "unoptimized" field exists on Next.js's Image component and gets passed to it
             unoptimized
           />
           {hovered && (

@@ -1,12 +1,9 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import PendingAlbumItemCard from "@/components/PendingAlbumItemCard";
-import ConfirmationModal from "@/components/ConfirmationModal";
-import CardGallery, { GroupOptions } from "@/components/CardGallery";
-import { useRouter } from "next/navigation";
+import CardGallery from "@/components/CardGallery";
 import useAlbumItemList from "@/hooks/albumItems/useAlbumItemList";
 import ErrorPage from "@/app/error";
 import LoadingAnimation from "@/components/LoadingAnimation";
-import { UploadAlbumItemsModal } from "@/components/UploadAlbumItemsModal/UploadAlbumItemsModal";
 import { MdArrowBack, MdSort } from "react-icons/md";
 import { AlbumItem } from "@/types/albums/albumTypes";
 import {
@@ -71,12 +68,6 @@ export default function PendingPage(props: PendingPageProps) {
   const pendingAlbumItems = pendingAlbumItemsQuery.data.pages.flatMap(
     (page) => page.docs,
   );
-
-  const groups: GroupOptions<AlbumItem> = {
-    groupLabels: ["album-1"],
-    defaultGroupLabel: "Other",
-    groupFunc: (photo) => photo.albumId,
-  };
 
   return (
     <div className="flex flex-col w-6/7 grow mx-auto px-4 py-6 gap-6">
@@ -156,7 +147,6 @@ export default function PendingPage(props: PendingPageProps) {
         <div className="mt-6 space-y-8">
           <CardGallery
           items={pendingAlbumItems}
-          groups={groups}
           renderItem={(item, isSelected) => <PendingAlbumItemCard albumId={item.albumId} albumItemId={item.id} isSelected={isSelected} /> }
         />
           {!pendingAlbumItemsQuery.hasNextPage && (
