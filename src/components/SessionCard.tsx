@@ -4,7 +4,6 @@ import { Card, Stack, Title, Text, ActionIcon } from "@mantine/core";
 import { Moment } from "moment";
 import { useRouter } from "next/navigation";
 import { useDeleteSession } from "@/hooks/sessions/useDeleteSession";
-import ConfirmationModal from "./ConfirmationModal";
 import { MdDelete } from "react-icons/md";
 import { useState } from "react";
 import classNames from "classnames";
@@ -54,7 +53,7 @@ export default function SessionCard(props: SessionCardProps) {
           >
             <MdDelete size={30} />
           </ActionIcon>}
-          
+
           <Stack className="gap-sm p-sm items-center">
             <Title order={4}>{session.name}</Title>
             <Stack className="gap-0 items-center">

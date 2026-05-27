@@ -1,5 +1,5 @@
 import { db } from "@/config/firebase";
-import { deleteAlbumItemDoc, updateAlbumItemDoc } from "@/data/firestore/albumItems";
+import { deleteAlbumItemDoc } from "@/data/firestore/albumItems";
 import { QueryClient, useMutation } from "@tanstack/react-query";
 import { writeBatch } from "firebase/firestore";
 import { getUseAlbumItemListOptions } from "../useAlbumItemList";

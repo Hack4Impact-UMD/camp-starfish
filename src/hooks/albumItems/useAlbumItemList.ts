@@ -1,7 +1,7 @@
 import { listAlbumItemDocs } from "@/data/firestore/albumItems";
 import { AlbumItemDoc } from "@/data/firestore/types/documents";
 import { AlbumItem } from "@/types/albums/albumTypes";
-import { infiniteQueryOptions, useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
+import { infiniteQueryOptions, useInfiniteQuery } from "@tanstack/react-query";
 import { TanstackQueryFirestorePageParam } from "../types/tanstackQueryTypes";
 import { FirestoreQueryOptions } from "@/data/firestore/types/queries";
 
