@@ -17,7 +17,7 @@ export function ConfirmationModalContent(props: ConfirmationModalContentProps) {
   return (
     <div className="flex flex-col justify-center items-center gap-md">
       <Title order={4} className="text-center">{title}</Title>
-      <div className="flex flex-row items-center justify-betweengap-xs">
+      <div className="flex flex-row items-center justify-center w-full gap-xs">
         <MdWarningAmber className="min-w-1/10 text-warning" size={24} />
         <Text className="text-neutral">{message}</Text>
       </div>

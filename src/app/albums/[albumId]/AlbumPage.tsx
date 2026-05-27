@@ -12,7 +12,7 @@ import { Album, AlbumItem } from "@/types/albums/albumTypes";
 import { FirestoreQueryOptions } from "@/data/firestore/types/queries";
 import { AlbumItemDoc } from "@/data/firestore/types/documents";
 import useAlbum from "@/hooks/albums/useAlbum";
-import useAlbumItemsList from "@/hooks/albumItems/useAlbumItemsList";
+import useAlbumItemList from "@/hooks/albumItems/useAlbumItemList";
 import {
   ActionIcon,
   Anchor,
@@ -31,15 +31,15 @@ import openUploadAlbumItemsModal from "@/components/UploadAlbumItemsModal/Upload
 import { useInViewport } from "@mantine/hooks";
 import LoadingAnimation from "@/components/LoadingAnimation";
 
-const enum AlbumPageSortOption {
+export const enum AlbumItemSortOption {
   NEWEST_TO_OLDEST = "Newest → Oldest",
   OLDEST_TO_NEWEST = "Oldest → Newest",
   A_TO_Z = "A → Z",
   Z_TO_A = "Z → A",
 }
 
-const sortQueryOptions: Record<
-  AlbumPageSortOption,
+export const albumItemSortOptionQueryOptions: Record<
+  AlbumItemSortOption,
   FirestoreQueryOptions<AlbumItemDoc>
 > = {
   "Newest → Oldest": {
@@ -76,12 +76,13 @@ interface AlbumPageContentProps {
 export function AlbumPageContent(props: AlbumPageContentProps) {
   const { album } = props;
 
-  const [sortOption, setSortOption] = useState<AlbumPageSortOption>(
-    AlbumPageSortOption.NEWEST_TO_OLDEST,
+  const [sortOption, setSortOption] = useState<AlbumItemSortOption>(
+    AlbumItemSortOption.NEWEST_TO_OLDEST,
   );
 
-  const albumItemsQuery = useAlbumItemsList(album.id, {
-    ...sortQueryOptions[sortOption],
+  const albumItemsQuery = useAlbumItemList(album.id, {
+    where: [{ fieldPath: "inReview", operation: "==", value: false }],
+    ...albumItemSortOptionQueryOptions[sortOption],
     limit: 10,
     limitToLast: undefined,
   });
@@ -130,10 +131,10 @@ export function AlbumPageContent(props: AlbumPageContentProps) {
             </Tooltip>
             <Menu.Dropdown>
               {[
-                AlbumPageSortOption.NEWEST_TO_OLDEST,
-                AlbumPageSortOption.OLDEST_TO_NEWEST,
-                AlbumPageSortOption.A_TO_Z,
-                AlbumPageSortOption.Z_TO_A,
+                AlbumItemSortOption.NEWEST_TO_OLDEST,
+                AlbumItemSortOption.OLDEST_TO_NEWEST,
+                AlbumItemSortOption.A_TO_Z,
+                AlbumItemSortOption.Z_TO_A,
               ].map((option) => (
                 <Menu.Item key={option} onClick={() => setSortOption(option)}>
                   {option}
@@ -141,7 +142,7 @@ export function AlbumPageContent(props: AlbumPageContentProps) {
               ))}
             </Menu.Dropdown>
           </Menu>
-          <Link href="/albums/pending">
+          <Link href={`/albums/${album.id}/pending`}>
             <Tooltip label="Pending Items">
               <Indicator color="error" offset={7}>
                 <ActionIcon variant="outline">
@@ -164,7 +165,7 @@ export function AlbumPageContent(props: AlbumPageContentProps) {
               onClick={() =>
                 downloadAlbumMutation.mutate({
                   albumId: album.id,
-                  queryOptions: sortQueryOptions[sortOption],
+                  queryOptions: albumItemSortOptionQueryOptions[sortOption],
                 })
               }
             >
