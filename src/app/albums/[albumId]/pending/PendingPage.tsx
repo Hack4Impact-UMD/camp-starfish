@@ -67,15 +67,14 @@ export default function PendingPage(props: PendingPageProps) {
   if (pendingAlbumItemsQuery.isError) {
     albumItemContent = (
       <div className="flex flex-row justify-center items-center grow bg-neutral-3 gap-4">
-        <MdError className="text-error" />
-        <Title order={4}>No pending items!</Title>
+        <MdError className="text-error" size={30} />
+        <Title order={4}>Unable to fetch items!</Title>
       </div>
     );
   } else if (pendingAlbumItemsQuery.isPending) {
     albumItemContent = (
       <div className="flex flex-row justify-center items-center grow bg-neutral-3 gap-4">
-        <MdError className="text-error" />
-        <Title order={4}>No pending items!</Title>
+        <LoadingAnimation />
       </div>
     );
   } else {
