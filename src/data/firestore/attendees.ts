@@ -1,44 +1,81 @@
 import { db } from "@/config/firebase";
-import { AttendeeID, Attendee } from "@/types/sessionTypes";
+import { AdminAttendee, Attendee, CamperAttendee, StaffAttendee } from "@/types/sessions/sessionTypes";
+import { AttendeeDoc } from "./types/documents";
 import {
   doc,
   Transaction,
   WriteBatch,
   QueryDocumentSnapshot,
-  FirestoreDataConverter,
-  WithFieldValue,
   DocumentReference,
   collection,
-  CollectionReference
+  CollectionReference,
+  DocumentSnapshot,
+  WithFieldValue,
+  UpdateData
 } from "firebase/firestore";
-import { setDoc, getDoc, updateDoc, executeQuery } from "./firestoreClientOperations";
-import { Collection, SessionsSubcollection } from "./utils";
+import { setDoc, getDoc, updateDoc, executeQuery, deleteDoc } from "./firestoreClientOperations";
+import { RootLevelCollection, SessionsSubcollection } from "./types/collections";
+import moment from "moment";
+import { FirestoreQueryOptions } from "./types/queries";
 
-// Generic Firestore converter for any Attendee
-const attendeeFirestoreConverter: FirestoreDataConverter<AttendeeID, Attendee> = {
-  toFirestore: (attendee: WithFieldValue<AttendeeID>) => {
-    const { id, sessionId, ...dto } = attendee;
-    return dto as WithFieldValue<AttendeeID>; 
-  },
-  fromFirestore: (snapshot: QueryDocumentSnapshot<Attendee, Attendee>): AttendeeID => ({ id: Number(snapshot.ref.id), sessionId: snapshot.ref.parent.parent!.id, ...snapshot.data() })
-
-};
-
-// Get attendee by id
-export async function getAttendeeById(campminderId: number, sessionId: string, transaction?: Transaction): Promise<AttendeeID> {
-    return await getDoc<AttendeeID, Attendee>(doc(db, Collection.SESSIONS, sessionId, SessionsSubcollection.ATTENDEES, String(campminderId)) as DocumentReference<AttendeeID, Attendee>, attendeeFirestoreConverter, transaction);
-};
-
-export async function getAllAttendeesBySessionId  (sessionId: string): Promise<AttendeeID[]> {
-  return await executeQuery<AttendeeID, Attendee>(collection(db, Collection.SESSIONS, sessionId, SessionsSubcollection.ATTENDEES) as CollectionReference<AttendeeID, Attendee>, attendeeFirestoreConverter);
+function fromFirestore(snapshot: DocumentSnapshot<AttendeeDoc, AttendeeDoc> | QueryDocumentSnapshot<AttendeeDoc, AttendeeDoc>): Attendee {
+  if (!snapshot.exists()) { throw Error("Document not found"); }
+  const attendeeDoc = snapshot.data();
+  switch (attendeeDoc.role) {
+    case "ADMIN":
+      return {
+        attendeeId: Number(snapshot.ref.id),
+        sessionId: snapshot.ref.parent.parent!.id,
+        role: "ADMIN",
+        daysOff: attendeeDoc.daysOff.map(timestamp => moment(timestamp.toDate())),
+        snapshot: attendeeDoc.snapshot
+      } satisfies AdminAttendee;
+    case "STAFF":
+      return {
+        attendeeId: Number(snapshot.ref.id),
+        sessionId: snapshot.ref.parent.parent!.id,
+        role: "STAFF",
+        daysOff: attendeeDoc.daysOff.map(timestamp => moment(timestamp.toDate())),
+        snapshot: attendeeDoc.snapshot,
+        bunk: attendeeDoc.bunk,
+        isLeadBunkCounselor: attendeeDoc.isLeadBunkCounselor,
+        programCounselorFor: attendeeDoc.programCounselorFor
+      } satisfies StaffAttendee;
+    case "CAMPER":
+      return {
+        attendeeId: Number(snapshot.ref.id),
+        sessionId: snapshot.ref.parent.parent!.id,
+        role: "CAMPER",
+        snapshot: attendeeDoc.snapshot,
+        ageGroup: attendeeDoc.ageGroup,
+        bunk: attendeeDoc.bunk,
+        isOptedOutFromSwim: attendeeDoc.isOptedOutFromSwim,
+        level: attendeeDoc.level
+      } satisfies CamperAttendee;
+    default: throw Error("Unknown attendee role");
+  }
 }
 
-export async function setAttendee(campminderId: number, sessionId: string, attendee: Attendee, instance?: Transaction | WriteBatch): Promise<number> {
+export async function getAttendeeDoc(campminderId: number, sessionId: string, transaction?: Transaction): Promise<Attendee> {
+  const snapshot = await getDoc<AttendeeDoc>(doc(db, RootLevelCollection.SESSIONS, sessionId, SessionsSubcollection.ATTENDEES, String(campminderId)) as DocumentReference<AttendeeDoc, AttendeeDoc>, transaction);
+  return fromFirestore(snapshot);
+};
+
+export async function listAttendeeDocs(sessionId: string, firestoreQueryOptions: FirestoreQueryOptions<AttendeeDoc> = {}): Promise<Attendee[]> {
+  const snapshots = await executeQuery<AttendeeDoc>(collection(db, RootLevelCollection.SESSIONS, sessionId, SessionsSubcollection.ATTENDEES) as CollectionReference<AttendeeDoc, AttendeeDoc>, firestoreQueryOptions);
+  return snapshots.map(fromFirestore);
+}
+
+export async function createAttendeeDoc(campminderId: number, sessionId: string, attendee: WithFieldValue<AttendeeDoc>, instance?: Transaction | WriteBatch): Promise<number> {
   const attendeeId = campminderId;
-  await setDoc<AttendeeID, Attendee>(doc(db, Collection.SESSIONS, sessionId, SessionsSubcollection.ATTENDEES, String(campminderId)) as DocumentReference<AttendeeID, Attendee>, { id: attendeeId, sessionId: sessionId, ...attendee }, attendeeFirestoreConverter, instance);
+  await setDoc<AttendeeDoc>(doc(db, RootLevelCollection.SESSIONS, sessionId, SessionsSubcollection.ATTENDEES, String(campminderId)) as DocumentReference<AttendeeDoc, AttendeeDoc>, attendee, { instance });
   return attendeeId;
 }
 
-export async function updateAttendee(campminderId: number, sessionId: string, updates: Partial<Attendee>, instance?: Transaction | WriteBatch): Promise<void>{
-  await updateDoc<AttendeeID, Attendee>(doc(db, Collection.SESSIONS, sessionId, SessionsSubcollection.ATTENDEES, String(campminderId)) as DocumentReference<AttendeeID, Attendee>, updates, attendeeFirestoreConverter, instance);
+export async function updateAttendeeDoc(campminderId: number, sessionId: string, updates: UpdateData<AttendeeDoc>, instance?: Transaction | WriteBatch): Promise<void> {
+  await updateDoc<AttendeeDoc>(doc(db, RootLevelCollection.SESSIONS, sessionId, SessionsSubcollection.ATTENDEES, String(campminderId)) as DocumentReference<AttendeeDoc, AttendeeDoc>, updates, instance);
+}
+
+export async function deleteAttendeeDoc(camperminderId: number, sessionId: string, instance?: Transaction | WriteBatch): Promise<void> {
+  await deleteDoc<AttendeeDoc>(doc(db, RootLevelCollection.SESSIONS, sessionId, SessionsSubcollection.ATTENDEES, String(camperminderId)) as DocumentReference<AttendeeDoc, AttendeeDoc>, instance);
 }
