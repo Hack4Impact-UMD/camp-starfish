@@ -120,7 +120,7 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
         firstDayOfWeek={0}
         withDragSlotSelect
         onDayClick={(date) => openCreateSectionModal(moment(date).startOf('day'), moment(date).startOf('day'))}
-        onSlotDragEnd={(rangeStart, rangeEnd) => {console.log(rangeStart, rangeEnd); openCreateSectionModal(moment(rangeStart).startOf('day'), moment(rangeEnd).startOf('day'))}}
+        onSlotDragEnd={(rangeStart, rangeEnd) => openCreateSectionModal(moment(rangeStart).startOf('day'), moment(rangeEnd).startOf('day'))}
       />
     </div>
   );
