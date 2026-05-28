@@ -63,7 +63,7 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
           <Title order={4}>{selectedMonth.format("MMMM YYYY")}</Title>
         </ScheduleHeader>
         <MonthView
-                date={selectedMonth.toDate()}
+          date={selectedMonth.toDate()}
           classNames={{
             monthViewInner: 'rounded-none',
             monthViewWeek: 'rounded-none',
@@ -73,11 +73,12 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
             const isInSession = moment(date).isBetween(session.startDate, session.endDate, "day", "[]");
             return {
               className: classNames('rounded-none border border-solid border-neutral text-black', {
-                "bg-neutral-2": isInSession,
-                "bg-neutral-3": !isInSession
+                "bg-neutral-2 cursor-pointer": isInSession,
+                "bg-neutral-3 cursor-default": !isInSession
               })
             }
           }}
+          consistentWeeks={false}
           withHeader={false}
         />
       </div>
