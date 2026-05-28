@@ -136,9 +136,8 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
                 "text-black": moment(date).isSame(selectedMonth, "month") && isInSession,
               },
             ),
-            onMouseDown: (e) =>{handlePointerDown(moment(date))},
+            onMouseDown: () => handlePointerDown(moment(date)),
             onPointerEnter: () => handlePointerEnter(moment(date)),
-            onPointerUp: handlePointerUp
           };
         }}
         consistentWeeks={false}
@@ -147,7 +146,7 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
         firstDayOfWeek={0}
         withDragSlotSelect
         onDayClick={(date) => openCreateSectionModal(moment(date).startOf('day'), moment(date).startOf('day'))}
-        onSlotDragEnd={(rangeStart, rangeEnd) => openCreateSectionModal(moment(rangeStart).startOf('day'), moment(rangeEnd).startOf('day'))}
+        onSlotDragEnd={(rangeStart, rangeEnd) => {console.log(rangeStart, rangeEnd); openCreateSectionModal(moment(rangeStart).startOf('day'), moment(rangeEnd).startOf('day'))}}
       />
     </div>
   );
