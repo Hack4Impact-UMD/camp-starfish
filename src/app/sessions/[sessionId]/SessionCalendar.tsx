@@ -115,9 +115,9 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
               "rounded-none border border-solid border-neutral",
               {
                 "bg-neutral-2 cursor-pointer": isInSession,
-                "bg-neutral-3 cursor-default": !isInSession,
+                "bg-neutral-3 cursor-default text-transparent": !isInSession,
                 "hidden": !isInWeekWithSessionDate,
-                "text-black": moment(date).isSame(selectedMonth, "month"),
+                "text-black": moment(date).isSame(selectedMonth, "month") && isInSession,
               },
             ),
           };
