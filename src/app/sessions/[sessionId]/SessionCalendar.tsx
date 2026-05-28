@@ -35,6 +35,8 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
     null,
   );
 
+  console.log([firstSelectedDate, secondSelectedDate]);
+
   const handlePointerDown = (date: Moment) => {
     setFirstSelectedDate(date);
     setSecondSelectedDate(date);
@@ -42,6 +44,7 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
 
   const isSelecting = firstSelectedDate !== null && secondSelectedDate !== null;
   const handlePointerEnter = (date: Moment) => {
+    console.log('firing')
     if (isSelecting) {
       setSecondSelectedDate(date);
     }
@@ -109,23 +112,35 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
             "day",
             "[]",
           );
-          const isInWeekWithSessionDate = momentRangesOverlap([moment(session.startDate), moment(session.endDate)], [moment(date).startOf('week'), moment(date).startOf('week').add(6, 'days')])
+          const isInSelection = isInSession && false;
+          const isInWeekWithSessionDate = momentRangesOverlap([moment(session.startDate), moment(session.endDate)], [moment(date).startOf('week'), moment(date).startOf('week').add(1, 'week')])
           return {
             className: classNames(
               "rounded-none border border-solid border-neutral",
               {
-                "bg-neutral-2 cursor-pointer": isInSession,
+                "bg-neutral-2 cursor-pointer": isInSession && !isInSelection,
                 "bg-neutral-3 cursor-default text-transparent": !isInSession,
+                "bg-aqua-4 cursor-pointer": isInSelection,
                 "hidden": !isInWeekWithSessionDate,
                 "text-black": moment(date).isSame(selectedMonth, "month") && isInSession,
               },
             ),
+            handlePointerEnter
           };
         }}
         consistentWeeks={false}
         withHeader={false}
         highlightToday={false}
         firstDayOfWeek={0}
+        withDragSlotSelect
+        onDayClick={(date) => {
+          setFirstSelectedDate(moment(date));
+          setSecondSelectedDate(moment(date));
+        }}
+        onSlotDragEnd={(rangeStart, rangeEnd) => {
+          setFirstSelectedDate(null);
+          setSecondSelectedDate(null);
+        }}
       />
     </div>
   );
