@@ -35,9 +35,10 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
     null,
   );
 
-  console.log([firstSelectedDate, secondSelectedDate]);
+  console.log("BRUH", [firstSelectedDate, secondSelectedDate]);
 
   const handlePointerDown = (date: Moment) => {
+    console.log('pointer down')
     setFirstSelectedDate(date);
     setSecondSelectedDate(date);
   };
@@ -120,7 +121,7 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
             "day",
             "[]",
           );
-          const isInSelection = isInSession && false;
+          const isInSelection = isInSession && firstSelectedDate && secondSelectedDate && momentRangesOverlap([firstSelectedDate, secondSelectedDate.clone().add(1, 'day')], [moment(date), moment(date).add(1, 'day')]);
           const isInWeekWithSessionDate = momentRangesOverlap([moment(session.startDate), moment(session.endDate)], [moment(date).startOf('week'), moment(date).startOf('week').add(1, 'week')])
           return {
             className: classNames(
@@ -133,7 +134,9 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
                 "text-black": moment(date).isSame(selectedMonth, "month") && isInSession,
               },
             ),
-            handlePointerEnter
+            onMouseDown: (e) =>{handlePointerDown(moment(date))},
+            onPointerEnter: () => handlePointerEnter(moment(date)),
+            onPointerUp: handlePointerUp
           };
         }}
         consistentWeeks={false}
