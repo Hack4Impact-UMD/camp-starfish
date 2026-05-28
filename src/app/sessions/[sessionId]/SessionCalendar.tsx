@@ -129,7 +129,7 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
               {
                 "bg-neutral-2 cursor-pointer": isInSession && !isInSelection,
                 "bg-neutral-3 cursor-default text-transparent": !isInSession,
-                "bg-aqua-4 cursor-pointer": isInSelection,
+                "bg-aqua-1 cursor-pointer": isInSelection,
                 "hidden": !isInWeekWithSessionDate,
                 "text-black": moment(date).isSame(selectedMonth, "month") && isInSession,
               },
