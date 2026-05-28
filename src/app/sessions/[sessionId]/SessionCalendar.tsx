@@ -50,65 +50,79 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
   }
 
   return (
-    <SimpleGrid className="grid-cols-7 gap-0 select-none w-full">
-      {weekdaysShort().map((day) => (
-        <Box
-          key={day}
-          className="p-xs bg-neutral-0 border border-solid border-neutral-5"
-        >
-          <Text className="text-sm text-center font-bold">{day}</Text>
-        </Box>
-      ))}
-      {weekStarts.map((weekStart) =>
-        Array.from({ length: 7 }, (_, i) =>
-          weekStart.clone().add(i, "day"),
-        ).map((day) => {
-          const isInSession = day.isBetween(
-            session.startDate,
-            session.endDate,
-            "day",
-            "[]",
-          );
-          const isInSelection =
-            firstSelectedDate &&
-            secondSelectedDate &&
-            day.isBetween(
-              firstSelectedDate.isSameOrBefore(secondSelectedDate)
-                ? firstSelectedDate
-                : secondSelectedDate,
-              firstSelectedDate.isSameOrBefore(secondSelectedDate)
-                ? secondSelectedDate
-                : firstSelectedDate,
+    <>
+      <div>
+        <ScheduleHeader className="flex items-center">
+          <ScheduleHeader.Previous />
+          <Title order={4}>May 2025</Title>
+          <ScheduleHeader.Next />
+          <ScheduleHeader.Today></ScheduleHeader.Today>
+        </ScheduleHeader>
+        <MonthView
+          withHeader={false}
+          date={moment(session.startDate).toDate()}
+        />
+      </div>
+      <SimpleGrid className="grid-cols-7 gap-0 select-none w-full">
+        {weekdaysShort().map((day) => (
+          <Box
+            key={day}
+            className="p-xs bg-neutral-0 border border-solid border-neutral-5"
+          >
+            <Text className="text-sm text-center font-bold">{day}</Text>
+          </Box>
+        ))}
+        {weekStarts.map((weekStart) =>
+          Array.from({ length: 7 }, (_, i) =>
+            weekStart.clone().add(i, "day"),
+          ).map((day) => {
+            const isInSession = day.isBetween(
+              session.startDate,
+              session.endDate,
               "day",
               "[]",
             );
+            const isInSelection =
+              firstSelectedDate &&
+              secondSelectedDate &&
+              day.isBetween(
+                firstSelectedDate.isSameOrBefore(secondSelectedDate)
+                  ? firstSelectedDate
+                  : secondSelectedDate,
+                firstSelectedDate.isSameOrBefore(secondSelectedDate)
+                  ? secondSelectedDate
+                  : firstSelectedDate,
+                "day",
+                "[]",
+              );
 
-          const eventHandlers = isInSession && {
-            onPointerDown: () => handlePointerDown(day),
-            onPointerEnter: () => handlePointerEnter(day),
-            onPointerUp: () => handlePointerUp(),
-          };
+            const eventHandlers = isInSession && {
+              onPointerDown: () => handlePointerDown(day),
+              onPointerEnter: () => handlePointerEnter(day),
+              onPointerUp: () => handlePointerUp(),
+            };
 
-          return (
-            <Box
-              key={day.format("YYYY-MM-DD")}
-              {...eventHandlers}
-              className={classNames(
-                "p-xs border border-solid border-neutral-5 text-left min-h-52",
-                {
-                  "bg-aqua-4": isInSession && isInSelection,
-                  "bg-neutral-2": isInSession && !isInSelection,
-                  "bg-neutral-3": !isInSession,
-                },
-              )}
-            >
-              <Text className="text-sm font-bold text-center">
-                {day.date()}
-              </Text>
-            </Box>
-          );
-        }),
-      )}
-    </SimpleGrid>
+            return (
+              <Box
+                key={day.format("YYYY-MM-DD")}
+                {...eventHandlers}
+                className={classNames(
+                  "p-xs border border-solid border-neutral-5 text-left min-h-52",
+                  {
+                    "bg-aqua-4": isInSession && isInSelection,
+                    "bg-neutral-2": isInSession && !isInSelection,
+                    "bg-neutral-3": !isInSession,
+                  },
+                )}
+              >
+                <Text className="text-sm font-bold text-center">
+                  {day.date()}
+                </Text>
+              </Box>
+            );
+          }),
+        )}
+      </SimpleGrid>
+    </>
   );
 }
