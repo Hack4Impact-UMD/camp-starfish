@@ -19,6 +19,10 @@ import { MonthView, Schedule, ScheduleHeader } from "@mantine/schedule";
 import { MdChevronLeft, MdChevronRight } from "react-icons/md";
 import { getMonthDays } from "@mantine/dates";
 
+function momentRangesOverlap(range1: [Moment, Moment], range2: [Moment, Moment]): boolean {
+  return range1[0].isBefore(range2[1]) && range1[1].isAfter(range2[0]);
+}
+
 interface SessionCalendarProps {
   session: Session;
 }
@@ -105,12 +109,15 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
             "day",
             "[]",
           );
+          const isInWeekWithSessionDate = momentRangesOverlap([moment(session.startDate), moment(session.endDate)], [moment(date).startOf('week'), moment(date).startOf('week').add(6, 'days')])
           return {
             className: classNames(
-              "rounded-none border border-solid border-neutral text-black",
+              "rounded-none border border-solid border-neutral",
               {
                 "bg-neutral-2 cursor-pointer": isInSession,
                 "bg-neutral-3 cursor-default": !isInSession,
+                "hidden": !isInWeekWithSessionDate,
+                "text-black": moment(date).isSame(selectedMonth, "month"),
               },
             ),
           };
@@ -118,6 +125,7 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
         consistentWeeks={false}
         withHeader={false}
         highlightToday={false}
+        firstDayOfWeek={0}
       />
     </div>
   );
