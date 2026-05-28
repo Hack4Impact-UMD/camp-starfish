@@ -1,25 +1,25 @@
 
-import { StaffAttendeeID, AdminAttendeeID, NightShiftID, SessionID, SectionID } from "@/types/sessionTypes";
+import { StaffAttendee, AdminAttendee, NightSchedule, Session, Section } from "@/types/sessions/sessionTypes";
 
 export class SessionScheduler {
-  session: SessionID | undefined;
-  sections: SectionID[] = [];
-  counselors: (StaffAttendeeID | AdminAttendeeID)[] = [];
-  nightShifts: NightShiftID[] = [];
+  session: Session | undefined;
+  sections: Section[] = [];
+  counselors: (StaffAttendee | AdminAttendee)[] = [];
+  nightShifts: NightSchedule[] = [];
 
   constructor() { }
 
-  withSession(session: SessionID): SessionScheduler { this.session = session; return this; }
+  withSession(session: Session): SessionScheduler { this.session = session; return this; }
 
-  withSections(sections: SectionID[]): SessionScheduler { this.sections = sections; return this; }
+  withSections(sections: Section[]): SessionScheduler { this.sections = sections; return this; }
 
-  withCounselors(counselors: (StaffAttendeeID | AdminAttendeeID)[]): SessionScheduler { this.counselors = counselors; return this; }
+  withCounselors(counselors: (StaffAttendee | AdminAttendee)[]): SessionScheduler { this.counselors = counselors; return this; }
 
-  withNightShifts(nightShifts: NightShiftID[]): SessionScheduler { this.nightShifts = nightShifts; return this; }
+  withNightShifts(nightShifts: NightSchedule[]): SessionScheduler { this.nightShifts = nightShifts; return this; }
 
   assignDaysOff(): SessionScheduler { return this; }
 
   assignNightShifts(): SessionScheduler { return this; }
 
-  getSchedule(): { nightShifts: NightShiftID[] } { return { nightShifts: this.nightShifts }; }
+  getSchedule(): { nightShifts: NightSchedule[] } { return { nightShifts: this.nightShifts }; }
 }

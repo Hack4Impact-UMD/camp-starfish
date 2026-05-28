@@ -1,173 +1,174 @@
 "use client";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   TextInput,
   Radio,
-  Button,
   ActionIcon,
   RadioGroup,
+  Title,
+  Anchor,
+  ScrollArea,
+  Text,
+  Tooltip,
 } from "@mantine/core";
 import {
-  IconSearch,
-  IconChevronDown,
-  IconChevronUp,
-  IconArrowsVertical,
-  IconAlertCircle
-} from "@tabler/icons-react";
-import { useAttendees } from "@/hooks/attendees/useAttendees";
-import Profile from "@/assets/icons/Profile.svg";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
+  MdSearch,
+  MdErrorOutline,
+  MdFullscreen,
+  MdWarningAmber,
+  MdClose,
+} from "react-icons/md";
+import { MdAccountCircle } from "react-icons/md";
+import useUserDirectory from "@/hooks/users/useUserDirectory";
+import {
+  attendeeRoles,
+  getFullName,
+  getPluralRole,
+} from "@/types/users/userUtils";
+import useBunkList from "@/hooks/bunks/useBunkList";
+import useSession from "@/hooks/sessions/useSession";
 
 type SmallDirectoryBlockProps = {
   sessionId: string;
 };
 
-const INITIAL_VISIBILE_COUNT = 3;
-const LOAD_MORE_COUNT = 3;
-
 export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
-  const router = useRouter();
-  const { data: people, isLoading, error } = useAttendees(sessionId);
   const [searchQuery, setSearchQuery] = useState("");
-  const [roleFilter, setRoleFilter] = useState<"CAMPER" | "STAFF" | "ADMIN">("CAMPER");
-  const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBILE_COUNT);
-  const [showAll, setShowAll] = useState(false);
+  const [roleFilter, setRoleFilter] = useState<"CAMPER" | "STAFF" | "ADMIN">(
+    "CAMPER",
+  );
+  const [isBunkErrorOpen, setIsBunkErrorOpen] = useState<boolean>(true);
 
-  // loading state
-  if (isLoading) {
-    return (
-      <div className="max-w-[400px] m-[50px] border-[1.3px] border-black p-4 bg-neutral-2">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-black">DIRECTORY</h2>
-        </div>
-        <div className="flex flex-col items-center justify-center min-h-[200px]">
-          <p className="text-neutral-5 text-sm">Loading directory...</p>
-        </div>
+  const sessionQuery = useSession(sessionId);
+  const userDirectoryQuery = useUserDirectory();
+  const bunksQuery = useBunkList(sessionId);
+
+  const attendeesToDisplay = useMemo(() => {
+    if (!userDirectoryQuery.data || !sessionQuery.data) return [];
+    return Object.keys(userDirectoryQuery.data)
+      .filter((userId) =>
+        sessionQuery.data.attendeeIds.includes(Number(userId)),
+      )
+      .map((userId) => ({
+        id: Number(userId),
+        ...userDirectoryQuery.data[Number(userId)],
+      }))
+      .filter(
+        (user) =>
+          user.role === roleFilter &&
+          getFullName(user.name)
+            .toLowerCase()
+            .includes(searchQuery.toLowerCase()),
+      );
+  }, [sessionQuery.data, userDirectoryQuery.data, roleFilter, searchQuery]);
+
+  const usersToBunk = useMemo(() => {
+    if (!bunksQuery.data) return [];
+    const usersToBunk: { [userId: number]: number } = {};
+    bunksQuery.data.pages
+      .flatMap((page) => page.docs)
+      .forEach((bunk) => {
+        [...bunk.camperIds, ...bunk.counselorIds].forEach(
+          (userId) => (usersToBunk[userId] = bunk.bunkNum),
+        );
+      });
+    return usersToBunk;
+  }, [bunksQuery.data]);
+
+  let smallDirectoryBlockContent = <></>;
+  if (userDirectoryQuery.isError || sessionQuery.isError) {
+    smallDirectoryBlockContent = (
+      <div className="flex items-center gap-sm p-sm bg-error-0 border border-error rounded-md">
+        <MdErrorOutline size={32} className="text-error" />
+        <Text className="text-error">Unable to load directory</Text>
       </div>
     );
-  }
-
-  // error state
-  if (error) {
-    return (
-      <div className="max-w-[400px] m-[50px] border-[1.3px] border-black p-4 bg-neutral-2">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-black">DIRECTORY</h2>
-        </div>
-        <div className="flex items-start gap-3 p-3 bg-error-0 border border-error-5 rounded-md">
-          <IconAlertCircle size={16} className="text-error-5 mt-0.5" />
-          <div>
-            <p className="font-semibold text-error-5 mb-1">Error</p>
-            <p className="text-sm text-error-5">
-              {error instanceof Error
-                ? error.message
-                : "Failed to load directory data"}
-            </p>
+  } else if (userDirectoryQuery.isPending || sessionQuery.isPending) {
+    smallDirectoryBlockContent = (
+      <Text className="text-neutral">Loading directory...</Text>
+    );
+  } else {
+    smallDirectoryBlockContent = (
+      <>
+        {bunksQuery.isError && isBunkErrorOpen && (
+          <div className="flex items-center gap-sm p-sm bg-warning-0 border border-warning rounded-md">
+            <MdWarningAmber size={20} className="text-warning" />
+            <Text className="text-warning">Unable to load bunk data</Text>
+            <ActionIcon
+              variant="transparent"
+              size="md"
+              aria-label="Close"
+              onClick={() => setIsBunkErrorOpen(false)}
+            >
+              <Tooltip label="Close">
+                <MdClose size={20} />
+              </Tooltip>
+            </ActionIcon>
           </div>
-        </div>
-      </div>
+        )}
+        <TextInput
+          placeholder="Search directory..."
+          leftSection={<MdSearch size={16} />}
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.currentTarget.value)}
+        />
+        <RadioGroup
+          value={roleFilter}
+          onChange={(value) =>
+            setRoleFilter(value as "CAMPER" | "STAFF" | "ADMIN")
+          }
+        >
+          <div className="flex gap-md mt-md">
+            {attendeeRoles.map((attendeeRole) => (
+              <Radio
+                key={attendeeRole}
+                value={attendeeRole}
+                label={getPluralRole(attendeeRole)}
+              />
+            ))}
+          </div>
+        </RadioGroup>
+        {attendeesToDisplay.length > 0 ? (
+          <ScrollArea.Autosize mah={500}>
+            {attendeesToDisplay.map((attendee) => (
+              <div
+                className="flex items-center gap-xs py-sm border-b last:border-b-0"
+                key={attendee.id}
+              >
+                <MdAccountCircle />
+                <Text className="font-bold">
+                  {getFullName(attendee.name)}
+                  {usersToBunk[attendee.id] && ` (${usersToBunk[attendee.id]})`}
+                </Text>
+              </div>
+            ))}
+          </ScrollArea.Autosize>
+        ) : (
+          <Text className="text-neutral text-center my-md">
+            No attendees found
+          </Text>
+        )}
+      </>
     );
   }
-
-  // filtering the people based on role in search
-  const filteredPeople = (people || [])
-    .filter(
-      (person) =>
-        person.role === roleFilter &&
-        person.name.firstName.toLowerCase().includes(searchQuery.toLowerCase())
-    )
-    .slice(0, showAll ? people?.length : visibleCount);
-
-  // view more button that displays (all) people when clicked
-  const handleViewMore = () => {
-    if (showAll) {
-      setShowAll(false);
-      setVisibleCount(INITIAL_VISIBILE_COUNT);
-    } else {
-      setVisibleCount((prev) => Math.min(prev + LOAD_MORE_COUNT , people?.length || 0));
-      if (visibleCount + LOAD_MORE_COUNT >= (people?.length || 0)) {
-        setShowAll(true);
-      }
-    }
-  };
 
   return (
-    <div className="min-w-[344px] flex-grow border-[1.3px] border-black p-4 bg-neutral-2">
-      {/* header with directory and expand button */}
+    <div className="flex flex-col h-full border border-black p-4 bg-neutral-2 gap-xs">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-black">DIRECTORY</h2>
-        <ActionIcon
-          variant="transparent"
-          size="md"
-          onClick={() => console.log("Redirect to expanded directory view")}
-          aria-label="Expand directory view"
-        >
-          <IconArrowsVertical size={25} className="rotate-45" onClick = {() => router.push("/sessions/" + sessionId + "/directory")}/>
-        </ActionIcon>
+        <Title order={2}>Directory</Title>
+        <Anchor href={`/sessions/${sessionId}/directory`}>
+          <ActionIcon
+            variant="transparent"
+            size="lg"
+            aria-label="Expand directory view"
+          >
+            <Tooltip label="Expand directory view">
+              <MdFullscreen size={30} />
+            </Tooltip>
+          </ActionIcon>
+        </Anchor>
       </div>
-
-      {/* search bar */}
-      <TextInput
-        placeholder="Search directory..."
-        leftSection={<IconSearch size={16} />}
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.currentTarget.value)}
-        radius={7}
-      />
-
-      <RadioGroup
-        value={roleFilter}
-        onChange={(value) => setRoleFilter(value as "CAMPER" | "STAFF" | "ADMIN")}
-      >
-        {/* radio options to choose */}
-        <div className="flex gap-4 mt-4">
-          <Radio value="CAMPER" label="Campers" />
-          <Radio value="STAFF" label="Staff" />
-          <Radio value="ADMIN" label="Admin" />
-        </div>
-      </RadioGroup>
-
-      <div className="flex flex-col gap-4 mt-7">
-        {filteredPeople.map((person) => (
-          <div key={person.id}>
-            <div className="flex items-center gap-[32px]">
-              <Image className="flex-shrink-0 w-[32px] h-[32px]" src={Profile} alt="Profile" />
-              <div>
-                <p className="text-sm font-bold text-primary-5">
-                  {person.name.firstName} {person.name.lastName}
-                  {'bunk' in person && person.bunk !== undefined && ` (${person.bunk})`}
-                </p>
-              </div>
-            </div>
-            <hr className="mt-2 border-neutral-3" />
-          </div>
-        ))}
-      </div>
-
-      {filteredPeople.length === 0 && (
-        <p className="text-neutral-5 text-center my-4">No people found</p>
-      )}
-
-      {/* bottom button */}
-      {(people?.length || 0) > INITIAL_VISIBILE_COUNT && (
-        <Button
-          variant="subtle"
-          size="sm"
-          fullWidth
-          mt="md"
-          rightSection={
-            showAll ? (
-              <IconChevronUp size={16} />
-            ) : (
-              <IconChevronDown size={16} />
-            )
-          }
-          onClick={handleViewMore}
-        >
-          {showAll ? "Show less" : "View more"}
-        </Button>
-      )}
+      {smallDirectoryBlockContent}
     </div>
   );
 }
