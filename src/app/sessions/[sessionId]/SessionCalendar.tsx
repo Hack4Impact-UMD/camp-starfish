@@ -28,6 +28,9 @@ interface SessionCalendarProps {
 }
 
 export default function SessionCalendar({ session }: SessionCalendarProps) {
+  const [selectedMonth, setSelectedMonth] = useState<Moment>(
+    moment(session.startDate).startOf("month"),
+  );
   const [firstSelectedDate, setFirstSelectedDate] = useState<Moment | null>(
     null,
   );
@@ -54,10 +57,6 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
       setSecondSelectedDate(date);
     }
   };
-
-  const [selectedMonth, setSelectedMonth] = useState<Moment>(
-    moment(session.startDate).startOf("month"),
-  );
 
   const openCreateSectionModal = (startDate: Moment, endDate: Moment) => {
     setFirstSelectedDate(null);
