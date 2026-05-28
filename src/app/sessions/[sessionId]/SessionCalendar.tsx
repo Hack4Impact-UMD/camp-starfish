@@ -1,6 +1,6 @@
 import { Moment, weekdaysShort } from "moment";
 
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   SimpleGrid,
   Text,
@@ -35,14 +35,22 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
     null,
   );
 
+  const selectedDates = useMemo(() => {
+    if (!firstSelectedDate || !secondSelectedDate) {
+      return null;
+    }
+    const startDate = firstSelectedDate.isBefore(secondSelectedDate) ? firstSelectedDate : secondSelectedDate;
+    const endDate = startDate === firstSelectedDate ? secondSelectedDate : firstSelectedDate;
+    return [startDate.clone().startOf('day'), endDate.clone().endOf('day')];
+  }, [firstSelectedDate, secondSelectedDate]);
+
   const handlePointerDown = (date: Moment) => {
     setFirstSelectedDate(date);
     setSecondSelectedDate(date);
   };
 
-  const isSelecting = firstSelectedDate !== null && secondSelectedDate !== null;
   const handlePointerEnter = (date: Moment) => {
-    if (isSelecting) {
+    if (firstSelectedDate !== null && secondSelectedDate !== null) {
       setSecondSelectedDate(date);
     }
   };
@@ -101,7 +109,7 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
             "day",
             "[]",
           );
-          const isInSelection = isInSession && firstSelectedDate && secondSelectedDate && momentRangesOverlap([firstSelectedDate, secondSelectedDate.clone().add(1, 'day')], [moment(date), moment(date).add(1, 'day')]);
+          const isInSelection = isInSession && selectedDates && moment(date).isBetween(selectedDates[0], selectedDates[1], "day", "[]");
           const isInWeekWithSessionDate = momentRangesOverlap([moment(session.startDate), moment(session.endDate)], [moment(date).startOf('week'), moment(date).endOf('week')])
           return {
             className: classNames(
