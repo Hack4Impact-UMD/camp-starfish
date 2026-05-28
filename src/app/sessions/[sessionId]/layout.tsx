@@ -21,16 +21,16 @@ export default function SessionLayout({ children }: SessionLayoutProps) {
 
   if (status === "pending") return <p>Loading...</p>;
   if (status === "error") return <p>Error loading session data</p>;
+  if (!session) return <p>Session not found</p>;
 
-  const start = moment(session?.startDate);
-  const end = moment(session?.endDate);
+  const start = moment(session.startDate);
+  const end = moment(session.endDate);
 
   return (
-
-    <div className="w-full flex  ">
+    <div className="w-full flex">
       <Flex className="flex flex-col gap-5 w-full align-center px-[100px] justify-center">
         <Flex className="flex-row items-end gap-lg">
-          <Title order={1} className = "m-[0px]">{session?.name}</Title>
+          <Title order={1} className="m-[0px]">{session.name}</Title>
           <Text className="text-lg text-neutral-5 font-semibold">
             {start.format("MMMM YYYY")}
             {!start.isSame(end, "month") && ` - ${end.format("MMMM YYYY")}`}
@@ -40,6 +40,5 @@ export default function SessionLayout({ children }: SessionLayoutProps) {
         {children}
       </Flex>
     </div>
-
   );
 }

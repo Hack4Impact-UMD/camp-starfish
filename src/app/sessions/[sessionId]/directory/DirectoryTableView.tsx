@@ -35,14 +35,18 @@ import { IconSearch } from "@tabler/icons-react";
 
 
 
-type LargeDirectoryBlockProps = { 
+type LargeDirectoryBlockProps = {
     sessionId: string;
 };
+
+// Default (unfiltered) role shown when no filters are applied.
+const DEFAULT_ROLE: Role = "CAMPER";
+
 export default function DirectoryTableView ({ sessionId }: LargeDirectoryBlockProps) {
 
 
   const { data: attendeeList, isLoading, isError } = useAttendees(sessionId);
-  const [selectedRole, setSelectedRole] = useState<Role>("CAMPER");
+  const [selectedRole, setSelectedRole] = useState<Role>(DEFAULT_ROLE);
   const [sortNameOption, setSortNameOption] = useState<string | null>(null);
 
   // table filter/pagination options
@@ -230,12 +234,15 @@ export default function DirectoryTableView ({ sessionId }: LargeDirectoryBlockPr
   });
 
   const handleClearFilters = () => {
-    setSelectedRole("CAMPER" as Role);
+    setSelectedRole(DEFAULT_ROLE);
     setSortNameOption(null);
     setGlobalFilter("");
   };
 
-  const filtersActive = !!selectedRole || !!sortNameOption || !!table.getState().globalFilter;
+  const filtersActive =
+    selectedRole !== DEFAULT_ROLE ||
+    !!sortNameOption ||
+    !!table.getState().globalFilter;
   
   if (isLoading) {
     return <LoadingPage />;
