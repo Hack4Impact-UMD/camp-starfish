@@ -10,10 +10,7 @@ import classNames from "classnames";
 import openEditSectionModal from "@/components/EditSectionModal";
 import { MonthView, ScheduleHeader } from "@mantine/schedule";
 import { MdChevronLeft, MdChevronRight } from "react-icons/md";
-
-function momentRangesOverlap(range1: [Moment, Moment], range2: [Moment, Moment]): boolean {
-  return range1[0].isBefore(range2[1]) && range2[0].isBefore(range1[1]);
-}
+import { momentRangesOverlap } from "@/utils/timeUtils";
 
 interface SessionCalendarProps {
   session: Session;
