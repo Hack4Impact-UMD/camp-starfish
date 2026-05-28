@@ -1,11 +1,14 @@
 import { Moment, weekdaysShort } from "moment";
 
 import React, { useState } from "react";
-import { SimpleGrid, Text, Box } from "@mantine/core";
+import { SimpleGrid, Text, Box, Menu, Button, ActionIcon, Select, Title } from "@mantine/core";
 import { Session } from "@/types/sessions/sessionTypes";
 import moment from "moment";
 import classNames from "classnames";
 import openEditSectionModal from "@/components/EditSectionModal";
+import { MonthView, Schedule, ScheduleHeader } from "@mantine/schedule";
+import { MdChevronLeft, MdChevronRight } from "react-icons/md";
+import { getMonthDays } from "@mantine/dates";
 
 interface SessionCalendarProps {
   session: Session;
@@ -49,18 +52,33 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
     weekStarts.push(weekStarts[weekStarts.length - 1].clone().add(1, "week"));
   }
 
+  const [selectedMonth, setSelectedMonth] = useState<Moment>(moment(session.startDate).startOf('month'));
+
   return (
     <>
       <div>
         <ScheduleHeader className="flex items-center">
-          <ScheduleHeader.Previous />
-          <Title order={4}>May 2025</Title>
-          <ScheduleHeader.Next />
-          <ScheduleHeader.Today></ScheduleHeader.Today>
+          <ScheduleHeader.Previous onClick={() => setSelectedMonth(prev => prev.clone().subtract(1, 'month'))}/>
+          <ScheduleHeader.Next onClick={() => setSelectedMonth(prev => prev.clone().add(1, 'month'))}/>
+          <Title order={4}>{selectedMonth.format("MMMM YYYY")}</Title>
         </ScheduleHeader>
         <MonthView
+                date={selectedMonth.toDate()}
+          classNames={{
+            monthViewInner: 'rounded-none',
+            monthViewWeek: 'rounded-none',
+            monthViewWeekday: 'rounded-none border border-solid border-neutral bg-neutral-0',
+          }}
+          getDayProps={(date) => {
+            const isInSession = moment(date).isBetween(session.startDate, session.endDate, "day", "[]");
+            return {
+              className: classNames('rounded-none border border-solid border-neutral text-black', {
+                "bg-neutral-2": isInSession,
+                "bg-neutral-3": !isInSession
+              })
+            }
+          }}
           withHeader={false}
-          date={moment(session.startDate).toDate()}
         />
       </div>
       <SimpleGrid className="grid-cols-7 gap-0 select-none w-full">
