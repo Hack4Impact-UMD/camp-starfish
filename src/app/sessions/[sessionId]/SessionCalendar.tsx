@@ -47,24 +47,6 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
     }
   };
 
-  const handlePointerUp = () => {
-    if (isSelecting) {
-      openEditSectionModal({
-        sessionId: session.id,
-        initialStartDate: firstSelectedDate,
-        initialEndDate: secondSelectedDate,
-      });
-    }
-    setFirstSelectedDate(null);
-    setSecondSelectedDate(null);
-  };
-
-  const weekStarts = [moment(session.startDate).startOf("week")];
-  const lastWeekStart = moment(session.endDate).clone().startOf("week");
-  while (weekStarts[weekStarts.length - 1].isBefore(lastWeekStart)) {
-    weekStarts.push(weekStarts[weekStarts.length - 1].clone().add(1, "week"));
-  }
-
   const [selectedMonth, setSelectedMonth] = useState<Moment>(
     moment(session.startDate).startOf("month"),
   );
