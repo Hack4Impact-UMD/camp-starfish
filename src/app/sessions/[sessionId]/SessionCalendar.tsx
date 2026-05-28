@@ -74,6 +74,8 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
   );
 
   const openCreateSectionModal = (startDate: Moment, endDate: Moment) => {
+    setFirstSelectedDate(null);
+    setSecondSelectedDate(null);
     openEditSectionModal({
       sessionId: session.id,
       initialStartDate: startDate,
