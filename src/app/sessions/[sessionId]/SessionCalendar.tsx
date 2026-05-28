@@ -1,9 +1,6 @@
 import { Moment } from "moment";
 import { useMemo, useState } from "react";
-import {
-  ActionIcon,
-  Title,
-} from "@mantine/core";
+import { ActionIcon, Title, Tooltip } from "@mantine/core";
 import { Session } from "@/types/sessions/sessionTypes";
 import moment from "moment";
 import classNames from "classnames";
@@ -31,9 +28,12 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
     if (!firstSelectedDate || !secondSelectedDate) {
       return null;
     }
-    const startDate = firstSelectedDate.isBefore(secondSelectedDate) ? firstSelectedDate : secondSelectedDate;
-    const endDate = startDate === firstSelectedDate ? secondSelectedDate : firstSelectedDate;
-    return [startDate.clone().startOf('day'), endDate.clone().endOf('day')];
+    const startDate = firstSelectedDate.isBefore(secondSelectedDate)
+      ? firstSelectedDate
+      : secondSelectedDate;
+    const endDate =
+      startDate === firstSelectedDate ? secondSelectedDate : firstSelectedDate;
+    return [startDate.clone().startOf("day"), endDate.clone().endOf("day")];
   }, [firstSelectedDate, secondSelectedDate]);
 
   const handlePointerDown = (date: Moment) => {
@@ -54,32 +54,38 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
       sessionId: session.id,
       initialStartDate: startDate,
       initialEndDate: endDate,
-    })
-  }
+    });
+  };
 
   return (
     <div>
       <ScheduleHeader className="flex items-center">
-        <ActionIcon
-          variant="outline"
-          size="md"
-          onClick={() =>
-            setSelectedMonth((prev) => prev.clone().subtract(1, "month"))
-          }
-          disabled={selectedMonth.isSame(session.startDate, "month")}
-        >
-          <MdChevronLeft size={20} />
-        </ActionIcon>
-        <ActionIcon
-          variant="outline"
-          size="md"
-          onClick={() =>
-            setSelectedMonth((prev) => prev.clone().add(1, "month"))
-          }
-          disabled={selectedMonth.isSame(session.endDate, "month")}
-        >
-          <MdChevronRight size={20} />
-        </ActionIcon>
+        <Tooltip label="Previous month">
+          <ActionIcon
+            variant="outline"
+            size="md"
+            onClick={() =>
+              setSelectedMonth((prev) => prev.clone().subtract(1, "month"))
+            }
+            disabled={selectedMonth.isSame(session.startDate, "month")}
+            aria-label="Previous month"
+          >
+            <MdChevronLeft size={20} />
+          </ActionIcon>
+        </Tooltip>
+        <Tooltip label="Next month">
+          <ActionIcon
+            variant="outline"
+            size="md"
+            onClick={() =>
+              setSelectedMonth((prev) => prev.clone().add(1, "month"))
+            }
+            disabled={selectedMonth.isSame(session.endDate, "month")}
+            aria-label="Next month"
+          >
+            <MdChevronRight size={20} />
+          </ActionIcon>
+        </Tooltip>
         <Title order={4}>{selectedMonth.format("MMMM YYYY")}</Title>
       </ScheduleHeader>
       <MonthView
@@ -97,17 +103,30 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
             "day",
             "[]",
           );
-          const isInSelection = isInSession && selectedDates && moment(date).isBetween(selectedDates[0], selectedDates[1], "day", "[]");
-          const isInWeekWithSessionDate = momentRangesOverlap([moment(session.startDate), moment(session.endDate)], [moment(date).startOf('week'), moment(date).endOf('week')])
+          const isInSelection =
+            isInSession &&
+            selectedDates &&
+            moment(date).isBetween(
+              selectedDates[0],
+              selectedDates[1],
+              "day",
+              "[]",
+            );
+          const isInWeekWithSessionDate = momentRangesOverlap(
+            [moment(session.startDate), moment(session.endDate)],
+            [moment(date).startOf("week"), moment(date).endOf("week")],
+          );
           return {
             className: classNames(
               "rounded-none border border-solid border-neutral",
               {
                 "bg-neutral-2 cursor-pointer": isInSession && !isInSelection,
-                "bg-neutral-3 cursor-default text-transparent pointer-events-none": !isInSession,
+                "bg-neutral-3 cursor-default text-transparent pointer-events-none":
+                  !isInSession,
                 "bg-aqua-1 cursor-pointer": isInSelection,
-                "hidden": !isInWeekWithSessionDate,
-                "text-black": moment(date).isSame(selectedMonth, "month") && isInSession,
+                hidden: !isInWeekWithSessionDate,
+                "text-black":
+                  moment(date).isSame(selectedMonth, "month") && isInSession,
               },
             ),
             onMouseDown: () => handlePointerDown(moment(date)),
@@ -119,8 +138,18 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
         highlightToday={false}
         firstDayOfWeek={0}
         withDragSlotSelect
-        onDayClick={(date) => openCreateSectionModal(moment(date).startOf('day'), moment(date).startOf('day'))}
-        onSlotDragEnd={(rangeStart, rangeEnd) => openCreateSectionModal(moment(rangeStart).startOf('day'), moment(rangeEnd).startOf('day'))}
+        onDayClick={(date) =>
+          openCreateSectionModal(
+            moment(date).startOf("day"),
+            moment(date).startOf("day"),
+          )
+        }
+        onSlotDragEnd={(rangeStart, rangeEnd) =>
+          openCreateSectionModal(
+            moment(rangeStart).startOf("day"),
+            moment(rangeEnd).startOf("day"),
+          )
+        }
       />
     </div>
   );
