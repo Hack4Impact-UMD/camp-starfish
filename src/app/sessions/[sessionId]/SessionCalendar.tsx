@@ -84,6 +84,7 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
           }}
           consistentWeeks={false}
           withHeader={false}
+          highlightToday={false}
         />
       </div>
       <SimpleGrid className="grid-cols-7 gap-0 select-none w-full">
