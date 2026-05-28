@@ -72,6 +72,14 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
     moment(session.startDate).startOf("month"),
   );
 
+  const openCreateSectionModal = (startDate: Moment, endDate: Moment) => {
+    openEditSectionModal({
+      sessionId: session.id,
+      initialStartDate: startDate,
+      initialEndDate: endDate,
+    })
+  }
+
   return (
     <div>
       <ScheduleHeader className="flex items-center">
@@ -133,14 +141,8 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
         highlightToday={false}
         firstDayOfWeek={0}
         withDragSlotSelect
-        onDayClick={(date) => {
-          setFirstSelectedDate(moment(date));
-          setSecondSelectedDate(moment(date));
-        }}
-        onSlotDragEnd={(rangeStart, rangeEnd) => {
-          setFirstSelectedDate(null);
-          setSecondSelectedDate(null);
-        }}
+        onDayClick={(date) => openCreateSectionModal(moment(date).startOf('day'), moment(date).startOf('day'))}
+        onSlotDragEnd={(rangeStart, rangeEnd) => openCreateSectionModal(moment(rangeStart).startOf('day'), moment(rangeEnd).startOf('day'))}
       />
     </div>
   );
