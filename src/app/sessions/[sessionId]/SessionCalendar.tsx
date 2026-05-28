@@ -1,23 +1,15 @@
-import { Moment, weekdaysShort } from "moment";
-
-import React, { useMemo, useState } from "react";
+import { Moment } from "moment";
+import { useMemo, useState } from "react";
 import {
-  SimpleGrid,
-  Text,
-  Box,
-  Menu,
-  Button,
   ActionIcon,
-  Select,
   Title,
 } from "@mantine/core";
 import { Session } from "@/types/sessions/sessionTypes";
 import moment from "moment";
 import classNames from "classnames";
 import openEditSectionModal from "@/components/EditSectionModal";
-import { MonthView, Schedule, ScheduleHeader } from "@mantine/schedule";
+import { MonthView, ScheduleHeader } from "@mantine/schedule";
 import { MdChevronLeft, MdChevronRight } from "react-icons/md";
-import { getMonthDays } from "@mantine/dates";
 
 function momentRangesOverlap(range1: [Moment, Moment], range2: [Moment, Moment]): boolean {
   return range1[0].isBefore(range2[1]) && range2[0].isBefore(range1[1]);
