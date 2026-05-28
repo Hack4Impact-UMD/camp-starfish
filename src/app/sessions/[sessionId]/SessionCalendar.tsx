@@ -1,7 +1,16 @@
 import { Moment, weekdaysShort } from "moment";
 
 import React, { useState } from "react";
-import { SimpleGrid, Text, Box, Menu, Button, ActionIcon, Select, Title } from "@mantine/core";
+import {
+  SimpleGrid,
+  Text,
+  Box,
+  Menu,
+  Button,
+  ActionIcon,
+  Select,
+  Title,
+} from "@mantine/core";
 import { Session } from "@/types/sessions/sessionTypes";
 import moment from "moment";
 import classNames from "classnames";
@@ -52,101 +61,64 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
     weekStarts.push(weekStarts[weekStarts.length - 1].clone().add(1, "week"));
   }
 
-  const [selectedMonth, setSelectedMonth] = useState<Moment>(moment(session.startDate).startOf('month'));
+  const [selectedMonth, setSelectedMonth] = useState<Moment>(
+    moment(session.startDate).startOf("month"),
+  );
 
   return (
-    <>
-      <div>
-        <ScheduleHeader className="flex items-center">
-          <ActionIcon variant="outline" size="md" onClick={() => setSelectedMonth(prev => prev.clone().subtract(1, 'month'))} disabled={selectedMonth.isSame(session.startDate, "month")}>
-            <MdChevronLeft size={20} />
-          </ActionIcon>
-          <ActionIcon variant="outline" size="md" onClick={() => setSelectedMonth(prev => prev.clone().add(1, 'month'))} disabled={selectedMonth.isSame(session.endDate, "month")}>
-            <MdChevronRight size={20} />
-          </ActionIcon>
-          <Title order={4}>{selectedMonth.format("MMMM YYYY")}</Title>
-        </ScheduleHeader>
-        <MonthView
-          date={selectedMonth.toDate()}
-          classNames={{
-            monthViewInner: 'rounded-none',
-            monthViewWeek: 'rounded-none',
-            monthViewWeekday: 'rounded-none border border-solid border-neutral bg-neutral-0',
-          }}
-          getDayProps={(date) => {
-            const isInSession = moment(date).isBetween(session.startDate, session.endDate, "day", "[]");
-            return {
-              className: classNames('rounded-none border border-solid border-neutral text-black', {
+    <div>
+      <ScheduleHeader className="flex items-center">
+        <ActionIcon
+          variant="outline"
+          size="md"
+          onClick={() =>
+            setSelectedMonth((prev) => prev.clone().subtract(1, "month"))
+          }
+          disabled={selectedMonth.isSame(session.startDate, "month")}
+        >
+          <MdChevronLeft size={20} />
+        </ActionIcon>
+        <ActionIcon
+          variant="outline"
+          size="md"
+          onClick={() =>
+            setSelectedMonth((prev) => prev.clone().add(1, "month"))
+          }
+          disabled={selectedMonth.isSame(session.endDate, "month")}
+        >
+          <MdChevronRight size={20} />
+        </ActionIcon>
+        <Title order={4}>{selectedMonth.format("MMMM YYYY")}</Title>
+      </ScheduleHeader>
+      <MonthView
+        date={selectedMonth.toDate()}
+        classNames={{
+          monthViewInner: "rounded-none",
+          monthViewWeek: "rounded-none",
+          monthViewWeekday:
+            "rounded-none border border-solid border-neutral bg-neutral-0",
+        }}
+        getDayProps={(date) => {
+          const isInSession = moment(date).isBetween(
+            session.startDate,
+            session.endDate,
+            "day",
+            "[]",
+          );
+          return {
+            className: classNames(
+              "rounded-none border border-solid border-neutral text-black",
+              {
                 "bg-neutral-2 cursor-pointer": isInSession,
-                "bg-neutral-3 cursor-default": !isInSession
-              })
-            }
-          }}
-          consistentWeeks={false}
-          withHeader={false}
-          highlightToday={false}
-        />
-      </div>
-      <SimpleGrid className="grid-cols-7 gap-0 select-none w-full">
-        {weekdaysShort().map((day) => (
-          <Box
-            key={day}
-            className="p-xs bg-neutral-0 border border-solid border-neutral-5"
-          >
-            <Text className="text-sm text-center font-bold">{day}</Text>
-          </Box>
-        ))}
-        {weekStarts.map((weekStart) =>
-          Array.from({ length: 7 }, (_, i) =>
-            weekStart.clone().add(i, "day"),
-          ).map((day) => {
-            const isInSession = day.isBetween(
-              session.startDate,
-              session.endDate,
-              "day",
-              "[]",
-            );
-            const isInSelection =
-              firstSelectedDate &&
-              secondSelectedDate &&
-              day.isBetween(
-                firstSelectedDate.isSameOrBefore(secondSelectedDate)
-                  ? firstSelectedDate
-                  : secondSelectedDate,
-                firstSelectedDate.isSameOrBefore(secondSelectedDate)
-                  ? secondSelectedDate
-                  : firstSelectedDate,
-                "day",
-                "[]",
-              );
-
-            const eventHandlers = isInSession && {
-              onPointerDown: () => handlePointerDown(day),
-              onPointerEnter: () => handlePointerEnter(day),
-              onPointerUp: () => handlePointerUp(),
-            };
-
-            return (
-              <Box
-                key={day.format("YYYY-MM-DD")}
-                {...eventHandlers}
-                className={classNames(
-                  "p-xs border border-solid border-neutral-5 text-left min-h-52",
-                  {
-                    "bg-aqua-4": isInSession && isInSelection,
-                    "bg-neutral-2": isInSession && !isInSelection,
-                    "bg-neutral-3": !isInSession,
-                  },
-                )}
-              >
-                <Text className="text-sm font-bold text-center">
-                  {day.date()}
-                </Text>
-              </Box>
-            );
-          }),
-        )}
-      </SimpleGrid>
-    </>
+                "bg-neutral-3 cursor-default": !isInSession,
+              },
+            ),
+          };
+        }}
+        consistentWeeks={false}
+        withHeader={false}
+        highlightToday={false}
+      />
+    </div>
   );
 }
