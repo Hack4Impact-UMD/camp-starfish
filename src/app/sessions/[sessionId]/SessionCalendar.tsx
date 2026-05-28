@@ -35,17 +35,13 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
     null,
   );
 
-  console.log("BRUH", [firstSelectedDate, secondSelectedDate]);
-
   const handlePointerDown = (date: Moment) => {
-    console.log('pointer down')
     setFirstSelectedDate(date);
     setSecondSelectedDate(date);
   };
 
   const isSelecting = firstSelectedDate !== null && secondSelectedDate !== null;
   const handlePointerEnter = (date: Moment) => {
-    console.log('firing')
     if (isSelecting) {
       setSecondSelectedDate(date);
     }
@@ -124,7 +120,7 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
             "[]",
           );
           const isInSelection = isInSession && firstSelectedDate && secondSelectedDate && momentRangesOverlap([firstSelectedDate, secondSelectedDate.clone().add(1, 'day')], [moment(date), moment(date).add(1, 'day')]);
-          const isInWeekWithSessionDate = momentRangesOverlap([moment(session.startDate), moment(session.endDate)], [moment(date).startOf('week'), moment(date).startOf('week').add(1, 'week')])
+          const isInWeekWithSessionDate = momentRangesOverlap([moment(session.startDate), moment(session.endDate)], [moment(date).startOf('week'), moment(date).endOf('week')])
           return {
             className: classNames(
               "rounded-none border border-solid border-neutral",
