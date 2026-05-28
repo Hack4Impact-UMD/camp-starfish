@@ -20,7 +20,7 @@ import { MdChevronLeft, MdChevronRight } from "react-icons/md";
 import { getMonthDays } from "@mantine/dates";
 
 function momentRangesOverlap(range1: [Moment, Moment], range2: [Moment, Moment]): boolean {
-  return range1[0].isBefore(range2[1]) && range1[1].isAfter(range2[0]);
+  return range1[0].isBefore(range2[1]) && range2[0].isBefore(range1[1]);
 }
 
 interface SessionCalendarProps {
