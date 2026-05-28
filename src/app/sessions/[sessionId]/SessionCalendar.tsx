@@ -58,8 +58,12 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
     <>
       <div>
         <ScheduleHeader className="flex items-center">
-          <ScheduleHeader.Previous onClick={() => setSelectedMonth(prev => prev.clone().subtract(1, 'month'))}/>
-          <ScheduleHeader.Next onClick={() => setSelectedMonth(prev => prev.clone().add(1, 'month'))}/>
+          <ActionIcon variant="outline" size="md" onClick={() => setSelectedMonth(prev => prev.clone().subtract(1, 'month'))} disabled={selectedMonth.isSame(session.startDate, "month")}>
+            <MdChevronLeft size={20} />
+          </ActionIcon>
+          <ActionIcon variant="outline" size="md" onClick={() => setSelectedMonth(prev => prev.clone().add(1, 'month'))} disabled={selectedMonth.isSame(session.endDate, "month")}>
+            <MdChevronRight size={20} />
+          </ActionIcon>
           <Title order={4}>{selectedMonth.format("MMMM YYYY")}</Title>
         </ScheduleHeader>
         <MonthView
