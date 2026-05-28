@@ -9,17 +9,23 @@ import useUsers from "@/hooks/users/useUsers";
 
 export default function UsersPage() {
   const { token } = useAuth();
-  const usersQuery = useUsers();
-
-  if (usersQuery.isPending) return <LoadingPage />;
-  if (usersQuery.isError) return <ErrorPage error={new Error("Error loading users")} />;
+  const isAdmin = token?.claims.role === "ADMIN";
+  // Only fetch users once we know the viewer is an admin, so non-admins get the
+  // RequireAuth "no permission" message instead of a Firestore permission error.
+  const usersQuery = useUsers(isAdmin);
 
   return (
     <RequireAuth
       authCases={[
         {
-          authFn: () => token?.claims.role === "ADMIN",
-          component: <UserManagementPage users={usersQuery.data} />,
+          authFn: () => isAdmin,
+          component: usersQuery.isPending ? (
+            <LoadingPage />
+          ) : usersQuery.isError ? (
+            <ErrorPage error={new Error("Error loading users")} />
+          ) : (
+            <UserManagementPage users={usersQuery.data ?? []} />
+          ),
         },
       ]}
     />

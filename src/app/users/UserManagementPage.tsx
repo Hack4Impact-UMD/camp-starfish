@@ -14,7 +14,6 @@ import {
 import {
   Button,
   Group,
-  Modal,
   Select,
   Table,
   Text,
@@ -27,45 +26,29 @@ import {
   Stack,
 } from "@mantine/core";
 import { IconSearch, IconTrash, IconChevronUp, IconChevronDown, IconSelector } from "@tabler/icons-react";
-import { useQueryClient } from "@tanstack/react-query";
 import { User, Role } from "@/types/users/userTypes";
-import { updateUser } from "@/data/firestore/users";
-import { deleteUser } from "@/data/firestore/users";
-
-const ALL_ROLES: Role[] = ["ADMIN", "STAFF", "PHOTOGRAPHER", "PARENT", "CAMPER"];
-
-const ROLE_COLORS: Record<Role, string> = {
-  ADMIN: "red",
-  STAFF: "blue",
-  PHOTOGRAPHER: "violet",
-  PARENT: "green",
-  CAMPER: "orange",
-};
+import { useAuth } from "@/auth/useAuth";
+import useUpdateUser from "@/hooks/users/useUpdateUser";
+import useDeleteUser from "@/hooks/users/useDeleteUser";
+import { ALL_ROLES, ROLE_COLORS, formatRole } from "./userRoles";
+import { openRoleChangeModal, openDeleteUserModal } from "./userModals";
 
 interface UserManagementPageProps {
   users: User[];
 }
 
-interface PendingRoleChange {
-  user: User;
-  newRole: Role;
-}
-
-interface PendingDelete {
-  user: User;
-}
-
 export default function UserManagementPage({ users }: UserManagementPageProps) {
-  const queryClient = useQueryClient();
+  const { token } = useAuth();
+  // `campminderId` is set as a custom claim at account creation and equals the user's id.
+  const currentUserId = token?.claims.campminderId as number | undefined;
+
+  const { mutate: updateUserRole } = useUpdateUser();
+  const { mutate: deleteUserById } = useDeleteUser();
 
   const [globalFilter, setGlobalFilter] = useState("");
   const [roleFilter, setRoleFilter] = useState<string | null>(null);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 });
-
-  const [pendingRoleChange, setPendingRoleChange] = useState<PendingRoleChange | null>(null);
-  const [pendingDelete, setPendingDelete] = useState<PendingDelete | null>(null);
-  const [actionLoading, setActionLoading] = useState(false);
 
   const data = useMemo(() => {
     if (!roleFilter) return users;
@@ -76,9 +59,7 @@ export default function UserManagementPage({ users }: UserManagementPageProps) {
     {
       id: "firstName",
       accessorFn: (row) => row.name.firstName,
-      header: ({ column }) => (
-        <SortableHeader label="FIRST NAME" column={column} />
-      ),
+      header: ({ column }) => <SortableHeader label="FIRST NAME" column={column} />,
       cell: (info) => <Text size="sm">{info.getValue<string>() || "—"}</Text>,
     },
     {
@@ -90,17 +71,13 @@ export default function UserManagementPage({ users }: UserManagementPageProps) {
     {
       id: "lastName",
       accessorFn: (row) => row.name.lastName,
-      header: ({ column }) => (
-        <SortableHeader label="LAST NAME" column={column} />
-      ),
+      header: ({ column }) => <SortableHeader label="LAST NAME" column={column} />,
       cell: (info) => <Text size="sm">{info.getValue<string>() || "—"}</Text>,
     },
     {
       id: "email",
       accessorFn: (row) => row.email ?? "",
-      header: ({ column }) => (
-        <SortableHeader label="EMAIL" column={column} />
-      ),
+      header: ({ column }) => <SortableHeader label="EMAIL" column={column} />,
       cell: (info) => <Text size="sm">{info.getValue<string>() || "—"}</Text>,
     },
     {
@@ -109,18 +86,25 @@ export default function UserManagementPage({ users }: UserManagementPageProps) {
       header: "ROLE",
       cell: (info) => {
         const user = info.row.original;
+        const isSelf = currentUserId !== undefined && currentUserId === user.id;
         return (
           <Select
             size="xs"
             value={user.role}
-            data={ALL_ROLES.map((r) => ({ value: r, label: r.charAt(0) + r.slice(1).toLowerCase() }))}
+            disabled={isSelf}
+            title={isSelf ? "You cannot change your own role" : undefined}
+            data={ALL_ROLES.map((r) => ({ value: r, label: formatRole(r) }))}
             onChange={(newRole) => {
               if (newRole && newRole !== user.role) {
-                setPendingRoleChange({ user, newRole: newRole as Role });
+                openRoleChangeModal({
+                  user,
+                  newRole: newRole as Role,
+                  onConfirm: () => updateUserRole({ id: user.id, updates: { role: newRole as Role } }),
+                });
               }
             }}
             allowDeselect={false}
-            styles={{ input: { minWidth: 130 } }}
+            miw={130}
             renderOption={({ option }) => (
               <Badge color={ROLE_COLORS[option.value as Role]} variant="light" size="sm">
                 {option.label}
@@ -136,6 +120,7 @@ export default function UserManagementPage({ users }: UserManagementPageProps) {
       header: "ACTIONS",
       cell: (info) => {
         const user = info.row.original;
+        const isSelf = currentUserId !== undefined && currentUserId === user.id;
         return (
           <Group justify="center">
             <ActionIcon
@@ -143,7 +128,9 @@ export default function UserManagementPage({ users }: UserManagementPageProps) {
               variant="light"
               size="sm"
               aria-label="Delete user"
-              onClick={() => setPendingDelete({ user })}
+              disabled={isSelf}
+              title={isSelf ? "You cannot delete your own account" : undefined}
+              onClick={() => openDeleteUserModal({ user, onConfirm: () => deleteUserById(user.id) })}
             >
               <IconTrash size={14} />
             </ActionIcon>
@@ -152,7 +139,7 @@ export default function UserManagementPage({ users }: UserManagementPageProps) {
       },
       enableSorting: false,
     },
-  ], []);
+  ], [currentUserId, updateUserRole, deleteUserById]);
 
   const table = useReactTable({
     data,
@@ -166,34 +153,6 @@ export default function UserManagementPage({ users }: UserManagementPageProps) {
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
   });
-
-  const handleConfirmRoleChange = async () => {
-    if (!pendingRoleChange) return;
-    setActionLoading(true);
-    try {
-      await updateUser(pendingRoleChange.user.id, { role: pendingRoleChange.newRole });
-      await queryClient.invalidateQueries({ queryKey: ["users"] });
-    } catch (e) {
-      console.error("Failed to update role:", e);
-    } finally {
-      setActionLoading(false);
-      setPendingRoleChange(null);
-    }
-  };
-
-  const handleConfirmDelete = async () => {
-    if (!pendingDelete) return;
-    setActionLoading(true);
-    try {
-      await deleteUser(pendingDelete.user.id);
-      await queryClient.invalidateQueries({ queryKey: ["users"] });
-    } catch (e) {
-      console.error("Failed to delete user:", e);
-    } finally {
-      setActionLoading(false);
-      setPendingDelete(null);
-    }
-  };
 
   const totalRows = table.getFilteredRowModel().rows.length;
   const { pageIndex, pageSize } = table.getState().pagination;
@@ -220,21 +179,21 @@ export default function UserManagementPage({ users }: UserManagementPageProps) {
             value={globalFilter}
             onChange={(e) => setGlobalFilter(e.target.value)}
             leftSection={<IconSearch size={16} stroke={1.5} />}
-            style={{ minWidth: 280 }}
+            // The global TextInput theme hardcodes `px-3`, overriding Mantine's automatic
+            // left padding for `leftSection`; restore room so text doesn't sit under the icon.
+            styles={{ input: { paddingInlineStart: "2.25rem" } }}
+            miw={280}
           />
           <Select
             placeholder="Filter by role"
             data={[
               { value: "", label: "All Roles" },
-              ...ALL_ROLES.map((r) => ({
-                value: r,
-                label: r.charAt(0) + r.slice(1).toLowerCase(),
-              })),
+              ...ALL_ROLES.map((r) => ({ value: r, label: formatRole(r) })),
             ]}
             value={roleFilter ?? ""}
             onChange={(v) => setRoleFilter(v || null)}
             clearable
-            style={{ minWidth: 180 }}
+            miw={180}
           />
           {(globalFilter || roleFilter) && (
             <Button
@@ -258,10 +217,7 @@ export default function UserManagementPage({ users }: UserManagementPageProps) {
               {table.getHeaderGroups().map((hg) => (
                 <Table.Tr key={hg.id}>
                   {hg.headers.map((header) => (
-                    <Table.Th
-                      key={header.id}
-                      style={{ whiteSpace: "nowrap" }}
-                    >
+                    <Table.Th key={header.id} className="whitespace-nowrap">
                       {flexRender(header.column.columnDef.header, header.getContext())}
                     </Table.Th>
                   ))}
@@ -271,7 +227,7 @@ export default function UserManagementPage({ users }: UserManagementPageProps) {
             <Table.Tbody>
               {table.getRowModel().rows.length === 0 ? (
                 <Table.Tr>
-                  <Table.Td colSpan={columns.length} style={{ textAlign: "center", padding: "2rem" }}>
+                  <Table.Td colSpan={columns.length} className="text-center p-8">
                     <Text c="dimmed">No users found.</Text>
                   </Table.Td>
                 </Table.Tr>
@@ -293,9 +249,7 @@ export default function UserManagementPage({ users }: UserManagementPageProps) {
         {/* Pagination */}
         <Flex justify="space-between" align="center" mt="md" wrap="wrap" gap="sm">
           <Text size="sm" c="dimmed">
-            {totalRows === 0
-              ? "No entries"
-              : `Showing ${start}–${end} of ${totalRows} entries`}
+            {totalRows === 0 ? "No entries" : `Showing ${start}–${end} of ${totalRows} entries`}
           </Text>
           <Group gap="xs">
             <Button
@@ -320,83 +274,33 @@ export default function UserManagementPage({ users }: UserManagementPageProps) {
           </Group>
         </Flex>
       </div>
-
-      {/* Role Change Confirmation Modal */}
-      <Modal
-        opened={!!pendingRoleChange}
-        onClose={() => setPendingRoleChange(null)}
-        title={<Text fw={700}>Confirm Role Change</Text>}
-        centered
-        size="md"
-      >
-        <Stack gap="lg">
-          <Text>
-            Are you sure you want to change{" "}
-            <Text component="span" fw={600}>
-              {pendingRoleChange?.user.name.firstName} {pendingRoleChange?.user.name.lastName}
-            </Text>
-            &apos;s role from{" "}
-            <Badge color={ROLE_COLORS[pendingRoleChange?.user.role as Role]} variant="light">
-              {pendingRoleChange?.user.role}
-            </Badge>{" "}
-            to{" "}
-            <Badge color={ROLE_COLORS[pendingRoleChange?.newRole as Role]} variant="light">
-              {pendingRoleChange?.newRole}
-            </Badge>
-            ? This will affect what they can do in the application.
-          </Text>
-          <Group justify="flex-end" gap="sm">
-            <Button variant="default" onClick={() => setPendingRoleChange(null)} disabled={actionLoading}>
-              CANCEL
-            </Button>
-            <Button color="blue" onClick={handleConfirmRoleChange} loading={actionLoading}>
-              CONFIRM
-            </Button>
-          </Group>
-        </Stack>
-      </Modal>
-
-      {/* Delete Confirmation Modal */}
-      <Modal
-        opened={!!pendingDelete}
-        onClose={() => setPendingDelete(null)}
-        title={<Text fw={700} c="red">WARNING! Permanent Action</Text>}
-        centered
-        size="md"
-      >
-        <Stack gap="lg">
-          <Text>
-            Are you sure you want to delete{" "}
-            <Text component="span" fw={600}>
-              {pendingDelete?.user.name.firstName} {pendingDelete?.user.name.lastName}
-            </Text>{" "}
-            from the application? This action will remove their access and cannot be undone.
-          </Text>
-          <Group justify="flex-end" gap="sm">
-            <Button variant="default" onClick={() => setPendingDelete(null)} disabled={actionLoading}>
-              CANCEL
-            </Button>
-            <Button color="red" onClick={handleConfirmDelete} loading={actionLoading}>
-              DELETE
-            </Button>
-          </Group>
-        </Stack>
-      </Modal>
     </div>
   );
 }
 
-function SortableHeader({ label, column }: { label: string; column: { getIsSorted: () => false | "asc" | "desc"; toggleSorting: (desc?: boolean) => void } }) {
+function SortableHeader({
+  label,
+  column,
+}: {
+  label: string;
+  column: { getIsSorted: () => false | "asc" | "desc"; toggleSorting: (desc?: boolean) => void };
+}) {
   const sorted = column.getIsSorted();
   return (
-    <Group gap={4} style={{ cursor: "pointer", userSelect: "none", whiteSpace: "nowrap" }} onClick={() => column.toggleSorting(sorted === "asc")}>
-      <Text size="sm" fw={600}>{label}</Text>
+    <Group
+      gap={4}
+      className="cursor-pointer select-none whitespace-nowrap"
+      onClick={() => column.toggleSorting(sorted === "asc")}
+    >
+      <Text size="sm" fw={600}>
+        {label}
+      </Text>
       {sorted === "asc" ? (
         <IconChevronUp size={14} />
       ) : sorted === "desc" ? (
         <IconChevronDown size={14} />
       ) : (
-        <IconSelector size={14} style={{ opacity: 0.4 }} />
+        <IconSelector size={14} className="opacity-40" />
       )}
     </Group>
   );
