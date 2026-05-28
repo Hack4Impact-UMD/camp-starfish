@@ -25,8 +25,10 @@ import {
   Flex,
   Stack,
 } from "@mantine/core";
-import { IconSearch, IconTrash, IconChevronUp, IconChevronDown, IconSelector } from "@tabler/icons-react";
+import { MdSearch, MdDelete, MdKeyboardArrowUp, MdKeyboardArrowDown, MdUnfoldMore } from "react-icons/md";
+import { UpdateData } from "firebase/firestore";
 import { User, Role } from "@/types/users/userTypes";
+import { UserDoc } from "@/data/firestore/types/documents";
 import { useAuth } from "@/auth/useAuth";
 import useUpdateUser from "@/hooks/users/useUpdateUser";
 import useDeleteUser from "@/hooks/users/useDeleteUser";
@@ -99,7 +101,9 @@ export default function UserManagementPage({ users }: UserManagementPageProps) {
                 openRoleChangeModal({
                   user,
                   newRole: newRole as Role,
-                  onConfirm: () => updateUserRole({ id: user.id, updates: { role: newRole as Role } }),
+                  // `role` is part of a discriminated union, so a runtime-selected value must be
+                  // cast; reconciling role-specific fields is handled by the planned backend role-change fn.
+                  onConfirm: () => updateUserRole({ id: user.id, updates: { role: newRole } as UpdateData<UserDoc> }),
                 });
               }
             }}
@@ -132,7 +136,7 @@ export default function UserManagementPage({ users }: UserManagementPageProps) {
               title={isSelf ? "You cannot delete your own account" : undefined}
               onClick={() => openDeleteUserModal({ user, onConfirm: () => deleteUserById(user.id) })}
             >
-              <IconTrash size={14} />
+              <MdDelete size={14} />
             </ActionIcon>
           </Group>
         );
@@ -178,10 +182,7 @@ export default function UserManagementPage({ users }: UserManagementPageProps) {
             placeholder="Search users..."
             value={globalFilter}
             onChange={(e) => setGlobalFilter(e.target.value)}
-            leftSection={<IconSearch size={16} stroke={1.5} />}
-            // The global TextInput theme hardcodes `px-3`, overriding Mantine's automatic
-            // left padding for `leftSection`; restore room so text doesn't sit under the icon.
-            styles={{ input: { paddingInlineStart: "2.25rem" } }}
+            leftSection={<MdSearch size={16} />}
             miw={280}
           />
           <Select
@@ -296,11 +297,11 @@ function SortableHeader({
         {label}
       </Text>
       {sorted === "asc" ? (
-        <IconChevronUp size={14} />
+        <MdKeyboardArrowUp size={14} />
       ) : sorted === "desc" ? (
-        <IconChevronDown size={14} />
+        <MdKeyboardArrowDown size={14} />
       ) : (
-        <IconSelector size={14} className="opacity-40" />
+        <MdUnfoldMore size={14} className="opacity-40" />
       )}
     </Group>
   );

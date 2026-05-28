@@ -13,7 +13,7 @@ import {
   collection,
   CollectionReference,
 } from "firebase/firestore";
-import { setDoc, getDoc, updateDoc, deleteDoc, batchGetDocs } from "./firestoreClientOperations";
+import { setDoc, getDoc, updateDoc, deleteDoc, batchGetDocs, executeQuery } from "./firestoreClientOperations";
 import { RootLevelCollection } from "./types/collections";
 
 function fromFirestore(snapshot: DocumentSnapshot<UserDoc, UserDoc> | QueryDocumentSnapshot<UserDoc, UserDoc>): User {
@@ -31,6 +31,11 @@ export async function getUserDoc(id: number, transaction?: Transaction): Promise
 
 export async function batchGetUserDocs(ids: number[]): Promise<User[]> {
   const snapshots = await batchGetDocs<UserDoc>(collection(db, RootLevelCollection.USERS) as CollectionReference<UserDoc, UserDoc>, ids.map(id => String(id)));
+  return snapshots.map(fromFirestore);
+}
+
+export async function getAllUsers(): Promise<User[]> {
+  const snapshots = await executeQuery<UserDoc>(collection(db, RootLevelCollection.USERS) as CollectionReference<UserDoc, UserDoc>);
   return snapshots.map(fromFirestore);
 }
 
