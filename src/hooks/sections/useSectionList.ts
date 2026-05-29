@@ -9,6 +9,7 @@ export default function useSectionList(sessionId: string, firestoreQueryOptions?
     queryFn: async ({ client }) => {
       const sections = await listSectionDocs(sessionId, firestoreQueryOptions);
       sections.forEach(section => client.setQueryData(['sessions', sessionId, 'sections', section.id], section));
+      return sections;
     }
   });
 }
