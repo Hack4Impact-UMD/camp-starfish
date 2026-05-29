@@ -1,6 +1,7 @@
-import { HttpsError } from "firebase-functions/https";
+import { CallableRequest, HttpsError, onCall } from "firebase-functions/https";
 import { beforeUserCreated } from "firebase-functions/v2/identity";
-import { getUserByEmail } from "../data/firestore/users";
+import { getUserByEmail, getUserById, deleteUser } from "../data/firestore/users";
+import { adminAuth } from "../config/firebaseAdminConfig";
 
 const checkAllowlist = beforeUserCreated(async (event) => {
   const email = event.data?.email;
@@ -32,6 +33,63 @@ const checkAllowlist = beforeUserCreated(async (event) => {
   }
 });
 
+interface DeleteUserAccountRequest {
+  userId: number;
+}
+
+function isAuthUserNotFound(error: unknown): boolean {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    (error as { code?: string }).code === "auth/user-not-found"
+  );
+}
+
+// Deletes a user's Firebase Auth account (so access is actually revoked) and then their
+// Firestore user record. Callable rather than a Firestore trigger so the admin UI gets
+// synchronous success/error feedback and the action is gated on the caller being an admin.
+const deleteUserAccount = onCall(async (req: CallableRequest<DeleteUserAccountRequest>) => {
+  if (!req.auth || req.auth.token.role !== "ADMIN") {
+    throw new HttpsError("permission-denied", "Only admins can delete users.");
+  }
+
+  const { userId } = req.data;
+  if (typeof userId !== "number") {
+    throw new HttpsError("invalid-argument", "userId must be a number.");
+  }
+  if (req.auth.token.campminderId === userId) {
+    throw new HttpsError("failed-precondition", "You cannot delete your own account.");
+  }
+
+  let user;
+  try {
+    user = await getUserById(userId);
+  } catch {
+    throw new HttpsError("not-found", "User not found.");
+  }
+
+  // Revoke access first: delete the Auth account if one exists for this email. Some users
+  // (e.g. campers without logins) may have no Auth account, which is fine.
+  if (user.email) {
+    try {
+      const authUser = await adminAuth.getUserByEmail(user.email);
+      await adminAuth.deleteUser(authUser.uid);
+    } catch (error: unknown) {
+      if (!isAuthUserNotFound(error)) {
+        throw new HttpsError("internal", "Failed to delete the user's authentication account.");
+      }
+    }
+  }
+
+  try {
+    await deleteUser(userId);
+  } catch {
+    throw new HttpsError("internal", "Failed to delete the user record.");
+  }
+});
+
 export const accountManagementCloudFunctions = {
   checkAllowlist,
+  deleteUserAccount,
 };

@@ -26,14 +26,11 @@ import {
   Stack,
 } from "@mantine/core";
 import { MdSearch, MdDelete, MdKeyboardArrowUp, MdKeyboardArrowDown, MdUnfoldMore } from "react-icons/md";
-import { UpdateData } from "firebase/firestore";
 import { User, Role } from "@/types/users/userTypes";
-import { UserDoc } from "@/data/firestore/types/documents";
 import { useAuth } from "@/auth/useAuth";
-import useUpdateUser from "@/hooks/users/useUpdateUser";
 import useDeleteUser from "@/hooks/users/useDeleteUser";
 import { ALL_ROLES, ROLE_COLORS, formatRole } from "./userRoles";
-import { openRoleChangeModal, openDeleteUserModal } from "./userModals";
+import { openDeleteUserModal } from "./userModals";
 
 interface UserManagementPageProps {
   users: User[];
@@ -44,7 +41,6 @@ export default function UserManagementPage({ users }: UserManagementPageProps) {
   // `campminderId` is set as a custom claim at account creation and equals the user's id.
   const currentUserId = token?.claims.campminderId as number | undefined;
 
-  const { mutate: updateUserRole } = useUpdateUser();
   const { mutate: deleteUserById } = useDeleteUser();
 
   const [globalFilter, setGlobalFilter] = useState("");
@@ -87,34 +83,11 @@ export default function UserManagementPage({ users }: UserManagementPageProps) {
       accessorFn: (row) => row.role,
       header: "ROLE",
       cell: (info) => {
-        const user = info.row.original;
-        const isSelf = currentUserId !== undefined && currentUserId === user.id;
+        const role = info.getValue<Role>();
         return (
-          <Select
-            size="xs"
-            value={user.role}
-            disabled={isSelf}
-            title={isSelf ? "You cannot change your own role" : undefined}
-            data={ALL_ROLES.map((r) => ({ value: r, label: formatRole(r) }))}
-            onChange={(newRole) => {
-              if (newRole && newRole !== user.role) {
-                openRoleChangeModal({
-                  user,
-                  newRole: newRole as Role,
-                  // `role` is part of a discriminated union, so a runtime-selected value must be
-                  // cast; reconciling role-specific fields is handled by the planned backend role-change fn.
-                  onConfirm: () => updateUserRole({ id: user.id, updates: { role: newRole } as UpdateData<UserDoc> }),
-                });
-              }
-            }}
-            allowDeselect={false}
-            miw={130}
-            renderOption={({ option }) => (
-              <Badge color={ROLE_COLORS[option.value as Role]} variant="light" size="sm">
-                {option.label}
-              </Badge>
-            )}
-          />
+          <Badge color={ROLE_COLORS[role]} variant="light" size="sm">
+            {formatRole(role)}
+          </Badge>
         );
       },
       enableSorting: false,
@@ -143,7 +116,7 @@ export default function UserManagementPage({ users }: UserManagementPageProps) {
       },
       enableSorting: false,
     },
-  ], [currentUserId, updateUserRole, deleteUserById]);
+  ], [currentUserId, deleteUserById]);
 
   const table = useReactTable({
     data,
@@ -172,7 +145,7 @@ export default function UserManagementPage({ users }: UserManagementPageProps) {
             User Management
           </Title>
           <Text c="dimmed" size="sm">
-            Control access, assign roles, and monitor activity
+            Control access and monitor activity
           </Text>
         </Stack>
 
