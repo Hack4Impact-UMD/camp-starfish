@@ -52,6 +52,7 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
     start: section.startDate.toDate(),
     end: section.endDate.toDate(),
     color: '#ff0000',
+    variant: "filled"
   }));
   console.log(events)
 
