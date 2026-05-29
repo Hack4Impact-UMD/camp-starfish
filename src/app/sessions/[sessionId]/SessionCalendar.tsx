@@ -5,9 +5,11 @@ import { Session } from "@/types/sessions/sessionTypes";
 import moment from "moment";
 import classNames from "classnames";
 import openEditSectionModal from "@/components/EditSectionModal";
-import { MonthView, ScheduleHeader } from "@mantine/schedule";
+import { MonthView, ScheduleHeader, ScheduleSingleEventData } from "@mantine/schedule";
 import { MdChevronLeft, MdChevronRight } from "react-icons/md";
 import { momentRangesOverlap } from "@/utils/timeUtils";
+import useSectionList from "@/hooks/sections/useSectionList";
+import LoadingAnimation from "@/components/LoadingAnimation";
 
 interface SessionCalendarProps {
   session: Session;
@@ -35,6 +37,23 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
       startDate === firstSelectedDate ? secondSelectedDate : firstSelectedDate;
     return [startDate.clone().startOf("day"), endDate.clone().endOf("day")];
   }, [firstSelectedDate, secondSelectedDate]);
+
+  const sectionsQuery = useSectionList(session.id, { orderBy: [{ fieldPath: "startDate", direction: "asc" }] });
+
+  if (sectionsQuery.isError) {
+    return <p>{sectionsQuery.error.message}</p>;
+  } else if (sectionsQuery.isPending) {
+    return <LoadingAnimation />;
+  }
+
+  const events: ScheduleSingleEventData[] = sectionsQuery.data.map(section => ({
+    id: section.id,
+    title: section.name,
+    start: section.startDate.toDate(),
+    end: section.endDate.toDate(),
+    color: '#ff0000',
+  }));
+  console.log(events)
 
   const handlePointerDown = (date: Moment) => {
     setFirstSelectedDate(date);
@@ -90,6 +109,7 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
       </ScheduleHeader>
       <MonthView
         date={selectedMonth.toDate()}
+        events={events}
         classNames={{
           monthViewInner: "rounded-none",
           monthViewWeek: "rounded-none",
@@ -141,13 +161,13 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
         onDayClick={(date) =>
           openCreateSectionModal(
             moment(date).startOf("day"),
-            moment(date).startOf("day"),
+            moment(date).endOf("day"),
           )
         }
         onSlotDragEnd={(rangeStart, rangeEnd) =>
           openCreateSectionModal(
             moment(rangeStart).startOf("day"),
-            moment(rangeEnd).startOf("day"),
+            moment(rangeEnd).endOf("day"),
           )
         }
       />
