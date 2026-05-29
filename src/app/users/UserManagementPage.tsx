@@ -260,11 +260,22 @@ function SortableHeader({
   column: { getIsSorted: () => false | "asc" | "desc"; toggleSorting: (desc?: boolean) => void };
 }) {
   const sorted = column.getIsSorted();
+  const sortState = sorted === "asc" ? "ascending" : sorted === "desc" ? "descending" : "not sorted";
+  const toggleSort = () => column.toggleSorting(sorted === "asc");
   return (
     <Group
       gap={4}
+      role="button"
+      tabIndex={0}
+      aria-label={`${label}, ${sortState}. Activate to sort.`}
       className="cursor-pointer select-none whitespace-nowrap"
-      onClick={() => column.toggleSorting(sorted === "asc")}
+      onClick={toggleSort}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          toggleSort();
+        }
+      }}
     >
       <Text size="sm" fw={600}>
         {label}

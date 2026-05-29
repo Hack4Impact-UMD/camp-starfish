@@ -1,5 +1,6 @@
 import { CallableRequest, HttpsError, onCall } from "firebase-functions/https";
 import { beforeUserCreated } from "firebase-functions/v2/identity";
+import { z } from "zod";
 import { getUserByEmail, getUserById, deleteUser } from "../data/firestore/users";
 import { adminAuth } from "../config/firebaseAdminConfig";
 
@@ -33,9 +34,7 @@ const checkAllowlist = beforeUserCreated(async (event) => {
   }
 });
 
-interface DeleteUserAccountRequest {
-  userId: number;
-}
+const UserIdSchema = z.object({ userId: z.number() });
 
 function isAuthUserNotFound(error: unknown): boolean {
   return (
@@ -49,15 +48,16 @@ function isAuthUserNotFound(error: unknown): boolean {
 // Deletes a user's Firebase Auth account (so access is actually revoked) and then their
 // Firestore user record. Callable rather than a Firestore trigger so the admin UI gets
 // synchronous success/error feedback and the action is gated on the caller being an admin.
-const deleteUserAccount = onCall(async (req: CallableRequest<DeleteUserAccountRequest>) => {
+const deleteUserAccount = onCall(async (req: CallableRequest<unknown>) => {
   if (!req.auth || req.auth.token.role !== "ADMIN") {
     throw new HttpsError("permission-denied", "Only admins can delete users.");
   }
 
-  const { userId } = req.data;
-  if (typeof userId !== "number") {
-    throw new HttpsError("invalid-argument", "userId must be a number.");
+  const result = UserIdSchema.safeParse(req.data);
+  if (!result.success) {
+    throw new HttpsError("invalid-argument", "Invalid payload: " + result.error.message);
   }
+  const { userId } = result.data;
   if (req.auth.token.campminderId === userId) {
     throw new HttpsError("failed-precondition", "You cannot delete your own account.");
   }
