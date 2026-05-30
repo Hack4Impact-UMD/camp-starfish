@@ -1,7 +1,7 @@
 import { Moment } from "moment";
 import { useMemo, useState } from "react";
 import { ActionIcon, Title, Tooltip } from "@mantine/core";
-import { Session } from "@/types/sessions/sessionTypes";
+import { SectionType, Session } from "@/types/sessions/sessionTypes";
 import moment from "moment";
 import classNames from "classnames";
 import openEditSectionModal from "@/components/EditSectionModal";
@@ -10,6 +10,13 @@ import { MdChevronLeft, MdChevronRight } from "react-icons/md";
 import { momentRangesOverlap } from "@/utils/timeUtils";
 import useSectionList from "@/hooks/sections/useSectionList";
 import LoadingAnimation from "@/components/LoadingAnimation";
+
+const sectionTypeToEventColor: Record<SectionType, ScheduleSingleEventData['color']> = {
+  "COMMON": "blue",
+  "BUNDLE": "orange",
+  "BUNK-JAMBO": "green",
+  "NON-BUNK-JAMBO": "aqua"
+}
 
 interface SessionCalendarProps {
   session: Session;
@@ -51,8 +58,8 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
     title: section.name,
     start: section.startDate.toDate(),
     end: section.endDate.toDate(),
-    color: '#ff0000',
-    variant: "filled"
+    color: sectionTypeToEventColor[section.type],
+    variant: 'filled'
   }));
   console.log(events)
 
