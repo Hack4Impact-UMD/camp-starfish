@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   Button,
   Radio,
@@ -114,21 +114,25 @@ export default function CreateActivityModal({
     ? !!activityName.trim() && !!categoryName.trim() && !!ageGroup
     : !!activityName.trim();
 
-  useEffect(() => {
-    if (opened) {
-      setCategoryName(
-        existingActivity && isBundleActivity(existingActivity)
-          ? existingActivity.programAreaId
-          : ""
-      );
-      setActivityName(existingActivity?.name ?? "");
-      setAgeGroup(
-        existingActivity && isBundleActivity(existingActivity)
-          ? existingActivity.ageGroup
-          : null
-      );
-    }
-  }, [opened, existingActivity?.id]);
+  // Reset the form fields whenever the modal opens or switches to a different
+  // activity. Tracking the previous "open key" during render (instead of an
+  // effect) avoids a synchronous setState in useEffect.
+  const formKey = opened ? existingActivity?.id ?? "new" : null;
+  const [lastFormKey, setLastFormKey] = useState<string | null>(null);
+  if (formKey !== null && formKey !== lastFormKey) {
+    setLastFormKey(formKey);
+    setCategoryName(
+      existingActivity && isBundleActivity(existingActivity)
+        ? existingActivity.programAreaId
+        : ""
+    );
+    setActivityName(existingActivity?.name ?? "");
+    setAgeGroup(
+      existingActivity && isBundleActivity(existingActivity)
+        ? existingActivity.ageGroup
+        : null
+    );
+  }
 
   return (
     <Modal

@@ -1,7 +1,7 @@
 import { SectionSchedule } from "@/types/scheduling/schedulingTypes";
 import { SectionScheduleDoc } from "./types/documents";
-import { doc, DocumentReference, DocumentSnapshot, QueryDocumentSnapshot, Transaction, UpdateData, PartialWithFieldValue } from "firebase/firestore";
-import { getDoc, setDoc, updateDoc } from "./firestoreClientOperations";
+import { doc, DocumentReference, DocumentSnapshot, QueryDocumentSnapshot, Transaction, PartialWithFieldValue } from "firebase/firestore";
+import { getDoc, setDoc } from "./firestoreClientOperations";
 import { db } from "@/config/firebase";
 import { RootLevelCollection, SectionsSubcollection, SessionsSubcollection } from "./types/collections";
 

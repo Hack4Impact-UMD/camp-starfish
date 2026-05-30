@@ -4,6 +4,7 @@ import React, { useEffect, useState, useCallback, useRef } from "react";
 import { Text, Title, ActionIcon, Flex, Alert, Button } from "@mantine/core";
 import { MdChevronLeft, MdChevronRight, MdErrorOutline } from "react-icons/md";
 import { modals } from "@mantine/modals";
+import { PartialWithFieldValue } from "firebase/firestore";
 import moment from "moment";
 
 import { Section, SchedulingSectionType, SchedulingSection } from "@/types/sessions/sessionTypes";
@@ -19,6 +20,7 @@ import BlockGrid from "./BlockGrid";
 import CreateActivityModal from "./CreateActivityModal";
 import { TagData } from "./ActivityTagManagementModal";
 import { getSectionSchedule, updateSectionSchedule } from "@/data/firestore/sectionSchedules";
+import { SectionScheduleDoc } from "@/data/firestore/types/documents";
 
 interface EditActivitiesModalProps {
   section: Section;
@@ -114,7 +116,7 @@ export default function EditActivitiesModal({
     setError(null);
 
     try {
-      const blockData: Record<string, any> = {};
+      const blockData: Record<string, { activities: ActivityWithAssignments[]; periodsOff: number[] }> = {};
       blockItems.forEach(block => {
         blockData[block.id] = {
           activities: block.activities,
@@ -122,15 +124,15 @@ export default function EditActivitiesModal({
         };
       });
 
-      await updateSectionSchedule(
-        sessionIdRef.current,
-        section.id,
-        {
-          type: section.type,
-          alternatePeriodsOff: {},
-          blocks: blockData,
-        },
-      );
+      // Activities are built to match section.type in handleActivitySubmit, so
+      // the generic block map is safe to narrow to the schedule doc's union.
+      const updates: PartialWithFieldValue<SectionScheduleDoc> = {
+        type: section.type,
+        alternatePeriodsOff: {},
+        blocks: blockData,
+      } as PartialWithFieldValue<SectionScheduleDoc>;
+
+      await updateSectionSchedule(sessionIdRef.current, section.id, updates);
 
       // Keep cache in sync so back-navigation shows the saved state
       schedulesRef.current.set(section.id, blockItems);

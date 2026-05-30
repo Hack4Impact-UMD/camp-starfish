@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   Button,
   Stack,
@@ -52,13 +52,18 @@ export default function ActivityTagManagementModal({
     onConfirm: () => {},
   });
 
-  // Sync state when tagData changes (e.g. from CreateActivityModal adding a new tag)
-  useEffect(() => {
-      setCategories(tagData.categories);
-      setActivitiesByCategory(tagData.activitiesByCategory);
-      setSelectedCategory((prev) => prev && tagData.categories.includes(prev) ? prev : null, 
-      );
-  }, [tagData]);
+  // Sync local state when the tagData prop changes (e.g. from CreateActivityModal
+  // adding a new tag). Tracking the previous prop during render (instead of an
+  // effect) avoids a synchronous setState in useEffect.
+  const [lastTagData, setLastTagData] = useState(tagData);
+  if (tagData !== lastTagData) {
+    setLastTagData(tagData);
+    setCategories(tagData.categories);
+    setActivitiesByCategory(tagData.activitiesByCategory);
+    setSelectedCategory((prev) =>
+      prev && tagData.categories.includes(prev) ? prev : null,
+    );
+  }
 
   const closeConfirm = () =>
     setConfirm({ opened: false, message: "", onConfirm: () => {} });
