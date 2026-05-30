@@ -1,4 +1,4 @@
-import { Camper, Parent } from "@/types/personTypes";
+import { Camper, Parent } from "@/types/users/userTypes";
 import { parse } from "csv-parse/sync";
 import { createCamper, getCamperById, updateCamper } from "../firestore/campers";
 import { createParent, getParentById, updateParent } from "../firestore/parents";
@@ -17,44 +17,45 @@ type CamperCSVRecord = {
   "F1P2 Login/Email": string;
 };
 
-async function parseCamperRecords(records: CamperCSVRecord[]): Promise<[Camper[], Parent[]]> {
+interface ParseFamilyCSVResponse {
+  campers: Pick<Camper, "id" | "name" | "parentIds">[];
+  parents: Pick<Parent, "id" | "name" | "email" | "camperIds">[];
+}
 
-  let campers: Camper[] = [];
-  let parents: Parent[] = [];
+async function parseCamperRecords(records: CamperCSVRecord[]): Promise<ParseFamilyCSVResponse> {
+
+  let campers: ParseFamilyCSVResponse["campers"] = [];
+  let parents: ParseFamilyCSVResponse["parents"] = [];
 
   records.forEach((record) => {    
     campers.push({
+      id: parseInt(record.PersonID),
       name: {
         firstName: record["First Name"],
         lastName: record["Last Name"],
       },
-      campminderId: parseInt(record.PersonID),
-      nonoList: [],
       parentIds: record["F1P2 First Name"]
         ? [parseInt(record["F1P1 Person ID"]), parseInt(record["F1P2 Person ID"])]
         : [parseInt(record["F1P1 Person ID"])],
     });
 
     parents.push({
-        campminderId: parseInt(record["F1P1 Person ID"]),
+        id: parseInt(record["F1P1 Person ID"]),
         name: {
             firstName: record["F1P1 First Name"],
             lastName: record["F1P1 Last Name"]
         },
-        role: "PARENT",
         email: record["F1P1 Login/Email"],
         camperIds: [parseInt(record.PersonID)],
     })
 
     if(record["F1P2 First Name"]) {
         parents.push({
-            campminderId: parseInt(record["F1P2 Person ID"]),
+            id: parseInt(record["F1P2 Person ID"]),
             name: {
                 firstName: record["F1P2 First Name"],
                 lastName: record["F1P2 Last Name"]
-            },
-            role: "PARENT",
-            email: record["F1P2 Login/Email"],
+            },            email: record["F1P2 Login/Email"],
             camperIds: [parseInt(record.PersonID)],
         })
     }
