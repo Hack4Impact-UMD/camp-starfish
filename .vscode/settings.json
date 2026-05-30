@@ -1,0 +1,6 @@
+{
+  "tailwindCSS.experimental.configFile": "./src/app/globals.css",
+  "tailwindCSS.experimental.classRegex": [
+    ["{([\\s\\S]*)}", ":\\s*['\"`]([^'\"`]*)['\"`]"]
+  ],
+}

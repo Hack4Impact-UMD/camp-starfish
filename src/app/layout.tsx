@@ -1,48 +1,140 @@
-import type { Metadata } from "next";
 import "./globals.css";
-import localFont from "next/font/local";
+
+import type { Metadata } from "next";
 import Navbar from "../components/Navbar"; // Adjust the path as needed
-import AuthProvider from "@/auth/AuthProvider";
+import Footer from "../components/Footer";
+import localFont from "next/font/local";
+import { NextFontWithVariable } from "next/dist/compiled/@next/font";
+import { CampStarfishFont, campStarfishFonts } from "@/styles/fonts";
+import Providers from "@/components/Providers";
+import { TanStackDevtools } from "@tanstack/react-devtools";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { FormDevtoolsPanel } from "@tanstack/react-form-devtools";
 
 const lato = localFont({
   src: [
-    { path: "../../public/fonts/Lato/Lato-Black.ttf", weight: "900", style: "normal" },
-    { path: "../../public/fonts/Lato/Lato-BlackItalic.ttf", weight: "900", style: "italic" },
-    { path: "../../public/fonts/Lato/Lato-Bold.ttf", weight: "700", style: "normal" },
-    { path: "../../public/fonts/Lato/Lato-BoldItalic.ttf", weight: "700", style: "italic" },
-    { path: "../../public/fonts/Lato/Lato-Light.ttf", weight: "300", style: "normal" },
-    { path: "../../public/fonts/Lato/Lato-LightItalic.ttf", weight: "300", style: "italic" },
-    { path: "../../public/fonts/Lato/Lato-Regular.ttf", weight: "400", style: "normal" },
-    { path: "../../public/fonts/Lato/Lato-RegularItalic.ttf", weight: "400", style: "italic" },
-    { path: "../../public/fonts/Lato/Lato-Thin.ttf", weight: "100", style: "normal" },
-    { path: "../../public/fonts/Lato/Lato-ThinItalic.ttf", weight: "100", style: "italic" },
+    {
+      path: "../../public/fonts/Lato/Lato-Black.ttf",
+      weight: "900",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/Lato/Lato-BlackItalic.ttf",
+      weight: "900",
+      style: "italic",
+    },
+    {
+      path: "../../public/fonts/Lato/Lato-Bold.ttf",
+      weight: "700",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/Lato/Lato-BoldItalic.ttf",
+      weight: "700",
+      style: "italic",
+    },
+    {
+      path: "../../public/fonts/Lato/Lato-Light.ttf",
+      weight: "300",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/Lato/Lato-LightItalic.ttf",
+      weight: "300",
+      style: "italic",
+    },
+    {
+      path: "../../public/fonts/Lato/Lato-Regular.ttf",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/Lato/Lato-RegularItalic.ttf",
+      weight: "400",
+      style: "italic",
+    },
+    {
+      path: "../../public/fonts/Lato/Lato-Thin.ttf",
+      weight: "100",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/Lato/Lato-ThinItalic.ttf",
+      weight: "100",
+      style: "italic",
+    },
   ],
-  variable: "--font-lato",
+  variable: "--font-Lato",
 });
 
 const newSpirit = localFont({
   src: [
-    { path: "../../public/fonts/NewSpirit/NewSpirit-Bold.ttf", weight: "700", style: "normal" },
-    { path: "../../public/fonts/NewSpirit/NewSpirit-BoldItalic.ttf", weight: "700", style: "italic" },
-    { path: "../../public/fonts/NewSpirit/NewSpirit-Light.ttf", weight: "300", style: "normal" },
-    { path: "../../public/fonts/NewSpirit/NewSpirit-LightItalic.ttf", weight: "300", style: "italic" },
-    { path: "../../public/fonts/NewSpirit/NewSpirit-Medium.ttf", weight: "500", style: "normal" },
-    { path: "../../public/fonts/NewSpirit/NewSpirit-MediumItalic.ttf", weight: "500", style: "italic" },
-    { path: "../../public/fonts/NewSpirit/NewSpirit-Regular.ttf", weight: "400", style: "normal" },
-    { path: "../../public/fonts/NewSpirit/NewSpirit-RegularItalic.ttf", weight: "400", style: "italic" },
-    { path: "../../public/fonts/NewSpirit/NewSpirit-SemiBold.ttf", weight: "600", style: "normal" },
-    { path: "../../public/fonts/NewSpirit/NewSpirit-SemiBoldItalic.ttf", weight: "600", style: "italic" },
+    {
+      path: "../../public/fonts/NewSpirit/NewSpirit-Bold.ttf",
+      weight: "700",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/NewSpirit/NewSpirit-BoldItalic.ttf",
+      weight: "700",
+      style: "italic",
+    },
+    {
+      path: "../../public/fonts/NewSpirit/NewSpirit-Light.ttf",
+      weight: "300",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/NewSpirit/NewSpirit-LightItalic.ttf",
+      weight: "300",
+      style: "italic",
+    },
+    {
+      path: "../../public/fonts/NewSpirit/NewSpirit-Medium.ttf",
+      weight: "500",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/NewSpirit/NewSpirit-MediumItalic.ttf",
+      weight: "500",
+      style: "italic",
+    },
+    {
+      path: "../../public/fonts/NewSpirit/NewSpirit-Regular.ttf",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/NewSpirit/NewSpirit-RegularItalic.ttf",
+      weight: "400",
+      style: "italic",
+    },
+    {
+      path: "../../public/fonts/NewSpirit/NewSpirit-SemiBold.ttf",
+      weight: "600",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/NewSpirit/NewSpirit-SemiBoldItalic.ttf",
+      weight: "600",
+      style: "italic",
+    },
   ],
-  variable: "--font-newSpirit"
+  variable: "--font-NewSpirit",
 });
-
 
 const besteam = localFont({
   src: "../../public/fonts/Besteam.ttf",
   weight: "400",
   style: "regular",
-  variable: "--font-besteam"
+  variable: "--font-Besteam",
 });
+
+const fontObjs: Record<CampStarfishFont, NextFontWithVariable> = {
+  Lato: lato,
+  NewSpirit: newSpirit,
+  Besteam: besteam,
+};
 
 export const metadata: Metadata = {
   title: "Camp Starfish",
@@ -57,16 +149,31 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${lato.variable} ${newSpirit.variable} ${besteam.variable} antialiased w-full h-screen`}
+        className={`${campStarfishFonts
+          .map((font) => fontObjs[font].variable)
+          .join(" ")} antialiased w-full min-h-screen flex flex-col`}
       >
-        <AuthProvider>
-          <>
-            <div className="w-full h-[10%]">
-              <Navbar />
-            </div>
-            <div className="w-full h-[90%]">{children}</div>
-          </>
-        </AuthProvider>
+        <Providers>
+          <div className="w-full">
+            <Navbar />
+          </div>
+          <div className="flex flex-col grow w-full bg-neutral-1">{children}</div>
+          <div className="w-full">
+            <Footer />
+          </div>
+          {process.env.NODE_ENV !== 'production' && <TanStackDevtools
+            plugins={[
+              {
+                name: "Query",
+                render: <ReactQueryDevtools />,
+              },
+              {
+                name: "Form",
+                render: <FormDevtoolsPanel />
+              },
+            ]}
+          />}
+        </Providers>
       </body>
     </html>
   );
