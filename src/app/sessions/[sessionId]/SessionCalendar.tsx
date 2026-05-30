@@ -1,7 +1,7 @@
 import { Moment } from "moment";
 import { useMemo, useState } from "react";
 import { ActionIcon, Title, Tooltip } from "@mantine/core";
-import { SectionType, Session } from "@/types/sessions/sessionTypes";
+import { Section, SectionType, Session } from "@/types/sessions/sessionTypes";
 import moment from "moment";
 import classNames from "classnames";
 import openEditSectionModal from "@/components/EditSectionModal";
@@ -61,8 +61,9 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
     title: section.name,
     start: section.startDate.toDate(),
     end: section.endDate.toDate(),
+    payload: section,
     color: sectionTypeToEventColor[section.type],
-    variant: 'filled'
+    variant: 'filled',
   }));
 
   const handlePointerDown = (date: Moment) => {
@@ -180,7 +181,11 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
             moment(rangeEnd).endOf("day"),
           )
         }
-        onEventClick={(event) => router.push(`/sessions/${session.id}/${event.id}`)}
+        onEventClick={(event) => {
+          if ((event.payload as Section).type !== "COMMON") {
+            router.push(`/sessions/${session.id}/${event.id}`)
+          }
+        }}
         moreEventsProps={{
           classNames: {
             moreEventsDropdown: "rounded-sm"
