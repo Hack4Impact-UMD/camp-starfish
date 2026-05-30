@@ -13,7 +13,7 @@ import {
   Divider,
   Modal,
 } from "@mantine/core";
-import { MdDeleteOutline } from "react-icons/md";
+import { MdClose, MdDeleteOutline } from "react-icons/md";
 import {
   BundleActivity,
   JamboreeActivity,
@@ -134,20 +134,61 @@ export default function CreateActivityModal({
     <Modal
       opened={opened}
       onClose={onClose}
-      withCloseButton
-      closeButtonProps={{ size: "lg" }}
+      withCloseButton={false}
       size="md"
+      radius={16}
+      padding={0}
       zIndex={300}
       classNames={{
-        header: "pb-0",
-        title: "hidden",
+        content: "border border-solid border-[#dee1e3]",
       }}
     >
-      <Box className="bg-white">
-        <Stack className="gap-lg">
-          {/* Header row: editable category name + manage tags + delete */}
-          <Group justify="space-between" align="flex-start">
-            <Box className="flex-1">
+      <Box className="flex flex-col items-center gap-4 bg-white rounded-[16px] px-6 pt-4 pb-6">
+        {/* Top row: close (left), manage tags + delete (right) */}
+        <Group justify="space-between" align="flex-start" w="100%">
+          <ActionIcon
+            variant="transparent"
+            size="sm"
+            aria-label="Close"
+            onClick={onClose}
+          >
+            <MdClose size={18} className="text-[#002d45]" />
+          </ActionIcon>
+          <Group gap={8} align="center">
+            <Button
+              variant="default"
+              onClick={() => setTagModalOpened(true)}
+              styles={{
+                root: {
+                  height: 26,
+                  backgroundColor: "#fafafb",
+                  border: "1px solid #c1c1c1",
+                  borderRadius: 8,
+                  paddingInline: 10,
+                },
+                label: { color: "#001b2a", fontSize: 13, fontWeight: 500 },
+              }}
+            >
+              Manage Tags
+            </Button>
+            {isEditMode && onDelete && (
+              <ActionIcon
+                variant="transparent"
+                size="sm"
+                aria-label="Delete activity"
+                onClick={handleDelete}
+              >
+                <MdDeleteOutline size={16} className="text-[#002d45]" />
+              </ActionIcon>
+            )}
+          </Group>
+        </Group>
+
+        {/* Body */}
+        <Stack className="w-full" gap={28}>
+          <Stack gap={20}>
+            {/* Editable category name with underline */}
+            <Box className="w-full">
               <TextInput
                 placeholder={isEditMode ? "Edit Event Category" : "Add Event Category"}
                 value={categoryName}
@@ -155,78 +196,82 @@ export default function CreateActivityModal({
                 variant="unstyled"
                 styles={{
                   input: {
-                    fontSize: "1.5rem",
-                    fontWeight: 400,
-                    color: "#495057",
+                    fontSize: 22,
+                    fontWeight: 600,
+                    color: "#3b4e57",
                     padding: 0,
+                    height: "auto",
+                    lineHeight: 1.3,
                   },
                 }}
               />
-              <Divider />
+              <Divider color="#c1c1c1" />
             </Box>
-            <Group gap="xs">
-              <Button
-                variant="outline"
-                color="gray"
-                size="xs"
-                onClick={() => setTagModalOpened(true)}
-              >
-                Manage Tags
-              </Button>
-              {isEditMode && onDelete && (
-                <ActionIcon
-                  variant="subtle"
-                  color="gray"
-                  size="lg"
-                  onClick={handleDelete}
-                >
-                  <MdDeleteOutline size={18} />
-                </ActionIcon>
-              )}
-            </Group>
-          </Group>
 
-          {/* Activity Title input */}
-          <TextInput
-            placeholder="Add Activity Title"
-            value={activityName}
-            onChange={(e) => setActivityName(e.currentTarget.value)}
-            styles={{
-              input: {
-                backgroundColor: "white",
-                border: "1px solid #dee2e6",
-              },
-            }}
-          />
+            {/* Activity Title input */}
+            <TextInput
+              placeholder="Add Activity Title"
+              value={activityName}
+              onChange={(e) => setActivityName(e.currentTarget.value)}
+              radius={8}
+              size="sm"
+              styles={{
+                input: {
+                  border: "1px solid #c1c1c1",
+                  color: "#3b4e57",
+                },
+              }}
+            />
+          </Stack>
 
           {/* Schedule Type (age group) - only for Bundle sections */}
           {isBundleSection && (
-            <Box>
-              <Text className="text-lg font-medium mb-xs">Select Camper Group</Text>
-              <Divider className="mb-sm" />
+            <Stack className="w-full" gap={10}>
+              <Text style={{ fontSize: 16, fontWeight: 600, color: "#3b4e57" }}>
+                Schedule Type
+              </Text>
               <Radio.Group
                 value={ageGroup}
                 onChange={(value) => setAgeGroup(value as AgeGroup)}
               >
-                <Stack className="gap-xs">
-                  <Radio value="OCP" label="OCP" />
-                  <Radio value="NAV" label="NAV" />
+                <Stack gap={12}>
+                  <Radio
+                    value="OCP"
+                    label="OCP"
+                    size="sm"
+                    color="#002d45"
+                    styles={{ label: { fontSize: 14, color: "#12222a" } }}
+                  />
+                  <Radio
+                    value="NAV"
+                    label="NAV"
+                    size="sm"
+                    color="#002d45"
+                    styles={{ label: { fontSize: 14, color: "#12222a" } }}
+                  />
                 </Stack>
               </Radio.Group>
-            </Box>
+            </Stack>
           )}
-
-          {/* Save button */}
-          <Button
-            fullWidth
-            color="dark"
-            size="md"
-            onClick={handleSubmit}
-            disabled={!isFormValid}
-          >
-            SAVE CHANGES
-          </Button>
         </Stack>
+
+        {/* Save button */}
+        <Button
+          onClick={handleSubmit}
+          disabled={!isFormValid}
+          radius={40}
+          styles={{
+            root: { backgroundColor: "#002d45", height: 42, width: 180 },
+            label: {
+              color: "white",
+              fontSize: 14,
+              fontWeight: 700,
+              letterSpacing: 0.5,
+            },
+          }}
+        >
+          SAVE CHANGES
+        </Button>
       </Box>
       {/* Tag Management Modal */}
       <ActivityTagManagementModal

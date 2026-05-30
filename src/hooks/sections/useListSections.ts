@@ -7,7 +7,12 @@ export default function useListSections(sessionId: string, firestoreQueryOptions
   const queryClient = useQueryClient();
 
   return useQuery({
-    queryKey: ['sessions', sessionId, 'sections', firestoreQueryOptions],
+    // 'list' discriminator keeps this key from colliding with useSection's
+    // ['sessions', sessionId, 'sections', sectionId] when both the options here
+    // and that sectionId are undefined (e.g. EditSectionModal in create mode),
+    // which would otherwise share a query whose queryFn is skipToken. The
+    // ['sessions', sessionId, 'sections'] prefix still matches for invalidation.
+    queryKey: ['sessions', sessionId, 'sections', 'list', firestoreQueryOptions],
     queryFn: async () => {
       const sections = await listSectionDocs(sessionId, firestoreQueryOptions);
       sections.forEach(section => queryClient.setQueryData(['sessions', sessionId, 'sections', section.id], section));

@@ -34,22 +34,22 @@ export default function ActivityCard({
   const bundle = isBundleActivity(activity) ? activity : null;
 
   return (
-    <div className="bg-white rounded-lg border border-solid border-gray-300 p-3 relative">
-      {/* Header row */}
-      <Flex align="center" gap="xs">
+    <div className="bg-white rounded-[10px] border border-solid border-[#9dafb8] p-3 relative">
+      {/* Top: event category (falls back to the name when there is no category).
+          The dot and badge are absolutely positioned so the text stays centered
+          across the full card width, in line with the title/description below. */}
+      <div className="relative flex items-center min-h-[18px]">
         {bundle && (
           <MdCircle
             size={10}
-            className={
-              bundle.ageGroup === "OCP"
-                ? "text-red-500"
-                : "text-blue-500"
-            }
+            className={`absolute left-0 top-1/2 -translate-y-1/2 ${
+              bundle.ageGroup === "OCP" ? "text-red-500" : "text-blue-500"
+            }`}
           />
         )}
 
-        <Text className="font-bold text-sm flex-grow text-center">
-          {activity.name}
+        <Text className="font-bold text-sm w-full text-center">
+          {bundle ? bundle.programAreaId : activity.name}
         </Text>
 
         {bundle && (
@@ -57,14 +57,22 @@ export default function ActivityCard({
             size="xs"
             color={ageGroupColor[bundle.ageGroup]}
             variant="filled"
+            className="absolute right-0 top-1/2 -translate-y-1/2"
           >
             {bundle.ageGroup}
           </Badge>
         )}
-      </Flex>
+      </div>
 
       {/* Divider */}
       <div className="h-px bg-gray-200 my-1.5" />
+
+      {/* Below the divider: activity title (bundle only — jamboree shows it above) */}
+      {bundle && (
+        <Text className="font-semibold text-sm text-center">
+          {activity.name}
+        </Text>
+      )}
 
       {/* Description */}
       <Text className="text-xs text-gray-600 text-center">
