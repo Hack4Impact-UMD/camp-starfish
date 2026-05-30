@@ -75,7 +75,6 @@ function parseCamperRecords(records: CamperCSVRecord[]): ParseFamilyCSVResponse 
       }
     }
 
-
     if (record["F1P2 First Name"]) {
       parents.push({
         id: parseInt(record["F1P2 Person ID"]),
