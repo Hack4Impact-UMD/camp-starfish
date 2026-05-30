@@ -2,6 +2,7 @@ import { Camper, Parent } from "@/types/users/userTypes";
 import { parse } from "csv-parse/sync";
 import { createCamper, getCamperById, updateCamper } from "../firestore/campers";
 import { createParent, getParentById, updateParent } from "../firestore/parents";
+import { parseAppSegmentConfig } from "next/dist/build/segment-config/app/app-segment-config";
 
 type CamperCSVRecord = {
   "First Name": string;
@@ -18,8 +19,8 @@ type CamperCSVRecord = {
 };
 
 interface ParseFamilyCSVResponse {
-  campers: Pick<Camper, "id" | "name" | "parentIds">[];
-  parents: Pick<Parent, "id" | "name" | "email" | "camperIds">[];
+  campers: { [camperId: number]: Pick<Camper, "id" | "name" | "parentIds">; };
+  parents: { [parentId: number]: Pick<Parent, "id" | "name" | "email" | "camperIds">; };
 }
 
 function parseCamperRecords(records: CamperCSVRecord[]): ParseFamilyCSVResponse {
@@ -27,26 +28,53 @@ function parseCamperRecords(records: CamperCSVRecord[]): ParseFamilyCSVResponse 
   const parents: ParseFamilyCSVResponse["parents"] = [];
 
   records.forEach((record) => {
-    campers.push({
+    const camperId: number = parseInt(record.PersonID);
+    const parent1Id: number = parseInt(record["F1P1 Person ID"]);
+    const parent2Id: number = parseInt(record["F1P2 Person ID"]);
+
+    if (Number.isNaN(camperId) || Number.isNaN(parent1Id)) return;
+
+    campers[camperId] = {
       id: parseInt(record.PersonID),
       name: {
         firstName: record["First Name"],
         lastName: record["Last Name"],
       },
-      parentIds: record["F1P2 First Name"]
-        ? [parseInt(record["F1P1 Person ID"]), parseInt(record["F1P2 Person ID"])]
-        : [parseInt(record["F1P1 Person ID"])],
-    });
+      parentIds: Number.isNaN(parent2Id)
+        ? [parent1Id]
+        : [parent1Id, parent2Id],
+    };
 
-    parents.push({
-      id: parseInt(record["F1P1 Person ID"]),
-      name: {
-        firstName: record["F1P1 First Name"],
-        lastName: record["F1P1 Last Name"]
-      },
-      email: record["F1P1 Login/Email"],
-      camperIds: [parseInt(record.PersonID)],
-    })
+    if (parents[parent1Id]) {
+      parents[parent1Id].camperIds.push(camperId);
+    } else {
+      parents[parent1Id] = {
+        id: parseInt(record["F1P1 Person ID"]),
+        name: {
+          firstName: record["F1P1 First Name"],
+          lastName: record["F1P1 Last Name"]
+        },
+        email: record["F1P1 Login/Email"],
+        camperIds: [camperId],
+      }
+    }
+
+    if (!Number.isNaN(parent2Id)) {
+      if (parents[parent2Id]) {
+        parents[parent2Id].camperIds.push(camperId);
+      } else {
+        parents[parent2Id] = {
+          id: parseInt(record["F1P2 Person ID"]),
+          name: {
+            firstName: record["F1P2 First Name"],
+            lastName: record["F1P2 Last Name"]
+          },
+          email: record["F1P2 Login/Email"],
+          camperIds: [camperId],
+        }
+      }
+    }
+
 
     if (record["F1P2 First Name"]) {
       parents.push({
