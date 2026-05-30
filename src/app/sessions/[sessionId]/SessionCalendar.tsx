@@ -61,7 +61,6 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
     color: sectionTypeToEventColor[section.type],
     variant: 'filled'
   }));
-  console.log(events)
 
   const handlePointerDown = (date: Moment) => {
     setFirstSelectedDate(date);
