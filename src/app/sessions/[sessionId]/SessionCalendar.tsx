@@ -6,6 +6,7 @@ import { SchedulingSection, Session } from "@/types/sessions/sessionTypes";
 import moment from "moment";
 import classNames from "classnames";
 import { modals } from "@mantine/modals";
+import { SectionsSubcollection } from "@/data/firestore/types/collections";
 import EditSectionModal from "@/components/EditSectionModal";
 import useSections from "@/hooks/sections/useSectionsBySessionId";
 import { isSchedulingSection } from "@/types/sessions/sessionTypeGuards";
@@ -47,28 +48,95 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
         : firstSelectedDate;
 
       // Single-day click on an existing scheduling section opens activities modal.
+      // Guard: only proceed if sections data is loaded
       if (
         rangeStart.isSame(rangeEnd, "day") &&
         sectionsQuery.data &&
         !sectionsQuery.isPending
       ) {
-        const selectedSection = sectionsQuery.data.find(
+        const validSchedulingSections = sectionsQuery.data.filter(
           (section): section is SchedulingSection =>
             isSchedulingSection(section) &&
-            rangeStart.isBetween(section.startDate, section.endDate, "day", "[]"),
+            typeof section.id === "string" &&
+            section.id.trim() !== "",
+        );
+
+        const invalidSchedulingSections = sectionsQuery.data.filter(
+          (section) =>
+            isSchedulingSection(section) &&
+            (!section.id || typeof section.id !== "string" || section.id.trim() === ""),
+        );
+
+        if (invalidSchedulingSections.length > 0) {
+          console.warn("Skipping invalid scheduling sections:", invalidSchedulingSections);
+        }
+
+        const selectedSection = validSchedulingSections.find((section) =>
+          rangeStart.isBetween(section.startDate, section.endDate, "day", "[]"),
         );
 
         if (selectedSection) {
-          const schedule = await getSectionSchedule(session.id, selectedSection.id);
-          openEditActivitiesModal({
-            section: selectedSection,
-            sections: sectionsQuery.data,
-            initialSchedule: schedule,
-          });
-          setFirstSelectedDate(null);
-          setSecondSelectedDate(null);
-          return;
+          try {
+            // Defensive check: ensure section id is a real section id, not empty or the literal "schedule"
+            if (
+              !selectedSection.id ||
+              selectedSection.id.trim() === "" ||
+              selectedSection.id === SectionsSubcollection.SCHEDULE
+            ) {
+              console.error("Invalid selectedSection id:", selectedSection);
+              throw new Error(`Invalid section id: ${selectedSection.id}`);
+            }
+            const schedule = await getSectionSchedule(session.id, selectedSection.id);
+            openEditActivitiesModal({
+              section: selectedSection,
+              sections: sectionsQuery.data,
+              sessionId: session.id,
+              initialSchedule: schedule,
+            });
+            setFirstSelectedDate(null);
+            setSecondSelectedDate(null);
+            return;
+          } catch (error) {
+            console.error("Failed to load section schedule:", error);
+            const isMissingSchedule =
+              error instanceof Error &&
+              error.message.includes("Document not found");
+
+            if (isMissingSchedule) {
+              openEditActivitiesModal({
+                section: selectedSection,
+                sections: sectionsQuery.data,
+                sessionId: session.id,
+              });
+              setFirstSelectedDate(null);
+              setSecondSelectedDate(null);
+              return;
+            }
+
+            modals.open({
+              title: "Error",
+              children: (
+                <Text>Failed to load section activities. Please try again.</Text>
+              ),
+            });
+            setFirstSelectedDate(null);
+            setSecondSelectedDate(null);
+            return;
+          }
         }
+      }
+
+      // Only open create section modal if sections have finished loading
+      if (sectionsQuery.isPending) {
+        modals.open({
+          title: "Loading",
+          children: (
+            <Text>Please wait while sections are loading...</Text>
+          ),
+        });
+        setFirstSelectedDate(null);
+        setSecondSelectedDate(null);
+        return;
       }
 
       modals.open({

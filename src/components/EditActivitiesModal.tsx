@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { Text, Title, ActionIcon, Flex } from "@mantine/core";
-import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
+import { Text, Title, ActionIcon, Flex, Alert, Button } from "@mantine/core";
+import { IconChevronLeft, IconChevronRight, IconAlertCircle } from "@tabler/icons-react";
 import { modals } from "@mantine/modals";
 import moment from "moment";
 
@@ -18,10 +18,12 @@ import { isSchedulingSection } from "@/types/sessions/sessionTypeGuards";
 import BlockGrid from "./BlockGrid";
 import CreateActivityModal from "./CreateActivityModal";
 import { TagData } from "./ActivityTagManagementModal";
+import { getSectionSchedule, updateSectionSchedule } from "@/data/firestore/sectionSchedules";
 
 interface EditActivitiesModalProps {
   section: Section;
   sections: Section[];
+  sessionId: string;
   initialSchedule?: SectionSchedule;
 }
 
@@ -51,63 +53,12 @@ type BlockWithId = {
   periodsOff: number[];
 };
 
-const initialBlocks: BlockWithId[] = [
-  {
-    id: "a", label: "Block A",
-    activities: [
-      { id: "1", name: "ACTIVATE!", description: "Jump for Joy!", ageGroup: "OCP", programAreaId: "ACTIVATE!", camperIds: [], staffIds: [], adminIds: [] },
-      { id: "2", name: "Arts & Crafts", description: "Paper Dolls", ageGroup: "NAV", programAreaId: "Arts & Crafts", camperIds: [], staffIds: [], adminIds: [] },
-      { id: "3", name: "Athletics", description: "Quidditch", ageGroup: "OCP", programAreaId: "Athletics", camperIds: [], staffIds: [], adminIds: [] },
-      { id: "4", name: "Athletics", description: "Quidditch", ageGroup: "OCP", programAreaId: "Athletics", camperIds: [], staffIds: [], adminIds: [] },
-      { id: "5", name: "Discovery", description: "Bird Houses", ageGroup: "NAV", programAreaId: "Discovery", camperIds: [], staffIds: [], adminIds: [] },
-    ],
-    periodsOff: [],
-  },
-  {
-    id: "b", label: "Block B",
-    activities: [
-      { id: "1", name: "ACTIVATE!", description: "Jump for Joy!", ageGroup: "OCP", programAreaId: "ACTIVATE!", camperIds: [], staffIds: [], adminIds: [] },
-      { id: "2", name: "Arts & Crafts", description: "Paper Dolls", ageGroup: "NAV", programAreaId: "Arts & Crafts", camperIds: [], staffIds: [], adminIds: [] },
-      { id: "3", name: "Athletics", description: "Quidditch", ageGroup: "OCP", programAreaId: "Athletics", camperIds: [], staffIds: [], adminIds: [] },
-      { id: "4", name: "Athletics", description: "Quidditch", ageGroup: "OCP", programAreaId: "Athletics", camperIds: [], staffIds: [], adminIds: [] },
-      { id: "5", name: "Discovery", description: "Bird Houses", ageGroup: "NAV", programAreaId: "Discovery", camperIds: [], staffIds: [], adminIds: [] },
-    ],
-    periodsOff: [],
-  },
-  {
-    id: "c", label: "Block C",
-    activities: [
-      { id: "1", name: "ACTIVATE!", description: "Jump for Joy!", ageGroup: "OCP", programAreaId: "ACTIVATE!", camperIds: [], staffIds: [], adminIds: [] },
-      { id: "2", name: "Arts & Crafts", description: "Paper Dolls", ageGroup: "NAV", programAreaId: "Arts & Crafts", camperIds: [], staffIds: [], adminIds: [] },
-      { id: "3", name: "Athletics", description: "Quidditch", ageGroup: "OCP", programAreaId: "Athletics", camperIds: [], staffIds: [], adminIds: [] },
-      { id: "4", name: "Athletics", description: "Quidditch", ageGroup: "OCP", programAreaId: "Athletics", camperIds: [], staffIds: [], adminIds: [] },
-      { id: "5", name: "Discovery", description: "Bird Houses", ageGroup: "NAV", programAreaId: "Discovery", camperIds: [], staffIds: [], adminIds: [] },
-    ],
-    periodsOff: [],
-  },
-  {
-    id: "d", label: "Block D",
-    activities: [
-      { id: "1", name: "ACTIVATE!", description: "Jump for Joy!", ageGroup: "OCP", programAreaId: "ACTIVATE!", camperIds: [], staffIds: [], adminIds: [] },
-      { id: "2", name: "Arts & Crafts", description: "Paper Dolls", ageGroup: "NAV", programAreaId: "Arts & Crafts", camperIds: [], staffIds: [], adminIds: [] },
-      { id: "3", name: "Athletics", description: "Quidditch", ageGroup: "OCP", programAreaId: "Athletics", camperIds: [], staffIds: [], adminIds: [] },
-      { id: "4", name: "Athletics", description: "Quidditch", ageGroup: "OCP", programAreaId: "Athletics", camperIds: [], staffIds: [], adminIds: [] },
-      { id: "5", name: "Discovery", description: "Bird Houses", ageGroup: "NAV", programAreaId: "Discovery", camperIds: [], staffIds: [], adminIds: [] },
-    ],
-    periodsOff: [],
-  },
-  {
-    id: "e", label: "Block E",
-    activities: [
-      { id: "1", name: "ACTIVATE!", description: "Jump for Joy!", ageGroup: "OCP", programAreaId: "ACTIVATE!", camperIds: [], staffIds: [], adminIds: [] },
-      { id: "2", name: "Arts & Crafts", description: "Paper Dolls", ageGroup: "NAV", programAreaId: "Arts & Crafts", camperIds: [], staffIds: [], adminIds: [] },
-      { id: "3", name: "Athletics", description: "Quidditch", ageGroup: "OCP", programAreaId: "Athletics", camperIds: [], staffIds: [], adminIds: [] },
-      { id: "4", name: "Athletics", description: "Quidditch", ageGroup: "NAV", programAreaId: "Athletics", camperIds: [], staffIds: [], adminIds: [] },
-      { id: "5", name: "Discovery", description: "Bird Houses", ageGroup: "NAV", programAreaId: "Discovery", camperIds: [], staffIds: [], adminIds: [] },
-    ],
-    periodsOff: [],
-  },
-];
+const initialBlocks: BlockWithId[] = ["a", "b", "c", "d", "e"].map((id) => ({
+  id,
+  label: `Block ${id.toUpperCase()}`,
+  activities: [],
+  periodsOff: [],
+}));
 
 function mapScheduleToBlocks(schedule: SectionSchedule): BlockWithId[] {
   return Object.entries(schedule.blocks)
@@ -129,6 +80,7 @@ interface ModalState {
 export default function EditActivitiesModal({
   section: initialSection,
   sections,
+  sessionId,
   initialSchedule,
 }: EditActivitiesModalProps) {
   const schedulingSections = sections.filter(isSchedulingSection);
@@ -139,28 +91,120 @@ export default function EditActivitiesModal({
   );
   const [modalState, setModalState] = useState<ModalState>({ opened: false, blockId: null });
   const [tagData, setTagData] = useState<TagData>(initialTagData);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [saveInProgress, setSaveInProgress] = useState(false);
+
+  // Track schedules and changes per section; seed with initialSchedule to avoid redundant fetch
+  const schedulesRef = useRef<Map<string, BlockWithId[]>>(
+    initialSchedule
+      ? new Map([[initialSection.id, mapScheduleToBlocks(initialSchedule)]])
+      : new Map(),
+  );
+  const sessionIdRef = useRef(sessionId);
 
   const section: SchedulingSection | undefined =
     schedulingSections[currentIndex] ??
     (initialSection.type !== "COMMON" ? initialSection : undefined);
 
+  const persistSectionBlocks = useCallback(async (blockItems: BlockWithId[]): Promise<boolean> => {
+    if (!section || !sessionIdRef.current) return false;
+
+    setSaveInProgress(true);
+    setError(null);
+
+    try {
+      const blockData: Record<string, any> = {};
+      blockItems.forEach(block => {
+        blockData[block.id] = {
+          activities: block.activities,
+          periodsOff: block.periodsOff,
+        };
+      });
+
+      await updateSectionSchedule(
+        sessionIdRef.current,
+        section.id,
+        {
+          type: section.type,
+          alternatePeriodsOff: {},
+          blocks: blockData,
+        },
+      );
+
+      // Keep cache in sync so back-navigation shows the saved state
+      schedulesRef.current.set(section.id, blockItems);
+
+      return true;
+    } catch (err) {
+      console.error("Failed to save section schedule:", err);
+      setError("Failed to save changes. Please try again.");
+      return false;
+    } finally {
+      setSaveInProgress(false);
+    }
+  }, [section]);
+
+  // Save current section's blocks before navigating away
+  const saveCurrentSection = useCallback(async (): Promise<boolean> => {
+    return persistSectionBlocks(blocks);
+  }, [blocks, persistSectionBlocks]);
+
+  // Load schedule when navigating to a new section
   useEffect(() => {
     if (!section) return;
-    if (initialSchedule && section.id === initialSection.id) {
-      setBlocks(mapScheduleToBlocks(initialSchedule));
-      return;
-    }
-    setBlocks(initialBlocks);
-  }, [section?.id, initialSection.id, initialSchedule]);
+
+    const loadSectionSchedule = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        // Check if we've already cached this section
+        const cached = schedulesRef.current.get(section.id);
+        if (cached) {
+          setBlocks(cached);
+          return;
+        }
+
+        // Fetch the schedule for this section
+        const schedule = await getSectionSchedule(sessionId, section.id);
+        const blockData = mapScheduleToBlocks(schedule);
+        
+        schedulesRef.current.set(section.id, blockData);
+        setBlocks(blockData);
+      } catch (err) {
+        console.error("Failed to load section schedule:", err);
+
+        if (err instanceof Error && err.message.includes("Document not found")) {
+          setBlocks(initialBlocks);
+          return;
+        }
+
+        setError("Failed to load section activities. Using default layout.");
+        setBlocks(initialBlocks);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadSectionSchedule();
+  // section?.id is intentional: we only re-fetch when the section changes, not on every render.
+  // sessionId never changes while the modal is open but is included for correctness.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [section?.id, sessionId]);
 
   if (!section) return null;
 
-  const goToPrev = () => {
-    if (currentIndex > 0) setCurrentIndex(currentIndex - 1);
+  const goToPrev = async () => {
+    if (currentIndex <= 0) return;
+    await saveCurrentSection();
+    setCurrentIndex(currentIndex - 1);
   };
 
-  const goToNext = () => {
-    if (currentIndex < schedulingSections.length - 1) setCurrentIndex(currentIndex + 1);
+  const goToNext = async () => {
+    if (currentIndex >= schedulingSections.length - 1) return;
+    await saveCurrentSection();
+    setCurrentIndex(currentIndex + 1);
   };
 
   const handleAddActivity = (blockId: string) => {
@@ -175,7 +219,7 @@ export default function EditActivitiesModal({
     setModalState({ opened: false, blockId: null, existingActivity: undefined,});
   };
 
-  const handleActivitySubmit = (activity: BundleActivity | JamboreeActivity) => {
+  const handleActivitySubmit = async (activity: BundleActivity | JamboreeActivity) => {
     const { blockId, existingActivity } = modalState;
     if (!blockId) return;
 
@@ -201,75 +245,101 @@ export default function EditActivitiesModal({
               adminIds: [],
             };
 
-    setBlocks((prev) =>
-      prev.map((block) => {
-        if (block.id !== blockId) return block;
+    const nextBlocks = blocks.map((block) => {
+      if (block.id !== blockId) return block;
 
-        if (existingActivity) {
-          // Edit: replace the existing activity
-          let hasReplaced = false;
-          return {
-            ...block,
-            activities: block.activities.map((a) => {
-              if (!hasReplaced && a === existingActivity) {
-                hasReplaced = true;
-                return newBlockActivity;
-              }
-              if (!hasReplaced && a.id === existingActivity.id) {
-                hasReplaced = true;
-                return newBlockActivity;
-              }
-              return a;
-            }),
-          };
-        } else {
-          // Create: append to the end of the block
-          return {
-            ...block,
-            activities: [...block.activities, newBlockActivity],
-          };
-        }
-      }),
-    );
+      if (existingActivity) {
+        // Edit: replace the existing activity
+        let hasReplaced = false;
+        return {
+          ...block,
+          activities: block.activities.map((a) => {
+            if (!hasReplaced && a === existingActivity) {
+              hasReplaced = true;
+              return newBlockActivity;
+            }
+            if (!hasReplaced && a.id === existingActivity.id) {
+              hasReplaced = true;
+              return newBlockActivity;
+            }
+            return a;
+          }),
+        };
+      }
+
+      // Create: append to the end of the block
+      return {
+        ...block,
+        activities: [...block.activities, newBlockActivity],
+      };
+    });
+
+    setBlocks(nextBlocks);
+    await persistSectionBlocks(nextBlocks);
   };
 
-  const handleActivityDelete = (activityId: string) => {
+  const handleActivityDelete = async (activityId: string) => {
     const { blockId } = modalState;
     if (!blockId) return;
 
-    setBlocks((prev) =>
-      prev.map((block) => {
-        if (block.id !== blockId) return block;
-        return {
-          ...block,
-          activities: block.activities.filter((a) => a.id !== activityId),
-        };
-      }),
-    );
+    const nextBlocks = blocks.map((block) => {
+      if (block.id !== blockId) return block;
+      return {
+        ...block,
+        activities: block.activities.filter((a) => a.id !== activityId),
+      };
+    });
+
+    setBlocks(nextBlocks);
+    await persistSectionBlocks(nextBlocks);
   };
 
   return (
     <div className="p-8">
+      {/* Error Alert */}
+      {error && (
+        <Alert icon={<IconAlertCircle size={16} />} color="red" title="Error" mb="md">
+          {error}
+        </Alert>
+      )}
+
+      {/* Loading State */}
+      {loading && (
+        <Alert color="blue" title="Loading..." mb="md">
+          Loading section activities...
+        </Alert>
+      )}
+
       {/* Header */}
       <Flex justify="center" align="center" gap="md" className="mb-1">
         <ActionIcon
           variant="transparent"
           color="dark"
           size="xl"
+          aria-label="Previous section"
           onClick={goToPrev}
-          disabled={currentIndex === 0}
+          disabled={currentIndex === 0 || loading || saveInProgress}
         >
           <IconChevronLeft size={32} />
         </ActionIcon>
         <Title order={1} className="font-bold text-3xl">
           {section.name} Activities
         </Title>
+        <Button
+          variant="outline"
+          onClick={saveCurrentSection}
+          loading={saveInProgress}
+          disabled={loading || saveInProgress}
+        >
+          Save
+        </Button>
         <ActionIcon
           variant="transparent"
           color="dark"
           size="xl"
+          aria-label="Next section"
           onClick={goToNext}
-          disabled={currentIndex === schedulingSections.length - 1}
+          disabled={currentIndex === schedulingSections.length - 1 || loading || saveInProgress}
         >
           <IconChevronRight size={32} />
         </ActionIcon>

@@ -37,15 +37,17 @@ export default function BlockGrid({ blocks, onAddActivity, onEditActivity }: Blo
                     {/* Add button with lines */} 
                     <Flex align="center" className="py-3 px-3"> 
                         <div className="flex-grow h-px bg-gray-300" /> 
-                        <ActionIcon 
-                            variant="outline" 
-                            color="gray" 
-                            radius="xl" 
-                            size="md" 
-                            className="mx-2" onClick={() => onAddActivity(block.id)} 
-                        > 
-                            <IconPlus size={16} /> 
-                        </ActionIcon> 
+                            <ActionIcon 
+                                variant="outline" 
+                                color="gray" 
+                                radius="xl" 
+                                size="md" 
+                                className="mx-2"
+                                onClick={() => onAddActivity(block.id)}
+                                aria-label={`Add activity to ${block.label}`}
+                            > 
+                                <IconPlus size={16} />
+                            </ActionIcon>
                         <div className="flex-grow h-px bg-gray-300" /> 
                     </Flex>
                     {/* Activity cards */} 
