@@ -27,7 +27,7 @@ async function parseCamperRecords(records: CamperCSVRecord[]): Promise<ParseFami
   let campers: ParseFamilyCSVResponse["campers"] = [];
   let parents: ParseFamilyCSVResponse["parents"] = [];
 
-  records.forEach((record) => {    
+  records.forEach((record) => {
     campers.push({
       id: parseInt(record.PersonID),
       name: {
@@ -40,30 +40,27 @@ async function parseCamperRecords(records: CamperCSVRecord[]): Promise<ParseFami
     });
 
     parents.push({
-        id: parseInt(record["F1P1 Person ID"]),
-        name: {
-            firstName: record["F1P1 First Name"],
-            lastName: record["F1P1 Last Name"]
-        },
-        email: record["F1P1 Login/Email"],
-        camperIds: [parseInt(record.PersonID)],
+      id: parseInt(record["F1P1 Person ID"]),
+      name: {
+        firstName: record["F1P1 First Name"],
+        lastName: record["F1P1 Last Name"]
+      },
+      email: record["F1P1 Login/Email"],
+      camperIds: [parseInt(record.PersonID)],
     })
 
-    if(record["F1P2 First Name"]) {
-        parents.push({
-            id: parseInt(record["F1P2 Person ID"]),
-            name: {
-                firstName: record["F1P2 First Name"],
-                lastName: record["F1P2 Last Name"]
-            },            email: record["F1P2 Login/Email"],
-            camperIds: [parseInt(record.PersonID)],
-        })
+    if (record["F1P2 First Name"]) {
+      parents.push({
+        id: parseInt(record["F1P2 Person ID"]),
+        name: {
+          firstName: record["F1P2 First Name"],
+          lastName: record["F1P2 Last Name"]
+        }, email: record["F1P2 Login/Email"],
+        camperIds: [parseInt(record.PersonID)],
+      })
     }
-
-    
-
-  })
-  return [campers, parents];
+  });
+  return { campers, parents };
 }
 
 export async function parseCampersCSV(file: File) {
@@ -75,14 +72,14 @@ export async function parseCampersCSV(file: File) {
 
   let [campers, parents] = await parseCamperRecords(records);
 
-  let campersPromises = 
-  await Promise.all(campers.map(async (camper) => {
-    try {
-      await updateCamper(camper.campminderId, camper)
-    } catch (e: any) {
-      await createCamper(camper);
-    }
-  }))
+  let campersPromises =
+    await Promise.all(campers.map(async (camper) => {
+      try {
+        await updateCamper(camper.campminderId, camper)
+      } catch (e: any) {
+        await createCamper(camper);
+      }
+    }))
 
   await Promise.all(parents.map(async (parent) => {
     try {
@@ -93,5 +90,5 @@ export async function parseCampersCSV(file: File) {
   }))
 
   console.log(parents, campers)
-  
+
 }
