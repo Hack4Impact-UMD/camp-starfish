@@ -22,10 +22,9 @@ interface ParseFamilyCSVResponse {
   parents: Pick<Parent, "id" | "name" | "email" | "camperIds">[];
 }
 
-async function parseCamperRecords(records: CamperCSVRecord[]): Promise<ParseFamilyCSVResponse> {
-
-  let campers: ParseFamilyCSVResponse["campers"] = [];
-  let parents: ParseFamilyCSVResponse["parents"] = [];
+function parseCamperRecords(records: CamperCSVRecord[]): ParseFamilyCSVResponse {
+  const campers: ParseFamilyCSVResponse["campers"] = [];
+  const parents: ParseFamilyCSVResponse["parents"] = [];
 
   records.forEach((record) => {
     campers.push({
@@ -70,7 +69,7 @@ export async function parseCampersCSV(file: File) {
     columns: true,
   }) as CamperCSVRecord[];
 
-  let [campers, parents] = await parseCamperRecords(records);
+  const { campers, parents } = parseCamperRecords(records);
 
   let campersPromises =
     await Promise.all(campers.map(async (camper) => {
