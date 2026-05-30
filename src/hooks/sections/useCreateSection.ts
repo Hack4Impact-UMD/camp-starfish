@@ -16,8 +16,8 @@ async function createSection(req: CreateSectionRequest) {
   const { sessionId, ...rest } = req;
   await createSectionDoc(sessionId, {
     name: rest.name,
-    startDate: Timestamp.fromDate(rest.startDate.toDate()),
-    endDate: Timestamp.fromDate(rest.endDate.toDate()),
+    startDate: Timestamp.fromDate(rest.startDate.clone().startOf('day').toDate()),
+    endDate: Timestamp.fromDate(rest.endDate.clone().endOf('day').toDate()),
     type: rest.type,
     publishedAt: null
   })

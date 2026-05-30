@@ -19,8 +19,8 @@ async function updateSection(req: UpdateSectionRequest) {
     case "COMMON":
       await updateSectionDoc(sessionId, sectionId, {
         name: updates.name,
-        startDate: updates.startDate ? Timestamp.fromDate(updates.startDate.toDate()) : undefined,
-        endDate: updates.endDate ? Timestamp.fromDate(updates.endDate.toDate()) : undefined,
+        startDate: updates.startDate ? Timestamp.fromDate(updates.startDate.clone().startOf('day').toDate()) : undefined,
+        endDate: updates.endDate ? Timestamp.fromDate(updates.endDate.clone().endOf('day').toDate()) : undefined,
         type: "COMMON",
         publishedAt: deleteField()
       });
@@ -30,8 +30,8 @@ async function updateSection(req: UpdateSectionRequest) {
     case "NON-BUNK-JAMBO":
       await updateSectionDoc(sessionId, sectionId, {
         name: updates.name,
-        startDate: updates.startDate ? Timestamp.fromDate(updates.startDate.toDate()) : undefined,
-        endDate: updates.endDate ? Timestamp.fromDate(updates.endDate.toDate()) : undefined,
+        startDate: updates.startDate ? Timestamp.fromDate(updates.startDate.clone().startOf('day').toDate()) : undefined,
+        endDate: updates.endDate ? Timestamp.fromDate(updates.endDate.clone().endOf('day').toDate()) : undefined,
         type: updates.type,
         publishedAt: null
       });
@@ -39,8 +39,8 @@ async function updateSection(req: UpdateSectionRequest) {
     default:
       await updateSectionDoc(sessionId, sectionId, {
         name: updates.name,
-        startDate: updates.startDate ? Timestamp.fromDate(updates.startDate.toDate()) : undefined,
-        endDate: updates.endDate ? Timestamp.fromDate(updates.endDate.toDate()) : undefined,
+        startDate: updates.startDate ? Timestamp.fromDate(updates.startDate.clone().startOf('day').toDate()) : undefined,
+        endDate: updates.endDate ? Timestamp.fromDate(updates.endDate.clone().endOf('day').toDate()) : undefined,
       });
   }
 

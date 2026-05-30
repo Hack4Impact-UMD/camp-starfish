@@ -2,25 +2,63 @@ import { Moment } from "moment";
 import { useMemo, useState } from "react";
 import { ActionIcon, Text, Title, Tooltip } from "@mantine/core";
 import { modals } from "@mantine/modals";
-import { SchedulingSection, Session } from "@/types/sessions/sessionTypes";
+import {
+  Section,
+  SchedulingSection,
+  SectionType,
+  Session,
+} from "@/types/sessions/sessionTypes";
 import moment from "moment";
 import classNames from "classnames";
 import openEditSectionModal from "@/components/EditSectionModal";
-import { MonthView, ScheduleHeader } from "@mantine/schedule";
+import { MonthView, ScheduleHeader, ScheduleSingleEventData } from "@mantine/schedule";
 import { MdChevronLeft, MdChevronRight } from "react-icons/md";
 import { momentRangesOverlap } from "@/utils/timeUtils";
-import useListSections from "@/hooks/sections/useListSections";
+import useSectionList from "@/hooks/sections/useSectionList";
+import LoadingAnimation from "@/components/LoadingAnimation";
+import { useRouter } from "next/navigation";
+import useSession from "@/hooks/sessions/useSession";
+import ErrorPage from "@/app/error";
 import { isSchedulingSection } from "@/types/sessions/sessionTypeGuards";
 import { getSectionSchedule } from "@/data/firestore/sectionSchedules";
 import { openEditActivitiesModal } from "@/components/EditActivitiesModal";
 import { SectionsSubcollection } from "@/data/firestore/types/collections";
 
 interface SessionCalendarProps {
-  session: Session;
+  sessionId: string;
 }
 
-export default function SessionCalendar({ session }: SessionCalendarProps) {
-  const sectionsQuery = useListSections(session.id);
+export default function SessionCalendar(props: SessionCalendarProps) {
+  const { sessionId } = props;
+  const sessionQuery = useSession(sessionId);
+  const sectionsQuery = useSectionList(sessionId, { orderBy: [{ fieldPath: "startDate", direction: "asc" }] });
+
+  if (sessionQuery.isPending || sectionsQuery.isPending) {
+    return <LoadingAnimation />;
+  } else if (sessionQuery.isError) {
+    return <ErrorPage error={sessionQuery.error} />;
+  } else if (sectionsQuery.isError) {
+    return <ErrorPage error={sectionsQuery.error} />;
+  } else {
+    return <SessionCalendarContent session={sessionQuery.data} sections={sectionsQuery.data} />;
+  }
+}
+
+const sectionTypeToEventColor: Record<SectionType, ScheduleSingleEventData['color']> = {
+  "COMMON": "blue",
+  "BUNDLE": "orange",
+  "BUNK-JAMBO": "green",
+  "NON-BUNK-JAMBO": "aqua"
+}
+
+interface SessionCalendarContentProps {
+  session: Session;
+  sections: Section[];
+}
+
+function SessionCalendarContent(props: SessionCalendarContentProps) {
+  const { session, sections } = props;
+
   const [selectedMonth, setSelectedMonth] = useState<Moment>(
     moment(session.startDate).startOf("month"),
   );
@@ -42,6 +80,18 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
       startDate === firstSelectedDate ? secondSelectedDate : firstSelectedDate;
     return [startDate.clone().startOf("day"), endDate.clone().endOf("day")];
   }, [firstSelectedDate, secondSelectedDate]);
+
+  const router = useRouter();
+
+  const events: ScheduleSingleEventData[] = sections.map(section => ({
+    id: section.id,
+    title: section.name,
+    start: section.startDate.toDate(),
+    end: section.endDate.toDate(),
+    payload: section,
+    color: sectionTypeToEventColor[section.type],
+    variant: 'filled',
+  }));
 
   const handlePointerDown = (date: Moment) => {
     setFirstSelectedDate(date);
@@ -67,17 +117,7 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
   // Single-day click: if the day falls within an existing scheduling section,
   // open that section's activities editor; otherwise start creating a section.
   const handleDayClick = async (date: Moment) => {
-    // Wait for sections to load before deciding which flow to open, so we never
-    // open "Create Section" on top of a section that simply hasn't loaded yet.
-    if (sectionsQuery.isPending || !sectionsQuery.data) {
-      modals.open({
-        title: "Loading",
-        children: <Text>Please wait while sections are loading...</Text>,
-      });
-      return;
-    }
-
-    const selectedSection = sectionsQuery.data.find(
+    const selectedSection = sections.find(
       (section): section is SchedulingSection =>
         isSchedulingSection(section) &&
         typeof section.id === "string" &&
@@ -89,7 +129,7 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
     if (!selectedSection) {
       openCreateSectionModal(
         date.clone().startOf("day"),
-        date.clone().startOf("day"),
+        date.clone().endOf("day"),
       );
       return;
     }
@@ -98,7 +138,7 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
       const schedule = await getSectionSchedule(session.id, selectedSection.id);
       openEditActivitiesModal({
         section: selectedSection,
-        sections: sectionsQuery.data,
+        sections,
         sessionId: session.id,
         initialSchedule: schedule,
       });
@@ -111,7 +151,7 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
       if (isMissingSchedule) {
         openEditActivitiesModal({
           section: selectedSection,
-          sections: sectionsQuery.data,
+          sections,
           sessionId: session.id,
         });
         return;
@@ -159,6 +199,7 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
       </ScheduleHeader>
       <MonthView
         date={selectedMonth.toDate()}
+        events={events}
         classNames={{
           monthViewInner: "rounded-none",
           monthViewWeek: "rounded-none",
@@ -213,9 +254,19 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
         onSlotDragEnd={(rangeStart, rangeEnd) =>
           openCreateSectionModal(
             moment(rangeStart).startOf("day"),
-            moment(rangeEnd).startOf("day"),
+            moment(rangeEnd).endOf("day"),
           )
         }
+        onEventClick={(event) => {
+          if ((event.payload as Section).type !== "COMMON") {
+            router.push(`/sessions/${session.id}/${event.id}`)
+          }
+        }}
+        moreEventsProps={{
+          classNames: {
+            moreEventsDropdown: "rounded-sm"
+          }
+        }}
       />
     </div>
   );
