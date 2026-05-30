@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import { Text, ActionIcon, Flex } from "@mantine/core";
-import { IconPlus } from "@tabler/icons-react";
+import { MdAdd } from "react-icons/md";
 import { ActivityWithAssignments } from "@/types/scheduling/schedulingTypes";
 import ActivityCard from "./ActivityCard";
 
@@ -46,7 +46,7 @@ export default function BlockGrid({ blocks, onAddActivity, onEditActivity }: Blo
                                 onClick={() => onAddActivity(block.id)}
                                 aria-label={`Add activity to ${block.label}`}
                             > 
-                                <IconPlus size={16} />
+                                <MdAdd size={16} />
                             </ActionIcon>
                         <div className="flex-grow h-px bg-gray-300" /> 
                     </Flex>

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import { Text, Title, ActionIcon, Flex, Alert, Button } from "@mantine/core";
-import { IconChevronLeft, IconChevronRight, IconAlertCircle } from "@tabler/icons-react";
+import { MdChevronLeft, MdChevronRight, MdErrorOutline } from "react-icons/md";
 import { modals } from "@mantine/modals";
 import moment from "moment";
 
@@ -298,7 +298,7 @@ export default function EditActivitiesModal({
     <div className="p-8">
       {/* Error Alert */}
       {error && (
-        <Alert icon={<IconAlertCircle size={16} />} color="red" title="Error" mb="md">
+        <Alert icon={<MdErrorOutline size={16} />} color="red" title="Error" mb="md">
           {error}
         </Alert>
       )}
@@ -320,7 +320,7 @@ export default function EditActivitiesModal({
           onClick={goToPrev}
           disabled={currentIndex === 0 || loading || saveInProgress}
         >
-          <IconChevronLeft size={32} />
+          <MdChevronLeft size={32} />
         </ActionIcon>
         <Title order={1} className="font-bold text-3xl">
           {section.name} Activities
@@ -341,7 +341,7 @@ export default function EditActivitiesModal({
           onClick={goToNext}
           disabled={currentIndex === schedulingSections.length - 1 || loading || saveInProgress}
         >
-          <IconChevronRight size={32} />
+          <MdChevronRight size={32} />
         </ActionIcon>
       </Flex>
 

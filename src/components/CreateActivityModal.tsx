@@ -13,7 +13,7 @@ import {
   Divider,
   Modal,
 } from "@mantine/core";
-import { IconTrash } from "@tabler/icons-react";
+import { MdDeleteOutline } from "react-icons/md";
 import {
   BundleActivity,
   JamboreeActivity,
@@ -180,7 +180,7 @@ export default function CreateActivityModal({
                   size="lg"
                   onClick={handleDelete}
                 >
-                  <IconTrash size={18} />
+                  <MdDeleteOutline size={18} />
                 </ActionIcon>
               )}
             </Group>

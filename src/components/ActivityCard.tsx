@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import { Text, Badge, UnstyledButton, Flex } from "@mantine/core";
-import { IconCircleFilled } from "@tabler/icons-react";
+import { MdCircle } from "react-icons/md";
 import {
   ActivityWithAssignments,
   BundleActivityWithAssignments,
@@ -38,7 +38,7 @@ export default function ActivityCard({
       {/* Header row */}
       <Flex align="center" gap="xs">
         {bundle && (
-          <IconCircleFilled
+          <MdCircle
             size={10}
             className={
               bundle.ageGroup === "OCP"

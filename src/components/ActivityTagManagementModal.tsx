@@ -13,7 +13,7 @@ import {
   Divider,
   Group,
 } from "@mantine/core";
-import { IconSearch } from "@tabler/icons-react";
+import { MdSearch } from "react-icons/md";
 
 export interface TagData {
   categories: string[];
@@ -188,7 +188,7 @@ export default function ActivityTagManagementModal({
 
             <Box className="border border-solid border-blue-300 rounded-md p-3">
               <div className="flex flex-wrap gap-2 items-center">
-                <IconSearch size={16} className="text-gray-400" />
+                <MdSearch size={16} className="text-gray-400" />
                 {categories.map((category) => (
                   <Pill
                     key={category}
@@ -239,7 +239,7 @@ export default function ActivityTagManagementModal({
 
             <Box className="border border-solid border-blue-300 rounded-md p-3">
               <div className="flex flex-wrap gap-2 items-center">
-                <IconSearch size={16} className="text-gray-400" />
+                <MdSearch size={16} className="text-gray-400" />
                 {currentActivities.map((activity) => (
                   <Pill
                     key={activity}
