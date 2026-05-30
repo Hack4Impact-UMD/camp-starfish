@@ -74,17 +74,6 @@ function parseCamperRecords(records: CamperCSVRecord[]): ParseFamilyCSVResponse 
         }
       }
     }
-
-    if (record["F1P2 First Name"]) {
-      parents.push({
-        id: parseInt(record["F1P2 Person ID"]),
-        name: {
-          firstName: record["F1P2 First Name"],
-          lastName: record["F1P2 Last Name"]
-        }, email: record["F1P2 Login/Email"],
-        camperIds: [parseInt(record.PersonID)],
-      })
-    }
   });
   return { campers, parents };
 }
