@@ -177,6 +177,11 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
             moment(rangeEnd).endOf("day"),
           )
         }
+        moreEventsProps={{
+          classNames: {
+            moreEventsDropdown: "rounded-sm"
+          }
+        }}
       />
     </div>
   );
