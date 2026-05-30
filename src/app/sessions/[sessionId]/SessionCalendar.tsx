@@ -10,6 +10,7 @@ import { MdChevronLeft, MdChevronRight } from "react-icons/md";
 import { momentRangesOverlap } from "@/utils/timeUtils";
 import useSectionList from "@/hooks/sections/useSectionList";
 import LoadingAnimation from "@/components/LoadingAnimation";
+import { useRouter } from "next/navigation";
 
 const sectionTypeToEventColor: Record<SectionType, ScheduleSingleEventData['color']> = {
   "COMMON": "blue",
@@ -44,6 +45,8 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
       startDate === firstSelectedDate ? secondSelectedDate : firstSelectedDate;
     return [startDate.clone().startOf("day"), endDate.clone().endOf("day")];
   }, [firstSelectedDate, secondSelectedDate]);
+
+  const router = useRouter();
 
   const sectionsQuery = useSectionList(session.id, { orderBy: [{ fieldPath: "startDate", direction: "asc" }] });
 
@@ -177,6 +180,7 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
             moment(rangeEnd).endOf("day"),
           )
         }
+        onEventClick={(event) => router.push(`/sessions/${session.id}/${event.id}`)}
         moreEventsProps={{
           classNames: {
             moreEventsDropdown: "rounded-sm"
