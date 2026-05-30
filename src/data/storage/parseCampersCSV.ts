@@ -1,7 +1,7 @@
 import { Camper, Parent } from "@/types/users/userTypes";
 import { parse } from "csv-parse/sync";
 
-type FamilyCSVRecord = {
+interface BaseFamilyCSVRecord {
   "First Name": string;
   "Last Name": string;
   PersonID: string;
@@ -9,10 +9,13 @@ type FamilyCSVRecord = {
   "F1P1 Last Name": string;
   "F1P1 Person ID": string;
   "F1P1 Login/Email": string;
-  "F1P2 First Name"?: string;
-  "F1P2 Last Name"?: string;
-  "F1P2 Person ID"?: string;
-  "F1P2 Login/Email"?: string;
+}
+
+type FamilyCSVRecord = BaseFamilyCSVRecord | BaseFamilyCSVRecord & {
+  "F1P2 First Name": string;
+  "F1P2 Last Name": string;
+  "F1P2 Person ID": string;
+  "F1P2 Login/Email": string;
 };
 
 interface ParseFamilyCSVResponse {
@@ -27,7 +30,7 @@ function parseCamperRecords(records: FamilyCSVRecord[]): ParseFamilyCSVResponse 
   records.forEach((record) => {
     const camperId: number = parseInt(record.PersonID);
     const parent1Id: number = parseInt(record["F1P1 Person ID"]);
-    const parent2Id: number = parseInt(record["F1P2 Person ID"] || "");
+    const parent2Id: number = "F1P2 Person ID" in record ? parseInt(record["F1P2 Person ID"]) : NaN;
 
     if (Number.isNaN(camperId) || Number.isNaN(parent1Id)) return;
 
@@ -56,12 +59,12 @@ function parseCamperRecords(records: FamilyCSVRecord[]): ParseFamilyCSVResponse 
       }
     }
 
-    if (!Number.isNaN(parent2Id)) {
+    if ("F1P2 Person ID" in record && !Number.isNaN(parent2Id)) {
       if (parents[parent2Id]) {
         parents[parent2Id].camperIds.push(camperId);
       } else {
         parents[parent2Id] = {
-          id: parseInt(record["F1P2 Person ID"]),
+          id: parent2Id,
           name: {
             firstName: record["F1P2 First Name"],
             lastName: record["F1P2 Last Name"]
@@ -85,7 +88,7 @@ const REQUIRED_COLUMNS = [
   "F1P1 Login/Email"
 ]
 
-export async function parseCampersCSV(file: File) {
+export async function parseCampersCSV(file: File): Promise<ParseFamilyCSVResponse> {
   let rawText = await file.text();
 
   let records = parse(rawText, {
@@ -98,7 +101,5 @@ export async function parseCampersCSV(file: File) {
     },
     skip_empty_lines: true
   }) as FamilyCSVRecord[];
-  console.log(records);
-
-  const { campers, parents } = parseCamperRecords(records);
+  return parseCamperRecords(records);
 }
