@@ -9,10 +9,10 @@ type FamilyCSVRecord = {
   "F1P1 Last Name": string;
   "F1P1 Person ID": string;
   "F1P1 Login/Email": string;
-  "F1P2 First Name": string;
-  "F1P2 Last Name": string;
-  "F1P2 Person ID": string;
-  "F1P2 Login/Email": string;
+  "F1P2 First Name"?: string;
+  "F1P2 Last Name"?: string;
+  "F1P2 Person ID"?: string;
+  "F1P2 Login/Email"?: string;
 };
 
 interface ParseFamilyCSVResponse {
@@ -27,7 +27,7 @@ function parseCamperRecords(records: FamilyCSVRecord[]): ParseFamilyCSVResponse 
   records.forEach((record) => {
     const camperId: number = parseInt(record.PersonID);
     const parent1Id: number = parseInt(record["F1P1 Person ID"]);
-    const parent2Id: number = parseInt(record["F1P2 Person ID"]);
+    const parent2Id: number = parseInt(record["F1P2 Person ID"] || "");
 
     if (Number.isNaN(camperId) || Number.isNaN(parent1Id)) return;
 
@@ -82,11 +82,7 @@ const REQUIRED_COLUMNS = [
   "F1P1 First Name",
   "F1P1 Last Name",
   "F1P1 Person ID",
-  "F1P1 Login/Email",
-  "F1P2 First Name",
-  "F1P2 Last Name",
-  "F1P2 Person ID",
-  "F1P2 Login/Email",
+  "F1P1 Login/Email"
 ]
 
 export async function parseCampersCSV(file: File) {
