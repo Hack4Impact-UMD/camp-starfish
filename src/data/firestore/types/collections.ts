@@ -3,6 +3,7 @@ export type Collection = RootLevelCollection | AlbumsSubcollection | AlbumItemsS
 export const enum RootLevelCollection {
   USERS = "users",
   ALBUMS = "albums",
+  USER_DIRECTORY = "userDirectory",
   SESSIONS = "sessions",
   PROGRAM_AREAS = "programAreas",
   POSTS = "posts",

@@ -1,9 +1,6 @@
 import { flexRender } from "@tanstack/react-table";
 import { useCallback, useMemo, useState } from "react";
-import {
-  Attendee,
-  StaffAttendee,
-} from "@/types/sessions/sessionTypes";
+import { Attendee, StaffAttendee } from "@/types/sessions/sessionTypes";
 import {
   Button,
   Container,
@@ -17,7 +14,7 @@ import {
   Text,
   Title,
 } from "@mantine/core";
-import useAttendeesBySessionId from "@/hooks/attendees/useAttendeesBySessionId";
+import useListAttendees from "@/hooks/attendees/useListAttendees";
 import { DirectoryTableCell } from "./DirectoryTableCell";
 import moment from "moment";
 import {
@@ -28,10 +25,8 @@ import {
   ColumnDef,
   getPaginationRowModel,
 } from "@tanstack/react-table";
-
+import { MdSearch } from "react-icons/md";
 import LoadingPage from "@/app/loading";
-
-import { IconSearch } from "@tabler/icons-react";
 
 type LargeDirectoryBlockProps = {
   sessionId: string;
@@ -43,7 +38,7 @@ export default function DirectoryTableView({
     data: attendeeList,
     isLoading,
     isError,
-  } = useAttendeesBySessionId(sessionId);
+  } = useListAttendees(sessionId);
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
   const [sortNameOption, setSortNameOption] = useState<string | null>(null);
 
@@ -147,12 +142,9 @@ export default function DirectoryTableView({
         },
 
         {
-          accessorFn: (row) => row.snapshot.dateOfBirth,
-          header: "DOB",
-          cell: (info) => {
-            const dob = info.getValue<string>();
-            return render(dob ? moment(dob).format("MM-YYYY") : "N/A");
-          },
+          accessorFn: (row) => row.snapshot.age,
+          header: "AGE",
+          cell: (info) => render(info.getValue()),
         },
 
         {
@@ -322,7 +314,7 @@ export default function DirectoryTableView({
                   "w-[342px] bg-white! border! border-neutral-4! text-neutral-7",
               }}
               leftSection={
-                <IconSearch size={16} stroke={1.5} className="text-neutral-5" />
+                <MdSearch size={16} className="text-neutral-5" />
               }
             />
 
@@ -364,11 +356,7 @@ export default function DirectoryTableView({
           </Flex>
 
           <ScrollArea>
-            <Table
-              striped
-              highlightOnHover
-              className="w-full border-collapse"
-            >
+            <Table striped highlightOnHover className="w-full border-collapse">
               <thead>
                 {table.getHeaderGroups().map((hg) => (
                   <tr key={hg.id}>

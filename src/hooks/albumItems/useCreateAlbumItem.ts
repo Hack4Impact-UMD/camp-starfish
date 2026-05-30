@@ -4,7 +4,7 @@ import { useMutation } from "@tanstack/react-query";
 import { Timestamp } from "firebase/firestore";
 import moment from "moment";
 
-interface CreateAlbumItemRequest {
+export interface CreateAlbumItemRequest {
   albumId: string;
   albumItem: File;
   inReview: boolean;
@@ -32,6 +32,7 @@ async function createAlbumItem(req: CreateAlbumItemRequest) {
 
 export default function useCreateAlbumItem() {
   return useMutation({
+    mutationKey: ['albumItems', 'create'],
     mutationFn: async (req: CreateAlbumItemRequest) => createAlbumItem(req)
   })
 }

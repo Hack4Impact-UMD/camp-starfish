@@ -1,24 +1,29 @@
-import { Moment, weekdaysShort } from "moment";
-
-import React, { useState } from "react";
-import { SimpleGrid, Text, Box } from "@mantine/core";
+import { Moment } from "moment";
+import { useMemo, useState } from "react";
+import { ActionIcon, Text, Title, Tooltip } from "@mantine/core";
+import { modals } from "@mantine/modals";
 import { SchedulingSection, Session } from "@/types/sessions/sessionTypes";
 import moment from "moment";
 import classNames from "classnames";
-import { modals } from "@mantine/modals";
-import { SectionsSubcollection } from "@/data/firestore/types/collections";
-import EditSectionModal from "@/components/EditSectionModal";
-import useSections from "@/hooks/sections/useSectionsBySessionId";
+import openEditSectionModal from "@/components/EditSectionModal";
+import { MonthView, ScheduleHeader } from "@mantine/schedule";
+import { MdChevronLeft, MdChevronRight } from "react-icons/md";
+import { momentRangesOverlap } from "@/utils/timeUtils";
+import useListSections from "@/hooks/sections/useListSections";
 import { isSchedulingSection } from "@/types/sessions/sessionTypeGuards";
 import { getSectionSchedule } from "@/data/firestore/sectionSchedules";
 import { openEditActivitiesModal } from "@/components/EditActivitiesModal";
+import { SectionsSubcollection } from "@/data/firestore/types/collections";
 
 interface SessionCalendarProps {
   session: Session;
 }
 
 export default function SessionCalendar({ session }: SessionCalendarProps) {
-  const sectionsQuery = useSections(session.id);
+  const sectionsQuery = useListSections(session.id);
+  const [selectedMonth, setSelectedMonth] = useState<Moment>(
+    moment(session.startDate).startOf("month"),
+  );
   const [firstSelectedDate, setFirstSelectedDate] = useState<Moment | null>(
     null,
   );
@@ -26,204 +31,192 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
     null,
   );
 
+  const selectedDates = useMemo(() => {
+    if (!firstSelectedDate || !secondSelectedDate) {
+      return null;
+    }
+    const startDate = firstSelectedDate.isBefore(secondSelectedDate)
+      ? firstSelectedDate
+      : secondSelectedDate;
+    const endDate =
+      startDate === firstSelectedDate ? secondSelectedDate : firstSelectedDate;
+    return [startDate.clone().startOf("day"), endDate.clone().endOf("day")];
+  }, [firstSelectedDate, secondSelectedDate]);
+
   const handlePointerDown = (date: Moment) => {
     setFirstSelectedDate(date);
     setSecondSelectedDate(date);
   };
 
-  const isSelecting = firstSelectedDate !== null && secondSelectedDate !== null;
   const handlePointerEnter = (date: Moment) => {
-    if (isSelecting) {
+    if (firstSelectedDate !== null && secondSelectedDate !== null) {
       setSecondSelectedDate(date);
     }
   };
 
-  const handlePointerUp = async () => {
-    if (isSelecting) {
-      const rangeStart = firstSelectedDate.isSameOrBefore(secondSelectedDate)
-        ? firstSelectedDate
-        : secondSelectedDate;
-      const rangeEnd = firstSelectedDate.isSameOrBefore(secondSelectedDate)
-        ? secondSelectedDate
-        : firstSelectedDate;
+  const openCreateSectionModal = (startDate: Moment, endDate: Moment) => {
+    setFirstSelectedDate(null);
+    setSecondSelectedDate(null);
+    openEditSectionModal({
+      sessionId: session.id,
+      initialStartDate: startDate,
+      initialEndDate: endDate,
+    });
+  };
 
-      // Single-day click on an existing scheduling section opens activities modal.
-      // Guard: only proceed if sections data is loaded
-      if (
-        rangeStart.isSame(rangeEnd, "day") &&
-        sectionsQuery.data &&
-        !sectionsQuery.isPending
-      ) {
-        const validSchedulingSections = sectionsQuery.data.filter(
-          (section): section is SchedulingSection =>
-            isSchedulingSection(section) &&
-            typeof section.id === "string" &&
-            section.id.trim() !== "",
-        );
+  // Single-day click: if the day falls within an existing scheduling section,
+  // open that section's activities editor; otherwise start creating a section.
+  const handleDayClick = async (date: Moment) => {
+    // Wait for sections to load before deciding which flow to open, so we never
+    // open "Create Section" on top of a section that simply hasn't loaded yet.
+    if (sectionsQuery.isPending || !sectionsQuery.data) {
+      modals.open({
+        title: "Loading",
+        children: <Text>Please wait while sections are loading...</Text>,
+      });
+      return;
+    }
 
-        const invalidSchedulingSections = sectionsQuery.data.filter(
-          (section) =>
-            isSchedulingSection(section) &&
-            (!section.id || typeof section.id !== "string" || section.id.trim() === ""),
-        );
+    const selectedSection = sectionsQuery.data.find(
+      (section): section is SchedulingSection =>
+        isSchedulingSection(section) &&
+        typeof section.id === "string" &&
+        section.id.trim() !== "" &&
+        section.id !== SectionsSubcollection.SCHEDULE &&
+        date.isBetween(section.startDate, section.endDate, "day", "[]"),
+    );
 
-        if (invalidSchedulingSections.length > 0) {
-          console.warn("Skipping invalid scheduling sections:", invalidSchedulingSections);
-        }
+    if (!selectedSection) {
+      openCreateSectionModal(
+        date.clone().startOf("day"),
+        date.clone().startOf("day"),
+      );
+      return;
+    }
 
-        const selectedSection = validSchedulingSections.find((section) =>
-          rangeStart.isBetween(section.startDate, section.endDate, "day", "[]"),
-        );
+    try {
+      const schedule = await getSectionSchedule(session.id, selectedSection.id);
+      openEditActivitiesModal({
+        section: selectedSection,
+        sections: sectionsQuery.data,
+        sessionId: session.id,
+        initialSchedule: schedule,
+      });
+    } catch (error) {
+      console.error("Failed to load section schedule:", error);
+      const isMissingSchedule =
+        error instanceof Error && error.message.includes("Document not found");
 
-        if (selectedSection) {
-          try {
-            // Defensive check: ensure section id is a real section id, not empty or the literal "schedule"
-            if (
-              !selectedSection.id ||
-              selectedSection.id.trim() === "" ||
-              selectedSection.id === SectionsSubcollection.SCHEDULE
-            ) {
-              console.error("Invalid selectedSection id:", selectedSection);
-              throw new Error(`Invalid section id: ${selectedSection.id}`);
-            }
-            const schedule = await getSectionSchedule(session.id, selectedSection.id);
-            openEditActivitiesModal({
-              section: selectedSection,
-              sections: sectionsQuery.data,
-              sessionId: session.id,
-              initialSchedule: schedule,
-            });
-            setFirstSelectedDate(null);
-            setSecondSelectedDate(null);
-            return;
-          } catch (error) {
-            console.error("Failed to load section schedule:", error);
-            const isMissingSchedule =
-              error instanceof Error &&
-              error.message.includes("Document not found");
-
-            if (isMissingSchedule) {
-              openEditActivitiesModal({
-                section: selectedSection,
-                sections: sectionsQuery.data,
-                sessionId: session.id,
-              });
-              setFirstSelectedDate(null);
-              setSecondSelectedDate(null);
-              return;
-            }
-
-            modals.open({
-              title: "Error",
-              children: (
-                <Text>Failed to load section activities. Please try again.</Text>
-              ),
-            });
-            setFirstSelectedDate(null);
-            setSecondSelectedDate(null);
-            return;
-          }
-        }
-      }
-
-      // Only open create section modal if sections have finished loading
-      if (sectionsQuery.isPending) {
-        modals.open({
-          title: "Loading",
-          children: (
-            <Text>Please wait while sections are loading...</Text>
-          ),
+      // No schedule doc yet: open the editor with a default (empty) layout.
+      if (isMissingSchedule) {
+        openEditActivitiesModal({
+          section: selectedSection,
+          sections: sectionsQuery.data,
+          sessionId: session.id,
         });
-        setFirstSelectedDate(null);
-        setSecondSelectedDate(null);
         return;
       }
 
       modals.open({
-        title: "Create Section",
+        title: "Error",
         children: (
-          <EditSectionModal
-            selectedStartDate={
-              rangeStart
-            }
-            selectedEndDate={
-              rangeEnd
-            }
-            sessionId={session.id}
-          />
+          <Text>Failed to load section activities. Please try again.</Text>
         ),
       });
     }
-    setFirstSelectedDate(null);
-    setSecondSelectedDate(null);
   };
 
-  const weekStarts = [moment(session.startDate).startOf("week")];
-  const lastWeekStart = moment(session.endDate).clone().startOf("week");
-  while (weekStarts[weekStarts.length - 1].isBefore(lastWeekStart)) {
-    weekStarts.push(weekStarts[weekStarts.length - 1].clone().add(1, "week"));
-  }
-
   return (
-    <SimpleGrid className="grid-cols-7 gap-0 select-none">
-      {weekdaysShort().map((day) => (
-        <Box
-          key={day}
-          className="p-xs bg-neutral-0 border border-solid border-neutral-5"
-        >
-          <Text className="text-sm text-center font-bold">{day}</Text>
-        </Box>
-      ))}
-      {weekStarts.map((weekStart) =>
-        Array.from({ length: 7 }, (_, i) =>
-          weekStart.clone().add(i, "day"),
-        ).map((day) => {
-          const isInSession = day.isBetween(
+    <div>
+      <ScheduleHeader className="flex items-center">
+        <Tooltip label="Previous month">
+          <ActionIcon
+            variant="outline"
+            size="md"
+            onClick={() =>
+              setSelectedMonth((prev) => prev.clone().subtract(1, "month"))
+            }
+            disabled={selectedMonth.isSame(session.startDate, "month")}
+            aria-label="Previous month"
+          >
+            <MdChevronLeft size={20} />
+          </ActionIcon>
+        </Tooltip>
+        <Tooltip label="Next month">
+          <ActionIcon
+            variant="outline"
+            size="md"
+            onClick={() =>
+              setSelectedMonth((prev) => prev.clone().add(1, "month"))
+            }
+            disabled={selectedMonth.isSame(session.endDate, "month")}
+            aria-label="Next month"
+          >
+            <MdChevronRight size={20} />
+          </ActionIcon>
+        </Tooltip>
+        <Title order={4}>{selectedMonth.format("MMMM YYYY")}</Title>
+      </ScheduleHeader>
+      <MonthView
+        date={selectedMonth.toDate()}
+        classNames={{
+          monthViewInner: "rounded-none",
+          monthViewWeek: "rounded-none",
+          monthViewWeekday:
+            "rounded-none border border-solid border-neutral bg-neutral-0",
+        }}
+        getDayProps={(date) => {
+          const isInSession = moment(date).isBetween(
             session.startDate,
             session.endDate,
             "day",
             "[]",
           );
           const isInSelection =
-            firstSelectedDate &&
-            secondSelectedDate &&
-            day.isBetween(
-              firstSelectedDate.isSameOrBefore(secondSelectedDate)
-                ? firstSelectedDate
-                : secondSelectedDate,
-              firstSelectedDate.isSameOrBefore(secondSelectedDate)
-                ? secondSelectedDate
-                : firstSelectedDate,
+            isInSession &&
+            selectedDates &&
+            moment(date).isBetween(
+              selectedDates[0],
+              selectedDates[1],
               "day",
               "[]",
             );
-
-          const eventHandlers = isInSession && {
-            onPointerDown: () => handlePointerDown(day),
-            onPointerEnter: () => handlePointerEnter(day),
-            onPointerUp: () => handlePointerUp(),
-          };
-
-          return (
-            <Box
-              key={day.format("YYYY-MM-DD")}
-              {...eventHandlers}
-              className={classNames(
-                "p-xs border border-solid border-neutral-5 text-left min-h-52",
-                {
-                  "bg-aqua-4": isInSession && isInSelection,
-                  "bg-neutral-2": isInSession && !isInSelection,
-                  "bg-neutral-3": !isInSession,
-                },
-              )}
-            >
-              <Text className="text-sm font-bold text-center">
-                {day.date()}
-              </Text>
-            </Box>
+          const isInWeekWithSessionDate = momentRangesOverlap(
+            [moment(session.startDate), moment(session.endDate)],
+            [moment(date).startOf("week"), moment(date).endOf("week")],
           );
-        }),
-      )}
-    </SimpleGrid>
+          return {
+            className: classNames(
+              "rounded-none border border-solid border-neutral",
+              {
+                "bg-neutral-2 cursor-pointer": isInSession && !isInSelection,
+                "bg-neutral-3 cursor-default text-transparent pointer-events-none":
+                  !isInSession,
+                "bg-aqua-1 cursor-pointer": isInSelection,
+                hidden: !isInWeekWithSessionDate,
+                "text-black":
+                  moment(date).isSame(selectedMonth, "month") && isInSession,
+              },
+            ),
+            onMouseDown: () => handlePointerDown(moment(date)),
+            onPointerEnter: () => handlePointerEnter(moment(date)),
+          };
+        }}
+        consistentWeeks={false}
+        withHeader={false}
+        highlightToday={false}
+        firstDayOfWeek={0}
+        withDragSlotSelect
+        onDayClick={(date) => {
+          void handleDayClick(moment(date));
+        }}
+        onSlotDragEnd={(rangeStart, rangeEnd) =>
+          openCreateSectionModal(
+            moment(rangeStart).startOf("day"),
+            moment(rangeEnd).startOf("day"),
+          )
+        }
+      />
+    </div>
   );
 }
