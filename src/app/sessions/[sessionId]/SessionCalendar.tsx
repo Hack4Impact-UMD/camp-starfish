@@ -11,6 +11,28 @@ import { momentRangesOverlap } from "@/utils/timeUtils";
 import useSectionList from "@/hooks/sections/useSectionList";
 import LoadingAnimation from "@/components/LoadingAnimation";
 import { useRouter } from "next/navigation";
+import useSession from "@/hooks/sessions/useSession";
+import ErrorPage from "@/app/error";
+
+interface SessionCalendarProps {
+  sessionId: string;
+}
+
+export default function SessionCalendar(props: SessionCalendarProps) {
+  const { sessionId } = props;
+  const sessionQuery = useSession(sessionId);
+  const sectionsQuery = useSectionList(sessionId, { orderBy: [{ fieldPath: "startDate", direction: "asc" }] });
+
+  if (sessionQuery.isPending || sectionsQuery.isPending) {
+    return <LoadingAnimation />;
+  } else if (sessionQuery.isError) {
+    return <ErrorPage error={sessionQuery.error} />;
+  } else if (sectionsQuery.isError) {
+    return <ErrorPage error={sectionsQuery.error} />;
+  } else {
+    return <SessionCalendarContent session={sessionQuery.data} sections={sectionsQuery.data} />;
+  }
+}
 
 const sectionTypeToEventColor: Record<SectionType, ScheduleSingleEventData['color']> = {
   "COMMON": "blue",
@@ -19,11 +41,14 @@ const sectionTypeToEventColor: Record<SectionType, ScheduleSingleEventData['colo
   "NON-BUNK-JAMBO": "aqua"
 }
 
-interface SessionCalendarProps {
+interface SessionCalendarContentProps {
   session: Session;
+  sections: Section[];
 }
 
-export default function SessionCalendar({ session }: SessionCalendarProps) {
+function SessionCalendarContent(props: SessionCalendarContentProps) {
+  const { session, sections } = props;
+
   const [selectedMonth, setSelectedMonth] = useState<Moment>(
     moment(session.startDate).startOf("month"),
   );
@@ -48,15 +73,7 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
 
   const router = useRouter();
 
-  const sectionsQuery = useSectionList(session.id, { orderBy: [{ fieldPath: "startDate", direction: "asc" }] });
-
-  if (sectionsQuery.isError) {
-    return <p>{sectionsQuery.error.message}</p>;
-  } else if (sectionsQuery.isPending) {
-    return <LoadingAnimation />;
-  }
-
-  const events: ScheduleSingleEventData[] = sectionsQuery.data.map(section => ({
+  const events: ScheduleSingleEventData[] = sections.map(section => ({
     id: section.id,
     title: section.name,
     start: section.startDate.toDate(),
