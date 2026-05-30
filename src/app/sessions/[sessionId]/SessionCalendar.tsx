@@ -1,19 +1,54 @@
 import { Moment } from "moment";
 import { useMemo, useState } from "react";
 import { ActionIcon, Title, Tooltip } from "@mantine/core";
-import { Session } from "@/types/sessions/sessionTypes";
+import { Section, SectionType, Session } from "@/types/sessions/sessionTypes";
 import moment from "moment";
 import classNames from "classnames";
 import openEditSectionModal from "@/components/EditSectionModal";
-import { MonthView, ScheduleHeader } from "@mantine/schedule";
+import { MonthView, ScheduleHeader, ScheduleSingleEventData } from "@mantine/schedule";
 import { MdChevronLeft, MdChevronRight } from "react-icons/md";
 import { momentRangesOverlap } from "@/utils/timeUtils";
+import useSectionList from "@/hooks/sections/useSectionList";
+import LoadingAnimation from "@/components/LoadingAnimation";
+import { useRouter } from "next/navigation";
+import useSession from "@/hooks/sessions/useSession";
+import ErrorPage from "@/app/error";
 
 interface SessionCalendarProps {
-  session: Session;
+  sessionId: string;
 }
 
-export default function SessionCalendar({ session }: SessionCalendarProps) {
+export default function SessionCalendar(props: SessionCalendarProps) {
+  const { sessionId } = props;
+  const sessionQuery = useSession(sessionId);
+  const sectionsQuery = useSectionList(sessionId, { orderBy: [{ fieldPath: "startDate", direction: "asc" }] });
+
+  if (sessionQuery.isPending || sectionsQuery.isPending) {
+    return <LoadingAnimation />;
+  } else if (sessionQuery.isError) {
+    return <ErrorPage error={sessionQuery.error} />;
+  } else if (sectionsQuery.isError) {
+    return <ErrorPage error={sectionsQuery.error} />;
+  } else {
+    return <SessionCalendarContent session={sessionQuery.data} sections={sectionsQuery.data} />;
+  }
+}
+
+const sectionTypeToEventColor: Record<SectionType, ScheduleSingleEventData['color']> = {
+  "COMMON": "blue",
+  "BUNDLE": "orange",
+  "BUNK-JAMBO": "green",
+  "NON-BUNK-JAMBO": "aqua"
+}
+
+interface SessionCalendarContentProps {
+  session: Session;
+  sections: Section[];
+}
+
+function SessionCalendarContent(props: SessionCalendarContentProps) {
+  const { session, sections } = props;
+
   const [selectedMonth, setSelectedMonth] = useState<Moment>(
     moment(session.startDate).startOf("month"),
   );
@@ -35,6 +70,18 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
       startDate === firstSelectedDate ? secondSelectedDate : firstSelectedDate;
     return [startDate.clone().startOf("day"), endDate.clone().endOf("day")];
   }, [firstSelectedDate, secondSelectedDate]);
+
+  const router = useRouter();
+
+  const events: ScheduleSingleEventData[] = sections.map(section => ({
+    id: section.id,
+    title: section.name,
+    start: section.startDate.toDate(),
+    end: section.endDate.toDate(),
+    payload: section,
+    color: sectionTypeToEventColor[section.type],
+    variant: 'filled',
+  }));
 
   const handlePointerDown = (date: Moment) => {
     setFirstSelectedDate(date);
@@ -90,6 +137,7 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
       </ScheduleHeader>
       <MonthView
         date={selectedMonth.toDate()}
+        events={events}
         classNames={{
           monthViewInner: "rounded-none",
           monthViewWeek: "rounded-none",
@@ -141,15 +189,25 @@ export default function SessionCalendar({ session }: SessionCalendarProps) {
         onDayClick={(date) =>
           openCreateSectionModal(
             moment(date).startOf("day"),
-            moment(date).startOf("day"),
+            moment(date).endOf("day"),
           )
         }
         onSlotDragEnd={(rangeStart, rangeEnd) =>
           openCreateSectionModal(
             moment(rangeStart).startOf("day"),
-            moment(rangeEnd).startOf("day"),
+            moment(rangeEnd).endOf("day"),
           )
         }
+        onEventClick={(event) => {
+          if ((event.payload as Section).type !== "COMMON") {
+            router.push(`/sessions/${session.id}/${event.id}`)
+          }
+        }}
+        moreEventsProps={{
+          classNames: {
+            moreEventsDropdown: "rounded-sm"
+          }
+        }}
       />
     </div>
   );
