@@ -1,10 +1,7 @@
 import { Camper, Parent } from "@/types/users/userTypes";
 import { parse } from "csv-parse/sync";
-import { createCamper, getCamperById, updateCamper } from "../firestore/campers";
-import { createParent, getParentById, updateParent } from "../firestore/parents";
-import { parseAppSegmentConfig } from "next/dist/build/segment-config/app/app-segment-config";
 
-type CamperCSVRecord = {
+type FamilyCSVRecord = {
   "First Name": string;
   "Last Name": string;
   PersonID: string;
@@ -23,7 +20,7 @@ interface ParseFamilyCSVResponse {
   parents: { [parentId: number]: Pick<Parent, "id" | "name" | "email" | "camperIds">; };
 }
 
-function parseCamperRecords(records: CamperCSVRecord[]): ParseFamilyCSVResponse {
+function parseCamperRecords(records: FamilyCSVRecord[]): ParseFamilyCSVResponse {
   const campers: ParseFamilyCSVResponse["campers"] = [];
   const parents: ParseFamilyCSVResponse["parents"] = [];
 
@@ -78,32 +75,34 @@ function parseCamperRecords(records: CamperCSVRecord[]): ParseFamilyCSVResponse 
   return { campers, parents };
 }
 
+const REQUIRED_COLUMNS = [
+  "First Name",
+  "Last Name",
+  "PersonID",
+  "F1P1 First Name",
+  "F1P1 Last Name",
+  "F1P1 Person ID",
+  "F1P1 Login/Email",
+  "F1P2 First Name",
+  "F1P2 Last Name",
+  "F1P2 Person ID",
+  "F1P2 Login/Email",
+]
+
 export async function parseCampersCSV(file: File) {
   let rawText = await file.text();
 
   let records = parse(rawText, {
-    columns: true,
-  }) as CamperCSVRecord[];
+    columns: (cols: string[]) => {
+      const missingColumns = REQUIRED_COLUMNS.filter(col => !cols.includes(col));
+      if (missingColumns.length > 0) {
+        throw Error("Missing columns: " + missingColumns.join(", "));
+      }
+      return cols;
+    },
+    skip_empty_lines: true
+  }) as FamilyCSVRecord[];
+  console.log(records);
 
   const { campers, parents } = parseCamperRecords(records);
-
-  let campersPromises =
-    await Promise.all(campers.map(async (camper) => {
-      try {
-        await updateCamper(camper.campminderId, camper)
-      } catch (e: any) {
-        await createCamper(camper);
-      }
-    }))
-
-  await Promise.all(parents.map(async (parent) => {
-    try {
-      await updateParent(parent.campminderId, parent)
-    } catch (e: any) {
-      await createParent(parent);
-    }
-  }))
-
-  console.log(parents, campers)
-
 }
