@@ -1,6 +1,7 @@
 import { toRecord } from "@/utils/data/toRecord";
 import { StaffAttendee, AdminAttendee, CamperAttendee, Freeplay, Post, Attendee } from "../../../types/sessions/sessionTypes";
 import { groupBy } from "@/utils/data/groupBy";
+import partition from "@/utils/data/partition";
 
 interface GenerateFreeplayScheduleRequest {
   sessionId: string;
@@ -58,8 +59,38 @@ export default function generateFreeplaySchedule(req: GenerateFreeplayScheduleRe
   const buddyCandidatesById: { [attendeeId: number]: Set<number>; } = {};
   attendees.forEach(attendee => buddyCandidatesById[attendee.attendeeId] = new Set((attendee.role === "CAMPER" ? employeeIds : camperIds).filter(potentialCandidateId => !attendee.snapshot.nonoList.includes(potentialCandidateId) && !buddiesInOtherFreeplays[attendee.attendeeId].has(potentialCandidateId))));
 
+  let unassignedCamperIds: number[] = camperIds;
+  let unassignedStaffIds: number[] = staff.map(staff => staff.attendeeId);
+  let unassignedAdminIds: number[] = admins.map(admin => admin.attendeeId);
 
   // assign admins & some staff to posts
+  const postAssignments: Freeplay["posts"] = {};
+  const { trueGroup: postsRequiringAdminSupervision, falseGroup: postsNotRequiringAdminSupervision } = partition(posts, post => post.requiresAdminSupervision);
+  if (postsRequiringAdminSupervision.length > unassignedAdminIds.length) {
+    throw Error(`There are ${postsRequiringAdminSupervision.length} posts that require admin supervision, but there are only ${unassignedAdminIds.length} admins in the session.`);
+  }
+  for (const post of postsRequiringAdminSupervision) {
+    const adminIndex = Math.floor(Math.random() * unassignedAdminIds.length);
+    const adminId = unassignedAdminIds[adminIndex];
+    postAssignments[post.id] = [adminId];
+    unassignedAdminIds = unassignedAdminIds.filter((_, i) => i !== adminIndex);
+  }
+  for (const post of postsNotRequiringAdminSupervision) {
+    if (unassignedAdminIds.length !== 0) {
+      const adminIndex = Math.floor(Math.random() * unassignedAdminIds.length);
+      const adminId = unassignedAdminIds[adminIndex];
+      postAssignments[post.id] = [adminId];
+      unassignedAdminIds = unassignedAdminIds.filter((_, i) => i !== adminIndex);
+      break;
+    }
+    const staffIndex = Math.floor(Math.random() * unassignedStaffIds.length);
+    const staffId = unassignedStaffIds[staffIndex];
+    postAssignments[post.id] = [staffId];
+    unassignedStaffIds = unassignedStaffIds.filter((_, i) => i !== staffIndex);
+  }
+
+
+
 
   // assign campers to remaining staff & admins
 
@@ -69,7 +100,7 @@ export default function generateFreeplaySchedule(req: GenerateFreeplayScheduleRe
     sessionId,
     date,
     buddies: {},
-    posts: {}
+    posts: postAssignments
   }
 }
 
