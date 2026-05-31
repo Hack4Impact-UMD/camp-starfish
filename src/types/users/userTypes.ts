@@ -52,7 +52,7 @@ export interface Admin extends Counselor {
 }
 
 export type Employee = Staff | Photographer | Admin;
-export type UnregisteredEmployee = Pick<Employee, "id" | "name" | "email">;
+export type UnregisteredEmployee = Pick<Employee, "id" | "name" | "role" | "email">;
 
 export type UnregisteredUser = UnregisteredCamper | UnregisteredParent | UnregisteredEmployee;
 export type RegisteredUser = Camper | Parent | Photographer | Staff | Admin;

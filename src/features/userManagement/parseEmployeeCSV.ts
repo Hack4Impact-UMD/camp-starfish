@@ -15,7 +15,7 @@ const REQUIRED_COLUMNS = [
   "Login/Email"
 ]
 
-export async function parseEmployeeCSV(file: File): Promise<UnregisteredEmployee[]> {
+export async function parseEmployeeCSV(file: File): Promise<Omit<UnregisteredEmployee, "role">[]> {
   const rawText = await file.text();
   const records = parse(rawText, {
     columns: (cols: string[]) => {
