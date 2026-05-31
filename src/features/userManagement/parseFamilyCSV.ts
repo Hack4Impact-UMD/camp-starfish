@@ -23,7 +23,7 @@ export interface ParseFamilyCSVResponse {
   parents: { [parentId: number]: Pick<Parent, "id" | "name" | "email" | "camperIds">; };
 }
 
-function parseCamperRecords(records: FamilyCSVRecord[]): ParseFamilyCSVResponse {
+function parseFamilyRecords(records: FamilyCSVRecord[]): ParseFamilyCSVResponse {
   const campers: ParseFamilyCSVResponse["campers"] = {};
   const parents: ParseFamilyCSVResponse["parents"] = {};
 
@@ -88,7 +88,7 @@ const REQUIRED_COLUMNS = [
   "F1P1 Login/Email"
 ]
 
-export async function parseCampersCSV(file: File): Promise<ParseFamilyCSVResponse> {
+export async function parseFamilyCSV(file: File): Promise<ParseFamilyCSVResponse> {
   const rawText = await file.text();
   const records = parse(rawText, {
     columns: (cols: string[]) => {
@@ -100,5 +100,5 @@ export async function parseCampersCSV(file: File): Promise<ParseFamilyCSVRespons
     },
     skip_empty_lines: true
   }) as FamilyCSVRecord[];
-  return parseCamperRecords(records);
+  return parseFamilyRecords(records);
 }
