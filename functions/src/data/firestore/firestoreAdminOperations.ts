@@ -152,6 +152,21 @@ export async function executeQuery<DbModelType extends DocumentData>(collection:
   }
 }
 
+const FIRESTORE_WHERE_IN_LIMIT = 30;
+export async function batchGetDocs<DbModelType extends DocumentData>(collection: CollectionReference<DbModelType, DbModelType> | Collection, ids: string[]): Promise<QueryDocumentSnapshot<DbModelType, DbModelType>[]> {
+  try {
+    const idBatches = [];
+    for (let i = 0; i < ids.length; i += FIRESTORE_WHERE_IN_LIMIT) {
+      idBatches.push(ids.slice(i, i + FIRESTORE_WHERE_IN_LIMIT));
+    }
+    const queries = idBatches.map(idBatch => executeQuery(collection, { queryOptions: { where: [{ fieldPath: '__name__', operation: 'in', value: idBatch }] } }));
+    const responses = await Promise.all(queries);
+    return responses.flatMap(response => response)
+  } catch {
+    throw Error("Failed to batch get documents");
+  }
+}
+
 type AggregationClause<DbModelType> = { aggregateFieldName: string; } & (
   | { operation: Extract<AggregateType, 'count'>; }
   | { operation: Extract<AggregateType, 'sum' | 'avg'>; sourceFieldPath: FirestoreDocumentFieldPath<DbModelType>; })
