@@ -1,4 +1,4 @@
-import { StaffAttendee, AdminAttendee, CamperAttendee, Freeplay } from "../../../types/sessions/sessionTypes";
+import { StaffAttendee, AdminAttendee, CamperAttendee, Freeplay, Post } from "../../../types/sessions/sessionTypes";
 
 export class FreeplayScheduler {
   schedule: Freeplay | null = null;
@@ -7,12 +7,14 @@ export class FreeplayScheduler {
   staff: StaffAttendee[] = [];
   admins: AdminAttendee[] = [];
 
+  posts: Post[] = [];
+
   otherFreeplayBuddies: { [attendeeId: number]: number[] } = {};
 
   // postInfo includes a list of all posts with PostID information (necessary for requiresAdmin flag) --> schedule only includes string of IDs
   constructor() { }
 
-  withSchedule(schedule: FreeplayID): FreeplayScheduler { this.schedule = schedule; return this; }
+  withSchedule(schedule: Freeplay): FreeplayScheduler { this.schedule = schedule; return this; }
 
   withCampers(campers: CamperAttendee[]): FreeplayScheduler { this.campers = campers; return this; }
 
@@ -20,9 +22,9 @@ export class FreeplayScheduler {
 
   withAdmins(admins: AdminAttendee[]): FreeplayScheduler { this.admins = admins; return this; }
 
-  withPosts(posts: PostID[]): FreeplayScheduler { this.posts = posts; return this; }
+  withPosts(posts: Post[]): FreeplayScheduler { this.posts = posts; return this; }
 
-  getCamperById = (id: number) => this.campers.find(c => c.id === id);
+  getCamperById = (id: number) => this.campers.find(c => c.attendeeId === id);
 
   getPostByID = (id: string) => this.posts.find(p => p.name === id);
 
