@@ -1,21 +1,12 @@
-import { StaffAttendeeID, AdminAttendeeID, CamperAttendeeID, Freeplay, PostID, FreeplayID } from "@/types/sessionTypes";
-import { doesConflictExist } from "./schedulingUtils";
+import { StaffAttendee, AdminAttendee, CamperAttendee, Freeplay } from "../../../types/sessions/sessionTypes";
 
 export class FreeplayScheduler {
-  /* The current freeplay schedule */
-  schedule: FreeplayID = { posts: {}, buddies: {}, id: "", sessionId: "" };
+  schedule: Freeplay | null = null;
 
-  /* The session attendees that still need to be assigned */
-  campers: CamperAttendeeID[] = [];
-  staff: StaffAttendeeID[] = [];
-  admins: AdminAttendeeID[] = [];
+  campers: CamperAttendee[] = [];
+  staff: StaffAttendee[] = [];
+  admins: AdminAttendee[] = [];
 
-  assignedStaff: StaffAttendeeID[] = [];
-  assignedAdmin: AdminAttendeeID[] = [];
-
-  posts: PostID[] = [];
-
-  /* The freeplay buddies from other freeplays in this session */
   otherFreeplayBuddies: { [attendeeId: number]: number[] } = {};
 
   // postInfo includes a list of all posts with PostID information (necessary for requiresAdmin flag) --> schedule only includes string of IDs
@@ -23,11 +14,11 @@ export class FreeplayScheduler {
 
   withSchedule(schedule: FreeplayID): FreeplayScheduler { this.schedule = schedule; return this; }
 
-  withCampers(campers: CamperAttendeeID[]): FreeplayScheduler { this.campers = campers; return this; }
+  withCampers(campers: CamperAttendee[]): FreeplayScheduler { this.campers = campers; return this; }
 
-  withStaff(staff: StaffAttendeeID[]): FreeplayScheduler { this.staff = staff; return this; }
+  withStaff(staff: StaffAttendee[]): FreeplayScheduler { this.staff = staff; return this; }
 
-  withAdmins(admins: AdminAttendeeID[]): FreeplayScheduler { this.admins = admins; return this; }
+  withAdmins(admins: AdminAttendee[]): FreeplayScheduler { this.admins = admins; return this; }
 
   withPosts(posts: PostID[]): FreeplayScheduler { this.posts = posts; return this; }
 

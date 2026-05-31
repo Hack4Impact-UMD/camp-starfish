@@ -1,6 +1,6 @@
 import { flexRender } from "@tanstack/react-table";
 import { useCallback, useMemo, useState } from "react";
-import { AttendeeID, CamperAttendeeID, StaffAttendeeID } from "@/types/sessionTypes";
+import { Attendee, StaffAttendee } from "@/types/sessions/sessionTypes";
 import {
   Button,
   Container,
@@ -12,9 +12,9 @@ import {
   TextInput,
   Group,
   Text,
-  Title
+  Title,
 } from "@mantine/core";
-import { useAttendees } from "@/hooks/attendees/useAttendees";
+import useListAttendees from "@/hooks/attendees/useListAttendees";
 import { DirectoryTableCell } from "./DirectoryTableCell";
 import moment from "moment";
 import {
@@ -25,28 +25,28 @@ import {
   ColumnDef,
   getPaginationRowModel,
 } from "@tanstack/react-table";
-
+import { MdSearch } from "react-icons/md";
 import LoadingPage from "@/app/loading";
 
-
-import { IconSearch } from "@tabler/icons-react";
-
-
-type LargeDirectoryBlockProps = { 
-    sessionId: string;
+type LargeDirectoryBlockProps = {
+  sessionId: string;
 };
-export default function DirectoryTableView ({ sessionId }: LargeDirectoryBlockProps) {
-
-  const { data: attendeeList, isLoading, isError } = useAttendees(sessionId);
+export default function DirectoryTableView({
+  sessionId,
+}: LargeDirectoryBlockProps) {
+  const {
+    data: attendeeList,
+    isLoading,
+    isError,
+  } = useListAttendees(sessionId);
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
   const [sortNameOption, setSortNameOption] = useState<string | null>(null);
 
   // table filter/pagination options
   const [globalFilter, setGlobalFilter] = useState("");
-  const [pagination, setPagination] = useState({pageIndex: 0, pageSize: 10,});
+  const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 });
 
-
-  const data: AttendeeID[] = useMemo(() => {
+  const data: Attendee[] = useMemo(() => {
     if (!attendeeList) return [];
 
     let attendeeArr = [...attendeeList];
@@ -57,17 +57,22 @@ export default function DirectoryTableView ({ sessionId }: LargeDirectoryBlockPr
 
     if (sortNameOption) {
       attendeeArr.sort((a, b) => {
-        const aFirst = a.name.firstName.toLowerCase();
-        const bFirst = b.name.firstName.toLowerCase();
-        const aLast = a.name.lastName.toLowerCase();
-        const bLast = b.name.lastName.toLowerCase();
+        const aFirst = a.snapshot.name.firstName.toLowerCase();
+        const bFirst = b.snapshot.name.firstName.toLowerCase();
+        const aLast = a.snapshot.name.lastName.toLowerCase();
+        const bLast = b.snapshot.name.lastName.toLowerCase();
 
         switch (sortNameOption) {
-          case "firstNameAZ": return aFirst.localeCompare(bFirst);
-          case "firstNameZA": return bFirst.localeCompare(aFirst);
-          case "lastNameAZ": return aLast.localeCompare(bLast);
-          case "lastNameZA": return bLast.localeCompare(aLast);
-          default: return 0;
+          case "firstNameAZ":
+            return aFirst.localeCompare(bFirst);
+          case "firstNameZA":
+            return bFirst.localeCompare(aFirst);
+          case "lastNameAZ":
+            return aLast.localeCompare(bLast);
+          case "lastNameZA":
+            return bLast.localeCompare(aLast);
+          default:
+            return 0;
         }
       });
     }
@@ -77,22 +82,22 @@ export default function DirectoryTableView ({ sessionId }: LargeDirectoryBlockPr
 
   const getNameFromId = useCallback(
     (id: number) => {
-      const person = attendeeList?.find(a => a.id === id);
+      const person = attendeeList?.find((a) => a.attendeeId === id);
       if (!person) return null;
-      return `${person.name.firstName} ${person.name.lastName[0]}.`;
+      return `${person.snapshot.name.firstName} ${person.snapshot.name.lastName[0]}.`;
     },
-    [attendeeList]
+    [attendeeList],
   );
 
-  const columns = useMemo<ColumnDef<AttendeeID>[]>(() => {
-    const render = (v: unknown) => <DirectoryTableCell data={v != null ? String(v) : "N/A"} />;
+  const columns = useMemo<ColumnDef<Attendee>[]>(() => {
+    const render = (v: unknown) => (
+      <DirectoryTableCell data={v != null ? String(v) : "N/A"} />
+    );
 
     const renderIdListAsNames = (ids: number[]) => {
       if (!ids || ids.length === 0) return render("N/A");
 
-      const names = ids
-        .map(id => getNameFromId(id))
-        .filter(Boolean);
+      const names = ids.map((id) => getNameFromId(id)).filter(Boolean);
 
       return render(names.length ? names.join(", ") : "N/A");
     };
@@ -100,67 +105,100 @@ export default function DirectoryTableView ({ sessionId }: LargeDirectoryBlockPr
     if (selectedRole === "CAMPER") {
       return [
         {
-          accessorFn: row => row.name.firstName,
+          accessorFn: (row) => row.snapshot.name.firstName,
           header: "FIRST NAME",
-          cell: info => render(info.getValue()),
+          cell: (info) => render(info.getValue()),
         },
         {
-          accessorFn: row => row.name.lastName,
+          accessorFn: (row) => row.snapshot.name.lastName,
           header: "LAST NAME",
-          cell: info => render(info.getValue()),
+          cell: (info) => render(info.getValue()),
         },
-        { accessorKey: "ageGroup", header: "AGE GROUP", cell: info => render(info.getValue()) },
-        { accessorKey: "bunk", header: "BUNK", cell: info => render(info.getValue()) },
-        { accessorKey: "health", header: "HEALTH", cell: info => render(info.getValue()) },
-        { accessorKey: "gender", header: "GENDER", cell: info => render(info.getValue()) },
+        {
+          accessorKey: "ageGroup",
+          header: "AGE GROUP",
+          cell: (info) => render(info.getValue()),
+        },
+        {
+          accessorKey: "bunk",
+          header: "BUNK",
+          cell: (info) => render(info.getValue()),
+        },
+        {
+          accessorKey: "health",
+          header: "HEALTH",
+          cell: (info) => render(info.getValue()),
+        },
+        {
+          accessorKey: "gender",
+          header: "GENDER",
+          cell: (info) => render(info.getValue()),
+        },
 
         {
           accessorKey: "nonoList",
           header: "NO-NO LIST",
-          cell: info => renderIdListAsNames(info.getValue<number[]>()),
+          cell: (info) => renderIdListAsNames(info.getValue<number[]>()),
         },
 
         {
-          accessorFn: row => (row as CamperAttendeeID).dateOfBirth ,
-          header: "DOB",
-          cell: info => {
-            const dob = info.getValue<string>();
-            return render(dob ? moment(dob).format("MM-YYYY") : "N/A");
-          },
+          accessorFn: (row) => row.snapshot.age,
+          header: "AGE",
+          cell: (info) => render(info.getValue()),
         },
 
-        { accessorKey: "level", header: "SWIM LEVEL", cell: info => render(info.getValue()) },
+        {
+          accessorKey: "level",
+          header: "SWIM LEVEL",
+          cell: (info) => render(info.getValue()),
+        },
       ];
     }
 
     if (selectedRole === "STAFF") {
       return [
-        { accessorFn: row => row.name.firstName, header: "FIRST NAME", cell: info => render(info.getValue()) },
-        { accessorFn: row => row.name.lastName, header: "LAST NAME", cell: info => render(info.getValue()) },
-        { accessorKey: "bunk", header: "BUNK", cell: info => render(info.getValue()) },
-        { accessorKey: "gender", header: "GENDER", cell: info => render(info.getValue()) },
+        {
+          accessorFn: (row) => row.snapshot.name.firstName,
+          header: "FIRST NAME",
+          cell: (info) => render(info.getValue()),
+        },
+        {
+          accessorFn: (row) => row.snapshot.name.lastName,
+          header: "LAST NAME",
+          cell: (info) => render(info.getValue()),
+        },
+        {
+          accessorKey: "bunk",
+          header: "BUNK",
+          cell: (info) => render(info.getValue()),
+        },
+        {
+          accessorKey: "gender",
+          header: "GENDER",
+          cell: (info) => render(info.getValue()),
+        },
 
         {
           accessorKey: "nonoList",
           header: "NO-NO LIST",
-          cell: info => renderIdListAsNames(info.getValue<number[]>()),
+          cell: (info) => renderIdListAsNames(info.getValue<number[]>()),
         },
 
         {
           accessorKey: "yesyesList",
           header: "YES-YES LIST",
-          cell: info => renderIdListAsNames(info.getValue<number[]>()),
+          cell: (info) => renderIdListAsNames(info.getValue<number[]>()),
         },
 
         {
-          accessorFn: row => (row as StaffAttendeeID).programCounselor?.name,
+          accessorFn: (row) => (row as StaffAttendee).programCounselorFor,
           header: "Program Counselor",
-          cell: info => render(info.getValue()),
+          cell: (info) => render(info.getValue()),
         },
         {
           accessorKey: "leadBunkCounselor",
           header: "Lead Bunk Counselor",
-          cell: info => {
+          cell: (info) => {
             const val = info.getValue<boolean>();
             return render(val ? "Yes" : "No");
           },
@@ -168,10 +206,12 @@ export default function DirectoryTableView ({ sessionId }: LargeDirectoryBlockPr
         {
           accessorKey: "daysOff",
           header: "Days Off",
-          cell: info => {
+          cell: (info) => {
             const dates = info.getValue<string[]>();
             if (!dates || dates.length === 0) return render("N/A");
-            return render(dates.map(d => moment(d).format("MM-YYYY")).join(", "));
+            return render(
+              dates.map((d) => moment(d).format("MM-YYYY")).join(", "),
+            );
           },
         },
       ];
@@ -179,29 +219,43 @@ export default function DirectoryTableView ({ sessionId }: LargeDirectoryBlockPr
 
     if (selectedRole === "ADMIN") {
       return [
-        { accessorFn: row => row.name.firstName, header: "FIRST NAME", cell: info => render(info.getValue()) },
-        { accessorFn: row => row.name.lastName, header: "LAST NAME", cell: info => render(info.getValue()) },
-        { accessorKey: "gender", header: "GENDER", cell: info => render(info.getValue()) },
+        {
+          accessorFn: (row) => row.snapshot.name.firstName,
+          header: "FIRST NAME",
+          cell: (info) => render(info.getValue()),
+        },
+        {
+          accessorFn: (row) => row.snapshot.name.lastName,
+          header: "LAST NAME",
+          cell: (info) => render(info.getValue()),
+        },
+        {
+          accessorKey: "gender",
+          header: "GENDER",
+          cell: (info) => render(info.getValue()),
+        },
 
         {
           accessorKey: "nonoList",
           header: "NO-NO LIST",
-          cell: info => renderIdListAsNames(info.getValue<number[]>()),
+          cell: (info) => renderIdListAsNames(info.getValue<number[]>()),
         },
 
         {
           accessorKey: "yesyesList",
           header: "YES-YES LIST",
-          cell: info => renderIdListAsNames(info.getValue<number[]>()),
+          cell: (info) => renderIdListAsNames(info.getValue<number[]>()),
         },
 
         {
           accessorKey: "daysOff",
           header: "Days Off",
-          cell: info => {
+          cell: (info) => {
             const dates = info.getValue<string[]>();
             if (!dates || dates.length === 0) return render("N/A");
-            return render(dates.map(d => moment(d).format("MM-YYYY")).join(", "));
+            return render(
+              dates.map((d) => moment(d).format("MM-YYYY")).join(", "),
+            );
           },
         },
       ];
@@ -231,8 +285,9 @@ export default function DirectoryTableView ({ sessionId }: LargeDirectoryBlockPr
     setGlobalFilter("");
   };
 
-  const filtersActive = !!selectedRole || !!sortNameOption || !!table.getState().globalFilter;
-  
+  const filtersActive =
+    !!selectedRole || !!sortNameOption || !!table.getState().globalFilter;
+
   if (isLoading) {
     return <LoadingPage />;
   }
@@ -241,16 +296,13 @@ export default function DirectoryTableView ({ sessionId }: LargeDirectoryBlockPr
     return <p>Error loading attendees.</p>;
   }
 
-
   return (
-    <div className = "border border-black bg-[#F7F7F7] w-[80%] mx-auto py-[20px]">
+    <div className="border border-black bg-[#F7F7F7] w-[80%] mx-auto py-[20px]">
+      <Title order={3} className="text-center font-bold! mb-10!">
+        DIRECTORY
+      </Title>
 
-
-
-      <Title order={3} className="text-center !font-bold !mb-10">DIRECTORY</Title>
-      
       <Container size="90%">
-      
         <Flex direction={"column"}>
           <Flex direction={"row"} gap="md" align="center" mb="md">
             <TextInput
@@ -258,10 +310,12 @@ export default function DirectoryTableView ({ sessionId }: LargeDirectoryBlockPr
               value={globalFilter}
               onChange={(e) => setGlobalFilter(e.target.value)}
               classNames={{
-                input: "w-[342px] !bg-white !border !border-neutral-4 text-neutral-7"
+                input:
+                  "w-[342px] bg-white! border! border-neutral-4! text-neutral-7",
               }}
-              leftSection={<IconSearch size={16} stroke={1.5} className="text-neutral-5" />}
-
+              leftSection={
+                <MdSearch size={16} className="text-neutral-5" />
+              }
             />
 
             <Flex gap="sm" direction="row">
@@ -302,15 +356,18 @@ export default function DirectoryTableView ({ sessionId }: LargeDirectoryBlockPr
           </Flex>
 
           <ScrollArea>
-            <Table striped highlightOnHover className = "w-[100%] border-collapse">
+            <Table striped highlightOnHover className="w-full border-collapse">
               <thead>
                 {table.getHeaderGroups().map((hg) => (
                   <tr key={hg.id}>
                     {hg.headers.map((header) => (
-                      <th key={header.id} className="border border-black text-center bg-neutral-3 px-[11px] py-[10px]">
+                      <th
+                        key={header.id}
+                        className="border border-black text-center bg-neutral-3 px-[11px] py-[10px]"
+                      >
                         {flexRender(
                           header.column.columnDef.header,
-                          header.getContext()
+                          header.getContext(),
                         )}
                       </th>
                     ))}
@@ -322,10 +379,13 @@ export default function DirectoryTableView ({ sessionId }: LargeDirectoryBlockPr
                 {table.getRowModel().rows.map((row) => (
                   <tr key={row.id}>
                     {row.getVisibleCells().map((cell) => (
-                      <td key={cell.id}   className="text-center border border-black p-1 whitespace-normal break-words bg-white">
+                      <td
+                        key={cell.id}
+                        className="text-center border border-black p-1 whitespace-normal wrap-break-word bg-white"
+                      >
                         {flexRender(
                           cell.column.columnDef.cell,
-                          cell.getContext()
+                          cell.getContext(),
                         )}
                       </td>
                     ))}
@@ -336,7 +396,11 @@ export default function DirectoryTableView ({ sessionId }: LargeDirectoryBlockPr
           </ScrollArea>
         </Flex>
 
-        <Group mt="md" align="center" className = "flex flex-row justify-center align-center">
+        <Group
+          mt="md"
+          align="center"
+          className="flex flex-row justify-center align-center"
+        >
           <Button
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
@@ -359,4 +423,4 @@ export default function DirectoryTableView ({ sessionId }: LargeDirectoryBlockPr
       </Container>
     </div>
   );
-};
+}
