@@ -1,5 +1,77 @@
 import { toRecord } from "@/utils/data/toRecord";
-import { StaffAttendee, AdminAttendee, CamperAttendee, Freeplay, Post } from "../../../types/sessions/sessionTypes";
+import { StaffAttendee, AdminAttendee, CamperAttendee, Freeplay, Post, Attendee } from "../../../types/sessions/sessionTypes";
+import { groupBy } from "@/utils/data/groupBy";
+
+interface GenerateFreeplayScheduleRequest {
+  sessionId: string;
+  date: string;
+  attendees: Attendee[];
+  posts: Post[];
+  otherFreeplaysInSession: Freeplay[];
+}
+
+export default function generateFreeplaySchedule(req: GenerateFreeplayScheduleRequest): Freeplay {
+  const { sessionId, date, attendees, posts, otherFreeplaysInSession } = req;
+
+  // create useful data structures
+  const campers: CamperAttendee[] = [];
+  const staff: StaffAttendee[] = [];
+  const admins: AdminAttendee[] = [];
+  attendees.forEach(attendee => {
+    switch (attendee.role) {
+      case "CAMPER":
+        campers.push(attendee);
+        break;
+      case "STAFF":
+        staff.push(attendee);
+        break;
+      case "ADMIN":
+        admins.push(attendee);
+        break;
+      default: throw Error("Unknown attendee role");
+    }
+  });
+
+  const campersById = toRecord(campers, c => c.attendeeId);
+  const staffById = toRecord(staff, s => s.attendeeId);
+  const adminsById = toRecord(admins, a => a.attendeeId);
+
+  const buddiesInOtherFreeplays: { [attendeeId: number]: Set<number>; } = {};
+  for (const freeplay of otherFreeplaysInSession) {
+    for (const [employeeIdStr, camperIds] of Object.entries(freeplay.buddies)) {
+      const employeeId = Number(employeeIdStr);
+      if (!(employeeId in buddiesInOtherFreeplays)) {
+        buddiesInOtherFreeplays[employeeId] = new Set();
+      }
+      camperIds.forEach(camperId => {
+        buddiesInOtherFreeplays[employeeId].add(camperId);
+        if (!(camperId in buddiesInOtherFreeplays)) {
+          buddiesInOtherFreeplays[camperId] = new Set();
+        }
+        buddiesInOtherFreeplays[camperId].add(employeeId);
+      });
+    }
+  }
+
+  const camperIds = campers.map(camper => camper.attendeeId);
+  const employeeIds = [...staff, ...admins].map(employee => employee.attendeeId);
+  const buddyCandidatesById: { [attendeeId: number]: Set<number>; } = {};
+  attendees.forEach(attendee => buddyCandidatesById[attendee.attendeeId] = new Set((attendee.role === "CAMPER" ? employeeIds : camperIds).filter(potentialCandidateId => !attendee.snapshot.nonoList.includes(potentialCandidateId) && !buddiesInOtherFreeplays[attendee.attendeeId].has(potentialCandidateId))));
+
+
+  // assign admins & some staff to posts
+
+  // assign campers to remaining staff & admins
+
+
+  // return schedule
+  return {
+    sessionId,
+    date,
+    buddies: {},
+    posts: {}
+  }
+}
 
 export class FreeplayScheduler {
   campers: { [camperId: number]: CamperAttendee; } | null;
@@ -119,7 +191,7 @@ export class FreeplayScheduler {
     const availableAdmins = this.admins.filter(admin =>
       !this.assignedAdmin.some(assigned => assigned.id === admin.id)
     ).filter(admin => !admin.daysOff.includes(this.schedule.id));
-    
+
 
 
     const availableStaff = this.staff.filter(staff =>
@@ -174,7 +246,7 @@ export class FreeplayScheduler {
  */
   assignCampers() {
     // First filter out by days off
-    const availableStaff = this.staff.filter(staff => !staff.daysOff.includes(this.schedule.id)).filter(staff => !this.assignedStaff.some(assigned => assigned.id === staff.id) );
+    const availableStaff = this.staff.filter(staff => !staff.daysOff.includes(this.schedule.id)).filter(staff => !this.assignedStaff.some(assigned => assigned.id === staff.id));
 
 
     //const allAssignedStaffers = [...this.assignedStaff, ...this.assignedAdmin];
@@ -183,7 +255,7 @@ export class FreeplayScheduler {
     const allFemaleStaff = availableStaff.filter(c => c.gender == "Female");
     const allfemaleCampers = this.campers.filter(c => c.gender === "Female");
 
-    const allOtherCampers = this.campers.filter(c => c.gender !== "Female" );
+    const allOtherCampers = this.campers.filter(c => c.gender !== "Female");
 
     console.log("Female Campers: ", allfemaleCampers);
     console.log("Female Staff: ", allFemaleStaff);
@@ -206,13 +278,13 @@ export class FreeplayScheduler {
       }
     }
 
-    const allOtherStaff = availableStaff.filter(c => !this.schedule.buddies[c.id]  || this.schedule.buddies[c.id].length == 0);
+    const allOtherStaff = availableStaff.filter(c => !this.schedule.buddies[c.id] || this.schedule.buddies[c.id].length == 0);
 
-  
+
     // 3. Assign male campers
     for (const camper of allOtherCampers) {
       let assigned = this.assignToOpenStaffFirstStep(allOtherStaff, camper);
-    
+
       // Fallback: assign to any staffer with another camper of the same bunk
       if (!assigned) {
         assigned = this.assignToOpenStaffSecondStep(allOtherStaff, camper);
@@ -248,7 +320,7 @@ export class FreeplayScheduler {
       const hasConflict = prevBuddies.includes(camper.id) || doesConflictExist(staffer, [camper.id]);
 
       if (!hasConflict && alreadyAssigned.length == 0) {
-        if ( (staffer.role === "STAFF" && staffer.bunk !== camper.bunk)) {
+        if ((staffer.role === "STAFF" && staffer.bunk !== camper.bunk)) {
 
           if (!this.schedule.buddies[staffer.id]) {
             this.schedule.buddies[staffer.id] = [];
