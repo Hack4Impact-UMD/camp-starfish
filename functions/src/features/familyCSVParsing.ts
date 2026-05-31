@@ -31,17 +31,21 @@ export const handleFamilyCSVUpload = onCall({ memory:}, async (req) => {
         return createUserDoc(id, { ...parentDoc, role: "PARENT" }, transaction);
       }),
       existingCampers.map((camper) => {
-        const { id, ...camperDoc } = camper;
+        const { id, ...docUpdates } = camper;
+        const existingCamper = existingCampers.find(camper => camper.id === id)!;
+        if (existingCamper.name.firstName === docUpdates.name.firstName && existingCamper.name.middleName === docUpdates.name.middleName && existingCamper.name.lastName === docUpdates.name.lastName && docUpdates.parentIds.every(parentId => existingCamper.parentIds.includes(parentId))) return;
         return updateUserDoc(id, {
-          name: camperDoc.name,
+          name: docUpdates.name,
           parentIds: FieldValue.arrayUnion(...camper.parentIds),
         }, transaction);
       }),
       existingParents.map((parent) => {
-        const { id, ...parentDoc } = parent;
+        const { id, ...docUpdates } = parent;
+        const existingParent = existingParents.find(parent => parent.id === id)!;
+        if (existingParent.name.firstName === docUpdates.name.firstName && existingParent.name.middleName === docUpdates.name.middleName && existingParent.name.lastName === docUpdates.name.lastName && docUpdates.camperIds.every(camperId => existingParent.camperIds.includes(camperId))) return;
         return updateUserDoc(id, {
-          name: parentDoc.name,
-          camperIds: FieldValue.arrayUnion(...parentDoc.camperIds),
+          name: docUpdates.name,
+          camperIds: FieldValue.arrayUnion(...docUpdates.camperIds),
         }, transaction);
       })
     ];
