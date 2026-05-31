@@ -1,4 +1,4 @@
-import { Camper, Parent, Role, UnregisteredCamper, UnregisteredParent } from "@/types/users/userTypes";
+import { Camper, Parent, Role, UnregisteredCamper, UnregisteredEmployee, UnregisteredParent } from "@/types/users/userTypes";
 import { HttpsError, onCall } from "firebase-functions/https"
 import { ParseFamilyCSVResponse } from "@/features/userManagement/parseFamilyCSV";
 import { adminDb } from "../config/firebaseAdminConfig";
@@ -9,7 +9,7 @@ import { FieldValue } from "firebase-admin/firestore";
 export const handleFamilyCSVUpload = onCall(async (req) => {
   const role: Role | undefined = req.auth?.token.role;
   if (!role || role !== "ADMIN") {
-    throw new HttpsError("permission-denied", "User does not have permission to create new users.");
+    throw new HttpsError("permission-denied", "You do not have permission to create new users.");
   }
 
   const { campers, parents } = req.data as ParseFamilyCSVResponse;
@@ -51,4 +51,23 @@ export const handleFamilyCSVUpload = onCall(async (req) => {
     ];
     await Promise.all(promises);
   });
+});
+
+export const handleEmployeeCSVUpload = onCall(async (req) => {
+  const role: Role | undefined = req.auth?.token.role;
+  if (!role || role !== "ADMIN") {
+    throw new HttpsError("permission-denied", "You do not have permission to create new users.");
+  }
+
+  const employees = req.data as UnregisteredEmployee[];
+  await adminDb.runTransaction(async (transaction) => {
+    const allIds: number[] = employees.map(employee => employee.id);
+    const existingEmployees = await batchGetUserDocs(allIds);
+    const newEmployees = employees.filter(employee => !existingEmployees.some(user => user.id === employee.id));
+    const promises = newEmployees.map(employee => {
+      const { id, ...employeeDoc } = employee;
+      return createUserDoc(id, employeeDoc, transaction);
+    });
+    await Promise.all(promises);
+  })
 });
