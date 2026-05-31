@@ -1,109 +1,214 @@
-import { Moment, weekdaysShort } from "moment";
-
-import React, { useState } from "react";
-import { SimpleGrid, Text, Box } from "@mantine/core";
-import { SessionID } from "@/types/sessionTypes";
+import { Moment } from "moment";
+import { useMemo, useState } from "react";
+import { ActionIcon, Title, Tooltip } from "@mantine/core";
+import { Section, SectionType, Session } from "@/types/sessions/sessionTypes";
 import moment from "moment";
 import classNames from "classnames";
+import openEditSectionModal from "@/components/EditSectionModal";
+import { MonthView, ScheduleHeader, ScheduleSingleEventData } from "@mantine/schedule";
+import { MdChevronLeft, MdChevronRight } from "react-icons/md";
+import { momentRangesOverlap } from "@/utils/timeUtils";
+import useSectionList from "@/hooks/sections/useSectionList";
+import LoadingAnimation from "@/components/LoadingAnimation";
+import { useRouter } from "next/navigation";
+import useSession from "@/hooks/sessions/useSession";
+import ErrorPage from "@/app/error";
 
-interface CalendarViewProps {
-  session: SessionID;
+interface SessionCalendarProps {
+  sessionId: string;
 }
 
-export default function CalendarView({ session }: CalendarViewProps) {
+export default function SessionCalendar(props: SessionCalendarProps) {
+  const { sessionId } = props;
+  const sessionQuery = useSession(sessionId);
+  const sectionsQuery = useSectionList(sessionId, { orderBy: [{ fieldPath: "startDate", direction: "asc" }] });
+
+  if (sessionQuery.isPending || sectionsQuery.isPending) {
+    return <LoadingAnimation />;
+  } else if (sessionQuery.isError) {
+    return <ErrorPage error={sessionQuery.error} />;
+  } else if (sectionsQuery.isError) {
+    return <ErrorPage error={sectionsQuery.error} />;
+  } else {
+    return <SessionCalendarContent session={sessionQuery.data} sections={sectionsQuery.data} />;
+  }
+}
+
+const sectionTypeToEventColor: Record<SectionType, ScheduleSingleEventData['color']> = {
+  "COMMON": "blue",
+  "BUNDLE": "orange",
+  "BUNK-JAMBO": "green",
+  "NON-BUNK-JAMBO": "aqua"
+}
+
+interface SessionCalendarContentProps {
+  session: Session;
+  sections: Section[];
+}
+
+function SessionCalendarContent(props: SessionCalendarContentProps) {
+  const { session, sections } = props;
+
+  const [selectedMonth, setSelectedMonth] = useState<Moment>(
+    moment(session.startDate).startOf("month"),
+  );
   const [firstSelectedDate, setFirstSelectedDate] = useState<Moment | null>(
-    null
+    null,
   );
   const [secondSelectedDate, setSecondSelectedDate] = useState<Moment | null>(
-    null
+    null,
   );
+
+  const selectedDates = useMemo(() => {
+    if (!firstSelectedDate || !secondSelectedDate) {
+      return null;
+    }
+    const startDate = firstSelectedDate.isBefore(secondSelectedDate)
+      ? firstSelectedDate
+      : secondSelectedDate;
+    const endDate =
+      startDate === firstSelectedDate ? secondSelectedDate : firstSelectedDate;
+    return [startDate.clone().startOf("day"), endDate.clone().endOf("day")];
+  }, [firstSelectedDate, secondSelectedDate]);
+
+  const router = useRouter();
+
+  const events: ScheduleSingleEventData[] = sections.map(section => ({
+    id: section.id,
+    title: section.name,
+    start: section.startDate.toDate(),
+    end: section.endDate.toDate(),
+    payload: section,
+    color: sectionTypeToEventColor[section.type],
+    variant: 'filled',
+  }));
 
   const handlePointerDown = (date: Moment) => {
     setFirstSelectedDate(date);
     setSecondSelectedDate(date);
   };
 
-  const isSelecting = firstSelectedDate !== null;
   const handlePointerEnter = (date: Moment) => {
-    if (isSelecting) {
+    if (firstSelectedDate !== null && secondSelectedDate !== null) {
       setSecondSelectedDate(date);
     }
   };
 
-  const handlePointerUp = () => {
-    if (isSelecting) {
-      // TODO: integrate Create Section modal
-    }
+  const openCreateSectionModal = (startDate: Moment, endDate: Moment) => {
     setFirstSelectedDate(null);
     setSecondSelectedDate(null);
+    openEditSectionModal({
+      sessionId: session.id,
+      initialStartDate: startDate,
+      initialEndDate: endDate,
+    });
   };
 
-  const weekStarts = [moment(session.startDate).startOf("week")];
-  const lastWeekStart = moment(session.endDate).clone().startOf("week");
-  while (weekStarts[weekStarts.length - 1].isBefore(lastWeekStart)) {
-    weekStarts.push(weekStarts[weekStarts.length - 1].clone().add(1, "week"));
-  }
-
   return (
-    <SimpleGrid className="grid-cols-7 gap-0 select-none">
-      {weekdaysShort().map((day) => (
-        <Box
-          key={day}
-          className="p-xs bg-neutral-0 border-[1px] border-solid border-neutral-5"
-        >
-          <Text className="text-sm text-center font-bold">{day}</Text>
-        </Box>
-      ))}
-      {weekStarts.map((weekStart) =>
-        Array.from({ length: 7 }, (_, i) =>
-          weekStart.clone().add(i, "day")
-        ).map((day) => {
-          const isInSession = day.isBetween(
+    <div>
+      <ScheduleHeader className="flex items-center">
+        <Tooltip label="Previous month">
+          <ActionIcon
+            variant="outline"
+            size="md"
+            onClick={() =>
+              setSelectedMonth((prev) => prev.clone().subtract(1, "month"))
+            }
+            disabled={selectedMonth.isSame(session.startDate, "month")}
+            aria-label="Previous month"
+          >
+            <MdChevronLeft size={20} />
+          </ActionIcon>
+        </Tooltip>
+        <Tooltip label="Next month">
+          <ActionIcon
+            variant="outline"
+            size="md"
+            onClick={() =>
+              setSelectedMonth((prev) => prev.clone().add(1, "month"))
+            }
+            disabled={selectedMonth.isSame(session.endDate, "month")}
+            aria-label="Next month"
+          >
+            <MdChevronRight size={20} />
+          </ActionIcon>
+        </Tooltip>
+        <Title order={4}>{selectedMonth.format("MMMM YYYY")}</Title>
+      </ScheduleHeader>
+      <MonthView
+        date={selectedMonth.toDate()}
+        events={events}
+        classNames={{
+          monthViewInner: "rounded-none",
+          monthViewWeek: "rounded-none",
+          monthViewWeekday:
+            "rounded-none border border-solid border-neutral bg-neutral-0",
+        }}
+        getDayProps={(date) => {
+          const isInSession = moment(date).isBetween(
             session.startDate,
             session.endDate,
             "day",
-            "[]"
+            "[]",
           );
           const isInSelection =
-            firstSelectedDate &&
-            secondSelectedDate &&
-            day.isBetween(
-              firstSelectedDate.isSameOrBefore(secondSelectedDate)
-                ? firstSelectedDate
-                : secondSelectedDate,
-              firstSelectedDate.isSameOrBefore(secondSelectedDate)
-                ? secondSelectedDate
-                : firstSelectedDate,
+            isInSession &&
+            selectedDates &&
+            moment(date).isBetween(
+              selectedDates[0],
+              selectedDates[1],
               "day",
-              "[]"
+              "[]",
             );
-
-          const eventHandlers = isInSession && {
-            onPointerDown: () => handlePointerDown(day),
-            onPointerEnter: () => handlePointerEnter(day),
-            onPointerUp: () => handlePointerUp(),
-          };
-
-          return (
-            <Box
-              key={day.format("YYYY-MM-DD")}
-              {...eventHandlers}
-              className={classNames(
-                "p-xs border-[1px] border-solid border-neutral-5 text-left min-h-52",
-                {
-                  "bg-accent-blue-4": isInSession && isInSelection,
-                  "bg-neutral-2": isInSession && !isInSelection,
-                  "bg-neutral-3": !isInSession,
-                }
-              )}
-            >
-              <Text className="text-sm font-bold text-center">
-                {day.date()}
-              </Text>
-            </Box>
+          const isInWeekWithSessionDate = momentRangesOverlap(
+            [moment(session.startDate), moment(session.endDate)],
+            [moment(date).startOf("week"), moment(date).endOf("week")],
           );
-        })
-      )}
-    </SimpleGrid>
+          return {
+            className: classNames(
+              "rounded-none border border-solid border-neutral",
+              {
+                "bg-neutral-2 cursor-pointer": isInSession && !isInSelection,
+                "bg-neutral-3 cursor-default text-transparent pointer-events-none":
+                  !isInSession,
+                "bg-aqua-1 cursor-pointer": isInSelection,
+                hidden: !isInWeekWithSessionDate,
+                "text-black":
+                  moment(date).isSame(selectedMonth, "month") && isInSession,
+              },
+            ),
+            onMouseDown: () => handlePointerDown(moment(date)),
+            onPointerEnter: () => handlePointerEnter(moment(date)),
+          };
+        }}
+        consistentWeeks={false}
+        withHeader={false}
+        highlightToday={false}
+        firstDayOfWeek={0}
+        withDragSlotSelect
+        onDayClick={(date) =>
+          openCreateSectionModal(
+            moment(date).startOf("day"),
+            moment(date).endOf("day"),
+          )
+        }
+        onSlotDragEnd={(rangeStart, rangeEnd) =>
+          openCreateSectionModal(
+            moment(rangeStart).startOf("day"),
+            moment(rangeEnd).endOf("day"),
+          )
+        }
+        onEventClick={(event) => {
+          if ((event.payload as Section).type !== "COMMON") {
+            router.push(`/sessions/${session.id}/${event.id}`)
+          }
+        }}
+        moreEventsProps={{
+          classNames: {
+            moreEventsDropdown: "rounded-sm"
+          }
+        }}
+      />
+    </div>
   );
 }

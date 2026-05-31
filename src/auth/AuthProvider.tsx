@@ -1,15 +1,15 @@
 "use client";
 import { onAuthStateChanged, User, IdTokenResult } from "firebase/auth";
 import React, { JSX, createContext, useEffect, useState } from "react";
-import { auth, functions } from "@/config/firebase";
-import { httpsCallable } from "firebase/functions";
+import { auth } from "@/config/firebase";
 import LoadingPage from "@/app/loading";
+import { Role } from "@/types/users/userTypes";
 
 export interface AuthContextType {
   user: User | null;
   token: IdTokenResult | null;
+  role: Role | null;
   loading: boolean;
-  error: string | null;
 }
 
 export const AuthContext = createContext<AuthContextType>(null!);
@@ -17,28 +17,17 @@ export const AuthContext = createContext<AuthContextType>(null!);
 export default function AuthProvider({
   children,
 }: {
-  children: JSX.Element;
+  children: React.ReactNode;
 }): JSX.Element {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<IdTokenResult | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string>("");
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (newUser) => {
       setLoading(true);
       if (newUser) {
-        let newToken = await newUser.getIdTokenResult();
-        if (!newToken.claims.role) {
-          try {
-            await httpsCallable(functions, "checkWhitelist")();
-            newToken = await newUser.getIdTokenResult(true);
-          } catch {
-            setError("An error occurred while trying to authenticate.");
-            setUser(null);
-            setToken(null);
-          }
-        }
+        const newToken = await newUser.getIdTokenResult();
         setUser(newUser);
         setToken(newToken);
       } else {
@@ -55,7 +44,7 @@ export default function AuthProvider({
   }
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, error }}>
+    <AuthContext.Provider value={{ user, token, loading, role: token?.claims.role as Role | null }}>
       {children}
     </AuthContext.Provider>
   );

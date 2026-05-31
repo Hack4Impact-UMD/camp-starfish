@@ -3,16 +3,20 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    function isSignedIn() {
+    function isAuthenticated() {
       return request.auth != null;
     }
 
     function isAdmin() {
-      return isSignedIn() && request.auth.token.role == 'ADMIN';
+      return isAuthenticated() && request.auth.token.role == "ADMIN";
     }
 
     function isStaff() {
-      return isSignedIn() && request.auth.token.role == 'STAFF';
+      return isAuthenticated() && request.auth.token.role == "STAFF";
+    }
+
+    function isStaffOrAdmin() {
+      return isStaff() || isAdmin();
     }
 
     // Users are keyed by their Campminder ID, exposed on the token as a custom claim.
@@ -30,19 +34,99 @@ service cloud.firestore {
       return get(/databases/$(database)/documents/sessions/$(sessionId)/sections/$(sectionId)).data.get('isPublished', false) == true;
     }
 
+    match /userDirectory/{pageId} {
+      allow read, write: if isStaffOrAdmin();
+    }
+
+    match /users/{userId} {
+      allow read, write: if isStaffOrAdmin();
+    }
+
+    // Sessions collection: staff may only read sessions they attend; writes are admin-only.
     match /sessions/{sessionId} {
       allow read: if isAdmin() || (isStaff() && isAttendee(sessionId, currentPersonId()));
       allow write: if isAdmin();
 
+      // Sections subcollection
       match /sections/{sectionId} {
         allow read: if isAdmin() || (isStaff() && isAttendee(sessionId, currentPersonId()));
         allow write: if isAdmin();
 
+        // Section schedules subcollection: staff additionally require the section to be published.
         match /schedule/{scheduleId} {
           allow read: if isAdmin() || (isStaff() && isAttendee(sessionId, currentPersonId()) && isSectionPublished(sessionId, sectionId));
           allow write: if isAdmin();
         }
       }
+
+      // Other subcollections
+      match /attendees/{attendeeId} {
+        allow read: if isStaffOrAdmin();
+        allow write: if isStaffOrAdmin();
+      }
+
+      match /bunks/{bunkId} {
+        allow read: if isStaffOrAdmin();
+        allow write: if isStaffOrAdmin();
+      }
+
+      match /nightSchedules/{shiftId} {
+        allow read: if isStaffOrAdmin();
+        allow write: if isStaffOrAdmin();
+      }
+
+      match /freeplays/{freeplayId} {
+        allow read: if isStaffOrAdmin();
+        allow write: if isStaffOrAdmin();
+      }
+    }
+
+    // Albums collection
+    match /albums/{albumId} {
+      allow read: if isStaffOrAdmin();
+      allow write: if isStaffOrAdmin();
+
+      match /albumItems/{albumItemId} {
+        allow read: if isStaffOrAdmin();
+        allow write: if isStaffOrAdmin();
+      }
+    }
+
+    // User collections
+    match /campers/{camperId} {
+      allow read: if isStaffOrAdmin();
+      allow write: if isStaffOrAdmin();
+    }
+
+    match /parents/{parentId} {
+      allow read: if isStaffOrAdmin();
+      allow write: if isStaffOrAdmin();
+    }
+
+    match /staff/{staffId} {
+      allow read: if isStaffOrAdmin();
+      allow write: if isStaffOrAdmin();
+    }
+
+    match /admins/{adminId} {
+      allow read: if isStaffOrAdmin();
+      allow write: if isStaffOrAdmin();
+    }
+
+    match /photographers/{photographerId} {
+      allow read: if isStaffOrAdmin();
+      allow write: if isStaffOrAdmin();
+    }
+
+    // Shared resources
+    match /programAreas/{areaId} {
+      allow read: if isStaffOrAdmin();
+      allow write: if isStaffOrAdmin();
+    }
+
+    match /posts/{postId} {
+      allow read: if isStaffOrAdmin();
+      allow write: if isStaffOrAdmin();
     }
 
     match /{document=**} {

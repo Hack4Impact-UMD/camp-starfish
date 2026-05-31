@@ -2,14 +2,15 @@
 
 import AuthProvider from "@/auth/AuthProvider";
 import { queryClient } from "@/config/query";
-import { theme } from "@/styles/theme";
+import theme from "@/styles/theme";
 import { MantineProvider } from "@mantine/core";
+import { ModalsProvider } from "@mantine/modals";
 import { Notifications } from "@mantine/notifications";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { JSX } from "react";
+import React from "react";
 
 interface ProvidersProps {
-  children: JSX.Element;
+  children: React.ReactNode | React.ReactNode[];
 }
 
 export default function Providers(props: ProvidersProps) {
@@ -18,7 +19,9 @@ export default function Providers(props: ProvidersProps) {
     <QueryClientProvider client={queryClient}>
       <MantineProvider theme={theme}>
         <Notifications />
-        <AuthProvider>{children}</AuthProvider>
+        <AuthProvider>
+          <ModalsProvider>{children}</ModalsProvider>
+        </AuthProvider>
       </MantineProvider>
     </QueryClientProvider>
   );

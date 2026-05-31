@@ -1,16 +1,19 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { deleteSession } from "@/data/firestore/sessions";
+import { useMutation } from "@tanstack/react-query";
+import { deleteSessionDoc } from "@/data/firestore/sessions";
+
+interface DeleteSessionRequest {
+  sessionId: string;
+}
+
+async function deleteSession(req: DeleteSessionRequest) {
+  await deleteSessionDoc(req.sessionId);
+}
 
 export function useDeleteSession() {
-    const queryClient = useQueryClient();
-
-    return useMutation({
-        mutationFn: (sessionId: string) => deleteSession(sessionId),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["sessions"] });
-        },
-        onError: (error) => {
-            console.error("Error deleting session:", error);
-        }
-    });
+  return useMutation({
+    mutationFn: (req: DeleteSessionRequest) => deleteSession(req),
+    onSuccess: (_data, _vars, _result, { client }) => {
+      client.invalidateQueries({ queryKey: ["sessions"] });
+    }
+  });
 }
