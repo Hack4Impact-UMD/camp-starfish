@@ -4,8 +4,9 @@ import { ParseFamilyCSVResponse } from "@/data/storage/parseCampersCSV";
 import { adminDb } from "../config/firebaseAdminConfig";
 import { batchGetUserDocs, createUserDoc, updateUserDoc } from "../data/firestore/users";
 import partition from "@/utils/data/partition";
+import { FieldValue } from "firebase-admin/firestore";
 
-export const handleFamilyCSVUpload = onCall(async (req) => {
+export const handleFamilyCSVUpload = onCall({ memory:}, async (req) => {
   const role: Role | undefined = req.auth?.token.role;
   if (!role || role !== "ADMIN") {
     throw new HttpsError("permission-denied", "User does not have permission to create new users.");
@@ -31,11 +32,17 @@ export const handleFamilyCSVUpload = onCall(async (req) => {
       }),
       existingCampers.map((camper) => {
         const { id, ...camperDoc } = camper;
-        return updateUserDoc(id, camperDoc, transaction);
+        return updateUserDoc(id, {
+          name: camperDoc.name,
+          parentIds: FieldValue.arrayUnion(...camper.parentIds),
+        }, transaction);
       }),
       existingParents.map((parent) => {
         const { id, ...parentDoc } = parent;
-        return updateUserDoc(id, parentDoc, transaction);
+        return updateUserDoc(id, {
+          name: parentDoc.name,
+          camperIds: FieldValue.arrayUnion(...parentDoc.camperIds),
+        }, transaction);
       })
     ];
     await Promise.all(promises);
