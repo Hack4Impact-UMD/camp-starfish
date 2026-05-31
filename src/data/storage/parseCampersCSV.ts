@@ -24,8 +24,8 @@ export interface ParseFamilyCSVResponse {
 }
 
 function parseCamperRecords(records: FamilyCSVRecord[]): ParseFamilyCSVResponse {
-  const campers: ParseFamilyCSVResponse["campers"] = [];
-  const parents: ParseFamilyCSVResponse["parents"] = [];
+  const campers: ParseFamilyCSVResponse["campers"] = {};
+  const parents: ParseFamilyCSVResponse["parents"] = {};
 
   records.forEach((record) => {
     const camperId: number = parseInt(record.PersonID);
