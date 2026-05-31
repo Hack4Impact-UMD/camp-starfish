@@ -1,6 +1,6 @@
 import { Camper, Parent, Role, UnregisteredCamper, UnregisteredParent } from "@/types/users/userTypes";
 import { HttpsError, onCall } from "firebase-functions/https"
-import { ParseFamilyCSVResponse } from "@/data/storage/parseCampersCSV";
+import { ParseFamilyCSVResponse } from "@/features/userManagement/parseFamilyCSV";
 import { adminDb } from "../config/firebaseAdminConfig";
 import { batchGetUserDocs, createUserDoc, updateUserDoc } from "../data/firestore/users";
 import partition from "@/utils/data/partition";
