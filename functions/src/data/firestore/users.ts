@@ -10,7 +10,7 @@ import {
   UpdateData,
   WithFieldValue,
 } from "firebase-admin/firestore";
-import { createDoc, getDoc, updateDoc, deleteDoc, executeQuery } from "./firestoreAdminOperations";
+import { createDoc, getDoc, updateDoc, deleteDoc, executeQuery, batchGetDocs } from "./firestoreAdminOperations";
 import { RootLevelCollection } from "@/data/firestore/types/collections";
 import { adminDb } from "../../config/firebaseAdminConfig";
 
@@ -26,6 +26,11 @@ export async function getUserById(id: number, transaction?: Transaction): Promis
   const snapshot = await getDoc<UserDoc>(adminDb.collection(RootLevelCollection.USERS).doc(String(id)) as DocumentReference<UserDoc, UserDoc>, transaction);
   return fromFirestore(snapshot);
 };
+
+export async function batchGetUserDocs(ids: number[], transaction?: Transaction): Promise<User[]> {
+  const snapshots = await batchGetDocs<UserDoc>(adminDb.collection(RootLevelCollection.USERS) as CollectionReference<UserDoc, UserDoc>, ids.map(id => String(id)), transaction);
+  return snapshots.map(fromFirestore);
+}
 
 export async function getUserByEmail(email: string, transaction?: Transaction): Promise<User> {
   const snapshots = await executeQuery<UserDoc>(adminDb.collection(RootLevelCollection.USERS) as CollectionReference<UserDoc, UserDoc>, {
