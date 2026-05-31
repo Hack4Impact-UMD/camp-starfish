@@ -6,14 +6,14 @@ export class FreeplayScheduler {
   staff: { [staffId: number]: StaffAttendee; } | null;
   admins: { [adminId: number]: AdminAttendee; } | null;
   posts: { [postId: string]: Post } | null;
-
-  otherFreeplayBuddies: { [attendeeId: number]: number[] } = {};
+  otherFreeplays: { [freeplayDate: string]: Freeplay } | null;
 
   constructor() {
     this.campers = null;
     this.staff = null;
     this.admins = null;
     this.posts = null;
+    this.otherFreeplays = null;
   }
 
   withCampers(campers: CamperAttendee[]): FreeplayScheduler {
@@ -36,8 +36,12 @@ export class FreeplayScheduler {
     return this;
   }
 
-  // withOtherFreeplays should build the previousFreeplayBuddies object
   withOtherFreeplays(otherFreeplays: Freeplay[]): FreeplayScheduler {
+    this.otherFreeplays = toRecord(otherFreeplays, f => f.date);
+    return this;
+  }
+
+  buildOtherFreeplayBuddies(otherFreeplays: Freeplay[]): FreeplayScheduler {
     for (const freeplay of otherFreeplays) {
       for (const buddieIDStr in freeplay.buddies) {
         const buddieID = Number(buddieIDStr);
