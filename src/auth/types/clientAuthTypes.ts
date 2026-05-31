@@ -3,6 +3,7 @@ import { UserRole } from "@/types/personTypes";
 
 export interface CustomClaims {
   role?: UserRole;
+  campminderId?: number;
 }
 
 export type ParsedTokenWithCustomClaims = ParsedToken & CustomClaims;
