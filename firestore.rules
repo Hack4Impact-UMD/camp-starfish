@@ -30,8 +30,10 @@ service cloud.firestore {
       return exists(/databases/$(database)/documents/sessions/$(sessionId)/attendees/$(personId));
     }
 
+    // A section is published when its `publishedAt` timestamp is set; unpublishing
+    // deletes the field, so absence means unpublished.
     function isSectionPublished(sessionId, sectionId) {
-      return get(/databases/$(database)/documents/sessions/$(sessionId)/sections/$(sectionId)).data.get('isPublished', false) == true;
+      return get(/databases/$(database)/documents/sessions/$(sessionId)/sections/$(sectionId)).data.get('publishedAt', null) != null;
     }
 
     match /userDirectory/{pageId} {
@@ -42,20 +44,20 @@ service cloud.firestore {
       allow read, write: if isStaffOrAdmin();
     }
 
-    // Sessions collection: staff may only read sessions they attend; writes are admin-only.
+    // Sessions collection: staff may only read sessions they attend.
     match /sessions/{sessionId} {
       allow read: if isAdmin() || (isStaff() && isAttendee(sessionId, currentPersonId()));
-      allow write: if isAdmin();
+      allow write: if isStaffOrAdmin();
 
       // Sections subcollection
       match /sections/{sectionId} {
         allow read: if isAdmin() || (isStaff() && isAttendee(sessionId, currentPersonId()));
-        allow write: if isAdmin();
+        allow write: if isStaffOrAdmin();
 
-        // Section schedules subcollection: staff additionally require the section to be published.
+        // Section schedules subcollection: staff additionally require the section to be published to read.
         match /schedule/{scheduleId} {
           allow read: if isAdmin() || (isStaff() && isAttendee(sessionId, currentPersonId()) && isSectionPublished(sessionId, sectionId));
-          allow write: if isAdmin();
+          allow write: if isStaffOrAdmin();
         }
       }
 

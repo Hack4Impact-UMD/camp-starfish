@@ -26,8 +26,10 @@ service firebase.storage {
       return firestore.exists(/databases/(default)/documents/sessions/$(sessionId)/attendees/$(personId));
     }
 
+    // A section is published when its `publishedAt` timestamp is set; unpublishing
+    // deletes the field, so absence means unpublished.
     function isSectionPublished(sessionId, sectionId) {
-      return firestore.get(/databases/(default)/documents/sessions/$(sessionId)/sections/$(sectionId)).data.get('isPublished', false) == true;
+      return firestore.get(/databases/(default)/documents/sessions/$(sessionId)/sections/$(sectionId)).data.get('publishedAt', null) != null;
     }
 
     match /schedules/{sessionId}/{file} {
