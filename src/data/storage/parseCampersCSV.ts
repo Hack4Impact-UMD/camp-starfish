@@ -18,7 +18,7 @@ type FamilyCSVRecord = BaseFamilyCSVRecord | BaseFamilyCSVRecord & {
   "F1P2 Login/Email": string;
 };
 
-interface ParseFamilyCSVResponse {
+export interface ParseFamilyCSVResponse {
   campers: { [camperId: number]: Pick<Camper, "id" | "name" | "parentIds">; };
   parents: { [parentId: number]: Pick<Parent, "id" | "name" | "email" | "camperIds">; };
 }
