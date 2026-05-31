@@ -1,32 +1,40 @@
+import { toRecord } from "@/utils/data/toRecord";
 import { StaffAttendee, AdminAttendee, CamperAttendee, Freeplay, Post } from "../../../types/sessions/sessionTypes";
 
 export class FreeplayScheduler {
-  schedule: Freeplay | null = null;
-
-  campers: CamperAttendee[] = [];
-  staff: StaffAttendee[] = [];
-  admins: AdminAttendee[] = [];
-
-  posts: Post[] = [];
+  campers: { [camperId: number]: CamperAttendee; };
+  staff: { [staffId: number]: StaffAttendee; };
+  admins: { [adminId: number]: AdminAttendee; };
+  posts: { [postId: string]: Post };
 
   otherFreeplayBuddies: { [attendeeId: number]: number[] } = {};
 
-  // postInfo includes a list of all posts with PostID information (necessary for requiresAdmin flag) --> schedule only includes string of IDs
-  constructor() { }
+  constructor() {
+    this.campers = {};
+    this.staff = {};
+    this.admins = {};
+    this.posts = {};
+  }
 
-  withSchedule(schedule: Freeplay): FreeplayScheduler { this.schedule = schedule; return this; }
+  withCampers(campers: CamperAttendee[]): FreeplayScheduler {
+    this.campers = toRecord(campers, c => c.attendeeId);
+    return this;
+  }
 
-  withCampers(campers: CamperAttendee[]): FreeplayScheduler { this.campers = campers; return this; }
+  withStaff(staff: StaffAttendee[]): FreeplayScheduler {
+    this.staff = toRecord(staff, s => s.attendeeId);
+    return this;
+  }
 
-  withStaff(staff: StaffAttendee[]): FreeplayScheduler { this.staff = staff; return this; }
+  withAdmins(admins: AdminAttendee[]): FreeplayScheduler {
+    this.admins = toRecord(admins, a => a.attendeeId);
+    return this;
+  }
 
-  withAdmins(admins: AdminAttendee[]): FreeplayScheduler { this.admins = admins; return this; }
-
-  withPosts(posts: Post[]): FreeplayScheduler { this.posts = posts; return this; }
-
-  getCamperById = (id: number) => this.campers.find(c => c.attendeeId === id);
-
-  getPostByID = (id: string) => this.posts.find(p => p.name === id);
+  withPosts(posts: Post[]): FreeplayScheduler {
+    this.posts = toRecord(posts, p => p.id);
+    return this;
+  }
 
   // withOtherFreeplays should build the previousFreeplayBuddies object
   withOtherFreeplays(otherFreeplays: Freeplay[]): FreeplayScheduler {
