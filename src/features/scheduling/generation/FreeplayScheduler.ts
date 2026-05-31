@@ -2,18 +2,18 @@ import { toRecord } from "@/utils/data/toRecord";
 import { StaffAttendee, AdminAttendee, CamperAttendee, Freeplay, Post } from "../../../types/sessions/sessionTypes";
 
 export class FreeplayScheduler {
-  campers: { [camperId: number]: CamperAttendee; };
-  staff: { [staffId: number]: StaffAttendee; };
-  admins: { [adminId: number]: AdminAttendee; };
-  posts: { [postId: string]: Post };
+  campers: { [camperId: number]: CamperAttendee; } | null;
+  staff: { [staffId: number]: StaffAttendee; } | null;
+  admins: { [adminId: number]: AdminAttendee; } | null;
+  posts: { [postId: string]: Post } | null;
 
   otherFreeplayBuddies: { [attendeeId: number]: number[] } = {};
 
   constructor() {
-    this.campers = {};
-    this.staff = {};
-    this.admins = {};
-    this.posts = {};
+    this.campers = null;
+    this.staff = null;
+    this.admins = null;
+    this.posts = null;
   }
 
   withCampers(campers: CamperAttendee[]): FreeplayScheduler {
