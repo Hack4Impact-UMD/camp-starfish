@@ -6,7 +6,9 @@ export class FreeplayScheduler {
   staff: { [staffId: number]: StaffAttendee; } | null;
   admins: { [adminId: number]: AdminAttendee; } | null;
   posts: { [postId: string]: Post } | null;
-  otherFreeplays: { [freeplayDate: string]: Freeplay } | null;
+  otherFreeplays: Freeplay[] | null;
+
+  schedule: Freeplay | null = null;
 
   constructor() {
     this.campers = null;
@@ -37,12 +39,57 @@ export class FreeplayScheduler {
   }
 
   withOtherFreeplays(otherFreeplays: Freeplay[]): FreeplayScheduler {
-    this.otherFreeplays = toRecord(otherFreeplays, f => f.date);
+    this.otherFreeplays = otherFreeplays;
     return this;
   }
 
-  buildOtherFreeplayBuddies(otherFreeplays: Freeplay[]): FreeplayScheduler {
-    for (const freeplay of otherFreeplays) {
+  generateSchedule() {
+    if (!this.campers || !this.staff || !this.admins || !this.posts || !this.otherFreeplays) {
+      throw new Error("Missing required data for scheduling")
+    }
+
+    const eligibleFreeplayBuddies = this.buildEligibleFreeplayBuddies();
+
+    // assign posts
+    // assign campers to freeplay employees
+  }
+
+  buildEligibleFreeplayBuddies(): { [attendeeId: number]: Set<number>; } {
+    if (!this.campers || !this.staff || !this.admins || !this.otherFreeplays) {
+      throw Error("Missing required data for scheduling")
+    }
+
+    const pastFreeplayBuddies: { [attendeeId: number]: Set<number>; } = {};
+    for (const freeplay of this.otherFreeplays) {
+      for (const [employeeIdStr, camperIds] of Object.entries(freeplay.buddies)) {
+        const employeeId = Number(employeeIdStr);
+        if (!(employeeId in pastFreeplayBuddies)) {
+          pastFreeplayBuddies[employeeId] = new Set();
+        }
+        camperIds.forEach(camperId => {
+          pastFreeplayBuddies[employeeId].add(camperId);
+          if (!(camperId in pastFreeplayBuddies)) {
+            pastFreeplayBuddies[camperId] = new Set();
+          }
+          pastFreeplayBuddies[camperId].add(employeeId);
+        });
+      }
+    }
+
+    const employeeIds: number[] = [...Object.keys(this.staff).map(s => Number(s)), ...Object.keys(this.admins).map(a => Number(a))];
+    const eligibleFreeplayBuddies: { [attendeeId: number]: number[]; } = {};
+    for (const camperIdStr in this.campers) {
+      const camperId = Number(camperIdStr);
+      eligibleFreeplayBuddies[camperId] = employeeIds.filter(employeeId => !this.campers[camperId].snapshot.nonoList.includes(employeeId) && !pastFreeplayBuddies[camperId].has(employeeId));
+    }
+    for (const staffIdStr in this.staff) {
+      const staffId = Number(staffIdStr);
+      eligibleFreeplayBuddies[staffId] = employeeIds.filter(employeeId)
+    }
+
+
+
+    for (const freeplay of this.otherFreeplays) {
       for (const buddieIDStr in freeplay.buddies) {
         const buddieID = Number(buddieIDStr);
         if (buddieID in this.otherFreeplayBuddies) {
