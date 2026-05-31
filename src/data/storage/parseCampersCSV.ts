@@ -89,9 +89,8 @@ const REQUIRED_COLUMNS = [
 ]
 
 export async function parseCampersCSV(file: File): Promise<ParseFamilyCSVResponse> {
-  let rawText = await file.text();
-
-  let records = parse(rawText, {
+  const rawText = await file.text();
+  const records = parse(rawText, {
     columns: (cols: string[]) => {
       const missingColumns = REQUIRED_COLUMNS.filter(col => !cols.includes(col));
       if (missingColumns.length > 0) {
