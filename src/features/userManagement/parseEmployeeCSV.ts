@@ -1,4 +1,4 @@
-import { Camper, Parent, UnregisteredEmployee } from "@/types/users/userTypes";
+import { UnregisteredEmployee } from "@/types/users/userTypes";
 import { parse } from "csv-parse/sync";
 
 interface EmployeeCSVRecord {
