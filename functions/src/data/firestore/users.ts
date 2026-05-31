@@ -22,7 +22,7 @@ function fromFirestore(snapshot: DocumentSnapshot<UserDoc, UserDoc> | QueryDocum
   }
 }
 
-export async function getUserById(id: number, transaction?: Transaction): Promise<User> {
+export async function getUserDocById(id: number, transaction?: Transaction): Promise<User> {
   const snapshot = await getDoc<UserDoc>(adminDb.collection(RootLevelCollection.USERS).doc(String(id)) as DocumentReference<UserDoc, UserDoc>, transaction);
   return fromFirestore(snapshot);
 };
@@ -32,7 +32,7 @@ export async function batchGetUserDocs(ids: number[], transaction?: Transaction)
   return snapshots.map(fromFirestore);
 }
 
-export async function getUserByEmail(email: string, transaction?: Transaction): Promise<User> {
+export async function getUserDocByEmail(email: string, transaction?: Transaction): Promise<User> {
   const snapshots = await executeQuery<UserDoc>(adminDb.collection(RootLevelCollection.USERS) as CollectionReference<UserDoc, UserDoc>, {
     transaction,
     queryOptions: {
@@ -46,14 +46,14 @@ export async function getUserByEmail(email: string, transaction?: Transaction): 
   return fromFirestore(snapshots[0]);
 }
 
-export async function createUser(id: number, user: WithFieldValue<UserDoc>, instance?: Transaction | WriteBatch): Promise<void> {
+export async function createUserDoc(id: number, user: WithFieldValue<UserDoc>, instance?: Transaction | WriteBatch): Promise<void> {
   await createDoc<UserDoc>(adminDb.collection(RootLevelCollection.USERS).doc(String(id)) as DocumentReference<UserDoc, UserDoc>, user, instance);
 }
 
-export async function updateUser(id: number, updates: UpdateData<UserDoc>, instance?: Transaction | WriteBatch): Promise<void> {
+export async function updateUserDoc(id: number, updates: UpdateData<UserDoc>, instance?: Transaction | WriteBatch): Promise<void> {
   await updateDoc<UserDoc>(adminDb.collection(RootLevelCollection.USERS).doc(String(id)) as DocumentReference<UserDoc, UserDoc>, updates, instance);
 }
 
-export async function deleteUser(id: number, instance?: Transaction | WriteBatch): Promise<void> {
+export async function deleteUserDoc(id: number, instance?: Transaction | WriteBatch): Promise<void> {
   await deleteDoc<UserDoc>(adminDb.collection(RootLevelCollection.USERS).doc(String(id)) as DocumentReference<UserDoc, UserDoc>, instance);
 }
