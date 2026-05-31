@@ -42,6 +42,7 @@ export interface Counselor extends BaseUser {
   nonoListIds: number[];
   yesyesListIds: number[];
 }
+export type UnregisteredCounselor = Pick<Counselor, "id" | "name" | "role" | "email">;
 
 export interface Staff extends Counselor {
   role: "STAFF"
