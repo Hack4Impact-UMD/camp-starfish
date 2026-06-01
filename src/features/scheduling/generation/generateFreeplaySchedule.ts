@@ -35,7 +35,6 @@ export default function generateFreeplaySchedule(req: GenerateFreeplayScheduleRe
   const campersById = toRecord(campers, c => c.attendeeId);
   const staffById = toRecord(staff, s => s.attendeeId);
   const adminsById = toRecord(admins, a => a.attendeeId);
-  const employeesById = { ...staffById, ...adminsById };
   const attendeesById = { ...campersById, ...staffById, ...adminsById };
 
   const buddiesInOtherFreeplays: { [attendeeId: number]: Set<number>; } = {};
