@@ -59,12 +59,12 @@ export default function generateFreeplaySchedule(req: GenerateFreeplayScheduleRe
   const buddyCandidatesById: { [attendeeId: number]: Set<number>; } = {};
   attendees.forEach(attendee => buddyCandidatesById[attendee.attendeeId] = new Set((attendee.role === "CAMPER" ? employeeIds : camperIds).filter(potentialCandidateId => !attendee.snapshot.nonoList.includes(potentialCandidateId) && !buddiesInOtherFreeplays[attendee.attendeeId].has(potentialCandidateId))));
 
-  const numEmployeesAssignedToPosts = Math.max(posts.length, employeeIds.length - camperIds.length);
   let unassignedCamperIds: number[] = camperIds;
   let unassignedStaffIds: number[] = staff.map(staff => staff.attendeeId);
   let unassignedAdminIds: number[] = admins.map(admin => admin.attendeeId);
-  // assign admins & some staff to posts
+
   const postAssignments: Freeplay["posts"] = {};
+  const numEmployeesAssignedToPosts = Math.max(posts.length, employeeIds.length - camperIds.length);
   const { trueGroup: postsRequiringAdminSupervision, falseGroup: postsNotRequiringAdminSupervision } = partition(posts, post => post.requiresAdminSupervision);
   if (postsRequiringAdminSupervision.length > unassignedAdminIds.length) {
     throw Error(`There are ${postsRequiringAdminSupervision.length} posts that require admin supervision, but there are only ${unassignedAdminIds.length} admins in the session.`);
@@ -102,11 +102,9 @@ export default function generateFreeplaySchedule(req: GenerateFreeplayScheduleRe
     unassignedStaffIds = unassignedStaffIds.slice(1);
   }
 
-
-
-
   // assign campers to remaining staff & admins
-
+  const buddyAssignments: Freeplay["buddies"] = {};
+  const num
 
   // return schedule
   return {
