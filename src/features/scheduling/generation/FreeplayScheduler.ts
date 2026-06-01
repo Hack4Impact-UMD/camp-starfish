@@ -59,10 +59,10 @@ export default function generateFreeplaySchedule(req: GenerateFreeplayScheduleRe
   const buddyCandidatesById: { [attendeeId: number]: Set<number>; } = {};
   attendees.forEach(attendee => buddyCandidatesById[attendee.attendeeId] = new Set((attendee.role === "CAMPER" ? employeeIds : camperIds).filter(potentialCandidateId => !attendee.snapshot.nonoList.includes(potentialCandidateId) && !buddiesInOtherFreeplays[attendee.attendeeId].has(potentialCandidateId))));
 
+  const numEmployeesAssignedToPosts = Math.max(posts.length, employeeIds.length - camperIds.length);
   let unassignedCamperIds: number[] = camperIds;
   let unassignedStaffIds: number[] = staff.map(staff => staff.attendeeId);
   let unassignedAdminIds: number[] = admins.map(admin => admin.attendeeId);
-
   // assign admins & some staff to posts
   const postAssignments: Freeplay["posts"] = {};
   const { trueGroup: postsRequiringAdminSupervision, falseGroup: postsNotRequiringAdminSupervision } = partition(posts, post => post.requiresAdminSupervision);
@@ -87,6 +87,19 @@ export default function generateFreeplaySchedule(req: GenerateFreeplayScheduleRe
     const staffId = unassignedStaffIds[staffIndex];
     postAssignments[post.id] = [staffId];
     unassignedStaffIds = unassignedStaffIds.filter((_, i) => i !== staffIndex);
+  }
+  for (let i = 0; i < numEmployeesAssignedToPosts - posts.length; i++) {
+    if (unassignedAdminIds.length !== 0) {
+      const postIndex = Math.floor(Math.random() * posts.length);
+      const postId = posts[postIndex].id;
+      postAssignments[postId].push(unassignedAdminIds[0]);
+      unassignedAdminIds = unassignedAdminIds.slice(1);
+      break;
+    }
+    const postindex = Math.floor(Math.random() * postsNotRequiringAdminSupervision.length);
+    const postId = postsNotRequiringAdminSupervision[postindex].id;
+    postAssignments[postId].push(unassignedStaffIds[0]);
+    unassignedStaffIds = unassignedStaffIds.slice(1);
   }
 
 
