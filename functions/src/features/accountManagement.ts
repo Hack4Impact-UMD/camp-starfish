@@ -1,6 +1,6 @@
 import { HttpsError } from "firebase-functions/https";
 import { beforeUserCreated } from "firebase-functions/v2/identity";
-import { getUserByEmail } from "../data/firestore/users";
+import { getUserDocByEmail } from "../data/firestore/users";
 
 const checkAllowlist = beforeUserCreated(async (event) => {
   const email = event.data?.email;
@@ -14,7 +14,7 @@ const checkAllowlist = beforeUserCreated(async (event) => {
   }
 
   try {
-    const user = await getUserByEmail(email);
+    const user = await getUserDocByEmail(email);
     return {
       customClaims: {
         role: user.role,
