@@ -59,7 +59,7 @@ export default function generateFreeplaySchedule(req: GenerateFreeplayScheduleRe
   const buddyCandidatesById: { [attendeeId: number]: Set<number>; } = {};
   attendees.forEach(attendee => buddyCandidatesById[attendee.attendeeId] = new Set((attendee.role === "CAMPER" ? employeeIds : camperIds).filter(potentialCandidateId => !attendee.snapshot.nonoList.includes(potentialCandidateId) && !buddiesInOtherFreeplays[attendee.attendeeId].has(potentialCandidateId) && (attendee.snapshot.gender !== "Female" || employeesById[potentialCandidateId].snapshot.gender === "Female"))));
 
-  let unassignedCamperIds: number[] = camperIds;
+  const unassignedCamperIds: number[] = camperIds;
   let unassignedStaffIds: number[] = staff.map(staff => staff.attendeeId);
   let unassignedAdminIds: number[] = admins.map(admin => admin.attendeeId);
 
@@ -108,7 +108,7 @@ export default function generateFreeplaySchedule(req: GenerateFreeplayScheduleRe
   const numExtraCampers = unassignedCamperIds.length - unassignedAdminIds.length - unassignedStaffIds.length;
   const numExtraCampersToGroupPerBunk = Math.floor(numExtraCampers / numBunks);
   const numBunksWithAdditionalCamperToGroup = numExtraCampers % numBunks;
-  let camperGroups: (number | number[])[] = [];
+  const camperGroups: (number | number[])[] = [];
   for (let i = 0; i < Math.min(numExtraCampers, numBunks); i++) {
     const bunkIndex = Math.floor(Math.random() * ungroupedBunkNums.length);
     const bunkNum = ungroupedBunkNums[bunkIndex];
