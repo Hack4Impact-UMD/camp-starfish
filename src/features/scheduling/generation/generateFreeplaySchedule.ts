@@ -14,7 +14,6 @@ interface GenerateFreeplayScheduleRequest {
 export default function generateFreeplaySchedule(req: GenerateFreeplayScheduleRequest): Freeplay {
   const { sessionId, date, attendees, posts, otherFreeplaysInSession } = req;
 
-  // create useful data structures
   const campers: CamperAttendee[] = [];
   const staff: StaffAttendee[] = [];
   const admins: AdminAttendee[] = [];
@@ -149,7 +148,6 @@ export default function generateFreeplaySchedule(req: GenerateFreeplayScheduleRe
     const camperGroup = camperGroupsWithBuddyCandidates[i].camperGroup;
     buddyAssignments[unassignedEmployeeIds[i]] = typeof camperGroup === "number" ? [camperGroup] : camperGroup;
   }
-
 
   return {
     sessionId,
