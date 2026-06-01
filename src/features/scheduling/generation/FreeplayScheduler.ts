@@ -102,7 +102,30 @@ export default function generateFreeplaySchedule(req: GenerateFreeplayScheduleRe
     unassignedStaffIds = unassignedStaffIds.slice(1);
   }
 
-  // assign campers to remaining staff & admins
+  const campersByBunk: { [bunkNum: number]: number[] } = groupBy(camperIds, camperId => campersById[camperId].bunk);
+  let ungroupedBunkNums = Object.keys(campersByBunk).map(bunkNum => Number(bunkNum));
+  const numBunks = ungroupedBunkNums.length;
+  const numExtraCampers = unassignedCamperIds.length - unassignedAdminIds.length - unassignedStaffIds.length;
+  const numExtraCampersToGroupPerBunk = Math.floor(numExtraCampers / numBunks);
+  const numBunksWithAdditionalCamperToGroup = numExtraCampers % numBunks;
+  const camperGroups: (number | number[])[] = [];
+  for (let i = 0; i < Math.min(numExtraCampers, numBunks); i++) {
+    const bunkIndex = Math.floor(Math.random() * ungroupedBunkNums.length);
+    const bunkNum = ungroupedBunkNums[bunkIndex];
+    ungroupedBunkNums = ungroupedBunkNums.filter((_, i) => i !== bunkIndex);
+
+    const numCampersInGroup = numExtraCampersToGroupPerBunk + (i < numBunksWithAdditionalCamperToGroup ? 1 : 0);
+    const bunkGroup: number[] = [];
+    for (let j = 0; j < numCampersInGroup; j++) {
+      const camperIndex = Math.floor(Math.random() * campersByBunk[bunkNum].length);
+      const camperId = campersByBunk[bunkNum][camperIndex];
+      campersByBunk[bunkNum] = campersByBunk[bunkNum].filter((_, i) => i !== camperIndex);
+      bunkGroup.push(camperId);
+    }
+    camperGroups.push(bunkGroup);
+    campersByBunk[bunkNum].forEach(camperId => camperGroups.push(camperId));
+  }
+
   const buddyAssignments: Freeplay["buddies"] = {};
   const num
 
