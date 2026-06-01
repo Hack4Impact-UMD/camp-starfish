@@ -86,7 +86,7 @@ export default function generateFreeplaySchedule(req: GenerateFreeplayScheduleRe
       const adminId = unassignedAdminIds[adminIndex];
       postAssignments[post.id] = [adminId];
       unassignedAdminIds = unassignedAdminIds.filter((_, i) => i !== adminIndex);
-      break;
+      continue;
     }
     const staffIndex = Math.floor(Math.random() * unassignedStaffIds.length);
     const staffId = unassignedStaffIds[staffIndex];
@@ -99,7 +99,7 @@ export default function generateFreeplaySchedule(req: GenerateFreeplayScheduleRe
       const postId = posts[postIndex].id;
       postAssignments[postId].push(unassignedAdminIds[0]);
       unassignedAdminIds = unassignedAdminIds.slice(1);
-      break;
+      continue;
     }
     const postindex = Math.floor(Math.random() * postsNotRequiringAdminSupervision.length);
     const postId = postsNotRequiringAdminSupervision[postindex].id;
