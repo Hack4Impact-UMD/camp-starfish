@@ -114,11 +114,14 @@ export default function generateFreeplaySchedule(req: GenerateFreeplayScheduleRe
   const numExtraCampersToGroupPerBunk = Math.floor(numExtraCampers / numBunks);
   const numBunksWithAdditionalCamperToGroup = numExtraCampers % numBunks;
   const camperGroups: (number | number[])[] = [];
-  for (let i = 0; i < Math.min(numExtraCampers, numBunks); i++) {
+  for (let i = 0; i < numBunks; i++) {
     const bunkIndex = Math.floor(Math.random() * ungroupedBunkNums.length);
     const bunkNum = ungroupedBunkNums[bunkIndex];
     ungroupedBunkNums = ungroupedBunkNums.filter((_, i) => i !== bunkIndex);
-
+    if (i >= numExtraCampers) {
+      campersByBunk[bunkNum].forEach(camperId => camperGroups.push(camperId));
+      continue;
+    }
     const numCampersInGroup = numExtraCampersToGroupPerBunk + (i < numBunksWithAdditionalCamperToGroup ? 1 : 0);
     const bunkGroup: number[] = [];
     for (let j = 0; j < numCampersInGroup; j++) {
