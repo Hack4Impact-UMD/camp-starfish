@@ -36,6 +36,7 @@ export default function generateFreeplaySchedule(req: GenerateFreeplayScheduleRe
   const staffById = toRecord(staff, s => s.attendeeId);
   const adminsById = toRecord(admins, a => a.attendeeId);
   const employeesById = { ...staffById, ...adminsById };
+  const attendeesById = { ...campersById, ...staffById, ...adminsById };
 
   const buddiesInOtherFreeplays: { [attendeeId: number]: Set<number>; } = {};
   for (const freeplay of otherFreeplaysInSession) {
@@ -57,7 +58,12 @@ export default function generateFreeplaySchedule(req: GenerateFreeplayScheduleRe
   const camperIds = campers.map(camper => camper.attendeeId);
   const employeeIds = [...staff, ...admins].map(employee => employee.attendeeId);
   const buddyCandidatesById: { [attendeeId: number]: Set<number>; } = {};
-  attendees.forEach(attendee => buddyCandidatesById[attendee.attendeeId] = new Set((attendee.role === "CAMPER" ? employeeIds : camperIds).filter(potentialCandidateId => !attendee.snapshot.nonoList.includes(potentialCandidateId) && !buddiesInOtherFreeplays[attendee.attendeeId].has(potentialCandidateId) && (attendee.snapshot.gender !== "Female" || employeesById[potentialCandidateId].snapshot.gender === "Female"))));
+  attendees.forEach(attendee => buddyCandidatesById[attendee.attendeeId] = new Set((attendee.role === "CAMPER" ? employeeIds : camperIds).filter(potentialCandidateId => {
+    const isPotentialCandidateOnNonoList = attendee.snapshot.nonoList.includes(potentialCandidateId);
+    const isPotentialCandidateBuddyInOtherFreeplay = buddiesInOtherFreeplays[attendee.attendeeId].has(potentialCandidateId);
+    const areInSameBunk = areAttendeesInSameBunk(attendee, attendeesById[potentialCandidateId]);
+    return !isPotentialCandidateOnNonoList && !isPotentialCandidateBuddyInOtherFreeplay && !areInSameBunk && isFemaleEmployeeAssignedToFemaleCamper(attendee, attendeesById[potentialCandidateId]);
+  })));
 
   const unassignedCamperIds: number[] = camperIds;
   let unassignedStaffIds: number[] = staff.map(staff => staff.attendeeId);
@@ -155,4 +161,20 @@ export default function generateFreeplaySchedule(req: GenerateFreeplayScheduleRe
     buddies: buddyAssignments,
     posts: postAssignments
   }
+}
+
+function isFemaleEmployeeAssignedToFemaleCamper(buddy1: Attendee, buddy2: Attendee) {
+  if ((buddy1.role === "CAMPER" && buddy2.role === "CAMPER") || (buddy1.role !== "CAMPER" && buddy2.role !== "CAMPER")) {
+    return false;
+  } else if (buddy1.role === "CAMPER") {
+    return buddy1.snapshot.gender === "Female" ? buddy2.snapshot.gender === "Female" : false;
+  }
+  return buddy2.snapshot.gender === "Female" ? buddy1.snapshot.gender === "Female" : false;
+}
+
+function areAttendeesInSameBunk(attendee1: Attendee, attendee2: Attendee) {
+  if (attendee1.role === "ADMIN" || attendee2.role === "ADMIN") {
+    return false;
+  }
+  return attendee1.bunk === attendee2.bunk;
 }
