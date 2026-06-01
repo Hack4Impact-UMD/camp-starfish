@@ -36,6 +36,7 @@ export default function generateFreeplaySchedule(req: GenerateFreeplayScheduleRe
   const campersById = toRecord(campers, c => c.attendeeId);
   const staffById = toRecord(staff, s => s.attendeeId);
   const adminsById = toRecord(admins, a => a.attendeeId);
+  const employeesById = { ...staffById, ...adminsById };
 
   const buddiesInOtherFreeplays: { [attendeeId: number]: Set<number>; } = {};
   for (const freeplay of otherFreeplaysInSession) {
@@ -108,7 +109,7 @@ export default function generateFreeplaySchedule(req: GenerateFreeplayScheduleRe
   const numExtraCampers = unassignedCamperIds.length - unassignedAdminIds.length - unassignedStaffIds.length;
   const numExtraCampersToGroupPerBunk = Math.floor(numExtraCampers / numBunks);
   const numBunksWithAdditionalCamperToGroup = numExtraCampers % numBunks;
-  const camperGroups: (number | number[])[] = [];
+  let camperGroups: (number | number[])[] = [];
   for (let i = 0; i < Math.min(numExtraCampers, numBunks); i++) {
     const bunkIndex = Math.floor(Math.random() * ungroupedBunkNums.length);
     const bunkNum = ungroupedBunkNums[bunkIndex];
@@ -127,13 +128,22 @@ export default function generateFreeplaySchedule(req: GenerateFreeplayScheduleRe
   }
 
   const buddyAssignments: Freeplay["buddies"] = {};
-  const num
+  let camperGroupsWithBuddyCandidates = camperGroups.map(camperGroup => ({camperGroup, buddyCandidates: typeof camperGroup === "number" ? buddyCandidatesById[camperGroup] : camperGroup.reduce((prev, camperId) => prev.union(buddyCandidatesById[camperId]), new Set<number>())}))
+  const numEmployeesToAssign = unassignedAdminIds.length + unassignedStaffIds.length;
+  for (let i = 0; i < numEmployeesToAssign; i++) {
+    const employeeId = unassignedAdminIds.shift() ?? unassignedStaffIds.shift()!;
+    const validCamperGroups = camperGroupsWithBuddyCandidates.filter(({ buddyCandidates }) => buddyCandidates.has(employeeId));
+    const camperGroupIndex = Math.floor(Math.random() * validCamperGroups.length);
+    const assignedCamperGroup = validCamperGroups[camperGroupIndex];
+    camperGroupsWithBuddyCandidates = camperGroupsWithBuddyCandidates.filter((_, i) => i !== camperGroupIndex);
+    buddyAssignments[employeeId] = typeof assignedCamperGroup.camperGroup === "number" ? [assignedCamperGroup.camperGroup] : assignedCamperGroup.camperGroup;
+  }
 
-  // return schedule
+
   return {
     sessionId,
     date,
-    buddies: {},
+    buddies: buddyAssignments,
     posts: postAssignments
   }
 }
