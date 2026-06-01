@@ -2,13 +2,12 @@
 
 import { useAuth } from "@/auth/useAuth";
 import GalleryCardOne from "../components/GalleryCardOne";
-
+import React from 'react';
 
 export default function EmployeeHomePage() {
   const auth = useAuth();
   return (
     <div className="p-10 lg:p-20 font-lato text-[20px] font-normal leading-normal text-primary-300 bg-white">
-
       {/* Welcome Section */}
       <div className="mb-[100px]">
         <h1 className="text-[65px] lg:text-[80px] font-semibold font-newSpirit">
@@ -16,21 +15,17 @@ export default function EmployeeHomePage() {
         </h1>
       </div>
 
-      {/* Content Section */}
       <div className="flex flex-wrap justify-center items-center gap-[84px]">
-        {/* Albums */}
         <GalleryCardOne 
           title="ALBUMS" 
           href="/albums" 
-          description="Manage photos from past and ongoing programs"
+          description="Manage photos from past and ongoing sessions"
         />
-        {/* Programs */}
         <GalleryCardOne 
-          title="PROGRAMS" 
-          href="/programs" 
+          title="SESSIONS" 
+          href="/sessions" 
           description="Use the activity scheduler to organize campers and staff"
         />
-        {/* Campers */}
         <GalleryCardOne 
           title="CAMPERS" 
           href="/campers" 

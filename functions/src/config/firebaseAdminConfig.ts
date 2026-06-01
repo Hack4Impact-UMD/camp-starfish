@@ -11,5 +11,6 @@ if (!admin.apps.length) {
 const adminApp = admin.app();
 export const adminAuth = getAuth(adminApp);
 export const adminDb = getFirestore(adminApp);
+adminDb.settings({ ignoreUndefinedProperties: true });
 export const adminFunctions = getFunctions(adminApp);
 export const adminStorage = getStorage(adminApp);

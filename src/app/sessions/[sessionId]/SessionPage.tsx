@@ -1,10 +1,11 @@
-import { SessionID } from "@/types/sessionTypes";
-import { Container, Flex, Title, Text } from "@mantine/core";
+import { Session } from "@/types/sessions/sessionTypes";
+import { Flex, Title, Text } from "@mantine/core";
 import moment from "moment";
 import SessionCalendar from "./SessionCalendar";
+import { SmallDirectoryBlock } from "@/components/SmallDirectoryBlock";
 
 interface SessionPageProps {
-  session: SessionID;
+  session: Session;
 }
 
 export default function SessionPage(props: SessionPageProps) {
@@ -14,24 +15,25 @@ export default function SessionPage(props: SessionPageProps) {
   const sessionEndDate = moment(session.endDate);
 
   return (
-    <Container>
-      <Flex className="flex-col gap-5">
-        <Flex className="flex-row items-center gap-lg border-red-500">
-          <Title
-            order={1}
-            className="font-black bg-none cursor-pointer hover:bg-[url(../assets/underline.svg)] hover:bg-no-repeat hover:bg-bottom hover:bg-contain"
-          >
-            {session.name}
-          </Title>
-          <Text className="text-lg text-neutral-5 font-semibold">
-            {sessionStartDate.format("MMMM YYYY")}
-            {sessionStartDate.isSame(sessionEndDate, "month")
-              ? ""
-              : `-${sessionEndDate.format("MMMM YYYY")}`}
-          </Text>
-        </Flex>
-        <SessionCalendar session={session} />
+    <Flex className="flex-col self-center w-4/5 gap-5">
+      <Flex className="flex-row items-center gap-lg">
+        <Title
+          order={1}
+          className="font-black bg-none cursor-pointer hover:bg-[url(../assets/underline.svg)] hover:bg-no-repeat hover:bg-bottom hover:bg-contain"
+        >
+          {session.name}
+        </Title>
+        <Text className="text-lg text-neutral-5 font-semibold">
+          {sessionStartDate.format("MMMM YYYY")}
+          {sessionStartDate.isSame(sessionEndDate, "month")
+            ? ""
+            : `-${sessionEndDate.format("MMMM YYYY")}`}
+        </Text>
       </Flex>
-    </Container>
+      <div className="flex flex-row w-full gap-lg">
+        <SessionCalendar sessionId={session.id} />
+        <SmallDirectoryBlock sessionId={session.id} />
+      </div>
+    </Flex>
   );
 }

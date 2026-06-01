@@ -1,12 +1,22 @@
 "use client";
 
 import SessionsPage from "@/components/SessionsPage";
-import { useSessions } from "@/hooks/sessions/useSessions";
-import LoadingPage from "../loading";
+import RequireAuth from "@/auth/RequireAuth";
+import { useAuth } from "@/auth/useAuth";
 
 export default function Page() {
-  const { data: sessions, isLoading, isError } = useSessions();
-  if (isLoading) return <LoadingPage />;
-  if (isError) return <p>Error loading sessions.</p>;
-  return <SessionsPage sessions={sessions || []} />;
+  const { token } = useAuth();
+
+  return (
+    <RequireAuth
+      authCases={[
+        {
+          authFn: () =>
+            !!token?.claims.role && token.claims.role !== "PHOTOGRAPHER",
+          component: <SessionsPage />,
+        },
+      ]}
+      fallbackComponent={<p>You do not have permission to access this page.</p>}
+    />
+  );
 }
