@@ -57,7 +57,7 @@ export default function generateFreeplaySchedule(req: GenerateFreeplayScheduleRe
   const camperIds = campers.map(camper => camper.attendeeId);
   const employeeIds = [...staff, ...admins].map(employee => employee.attendeeId);
   const buddyCandidatesById: { [attendeeId: number]: Set<number>; } = {};
-  attendees.forEach(attendee => buddyCandidatesById[attendee.attendeeId] = new Set((attendee.role === "CAMPER" ? employeeIds : camperIds).filter(potentialCandidateId => !attendee.snapshot.nonoList.includes(potentialCandidateId) && !buddiesInOtherFreeplays[attendee.attendeeId].has(potentialCandidateId))));
+  attendees.forEach(attendee => buddyCandidatesById[attendee.attendeeId] = new Set((attendee.role === "CAMPER" ? employeeIds : camperIds).filter(potentialCandidateId => !attendee.snapshot.nonoList.includes(potentialCandidateId) && !buddiesInOtherFreeplays[attendee.attendeeId].has(potentialCandidateId) && (attendee.snapshot.gender !== "Female" || employeesById[potentialCandidateId].snapshot.gender === "Female"))));
 
   let unassignedCamperIds: number[] = camperIds;
   let unassignedStaffIds: number[] = staff.map(staff => staff.attendeeId);
