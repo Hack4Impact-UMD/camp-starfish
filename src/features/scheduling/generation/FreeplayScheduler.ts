@@ -130,13 +130,24 @@ export default function generateFreeplaySchedule(req: GenerateFreeplayScheduleRe
   const buddyAssignments: Freeplay["buddies"] = {};
   let camperGroupsWithBuddyCandidates = camperGroups.map(camperGroup => ({camperGroup, buddyCandidates: typeof camperGroup === "number" ? buddyCandidatesById[camperGroup] : camperGroup.reduce((prev, camperId) => prev.union(buddyCandidatesById[camperId]), new Set<number>())}))
   const numEmployeesToAssign = unassignedAdminIds.length + unassignedStaffIds.length;
+  const unassignedEmployeeIds: number[] = [];
   for (let i = 0; i < numEmployeesToAssign; i++) {
     const employeeId = unassignedAdminIds.shift() ?? unassignedStaffIds.shift()!;
     const validCamperGroups = camperGroupsWithBuddyCandidates.filter(({ buddyCandidates }) => buddyCandidates.has(employeeId));
+    if (validCamperGroups.length === 0) {
+      unassignedEmployeeIds.push(employeeId);
+      continue;
+    }
     const camperGroupIndex = Math.floor(Math.random() * validCamperGroups.length);
     const assignedCamperGroup = validCamperGroups[camperGroupIndex];
     camperGroupsWithBuddyCandidates = camperGroupsWithBuddyCandidates.filter((_, i) => i !== camperGroupIndex);
     buddyAssignments[employeeId] = typeof assignedCamperGroup.camperGroup === "number" ? [assignedCamperGroup.camperGroup] : assignedCamperGroup.camperGroup;
+  }
+
+  // just assign unassigned employees to random camper groups, this should be a rare case, so we can fix later with a more complex algorithm
+  for (let i = 0; i < unassignedEmployeeIds.length; i++) {
+    const camperGroup = camperGroupsWithBuddyCandidates[i].camperGroup;
+    buddyAssignments[unassignedEmployeeIds[i]] = typeof camperGroup === "number" ? [camperGroup] : camperGroup;
   }
 
 
