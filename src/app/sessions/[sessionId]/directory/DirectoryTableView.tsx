@@ -1,6 +1,6 @@
 import { flexRender } from "@tanstack/react-table";
 import { useCallback, useMemo, useState } from "react";
-import { Attendee, StaffAttendee } from "@/types/sessions/sessionTypes";
+import { Attendee, AttendeeRole, StaffAttendee } from "@/types/sessions/sessionTypes";
 import {
   Button,
   Container,
@@ -39,7 +39,7 @@ export default function DirectoryTableView({
     isLoading,
     isError,
   } = useListAttendees(sessionId);
-  const [selectedRole, setSelectedRole] = useState<string | null>(null);
+  const [selectedRole, setSelectedRole] = useState<AttendeeRole>("CAMPER");
   const [sortNameOption, setSortNameOption] = useState<string | null>(null);
 
   // table filter/pagination options
@@ -280,7 +280,7 @@ export default function DirectoryTableView({
   });
 
   const handleClearFilters = () => {
-    setSelectedRole(null);
+    setSelectedRole("CAMPER");
     setSortNameOption(null);
     setGlobalFilter("");
   };
