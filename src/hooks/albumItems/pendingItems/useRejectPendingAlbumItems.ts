@@ -1,6 +1,6 @@
 import { db } from "@/config/firebase";
 import { deleteAlbumItemDoc } from "@/data/firestore/albumItems";
-import { QueryClient, useMutation } from "@tanstack/react-query";
+import { QueryClient, useMutation, useQueryClient } from "@tanstack/react-query";
 import { writeBatch } from "firebase/firestore";
 import { getUseAlbumItemListOptions } from "../useAlbumItemList";
 
@@ -45,7 +45,11 @@ async function rejectPendingAlbumItems(req: RejectPendingAlbumItemsRequest, clie
 }
 
 export default function useRejectPendingAlbumItems() {
+  const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (req: RejectPendingAlbumItemsRequest, { client }) => rejectPendingAlbumItems(req, client)
+    mutationFn: (req: RejectPendingAlbumItemsRequest, { client }) => rejectPendingAlbumItems(req, client),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['albums', variables.albumId, 'albumItems'] });
+    }
   })
 }
