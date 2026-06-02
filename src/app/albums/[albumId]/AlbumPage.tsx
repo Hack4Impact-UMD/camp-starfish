@@ -87,6 +87,14 @@ export function AlbumPageContent(props: AlbumPageContentProps) {
     limitToLast: undefined,
   });
 
+  const pendingItemsQuery = useAlbumItemList(album.id, {
+    where: [{ fieldPath: "inReview", operation: "==", value: true }],
+    limit: 1,
+    limitToLast: undefined,
+  });
+  const hasPendingItems =
+    (pendingItemsQuery.data?.pages.flatMap((page) => page.docs).length ?? 0) > 0;
+
   const { ref, inViewport } = useInViewport();
   const { hasNextPage, isFetchingNextPage, fetchNextPage } = albumItemsQuery;
   useEffect(() => {
@@ -144,7 +152,7 @@ export function AlbumPageContent(props: AlbumPageContentProps) {
           </Menu>
           <Link href={`/albums/${album.id}/pending`}>
             <Tooltip label="Pending Items">
-              <Indicator color="error" offset={7}>
+              <Indicator color="error" offset={7} disabled={!hasPendingItems}>
                 <ActionIcon variant="outline">
                   <MdPendingActions size={30} />
                 </ActionIcon>
