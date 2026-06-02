@@ -4,6 +4,7 @@ import { googleAppsScriptCloudFunctions } from "./features/googleAppsScript";
 import { albumsCloudFunctions } from "./features/albums";
 import { createAlbumItemReportCloudFunction } from "./features/albumItemReporting";
 import { userDirectoryCloudFunctions } from "./features/userDirectory";
+import { handleFamilyCSVUpload, handleEmployeeCSVUpload } from "./features/userCSVParsing";
 
 module.exports = {
   ...accountManagementCloudFunctions,
@@ -11,5 +12,7 @@ module.exports = {
   ...googleAppsScriptCloudFunctions,
   ...albumsCloudFunctions,
   createAlbumItemReportCloudFunction,
-  ...userDirectoryCloudFunctions
+  ...userDirectoryCloudFunctions,
+  handleFamilyCSVUpload,
+  handleEmployeeCSVUpload
 }
