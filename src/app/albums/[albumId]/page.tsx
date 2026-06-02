@@ -3,8 +3,15 @@ import RequireAuth from "@/auth/RequireAuth";
 import AlbumPage from "./AlbumPage";
 import { useAuth } from "@/auth/useAuth";
 import { Role } from "@/types/users/userTypes";
+import { Params } from "next/dist/server/request/params";
+import { useParams } from "next/navigation";
+
+interface AlbumRouteParams extends Params {
+  albumId: string;
+}
 
 export default function Page() {
+  const { albumId } = useParams<AlbumRouteParams>();
   const { token } = useAuth();
   const allowedRoles: Role[] = ["ADMIN", "PARENT", "PHOTOGRAPHER", "STAFF"];
 
@@ -14,7 +21,7 @@ export default function Page() {
         {
           authFn: () =>
             allowedRoles.some((role: Role) => token?.claims.role === role),
-          component: <AlbumPage />,
+          component: <AlbumPage albumId={albumId} />,
         },
       ]}
     />

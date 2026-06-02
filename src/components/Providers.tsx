@@ -19,9 +19,9 @@ export default function Providers(props: ProvidersProps) {
     <QueryClientProvider client={queryClient}>
       <MantineProvider theme={theme}>
         <Notifications />
-        <ModalsProvider>
-          <AuthProvider>{children}</AuthProvider>
-        </ModalsProvider>
+        <AuthProvider>
+          <ModalsProvider>{children}</ModalsProvider>
+        </AuthProvider>
       </MantineProvider>
     </QueryClientProvider>
   );

@@ -1,11 +1,11 @@
 import React, { useState } from "react";
-import { DatePicker, DatesRangeValue } from "@mantine/dates";
-import { Button, TextInput, Stack, Group, Text, Box } from "@mantine/core";
+import { DatePickerInput, DatesRangeValue } from "@mantine/dates";
+import { Button, TextInput, Stack, Group, Box } from "@mantine/core";
 import moment from "moment";
 import useCreateSession from "@/hooks/sessions/useCreateSession";
 import { modals } from "@mantine/modals";
-import { SessionDoc } from "@/data/firestore/types/documents";
 import { createSessionSchema } from "@/schemas/sessions";
+import useNotifications from "@/features/notifications/useNotifications";
 
 export default function CreateSessionModal() {
   const [sessionName, setSessionName] = useState<string>("");
@@ -13,6 +13,7 @@ export default function CreateSessionModal() {
   const [nameError, setNameError] = useState<string | null>(null);
   const [dateError, setDateError] = useState<string | null>(null);
   const createSessionMutation = useCreateSession();
+  const notifications = useNotifications();
 
   const handleGenerate = () => {
     const result = createSessionSchema.safeParse({
@@ -28,14 +29,18 @@ export default function CreateSessionModal() {
     }
 
     const [startDateStr, endDateStr] = result.data.dateRange;
-    const newSession: SessionDoc = {
-      name: result.data.name,
-      startDate: moment(startDateStr!).startOf("day").toISOString(),
-      endDate: moment(endDateStr!).endOf("day").toISOString(),
-      driveFolderId: "",
-    };
-
-    createSessionMutation.mutate(newSession);
+    createSessionMutation.mutate(
+      {
+        name: result.data.name,
+        startDate: moment(startDateStr!).startOf("day"),
+        endDate: moment(endDateStr!).endOf("day"),
+      },
+      {
+        onSuccess: () => modals.closeAll(),
+        onError: () =>
+          notifications.error("Failed to create session. Please try again."),
+      },
+    );
   };
 
   return (
@@ -52,68 +57,27 @@ export default function CreateSessionModal() {
           error={nameError}
           className="w-full"
         />
-
-        {/* Date Picker */}
-        <Stack className="items-center gap-lg">
-          <Group className="w-full items-center gap-[5px]">
-            <TextInput
-              label="Start Date"
-              placeholder="Start Date"
-              className="w-1/4"
-              value={
-                dateRange[0] ? moment(dateRange[0]).format("MMM D, YYYY") : ""
-              }
-              disabled
-              classNames={{
-                root: "grow",
-              }}
-            />
-
-            <Text>To</Text>
-
-            <TextInput
-              label="End Date"
-              placeholder="End Date"
-              className="w-1/4 placeholder:text-neutral-400"
-              value={
-                dateRange[1] ? moment(dateRange[1]).format("MMM D, YYYY") : ""
-              }
-              disabled
-              classNames={{
-                root: "grow",
-              }}
-            />
-          </Group>
-
-          <DatePicker
-            type="range"
-            value={dateRange}
-            onChange={(value) => {
-              setDateRange(value);
-              setDateError(null);
-            }}
-            numberOfColumns={1}
-            size="md"
-            withCellSpacing={false}
-          />
-
-          {dateError && (
-            <Text c="error" size="xs">
-              {dateError}
-            </Text>
-          )}
-        </Stack>
-
+        <DatePickerInput
+          label="Dates"
+          placeholder="Select session dates"
+          type="range"
+          value={dateRange}
+          onChange={(value) => {
+            setDateRange(value);
+            setDateError(null);
+          }}
+          error={dateError}
+          valueFormat="MMM DD, YYYY"
+        />
         <Group className="justify-center gap-md">
           <Button
             color="neutral"
-            className=" "
             onClick={() => modals.closeAll()}
           >
             CANCEL
           </Button>
 
-          <Button color="green" className="w-[100px]" onClick={handleGenerate}>
+          <Button color="green" onClick={handleGenerate} loading={createSessionMutation.isPending}>
             DONE
           </Button>
         </Group>

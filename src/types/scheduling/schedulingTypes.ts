@@ -50,6 +50,7 @@ export interface ProgramArea {
   name: string;
   description?: string;
   isDeleted: boolean;
+  ageGroups: AgeGroup[]
 }
 export type Activity = BundleActivity | JamboreeActivity;
 

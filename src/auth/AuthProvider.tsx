@@ -3,10 +3,12 @@ import { onAuthStateChanged, User, IdTokenResult } from "firebase/auth";
 import React, { JSX, createContext, useEffect, useState } from "react";
 import { auth } from "@/config/firebase";
 import LoadingPage from "@/app/loading";
+import { Role } from "@/types/users/userTypes";
 
 export interface AuthContextType {
   user: User | null;
   token: IdTokenResult | null;
+  role: Role | null;
   loading: boolean;
 }
 
@@ -42,7 +44,7 @@ export default function AuthProvider({
   }
 
   return (
-    <AuthContext.Provider value={{ user, token, loading }}>
+    <AuthContext.Provider value={{ user, token, loading, role: token?.claims.role as Role | null }}>
       {children}
     </AuthContext.Provider>
   );

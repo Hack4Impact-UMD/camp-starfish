@@ -16,7 +16,7 @@ const svgFiles = [
   loadingAnimation4,
 ];
 
-function LoadingAnimation() {
+export default function LoadingAnimation() {
   const [animationIdx, setAnimationIdx] = useState(0);
 
   useEffect(() => {
@@ -36,5 +36,3 @@ function LoadingAnimation() {
     />
   );
 }
-
-export default LoadingAnimation;

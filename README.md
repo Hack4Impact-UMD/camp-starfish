@@ -79,7 +79,7 @@ npm install
 ```
 3. Run Emulators with Test Data
 ```bash
-firebase emulators:start ./testData
+firebase emulators:start ./test/emulatorData
 ```
 
 4. Start the Local Development Server

@@ -1,5 +1,6 @@
 import { AdminAttendee, Attendee, CamperAttendee, CommonSection, SchedulingSection, SchedulingSectionType, Section, SectionType, StaffAttendee } from "./sessionTypes";
 
+export function isCommonSectionType(sectionType: SectionType): sectionType is "COMMON" { return sectionType === "COMMON"; };
 export function isSchedulingSectionType(sectionType: SectionType): sectionType is SchedulingSectionType { return sectionType === "BUNDLE" || sectionType === "BUNK-JAMBO" || sectionType === "NON-BUNK-JAMBO"; };
 
 export function isCommonSection(section: Section): section is CommonSection { return section.type === "COMMON"; };
