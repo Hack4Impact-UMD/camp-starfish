@@ -42,16 +42,21 @@ export default function SessionCard(props: SessionCardProps) {
       content = (
         <>
           {editMode && <ActionIcon
-            variant="transparent"
+            variant="filled"
+            color="error"
             radius="xl"
-            onClick={() => openConfirmationModal({
-              title: `Are you sure you want to delete the session "${session.name}"?`,
-              message: "WARNING: This action cannot be undone. All schedule and attendee info related to this session will be deleted.",
-              onConfirm: () => deleteSession.mutate({ sessionId })
-            })}
-            className="hover:scale-110 transition-transform"
+            size="lg"
+            onClick={(e) => {
+              e.stopPropagation();
+              openConfirmationModal({
+                title: `Are you sure you want to delete the session "${session.name}"?`,
+                message: "WARNING: This action cannot be undone. All schedule and attendee info related to this session will be deleted.",
+                onConfirm: () => deleteSession.mutate({ sessionId })
+              });
+            }}
+            className="absolute top-2 right-2 z-10 shadow-sm hover:scale-110 transition-transform"
           >
-            <MdDelete size={30} />
+            <MdDelete size={20} />
           </ActionIcon>}
 
           <Stack className="gap-sm p-sm items-center">
@@ -72,7 +77,7 @@ export default function SessionCard(props: SessionCardProps) {
   return (
     <Card
       key={sessionId}
-      classNames={{ root: classNames({ "bg-neutral-2": isSelected }) }}
+      classNames={{ root: classNames("relative", { "bg-neutral-2": isSelected }) }}
       onClick={() => setIsSelected((prev) => !prev)}
       onDoubleClick={() => router.push(`/sessions/${sessionId}`)}
     >
