@@ -8,7 +8,7 @@ import {
   MdOutlineFileUpload,
 } from "react-icons/md";
 import { Dropzone, FileRejection, FileWithPath } from "@mantine/dropzone";
-import { Button, Loader, ScrollArea, Text } from "@mantine/core";
+import { Anchor, Button, Loader, ScrollArea, Text } from "@mantine/core";
 import useCreateAlbumItem, {
   CreateAlbumItemRequest,
 } from "@/hooks/albumItems/useCreateAlbumItem";
@@ -98,7 +98,18 @@ export function UploadAlbumItemsModal(props: UploadAlbumItemsModalProps) {
         `Failed to upload ${errors.length} files. Please try again.`,
       );
     } else {
-      notifications.success(`${responses.length} files uploaded successfully!`);
+      const fileCount = `${responses.length} ${responses.length === 1 ? "file" : "files"}`;
+      if (inReview) {
+        notifications.success(
+          <Text>
+            {`${fileCount} uploaded successfully! They are now available in the `}
+            <Anchor href={`/albums/${albumId}/pending`}>Pending page</Anchor>
+            {" for review."}
+          </Text>,
+        );
+      } else {
+        notifications.success(`${fileCount} uploaded successfully!`);
+      }
       modals.closeAll();
     }
   };
