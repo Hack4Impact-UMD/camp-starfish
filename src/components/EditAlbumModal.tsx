@@ -12,6 +12,7 @@ import useUpdateAlbum from "@/hooks/albums/useUpdateAlbum";
 import useNotifications from "@/features/notifications/useNotifications";
 import useAlbum from "@/hooks/albums/useAlbum";
 import { Album } from "@/types/albums/albumTypes";
+import { albumFormSchema } from "@/schemas/albums";
 
 interface EditAlbumModalProps {
   albumId?: string;
@@ -110,14 +111,27 @@ function EditAlbumModalContent(props: EditAlbumModalContentProps) {
             createAlbumMutation.isPending || updateAlbumMutation.isPending
           }
           onClick={() => {
-            if (!albumName) {
-              setAlbumNameError("Album name is required");
+            const result = albumFormSchema.safeParse({
+              name: albumName,
+              thumbnail: albumThumbnail,
+            });
+
+            if (!result.success) {
+              const fieldErrors = result.error.flatten().fieldErrors;
+              if (fieldErrors.name?.[0]) {
+                setAlbumNameError(fieldErrors.name[0]);
+              }
+              if (fieldErrors.thumbnail?.[0]) {
+                notifications.error(fieldErrors.thumbnail[0]);
+              }
               return;
-            } else if (album) {
+            }
+
+            if (album) {
               updateAlbumMutation.mutate(
                 {
                   albumId: album.id,
-                  name: albumName,
+                  name: result.data.name,
                   thumbnail: albumThumbnail,
                 },
                 {
@@ -131,7 +145,7 @@ function EditAlbumModalContent(props: EditAlbumModalContentProps) {
             } else {
               createAlbumMutation.mutate(
                 {
-                  name: albumName,
+                  name: result.data.name,
                   thumbnail: albumThumbnail ?? undefined,
                 },
                 {

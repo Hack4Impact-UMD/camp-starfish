@@ -5,23 +5,33 @@ import moment from "moment";
 import useCreateSession from "@/hooks/sessions/useCreateSession";
 import { modals } from "@mantine/modals";
 import { SessionDoc } from "@/data/firestore/types/documents";
+import { createSessionSchema } from "@/schemas/sessions";
 
 export default function CreateSessionModal() {
   const [sessionName, setSessionName] = useState<string>("");
   const [dateRange, setDateRange] = useState<DatesRangeValue>([null, null]);
+  const [nameError, setNameError] = useState<string | null>(null);
+  const [dateError, setDateError] = useState<string | null>(null);
   const createSessionMutation = useCreateSession();
 
   const handleGenerate = () => {
-    const [startDateStr, endDateStr] = dateRange;
+    const result = createSessionSchema.safeParse({
+      name: sessionName,
+      dateRange,
+    });
 
-    if (sessionName.trim() === "" || !startDateStr || !endDateStr) {
+    if (!result.success) {
+      const fieldErrors = result.error.flatten().fieldErrors;
+      setNameError(fieldErrors.name?.[0] ?? null);
+      setDateError(fieldErrors.dateRange?.[0] ?? null);
       return;
     }
 
+    const [startDateStr, endDateStr] = result.data.dateRange;
     const newSession: SessionDoc = {
-      name: sessionName,
-      startDate: moment(startDateStr).startOf("day").toISOString(),
-      endDate: moment(endDateStr).endOf("day").toISOString(),
+      name: result.data.name,
+      startDate: moment(startDateStr!).startOf("day").toISOString(),
+      endDate: moment(endDateStr!).endOf("day").toISOString(),
       driveFolderId: "",
     };
 
@@ -35,7 +45,11 @@ export default function CreateSessionModal() {
           label="Session Name"
           placeholder="Enter name..."
           value={sessionName}
-          onChange={(e) => setSessionName(e.currentTarget.value)}
+          onChange={(e) => {
+            setSessionName(e.currentTarget.value);
+            setNameError(null);
+          }}
+          error={nameError}
           className="w-full"
         />
 
@@ -74,11 +88,20 @@ export default function CreateSessionModal() {
           <DatePicker
             type="range"
             value={dateRange}
-            onChange={setDateRange}
+            onChange={(value) => {
+              setDateRange(value);
+              setDateError(null);
+            }}
             numberOfColumns={1}
             size="md"
             withCellSpacing={false}
           />
+
+          {dateError && (
+            <Text c="error" size="xs">
+              {dateError}
+            </Text>
+          )}
         </Stack>
 
         <Group className="justify-center gap-md">
