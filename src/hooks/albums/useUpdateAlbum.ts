@@ -1,6 +1,6 @@
 import { updateAlbumDoc } from "@/data/firestore/albums";
 import { deleteFile, uploadFile } from "@/data/storage/storageClientOperations";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 interface UpdateAlbumRequest {
   albumId: string;
@@ -29,7 +29,11 @@ async function updateAlbum(req: UpdateAlbumRequest): Promise<void> {
 }
 
 export default function useUpdateAlbum() {
+  const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (req: UpdateAlbumRequest) => updateAlbum(req)
+    mutationFn: (req: UpdateAlbumRequest) => updateAlbum(req),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['albums'] });
+    }
   })
 }

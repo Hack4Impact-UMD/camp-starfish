@@ -1,7 +1,7 @@
 import { db } from "@/config/firebase";
 import { updateAlbumItemDoc } from "@/data/firestore/albumItems";
 import { AlbumItemDoc } from "@/data/firestore/types/documents";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { arrayRemove, arrayUnion, UpdateData, writeBatch } from "firebase/firestore";
 
 interface UpdateAlbumItemRequest {
@@ -78,7 +78,11 @@ async function updateAlbumItem(req: UpdateAlbumItemRequest) {
 }
 
 export default function useUpdateAlbumItem() {
+  const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (req: UpdateAlbumItemRequest) => updateAlbumItem(req)
+    mutationFn: async (req: UpdateAlbumItemRequest) => updateAlbumItem(req),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['albums', variables.albumId, 'albumItems'] });
+    }
   });
 }
