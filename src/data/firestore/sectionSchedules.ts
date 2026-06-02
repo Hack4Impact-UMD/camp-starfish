@@ -1,7 +1,7 @@
 import { SectionSchedule } from "@/types/scheduling/schedulingTypes";
 import { SectionScheduleDoc } from "./types/documents";
-import { doc, DocumentReference, DocumentSnapshot, QueryDocumentSnapshot, Transaction } from "firebase/firestore";
-import { getDoc } from "./firestoreClientOperations";
+import { doc, DocumentReference, DocumentSnapshot, QueryDocumentSnapshot, Transaction, PartialWithFieldValue } from "firebase/firestore";
+import { getDoc, setDoc } from "./firestoreClientOperations";
 import { db } from "@/config/firebase";
 import { RootLevelCollection, SectionsSubcollection, SessionsSubcollection } from "./types/collections";
 
@@ -15,6 +15,17 @@ function fromFirestore(snapshot: DocumentSnapshot<SectionScheduleDoc, SectionSch
 }
 
 export async function getSectionSchedule(sessionId: string, sectionId: string, transaction?: Transaction): Promise<SectionSchedule> {
+  if (!sectionId || sectionId === SectionsSubcollection.SCHEDULE) {
+    throw new Error(`Invalid sectionId provided: ${sectionId}`);
+  }
   const snapshot = await getDoc<SectionScheduleDoc>(doc(db, RootLevelCollection.SESSIONS, sessionId, SessionsSubcollection.SECTIONS, sectionId, SectionsSubcollection.SCHEDULE, SectionsSubcollection.SCHEDULE) as DocumentReference<SectionScheduleDoc, SectionScheduleDoc>, transaction);
   return fromFirestore(snapshot);
+}
+
+export async function updateSectionSchedule(sessionId: string, sectionId: string, updates: PartialWithFieldValue<SectionScheduleDoc>): Promise<void> {
+  if (!sectionId || sectionId === SectionsSubcollection.SCHEDULE) {
+    throw new Error(`Invalid sectionId provided: ${sectionId}`);
+  }
+  const ref = doc(db, RootLevelCollection.SESSIONS, sessionId, SessionsSubcollection.SECTIONS, sectionId, SectionsSubcollection.SCHEDULE, SectionsSubcollection.SCHEDULE) as DocumentReference<SectionScheduleDoc, SectionScheduleDoc>;
+  await setDoc<SectionScheduleDoc>(ref, updates, { mergeOptions: { merge: true } });
 }

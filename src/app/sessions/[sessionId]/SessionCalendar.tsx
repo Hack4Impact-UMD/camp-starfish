@@ -1,7 +1,13 @@
 import { Moment } from "moment";
 import { useMemo, useState } from "react";
-import { ActionIcon, Title, Tooltip } from "@mantine/core";
-import { Section, SectionType, Session } from "@/types/sessions/sessionTypes";
+import { ActionIcon, Text, Title, Tooltip } from "@mantine/core";
+import { modals } from "@mantine/modals";
+import {
+  Section,
+  SchedulingSection,
+  SectionType,
+  Session,
+} from "@/types/sessions/sessionTypes";
 import moment from "moment";
 import classNames from "classnames";
 import openEditSectionModal from "@/components/EditSectionModal";
@@ -13,6 +19,10 @@ import LoadingAnimation from "@/components/LoadingAnimation";
 import { useRouter } from "next/navigation";
 import useSession from "@/hooks/sessions/useSession";
 import ErrorPage from "@/app/error";
+import { isSchedulingSection } from "@/types/sessions/sessionTypeGuards";
+import { getSectionSchedule } from "@/data/firestore/sectionSchedules";
+import { openEditActivitiesModal } from "@/components/EditActivitiesModal";
+import { SectionsSubcollection } from "@/data/firestore/types/collections";
 
 interface SessionCalendarProps {
   sessionId: string;
@@ -104,6 +114,58 @@ function SessionCalendarContent(props: SessionCalendarContentProps) {
     });
   };
 
+  // Single-day click: if the day falls within an existing scheduling section,
+  // open that section's activities editor; otherwise start creating a section.
+  const handleDayClick = async (date: Moment) => {
+    const selectedSection = sections.find(
+      (section): section is SchedulingSection =>
+        isSchedulingSection(section) &&
+        typeof section.id === "string" &&
+        section.id.trim() !== "" &&
+        section.id !== SectionsSubcollection.SCHEDULE &&
+        date.isBetween(section.startDate, section.endDate, "day", "[]"),
+    );
+
+    if (!selectedSection) {
+      openCreateSectionModal(
+        date.clone().startOf("day"),
+        date.clone().endOf("day"),
+      );
+      return;
+    }
+
+    try {
+      const schedule = await getSectionSchedule(session.id, selectedSection.id);
+      openEditActivitiesModal({
+        section: selectedSection,
+        sections,
+        sessionId: session.id,
+        initialSchedule: schedule,
+      });
+    } catch (error) {
+      console.error("Failed to load section schedule:", error);
+      const isMissingSchedule =
+        error instanceof Error && error.message.includes("Document not found");
+
+      // No schedule doc yet: open the editor with a default (empty) layout.
+      if (isMissingSchedule) {
+        openEditActivitiesModal({
+          section: selectedSection,
+          sections,
+          sessionId: session.id,
+        });
+        return;
+      }
+
+      modals.open({
+        title: "Error",
+        children: (
+          <Text>Failed to load section activities. Please try again.</Text>
+        ),
+      });
+    }
+  };
+
   return (
     <div>
       <ScheduleHeader className="flex items-center">
@@ -186,12 +248,9 @@ function SessionCalendarContent(props: SessionCalendarContentProps) {
         highlightToday={false}
         firstDayOfWeek={0}
         withDragSlotSelect
-        onDayClick={(date) =>
-          openCreateSectionModal(
-            moment(date).startOf("day"),
-            moment(date).endOf("day"),
-          )
-        }
+        onDayClick={(date) => {
+          void handleDayClick(moment(date));
+        }}
         onSlotDragEnd={(rangeStart, rangeEnd) =>
           openCreateSectionModal(
             moment(rangeStart).startOf("day"),
