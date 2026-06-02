@@ -36,6 +36,7 @@ function EditAlbumModalContent(props: EditAlbumModalContentProps) {
   const [albumName, setAlbumName] = useState<string>(album?.name ?? "");
   const [albumNameError, setAlbumNameError] = useState<string | null>(null);
   const [albumThumbnail, setAlbumThumbnail] = useState<File | null>(null);
+  const [thumbnailTouched, setThumbnailTouched] = useState<boolean>(false);
 
   const albumThumbnailUrl = useMemo(
     () => (albumThumbnail ? URL.createObjectURL(albumThumbnail) : null),
@@ -59,11 +60,21 @@ function EditAlbumModalContent(props: EditAlbumModalContentProps) {
           root: "w-2/3 m-md",
           indicator: "cursor-pointer",
         }}
-        label={<MdClose onClick={() => setAlbumThumbnail(null)} />}
+        label={
+          <MdClose
+            onClick={() => {
+              setAlbumThumbnail(null);
+              setThumbnailTouched(true);
+            }}
+          />
+        }
         size={20}
       >
         <Dropzone
-          onDrop={(files: FileWithPath[]) => setAlbumThumbnail(files[0])}
+          onDrop={(files: FileWithPath[]) => {
+            setAlbumThumbnail(files[0]);
+            setThumbnailTouched(true);
+          }}
           multiple={false}
           classNames={{
             root: "flex justify-center items-center w-full h-full aspect-square bg-blue-0 border cursor-pointer",
@@ -132,7 +143,7 @@ function EditAlbumModalContent(props: EditAlbumModalContentProps) {
                 {
                   albumId: album.id,
                   name: result.data.name,
-                  thumbnail: albumThumbnail,
+                  thumbnail: thumbnailTouched ? albumThumbnail : undefined,
                 },
                 {
                   onSuccess: () => modals.closeAll(),
