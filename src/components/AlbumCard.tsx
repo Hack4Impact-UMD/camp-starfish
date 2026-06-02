@@ -1,4 +1,5 @@
 import { Image, Text, Title } from "@mantine/core";
+import { MdImage } from "react-icons/md";
 import useAlbum from "@/hooks/albums/useAlbum";
 import ErrorPage from "@/app/error";
 import LoadingPage from "@/app/loading";
@@ -42,13 +43,19 @@ export default function AlbumCard(props: AlbumCardProps) {
       className="bg-neutral-0 hover:bg-neutral-2 border border-neutral-3 shadow-sm hover:shadow-lg duration-300 p-4 cursor-pointer"
       onDoubleClick={() => router.push(`/albums/${album.id}`)}
     >
-      <Image
-        src={thumbnailSrcQuery.data ?? null}
-        alt={album.name}
-        className="w-full h-48 object-contain"
-        width={200}
-        height={48}
-      />
+      {thumbnailSrcQuery.data ? (
+        <Image
+          src={thumbnailSrcQuery.data}
+          alt={album.name}
+          className="w-full h-48 object-contain"
+          width={200}
+          height={48}
+        />
+      ) : (
+        <div className="flex justify-center items-center w-full h-48 bg-neutral-2">
+          <MdImage className="text-neutral-4" size={40} />
+        </div>
+      )}
       <div className="mt-2">
         <Title order={3}>{album.name}</Title>
         <Text>{getAlbumCardText(albumQuery.data)}</Text>

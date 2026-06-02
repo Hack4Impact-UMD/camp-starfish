@@ -1,5 +1,5 @@
 import { deleteAlbumItemDoc } from "@/data/firestore/albumItems";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 interface DeleteAlbumItemRequest {
   albumId: string;
@@ -7,7 +7,11 @@ interface DeleteAlbumItemRequest {
 }
 
 export default function useDeleteAlbumItem() {
+  const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (req: DeleteAlbumItemRequest) => deleteAlbumItemDoc(req.albumId, req.albumItemId)
+    mutationFn: async (req: DeleteAlbumItemRequest) => deleteAlbumItemDoc(req.albumId, req.albumItemId),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['albums', variables.albumId, 'albumItems'] });
+    }
   })
 }
