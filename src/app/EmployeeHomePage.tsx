@@ -10,7 +10,7 @@ export default function EmployeeHomePage() {
   return (
     <div className="flex flex-col grow px-10 lg:px-20 py-12 bg-neutral-1">
       {/* Welcome Section */}
-      <h1 className="mb-12 font-NewSpirit text-[56px] lg:text-[80px] font-bold text-blue-8">
+      <h1 className="mb-12 font-NewSpirit text-[56px] lg:text-[80px] font-bold text-navy-9">
         Welcome, {auth.user?.displayName}!
       </h1>
 

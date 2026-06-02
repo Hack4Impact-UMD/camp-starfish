@@ -25,7 +25,7 @@ export default function GalleryCardOne({
 }: GalleryCardProps) {
   return (
     <div className="flex flex-col items-center w-[370px] px-9 py-10 gap-2 rounded-lg bg-neutral-0 shadow-[0px_0px_16px_-2px_rgba(0,0,0,0.30)]">
-      <span className="flex flex-row items-center gap-2 text-blue-8">
+      <span className="flex flex-row items-center gap-2 text-navy-9">
         <h3 className="font-NewSpirit text-[32px] font-bold">{title}</h3>
         {icon}
       </span>
