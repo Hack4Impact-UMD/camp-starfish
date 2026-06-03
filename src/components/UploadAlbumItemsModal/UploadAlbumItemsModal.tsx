@@ -111,11 +111,11 @@ export function UploadAlbumItemsModal(props: UploadAlbumItemsModalProps) {
         onDrop={onDrop}
         onReject={onReject}
       >
-        <Text className="text-center">{`Supported file types: ${acceptedMimeTypes.map((mimeType) => extension(mimeType)).join(", ")} (Max ${maxFileSizeMB}MB)`}</Text>
+        <Text>{`Supported file types: ${acceptedMimeTypes.map((mimeType) => extension(mimeType)).join(", ")} (Max ${maxFileSizeMB}MB)`}</Text>
         <MdOutlineFileUpload className="text-neutral-4" size={50} />
-        <Text className="text-center">{"Drag and drop files"}</Text>
-        <Text className="text-center">{"OR"}</Text>
-        <Text className="text-center">{"Select from device"}</Text>
+        <Text>{"Drag and drop files"}</Text>
+        <Text>{"OR"}</Text>
+        <Text>{"Select from device"}</Text>
       </Dropzone>
       <ScrollArea.Autosize
         classNames={{
