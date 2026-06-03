@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "@/auth/useAuth";
 import { MdAdd, MdCheck, MdClose } from "react-icons/md";
-import { ActionIcon, Badge, Button, Select } from "@mantine/core";
+import { ActionIcon, Badge, Button, Group, Switch, Text } from "@mantine/core";
 import { Role } from "@/types/users/userTypes";
 import { AlbumItemTagStatus } from "@/types/albums/albumTypes";
 import useAlbumItem from "@/hooks/albumItems/useAlbumItem";
@@ -10,6 +10,7 @@ import useApprovePendingTag from "@/features/albums/albumItemTagging/useApproveP
 import useRejectPendingTag from "@/features/albums/albumItemTagging/useRejectPendingTag";
 import useDeleteApprovedTag from "@/features/albums/albumItemTagging/useDeleteApprovedTag";
 import { getFullName } from "@/types/users/userUtils";
+import openAddTagModal from "./AddTagModal";
 
 interface TagSectionProps {
   albumId: string;
@@ -85,13 +86,18 @@ export default function AlbumItemViewModalTagSection(props: TagSectionProps) {
       onClick={(e) => e.stopPropagation()}
     >
       {canModerateTags && (
-        <Select
-          className="min-w-fit"
-          label="Tag Status"
-          data={["APPROVED", "PENDING"]}
-          value={activeTab}
-          onChange={(value) => setActiveTab(value as AlbumItemTagStatus)}
-        />
+        <Group gap="xs" className="min-w-fit" wrap="nowrap">
+          <Text fw={activeTab === "APPROVED" ? 700 : 400}>APPROVED</Text>
+          <Switch
+            color="navy.9"
+            checked={activeTab === "APPROVED"}
+            onChange={(event) =>
+              setActiveTab(event.currentTarget.checked ? "APPROVED" : "PENDING")
+            }
+            aria-label="Toggle between approved and pending tags"
+          />
+          <Text fw={activeTab === "PENDING" ? 700 : 400}>PENDING</Text>
+        </Group>
       )}
 
       <div className="flex gap-2">
@@ -106,6 +112,10 @@ export default function AlbumItemViewModalTagSection(props: TagSectionProps) {
           className="min-w-fit"
           aria-label="Add Tags"
           rightSection={<MdAdd size={20} />}
+          onClick={(e) => {
+            e.stopPropagation();
+            openAddTagModal(albumId, albumItemId);
+          }}
         >
           Add Tag
         </Button>

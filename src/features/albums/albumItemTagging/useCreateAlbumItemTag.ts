@@ -1,7 +1,7 @@
 import { useAuth } from "@/auth/useAuth";
 import { updateAlbumItemDoc } from "@/data/firestore/albumItems";
 import { Role } from "@/types/users/userTypes";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { arrayUnion } from "firebase/firestore";
 
 interface CreateAlbumItemTagRequest {
@@ -30,7 +30,11 @@ async function createAlbumItemTag(req: CreateAlbumItemTagRequest, role: Role | u
 export default function useCreateAlbumItemTag() {
   const auth = useAuth();
   const role = auth.token?.claims.role as Role | undefined;
+  const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (req: CreateAlbumItemTagRequest) => createAlbumItemTag(req, role)
+    mutationFn: (req: CreateAlbumItemTagRequest) => createAlbumItemTag(req, role),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['albums', variables.albumId, 'albumItems', variables.albumItemId] });
+    }
   });
 }

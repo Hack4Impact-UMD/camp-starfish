@@ -114,6 +114,7 @@ export function AlbumPageContent(props: AlbumPageContentProps) {
 
   const albumItems =
     albumItemsQuery.data.pages.flatMap((page) => page.docs) || [];
+  const albumItemIds = albumItems.map((item) => item.id);
 
   return (
     <div className="flex flex-col w-6/7 grow mx-auto px-4 py-6 gap-6">
@@ -230,6 +231,7 @@ export function AlbumPageContent(props: AlbumPageContentProps) {
               <AlbumItemCard
                 albumId={album.id}
                 albumItemId={image.id}
+                albumItemIds={albumItemIds}
                 isSelected={isSelected}
               />
             )}
