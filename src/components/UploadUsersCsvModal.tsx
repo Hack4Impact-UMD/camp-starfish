@@ -22,10 +22,10 @@ export function UploadUsersCsvModal() {
     if (!csvFile || !csvType) {
       return;
     } else if (csvType === "FAMILY") {
-      processFamilyCSVMutation.mutate({ csvFile });
+      processFamilyCSVMutation.mutate({ csvFile }, { onSuccess: () => modals.closeAll() });
       return;
     }
-    processEmployeeCSVMutation.mutate({ csvFile });
+    processEmployeeCSVMutation.mutate({ csvFile }, { onSuccess: () => modals.closeAll() });
   }
 
   return (
