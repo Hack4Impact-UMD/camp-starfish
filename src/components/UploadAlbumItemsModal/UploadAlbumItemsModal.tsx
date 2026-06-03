@@ -106,10 +106,6 @@ export function UploadAlbumItemsModal(props: UploadAlbumItemsModalProps) {
   return (
     <>
       <Dropzone
-        classNames={{
-          inner:
-            "flex flex-col justify-center items-center border-4 border-dashed border-orange-5 rounded-lg my-2 p-2",
-        }}
         accept={acceptedMimeTypes}
         maxSize={MBToBytes(maxFileSizeMB)}
         onDrop={onDrop}
