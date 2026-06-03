@@ -145,7 +145,7 @@ export function generateSections(session: Session): Section[] {
         name: faker.lorem.words({ min: 2, max: 5 }),
         type: "BUNDLE",
         sessionId: session.id,
-        startDate: currDate,
+        startDate: currDate.clone(),
         endDate: currDate.clone().add(3, 'days'),
       } satisfies SchedulingSection);
       sections.push({
@@ -153,7 +153,7 @@ export function generateSections(session: Session): Section[] {
         name: faker.lorem.words({ min: 2, max: 5 }),
         type: faker.datatype.boolean() ? "BUNK-JAMBO" : "NON-BUNK-JAMBO",
         sessionId: session.id,
-        startDate: currDate,
+        startDate: currDate.clone(),
         endDate: currDate.clone().add(3, 'days'),
       } satisfies SchedulingSection);
       currDate.add(4, 'days')
@@ -165,11 +165,11 @@ export function generateSections(session: Session): Section[] {
         name: faker.lorem.words({ min: 2, max: 5 }),
         type: faker.datatype.boolean() ? "BUNK-JAMBO" : "NON-BUNK-JAMBO",
         sessionId: session.id,
-        startDate: currDate,
-        endDate: currDate.clone().add(3, 'days'),
+        startDate: currDate.clone(),
+        endDate: currDate.clone().add(1, 'days'),
       } satisfies SchedulingSection)
+      currDate.add(1, 'days');
     }
-    currDate.add(daysLeft, 'days');
   }
 
   return [openingSection, ...sections, endingSection];

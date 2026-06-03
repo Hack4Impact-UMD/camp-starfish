@@ -43,11 +43,6 @@ async function updateSection(req: UpdateSectionRequest) {
         endDate: updates.endDate ? Timestamp.fromDate(updates.endDate.clone().endOf('day').toDate()) : undefined,
       });
   }
-
-
-  await updateSectionDoc(sessionId, sectionId, {
-    type: "BUNK-JAMBO",
-  });
 }
 
 export default function useUpdateSection() {
