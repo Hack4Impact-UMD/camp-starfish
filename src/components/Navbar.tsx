@@ -2,10 +2,13 @@
 
 import React from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import darkBgLogo from "../assets/logos/darkBgLogo.png";
-import { MdPerson } from "react-icons/md";
+import { MdLogout, MdPerson } from "react-icons/md";
 import { useAuth } from "@/auth/useAuth";
+import { signOut } from "@/auth/authN";
 import { Role } from "@/types/users/userTypes";
+import { Menu, UnstyledButton } from "@mantine/core";
 import Image from "next/image";
 
 const navbarLinks: { name: string; href: string; roles: Role[] }[] = [
@@ -29,7 +32,13 @@ const navbarLinks: { name: string; href: string; roles: Role[] }[] = [
 
 const Navbar: React.FC = () => {
   const auth = useAuth();
+  const router = useRouter();
   const role = auth.token?.claims.role as Role | undefined;
+
+  const handleLogout = async () => {
+    await signOut();
+    router.push("/");
+  };
 
   return (
     <nav className="w-full bg-navy-9 px-16 py-3 flex items-center justify-between gap-8">
@@ -62,13 +71,26 @@ const Navbar: React.FC = () => {
         )}
       </div>
 
-      {/* Right: profile avatar */}
+      {/* Right: profile avatar with account menu */}
       {auth.token && (
-        <Link href="/profile" className="flex-none">
-          <span className="flex items-center justify-center w-12 h-12 rounded-full bg-neutral-4">
-            <MdPerson className="text-neutral-0" size={30} />
-          </span>
-        </Link>
+        <Menu position="bottom-end" shadow="md" width={180}>
+          <Menu.Target>
+            <UnstyledButton className="flex-none" aria-label="Account menu">
+              <span className="flex items-center justify-center w-12 h-12 rounded-full bg-neutral-4">
+                <MdPerson className="text-neutral-0" size={30} />
+              </span>
+            </UnstyledButton>
+          </Menu.Target>
+          <Menu.Dropdown>
+            <Menu.Item
+              color="red"
+              leftSection={<MdLogout size={18} />}
+              onClick={handleLogout}
+            >
+              Log out
+            </Menu.Item>
+          </Menu.Dropdown>
+        </Menu>
       )}
     </nav>
   );
