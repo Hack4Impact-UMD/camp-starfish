@@ -22,11 +22,17 @@ export function UploadUsersCsvModal() {
     if (!csvFile || !csvType) {
       return;
     } else if (csvType === "FAMILY") {
-      processFamilyCSVMutation.mutate({ csvFile }, { onSuccess: () => modals.closeAll() });
+      processFamilyCSVMutation.mutate(
+        { csvFile },
+        { onSuccess: () => modals.closeAll() },
+      );
       return;
     }
-    processEmployeeCSVMutation.mutate({ csvFile }, { onSuccess: () => modals.closeAll() });
-  }
+    processEmployeeCSVMutation.mutate(
+      { csvFile },
+      { onSuccess: () => modals.closeAll() },
+    );
+  };
 
   return (
     <div className="flex flex-col gap-md">
@@ -36,25 +42,39 @@ export function UploadUsersCsvModal() {
         accept={["text/csv"]}
       >
         <MdOutlineFileUpload size={60} />
-        <Text>{csvFile ? `Selected File: "${csvFile.name}"` : "Upload a users CSV file exported from Campminder here"}</Text>
+        <Text>
+          {csvFile
+            ? `Selected File: "${csvFile.name}"`
+            : "Upload a users CSV file exported from Campminder here"}
+        </Text>
       </Dropzone>
       <Radio.Group
         value={csvType}
         label={"Select the type of CSV file you are uploading"}
       >
         <div className="flex flex-col gap-xs">
-        {usersCsvTypes.map((type) => (
-          <Radio
-            key={type}
-            value={type}
-            label={toNormalCase(type)}
-            onChange={() => setCsvType(type)}
-            required
-          />
-        ))}
+          {usersCsvTypes.map((type) => (
+            <Radio
+              key={type}
+              value={type}
+              label={toNormalCase(type)}
+              onChange={() => setCsvType(type)}
+              required
+            />
+          ))}
         </div>
       </Radio.Group>
-      <Button classNames={{ root: "self-center" }} onClick={handleSubmit} disabled={!csvFile || !csvType} loading={processFamilyCSVMutation.isPending || processEmployeeCSVMutation.isPending}>Create Users</Button>
+      <Button
+        classNames={{ root: "self-center" }}
+        onClick={handleSubmit}
+        disabled={!csvFile || !csvType}
+        loading={
+          processFamilyCSVMutation.isPending ||
+          processEmployeeCSVMutation.isPending
+        }
+      >
+        Create Users
+      </Button>
     </div>
   );
 }
