@@ -1,6 +1,7 @@
 "use client";
 
 import { JSX, useState } from "react";
+import { Checkbox } from "@mantine/core";
 
 export interface GroupOptions<T> {
   groupLabels: string[];
@@ -73,13 +74,14 @@ export default function CardGallery<T extends { id: string }>(
           itemGroups[label] && (
             <div key={label}>
               <div className="flex items-center gap-8 mb-4">
-                <h2 className="text-xl font-lato text-camp-primary">{label}</h2>
-                <input
-                  type="checkbox"
+                <h2 className="text-xl font-semibold text-navy-9">{label}</h2>
+                <Checkbox
+                  color="neutral.8"
+                  classNames={{ input: "rounded-sm" }}
                   checked={itemGroups[label].every(
                     (item: T) => selectedItemIds.indexOf(item.id) !== -1
                   )}
-                  onChange={(event) => toggleGroup(label, event.target.checked)}
+                  onChange={(event) => toggleGroup(label, event.currentTarget.checked)}
                 />
               </div>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">

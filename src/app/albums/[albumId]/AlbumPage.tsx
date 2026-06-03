@@ -30,6 +30,7 @@ import useDownloadAlbum from "@/features/albums/downloading/useDownloadAlbum";
 import openUploadAlbumItemsModal from "@/components/UploadAlbumItemsModal/UploadAlbumItemsModal";
 import { useInViewport } from "@mantine/hooks";
 import LoadingAnimation from "@/components/LoadingAnimation";
+import underline from "@/assets/underline.svg";
 
 export const enum AlbumItemSortOption {
   NEWEST_TO_OLDEST = "Newest → Oldest",
@@ -117,15 +118,42 @@ export function AlbumPageContent(props: AlbumPageContentProps) {
   return (
     <div className="flex flex-col w-6/7 grow mx-auto px-4 py-6 gap-6">
       <div className="flex items-start justify-between">
-        <Breadcrumbs classNames={{ separator: "text-3xl" }} separator=">>">
+        <Breadcrumbs
+          classNames={{
+            root: "items-baseline",
+            separator: "text-navy-9 text-[40px]",
+          }}
+          separator="»"
+        >
           {[
             { title: "ALBUMS", href: "/albums" },
-            { title: album.name, href: `#` },
-          ].map((breadcrumb) => (
-            <Anchor href={breadcrumb.href} key={breadcrumb.title}>
-              <Title order={1}>{breadcrumb.title}</Title>
-            </Anchor>
-          ))}
+            { title: album.name, href: "#" },
+          ].map((breadcrumb, index, breadcrumbs) => {
+            const isCurrent = index === breadcrumbs.length - 1;
+            return (
+              <Anchor
+                href={breadcrumb.href}
+                key={breadcrumb.title}
+                underline="never"
+                className={`inline-block text-navy-9 text-[28px] leading-tight ${
+                  isCurrent ? "font-bold" : "font-semibold"
+                }`}
+                style={
+                  isCurrent
+                    ? {
+                        backgroundImage: `url(${underline.src})`,
+                        backgroundRepeat: "no-repeat",
+                        backgroundPosition: "left bottom",
+                        backgroundSize: "100% 0.55rem",
+                        paddingBottom: "0.5rem",
+                      }
+                    : undefined
+                }
+              >
+                {breadcrumb.title}
+              </Anchor>
+            );
+          })}
         </Breadcrumbs>
         <div className="flex items-start gap-4 shrink-0">
           <TagSelect />

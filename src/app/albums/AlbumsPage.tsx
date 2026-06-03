@@ -11,13 +11,11 @@ import LoadingPage from "../loading";
 import {
   ActionIcon,
   Button,
-  Indicator,
   Menu,
   Title,
   Tooltip,
 } from "@mantine/core";
-import { MdAdd, MdPendingActions, MdSort } from "react-icons/md";
-import Link from "next/link";
+import { MdAdd, MdSort } from "react-icons/md";
 import { FirestoreQueryOptions } from "@/data/firestore/types/queries";
 import { AlbumDoc } from "@/data/firestore/types/documents";
 import { useInViewport } from "@mantine/hooks";
@@ -73,7 +71,7 @@ export default function AlbumsPage() {
   return (
     <div className="flex flex-col w-6/7 grow mx-auto px-4 py-6 gap-6">
       <div className="flex items-center justify-between">
-        <Title order={1} className="uppercase">
+        <Title order={1} className="uppercase text-[28px] font-bold text-navy-9">
           Albums
         </Title>
         <div className="flex items-center gap-4 ml-auto">
@@ -112,15 +110,6 @@ export default function AlbumsPage() {
               </Menu.Item>
             </Menu.Dropdown>
           </Menu>
-          <Link href="/albums/pending">
-            <Tooltip label="Pending Items">
-              <Indicator color="error" offset={7}>
-                <ActionIcon variant="outline">
-                  <MdPendingActions size={30} />
-                </ActionIcon>
-              </Indicator>
-            </Tooltip>
-          </Link>
           <Tooltip label="Create Album">
             <ActionIcon color="orange" onClick={() => openEditAlbumModal()}>
               <MdAdd size={40} />

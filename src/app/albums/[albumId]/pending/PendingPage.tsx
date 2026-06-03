@@ -8,7 +8,6 @@ import { MdArrowBack, MdError, MdSort } from "react-icons/md";
 import {
   ActionIcon,
   Anchor,
-  Breadcrumbs,
   Button,
   Menu,
   Title,
@@ -114,18 +113,6 @@ export default function PendingPage(props: PendingPageProps) {
   return (
     <div className="flex flex-col w-6/7 grow mx-auto px-4 py-6 gap-6">
       <div className="flex flex-col gap-xs">
-        <Breadcrumbs separator=">>">
-          {[
-            { title: "ALBUMS", href: "/albums" },
-            { title: album.name, href: `/albums/${album.id}` },
-            { title: "Pending", href: "#" },
-          ].map((breadcrumb) => (
-            <Anchor href={breadcrumb.href} key={breadcrumb.title}>
-              <Title order={6}>{breadcrumb.title}</Title>
-            </Anchor>
-          ))}
-        </Breadcrumbs>
-
         <div className="flex items-center justify-between">
           <div className="flex gap-xs items-center">
             <Anchor href={`/albums/${album.id}`}>
@@ -133,7 +120,9 @@ export default function PendingPage(props: PendingPageProps) {
                 <MdArrowBack size={40} />
               </ActionIcon>
             </Anchor>
-            <Title order={1}>Pending</Title>
+            <Title order={1} className="text-[28px] font-bold text-navy-9">
+              Pending
+            </Title>
           </div>
 
           <div className="flex items-center gap-4">

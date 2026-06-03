@@ -76,7 +76,7 @@ service cloud.firestore {
         allow write: if isStaffOrAdmin();
       }
     }
-    
+
     // User collections
     match /campers/{camperId} {
       allow read: if isStaffOrAdmin();
