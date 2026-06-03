@@ -21,7 +21,7 @@ export function UploadUsersCsvModal() {
         accept={["text/csv"]}
       >
         <MdOutlineFileUpload size={60} />
-        <Text>Upload a users CSV file exported from Campminder here</Text>
+        <Text>{csvFile ? `Selected File: "${csvFile.name}"` : "Upload a users CSV file exported from Campminder here"}</Text>
       </Dropzone>
       <Radio.Group
         value={csvType}
@@ -38,7 +38,7 @@ export function UploadUsersCsvModal() {
         ))}
         </div>
       </Radio.Group>
-      <Button classNames={{ root: "self-center" }}>Create Users</Button>
+      <Button classNames={{ root: "self-center" }} disabled={!csvFile || !csvType}>Create Users</Button>
     </div>
   );
 }
