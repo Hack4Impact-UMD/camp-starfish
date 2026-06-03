@@ -1,6 +1,5 @@
 import useProcessEmployeeCSV from "@/features/userManagement/useProcessEmployeeCSV";
 import useProcessFamilyCSV from "@/features/userManagement/useProcessFamilyCSV";
-import { toNormalCase } from "@/utils/stringUtils";
 import { Button, Radio, Text } from "@mantine/core";
 import { Dropzone } from "@mantine/dropzone";
 import { modals } from "@mantine/modals";
@@ -10,6 +9,11 @@ import { MdOutlineFileUpload } from "react-icons/md";
 type UsersCsvType = "FAMILY" | "EMPLOYEE";
 
 const usersCsvTypes: UsersCsvType[] = ["FAMILY", "EMPLOYEE"];
+
+const usersCsvTypeToLabel: Record<UsersCsvType, string> = {
+  FAMILY: "Families (Campers + Parents)",
+  EMPLOYEE: "Employees (Admins + Staff + Photographers)",
+};
 
 export function UploadUsersCsvModal() {
   const [csvFile, setCsvFile] = useState<File | null>(null);
@@ -50,14 +54,14 @@ export function UploadUsersCsvModal() {
       </Dropzone>
       <Radio.Group
         value={csvType}
-        label={"Select the type of CSV file you are uploading"}
+        label={"Type of Users"}
       >
         <div className="flex flex-col gap-xs">
           {usersCsvTypes.map((type) => (
             <Radio
               key={type}
               value={type}
-              label={toNormalCase(type)}
+              label={usersCsvTypeToLabel[type]}
               onChange={() => setCsvType(type)}
               required
             />
