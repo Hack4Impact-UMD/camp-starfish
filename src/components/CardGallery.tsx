@@ -13,16 +13,37 @@ interface CardGalleryProps<T> {
   items: T[];
   renderItem: (item: T, isSelected: boolean) => JSX.Element;
   groups?: GroupOptions<T>;
+  // Optional controlled selection. When provided, the parent owns the selected
+  // ids (e.g. to render a selection toolbar); otherwise selection is internal.
+  selectedItemIds?: string[];
+  onSelectionChange?: (selectedItemIds: string[]) => void;
+  // Optional content rendered right-aligned in the first group's label row
+  // (only applies when `groups` is set).
+  firstGroupActions?: JSX.Element;
 }
 
 export default function CardGallery<T extends { id: string }>(
   props: CardGalleryProps<T>
 ) {
   const { items, renderItem, groups } = props;
-  const [selectedItemIds, setSelectedItemIds] = useState<string[]>([]);
+  const isControlled = props.selectedItemIds !== undefined;
+  const [internalSelectedItemIds, setInternalSelectedItemIds] = useState<
+    string[]
+  >([]);
+  const selectedItemIds = isControlled
+    ? props.selectedItemIds!
+    : internalSelectedItemIds;
+
+  const updateSelection = (updater: (prev: string[]) => string[]) => {
+    if (isControlled) {
+      props.onSelectionChange?.(updater(selectedItemIds));
+    } else {
+      setInternalSelectedItemIds(updater);
+    }
+  };
 
   const toggleItem = (itemId: string) => {
-    setSelectedItemIds((prev: string[]) => {
+    updateSelection((prev: string[]) => {
       if (prev.indexOf(itemId) === -1) {
         return [...prev, itemId];
       }
@@ -54,7 +75,7 @@ export default function CardGallery<T extends { id: string }>(
   });
 
   const toggleGroup = (label: string, checked: boolean) => {
-    setSelectedItemIds((prev: string[]) => {
+    updateSelection((prev: string[]) => {
       if (checked) {
         return Array.from(
           new Set([...prev, ...itemGroups[label].map((item: T) => item.id)])
@@ -67,6 +88,7 @@ export default function CardGallery<T extends { id: string }>(
   };
 
   const allLabels = [...groupLabels, defaultGroupLabel];
+  const firstRenderedLabel = allLabels.find((label) => itemGroups[label]);
   return (
     <div className="mt-6 space-y-8">
       {allLabels.map(
@@ -84,6 +106,9 @@ export default function CardGallery<T extends { id: string }>(
                   )}
                   onChange={(event) => toggleGroup(label, event.currentTarget.checked)}
                 />
+                {label === firstRenderedLabel && props.firstGroupActions && (
+                  <div className="ml-auto">{props.firstGroupActions}</div>
+                )}
               </div>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {itemGroups[label].map((item: T) => (
