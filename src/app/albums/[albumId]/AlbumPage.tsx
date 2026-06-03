@@ -27,6 +27,7 @@ import { MdSort } from "react-icons/md";
 import LoadingPage from "@/app/loading";
 import ErrorPage from "@/app/error";
 import useDownloadAlbum from "@/features/albums/downloading/useDownloadAlbum";
+import { useAuth } from "@/auth/useAuth";
 import openUploadAlbumItemsModal from "@/components/UploadAlbumItemsModal/UploadAlbumItemsModal";
 import { useInViewport } from "@mantine/hooks";
 import LoadingAnimation from "@/components/LoadingAnimation";
@@ -76,6 +77,12 @@ interface AlbumPageContentProps {
 
 export function AlbumPageContent(props: AlbumPageContentProps) {
   const { album } = props;
+
+  const { role } = useAuth();
+  // Tagging, moderation, and uploading are staff/photographer features; parents
+  // only view and download their camper's photos.
+  const canManageAlbum =
+    role === "ADMIN" || role === "STAFF" || role === "PHOTOGRAPHER";
 
   const [sortOption, setSortOption] = useState<AlbumItemSortOption>(
     AlbumItemSortOption.NEWEST_TO_OLDEST,
@@ -157,7 +164,7 @@ export function AlbumPageContent(props: AlbumPageContentProps) {
           })}
         </Breadcrumbs>
         <div className="flex items-start gap-4 shrink-0">
-          <TagSelect />
+          {canManageAlbum && <TagSelect />}
           <Menu>
             <Tooltip label="Sort">
               <Menu.Target>
@@ -179,23 +186,27 @@ export function AlbumPageContent(props: AlbumPageContentProps) {
               ))}
             </Menu.Dropdown>
           </Menu>
-          <Link href={`/albums/${album.id}/pending`}>
-            <Tooltip label="Pending Items">
-              <Indicator color="error" offset={7} disabled={!hasPendingItems}>
-                <ActionIcon variant="outline">
-                  <MdPendingActions size={30} />
-                </ActionIcon>
-              </Indicator>
+          {canManageAlbum && (
+            <Link href={`/albums/${album.id}/pending`}>
+              <Tooltip label="Pending Items">
+                <Indicator color="error" offset={7} disabled={!hasPendingItems}>
+                  <ActionIcon variant="outline">
+                    <MdPendingActions size={30} />
+                  </ActionIcon>
+                </Indicator>
+              </Tooltip>
+            </Link>
+          )}
+          {canManageAlbum && (
+            <Tooltip label="Upload Items">
+              <ActionIcon
+                color="aqua"
+                onClick={() => openUploadAlbumItemsModal(album.id)}
+              >
+                <MdOutlineFileUpload size={40} />
+              </ActionIcon>
             </Tooltip>
-          </Link>
-          <Tooltip label="Upload Items">
-            <ActionIcon
-              color="aqua"
-              onClick={() => openUploadAlbumItemsModal(album.id)}
-            >
-              <MdOutlineFileUpload size={40} />
-            </ActionIcon>
-          </Tooltip>
+          )}
           <Tooltip label="Download Album">
             <ActionIcon
               color="aqua"
@@ -215,13 +226,15 @@ export function AlbumPageContent(props: AlbumPageContentProps) {
       {albumItems.length === 0 ? (
         <div className="flex flex-col justify-center items-center grow bg-neutral-3 gap-4">
           <Title order={4}>No items yet</Title>
-          <Button
-            color="aqua"
-            rightSection={<MdOutlineFileUpload size={24} />}
-            onClick={() => openUploadAlbumItemsModal(album.id)}
-          >
-            Upload Items
-          </Button>
+          {canManageAlbum && (
+            <Button
+              color="aqua"
+              rightSection={<MdOutlineFileUpload size={24} />}
+              onClick={() => openUploadAlbumItemsModal(album.id)}
+            >
+              Upload Items
+            </Button>
+          )}
         </div>
       ) : (
         <>

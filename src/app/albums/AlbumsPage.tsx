@@ -6,6 +6,8 @@ import { openEditAlbumModal } from "@/components/EditAlbumModal";
 import CardGallery from "@/components/CardGallery";
 import { Album } from "@/types/albums/albumTypes";
 import useAlbumList from "@/hooks/albums/useAlbumList";
+import useParentAlbums from "@/hooks/albums/useParentAlbums";
+import { useAuth } from "@/auth/useAuth";
 import ErrorPage from "../error";
 import LoadingPage from "../loading";
 import {
@@ -43,6 +45,50 @@ const sortQueryOptions: Record<
 };
 
 export default function AlbumsPage() {
+  const { role, token } = useAuth();
+  if (role === "PARENT") {
+    return (
+      <ParentAlbumsPage
+        campminderId={token?.claims.campminderId as number | undefined}
+      />
+    );
+  }
+  return <StaffAlbumsPage />;
+}
+
+function ParentAlbumsPage({ campminderId }: { campminderId?: number }) {
+  const albumsQuery = useParentAlbums(campminderId);
+
+  if (albumsQuery.isError) {
+    return <ErrorPage error={albumsQuery.error} />;
+  } else if (albumsQuery.isLoading) {
+    return <LoadingPage />;
+  }
+
+  const albums = [...(albumsQuery.data ?? [])].sort(
+    (a, b) => (b.startDate?.valueOf() ?? 0) - (a.startDate?.valueOf() ?? 0),
+  );
+
+  return (
+    <div className="flex flex-col w-6/7 grow mx-auto px-4 py-6 gap-6">
+      <Title order={1} className="text-[40px] font-bold text-navy-9">
+        Albums
+      </Title>
+      {albums.length === 0 ? (
+        <div className="flex flex-col justify-center items-center grow bg-neutral-3 gap-4">
+          <Title order={4}>No albums available yet</Title>
+        </div>
+      ) : (
+        <CardGallery<Album>
+          items={albums}
+          renderItem={(album: Album) => <AlbumCard albumId={album.id} />}
+        />
+      )}
+    </div>
+  );
+}
+
+function StaffAlbumsPage() {
   const [sortOption, setSortOption] = useState<AlbumsPageSortOption>(
     AlbumsPageSortOption.NEWEST_TO_OLDEST,
   );

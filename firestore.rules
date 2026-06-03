@@ -19,17 +19,53 @@ service cloud.firestore {
       return isStaff() || isAdmin();
     }
 
+    function isParent() {
+      return isAuthenticated() && request.auth.token.role == "PARENT";
+    }
+
+    function isPhotographer() {
+      return isAuthenticated() && request.auth.token.role == "PHOTOGRAPHER";
+    }
+
+    // The signed-in user's CampMinder id (their /users doc id), as a string.
+    function myCampminderId() {
+      return string(request.auth.token.campminderId);
+    }
+
+    // The camper ids belonging to the signed-in parent.
+    function myCamperIds() {
+      return get(/databases/$(database)/documents/users/$(myCampminderId())).data.camperIds;
+    }
+
+    // Whether the given session includes one of the signed-in parent's campers.
+    function sessionHasMyCamper(sessionId) {
+      return exists(/databases/$(database)/documents/sessions/$(sessionId))
+        && 'attendeeIds' in get(/databases/$(database)/documents/sessions/$(sessionId)).data
+        && get(/databases/$(database)/documents/sessions/$(sessionId)).data.attendeeIds.hasAny(myCamperIds());
+    }
+
+    // Whether the given album doc is linked to a session with the parent's camper.
+    function albumLinkedToMyCamper(albumData) {
+      return 'linkedSessionId' in albumData && sessionHasMyCamper(albumData.linkedSessionId);
+    }
+
     match /userDirectory/{pageId} {
       allow read, write: if isStaffOrAdmin();
     }
 
     match /users/{userId} {
-      allow read, write: if isStaffOrAdmin();
+      // Any signed-in user may read their own user doc (needed to resolve a
+      // parent's camper ids); only staff/admin may read others or write.
+      allow read: if isStaffOrAdmin() || (isAuthenticated() && userId == myCampminderId());
+      allow write: if isStaffOrAdmin();
     }
 
     // Sessions collection
     match /sessions/{sessionId} {
-      allow read: if isStaffOrAdmin();
+      // Parents may read a session doc only if one of their campers attends it
+      // (so they can discover the linked album). Subcollections stay staff/admin.
+      allow read: if isStaffOrAdmin()
+        || (isParent() && 'attendeeIds' in resource.data && resource.data.attendeeIds.hasAny(myCamperIds()));
       allow write: if isStaffOrAdmin();
       
       // Sections subcollection
@@ -68,12 +104,14 @@ service cloud.firestore {
     
     // Albums collection
     match /albums/{albumId} {
-      allow read: if isStaffOrAdmin();
-      allow write: if isStaffOrAdmin();
-      
+      allow read: if isStaffOrAdmin() || isPhotographer()
+        || (isParent() && albumLinkedToMyCamper(resource.data));
+      allow write: if isStaffOrAdmin() || isPhotographer();
+
       match /albumItems/{albumItemId} {
-        allow read: if isStaffOrAdmin();
-        allow write: if isStaffOrAdmin();
+        allow read: if isStaffOrAdmin() || isPhotographer()
+          || (isParent() && albumLinkedToMyCamper(get(/databases/$(database)/documents/albums/$(albumId)).data));
+        allow write: if isStaffOrAdmin() || isPhotographer();
       }
     }
 
