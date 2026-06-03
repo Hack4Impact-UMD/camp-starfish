@@ -17,7 +17,7 @@ import AlbumItemViewModalReportSection from "./AlbumItemViewModalReportSection";
 import { useAuth } from "@/auth/useAuth";
 import { Role } from "@/types/users/userTypes";
 import RequireAuth from "@/auth/RequireAuth";
-import openMoveAlbumItemModal from "./MoveAlbumItemModal";
+import MoveAlbumItemModal from "./MoveAlbumItemModal";
 
 interface ImageViewProps {
   albumId: string;
@@ -29,6 +29,7 @@ export function AlbumItemViewModal(props: ImageViewProps) {
   const { albumId, albumItemIds, startIndex } = props;
 
   const [index, setIndex] = useState<number>(startIndex);
+  const [moveOpened, setMoveOpened] = useState<boolean>(false);
   const albumItemId = albumItemIds[index];
 
   const albumItemQuery = useAlbumItem({ albumId, albumItemId });
@@ -73,7 +74,7 @@ export function AlbumItemViewModal(props: ImageViewProps) {
               leftSection={<MdDriveFileMove size={20} />}
               aria-label="Move Album Item"
               disabled={!albumItemQuery.data}
-              onClick={() => openMoveAlbumItemModal(albumId, albumItemId)}
+              onClick={() => setMoveOpened(true)}
             >
               Move To
             </Button>
@@ -165,6 +166,13 @@ export function AlbumItemViewModal(props: ImageViewProps) {
           fallbackComponent={<></>}
         />
       </div>
+
+      <MoveAlbumItemModal
+        albumId={albumId}
+        albumItemId={albumItemId}
+        opened={moveOpened}
+        onClose={() => setMoveOpened(false)}
+      />
     </div>
   );
 }

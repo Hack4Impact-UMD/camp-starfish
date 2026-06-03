@@ -80,6 +80,7 @@ export default function PendingPage(props: PendingPageProps) {
     const pendingAlbumItems = pendingAlbumItemsQuery.data.pages.flatMap(
       (page) => page.docs,
     );
+    const pendingAlbumItemIds = pendingAlbumItems.map((item) => item.id);
     if (pendingAlbumItems.length === 0) {
       albumItemContent = (
         <div className="flex flex-col justify-center items-center grow bg-neutral-3 gap-4">
@@ -95,6 +96,7 @@ export default function PendingPage(props: PendingPageProps) {
               <PendingAlbumItemCard
                 albumId={item.albumId}
                 albumItemId={item.id}
+                albumItemIds={pendingAlbumItemIds}
                 isSelected={isSelected}
               />
             )}
