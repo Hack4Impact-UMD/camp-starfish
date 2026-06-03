@@ -27,6 +27,7 @@ export function UploadUsersCsvModal() {
         value={csvType}
         label={"Select the type of CSV file you are uploading"}
       >
+        <div className="flex flex-col gap-xs">
         {usersCsvTypes.map((type) => (
           <Radio
             key={type}
@@ -35,6 +36,7 @@ export function UploadUsersCsvModal() {
             onChange={() => setCsvType(type)}
           />
         ))}
+        </div>
       </Radio.Group>
       <Button classNames={{ root: "self-center" }}>Create Users</Button>
     </div>
