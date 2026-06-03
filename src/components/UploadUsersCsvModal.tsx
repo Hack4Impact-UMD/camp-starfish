@@ -38,24 +38,35 @@ export function UploadUsersCsvModal() {
     );
   };
 
+  let error = null;
+  if (csvType === "FAMILY") {
+    error = processFamilyCSVMutation.error;
+  } else if (csvType === "EMPLOYEE") {
+    error = processEmployeeCSVMutation.error;
+  }
+
   return (
     <div className="flex flex-col gap-md">
-      <Dropzone
-        onDrop={(files) => setCsvFile(files[0])}
-        maxFiles={1}
-        accept={["text/csv"]}
-      >
-        <MdOutlineFileUpload size={60} />
-        <Text>
-          {csvFile
-            ? `Selected File: "${csvFile.name}"`
-            : "Upload a users CSV file exported from Campminder here"}
-        </Text>
-      </Dropzone>
-      <Radio.Group
-        value={csvType}
-        label={"Type of Users"}
-      >
+      <div>
+        <Dropzone
+          onDrop={(files) => setCsvFile(files[0])}
+          maxFiles={1}
+          accept={["text/csv"]}
+        >
+          <MdOutlineFileUpload size={60} />
+          <Text>
+            {csvFile
+              ? `Selected File: "${csvFile.name}"`
+              : "Upload a users CSV file exported from Campminder here"}
+          </Text>
+        </Dropzone>
+        {error && (
+          <Text className="text-error text-sm text-center">
+            {error.message}
+          </Text>
+        )}
+      </div>
+      <Radio.Group value={csvType} label={"Type of Users"}>
         <div className="flex flex-col gap-xs">
           {usersCsvTypes.map((type) => (
             <Radio
