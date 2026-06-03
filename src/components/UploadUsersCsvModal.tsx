@@ -1,5 +1,5 @@
 import { toNormalCase } from "@/utils/stringUtils";
-import { Radio, Text } from "@mantine/core";
+import { Button, Radio, Text } from "@mantine/core";
 import { Dropzone } from "@mantine/dropzone";
 import { modals } from "@mantine/modals";
 import { useState } from "react";
@@ -14,7 +14,7 @@ export function UploadUsersCsvModal() {
   const [csvType, setCsvType] = useState<UsersCsvType | null>(null);
 
   return (
-    <>
+    <div className="flex flex-col gap-md">
       <Dropzone
         onDrop={(files) => setCsvFile(files[0])}
         maxFiles={1}
@@ -23,7 +23,10 @@ export function UploadUsersCsvModal() {
         <MdOutlineFileUpload size={60} />
         <Text>Upload a users CSV file exported from Campminder here</Text>
       </Dropzone>
-      <Radio.Group>
+      <Radio.Group
+        value={csvType}
+        label={"Select the type of CSV file you are uploading"}
+      >
         {usersCsvTypes.map((type) => (
           <Radio
             key={type}
@@ -33,7 +36,8 @@ export function UploadUsersCsvModal() {
           />
         ))}
       </Radio.Group>
-    </>
+      <Button classNames={{ root: "self-center" }}>Create Users</Button>
+    </div>
   );
 }
 
