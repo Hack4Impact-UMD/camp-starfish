@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import {
   Button,
   Group,
-  Stack,
   Title,
   Menu,
   ActionIcon,
@@ -37,9 +36,11 @@ export default function SessionsPage() {
   }, [inViewport, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   return (
-    <Stack className="gap-md p-md">
+    <div className="flex flex-col w-6/7 grow mx-auto px-4 py-6 gap-6">
       <Group className="justify-between items-center">
-        <Title order={1}>Sessions</Title>
+        <Title order={1} className="text-[40px] font-bold text-navy-9">
+          Sessions
+        </Title>
         <Group gap="sm">
           <Tooltip label="Toggle Edit Mode">
             <ActionIcon onClick={() => setEditMode((prev) => !prev)}>
@@ -105,6 +106,6 @@ export default function SessionsPage() {
           <div className="invisible" ref={ref} />
         </>
       )}
-    </Stack>
+    </div>
   );
 }

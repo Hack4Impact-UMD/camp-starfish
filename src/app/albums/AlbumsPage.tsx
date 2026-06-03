@@ -71,7 +71,7 @@ export default function AlbumsPage() {
   return (
     <div className="flex flex-col w-6/7 grow mx-auto px-4 py-6 gap-6">
       <div className="flex items-center justify-between">
-        <Title order={1} className="uppercase text-[28px] font-bold text-navy-9">
+        <Title order={1} className="text-[40px] font-bold text-navy-9">
           Albums
         </Title>
         <div className="flex items-center gap-4 ml-auto">
