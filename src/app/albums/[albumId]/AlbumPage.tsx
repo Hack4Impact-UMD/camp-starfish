@@ -154,7 +154,19 @@ export function AlbumPageContent(props: AlbumPageContentProps) {
       <Text className="font-medium text-white whitespace-nowrap">
         {selectedItemIds.length} selected
       </Text>
-      <Button variant="white" color="navy.9" radius="xl" size="sm" onClick={selectAll}>
+      <Button
+        variant="white"
+        color="navy.9"
+        radius="xl"
+        size="sm"
+        onClick={selectAll}
+        disabled={albumItemsQuery.hasNextPage}
+        title={
+          albumItemsQuery.hasNextPage
+            ? "Scroll to load all photos before selecting all"
+            : undefined
+        }
+      >
         Select All
       </Button>
       <Tooltip label="Download selected">

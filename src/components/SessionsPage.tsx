@@ -65,7 +65,19 @@ export default function SessionsPage() {
       <Text className="font-medium text-white whitespace-nowrap">
         {selectedSessionIds.length} selected
       </Text>
-      <Button variant="white" color="navy.9" radius="xl" size="sm" onClick={selectAll}>
+      <Button
+        variant="white"
+        color="navy.9"
+        radius="xl"
+        size="sm"
+        onClick={selectAll}
+        disabled={sessionsQuery.hasNextPage}
+        title={
+          sessionsQuery.hasNextPage
+            ? "Scroll to load all sessions before selecting all"
+            : undefined
+        }
+      >
         Select All
       </Button>
       <Tooltip label="Delete selected">

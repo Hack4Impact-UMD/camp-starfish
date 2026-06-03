@@ -1,6 +1,6 @@
 "use client";
 
-import { JSX, useState } from "react";
+import { JSX, useState, type HTMLAttributes, type KeyboardEvent } from "react";
 import { Checkbox } from "@mantine/core";
 
 export interface GroupOptions<T> {
@@ -46,6 +46,25 @@ export default function CardGallery<T extends { id: string }>(
     }
   };
 
+  // Make selectable items behave as accessible, keyboard-operable toggles.
+  const getItemWrapperProps = (
+    itemId: string,
+  ): HTMLAttributes<HTMLDivElement> => {
+    if (!selectable) return {};
+    return {
+      role: "button",
+      tabIndex: 0,
+      "aria-pressed": selectedItemIds.indexOf(itemId) !== -1,
+      onClick: () => toggleItem(itemId),
+      onKeyDown: (event: KeyboardEvent<HTMLDivElement>) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          toggleItem(itemId);
+        }
+      },
+    };
+  };
+
   const toggleItem = (itemId: string) => {
     updateSelection((prev: string[]) => {
       if (prev.indexOf(itemId) === -1) {
@@ -59,10 +78,7 @@ export default function CardGallery<T extends { id: string }>(
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-6">
         {items.map((item: T) => (
-          <div
-            onClick={selectable ? () => toggleItem(item.id) : undefined}
-            key={item.id}
-          >
+          <div key={item.id} {...getItemWrapperProps(item.id)}>
             {renderItem(
               item,
               selectable && selectedItemIds.indexOf(item.id) !== -1,
@@ -124,10 +140,7 @@ export default function CardGallery<T extends { id: string }>(
               </div>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {itemGroups[label].map((item: T) => (
-                  <div
-                    onClick={selectable ? () => toggleItem(item.id) : undefined}
-                    key={item.id}
-                  >
+                  <div key={item.id} {...getItemWrapperProps(item.id)}>
                     {renderItem(
                       item,
                       selectable && selectedItemIds.indexOf(item.id) !== -1,
