@@ -66,10 +66,10 @@ export default function CardGallery<T extends { id: string }>(
     });
   };
 
-  groupLabels.push(defaultGroupLabel);
+  const allLabels = [...groupLabels, defaultGroupLabel];
   return (
     <div className="mt-6 space-y-8">
-      {groupLabels.map(
+      {allLabels.map(
         (label: string) =>
           itemGroups[label] && (
             <div key={label}>

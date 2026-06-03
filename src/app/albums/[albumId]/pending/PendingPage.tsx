@@ -4,6 +4,7 @@ import CardGallery from "@/components/CardGallery";
 import useAlbumItemList from "@/hooks/albumItems/useAlbumItemList";
 import ErrorPage from "@/app/error";
 import LoadingAnimation from "@/components/LoadingAnimation";
+import LoadingPage from "@/app/loading";
 import { MdArrowBack, MdError, MdSort } from "react-icons/md";
 import {
   ActionIcon,
@@ -57,7 +58,7 @@ export default function PendingPage(props: PendingPageProps) {
   if (albumQuery.isError) {
     return <ErrorPage error={albumQuery.error} />;
   } else if (albumQuery.isPending || pendingAlbumItemsQuery.isPending) {
-    return <LoadingAnimation />;
+    return <LoadingPage />;
   }
 
   const album = albumQuery.data;

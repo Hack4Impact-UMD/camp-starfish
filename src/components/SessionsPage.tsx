@@ -70,11 +70,12 @@ export default function SessionsPage() {
         <>
           <CardGallery
             items={sessions}
-            renderItem={(session) => (
+            renderItem={(session, isSelected) => (
               <SessionCard
                 key={session.id}
                 sessionId={session.id}
                 editMode={editMode}
+                isSelected={isSelected}
               />
             )}
             groups={{

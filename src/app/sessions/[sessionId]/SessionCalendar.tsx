@@ -9,7 +9,7 @@ import { MonthView, ScheduleHeader, ScheduleSingleEventData } from "@mantine/sch
 import { MdChevronLeft, MdChevronRight } from "react-icons/md";
 import { momentRangesOverlap } from "@/utils/timeUtils";
 import useSectionList from "@/hooks/sections/useSectionList";
-import LoadingAnimation from "@/components/LoadingAnimation";
+import LoadingPage from "@/app/loading";
 import { useRouter } from "next/navigation";
 import useSession from "@/hooks/sessions/useSession";
 import ErrorPage from "@/app/error";
@@ -24,7 +24,7 @@ export default function SessionCalendar(props: SessionCalendarProps) {
   const sectionsQuery = useSectionList(sessionId, { orderBy: [{ fieldPath: "startDate", direction: "asc" }] });
 
   if (sessionQuery.isPending || sectionsQuery.isPending) {
-    return <LoadingAnimation />;
+    return <LoadingPage />;
   } else if (sessionQuery.isError) {
     return <ErrorPage error={sessionQuery.error} />;
   } else if (sectionsQuery.isError) {

@@ -5,7 +5,6 @@ import { Moment } from "moment";
 import { useRouter } from "next/navigation";
 import { useDeleteSession } from "@/hooks/sessions/useDeleteSession";
 import { MdDelete } from "react-icons/md";
-import { useState } from "react";
 import classNames from "classnames";
 import useSession from "@/hooks/sessions/useSession";
 import LoadingAnimation from "./LoadingAnimation";
@@ -15,11 +14,11 @@ import openConfirmationModal from "./modals/ConfirmationModal";
 interface SessionCardProps {
   sessionId: string;
   editMode: boolean;
+  isSelected: boolean;
 }
 
 export default function SessionCard(props: SessionCardProps) {
-  const { sessionId, editMode } = props;
-  const [isSelected, setIsSelected] = useState<boolean>(false);
+  const { sessionId, editMode, isSelected } = props;
 
   const sessionQuery = useSession(sessionId);
 
@@ -88,7 +87,6 @@ export default function SessionCard(props: SessionCardProps) {
           "bg-neutral-2": isSelected,
         }),
       }}
-      onClick={() => setIsSelected((prev) => !prev)}
       onDoubleClick={() => router.push(`/sessions/${sessionId}`)}
     >
       {content}
