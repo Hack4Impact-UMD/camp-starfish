@@ -1,5 +1,6 @@
 import useProcessEmployeeCSV from "@/features/userManagement/useProcessEmployeeCSV";
 import useProcessFamilyCSV from "@/features/userManagement/useProcessFamilyCSV";
+import { MBToBytes } from "@/utils/fileUtils";
 import { Button, Radio, Text } from "@mantine/core";
 import { Dropzone } from "@mantine/dropzone";
 import { modals } from "@mantine/modals";
@@ -52,12 +53,13 @@ export function UploadUsersCsvModal() {
           onDrop={(files) => setCsvFile(files[0])}
           maxFiles={1}
           accept={["text/csv"]}
+          maxSize={MBToBytes(5)}
         >
           <MdOutlineFileUpload size={60} />
           <Text>
             {csvFile
               ? `Selected File: "${csvFile.name}"`
-              : "Upload a users CSV file exported from Campminder here"}
+              : "Upload a users CSV file exported from Campminder here (Max: 5MB)"}
           </Text>
         </Dropzone>
         {error && (
