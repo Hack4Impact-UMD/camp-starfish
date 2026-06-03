@@ -103,25 +103,31 @@ camp-starfish/
 | Route | File | Purpose | Auth |
 |---|---|---|---|
 | `/` | `page.tsx` → `LoginPage` / `EmployeeHomePage` / `ParentHomePage` | Role-routed home | none (renders by role) |
-| `/albums` | `albums/page.tsx` → `AlbumsPage.tsx` | Album listing (paginated; PR #223) | ADMIN, PHOTOGRAPHER, STAFF, PARENT |
-| `/albums/[albumId]` | `albums/[albumId]/page.tsx` → `AlbumPage.tsx` | Single-album view | same |
-| `/sessions` | `sessions/page.tsx` | Sessions listing | STAFF/ADMIN |
+| `/albums` | `albums/page.tsx` → `AlbumsPage.tsx` | Album listing (paginated). Staff/admin/photographer see all albums; PARENT sees a read-only, scoped view (`ParentAlbumsPage` via `useParentAlbums`) | ADMIN, PHOTOGRAPHER, STAFF, PARENT |
+| `/albums/[albumId]` | `albums/[albumId]/page.tsx` → `AlbumPage.tsx` | Single-album view. Tag/Upload/Pending controls are staff-only; parents get view + download | same |
+| `/albums/[albumId]/pending` | `albums/[albumId]/pending/page.tsx` → `PendingPage.tsx` | In-review (pending) album items for moderation | ADMIN/STAFF/PHOTOGRAPHER |
+| `/sessions` | `sessions/page.tsx` → `SessionsPage.tsx` | Sessions listing | STAFF/ADMIN |
 | `/sessions/[sessionId]` | `SessionPage.tsx` + `SessionCalendar.tsx` | Session detail w/ calendar | STAFF/ADMIN |
+| `/sessions/[sessionId]/directory` | `directory/page.tsx` → `DirectoryTableView.tsx` | Attendee directory table | STAFF/ADMIN |
 | `/sessions/[sessionId]/[sectionId]` | `[sectionId]/page.tsx` | Section detail | STAFF/ADMIN |
 | `/demo/program-area-grid` | `demo/program-area-grid/page.tsx` | Internal demo | none |
 
 `layout.tsx` mounts: `Navbar`, `Footer`, custom fonts (Lato, NewSpirit, Besteam), and the `Providers` tree (Mantine, TanStack Query, Auth). Devtools are conditionally included when `NODE_ENV !== "production"`.
 
-`loading.tsx` and `error.tsx` provide the App Router boundaries.
+`loading.tsx` and `error.tsx` provide the App Router boundaries. `loading.tsx` (`LoadingPage`) centers the loading animation (with an animated "Loading…") within its container using `grow` — it sits in the content region below the navbar rather than taking over the page, and is reused by page-level pending states (do not give it a fixed/min height since it's also rendered inside cards).
 
 ### `src/components/`
 Reusable UI building blocks (~28 files). Highlights:
 - **Layout**: `Navbar`, `Footer`, `Providers`, `BackgroundPattern`
 - **Cards**: `AlbumCard`, `SessionCard`, `ImageCard`, `GalleryCardOne`, `CardGallery`
 - **Activity grid**: `ActivityGrid`, `ActivityGridRow`, `ActivityGridCell`
-- **Modals**: `ActivityModal`, `AssignActivityModal`, `EditSectionModal`, `FileUploadModal`, `CreateSessionModal`, `EditAlbumModal`, `ConfirmationModal`
+- **Modals**: `ActivityModal`, `AssignActivityModal`, `EditSectionModal`, `FileUploadModal`, `CreateSessionModal`, `EditAlbumModal`, `ConfirmationModal`, `UploadAlbumItemsModal/`
+- **Album item viewing** (`AlbumItemViewModal/`): `AlbumItemViewModal` (full-screen carousel), `AlbumItemViewModalTagSection` + `AddTagModal` (camper tagging, staff/photographer), `AlbumItemViewModalReportSection` (parent reporting), `MoveAlbumItemModal` (move item between albums)
+- **Album item cards**: `AlbumItemCard`, `PendingAlbumItemCard`, `TagSelect`
 - **Tables**: `DirectoryTableView`, `DirectoryTableCell`, `NightScheduleTable`
 - **Misc**: `SortDropdown`, `LoadingAnimation`, `SectionPage`, `SmallDirectoryBlock`, `SessionsPage`
+
+`CardGallery` supports optional `groups` with a per-group "select all" checkbox; `renderItem(item, isSelected)` passes selection state down, so cards rendered in it (e.g. `SessionCard`, `AlbumItemCard`) must be **controlled** and read `isSelected` from props rather than tracking their own.
 
 ### `src/auth/`
 - `AuthProvider.tsx` — Firebase Auth React context.
@@ -148,11 +154,15 @@ Domain-specific logic (not pure UI, not pure data).
 - **Scheduling/generation**: `BundleScheduler`, `BunkJamboreeScheduler`, `NonBunkJamboreeScheduler`, `SessionScheduler`, `FreeplayScheduler`.
 - **Scheduling/lifecycle**: `publishSectionSchedule.ts`, `unpublishSectionSchedule.ts`.
 - **Scheduling/exporting**: `DaySchedulePDF.tsx`, `CamperPreferencesSheet.tsx`, `BlockRatiosGrid.tsx`, `CamperGrid.tsx`, `EmployeeGrid.tsx`, `ProgramAreaGrid.tsx`, `DownloadDaySchedulePDFButton.tsx`.
-- **Albums**: `linkAlbumAndSession.ts`, `unlinkAlbumAndSession.ts`, `albumItemReporting/useCreateAlbumItemReport.ts`, `useResolveAlbumItemReport.ts`.
+- **Albums/linking**: `linking/linkAlbumAndSession.ts`, `unlinkAlbumAndSession.ts` (link is bidirectional — sets both `session.linkedAlbumId` and `album.linkedSessionId`).
+- **Albums/reporting**: `albumItemReporting/useCreateAlbumItemReport.ts`, `useResolveAlbumItemReport.ts`.
+- **Albums/tagging**: `albumItemTagging/useCreateAlbumItemTag.ts`, `useApprovePendingTag.ts`, `useRejectPendingTag.ts`, `useDeleteApprovedTag.ts`.
+- **Albums/moving**: `moving/useMoveAlbumItem.ts` (copies item to the destination album then deletes the source; rolls back the destination copy if the source delete fails).
+- **Albums/downloading**: `downloading/useDownloadAlbum.ts`, `useDownloadAlbumItem.ts`.
 - **Notifications**: `useNotifications.tsx` (Mantine notifications wrapper).
 
 ### `src/hooks/`
-TanStack Query hooks per resource. Naming convention: `use<Verb><Resource>` (e.g. `useCreateSession`, `useAttendeesBySessionId`). 24+ hooks across albums, album items, sessions, sections, schedules, attendees, night schedules, program areas, freeplays.
+TanStack Query hooks per resource. Naming convention: `use<Verb><Resource>` (e.g. `useCreateSession`, `useAttendeesBySessionId`). 24+ hooks across albums, album items, sessions, sections, schedules, attendees, night schedules, program areas, freeplays. Notable: `albums/useParentAlbums.ts` resolves a parent's accessible albums (parent's `camperIds` → sessions whose `attendeeIds` contain a camper → those sessions' `linkedAlbumId`s → `batchGetAlbumDocs`); it tolerates a missing/unprovisioned parent user doc by returning an empty list.
 
 ### `src/types/`
 Domain types organized by resource:
@@ -249,11 +259,11 @@ When adding new UI:
 
 ## 8. Authentication & Authorization
 
-- **Firebase Auth** with custom claims (`request.auth.token.role`).
-- The `checkAllowlist` Cloud Function assigns the role at user-creation time.
-- Client guard: `src/auth/RequireAuth.tsx` wraps protected routes and accepts an array of allowed roles.
-- Server guard: `firestore.rules` enforces `isStaff()`, `isAdmin()`, `isStaffOrAdmin()` on every collection.
-- Currently `firestore.rules` is not complete. Rules need to be updated to give users with PARENT, CAMPER, and PHOTOGRAPHER roles the correct permissions.
+- **Firebase Auth** with custom claims. `checkAllowlist` (`beforeUserCreated`) assigns `{ role, campminderId }` — `campminderId` is the user's numeric id (their `/users/{id}` doc id), used by both client and rules. ⚠️ In dev (`NODE_ENV === 'development'`) or for `DEV_EMAILS`/`NPO_EMAILS`, it assigns `role: "ADMIN"` with **no** `campminderId`.
+- Client guard: `src/auth/RequireAuth.tsx` wraps protected routes and accepts an array of allowed roles. The albums detail page additionally gates Tag/Upload/Pending controls behind `role ∈ {ADMIN, STAFF, PHOTOGRAPHER}` (parents keep view + download).
+- Server guard: `firestore.rules` defines role helpers `isStaff()`, `isAdmin()`, `isStaffOrAdmin()`, `isParent()`, `isPhotographer()`.
+- **Parent album scoping** (`firestore.rules` + `useParentAlbums`): a parent may read their own `/users/{campminderId}` doc; read a `session` only if its `attendeeIds` include one of their `camperIds`; and read an `album`/`albumItem` only if the album's `linkedSessionId` resolves to such a session. Helpers: `myCampminderId()`, `myCamperIds()`, `sessionHasMyCamper(sessionId)`, `albumLinkedToMyCamper(albumData)`. Photographers get album read + write.
+- **Still incomplete**: CAMPER permissions, broader session/user access for non-staff, and the legacy `/parents`, `/campers`, … role collections in `firestore.rules` are unused (canonical user store is `/users`).
 
 ---
 
@@ -347,7 +357,13 @@ npm run generate:theme  # after editing src/styles/globalTheme.ts
 ```bash
 npx tsx scripts/generate-emulator-data.ts
 ```
-(See `scripts/generate-emulator-data.ts` — uses `@faker-js/faker` to seed users, sessions, sections, schedules.)
+(`scripts/generate-emulator-data.ts` exports `@faker-js/faker` generator helpers; note it currently has no top-level writer — the shipped emulator state lives in `test/emulatorData`.)
+
+### Seed parent-album scoping test data
+```bash
+npm run seed:parent-album   # requires emulators running
+```
+(`scripts/seed-parent-album-test.ts` uses `firebase-admin` against the running emulators to create a PARENT auth account with `{ role, campminderId }` claims plus a camper → session → linked album chain, a deliberately-unlinked "other" album as a negative control, and repairs the demo parent `olive.otter.292@example.com` whose shipped `campminderId` had no `/users` doc. Sign in by **selecting** the seeded account in the emulator popup — "Add new account" runs the blocking trigger which grants ADMIN in dev. Data is not persisted to `test/emulatorData` unless you `firebase emulators:export`.)
 
 ### Tests
 There is **no unit test framework wired up** (no Jest/Vitest config, no `.test.*` files). Validation is currently manual against the Firebase emulator. `firebase-functions-test ^3.1.0` is installed in `functions/` but no test files exist there yet.
@@ -358,12 +374,12 @@ There is **no unit test framework wired up** (no Jest/Vitest config, no `.test.*
 
 ### Critical
 1. **Storage rules are wide open.** [storage.rules](storage.rules) currently has `allow read, write: if true` for all paths. **This must be replaced with role-aware rules before any production deployment.**
-2. **Firestore rules vs. client gating mismatch.** `/albums` is client-gated for PARENT and PHOTOGRAPHER, but [firestore.rules](firestore.rules) only grants STAFF/ADMIN access to `albums/*`. Parents and photographers will hit permission-denied errors at runtime.
-3. **`firestore.indexes.json` is empty.** Any composite-index requirement (e.g. `where(...).orderBy(...)` combinations) will fail on first query against production Firestore.
+2. ~~**Firestore rules vs. client gating mismatch** for albums.~~ **Resolved**: [firestore.rules](firestore.rules) now grants scoped PARENT album access and PHOTOGRAPHER read/write (see §8). Remaining: this relies on `get()` traversal (album → session → user, ~5 doc reads per album-item check; watch the 10-`get`/request limit) and exposes top-level `session` docs to scoped parents.
+3. **`firestore.indexes.json` is empty.** Any composite-index requirement (e.g. `where(...).orderBy(...)` combinations) will fail on first query against production Firestore. The album-item list query (`where inReview == … orderBy dateTaken`) works in the emulator but will need an index in prod; `useParentAlbums` deliberately avoids composite indexes (it fetches albums by id and sorts client-side).
 
 ### High-priority gaps
-4. **No moderation UI.** `albumItemReports` infrastructure (Cloud Function, hooks, types) exists, but there is no admin route to review/resolve pending reports.
-5. **Missing routes referenced in UI.** `EmployeeHomePage` exposes "SESSIONS" and "CAMPERS" cards, but `/sessions` and `/campers` routes do not exist in `src/app/`.
+4. **No moderation UI route.** `albumItemReports` infrastructure exists, but there is no admin route to review/resolve pending reports. (Note: `/albums/[albumId]/pending` handles in-review *items*, which is a separate flow from reports.)
+5. **Missing routes referenced in UI.** `/sessions` now exists, but `/campers` (linked from `EmployeeHomePage` and the `Navbar` "Campers" item, shown to STAFF/ADMIN/PARENT) and `/profile` (the Navbar avatar link) do not exist in `src/app/` — both 404.
 6. **`SmallDirectoryBlock`** logs `"Redirect to expanded directory view"` instead of navigating — placeholder.
 7. **Apps Script preference sync TODO**: `preferencesSheets.ts` has a comment to re-enable syncing Firestore updates back into the preferences spreadsheet.
 
