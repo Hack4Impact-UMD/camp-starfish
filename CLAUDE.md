@@ -379,7 +379,7 @@ There is **no unit test framework wired up** (no Jest/Vitest config, no `.test.*
 
 ### High-priority gaps
 4. **No moderation UI route.** `albumItemReports` infrastructure exists, but there is no admin route to review/resolve pending reports. (Note: `/albums/[albumId]/pending` handles in-review *items*, which is a separate flow from reports.)
-5. **Missing routes referenced in UI.** `/sessions` now exists, but `/campers` (linked from `EmployeeHomePage` and the `Navbar` "Campers" item, shown to STAFF/ADMIN/PARENT) and `/profile` (the Navbar avatar link) do not exist in `src/app/` — both 404.
+5. **Missing routes referenced in UI.** `/sessions` now exists, but `/campers` (linked from `EmployeeHomePage` and the `Navbar` "Campers" item, both now **ADMIN-only**) and `/profile` (the Navbar avatar link) do not exist in `src/app/` — both 404. When `/campers` is built, gate it with `RequireAuth` for `ADMIN` to match the entry points.
 6. **`SmallDirectoryBlock`** logs `"Redirect to expanded directory view"` instead of navigating — placeholder.
 7. **Apps Script preference sync TODO**: `preferencesSheets.ts` has a comment to re-enable syncing Firestore updates back into the preferences spreadsheet.
 

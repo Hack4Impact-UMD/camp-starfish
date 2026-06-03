@@ -29,13 +29,15 @@ export default function EmployeeHomePage() {
           icon={<MdAssignment size={28} />}
           buttonLabel="VIEW SESSIONS"
         />
-        <GalleryCardOne
-          title="CAMPERS"
-          href="/campers"
-          description="Access the cohort list and each camper's details"
-          icon={<MdGroups size={32} />}
-          buttonLabel="VIEW CAMPERS"
-        />
+        {auth.role === "ADMIN" && (
+          <GalleryCardOne
+            title="CAMPERS"
+            href="/campers"
+            description="Access the cohort list and each camper's details"
+            icon={<MdGroups size={32} />}
+            buttonLabel="VIEW CAMPERS"
+          />
+        )}
       </div>
     </div>
   );

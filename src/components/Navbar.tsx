@@ -23,7 +23,7 @@ const navbarLinks: { name: string; href: string; roles: Role[] }[] = [
   {
     name: "Campers",
     href: "/campers",
-    roles: ["STAFF", "ADMIN", "PARENT"],
+    roles: ["ADMIN"],
   },
 ];
 
