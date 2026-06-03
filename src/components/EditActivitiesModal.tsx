@@ -168,20 +168,14 @@ export default function EditActivitiesModal({
           return;
         }
 
-        // Fetch the schedule for this section
+        // Fetch the schedule for this section (null = no doc yet, use empty layout)
         const schedule = await getSectionSchedule(sessionId, section.id);
-        const blockData = mapScheduleToBlocks(schedule);
-        
+        const blockData = schedule ? mapScheduleToBlocks(schedule) : initialBlocks;
+
         schedulesRef.current.set(section.id, blockData);
         setBlocks(blockData);
       } catch (err) {
         console.error("Failed to load section schedule:", err);
-
-        if (err instanceof Error && err.message.includes("Document not found")) {
-          setBlocks(initialBlocks);
-          return;
-        }
-
         setError("Failed to load section activities. Using default layout.");
         setBlocks(initialBlocks);
       } finally {

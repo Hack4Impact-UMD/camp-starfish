@@ -1,7 +1,7 @@
 import { SectionSchedule } from "@/types/scheduling/schedulingTypes";
 import { SectionScheduleDoc } from "./types/documents";
-import { doc, DocumentReference, DocumentSnapshot, QueryDocumentSnapshot, Transaction, PartialWithFieldValue } from "firebase/firestore";
-import { getDoc, setDoc } from "./firestoreClientOperations";
+import { doc, DocumentReference, DocumentSnapshot, QueryDocumentSnapshot, Transaction, PartialWithFieldValue, getDoc as getFirestoreDoc } from "firebase/firestore";
+import { setDoc } from "./firestoreClientOperations";
 import { db } from "@/config/firebase";
 import { RootLevelCollection, SectionsSubcollection, SessionsSubcollection } from "./types/collections";
 
@@ -14,11 +14,13 @@ function fromFirestore(snapshot: DocumentSnapshot<SectionScheduleDoc, SectionSch
   }
 }
 
-export async function getSectionSchedule(sessionId: string, sectionId: string, transaction?: Transaction): Promise<SectionSchedule> {
+export async function getSectionSchedule(sessionId: string, sectionId: string, transaction?: Transaction): Promise<SectionSchedule | null> {
   if (!sectionId || sectionId === SectionsSubcollection.SCHEDULE) {
     throw new Error(`Invalid sectionId provided: ${sectionId}`);
   }
-  const snapshot = await getDoc<SectionScheduleDoc>(doc(db, RootLevelCollection.SESSIONS, sessionId, SessionsSubcollection.SECTIONS, sectionId, SectionsSubcollection.SCHEDULE, SectionsSubcollection.SCHEDULE) as DocumentReference<SectionScheduleDoc, SectionScheduleDoc>, transaction);
+  const ref = doc(db, RootLevelCollection.SESSIONS, sessionId, SessionsSubcollection.SECTIONS, sectionId, SectionsSubcollection.SCHEDULE, SectionsSubcollection.SCHEDULE) as DocumentReference<SectionScheduleDoc, SectionScheduleDoc>;
+  const snapshot = await (transaction ? transaction.get(ref) : getFirestoreDoc(ref));
+  if (!snapshot.exists()) return null;
   return fromFirestore(snapshot);
 }
 

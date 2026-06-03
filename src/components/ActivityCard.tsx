@@ -1,5 +1,4 @@
 "use client";
-import React from "react";
 import { Text, Badge, UnstyledButton, Flex } from "@mantine/core";
 import { MdCircle } from "react-icons/md";
 import {
@@ -18,6 +17,19 @@ const ageGroupColor = {
   OCP: "red",
   NAV: "blue",
 } satisfies Record<AgeGroup, string>;
+
+const CATEGORY_DOT_COLORS = [
+  "#ef4444", "#3b82f6", "#22c55e", "#f97316",
+  "#a855f7", "#14b8a6", "#f59e0b", "#ec4899",
+];
+
+function getCategoryColor(category: string): string {
+  let hash = 0;
+  for (let i = 0; i < category.length; i++) {
+    hash = (hash * 31 + category.charCodeAt(i)) & 0xffff;
+  }
+  return CATEGORY_DOT_COLORS[hash % CATEGORY_DOT_COLORS.length];
+}
 
 // Type guard
 function isBundleActivity(
@@ -42,9 +54,8 @@ export default function ActivityCard({
         {bundle && (
           <MdCircle
             size={10}
-            className={`absolute left-0 top-1/2 -translate-y-1/2 ${
-              bundle.ageGroup === "OCP" ? "text-red-500" : "text-blue-500"
-            }`}
+            style={{ color: getCategoryColor(bundle.programAreaId) }}
+            className="absolute left-0 top-1/2 -translate-y-1/2"
           />
         )}
 

@@ -140,23 +140,10 @@ function SessionCalendarContent(props: SessionCalendarContentProps) {
         section: selectedSection,
         sections,
         sessionId: session.id,
-        initialSchedule: schedule,
+        initialSchedule: schedule ?? undefined,
       });
     } catch (error) {
       console.error("Failed to load section schedule:", error);
-      const isMissingSchedule =
-        error instanceof Error && error.message.includes("Document not found");
-
-      // No schedule doc yet: open the editor with a default (empty) layout.
-      if (isMissingSchedule) {
-        openEditActivitiesModal({
-          section: selectedSection,
-          sections,
-          sessionId: session.id,
-        });
-        return;
-      }
-
       modals.open({
         title: "Error",
         children: (
