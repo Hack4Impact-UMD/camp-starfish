@@ -68,7 +68,7 @@ export function UploadAlbumItemsModal(props: UploadAlbumItemsModalProps) {
       />
     );
   }
-  const inReview = canUploadApprovedItemsRoles.includes(userRole);
+  const inReview = canUploadInReviewItemsRoles.includes(userRole);
 
   const onDrop = (files: FileWithPath[]) => {
     setAcceptedFiles((prev) => [...prev, ...files]);

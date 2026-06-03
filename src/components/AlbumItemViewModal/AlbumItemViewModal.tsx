@@ -19,6 +19,8 @@ import { Role } from "@/types/users/userTypes";
 import RequireAuth from "@/auth/RequireAuth";
 import MoveAlbumItemModal from "./MoveAlbumItemModal";
 
+const MOVE_CAPABLE_ROLES: Role[] = ["ADMIN", "PHOTOGRAPHER", "STAFF"];
+
 interface ImageViewProps {
   albumId: string;
   albumItemIds: string[];
@@ -42,8 +44,7 @@ export function AlbumItemViewModal(props: ImageViewProps) {
 
   const canGoLeft = index > 0;
   const canGoRight = index < albumItemIds.length - 1;
-  const canMove =
-    !!role && (["ADMIN", "PHOTOGRAPHER", "STAFF"] as Role[]).includes(role);
+  const canMove = !!role && MOVE_CAPABLE_ROLES.includes(role);
   const itemName = albumItemQuery.data?.name ?? "";
 
   return (
@@ -152,9 +153,7 @@ export function AlbumItemViewModal(props: ImageViewProps) {
               ),
             },
             {
-              authFn: () =>
-                !!role &&
-                (["ADMIN", "PHOTOGRAPHER", "STAFF"] as Role[]).includes(role),
+              authFn: () => !!role && MOVE_CAPABLE_ROLES.includes(role),
               component: (
                 <AlbumItemViewModalTagSection
                   albumId={albumId}

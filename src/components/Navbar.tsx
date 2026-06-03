@@ -29,7 +29,7 @@ const navbarLinks: { name: string; href: string; roles: Role[] }[] = [
 
 const Navbar: React.FC = () => {
   const auth = useAuth();
-  const role: Role = auth.token?.claims.role as Role;
+  const role = auth.token?.claims.role as Role | undefined;
 
   return (
     <nav className="w-full bg-navy-9 px-16 py-3 flex items-center justify-between gap-8">
@@ -48,7 +48,7 @@ const Navbar: React.FC = () => {
         {auth.token && (
           <div className="flex gap-10 text-white text-[20px] font-bold">
             {navbarLinks
-              .filter((item) => item.roles.includes(role))
+              .filter((item) => role !== undefined && item.roles.includes(role))
               .map((item) => (
                 <Link
                   key={item.name}

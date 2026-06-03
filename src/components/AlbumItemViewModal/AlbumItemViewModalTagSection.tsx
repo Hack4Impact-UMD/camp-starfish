@@ -10,7 +10,7 @@ import useApprovePendingTag from "@/features/albums/albumItemTagging/useApproveP
 import useRejectPendingTag from "@/features/albums/albumItemTagging/useRejectPendingTag";
 import useDeleteApprovedTag from "@/features/albums/albumItemTagging/useDeleteApprovedTag";
 import { getFullName } from "@/types/users/userUtils";
-import AddTagModal from "./AddTagModal";
+import AddTagModal from "@/components/AlbumItemViewModal/AddTagModal";
 
 interface TagSectionProps {
   albumId: string;

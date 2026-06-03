@@ -12,6 +12,7 @@ export default function useDeleteAlbumItem() {
     mutationFn: async (req: DeleteAlbumItemRequest) => deleteAlbumItemDoc(req.albumId, req.albumItemId),
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['albums', variables.albumId, 'albumItems'] });
+      queryClient.invalidateQueries({ queryKey: ['albums'] });
     }
   })
 }

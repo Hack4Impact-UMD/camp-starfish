@@ -77,6 +77,7 @@ export default function CardGallery<T extends { id: string }>(
                 <h2 className="text-xl font-semibold text-navy-9">{label}</h2>
                 <Checkbox
                   color="neutral.8"
+                  aria-label={`Select all ${label}`}
                   classNames={{ input: "rounded-sm" }}
                   checked={itemGroups[label].every(
                     (item: T) => selectedItemIds.indexOf(item.id) !== -1

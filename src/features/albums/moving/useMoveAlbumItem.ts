@@ -41,7 +41,18 @@ async function moveAlbumItem(req: MoveAlbumItemRequest) {
 
   // Deleting the source doc triggers the onAlbumItemDeleted Cloud Function,
   // which removes the old Storage file and updates each album's item counts.
-  await deleteAlbumItemDoc(fromAlbumId, albumItemId);
+  try {
+    await deleteAlbumItemDoc(fromAlbumId, albumItemId);
+  } catch (error) {
+    // Roll back the destination copy so we don't leave a duplicate behind.
+    // Deleting the doc triggers the Cloud Function that cleans up its blob.
+    try {
+      await deleteAlbumItemDoc(toAlbumId, newAlbumItemId);
+    } catch {
+      // Ignore rollback failure; surface the original error below.
+    }
+    throw error;
+  }
 }
 
 export default function useMoveAlbumItem() {

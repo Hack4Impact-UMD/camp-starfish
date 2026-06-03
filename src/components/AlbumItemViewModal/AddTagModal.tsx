@@ -98,17 +98,19 @@ export default function AddTagModal(props: AddTagModalProps) {
                 </Text>
               ) : null
             }
-            renderPill={(optionInput) =>
-              userDirectory ? (
-                <Pill>
-                  {getFullName(
-                    userDirectory[Number(optionInput.option.value)].name,
-                  )}
-                </Pill>
-              ) : (
-                <Pill>{optionInput.option.value}</Pill>
-              )
-            }
+            renderPill={(optionInput) => (
+              <Pill
+                withRemoveButton
+                onRemove={optionInput.onRemove}
+                disabled={optionInput.disabled}
+              >
+                {userDirectory
+                  ? getFullName(
+                      userDirectory[Number(optionInput.option.value)].name,
+                    )
+                  : optionInput.option.value}
+              </Pill>
+            )}
             filter={(filterObj) =>
               userDirectory
                 ? filterObj.options
