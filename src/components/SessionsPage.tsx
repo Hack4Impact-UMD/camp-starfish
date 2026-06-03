@@ -42,6 +42,10 @@ export default function SessionsPage() {
   }, [inViewport, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   const clearSelection = () => setSelectedSessionIds([]);
+  const toggleDeleteMode = () => {
+    setEditMode((prev) => !prev);
+    clearSelection();
+  };
   const selectAll = () => setSelectedSessionIds(sessions.map((s) => s.id));
   const deleteSelected = () =>
     openConfirmationModal({
@@ -95,8 +99,8 @@ export default function SessionsPage() {
           Sessions
         </Title>
         <Group gap="sm">
-          <Tooltip label="Toggle Edit Mode">
-            <ActionIcon onClick={() => setEditMode((prev) => !prev)}>
+          <Tooltip label="Toggle Delete Mode">
+            <ActionIcon onClick={toggleDeleteMode}>
               {editMode ? <MdCheck size={30} /> : <MdEdit size={30} />}
             </ActionIcon>
           </Tooltip>
@@ -123,10 +127,13 @@ export default function SessionsPage() {
         <>
           <CardGallery
             items={sessions}
+            selectable={editMode}
             selectedItemIds={selectedSessionIds}
             onSelectionChange={setSelectedSessionIds}
             firstGroupActions={
-              selectedSessionIds.length > 0 ? selectionToolbar : undefined
+              editMode && selectedSessionIds.length > 0
+                ? selectionToolbar
+                : undefined
             }
             renderItem={(session, isSelected) => (
               <SessionCard

@@ -20,12 +20,16 @@ interface CardGalleryProps<T> {
   // Optional content rendered right-aligned in the first group's label row
   // (only applies when `groups` is set).
   firstGroupActions?: JSX.Element;
+  // When false, hides the group "select all" checkboxes and disables
+  // click-to-select (items render unselected). Defaults to true.
+  selectable?: boolean;
 }
 
 export default function CardGallery<T extends { id: string }>(
   props: CardGalleryProps<T>
 ) {
   const { items, renderItem, groups } = props;
+  const selectable = props.selectable ?? true;
   const isControlled = props.selectedItemIds !== undefined;
   const [internalSelectedItemIds, setInternalSelectedItemIds] = useState<
     string[]
@@ -55,8 +59,14 @@ export default function CardGallery<T extends { id: string }>(
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-6">
         {items.map((item: T) => (
-          <div onClick={() => toggleItem(item.id)} key={item.id}>
-            {renderItem(item, selectedItemIds.indexOf(item.id) !== -1)}
+          <div
+            onClick={selectable ? () => toggleItem(item.id) : undefined}
+            key={item.id}
+          >
+            {renderItem(
+              item,
+              selectable && selectedItemIds.indexOf(item.id) !== -1,
+            )}
           </div>
         ))}
       </div>
@@ -97,23 +107,31 @@ export default function CardGallery<T extends { id: string }>(
             <div key={label}>
               <div className="flex items-center gap-8 mb-4">
                 <h2 className="text-xl font-semibold text-navy-9">{label}</h2>
-                <Checkbox
-                  color="neutral.8"
-                  aria-label={`Select all ${label}`}
-                  classNames={{ input: "rounded-sm" }}
-                  checked={itemGroups[label].every(
-                    (item: T) => selectedItemIds.indexOf(item.id) !== -1
-                  )}
-                  onChange={(event) => toggleGroup(label, event.currentTarget.checked)}
-                />
+                {selectable && (
+                  <Checkbox
+                    color="neutral.8"
+                    aria-label={`Select all ${label}`}
+                    classNames={{ input: "rounded-sm" }}
+                    checked={itemGroups[label].every(
+                      (item: T) => selectedItemIds.indexOf(item.id) !== -1
+                    )}
+                    onChange={(event) => toggleGroup(label, event.currentTarget.checked)}
+                  />
+                )}
                 {label === firstRenderedLabel && props.firstGroupActions && (
                   <div className="ml-auto">{props.firstGroupActions}</div>
                 )}
               </div>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {itemGroups[label].map((item: T) => (
-                  <div onClick={() => toggleItem(item.id)} key={item.id}>
-                    {renderItem(item, selectedItemIds.indexOf(item.id) !== -1)}
+                  <div
+                    onClick={selectable ? () => toggleItem(item.id) : undefined}
+                    key={item.id}
+                  >
+                    {renderItem(
+                      item,
+                      selectable && selectedItemIds.indexOf(item.id) !== -1,
+                    )}
                   </div>
                 ))}
               </div>
