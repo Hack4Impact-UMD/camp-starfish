@@ -1,3 +1,5 @@
+import useProcessEmployeeCSV from "@/features/userManagement/useProcessEmployeeCSV";
+import useProcessFamilyCSV from "@/features/userManagement/useProcessFamilyCSV";
 import { toNormalCase } from "@/utils/stringUtils";
 import { Button, Radio, Text } from "@mantine/core";
 import { Dropzone } from "@mantine/dropzone";
@@ -12,6 +14,19 @@ const usersCsvTypes: UsersCsvType[] = ["FAMILY", "EMPLOYEE"];
 export function UploadUsersCsvModal() {
   const [csvFile, setCsvFile] = useState<File | null>(null);
   const [csvType, setCsvType] = useState<UsersCsvType | null>(null);
+
+  const processFamilyCSVMutation = useProcessFamilyCSV();
+  const processEmployeeCSVMutation = useProcessEmployeeCSV();
+
+  const handleSubmit = async () => {
+    if (!csvFile || !csvType) {
+      return;
+    } else if (csvType === "FAMILY") {
+      processFamilyCSVMutation.mutate({ csvFile });
+      return;
+    }
+    processEmployeeCSVMutation.mutate({ csvFile });
+  }
 
   return (
     <div className="flex flex-col gap-md">
@@ -39,7 +54,7 @@ export function UploadUsersCsvModal() {
         ))}
         </div>
       </Radio.Group>
-      <Button classNames={{ root: "self-center" }} disabled={!csvFile || !csvType}>Create Users</Button>
+      <Button classNames={{ root: "self-center" }} onClick={handleSubmit} disabled={!csvFile || !csvType} loading={processFamilyCSVMutation.isPending || processEmployeeCSVMutation.isPending}>Create Users</Button>
     </div>
   );
 }
