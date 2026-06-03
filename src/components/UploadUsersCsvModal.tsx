@@ -34,6 +34,7 @@ export function UploadUsersCsvModal() {
             value={type}
             label={toNormalCase(type)}
             onChange={() => setCsvType(type)}
+            required
           />
         ))}
         </div>
