@@ -57,11 +57,13 @@ export function UploadUsersCsvModal() {
         { parsedFamilyCsvData: parsedData },
         { onSuccess: () => modals.closeAll() },
       );
+      processEmployeeCsvMutation.reset();
     } else if (csvType === "EMPLOYEE" && isParsedEmployeeCsvData(parsedData)) {
       processEmployeeCsvMutation.mutate(
         { parsedEmployeeCsvData: parsedData },
         { onSuccess: () => modals.closeAll() },
       );
+      processFamilyCsvMutation.reset();
     }
   };
 
