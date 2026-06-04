@@ -15,6 +15,7 @@ import { Dropzone, DropzoneProps } from "@mantine/dropzone";
 import { modals } from "@mantine/modals";
 import { useState } from "react";
 import { MdOutlineFileUpload } from "react-icons/md";
+import { EmployeeRole } from "@/types/users/userTypes";
 
 const usersCsvTypeToLabel: Record<UsersCsvType, string> = {
   FAMILY: "Families (Campers + Parents)",
@@ -24,6 +25,7 @@ const usersCsvTypeToLabel: Record<UsersCsvType, string> = {
 export function UploadUsersCsvModal() {
   const [csvFile, setCsvFile] = useState<File | null>(null);
   const [csvType, setCsvType] = useState<UsersCsvType>("FAMILY");
+  const [roleSelects, setRoleSelects] = useState<{ [employeeId: number]: EmployeeRole; } | null>(null);
 
   const parseFamilyCsvMutation = useParseFamilyCsv();
   const parseEmployeeCsvMutation = useParseEmployeeCsv();
@@ -33,14 +35,18 @@ export function UploadUsersCsvModal() {
   const processEmployeeCsvMutation = useProcessEmployeeCSV();
 
   const parseCsvFile = (usersCsvType: UsersCsvType, csvFile: File) => {
-    (usersCsvType === "FAMILY"
-      ? parseFamilyCsvMutation
-      : parseEmployeeCsvMutation
-    ).mutate({ csvFile });
-    (usersCsvType === "FAMILY"
-      ? parseEmployeeCsvMutation
-      : parseFamilyCsvMutation
-    ).reset();
+    if (usersCsvType === "FAMILY") {
+      parseFamilyCsvMutation.mutate({ csvFile });
+      parseEmployeeCsvMutation.reset();
+      setRoleSelects(null);
+    } else {
+      parseEmployeeCsvMutation.mutate({ csvFile }, { onSuccess: (data) => {
+        const roleSelects: { [employeeId: number]: EmployeeRole; } = {};
+        data.forEach(employee => roleSelects[employee.id] = "STAFF");
+        setRoleSelects(roleSelects);
+      }});
+      parseFamilyCsvMutation.reset();
+    }
     processFamilyCsvMutation.reset();
     processEmployeeCsvMutation.reset();
   };
