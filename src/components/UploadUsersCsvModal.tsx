@@ -1,4 +1,6 @@
 import {
+  isParsedEmployeeCsvData,
+  isParsedFamilyCsvData,
   ParsedUsersCsvData,
   UsersCsvType,
   usersCsvTypes,
@@ -42,6 +44,16 @@ export function UploadUsersCsvModal() {
     parseCsvFile(csvType, csvFile);
   };
 
+  const handleSubmit = () => {
+    if (!parsedData) {
+      return;
+    } else if (csvType === "FAMILY" && isParsedFamilyCsvData(parsedData)) {
+      processFamilyCsvMutation.mutate({ parsedFamilyCsvData: parsedData }, { onSuccess: () => modals.closeAll() });
+    } else if (csvType === "EMPLOYEE" && isParsedEmployeeCsvData(parsedData)) {
+      processEmployeeCsvMutation.mutate({ parsedEmployeeCsvData: parsedData }, { onSuccess: () => modals.closeAll() });
+    }
+  }
+
   return (
     <div className="flex flex-col gap-md">
       <div>
@@ -79,7 +91,9 @@ export function UploadUsersCsvModal() {
       </Radio.Group>
       <Button
         classNames={{ root: "self-center" }}
+        onClick={handleSubmit}
         disabled={!csvFile || !csvType}
+        loading={processFamilyCsvMutation.isPending || processEmployeeCsvMutation.isPending}
       >
         Create Users
       </Button>
