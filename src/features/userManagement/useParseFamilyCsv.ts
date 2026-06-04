@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
-import { Camper, Parent } from "@/types/users/userTypes";
 import { parse } from "csv-parse/sync";
+import { ParsedFamilyCsvData } from "./types";
 
 interface ParseFamilyCsvRequest {
   csvFile: File;
@@ -23,14 +23,9 @@ type FamilyCSVRecord = BaseFamilyCSVRecord | BaseFamilyCSVRecord & {
   "F1P2 Login/Email": string;
 };
 
-export interface ParseFamilyCSVResponse {
-  campers: { [camperId: number]: Pick<Camper, "id" | "name" | "parentIds">; };
-  parents: { [parentId: number]: Pick<Parent, "id" | "name" | "email" | "camperIds">; };
-}
-
-function parseFamilyRecords(records: FamilyCSVRecord[]): ParseFamilyCSVResponse {
-  const campers: ParseFamilyCSVResponse["campers"] = {};
-  const parents: ParseFamilyCSVResponse["parents"] = {};
+function parseFamilyRecords(records: FamilyCSVRecord[]): ParsedFamilyCsvData {
+  const campers: ParsedFamilyCsvData["campers"] = {};
+  const parents: ParsedFamilyCsvData["parents"] = {};
 
   records.forEach((record) => {
     const camperId: number = parseInt(record.PersonID);
@@ -93,7 +88,7 @@ const REQUIRED_COLUMNS = [
   "F1P1 Login/Email"
 ]
 
-export async function parseFamilyCsv(req: ParseFamilyCsvRequest): Promise<ParseFamilyCSVResponse> {
+export async function parseFamilyCsv(req: ParseFamilyCsvRequest): Promise<ParsedFamilyCsvData> {
   const { csvFile } = req;
   const rawText = await csvFile.text();
   const records = parse(rawText, {

@@ -1,16 +1,15 @@
 import { httpsCallable } from "firebase/functions";
-import { parseFamilyCSV } from "./parseFamilyCSV";
 import { functions } from "@/config/firebase";
 import { useMutation } from "@tanstack/react-query";
+import { ParsedFamilyCsvData } from "./types";
 
 interface ProcessFamilyCSVRequest {
-  csvFile: File;
+  parsedFamilyCsvData: ParsedFamilyCsvData;
 }
 
 async function processFamilyCSV(req: ProcessFamilyCSVRequest) {
-  const { csvFile } = req;
-  const parsedData = await parseFamilyCSV(csvFile);
-  await httpsCallable(functions, "handleFamilyCSVUpload")(parsedData);
+  const { parsedFamilyCsvData } = req;
+  await httpsCallable(functions, "handleFamilyCSVUpload")(parsedFamilyCsvData);
 }
 
 export default function useProcessFamilyCSV() {
