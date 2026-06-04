@@ -7,5 +7,13 @@ export interface ParsedFamilyCsvData {
   campers: { [camperId: number]: Pick<Camper, "id" | "name" | "parentIds">; };
   parents: { [parentId: number]: Pick<Parent, "id" | "name" | "email" | "camperIds">; };
 }
+export type ParsedEmployeeCsvData = Omit<UnregisteredEmployee, "role">[];
+export type ParsedUsersCsvData = ParsedFamilyCsvData | ParsedEmployeeCsvData;
 
-export type ParsedEmployeeCsvData = Omit<UnregisteredEmployee, "role">[]
+export function isParsedFamilyCsvData(data: ParsedUsersCsvData): data is ParsedFamilyCsvData {
+  return "campers" in data && "parents" in data;
+}
+
+export function isParsedEmployeeCsvData(data: ParsedUsersCsvData): data is ParsedEmployeeCsvData {
+  return Array.isArray(data);
+}
