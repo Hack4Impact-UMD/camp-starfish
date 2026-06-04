@@ -24,10 +24,10 @@ const usersCsvTypeToLabel: Record<UsersCsvType, string> = {
 export function UploadUsersCsvModal() {
   const [csvFile, setCsvFile] = useState<File | null>(null);
   const [csvType, setCsvType] = useState<UsersCsvType>("FAMILY");
-  const [parsedData, setParsedData] = useState<ParsedUsersCsvData | null>(null);
 
   const parseFamilyCsvMutation = useParseFamilyCsv();
   const parseEmployeeCsvMutation = useParseEmployeeCsv();
+  const parsedData: ParsedUsersCsvData | undefined = csvType === "FAMILY" ? parseFamilyCsvMutation.data : parseEmployeeCsvMutation.data;
 
   const processFamilyCsvMutation = useProcessFamilyCSV();
   const processEmployeeCsvMutation = useProcessEmployeeCSV();
@@ -36,11 +36,13 @@ export function UploadUsersCsvModal() {
     (usersCsvType === "FAMILY"
       ? parseFamilyCsvMutation
       : parseEmployeeCsvMutation
-    ).mutate({ csvFile }, { onSuccess: (data) => setParsedData(data) });
+    ).mutate({ csvFile });
     (usersCsvType === "FAMILY"
       ? parseEmployeeCsvMutation
       : parseFamilyCsvMutation
     ).reset();
+    processFamilyCsvMutation.reset();
+    processEmployeeCsvMutation.reset();
   };
 
   const handleFileSelect: DropzoneProps["onDrop"] = (files) => {
@@ -129,6 +131,16 @@ export function UploadUsersCsvModal() {
       >
         Create Users
       </Button>
+      {processFamilyCsvMutation.error && (
+        <Text className="text-error text-sm text-center">
+          {processFamilyCsvMutation.error.message}
+        </Text>
+      )}
+      {processEmployeeCsvMutation.error && (
+        <Text className="text-error text-sm text-center">
+          {processEmployeeCsvMutation.error.message}
+        </Text>
+      )}
     </div>
   );
 }
