@@ -55,7 +55,7 @@ export const handleFamilyCSVUpload = onCall(async (req) => {
 
 export const handleEmployeeCSVUpload = onCall(async (req) => {
   const role: Role | undefined = req.auth?.token.role;
-  if (!role || role !== "ADMIN") {
+  if (role !== "ADMIN") {
     throw new HttpsError("permission-denied", "You do not have permission to create new users.");
   }
 
