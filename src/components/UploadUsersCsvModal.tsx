@@ -1,8 +1,15 @@
-import { UsersCsvType, usersCsvTypes } from "@/features/userManagement/types";
-import useProcessUsersCsv from "@/features/userManagement/useProcessUsersCsv";
+import {
+  ParsedUsersCsvData,
+  UsersCsvType,
+  usersCsvTypes,
+} from "@/features/userManagement/types";
+import useParseFamilyCsv from "@/features/userManagement/useParseFamilyCsv";
+import useParseEmployeeCsv from "@/features/userManagement/useParseEmployeeCsv";
+import useProcessEmployeeCSV from "@/features/userManagement/useProcessEmployeeCSV";
+import useProcessFamilyCSV from "@/features/userManagement/useProcessFamilyCSV";
 import { MBToBytes } from "@/utils/fileUtils";
 import { Button, Radio, Text } from "@mantine/core";
-import { Dropzone } from "@mantine/dropzone";
+import { Dropzone, DropzoneProps } from "@mantine/dropzone";
 import { modals } from "@mantine/modals";
 import { useState } from "react";
 import { MdOutlineFileUpload } from "react-icons/md";
@@ -15,24 +22,31 @@ const usersCsvTypeToLabel: Record<UsersCsvType, string> = {
 export function UploadUsersCsvModal() {
   const [csvFile, setCsvFile] = useState<File | null>(null);
   const [csvType, setCsvType] = useState<UsersCsvType>("FAMILY");
+  const [parsedData, setParsedData] = useState<ParsedUsersCsvData | null>(null);
 
-  const processUsersCsvMutation = useProcessUsersCsv(csvType);
+  const parseFamilyCsvMutation = useParseFamilyCsv();
+  const parseEmployeeCsvMutation = useParseEmployeeCsv();
 
-  const handleSubmit = async () => {
-    if (!csvFile) {
-      return;
-    }
-    processUsersCsvMutation.mutate(
-      { csvFile },
-      { onSuccess: () => modals.closeAll() },
-    );
+  const processFamilyCsvMutation = useProcessFamilyCSV();
+  const processEmployeeCsvMutation = useProcessEmployeeCSV();
+
+  const parseCsvFile = (usersCsvType: UsersCsvType, csvFile: File) =>
+    (usersCsvType === "FAMILY"
+      ? parseFamilyCsvMutation
+      : parseEmployeeCsvMutation
+    ).mutate({ csvFile }, { onSuccess: (data) => setParsedData(data) });
+
+  const handleFileSelect: DropzoneProps["onDrop"] = (files) => {
+    const csvFile = files[0];
+    setCsvFile(csvFile);
+    parseCsvFile(csvType, csvFile);
   };
 
   return (
     <div className="flex flex-col gap-md">
       <div>
         <Dropzone
-          onDrop={(files) => setCsvFile(files[0])}
+          onDrop={handleFileSelect}
           maxFiles={1}
           accept={["text/csv"]}
           maxSize={MBToBytes(5)}
@@ -44,11 +58,6 @@ export function UploadUsersCsvModal() {
               : "Upload a users CSV file exported from Campminder here (Max: 5MB)"}
           </Text>
         </Dropzone>
-        {processUsersCsvMutation.error && (
-          <Text className="text-error text-sm text-center">
-            {processUsersCsvMutation.error.message}
-          </Text>
-        )}
       </div>
       <Radio.Group value={csvType} label={"Type of Users"}>
         <div className="flex flex-col gap-xs">
@@ -57,7 +66,12 @@ export function UploadUsersCsvModal() {
               key={type}
               value={type}
               label={usersCsvTypeToLabel[type]}
-              onChange={() => setCsvType(type)}
+              onChange={() => {
+                setCsvType(type);
+                if (csvFile) {
+                  parseCsvFile(type, csvFile);
+                }
+              }}
               required
             />
           ))}
@@ -65,9 +79,7 @@ export function UploadUsersCsvModal() {
       </Radio.Group>
       <Button
         classNames={{ root: "self-center" }}
-        onClick={handleSubmit}
         disabled={!csvFile || !csvType}
-        loading={processUsersCsvMutation.isPending}
       >
         Create Users
       </Button>
