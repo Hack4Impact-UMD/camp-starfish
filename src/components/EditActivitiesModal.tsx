@@ -48,7 +48,7 @@ const initialTagData: TagData = {
   },
 };
 
-type BlockWithId = {
+export type BlockWithId = {
   id: string;
   label: string;
   activities: ActivityWithAssignments[];
@@ -105,6 +105,14 @@ export default function EditActivitiesModal({
   );
   const sessionIdRef = useRef(sessionId);
 
+  // Preserve each section's alternatePeriodsOff so saving block activities
+  // doesn't wipe it; seeded from the initial schedule and refreshed on load.
+  const alternatePeriodsOffRef = useRef<Map<string, { [periodId: string]: number[] }>>(
+    initialSchedule
+      ? new Map([[initialSection.id, initialSchedule.alternatePeriodsOff ?? {}]])
+      : new Map(),
+  );
+
   const section: SchedulingSection | undefined =
     schedulingSections[currentIndex] ??
     (initialSection.type !== "COMMON" ? initialSection : undefined);
@@ -124,13 +132,31 @@ export default function EditActivitiesModal({
         };
       });
 
-      // Activities are built to match section.type in handleActivitySubmit, so
-      // the generic block map is safe to narrow to the schedule doc's union.
-      const updates: PartialWithFieldValue<SectionScheduleDoc> = {
-        type: section.type,
-        alternatePeriodsOff: {},
-        blocks: blockData,
-      } as PartialWithFieldValue<SectionScheduleDoc>;
+      const altOff = alternatePeriodsOffRef.current.get(section.id) ?? {};
+      // `type` and `alternatePeriodsOff` are fully typed below; only `blocks`
+      // is cast, since the generic block map can't be statically proven to
+      // match the schedule doc's discriminated union (activities are shaped to
+      // section.type when created in handleActivitySubmit).
+      let updates: PartialWithFieldValue<SectionScheduleDoc>;
+      if (section.type === "BUNDLE") {
+        updates = {
+          type: "BUNDLE",
+          alternatePeriodsOff: altOff,
+          blocks: blockData as Extract<SectionScheduleDoc, { type: "BUNDLE" }>["blocks"],
+        };
+      } else if (section.type === "BUNK-JAMBO") {
+        updates = {
+          type: "BUNK-JAMBO",
+          alternatePeriodsOff: altOff,
+          blocks: blockData as Extract<SectionScheduleDoc, { type: "BUNK-JAMBO" }>["blocks"],
+        };
+      } else {
+        updates = {
+          type: "NON-BUNK-JAMBO",
+          alternatePeriodsOff: altOff,
+          blocks: blockData as Extract<SectionScheduleDoc, { type: "NON-BUNK-JAMBO" }>["blocks"],
+        };
+      }
 
       await updateSectionSchedule(sessionIdRef.current, section.id, updates);
 
@@ -138,8 +164,7 @@ export default function EditActivitiesModal({
       schedulesRef.current.set(section.id, blockItems);
 
       return true;
-    } catch (err) {
-      console.error("Failed to save section schedule:", err);
+    } catch {
       setError("Failed to save changes. Please try again.");
       return false;
     } finally {
@@ -149,8 +174,11 @@ export default function EditActivitiesModal({
 
   // Save current section's blocks before navigating away
   const saveCurrentSection = useCallback(async (): Promise<boolean> => {
+    if (!section) return false;
+    // Skip the write if nothing changed since the last successful save.
+    if (schedulesRef.current.get(section.id) === blocks) return true;
     return persistSectionBlocks(blocks);
-  }, [blocks, persistSectionBlocks]);
+  }, [blocks, persistSectionBlocks, section]);
 
   // Load schedule when navigating to a new section
   useEffect(() => {
@@ -173,9 +201,9 @@ export default function EditActivitiesModal({
         const blockData = schedule ? mapScheduleToBlocks(schedule) : initialBlocks;
 
         schedulesRef.current.set(section.id, blockData);
+        alternatePeriodsOffRef.current.set(section.id, schedule?.alternatePeriodsOff ?? {});
         setBlocks(blockData);
-      } catch (err) {
-        console.error("Failed to load section schedule:", err);
+      } catch {
         setError("Failed to load section activities. Using default layout.");
         setBlocks(initialBlocks);
       } finally {

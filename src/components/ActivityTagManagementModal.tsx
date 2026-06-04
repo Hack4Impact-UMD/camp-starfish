@@ -72,7 +72,7 @@ export default function ActivityTagManagementModal({
     setConfirm({
       opened: true,
       message:
-        "This category title is currently being used in a current session. Deleting this category will corrupt the current schedule.",
+        "Remove this category and its activity suggestions? This only affects the tag suggestion list, not any saved schedule.",
       onConfirm: () => {
         setCategories((prev) => prev.filter((c) => c !== category));
         setActivitiesByCategory((prev) => {
@@ -109,7 +109,7 @@ export default function ActivityTagManagementModal({
     setConfirm({
       opened: true,
       message:
-        "This activity is currently being used in a generated session. Deleting this activity will corrupt the current schedule.",
+        "Remove this activity from the tag suggestions? This only affects the tag suggestion list, not any saved schedule.",
       onConfirm: () => {
         setActivitiesByCategory((prev) => ({
           ...prev,
@@ -172,11 +172,9 @@ export default function ActivityTagManagementModal({
             <Title order={2} className="text-xl font-bold">
               Activities Tag Management
             </Title>
-            <Text className="text-sm text-red-600 mt-xs">
-              Deleting used tags could corrupt generated schedules*
-            </Text>
-            <Text className="text-sm text-red-600">
-              Edits on this screen will be applied to all users**
+            <Text className="text-sm text-neutral-6 mt-xs">
+              These tags are suggestions to speed up adding activities. They are
+              not saved to the schedule or shared with other users.
             </Text>
           </Box>
 

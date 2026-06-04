@@ -52,6 +52,13 @@ export interface SessionDoc {
   attendeeIds: number[];
 }
 
+// Narrow, parent-readable projection of a session's album linkage. Mirrored
+// from the session doc by a Cloud Function; never written from the client.
+export interface SessionAlbumDoc {
+  attendeeIds: number[];
+  linkedAlbumId?: string;
+}
+
 interface BaseAttendeeDoc {
   snapshot: {
     name: Name;

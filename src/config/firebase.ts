@@ -23,7 +23,9 @@ export const db = isFirstInit
 export const storage = getStorage(app);
 export const functions = getFunctions(app, 'us-central1');
 
-if (process.env.NODE_ENV !== "production") {
+// Only connect to emulators on the first initialization; re-running this on a
+// hot reload (with a reused app instance) would throw "emulator already started".
+if (isFirstInit && process.env.NODE_ENV !== "production") {
   connectAuthEmulator(auth, 'http://localhost:9099');
   connectFirestoreEmulator(db, 'localhost', 8080);
   connectFunctionsEmulator(functions, "localhost", 5001);

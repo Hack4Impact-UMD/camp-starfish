@@ -1,5 +1,5 @@
 import { batchGetAlbumDocs } from "@/data/firestore/albums";
-import { listSessionDocs } from "@/data/firestore/sessions";
+import { listSessionAlbumDocs } from "@/data/firestore/sessionAlbums";
 import { getUserDoc } from "@/data/firestore/users";
 import { Album } from "@/types/albums/albumTypes";
 import { useQuery } from "@tanstack/react-query";
@@ -33,14 +33,16 @@ export default function useParentAlbums(campminderId: number | undefined) {
       const camperIds = (user.camperIds ?? []).slice(0, ARRAY_CONTAINS_ANY_LIMIT);
       if (camperIds.length === 0) return [];
 
-      const sessions = await listSessionDocs({
+      // Read the narrow sessionAlbums projection (parents can't read full
+      // session docs) to find the albums linked to their campers' sessions.
+      const sessionAlbums = await listSessionAlbumDocs({
         where: [
           { fieldPath: "attendeeIds", operation: "array-contains-any", value: camperIds },
         ],
       });
 
-      const albumIds = sessions.docs
-        .map((session) => session.linkedAlbumId)
+      const albumIds = sessionAlbums.docs
+        .map((sessionAlbum) => sessionAlbum.linkedAlbumId)
         .filter((id): id is string => !!id);
       if (albumIds.length === 0) return [];
 

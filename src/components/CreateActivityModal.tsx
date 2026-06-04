@@ -23,6 +23,7 @@ import {
 import { AgeGroup, SchedulingSectionType } from "@/types/sessions/sessionTypes";
 import { isBundleActivity } from "@/types/scheduling/schedulingTypeGuards";
 import ActivityTagManagementModal, { TagData } from "./ActivityTagManagementModal";
+import { v4 as uuid } from "uuid";
 
 export interface CreateActivityModalProps {
   opened: boolean;
@@ -99,7 +100,7 @@ export default function CreateActivityModal({
     if (isBundleSection) {
       if (!ageGroup) return;
       const activity: BundleActivity = {
-        id: existingActivity?.id ?? crypto.randomUUID(),
+        id: existingActivity?.id ?? uuid(),
         name: trimmedActivity,
         description: existingActivity?.description ?? "",
         programAreaId: trimmedCategory,
@@ -108,7 +109,7 @@ export default function CreateActivityModal({
       onSubmit(activity);
     } else {
       const activity: JamboreeActivity = {
-        id: existingActivity?.id ?? crypto.randomUUID(),
+        id: existingActivity?.id ?? uuid(),
         name: trimmedActivity,
         description: existingActivity?.description ?? "",
       };
@@ -159,7 +160,7 @@ export default function CreateActivityModal({
       padding={0}
       zIndex={300}
       classNames={{
-        content: "border border-solid border-[#dee1e3]",
+        content: "border border-solid border-neutral-3",
       }}
     >
       <Box className="flex flex-col items-center gap-4 bg-white rounded-[16px] px-6 pt-4 pb-6">
@@ -171,7 +172,7 @@ export default function CreateActivityModal({
             aria-label="Close"
             onClick={onClose}
           >
-            <MdClose size={18} className="text-[#002d45]" />
+            <MdClose size={18} className="text-navy-9" />
           </ActionIcon>
           <Group gap={8} align="center">
             <Button
@@ -180,7 +181,7 @@ export default function CreateActivityModal({
               styles={{
                 root: {
                   height: 26,
-                  backgroundColor: "#fafafb",
+                  backgroundColor: "var(--mantine-color-neutral-1)",
                   border: "1px solid #c1c1c1",
                   borderRadius: 8,
                   paddingInline: 10,
@@ -197,7 +198,7 @@ export default function CreateActivityModal({
                 aria-label="Delete activity"
                 onClick={handleDelete}
               >
-                <MdDeleteOutline size={16} className="text-[#002d45]" />
+                <MdDeleteOutline size={16} className="text-navy-9" />
               </ActionIcon>
             )}
           </Group>
@@ -219,7 +220,7 @@ export default function CreateActivityModal({
                     style={{
                       fontSize: 22,
                       fontWeight: 600,
-                      color: "#3b4e57",
+                      color: "var(--mantine-color-neutral-5)",
                       padding: 0,
                       lineHeight: 1.3,
                     }}
@@ -264,7 +265,7 @@ export default function CreateActivityModal({
               styles={{
                 input: {
                   border: "1px solid #c1c1c1",
-                  color: "#3b4e57",
+                  color: "var(--mantine-color-neutral-5)",
                 },
               }}
             />
@@ -273,7 +274,7 @@ export default function CreateActivityModal({
           {/* Schedule Type (age group) - only for Bundle sections */}
           {isBundleSection && (
             <Stack className="w-full" gap={10}>
-              <Text style={{ fontSize: 16, fontWeight: 600, color: "#3b4e57" }}>
+              <Text style={{ fontSize: 16, fontWeight: 600, color: "var(--mantine-color-neutral-5)" }}>
                 Schedule Type
               </Text>
               <Radio.Group
@@ -285,14 +286,14 @@ export default function CreateActivityModal({
                     value="OCP"
                     label="OCP"
                     size="sm"
-                    color="#002d45"
+                    color="navy.9"
                     styles={{ label: { fontSize: 14, color: "#12222a" } }}
                   />
                   <Radio
                     value="NAV"
                     label="NAV"
                     size="sm"
-                    color="#002d45"
+                    color="navy.9"
                     styles={{ label: { fontSize: 14, color: "#12222a" } }}
                   />
                 </Stack>
@@ -307,7 +308,7 @@ export default function CreateActivityModal({
           disabled={!isFormValid}
           radius={40}
           styles={{
-            root: { backgroundColor: "#002d45", height: 42, width: 180 },
+            root: { backgroundColor: "var(--mantine-color-navy-9)", height: 42, width: 180 },
             label: {
               color: "white",
               fontSize: 14,

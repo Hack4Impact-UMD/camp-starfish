@@ -60,12 +60,10 @@ service cloud.firestore {
       allow write: if isStaffOrAdmin();
     }
 
-    // Sessions collection
+    // Sessions collection — staff/admin only. Parents resolve their album via
+    // the narrow /sessionAlbums projection instead of reading full sessions.
     match /sessions/{sessionId} {
-      // Parents may read a session doc only if one of their campers attends it
-      // (so they can discover the linked album). Subcollections stay staff/admin.
-      allow read: if isStaffOrAdmin()
-        || (isParent() && 'attendeeIds' in resource.data && resource.data.attendeeIds.hasAny(myCamperIds()));
+      allow read: if isStaffOrAdmin();
       allow write: if isStaffOrAdmin();
       
       // Sections subcollection
@@ -102,6 +100,15 @@ service cloud.firestore {
       }
     }
     
+    // Parent-facing projection of a session's album linkage (mirrored by a
+    // Cloud Function). Parents may read it only for a session their camper
+    // attends; it is never written from the client.
+    match /sessionAlbums/{sessionId} {
+      allow read: if isStaffOrAdmin()
+        || (isParent() && 'attendeeIds' in resource.data && resource.data.attendeeIds.hasAny(myCamperIds()));
+      allow write: if false;
+    }
+
     // Albums collection
     match /albums/{albumId} {
       allow read: if isStaffOrAdmin() || isPhotographer()

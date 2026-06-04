@@ -142,8 +142,7 @@ function SessionCalendarContent(props: SessionCalendarContentProps) {
         sessionId: session.id,
         initialSchedule: schedule ?? undefined,
       });
-    } catch (error) {
-      console.error("Failed to load section schedule:", error);
+    } catch {
       modals.open({
         title: "Error",
         children: (

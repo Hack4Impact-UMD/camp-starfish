@@ -4,16 +4,11 @@ import { Text, ActionIcon, Flex } from "@mantine/core";
 import { MdAdd } from "react-icons/md";
 import { ActivityWithAssignments } from "@/types/scheduling/schedulingTypes";
 import ActivityCard from "./ActivityCard";
+import type { BlockWithId } from "./EditActivitiesModal";
 
-type BlockWithID = {
-    id: string;
-    label: string;
-    activities: ActivityWithAssignments[];
-}
-
-interface BlockGridProps { 
-    blocks: BlockWithID[]; 
-    onAddActivity: (blockId: string) => void; 
+interface BlockGridProps {
+    blocks: BlockWithId[];
+    onAddActivity: (blockId: string) => void;
     onEditActivity: (blockId: string, activity: ActivityWithAssignments) => void;
 }
 
@@ -30,7 +25,7 @@ export default function BlockGrid({ blocks, onAddActivity, onEditActivity }: Blo
                     className="border border-solid border-gray-300" 
                 > 
                     {/* Block header */} 
-                    <div className="bg-[#EAEAEA] text-black text-center py-2.5"> 
+                    <div className="bg-neutral-2 text-black text-center py-2.5">
                         <Text className="font-semibold text-sm">{block.label}</Text> 
                     </div>
 

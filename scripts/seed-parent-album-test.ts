@@ -157,6 +157,12 @@ async function seedFirestore() {
     hasThumbnail: false,
     linkedSessionId: LINKED_SESSION_ID,
   });
+  // sessionAlbums projection (normally mirrored by a Cloud Function) so parents
+  // can resolve this album without the functions emulator running.
+  batch.set(db.doc(`sessionAlbums/${LINKED_SESSION_ID}`), {
+    attendeeIds: [CAMPER.id],
+    linkedAlbumId: LINKED_ALBUM_ID,
+  });
   for (let i = 1; i <= 2; i++) {
     batch.set(db.doc(`albums/${LINKED_ALBUM_ID}/albumItems/test-item-${i}`), {
       name: `Test Photo ${i}`,
@@ -182,6 +188,10 @@ async function seedFirestore() {
     endDate: sessionEnd,
     hasThumbnail: false,
     linkedSessionId: OTHER_SESSION_ID,
+  });
+  batch.set(db.doc(`sessionAlbums/${OTHER_SESSION_ID}`), {
+    attendeeIds: [OTHER_CAMPER.id],
+    linkedAlbumId: OTHER_ALBUM_ID,
   });
 
   await batch.commit();

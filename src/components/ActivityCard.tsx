@@ -1,10 +1,8 @@
 "use client";
 import { Text, Badge, UnstyledButton, Flex } from "@mantine/core";
 import { MdCircle } from "react-icons/md";
-import {
-  ActivityWithAssignments,
-  BundleActivityWithAssignments,
-} from "@/types/scheduling/schedulingTypes";
+import { ActivityWithAssignments } from "@/types/scheduling/schedulingTypes";
+import { isBundleActivityWithAssignments } from "@/types/scheduling/schedulingTypeGuards";
 import { AgeGroup } from "@/types/sessions/sessionTypes";
 
 interface ActivityCardProps {
@@ -31,22 +29,15 @@ function getCategoryColor(category: string): string {
   return CATEGORY_DOT_COLORS[hash % CATEGORY_DOT_COLORS.length];
 }
 
-// Type guard
-function isBundleActivity(
-  activity: ActivityWithAssignments
-): activity is BundleActivityWithAssignments {
-  return "ageGroup" in activity;
-}
-
 export default function ActivityCard({
   activity,
   blockId,
   onEditActivity,
 }: ActivityCardProps) {
-  const bundle = isBundleActivity(activity) ? activity : null;
+  const bundle = isBundleActivityWithAssignments(activity) ? activity : null;
 
   return (
-    <div className="bg-white rounded-[10px] border border-solid border-[#9dafb8] p-3 relative">
+    <div className="bg-white rounded-[10px] border border-solid border-blue-2 p-3 relative">
       {/* Top: event category (falls back to the name when there is no category).
           The dot and badge are absolutely positioned so the text stays centered
           across the full card width, in line with the title/description below. */}
