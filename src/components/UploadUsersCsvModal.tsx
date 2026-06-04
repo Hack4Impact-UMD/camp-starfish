@@ -1,15 +1,13 @@
-import useProcessEmployeeCSV from "@/features/userManagement/useProcessEmployeeCSV";
-import useProcessFamilyCSV from "@/features/userManagement/useProcessFamilyCSV";
+import useProcessUsersCsv, {
+  UsersCsvType,
+  usersCsvTypes,
+} from "@/features/userManagement/useProcessUsersCsv";
 import { MBToBytes } from "@/utils/fileUtils";
 import { Button, Radio, Text } from "@mantine/core";
 import { Dropzone } from "@mantine/dropzone";
 import { modals } from "@mantine/modals";
 import { useState } from "react";
 import { MdOutlineFileUpload } from "react-icons/md";
-
-type UsersCsvType = "FAMILY" | "EMPLOYEE";
-
-const usersCsvTypes: UsersCsvType[] = ["FAMILY", "EMPLOYEE"];
 
 const usersCsvTypeToLabel: Record<UsersCsvType, string> = {
   FAMILY: "Families (Campers + Parents)",
@@ -18,33 +16,19 @@ const usersCsvTypeToLabel: Record<UsersCsvType, string> = {
 
 export function UploadUsersCsvModal() {
   const [csvFile, setCsvFile] = useState<File | null>(null);
-  const [csvType, setCsvType] = useState<UsersCsvType | null>(null);
+  const [csvType, setCsvType] = useState<UsersCsvType>("FAMILY");
 
-  const processFamilyCSVMutation = useProcessFamilyCSV();
-  const processEmployeeCSVMutation = useProcessEmployeeCSV();
+  const processUsersCsvMutation = useProcessUsersCsv(csvType);
 
   const handleSubmit = async () => {
-    if (!csvFile || !csvType) {
-      return;
-    } else if (csvType === "FAMILY") {
-      processFamilyCSVMutation.mutate(
-        { csvFile },
-        { onSuccess: () => modals.closeAll() },
-      );
+    if (!csvFile) {
       return;
     }
-    processEmployeeCSVMutation.mutate(
+    processUsersCsvMutation.mutate(
       { csvFile },
       { onSuccess: () => modals.closeAll() },
     );
   };
-
-  let error = null;
-  if (csvType === "FAMILY") {
-    error = processFamilyCSVMutation.error;
-  } else if (csvType === "EMPLOYEE") {
-    error = processEmployeeCSVMutation.error;
-  }
 
   return (
     <div className="flex flex-col gap-md">
@@ -62,9 +46,9 @@ export function UploadUsersCsvModal() {
               : "Upload a users CSV file exported from Campminder here (Max: 5MB)"}
           </Text>
         </Dropzone>
-        {error && (
+        {processUsersCsvMutation.error && (
           <Text className="text-error text-sm text-center">
-            {error.message}
+            {processUsersCsvMutation.error.message}
           </Text>
         )}
       </div>
@@ -85,10 +69,7 @@ export function UploadUsersCsvModal() {
         classNames={{ root: "self-center" }}
         onClick={handleSubmit}
         disabled={!csvFile || !csvType}
-        loading={
-          processFamilyCSVMutation.isPending ||
-          processEmployeeCSVMutation.isPending
-        }
+        loading={processUsersCsvMutation.isPending}
       >
         Create Users
       </Button>
