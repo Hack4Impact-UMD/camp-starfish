@@ -10,12 +10,11 @@ import useParseEmployeeCsv from "@/features/userManagement/useParseEmployeeCsv";
 import useProcessEmployeeCSV from "@/features/userManagement/useProcessEmployeeCSV";
 import useProcessFamilyCSV from "@/features/userManagement/useProcessFamilyCSV";
 import { MBToBytes } from "@/utils/fileUtils";
-import { Button, Radio, Text } from "@mantine/core";
+import { Button, Loader, Radio, Text } from "@mantine/core";
 import { Dropzone, DropzoneProps } from "@mantine/dropzone";
 import { modals } from "@mantine/modals";
 import { useState } from "react";
 import { MdOutlineFileUpload } from "react-icons/md";
-import { parse } from "path";
 
 const usersCsvTypeToLabel: Record<UsersCsvType, string> = {
   FAMILY: "Families (Campers + Parents)",
@@ -33,11 +32,16 @@ export function UploadUsersCsvModal() {
   const processFamilyCsvMutation = useProcessFamilyCSV();
   const processEmployeeCsvMutation = useProcessEmployeeCSV();
 
-  const parseCsvFile = (usersCsvType: UsersCsvType, csvFile: File) =>
+  const parseCsvFile = (usersCsvType: UsersCsvType, csvFile: File) => {
     (usersCsvType === "FAMILY"
       ? parseFamilyCsvMutation
       : parseEmployeeCsvMutation
     ).mutate({ csvFile }, { onSuccess: (data) => setParsedData(data) });
+    (usersCsvType === "FAMILY"
+      ? parseEmployeeCsvMutation
+      : parseFamilyCsvMutation
+    ).reset();
+  };
 
   const handleFileSelect: DropzoneProps["onDrop"] = (files) => {
     const csvFile = files[0];
@@ -62,24 +66,39 @@ export function UploadUsersCsvModal() {
   };
 
   return (
-    <div className="flex flex-col gap-md">
-      <div>
-        <Dropzone
-          onDrop={handleFileSelect}
-          maxFiles={1}
-          accept={["text/csv"]}
-          maxSize={MBToBytes(5)}
-        >
-          <MdOutlineFileUpload size={60} />
-          <Text>
-            {csvFile
-              ? `Selected File: "${csvFile.name}"`
-              : "Upload a users CSV file exported from Campminder here (Max: 5MB)"}
-          </Text>
-        </Dropzone>
-        {}
-      </div>
-      <Radio.Group value={csvType} label={"Type of Users"}>
+    <div className="flex flex-col gap-md items-center">
+      <Dropzone
+        onDrop={handleFileSelect}
+        maxFiles={1}
+        accept={["text/csv"]}
+        maxSize={MBToBytes(5)}
+      >
+        <MdOutlineFileUpload size={60} />
+        <Text>
+          {csvFile
+            ? `Selected File: "${csvFile.name}"`
+            : "Upload a users CSV file exported from Campminder here (Max: 5MB)"}
+        </Text>
+      </Dropzone>
+      {(parseFamilyCsvMutation.isPending ||
+        parseEmployeeCsvMutation.isPending) && (
+        <Loader className="self-center" size="xs" />
+      )}
+      {parseFamilyCsvMutation.error && (
+        <Text className="text-error text-sm text-center">
+          {parseFamilyCsvMutation.error.message}
+        </Text>
+      )}
+      {parseEmployeeCsvMutation.error && (
+        <Text className="text-error text-sm text-center">
+          {parseEmployeeCsvMutation.error.message}
+        </Text>
+      )}
+      <Radio.Group
+        classNames={{ root: "w-full" }}
+        value={csvType}
+        label={"Type of Users"}
+      >
         <div className="flex flex-col gap-xs">
           {usersCsvTypes.map((type) => (
             <Radio
