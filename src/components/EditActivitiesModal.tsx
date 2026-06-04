@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useCallback, useRef } from "react";
+import React, { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { Text, Title, ActionIcon, Flex, Alert, Button } from "@mantine/core";
 import { MdArrowBack, MdChevronLeft, MdChevronRight, MdErrorOutline } from "react-icons/md";
 import { modals } from "@mantine/modals";
@@ -10,6 +10,7 @@ import moment from "moment";
 import { Section, SchedulingSectionType, SchedulingSection } from "@/types/sessions/sessionTypes";
 import {
   ActivityWithAssignments,
+  BlockWithId,
   BundleActivity,
   JamboreeActivity,
   SectionSchedule,
@@ -32,13 +33,6 @@ interface EditActivitiesModalProps {
   sessionId: string;
   initialSchedule?: SectionSchedule;
 }
-
-export type BlockWithId = {
-  id: string;
-  label: string;
-  activities: ActivityWithAssignments[];
-  periodsOff: number[];
-};
 
 const initialBlocks: BlockWithId[] = ["a", "b", "c", "d", "e"].map((id) => ({
   id,
@@ -92,10 +86,19 @@ export default function EditActivitiesModal({
   >({});
 
   const programAreas = programAreasQuery.data ?? [];
-  const categoryNames = programAreas
-    .filter((area) => !area.isDeleted)
-    .map((area) => area.name);
-  const tagData: TagData = { categories: categoryNames, activitiesByCategory };
+  // Memoize so tagData keeps a stable identity across unrelated re-renders;
+  // ActivityTagManagementModal resyncs from it only when it actually changes
+  // (otherwise it would clobber in-progress local edits every render).
+  const tagData = useMemo<TagData>(
+    () => ({
+      categories: (programAreasQuery.data ?? [])
+        .filter((area) => !area.isDeleted)
+        .map((area) => area.name),
+      activitiesByCategory,
+    }),
+    [programAreasQuery.data, activitiesByCategory],
+  );
+  const categoryNames = tagData.categories;
 
   // Distinct, deterministic dot color per category for the cards. Built from the
   // current categories plus any used by visible activities (covers soft-deleted
@@ -248,22 +251,20 @@ export default function EditActivitiesModal({
 
   if (!section) return null;
 
-  // Save the current section, then close back to the session page.
+  // Save the current section, then close back to the session page. Stay open if
+  // the save failed so the error is visible and changes aren't lost.
   const handleBack = async () => {
-    await saveCurrentSection();
-    modals.closeAll();
+    if (await saveCurrentSection()) modals.closeAll();
   };
 
   const goToPrev = async () => {
     if (currentIndex <= 0) return;
-    await saveCurrentSection();
-    setCurrentIndex(currentIndex - 1);
+    if (await saveCurrentSection()) setCurrentIndex(currentIndex - 1);
   };
 
   const goToNext = async () => {
     if (currentIndex >= schedulingSections.length - 1) return;
-    await saveCurrentSection();
-    setCurrentIndex(currentIndex + 1);
+    if (await saveCurrentSection()) setCurrentIndex(currentIndex + 1);
   };
 
   const handleAddActivity = (blockId: string) => {

@@ -63,7 +63,9 @@ export default function CreateActivityModal({
 
     if (isBundleSection && !trimmedCategory) return;
 
-    if (trimmedCategory) {
+    // Only bundle activities have a category; never persist categories from
+    // jamboree submissions.
+    if (isBundleSection && trimmedCategory) {
       // Add category if new
       if (!updatedTagData.categories.includes(trimmedCategory)) {
         updatedTagData.categories = [...updatedTagData.categories, trimmedCategory];
@@ -121,7 +123,10 @@ export default function CreateActivityModal({
   // effect) avoids a synchronous setState in useEffect.
   const formKey = opened ? existingActivity?.id ?? "new" : null;
   const [lastFormKey, setLastFormKey] = useState<string | null>(null);
-  if (formKey !== null && formKey !== lastFormKey) {
+  if (formKey === null) {
+    // Modal is closed: clear the key so reopening always re-initializes.
+    if (lastFormKey !== null) setLastFormKey(null);
+  } else if (formKey !== lastFormKey) {
     setLastFormKey(formKey);
     setCategoryName(
       existingActivity && isBundleActivity(existingActivity)

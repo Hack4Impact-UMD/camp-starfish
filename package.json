@@ -9,7 +9,8 @@
     "start": "next start",
     "lint": "eslint src",
     "generate:theme": "npx tailwind-preset-mantine ./src/styles/globalTheme.ts -o ./src/styles/theme.css && npx tsx scripts/generate-theme-override.ts",
-    "seed:parent-album": "npx tsx scripts/seed-parent-album-test.ts"
+    "seed:parent-album": "npx tsx scripts/seed-parent-album-test.ts",
+    "backfill:session-albums": "npx tsx scripts/backfill-session-albums.ts"
   },
   "workspaces": [
     "functions",

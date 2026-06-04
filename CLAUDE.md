@@ -104,7 +104,7 @@ camp-starfish/
 |---|---|---|---|
 | `/` | `page.tsx` → `LoginPage` / `EmployeeHomePage` / `ParentHomePage` | Role-routed home | none (renders by role) |
 | `/albums` | `albums/page.tsx` → `AlbumsPage.tsx` | Album listing (paginated). Staff/admin/photographer see all albums; PARENT sees a read-only, scoped view (`ParentAlbumsPage` via `useParentAlbums`) | ADMIN, PHOTOGRAPHER, STAFF, PARENT |
-| `/albums/[albumId]` | `albums/[albumId]/page.tsx` → `AlbumPage.tsx` | Single-album view. Tag/Upload/Pending controls are staff-only; parents get view + download | same |
+| `/albums/[albumId]` | `albums/[albumId]/page.tsx` → `AlbumPage.tsx` | Single-album view. Tag/Upload/Pending controls: ADMIN/STAFF/PHOTOGRAPHER; parents get view + download | same |
 | `/albums/[albumId]/pending` | `albums/[albumId]/pending/page.tsx` → `PendingPage.tsx` | In-review (pending) album items for moderation | ADMIN/STAFF/PHOTOGRAPHER |
 | `/sessions` | `sessions/page.tsx` → `SessionsPage.tsx` | Sessions listing | STAFF/ADMIN |
 | `/sessions/[sessionId]` | `SessionPage.tsx` + `SessionCalendar.tsx` | Session detail: full-width month calendar (with a section-type color key) beside a top-aligned `SmallDirectoryBlock`; permanent squiggle under the session name | STAFF/ADMIN |

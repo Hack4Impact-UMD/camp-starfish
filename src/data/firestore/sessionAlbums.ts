@@ -9,12 +9,7 @@ import {
 import { executeQuery, mapSnapshotsToPaginatedQueryResult } from "./firestoreClientOperations";
 import { RootLevelCollection } from "./types/collections";
 import { FirestoreQueryOptions, PaginatedQueryResponse } from "./types/queries";
-
-export interface SessionAlbum {
-  sessionId: string;
-  attendeeIds: number[];
-  linkedAlbumId?: string;
-}
+import { SessionAlbum } from "@/types/sessions/sessionTypes";
 
 function fromFirestore(
   snapshot:

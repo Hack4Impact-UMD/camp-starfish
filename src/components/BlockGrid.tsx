@@ -2,9 +2,8 @@
 import React from "react";
 import { Text, ActionIcon, Flex } from "@mantine/core";
 import { MdAdd } from "react-icons/md";
-import { ActivityWithAssignments } from "@/types/scheduling/schedulingTypes";
-import ActivityCard from "./ActivityCard";
-import type { BlockWithId } from "./EditActivitiesModal";
+import { ActivityWithAssignments, BlockWithId } from "@/types/scheduling/schedulingTypes";
+import ActivityCard from "@/components/ActivityCard";
 
 interface BlockGridProps {
     blocks: BlockWithId[];

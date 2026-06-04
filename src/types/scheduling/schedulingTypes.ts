@@ -35,6 +35,14 @@ export type BunkJamboreeActivityWithAssignments = JamboreeActivity & BunkActivit
 export type NonBunkJamboreeActivityWithAssignments = JamboreeActivity & IndividualActivityAssignments;
 export type ActivityWithAssignments = BundleActivityWithAssignments | BunkJamboreeActivityWithAssignments | NonBunkJamboreeActivityWithAssignments;
 
+// A schedule block augmented with the UI identity used by the activities editor.
+export type BlockWithId = {
+  id: string;
+  label: string;
+  activities: ActivityWithAssignments[];
+  periodsOff: number[];
+};
+
 interface BaseActivity {
   id: string;
   name: string;
