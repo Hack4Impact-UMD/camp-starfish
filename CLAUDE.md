@@ -121,13 +121,14 @@ Reusable UI building blocks (~28 files). Highlights:
 - **Layout**: `Navbar`, `Footer`, `Providers`, `BackgroundPattern`
 - **Cards**: `AlbumCard`, `SessionCard`, `ImageCard`, `GalleryCardOne`, `CardGallery`
 - **Activity grid**: `ActivityGrid`, `ActivityGridRow`, `ActivityGridCell`
+- **Activities editor** (from the activities-page feature): `EditActivitiesModal` (full-screen per-section block editor; opened from `SessionCalendar` day-click; auto-saves block activities to the section's schedule), `BlockGrid`, `ActivityCard`, `CreateActivityModal`, `ActivityTagManagementModal` (the category/activity "tags" are **local suggestion state only** — not persisted/shared)
 - **Modals**: `ActivityModal`, `AssignActivityModal`, `EditSectionModal`, `FileUploadModal`, `CreateSessionModal`, `EditAlbumModal`, `ConfirmationModal`, `UploadAlbumItemsModal/`
 - **Album item viewing** (`AlbumItemViewModal/`): `AlbumItemViewModal` (full-screen carousel), `AlbumItemViewModalTagSection` + `AddTagModal` (camper tagging, staff/photographer), `AlbumItemViewModalReportSection` (parent reporting), `MoveAlbumItemModal` (move item between albums)
 - **Album item cards**: `AlbumItemCard`, `PendingAlbumItemCard`, `TagSelect`
 - **Tables**: `DirectoryTableView`, `DirectoryTableCell`, `NightScheduleTable`
 - **Misc**: `SortDropdown`, `LoadingAnimation`, `SectionPage`, `SmallDirectoryBlock`, `SessionsPage`
 
-`CardGallery` supports optional `groups` with a per-group "select all" checkbox; `renderItem(item, isSelected)` passes selection state down, so cards rendered in it (e.g. `SessionCard`, `AlbumItemCard`) must be **controlled** and read `isSelected` from props rather than tracking their own.
+`CardGallery` supports optional `groups` with a per-group "select all" checkbox; `renderItem(item, isSelected)` passes selection state down, so cards rendered in it (e.g. `SessionCard`, `AlbumItemCard`) must be **controlled** and read `isSelected` from props rather than tracking their own. It also accepts optional **controlled selection** (`selectedItemIds` + `onSelectionChange`), a `firstGroupActions` slot (right-aligned in the first group's label row — used for selection toolbars on the albums/sessions pages), and `selectable` (defaults `true`; when `false`, hides the checkboxes and disables click-to-select — sessions only show selection in "delete mode"). Selectable item wrappers are keyboard-operable (`role="button"`, Enter/Space, `aria-pressed`). Bulk-action "Select All" is disabled while the infinite query `hasNextPage` (it would otherwise select only loaded pages).
 
 ### `src/auth/`
 - `AuthProvider.tsx` — Firebase Auth React context.
@@ -144,7 +145,7 @@ Reusable UI building blocks (~28 files). Highlights:
 ### `src/data/`
 Thin abstraction over Firestore and Storage. **All client reads/writes go through here** — components/hooks should not call Firebase SDK directly.
 - `firestoreClientOperations.ts` — query/paginate/get/set/delete primitives.
-- Per-collection modules: `albums.ts`, `albumItems.ts`, `albumItemReports.ts`, `sessions.ts`, `sections.ts`, `sectionSchedules.ts`, `attendees.ts`, `nightSchedules.ts`, `freeplays.ts`, `programAreas.ts`, `users.ts`.
+- Per-collection modules: `albums.ts`, `albumItems.ts`, `albumItemReports.ts`, `sessions.ts`, `sessionAlbums.ts` (parent-facing album-link projection), `sections.ts`, `sectionSchedules.ts`, `attendees.ts`, `nightSchedules.ts`, `freeplays.ts`, `programAreas.ts`, `users.ts`.
 - `storage/storageClientOperations.ts` — file upload/download.
 - `appsScriptService.ts` — Calls into Apps Script-backed Cloud Functions.
 - `types/collections.ts`, `types/documents.ts` — Collection name constants and Firestore document shapes.
@@ -158,11 +159,11 @@ Domain-specific logic (not pure UI, not pure data).
 - **Albums/reporting**: `albumItemReporting/useCreateAlbumItemReport.ts`, `useResolveAlbumItemReport.ts`.
 - **Albums/tagging**: `albumItemTagging/useCreateAlbumItemTag.ts`, `useApprovePendingTag.ts`, `useRejectPendingTag.ts`, `useDeleteApprovedTag.ts`.
 - **Albums/moving**: `moving/useMoveAlbumItem.ts` (copies item to the destination album then deletes the source; rolls back the destination copy if the source delete fails).
-- **Albums/downloading**: `downloading/useDownloadAlbum.ts`, `useDownloadAlbumItem.ts`.
+- **Albums/downloading**: `downloading/useDownloadAlbum.ts`, `useDownloadAlbumItem.ts`, `useDownloadAlbumItems.ts` (downloads a selected set — single file, or a zip named after the album).
 - **Notifications**: `useNotifications.tsx` (Mantine notifications wrapper).
 
 ### `src/hooks/`
-TanStack Query hooks per resource. Naming convention: `use<Verb><Resource>` (e.g. `useCreateSession`, `useAttendeesBySessionId`). 24+ hooks across albums, album items, sessions, sections, schedules, attendees, night schedules, program areas, freeplays. Notable: `albums/useParentAlbums.ts` resolves a parent's accessible albums (parent's `camperIds` → sessions whose `attendeeIds` contain a camper → those sessions' `linkedAlbumId`s → `batchGetAlbumDocs`); it tolerates a missing/unprovisioned parent user doc by returning an empty list.
+TanStack Query hooks per resource. Naming convention: `use<Verb><Resource>` (e.g. `useCreateSession`, `useAttendeesBySessionId`). 24+ hooks across albums, album items, sessions, sections, schedules, attendees, night schedules, program areas, freeplays. Notable: `albums/useParentAlbums.ts` resolves a parent's accessible albums (parent's `camperIds` → `sessionAlbums` projection docs whose `attendeeIds` contain a camper → those docs' `linkedAlbumId`s → `batchGetAlbumDocs`); it reads the narrow `sessionAlbums` projection rather than full sessions, and tolerates a missing/unprovisioned parent user doc by returning an empty list.
 
 ### `src/types/`
 Domain types organized by resource:
@@ -202,6 +203,10 @@ Logos (`darkBgLogo.png`, etc.), illustrations, background patterns.
 - **`onAlbumDeleted`** — Recursive delete of album doc + thumbnail in Storage.
 - **`onAlbumItemCreated`** — Updates parent album's `numItems`, `startDate`, `endDate`.
 - **`onAlbumItemDeleted`** — Same housekeeping; cleans up file from Storage.
+
+### Sessions (`features/sessions.ts`)
+- **`onSessionDeleted`** — `recursiveDelete`s the session's subcollections (sections + schedules, attendees, bunks, nightSchedules, freeplays) and removes its `sessionAlbums` projection. (Firestore doesn't delete subcollections automatically; the client/UI session delete only removes the top-level doc.)
+- **`mirrorSessionAlbumLink`** — `onDocumentWritten` for `sessions/{id}`; mirrors `{ attendeeIds, linkedAlbumId }` into `sessionAlbums/{id}` so parents can resolve their album without reading full session docs. ⚠️ Must be deployed (or run in the functions emulator) for parent albums to work in real envs; existing sessions need a one-time backfill. The `seed:parent-album` script writes `sessionAlbums` directly so local testing works without the functions emulator.
 
 ### Album Item Reporting (`features/albumItemReporting.ts`)
 - **`createAlbumItemReportCloudFunction`** — Callable. Persists `{ status: PENDING, reporterId, message, reportedAt }`. Resolution flow exists in `features/albumItemReporting` on the client but no admin moderation UI route yet.
@@ -262,7 +267,7 @@ When adding new UI:
 - **Firebase Auth** with custom claims. `checkAllowlist` (`beforeUserCreated`) assigns `{ role, campminderId }` — `campminderId` is the user's numeric id (their `/users/{id}` doc id), used by both client and rules. ⚠️ In dev (`NODE_ENV === 'development'`) or for `DEV_EMAILS`/`NPO_EMAILS`, it assigns `role: "ADMIN"` with **no** `campminderId`.
 - Client guard: `src/auth/RequireAuth.tsx` wraps protected routes and accepts an array of allowed roles. The albums detail page additionally gates Tag/Upload/Pending controls behind `role ∈ {ADMIN, STAFF, PHOTOGRAPHER}` (parents keep view + download).
 - Server guard: `firestore.rules` defines role helpers `isStaff()`, `isAdmin()`, `isStaffOrAdmin()`, `isParent()`, `isPhotographer()`.
-- **Parent album scoping** (`firestore.rules` + `useParentAlbums`): a parent may read their own `/users/{campminderId}` doc; read a `session` only if its `attendeeIds` include one of their `camperIds`; and read an `album`/`albumItem` only if the album's `linkedSessionId` resolves to such a session. Helpers: `myCampminderId()`, `myCamperIds()`, `sessionHasMyCamper(sessionId)`, `albumLinkedToMyCamper(albumData)`. Photographers get album read + write.
+- **Parent album scoping** (`firestore.rules` + `useParentAlbums`): a parent may read their own `/users/{campminderId}` doc; read a `sessionAlbums/{id}` projection doc only if its `attendeeIds` include one of their `camperIds`; and read an `album`/`albumItem` only if the album's `linkedSessionId` resolves to a session containing their camper. `sessions` themselves are **staff/admin-only** — parents never read full session docs (the `albumLinkedToMyCamper` rule's `get(session)` is a privileged server-side read, not exposed to the client). Helpers: `myCampminderId()`, `myCamperIds()`, `sessionHasMyCamper(sessionId)`, `albumLinkedToMyCamper(albumData)`. Photographers get album read + write.
 - **Still incomplete**: CAMPER permissions, broader session/user access for non-staff, and the legacy `/parents`, `/campers`, … role collections in `firestore.rules` are unused (canonical user store is `/users`).
 
 ---
@@ -279,6 +284,8 @@ sessions/{sessionId}
   ├─ bunks/{bunkId}
   ├─ nightSchedules/{shiftId}
   └─ freeplays/{freeplayId}
+
+sessionAlbums/{sessionId}        # parent-readable projection: { attendeeIds, linkedAlbumId }
 
 albums/{albumId}
   └─ albumItems/{albumItemId}
@@ -374,7 +381,7 @@ There is **no unit test framework wired up** (no Jest/Vitest config, no `.test.*
 
 ### Critical
 1. **Storage rules are wide open.** [storage.rules](storage.rules) currently has `allow read, write: if true` for all paths. **This must be replaced with role-aware rules before any production deployment.**
-2. ~~**Firestore rules vs. client gating mismatch** for albums.~~ **Resolved**: [firestore.rules](firestore.rules) now grants scoped PARENT album access and PHOTOGRAPHER read/write (see §8). Remaining: this relies on `get()` traversal (album → session → user, ~5 doc reads per album-item check; watch the 10-`get`/request limit) and exposes top-level `session` docs to scoped parents.
+2. ~~**Firestore rules vs. client gating mismatch** for albums.~~ **Resolved**: [firestore.rules](firestore.rules) now grants scoped PARENT album access (via the `sessionAlbums` projection — parents no longer read full session docs) and PHOTOGRAPHER read/write (see §8). Remaining caveat: the album/album-item rules still use `get()` traversal (album → session → user, ~5 doc reads per album-item check; watch the 10-`get`/request limit).
 3. **`firestore.indexes.json` is empty.** Any composite-index requirement (e.g. `where(...).orderBy(...)` combinations) will fail on first query against production Firestore. The album-item list query (`where inReview == … orderBy dateTaken`) works in the emulator but will need an index in prod; `useParentAlbums` deliberately avoids composite indexes (it fetches albums by id and sorts client-side).
 
 ### High-priority gaps
