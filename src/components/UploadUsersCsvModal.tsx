@@ -10,7 +10,7 @@ import useParseEmployeeCsv from "@/features/userManagement/useParseEmployeeCsv";
 import useProcessEmployeeCSV from "@/features/userManagement/useProcessEmployeeCSV";
 import useProcessFamilyCSV from "@/features/userManagement/useProcessFamilyCSV";
 import { MBToBytes } from "@/utils/fileUtils";
-import { Badge, Button, Loader, Radio, Text, Title } from "@mantine/core";
+import { Badge, Button, Loader, Radio, Select, Text, Title } from "@mantine/core";
 import { Dropzone, DropzoneProps } from "@mantine/dropzone";
 import { modals } from "@mantine/modals";
 import { useState } from "react";
@@ -156,8 +156,8 @@ export function UploadUsersCsvModal() {
         ) : (
           <>
             <Title order={6}>Employees</Title>
-            {parsedData.map((employee) => {
-              return <Badge key={employee.id}>{getFullName(employee.name)}</Badge>;
+            {parsedData.map((employee, i) => {
+              return <><Badge key={employee.id}>{getFullName(employee.name)}</Badge><Select data={["STAFF", "ADMIN", "PHOTOGRAPHER"]} value={roleSelects![i]} onChange={(role) => setRoleSelects(prev => prev ? ({ ...prev, [employee.id]: role }) : null)}/></>;
             })}
           </>
         ))}
