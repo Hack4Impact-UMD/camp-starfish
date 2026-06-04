@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import {
+  Autocomplete,
   Button,
   Radio,
   TextInput,
@@ -12,8 +13,6 @@ import {
   ActionIcon,
   Divider,
   Modal,
-  Combobox,
-  useCombobox,
 } from "@mantine/core";
 import { MdClose, MdDeleteOutline } from "react-icons/md";
 import {
@@ -53,19 +52,6 @@ export default function CreateActivityModal({
   const [categoryName, setCategoryName] = useState("");
   const [activityName, setActivityName] = useState("");
   const [ageGroup, setAgeGroup] = useState<AgeGroup | null>(null);
-
-  const combobox = useCombobox({
-    onDropdownClose: () => combobox.resetSelectedOption(),
-  });
-
-  const filteredCategories = tagData.categories.filter((c) =>
-    c.toLowerCase().includes(categoryName.toLowerCase().trim())
-  );
-
-  const handleCategorySelect = (value: string) => {
-    setCategoryName(value);
-    combobox.closeDropdown();
-  };
 
   const handleSubmit = () => {
     if (!activityName.trim()) return;
@@ -207,51 +193,27 @@ export default function CreateActivityModal({
         {/* Body */}
         <Stack className="w-full" gap={28}>
           <Stack gap={20}>
-            {/* Searchable category field */}
+            {/* Searchable category field. Free text is allowed — typing a new
+                category keeps the value and is created on Save. */}
             <Box className="w-full">
-              <Combobox
-                store={combobox}
-                onOptionSubmit={handleCategorySelect}
-                withinPortal={false}
-              >
-                <Combobox.Target>
-                  <input
-                    className="w-full border-none outline-none bg-transparent"
-                    style={{
-                      fontSize: 22,
-                      fontWeight: 600,
-                      color: "var(--mantine-color-neutral-5)",
-                      padding: 0,
-                      lineHeight: 1.3,
-                    }}
-                    placeholder={isEditMode ? "Edit Event Category" : "Add Event Category"}
-                    value={categoryName}
-                    onChange={(e) => {
-                      setCategoryName(e.currentTarget.value);
-                      combobox.openDropdown();
-                      combobox.updateSelectedOptionIndex();
-                    }}
-                    onFocus={() => combobox.openDropdown()}
-                    onBlur={() => combobox.closeDropdown()}
-                  />
-                </Combobox.Target>
-
-                <Combobox.Dropdown>
-                  <Combobox.Options>
-                    {filteredCategories.length === 0 && categoryName.trim() ? (
-                      <Combobox.Empty>
-                        Press Save to create &ldquo;{categoryName.trim()}&rdquo;
-                      </Combobox.Empty>
-                    ) : (
-                      filteredCategories.map((cat) => (
-                        <Combobox.Option value={cat} key={cat}>
-                          {cat}
-                        </Combobox.Option>
-                      ))
-                    )}
-                  </Combobox.Options>
-                </Combobox.Dropdown>
-              </Combobox>
+              <Autocomplete
+                variant="unstyled"
+                data={tagData.categories}
+                value={categoryName}
+                onChange={setCategoryName}
+                placeholder={isEditMode ? "Edit Event Category" : "Add Event Category"}
+                comboboxProps={{ withinPortal: true, zIndex: 400 }}
+                maxDropdownHeight={220}
+                styles={{
+                  input: {
+                    fontSize: 22,
+                    fontWeight: 600,
+                    color: "var(--mantine-color-neutral-5)",
+                    padding: 0,
+                    lineHeight: 1.3,
+                  },
+                }}
+              />
               <Divider color="#c1c1c1" />
             </Box>
 

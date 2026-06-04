@@ -1,6 +1,8 @@
 import { Session } from "@/types/sessions/sessionTypes";
-import { Flex, Title, Text } from "@mantine/core";
+import { Button, Flex, Title, Text } from "@mantine/core";
 import moment from "moment";
+import Link from "next/link";
+import { MdArrowBack } from "react-icons/md";
 import SessionCalendar from "./SessionCalendar";
 import { SmallDirectoryBlock } from "@/components/SmallDirectoryBlock";
 
@@ -16,6 +18,16 @@ export default function SessionPage(props: SessionPageProps) {
 
   return (
     <Flex className="flex-col self-center w-4/5 gap-5">
+      <Button
+        component={Link}
+        href="/sessions"
+        variant="subtle"
+        color="navy.9"
+        leftSection={<MdArrowBack size={20} />}
+        className="self-start"
+      >
+        Back to Sessions
+      </Button>
       <Flex className="flex-row items-center gap-lg">
         <Title
           order={1}

@@ -9,6 +9,9 @@ interface ActivityCardProps {
   activity: ActivityWithAssignments;
   blockId: string;
   onEditActivity: (blockId: string, activity: ActivityWithAssignments) => void;
+  // Category name -> dot color, so cards with the same category share a color
+  // and different categories get distinct colors (see getCategoryColors).
+  categoryColors?: Record<string, string>;
 }
 
 const ageGroupColor = {
@@ -16,25 +19,48 @@ const ageGroupColor = {
   NAV: "blue",
 } satisfies Record<AgeGroup, string>;
 
-const CATEGORY_DOT_COLORS = [
-  "#ef4444", "#3b82f6", "#22c55e", "#f97316",
-  "#a855f7", "#14b8a6", "#f59e0b", "#ec4899",
-];
+const DOT_SATURATION = 65;
+const DOT_LIGHTNESS = 45;
+// Golden-angle hue step spreads sequential categories as far apart as possible.
+const GOLDEN_ANGLE = 137.508;
 
-function getCategoryColor(category: string): string {
+/**
+ * Assigns each distinct category an evenly-spaced, deterministic dot color.
+ * Same name -> same color; different names -> maximally-separated hues. Sorting
+ * keeps the assignment stable regardless of the input order.
+ */
+export function getCategoryColors(categories: string[]): Record<string, string> {
+  const unique = [...new Set(categories)].sort();
+  const colors: Record<string, string> = {};
+  unique.forEach((name, index) => {
+    const hue = Math.round((index * GOLDEN_ANGLE) % 360);
+    colors[name] = `hsl(${hue}, ${DOT_SATURATION}%, ${DOT_LIGHTNESS}%)`;
+  });
+  return colors;
+}
+
+// Fallback for a category not present in the provided map (e.g. a soft-deleted
+// program area still referenced by an activity): a stable hue from the name.
+function fallbackCategoryColor(category: string): string {
   let hash = 0;
   for (let i = 0; i < category.length; i++) {
-    hash = (hash * 31 + category.charCodeAt(i)) & 0xffff;
+    hash = (hash * 31 + category.charCodeAt(i)) | 0;
   }
-  return CATEGORY_DOT_COLORS[hash % CATEGORY_DOT_COLORS.length];
+  const hue = Math.abs(hash) % 360;
+  return `hsl(${hue}, ${DOT_SATURATION}%, ${DOT_LIGHTNESS}%)`;
 }
 
 export default function ActivityCard({
   activity,
   blockId,
   onEditActivity,
+  categoryColors,
 }: ActivityCardProps) {
   const bundle = isBundleActivityWithAssignments(activity) ? activity : null;
+  const dotColor = bundle
+    ? categoryColors?.[bundle.programAreaId] ??
+      fallbackCategoryColor(bundle.programAreaId)
+    : undefined;
 
   return (
     <div className="bg-white rounded-[10px] border border-solid border-blue-2 p-3 relative">
@@ -45,7 +71,7 @@ export default function ActivityCard({
         {bundle && (
           <MdCircle
             size={10}
-            style={{ color: getCategoryColor(bundle.programAreaId) }}
+            style={{ color: dotColor }}
             className="absolute left-0 top-1/2 -translate-y-1/2"
           />
         )}

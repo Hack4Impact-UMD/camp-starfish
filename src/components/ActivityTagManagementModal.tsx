@@ -72,7 +72,7 @@ export default function ActivityTagManagementModal({
     setConfirm({
       opened: true,
       message:
-        "Remove this category and its activity suggestions? This only affects the tag suggestion list, not any saved schedule.",
+        "Remove this category for everyone? Activities already using it keep their label, but it won't be suggested anymore.",
       onConfirm: () => {
         setCategories((prev) => prev.filter((c) => c !== category));
         setActivitiesByCategory((prev) => {
@@ -173,8 +173,8 @@ export default function ActivityTagManagementModal({
               Activities Tag Management
             </Title>
             <Text className="text-sm text-neutral-6 mt-xs">
-              These tags are suggestions to speed up adding activities. They are
-              not saved to the schedule or shared with other users.
+              Categories are saved and shared with everyone. Existing activities
+              that use a removed category keep their label.
             </Text>
           </Box>
 

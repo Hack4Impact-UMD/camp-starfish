@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import { Text, Title, ActionIcon, Flex, Alert, Button } from "@mantine/core";
-import { MdChevronLeft, MdChevronRight, MdErrorOutline } from "react-icons/md";
+import { MdArrowBack, MdChevronLeft, MdChevronRight, MdErrorOutline } from "react-icons/md";
 import { modals } from "@mantine/modals";
 import { PartialWithFieldValue } from "firebase/firestore";
 import moment from "moment";
@@ -14,13 +14,17 @@ import {
   JamboreeActivity,
   SectionSchedule,
 } from "@/types/scheduling/schedulingTypes";
-import { isBundleActivity } from "@/types/scheduling/schedulingTypeGuards";
+import { isBundleActivity, isBundleActivityWithAssignments } from "@/types/scheduling/schedulingTypeGuards";
 import { isSchedulingSection } from "@/types/sessions/sessionTypeGuards";
 import BlockGrid from "./BlockGrid";
+import { getCategoryColors } from "./ActivityCard";
 import CreateActivityModal from "./CreateActivityModal";
 import { TagData } from "./ActivityTagManagementModal";
 import { getSectionSchedule, updateSectionSchedule } from "@/data/firestore/sectionSchedules";
 import { SectionScheduleDoc } from "@/data/firestore/types/documents";
+import useProgramAreas from "@/hooks/programAreas/useProgramAreas";
+import useCreateProgramArea from "@/hooks/programAreas/useCreateProgramArea";
+import useDeleteProgramArea from "@/hooks/programAreas/useDeleteProgramArea";
 
 interface EditActivitiesModalProps {
   section: Section;
@@ -28,25 +32,6 @@ interface EditActivitiesModalProps {
   sessionId: string;
   initialSchedule?: SectionSchedule;
 }
-
-const initialTagData: TagData = {
-  categories: [
-    "Athletics", "Arts & Crafts", "Boating", "Challenge",
-    "Dance", "Drama", "Discovery", "Learning Center", "Music", "Outdoor Cooking",
-  ],
-  activitiesByCategory: {
-    Athletics: ["Soccer", "Basketball", "Quidditch", "Football", "Cheerleading", "Fencing", "Cricket", "Ping Pong", "Hoops and HORSE"],
-    "Arts & Crafts": ["Paper Dolls", "Painting", "Pottery"],
-    Boating: ["Kayaking", "Canoeing", "Sailing"],
-    Challenge: ["Ropes Course", "Rock Climbing"],
-    Dance: ["Hip Hop", "Jazz", "Ballet"],
-    Drama: ["Improv", "Skit Night"],
-    Discovery: ["Bird Houses", "Nature Walk"],
-    "Learning Center": ["Reading", "Writing"],
-    Music: ["Guitar", "Drums", "Singing"],
-    "Outdoor Cooking": ["Outdoor Cooking"],
-  },
-};
 
 export type BlockWithId = {
   id: string;
@@ -92,10 +77,54 @@ export default function EditActivitiesModal({
     initialSchedule ? mapScheduleToBlocks(initialSchedule) : initialBlocks,
   );
   const [modalState, setModalState] = useState<ModalState>({ opened: false, blockId: null });
-  const [tagData, setTagData] = useState<TagData>(initialTagData);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [saveInProgress, setSaveInProgress] = useState(false);
+
+  // Categories are backed by the shared `programAreas` collection so they
+  // persist and are visible to everyone. Per-category activity-name suggestions
+  // have no backing store and stay local to this editing session.
+  const programAreasQuery = useProgramAreas();
+  const createProgramArea = useCreateProgramArea();
+  const deleteProgramArea = useDeleteProgramArea();
+  const [activitiesByCategory, setActivitiesByCategory] = useState<
+    Record<string, string[]>
+  >({});
+
+  const programAreas = programAreasQuery.data ?? [];
+  const categoryNames = programAreas
+    .filter((area) => !area.isDeleted)
+    .map((area) => area.name);
+  const tagData: TagData = { categories: categoryNames, activitiesByCategory };
+
+  // Distinct, deterministic dot color per category for the cards. Built from the
+  // current categories plus any used by visible activities (covers soft-deleted
+  // categories still on a card) so every dot on screen is consistent + unique.
+  const categoryColors = getCategoryColors([
+    ...categoryNames,
+    ...blocks.flatMap((block) =>
+      block.activities
+        .filter(isBundleActivityWithAssignments)
+        .map((bundleActivity) => bundleActivity.programAreaId),
+    ),
+  ]);
+
+  // Reconcile category edits against `programAreas`: create newly-added names,
+  // soft-delete removed ones. Activity-name suggestions stay local.
+  const handleTagDataChange = (next: TagData) => {
+    const currentNames = new Set(categoryNames);
+    const nextNames = new Set(next.categories);
+    next.categories.forEach((name) => {
+      if (!currentNames.has(name)) createProgramArea.mutate({ name });
+    });
+    categoryNames.forEach((name) => {
+      if (!nextNames.has(name)) {
+        const area = programAreas.find((a) => a.name === name && !a.isDeleted);
+        if (area) deleteProgramArea.mutate(area.id);
+      }
+    });
+    setActivitiesByCategory(next.activitiesByCategory);
+  };
 
   // Track schedules and changes per section; seed with initialSchedule to avoid redundant fetch
   const schedulesRef = useRef<Map<string, BlockWithId[]>>(
@@ -219,6 +248,12 @@ export default function EditActivitiesModal({
 
   if (!section) return null;
 
+  // Save the current section, then close back to the session page.
+  const handleBack = async () => {
+    await saveCurrentSection();
+    modals.closeAll();
+  };
+
   const goToPrev = async () => {
     if (currentIndex <= 0) return;
     await saveCurrentSection();
@@ -320,6 +355,17 @@ export default function EditActivitiesModal({
 
   return (
     <div className="p-8">
+      <Button
+        variant="subtle"
+        color="dark"
+        leftSection={<MdArrowBack size={20} />}
+        onClick={handleBack}
+        disabled={saveInProgress}
+        className="mb-2"
+      >
+        Back
+      </Button>
+
       {/* Error Alert */}
       {error && (
         <Alert icon={<MdErrorOutline size={16} />} color="red" title="Error" mb="md">
@@ -383,6 +429,7 @@ export default function EditActivitiesModal({
         blocks={blocks}
         onAddActivity={handleAddActivity}
         onEditActivity={handleEditActivity}
+        categoryColors={categoryColors}
       />
 
       {/* Create/Edit Activity modal - rendered inside the full-screen modal */}
@@ -394,7 +441,7 @@ export default function EditActivitiesModal({
         onSubmit={handleActivitySubmit}
         onDelete={handleActivityDelete}
         tagData={tagData}
-        onTagDataChange={setTagData}
+        onTagDataChange={handleTagDataChange}
       />
     </div>
   );
@@ -404,10 +451,9 @@ export function openEditActivitiesModal(props: EditActivitiesModalProps) {
   modals.open({
     fullScreen: true,
     children: <EditActivitiesModal {...props} />,
-    closeButtonProps: { size: "xl", "aria-label": "Close" },
+    // The in-content "Back" button (which saves first) replaces the default close.
+    withCloseButton: false,
     classNames: {
-      header: "absolute top-4 left-4 right-auto p-0 bg-transparent",
-      close: "w-10 h-10",
       body: "p-0",
     },
   });

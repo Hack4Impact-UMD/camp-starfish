@@ -10,10 +10,11 @@ interface BlockGridProps {
     blocks: BlockWithId[];
     onAddActivity: (blockId: string) => void;
     onEditActivity: (blockId: string, activity: ActivityWithAssignments) => void;
+    categoryColors?: Record<string, string>;
 }
 
 
-export default function BlockGrid({ blocks, onAddActivity, onEditActivity }: BlockGridProps) { 
+export default function BlockGrid({ blocks, onAddActivity, onEditActivity, categoryColors }: BlockGridProps) {
     return ( 
         <div 
             className="grid gap-0" 
@@ -53,6 +54,7 @@ export default function BlockGrid({ blocks, onAddActivity, onEditActivity }: Blo
                                 activity={activity}
                                 blockId={block.id}
                                 onEditActivity={onEditActivity}
+                                categoryColors={categoryColors}
                             />
                         ))}
                 </div> 
