@@ -1,5 +1,10 @@
+import { useMutation } from "@tanstack/react-query";
 import { UnregisteredEmployee } from "@/types/users/userTypes";
 import { parse } from "csv-parse/sync";
+
+interface ParseEmployeeCsvRequest {
+  csvFile: File;
+}
 
 interface EmployeeCSVRecord {
   "First Name": string;
@@ -15,8 +20,9 @@ const REQUIRED_COLUMNS = [
   "Login/Email"
 ]
 
-export async function parseEmployeeCSV(file: File): Promise<Omit<UnregisteredEmployee, "role">[]> {
-  const rawText = await file.text();
+export async function parseEmployeeCsv(req: ParseEmployeeCsvRequest): Promise<Omit<UnregisteredEmployee, "role">[]> {
+  const { csvFile } = req;
+  const rawText = await csvFile.text();
   const records = parse(rawText, {
     columns: (cols: string[]) => {
       const missingColumns = REQUIRED_COLUMNS.filter(col => !cols.includes(col));
@@ -35,4 +41,10 @@ export async function parseEmployeeCSV(file: File): Promise<Omit<UnregisteredEmp
     },
     email: record["Login/Email"]
   }));
+}
+
+export default function useParseEmployeeCsv() {
+  return useMutation({
+    mutationFn: (req: ParseEmployeeCsvRequest) => parseEmployeeCsv(req)
+  })
 }

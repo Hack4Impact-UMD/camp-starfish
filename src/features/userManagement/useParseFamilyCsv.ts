@@ -1,5 +1,10 @@
+import { useMutation } from "@tanstack/react-query";
 import { Camper, Parent } from "@/types/users/userTypes";
 import { parse } from "csv-parse/sync";
+
+interface ParseFamilyCsvRequest {
+  csvFile: File;
+}
 
 interface BaseFamilyCSVRecord {
   "First Name": string;
@@ -88,8 +93,9 @@ const REQUIRED_COLUMNS = [
   "F1P1 Login/Email"
 ]
 
-export async function parseFamilyCSV(file: File): Promise<ParseFamilyCSVResponse> {
-  const rawText = await file.text();
+export async function parseFamilyCsv(req: ParseFamilyCsvRequest): Promise<ParseFamilyCSVResponse> {
+  const { csvFile } = req;
+  const rawText = await csvFile.text();
   const records = parse(rawText, {
     columns: (cols: string[]) => {
       const missingColumns = REQUIRED_COLUMNS.filter(col => !cols.includes(col));
@@ -101,4 +107,10 @@ export async function parseFamilyCSV(file: File): Promise<ParseFamilyCSVResponse
     skip_empty_lines: true
   }) as FamilyCSVRecord[];
   return parseFamilyRecords(records);
+}
+
+export default function useParseFamilyCsv() {
+  return useMutation({
+    mutationFn: (req: ParseFamilyCsvRequest) => parseFamilyCsv(req)
+  })
 }
