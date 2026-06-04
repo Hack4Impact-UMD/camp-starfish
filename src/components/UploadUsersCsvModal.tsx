@@ -123,7 +123,7 @@ export function UploadUsersCsvModal() {
       <Button
         classNames={{ root: "self-center" }}
         onClick={handleSubmit}
-        disabled={!csvFile || !csvType}
+        disabled={parsedData === undefined}
         loading={
           processFamilyCsvMutation.isPending ||
           processEmployeeCsvMutation.isPending
