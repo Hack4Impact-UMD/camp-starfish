@@ -1,7 +1,5 @@
-import useProcessUsersCsv, {
-  UsersCsvType,
-  usersCsvTypes,
-} from "@/features/userManagement/useProcessUsersCsv";
+import { UsersCsvType, usersCsvTypes } from "@/features/userManagement/types";
+import useProcessUsersCsv from "@/features/userManagement/useProcessUsersCsv";
 import { MBToBytes } from "@/utils/fileUtils";
 import { Button, Radio, Text } from "@mantine/core";
 import { Dropzone } from "@mantine/dropzone";
