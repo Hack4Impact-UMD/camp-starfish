@@ -26,7 +26,6 @@ export function UploadUsersCsvModal() {
   const [csvFile, setCsvFile] = useState<File | null>(null);
   const [csvType, setCsvType] = useState<UsersCsvType>("FAMILY");
   const [parsedData, setParsedData] = useState<ParsedUsersCsvData | null>(null);
-  const [showParseError, setShowError] = useState<boolean>(false);
 
   const parseFamilyCsvMutation = useParseFamilyCsv();
   const parseEmployeeCsvMutation = useParseEmployeeCsv();
