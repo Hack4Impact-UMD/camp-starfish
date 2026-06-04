@@ -10,7 +10,15 @@ import useParseEmployeeCsv from "@/features/userManagement/useParseEmployeeCsv";
 import useProcessEmployeeCSV from "@/features/userManagement/useProcessEmployeeCSV";
 import useProcessFamilyCSV from "@/features/userManagement/useProcessFamilyCSV";
 import { MBToBytes } from "@/utils/fileUtils";
-import { Badge, Button, Loader, Radio, Select, Text, Title } from "@mantine/core";
+import {
+  Badge,
+  Button,
+  Loader,
+  Radio,
+  Select,
+  Text,
+  Title,
+} from "@mantine/core";
 import { Dropzone, DropzoneProps } from "@mantine/dropzone";
 import { modals } from "@mantine/modals";
 import { useState } from "react";
@@ -41,11 +49,14 @@ export function UploadUsersCsvModal() {
   const processEmployeeCsvMutation = useProcessEmployeeCSV();
 
   const parseCsvFile = (usersCsvType: UsersCsvType, csvFile: File) => {
+    processFamilyCsvMutation.reset();
+    processEmployeeCsvMutation.reset();
     if (usersCsvType === "FAMILY") {
-      parseFamilyCsvMutation.mutate({ csvFile });
       parseEmployeeCsvMutation.reset();
+      parseFamilyCsvMutation.mutate({ csvFile });
       setRoleSelects(null);
     } else {
+      parseFamilyCsvMutation.reset();
       parseEmployeeCsvMutation.mutate(
         { csvFile },
         {
@@ -56,10 +67,14 @@ export function UploadUsersCsvModal() {
           },
         },
       );
-      parseFamilyCsvMutation.reset();
     }
-    processFamilyCsvMutation.reset();
-    processEmployeeCsvMutation.reset();
+  };
+
+  const handleUsersCsvTypeChange = (type: UsersCsvType) => {
+    setCsvType(type);
+    if (csvFile) {
+      parseCsvFile(type, csvFile);
+    }
   };
 
   const handleFileSelect: DropzoneProps["onDrop"] = (files) => {
@@ -71,17 +86,25 @@ export function UploadUsersCsvModal() {
   const handleSubmit = () => {
     if (!parsedData) {
       return;
-    } else if (csvType === "FAMILY" && isParsedFamilyCsvData(parsedData) && !roleSelects) {
+    } else if (
+      csvType === "FAMILY" &&
+      isParsedFamilyCsvData(parsedData) &&
+      !roleSelects
+    ) {
       processFamilyCsvMutation.mutate(
         { parsedFamilyCsvData: parsedData },
         { onSuccess: () => modals.closeAll() },
       );
       processEmployeeCsvMutation.reset();
-    } else if (csvType === "EMPLOYEE" && isParsedEmployeeCsvData(parsedData) && roleSelects) {
-      const employeeData = parsedData.map(employee => ({
+    } else if (
+      csvType === "EMPLOYEE" &&
+      isParsedEmployeeCsvData(parsedData) &&
+      roleSelects
+    ) {
+      const employeeData = parsedData.map((employee) => ({
         ...employee,
-        role: roleSelects[employee.id]
-      }))
+        role: roleSelects[employee.id],
+      }));
       processEmployeeCsvMutation.mutate(
         { parsedEmployeeCsvData: employeeData },
         { onSuccess: () => modals.closeAll() },
@@ -103,12 +126,7 @@ export function UploadUsersCsvModal() {
               key={type}
               value={type}
               label={usersCsvTypeToLabel[type]}
-              onChange={() => {
-                setCsvType(type);
-                if (csvFile) {
-                  parseCsvFile(type, csvFile);
-                }
-              }}
+              onChange={() => handleUsersCsvTypeChange(type)}
               required
             />
           ))}
