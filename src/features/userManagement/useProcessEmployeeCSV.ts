@@ -1,10 +1,10 @@
 import { httpsCallable } from "firebase/functions";
 import { functions } from "@/config/firebase";
 import { useMutation } from "@tanstack/react-query";
-import { ParsedEmployeeCsvData } from "./types";
+import { UnregisteredEmployee } from "@/types/users/userTypes";
 
 interface ProcessEmployeeCSVRequest {
-  parsedEmployeeCsvData: ParsedEmployeeCsvData;
+  parsedEmployeeCsvData: UnregisteredEmployee[];
 }
 
 async function processEmployeeCSV(req: ProcessEmployeeCSVRequest) {

@@ -71,15 +71,19 @@ export function UploadUsersCsvModal() {
   const handleSubmit = () => {
     if (!parsedData) {
       return;
-    } else if (csvType === "FAMILY" && isParsedFamilyCsvData(parsedData)) {
+    } else if (csvType === "FAMILY" && isParsedFamilyCsvData(parsedData) && !roleSelects) {
       processFamilyCsvMutation.mutate(
         { parsedFamilyCsvData: parsedData },
         { onSuccess: () => modals.closeAll() },
       );
       processEmployeeCsvMutation.reset();
-    } else if (csvType === "EMPLOYEE" && isParsedEmployeeCsvData(parsedData)) {
+    } else if (csvType === "EMPLOYEE" && isParsedEmployeeCsvData(parsedData) && roleSelects) {
+      const employeeData = parsedData.map(employee => ({
+        ...employee,
+        role: roleSelects[employee.id]
+      }))
       processEmployeeCsvMutation.mutate(
-        { parsedEmployeeCsvData: parsedData },
+        { parsedEmployeeCsvData: employeeData },
         { onSuccess: () => modals.closeAll() },
       );
       processFamilyCsvMutation.reset();
