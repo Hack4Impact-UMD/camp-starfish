@@ -10,12 +10,13 @@ import useParseEmployeeCsv from "@/features/userManagement/useParseEmployeeCsv";
 import useProcessEmployeeCSV from "@/features/userManagement/useProcessEmployeeCSV";
 import useProcessFamilyCSV from "@/features/userManagement/useProcessFamilyCSV";
 import { MBToBytes } from "@/utils/fileUtils";
-import { Button, Loader, Radio, Text } from "@mantine/core";
+import { Badge, Button, Loader, Radio, Text, Title } from "@mantine/core";
 import { Dropzone, DropzoneProps } from "@mantine/dropzone";
 import { modals } from "@mantine/modals";
 import { useState } from "react";
 import { MdOutlineFileUpload } from "react-icons/md";
 import { EmployeeRole } from "@/types/users/userTypes";
+import { getFullName } from "@/types/users/userUtils";
 
 const usersCsvTypeToLabel: Record<UsersCsvType, string> = {
   FAMILY: "Families (Campers + Parents)",
@@ -25,11 +26,16 @@ const usersCsvTypeToLabel: Record<UsersCsvType, string> = {
 export function UploadUsersCsvModal() {
   const [csvFile, setCsvFile] = useState<File | null>(null);
   const [csvType, setCsvType] = useState<UsersCsvType>("FAMILY");
-  const [roleSelects, setRoleSelects] = useState<{ [employeeId: number]: EmployeeRole; } | null>(null);
+  const [roleSelects, setRoleSelects] = useState<{
+    [employeeId: number]: EmployeeRole;
+  } | null>(null);
 
   const parseFamilyCsvMutation = useParseFamilyCsv();
   const parseEmployeeCsvMutation = useParseEmployeeCsv();
-  const parsedData: ParsedUsersCsvData | undefined = csvType === "FAMILY" ? parseFamilyCsvMutation.data : parseEmployeeCsvMutation.data;
+  const parsedData: ParsedUsersCsvData | undefined =
+    csvType === "FAMILY"
+      ? parseFamilyCsvMutation.data
+      : parseEmployeeCsvMutation.data;
 
   const processFamilyCsvMutation = useProcessFamilyCSV();
   const processEmployeeCsvMutation = useProcessEmployeeCSV();
@@ -40,11 +46,16 @@ export function UploadUsersCsvModal() {
       parseEmployeeCsvMutation.reset();
       setRoleSelects(null);
     } else {
-      parseEmployeeCsvMutation.mutate({ csvFile }, { onSuccess: (data) => {
-        const roleSelects: { [employeeId: number]: EmployeeRole; } = {};
-        data.forEach(employee => roleSelects[employee.id] = "STAFF");
-        setRoleSelects(roleSelects);
-      }});
+      parseEmployeeCsvMutation.mutate(
+        { csvFile },
+        {
+          onSuccess: (data) => {
+            const roleSelects: { [employeeId: number]: EmployeeRole } = {};
+            data.forEach((employee) => (roleSelects[employee.id] = "STAFF"));
+            setRoleSelects(roleSelects);
+          },
+        },
+      );
       parseFamilyCsvMutation.reset();
     }
     processFamilyCsvMutation.reset();
@@ -126,6 +137,30 @@ export function UploadUsersCsvModal() {
           {parseEmployeeCsvMutation.error.message}
         </Text>
       )}
+      {parsedData &&
+        (isParsedFamilyCsvData(parsedData) ? (
+          <>
+            <Title order={6}>Campers</Title>
+            {Object.keys(parsedData.campers).map((camperIdStr) => {
+              const camperId = parseInt(camperIdStr);
+              const camper = parsedData.campers[camperId];
+              return <Badge key={camperId}>{getFullName(camper.name)}</Badge>;
+            })}
+            <Title order={6}>Parents</Title>
+            {Object.keys(parsedData.parents).map((parentIdStr) => {
+              const parentId = parseInt(parentIdStr);
+              const parent = parsedData.parents[parentId];
+              return <Badge key={parentId}>{getFullName(parent.name)}</Badge>;
+            })}
+          </>
+        ) : (
+          <>
+            <Title order={6}>Employees</Title>
+            {parsedData.map((employee) => {
+              return <Badge key={employee.id}>{getFullName(employee.name)}</Badge>;
+            })}
+          </>
+        ))}
       <Button
         classNames={{ root: "self-center" }}
         onClick={handleSubmit}
