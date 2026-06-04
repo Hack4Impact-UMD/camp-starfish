@@ -107,7 +107,7 @@ camp-starfish/
 | `/albums/[albumId]` | `albums/[albumId]/page.tsx` → `AlbumPage.tsx` | Single-album view. Tag/Upload/Pending controls are staff-only; parents get view + download | same |
 | `/albums/[albumId]/pending` | `albums/[albumId]/pending/page.tsx` → `PendingPage.tsx` | In-review (pending) album items for moderation | ADMIN/STAFF/PHOTOGRAPHER |
 | `/sessions` | `sessions/page.tsx` → `SessionsPage.tsx` | Sessions listing | STAFF/ADMIN |
-| `/sessions/[sessionId]` | `SessionPage.tsx` + `SessionCalendar.tsx` | Session detail w/ calendar | STAFF/ADMIN |
+| `/sessions/[sessionId]` | `SessionPage.tsx` + `SessionCalendar.tsx` | Session detail: full-width month calendar (with a section-type color key) beside a top-aligned `SmallDirectoryBlock`; permanent squiggle under the session name | STAFF/ADMIN |
 | `/sessions/[sessionId]/directory` | `directory/page.tsx` → `DirectoryTableView.tsx` | Attendee directory table | STAFF/ADMIN |
 | `/sessions/[sessionId]/[sectionId]` | `[sectionId]/page.tsx` | Section detail | STAFF/ADMIN |
 | `/demo/program-area-grid` | `demo/program-area-grid/page.tsx` | Internal demo | none |
@@ -121,7 +121,7 @@ Reusable UI building blocks (~28 files). Highlights:
 - **Layout**: `Navbar`, `Footer`, `Providers`, `BackgroundPattern`
 - **Cards**: `AlbumCard`, `SessionCard`, `ImageCard`, `GalleryCardOne`, `CardGallery`
 - **Activity grid**: `ActivityGrid`, `ActivityGridRow`, `ActivityGridCell`
-- **Activities editor** (from the activities-page feature): `EditActivitiesModal` (full-screen per-section block editor; opened from `SessionCalendar` day-click; auto-saves block activities to the section's schedule), `BlockGrid`, `ActivityCard`, `CreateActivityModal`, `ActivityTagManagementModal` (the category/activity "tags" are **local suggestion state only** — not persisted/shared)
+- **Activities editor** (from the activities-page feature): `EditActivitiesModal` (full-screen per-section block editor; opened from `SessionCalendar` day-click; auto-saves block activities to the section's schedule; has a "Back" button that saves then closes — replaces the modal's default close), `BlockGrid`, `ActivityCard` (top-left dot color is assigned per category via golden-angle hue spacing — `getCategoryColors` — so distinct categories get distinct colors), `CreateActivityModal` (category field is a free-text `Autocomplete`), `ActivityTagManagementModal`. Categories are **backed by the `programAreas` collection** (created/soft-deleted as you edit, so they persist and are shared); only the per-category activity-name suggestions remain local. `EditActivitiesModal` owns this integration (`useProgramAreas` + create/soft-delete reconcile in `onTagDataChange`) so the child modals stay `TagData`-based.
 - **Modals**: `ActivityModal`, `AssignActivityModal`, `EditSectionModal`, `FileUploadModal`, `CreateSessionModal`, `EditAlbumModal`, `ConfirmationModal`, `UploadAlbumItemsModal/`
 - **Album item viewing** (`AlbumItemViewModal/`): `AlbumItemViewModal` (full-screen carousel), `AlbumItemViewModalTagSection` + `AddTagModal` (camper tagging, staff/photographer), `AlbumItemViewModalReportSection` (parent reporting), `MoveAlbumItemModal` (move item between albums)
 - **Album item cards**: `AlbumItemCard`, `PendingAlbumItemCard`, `TagSelect`

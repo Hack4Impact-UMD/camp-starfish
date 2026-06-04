@@ -51,6 +51,13 @@ const sectionTypeToEventColor: Record<SectionType, ScheduleSingleEventData['colo
   "NON-BUNK-JAMBO": "aqua"
 }
 
+const sectionTypeLabel: Record<SectionType, string> = {
+  "COMMON": "Common",
+  "BUNDLE": "Bundle",
+  "BUNK-JAMBO": "Bunk Jamboree",
+  "NON-BUNK-JAMBO": "Non-Bunk Jamboree"
+}
+
 interface SessionCalendarContentProps {
   session: Session;
   sections: Section[];
@@ -254,6 +261,22 @@ function SessionCalendarContent(props: SessionCalendarContentProps) {
           }
         }}
       />
+      {/* Color key for section types */}
+      <div className="flex flex-wrap items-center gap-4 mt-3">
+        {(Object.keys(sectionTypeToEventColor) as SectionType[]).map((type) => (
+          <div key={type} className="flex items-center gap-1.5">
+            <span
+              className="inline-block w-3 h-3 rounded-sm"
+              style={{
+                backgroundColor: `var(--mantine-color-${sectionTypeToEventColor[type]}-filled)`,
+              }}
+            />
+            <Text className="text-xs text-neutral-6">
+              {sectionTypeLabel[type]}
+            </Text>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
