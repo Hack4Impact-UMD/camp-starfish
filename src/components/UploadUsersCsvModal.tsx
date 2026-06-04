@@ -15,6 +15,7 @@ import { Dropzone, DropzoneProps } from "@mantine/dropzone";
 import { modals } from "@mantine/modals";
 import { useState } from "react";
 import { MdOutlineFileUpload } from "react-icons/md";
+import { parse } from "path";
 
 const usersCsvTypeToLabel: Record<UsersCsvType, string> = {
   FAMILY: "Families (Campers + Parents)",
@@ -25,6 +26,7 @@ export function UploadUsersCsvModal() {
   const [csvFile, setCsvFile] = useState<File | null>(null);
   const [csvType, setCsvType] = useState<UsersCsvType>("FAMILY");
   const [parsedData, setParsedData] = useState<ParsedUsersCsvData | null>(null);
+  const [showParseError, setShowError] = useState<boolean>(false);
 
   const parseFamilyCsvMutation = useParseFamilyCsv();
   const parseEmployeeCsvMutation = useParseEmployeeCsv();
@@ -48,11 +50,17 @@ export function UploadUsersCsvModal() {
     if (!parsedData) {
       return;
     } else if (csvType === "FAMILY" && isParsedFamilyCsvData(parsedData)) {
-      processFamilyCsvMutation.mutate({ parsedFamilyCsvData: parsedData }, { onSuccess: () => modals.closeAll() });
+      processFamilyCsvMutation.mutate(
+        { parsedFamilyCsvData: parsedData },
+        { onSuccess: () => modals.closeAll() },
+      );
     } else if (csvType === "EMPLOYEE" && isParsedEmployeeCsvData(parsedData)) {
-      processEmployeeCsvMutation.mutate({ parsedEmployeeCsvData: parsedData }, { onSuccess: () => modals.closeAll() });
+      processEmployeeCsvMutation.mutate(
+        { parsedEmployeeCsvData: parsedData },
+        { onSuccess: () => modals.closeAll() },
+      );
     }
-  }
+  };
 
   return (
     <div className="flex flex-col gap-md">
@@ -70,6 +78,7 @@ export function UploadUsersCsvModal() {
               : "Upload a users CSV file exported from Campminder here (Max: 5MB)"}
           </Text>
         </Dropzone>
+        {}
       </div>
       <Radio.Group value={csvType} label={"Type of Users"}>
         <div className="flex flex-col gap-xs">
@@ -93,7 +102,10 @@ export function UploadUsersCsvModal() {
         classNames={{ root: "self-center" }}
         onClick={handleSubmit}
         disabled={!csvFile || !csvType}
-        loading={processFamilyCsvMutation.isPending || processEmployeeCsvMutation.isPending}
+        loading={
+          processFamilyCsvMutation.isPending ||
+          processEmployeeCsvMutation.isPending
+        }
       >
         Create Users
       </Button>
