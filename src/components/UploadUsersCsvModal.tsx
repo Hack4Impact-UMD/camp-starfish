@@ -71,6 +71,28 @@ export function UploadUsersCsvModal() {
 
   return (
     <div className="flex flex-col gap-md items-center">
+      <Radio.Group
+        classNames={{ root: "w-full" }}
+        value={csvType}
+        label={"Type of Users"}
+      >
+        <div className="flex flex-col gap-xs">
+          {usersCsvTypes.map((type) => (
+            <Radio
+              key={type}
+              value={type}
+              label={usersCsvTypeToLabel[type]}
+              onChange={() => {
+                setCsvType(type);
+                if (csvFile) {
+                  parseCsvFile(type, csvFile);
+                }
+              }}
+              required
+            />
+          ))}
+        </div>
+      </Radio.Group>
       <Dropzone
         onDrop={handleFileSelect}
         maxFiles={1}
@@ -98,28 +120,6 @@ export function UploadUsersCsvModal() {
           {parseEmployeeCsvMutation.error.message}
         </Text>
       )}
-      <Radio.Group
-        classNames={{ root: "w-full" }}
-        value={csvType}
-        label={"Type of Users"}
-      >
-        <div className="flex flex-col gap-xs">
-          {usersCsvTypes.map((type) => (
-            <Radio
-              key={type}
-              value={type}
-              label={usersCsvTypeToLabel[type]}
-              onChange={() => {
-                setCsvType(type);
-                if (csvFile) {
-                  parseCsvFile(type, csvFile);
-                }
-              }}
-              required
-            />
-          ))}
-        </div>
-      </Radio.Group>
       <Button
         classNames={{ root: "self-center" }}
         onClick={handleSubmit}
