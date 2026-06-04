@@ -1,12 +1,49 @@
 rules_version = '2';
 
-// Craft rules based on data in your Firestore database
-// allow write: if firestore.get(
-//    /databases/(default)/documents/users/$(request.auth.uid)).data.isAdmin;
 service firebase.storage {
   match /b/{bucket}/o {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && request.auth.token.role == 'ADMIN';
+    }
+
+    function isStaff() {
+      return isSignedIn() && request.auth.token.role == 'STAFF';
+    }
+
+    // Users are keyed by their Campminder ID, exposed on the token as a custom claim.
+    function currentPersonId() {
+      return request.auth.token.campminderId;
+    }
+
+    // Attendees of a session are stored as documents in its `attendees`
+    // subcollection, keyed by Campminder ID.
+    function isAttendee(sessionId, personId) {
+      return firestore.exists(/databases/(default)/documents/sessions/$(sessionId)/attendees/$(personId));
+    }
+
+    // A section is published when its `publishedAt` timestamp is set; unpublishing
+    // deletes the field, so absence means unpublished.
+    function isSectionPublished(sessionId, sectionId) {
+      return firestore.get(/databases/(default)/documents/sessions/$(sessionId)/sections/$(sectionId)).data.get('publishedAt', null) != null;
+    }
+
+    match /schedules/{sessionId}/{file} {
+      allow read: if isAdmin() || (isStaff() && isAttendee(sessionId, currentPersonId()));
+      allow write: if isAdmin();
+    }
+
+    match /schedules/{sessionId}/sections/{sectionId}/{file=**} {
+      allow read: if isAdmin() || (isStaff() && isAttendee(sessionId, currentPersonId()) && isSectionPublished(sessionId, sectionId));
+      allow write: if isAdmin();
+    }
+
     match /{allPaths=**} {
-      allow read, write: if true;
+      allow read, write: if false;
     }
   }
 }

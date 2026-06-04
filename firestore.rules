@@ -6,7 +6,7 @@ service cloud.firestore {
     function isAuthenticated() {
       return request.auth != null;
     }
-    
+
     function isAdmin() {
       return isAuthenticated() && request.auth.token.role == "ADMIN";
     }
@@ -19,6 +19,23 @@ service cloud.firestore {
       return isStaff() || isAdmin();
     }
 
+    // Users are keyed by their Campminder ID, exposed on the token as a custom claim.
+    function currentPersonId() {
+      return request.auth.token.campminderId;
+    }
+
+    // Attendees of a session are stored as documents in its `attendees`
+    // subcollection, keyed by Campminder ID.
+    function isAttendee(sessionId, personId) {
+      return exists(/databases/$(database)/documents/sessions/$(sessionId)/attendees/$(personId));
+    }
+
+    // A section is published when its `publishedAt` timestamp is set; unpublishing
+    // deletes the field, so absence means unpublished.
+    function isSectionPublished(sessionId, sectionId) {
+      return get(/databases/$(database)/documents/sessions/$(sessionId)/sections/$(sectionId)).data.get('publishedAt', null) != null;
+    }
+
     match /userDirectory/{pageId} {
       allow read, write: if isStaffOrAdmin();
     }
@@ -27,91 +44,95 @@ service cloud.firestore {
       allow read, write: if isStaffOrAdmin();
     }
 
-    // Sessions collection
+    // Sessions collection: staff may only read sessions they attend.
     match /sessions/{sessionId} {
-      allow read: if isStaffOrAdmin();
+      allow read: if isAdmin() || (isStaff() && isAttendee(sessionId, currentPersonId()));
       allow write: if isStaffOrAdmin();
-      
+
       // Sections subcollection
       match /sections/{sectionId} {
-        allow read: if isStaffOrAdmin();
-        allow create, update, delete: if isStaffOrAdmin();
-        
-        // Section schedules subcollection
+        allow read: if isAdmin() || (isStaff() && isAttendee(sessionId, currentPersonId()));
+        allow write: if isStaffOrAdmin();
+
+        // Section schedules subcollection: staff additionally require the section to be published to read.
         match /schedule/{scheduleId} {
-          allow read: if isStaffOrAdmin();
-          allow create, update, delete: if isStaffOrAdmin();
+          allow read: if isAdmin() || (isStaff() && isAttendee(sessionId, currentPersonId()) && isSectionPublished(sessionId, sectionId));
+          allow write: if isStaffOrAdmin();
         }
       }
-      
+
       // Other subcollections
       match /attendees/{attendeeId} {
         allow read: if isStaffOrAdmin();
         allow write: if isStaffOrAdmin();
       }
-      
+
       match /bunks/{bunkId} {
         allow read: if isStaffOrAdmin();
         allow write: if isStaffOrAdmin();
       }
-      
+
       match /nightSchedules/{shiftId} {
         allow read: if isStaffOrAdmin();
         allow write: if isStaffOrAdmin();
       }
-      
+
       match /freeplays/{freeplayId} {
         allow read: if isStaffOrAdmin();
         allow write: if isStaffOrAdmin();
       }
     }
-    
+
     // Albums collection
     match /albums/{albumId} {
       allow read: if isStaffOrAdmin();
       allow write: if isStaffOrAdmin();
-      
+
       match /albumItems/{albumItemId} {
         allow read: if isStaffOrAdmin();
         allow write: if isStaffOrAdmin();
       }
     }
-    
+
     // User collections
     match /campers/{camperId} {
       allow read: if isStaffOrAdmin();
       allow write: if isStaffOrAdmin();
     }
-    
+
     match /parents/{parentId} {
       allow read: if isStaffOrAdmin();
       allow write: if isStaffOrAdmin();
     }
-    
+
     match /staff/{staffId} {
       allow read: if isStaffOrAdmin();
       allow write: if isStaffOrAdmin();
     }
-    
+
     match /admins/{adminId} {
       allow read: if isStaffOrAdmin();
       allow write: if isStaffOrAdmin();
     }
-    
+
     match /photographers/{photographerId} {
       allow read: if isStaffOrAdmin();
       allow write: if isStaffOrAdmin();
     }
-    
+
     // Shared resources
     match /programAreas/{areaId} {
       allow read: if isStaffOrAdmin();
       allow write: if isStaffOrAdmin();
     }
-    
+
     match /posts/{postId} {
       allow read: if isStaffOrAdmin();
       allow write: if isStaffOrAdmin();
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }
