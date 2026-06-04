@@ -15,6 +15,7 @@ import {
   Button,
   Loader,
   Radio,
+  ScrollArea,
   Select,
   Text,
   Title,
@@ -159,8 +160,8 @@ export function UploadUsersCsvModal() {
           {parseEmployeeCsvMutation.error.message}
         </Text>
       )}
-      {parsedData &&
-        (isParsedFamilyCsvData(parsedData) ? (
+      {parsedData && <ScrollArea.Autosize className="max-h-[40vh] w-full">
+        {isParsedFamilyCsvData(parsedData) ? (
           <>
             <Title order={6}>Campers</Title>
             {Object.keys(parsedData.campers).map((camperIdStr) => {
@@ -178,7 +179,7 @@ export function UploadUsersCsvModal() {
         ) : (
           <>
             <Title order={6}>Employees</Title>
-            {parsedData.map((employee, i) => {
+            {parsedData.map((employee) => {
               return (
                 <>
                   <Badge key={employee.id}>{getFullName(employee.name)}</Badge>
@@ -196,7 +197,9 @@ export function UploadUsersCsvModal() {
               );
             })}
           </>
-        ))}
+        )}
+      </ScrollArea.Autosize>
+        }
       <Button
         classNames={{ root: "self-center" }}
         onClick={handleSubmit}
