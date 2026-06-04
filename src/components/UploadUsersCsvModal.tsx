@@ -161,7 +161,21 @@ export function UploadUsersCsvModal() {
           <>
             <Title order={6}>Employees</Title>
             {parsedData.map((employee, i) => {
-              return <><Badge key={employee.id}>{getFullName(employee.name)}</Badge><Select data={["STAFF", "ADMIN", "PHOTOGRAPHER"]} value={roleSelects![employee.id]} onChange={(role) => setRoleSelects(prev => prev ? ({ ...prev, [employee.id]: role }) : null)}/></>;
+              return (
+                <>
+                  <Badge key={employee.id}>{getFullName(employee.name)}</Badge>
+                  <Select
+                    data={["STAFF", "ADMIN", "PHOTOGRAPHER"]}
+                    value={roleSelects![employee.id]}
+                    defaultValue="STAFF"
+                    onChange={(role) =>
+                      setRoleSelects((prev) =>
+                        prev ? { ...prev, [employee.id]: role } : null,
+                      )
+                    }
+                  />
+                </>
+              );
             })}
           </>
         ))}
