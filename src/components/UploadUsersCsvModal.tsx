@@ -160,46 +160,55 @@ export function UploadUsersCsvModal() {
           {parseEmployeeCsvMutation.error.message}
         </Text>
       )}
-      {parsedData && <ScrollArea.Autosize className="max-h-[40vh] w-full">
-        {isParsedFamilyCsvData(parsedData) ? (
-          <>
-            <Title order={6}>Campers</Title>
-            {Object.keys(parsedData.campers).map((camperIdStr) => {
-              const camperId = parseInt(camperIdStr);
-              const camper = parsedData.campers[camperId];
-              return <Badge key={camperId}>{getFullName(camper.name)}</Badge>;
-            })}
-            <Title order={6}>Parents</Title>
-            {Object.keys(parsedData.parents).map((parentIdStr) => {
-              const parentId = parseInt(parentIdStr);
-              const parent = parsedData.parents[parentId];
-              return <Badge key={parentId}>{getFullName(parent.name)}</Badge>;
-            })}
-          </>
-        ) : (
-          <>
-            <Title order={6}>Employees</Title>
-            {parsedData.map((employee) => {
-              return (
-                <>
-                  <Badge key={employee.id}>{getFullName(employee.name)}</Badge>
-                  <Select
-                    data={["STAFF", "ADMIN", "PHOTOGRAPHER"]}
-                    value={roleSelects![employee.id]}
-                    defaultValue="STAFF"
-                    onChange={(role) =>
-                      setRoleSelects((prev) =>
-                        prev ? { ...prev, [employee.id]: role } : null,
-                      )
-                    }
-                  />
-                </>
-              );
-            })}
-          </>
-        )}
-      </ScrollArea.Autosize>
-        }
+      {parsedData && (
+        <ScrollArea.Autosize className="max-h-[40vh] w-full">
+          {isParsedFamilyCsvData(parsedData) ? (
+            <>
+              <Title order={6}>Campers</Title>
+              <div className="flex flex-row flex-wrap gap-xs">
+                {Object.keys(parsedData.campers).map((camperIdStr) => {
+                  const camperId = parseInt(camperIdStr);
+                  const camper = parsedData.campers[camperId];
+                  return (
+                    <Badge key={camperId}>{getFullName(camper.name)}</Badge>
+                  );
+                })}
+              </div>
+              <Title order={6}>Parents</Title>
+              <div className="flex flex-row flex-wrap gap-xs">
+                {Object.keys(parsedData.parents).map((parentIdStr) => {
+                  const parentId = parseInt(parentIdStr);
+                  const parent = parsedData.parents[parentId];
+                  return (
+                    <Badge key={parentId}>{getFullName(parent.name)}</Badge>
+                  );
+                })}
+              </div>
+            </>
+          ) : (
+            <div className="flex flex-col gap-xs">
+              <Title order={6}>Employees</Title>
+              {parsedData.map((employee) => {
+                return (
+                  <div className="flex flex-row justify-between items-center bg-neutral-3 rounded-sm p-xs">
+                    <Text key={employee.id}>{getFullName(employee.name)}</Text>
+                    <Select
+                      data={["STAFF", "ADMIN", "PHOTOGRAPHER"]}
+                      value={roleSelects![employee.id]}
+                      defaultValue="STAFF"
+                      onChange={(role) =>
+                        setRoleSelects((prev) =>
+                          prev ? { ...prev, [employee.id]: role! } : null,
+                        )
+                      }
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </ScrollArea.Autosize>
+      )}
       <Button
         classNames={{ root: "self-center" }}
         onClick={handleSubmit}
