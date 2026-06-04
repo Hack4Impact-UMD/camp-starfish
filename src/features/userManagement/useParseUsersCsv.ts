@@ -1,6 +1,6 @@
 import useParseFamilyCsv from "./useParseFamilyCsv";
 import useParseEmployeeCsv from "./useParseEmployeeCsv";
-import { UsersCsvType } from "./useProcessUsersCsv";
+import { UsersCsvType } from "./types";
 
 export default function useProcessUsersCsv(usersCsvType: UsersCsvType) {
   const parseFamilyCsvMutation = useParseFamilyCsv();

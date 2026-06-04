@@ -1,8 +1,6 @@
 import useProcessFamilyCSV from "./useProcessFamilyCSV";
 import useProcessEmployeeCSV from "./useProcessEmployeeCSV";
-
-export type UsersCsvType = "FAMILY" | "EMPLOYEE";
-export const usersCsvTypes: UsersCsvType[] = ["FAMILY", "EMPLOYEE"];
+import { UsersCsvType } from "./types";
 
 export default function useProcessUsersCsv(usersCsvType: UsersCsvType) {
   const processFamilyCSVMutation = useProcessFamilyCSV();
