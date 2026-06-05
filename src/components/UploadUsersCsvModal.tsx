@@ -193,7 +193,7 @@ export function UploadUsersCsvModal() {
                   <div className="flex flex-row justify-between items-center bg-neutral-3 rounded-sm p-xs">
                     <Text key={employee.id}>{getFullName(employee.name)}</Text>
                     <Select
-                      data={["STAFF", "ADMIN", "PHOTOGRAPHER"]}
+                      data={["ADMIN", "STAFF", "PHOTOGRAPHER"]}
                       value={roleSelects![employee.id]}
                       defaultValue="STAFF"
                       onChange={(role) =>
