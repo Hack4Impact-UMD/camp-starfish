@@ -32,8 +32,17 @@ import { MdSearch, MdDelete, MdChevronLeft, MdChevronRight } from "react-icons/m
 import { User, Role } from "@/types/users/userTypes";
 import { useAuth } from "@/auth/useAuth";
 import useDeleteUser from "@/hooks/users/useDeleteUser";
-import { ALL_ROLES, ROLE_COLORS, formatRole } from "./userRoles";
 import { openDeleteUserModal } from "./userModals";
+import { ALL_ROLES } from "@/types/users/userUtils";
+import { toNormalCase } from "@/utils/stringUtils";
+
+const ROLE_COLORS: Record<Role, string> = {
+  ADMIN: "error",
+  STAFF: "blue",
+  PHOTOGRAPHER: "aqua",
+  PARENT: "green",
+  CAMPER: "orange",
+};
 
 interface UserManagementPageProps {
   users: User[];
@@ -83,7 +92,7 @@ export default function UserManagementPage({ users }: UserManagementPageProps) {
         const role = info.getValue<Role>();
         return (
           <Badge color={ROLE_COLORS[role]} variant="light" radius="sm">
-            {formatRole(role)}
+            {toNormalCase(role)}
           </Badge>
         );
       },
@@ -176,7 +185,7 @@ export default function UserManagementPage({ users }: UserManagementPageProps) {
                 <Group gap="md">
                   <Radio value="" label="All" />
                   {ALL_ROLES.map((r) => (
-                    <Radio key={r} value={r} label={formatRole(r)} />
+                    <Radio key={r} value={r} label={toNormalCase(r)} />
                   ))}
                 </Group>
               </Radio.Group>

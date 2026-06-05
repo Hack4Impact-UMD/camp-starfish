@@ -5,7 +5,7 @@ export function getFullName(name: Name) {
   return `${name.firstName} ${name.middleName ? `${name.middleName} ` : ''}${name.lastName}`
 }
 
-export const roles: Role[] = ["CAMPER", "PARENT", "PHOTOGRAPHER", "STAFF", "ADMIN"];
+export const ALL_ROLES: Role[] = ["CAMPER", "PARENT", "PHOTOGRAPHER", "STAFF", "ADMIN"];
 export const employeeRoles: EmployeeRole[] = ["STAFF", "PHOTOGRAPHER", "ADMIN"];
 export const attendeeRoles: AttendeeRole[] = ["CAMPER", "STAFF", "ADMIN"];
 
