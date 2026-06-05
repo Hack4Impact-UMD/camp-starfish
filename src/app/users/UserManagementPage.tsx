@@ -147,24 +147,10 @@ export default function UserManagementPage({ users }: UserManagementPageProps) {
       <div className="px-12 py-8">
         {/* Header with accent underline */}
         <Box mb="xl">
-          <Title order={1} className="font-lato font-bold">
+          <Title order={1}>
             User Management
           </Title>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="332"
-            height="6"
-            viewBox="0 0 332 6"
-            fill="none"
-            aria-hidden="true"
-            className="mt-1.5 block h-auto max-w-full"
-          >
-            <path
-              d="M331.982 3.30795C325.855 3.93247 320.001 4.70093 314.025 5.08908C308.076 5.47451 302.014 5.54648 295.991 5.63482C286.573 5.77296 277.147 5.83674 267.723 5.87869C259.461 5.91553 251.197 5.86368 242.933 5.87869C238.544 5.88722 234.15 6.05878 229.775 5.97658C220.304 5.7999 210.847 5.48849 201.378 5.2702C194.812 5.11876 188.232 5.07271 181.665 4.90558C173.012 4.68626 164.374 4.3653 155.722 4.14224C150.315 4.00239 144.889 4.00921 139.482 3.86425C131.689 3.65449 123.906 3.33796 116.11 3.12001C107.942 2.89182 99.7694 2.66432 91.5905 2.55176C83.6389 2.44159 75.6754 2.44398 67.7166 2.45558C60.0216 2.46683 52.3254 2.52823 44.6331 2.60941C36.2813 2.69854 27.9308 2.81485 19.5816 2.95833C14.7481 3.03951 9.92053 3.22847 5.08509 3.27486C3.29579 3.29226 1.21111 3.34751 0.216905 2.35939C-0.490433 1.6554 0.590222 0.881478 2.29962 0.858625C13.0217 0.710936 23.7431 0.537666 34.4671 0.408395C39.8638 0.343589 45.2671 0.371558 50.6638 0.322783C62.2268 0.217047 73.7879 0.0141025 85.3509 0.000118045C91.36 -0.00704471 97.3671 0.313574 103.376 0.467061C111.792 0.682285 120.208 0.874656 128.627 1.08101C133.715 1.20789 138.801 1.35217 143.887 1.47633C149.995 1.62504 156.101 1.75874 162.208 1.90302C168.19 2.04389 174.17 2.20215 180.154 2.33074C190.332 2.54938 200.507 2.78882 210.689 2.94913C221.426 3.11796 232.171 3.27179 242.912 3.30863C253.915 3.34615 264.918 3.24041 275.925 3.18959C281.485 3.16435 287.049 3.16776 292.605 3.08112C298.272 2.99381 303.952 2.90444 309.588 2.64488C313.829 2.4491 317.986 1.90336 322.221 1.66733C324.599 1.57717 326.988 1.61822 329.349 1.78978C331.212 1.8945 332.146 2.47979 331.981 3.3059"
-              fill="var(--mantine-color-orange-5)"
-            />
-          </svg>
-          <Text c="dimmed" size="md" mt="md">
+          <Text color="dimmed" c="dimmed" size="md" mt="md">
             Control access, assign roles, and monitor activity
           </Text>
         </Box>
@@ -234,7 +220,7 @@ export default function UserManagementPage({ users }: UserManagementPageProps) {
               verticalSpacing="sm"
               className="[&_td]:text-center [&_th]:text-center"
             >
-              <Table.Thead className="bg-[var(--mantine-color-gray-1)]">
+              <Table.Thead className="bg-gray-1">
                 {table.getHeaderGroups().map((hg) => (
                   <Table.Tr key={hg.id}>
                     {hg.headers.map((header) => (
@@ -281,7 +267,7 @@ export default function UserManagementPage({ users }: UserManagementPageProps) {
                 <MdChevronLeft size={18} />
                 Previous
               </UnstyledButton>
-              <Box className="rounded-md border border-[var(--mantine-color-gray-3)]" px="sm" py={4}>
+              <Box className="rounded-md border bg-gray-3" px="sm" py={4}>
                 <Text size="sm" fw={600}>
                   {pageIndex + 1}
                 </Text>
