@@ -23,8 +23,10 @@ service cloud.firestore {
       allow read, write: if isStaffOrAdmin();
     }
 
+    // Reads are admin-only; writes go through the deleteUserAccount callable / Admin SDK
+    // (which bypass rules), so client writes are denied to keep Auth and Firestore in sync.
     match /users/{userId} {
-      allow read, write: if isStaffOrAdmin();
+      allow read: if isAdmin();
     }
 
     // Sessions collection
@@ -77,6 +79,12 @@ service cloud.firestore {
       }
     }
     
+    // Users collection (all roles unified)
+    match /users/{userId} {
+      allow read: if isAdmin();
+      allow write: if isAdmin();
+    }
+
     // User collections
     match /campers/{camperId} {
       allow read: if isStaffOrAdmin();
