@@ -62,31 +62,30 @@ const FamilyCsvRecordTwoParentsSchema = z.object({
   "F1P2 Login/Email": z.string().email(),
 })
 
-const FamilyCsvRecordSchema = BaseFamilyCsvRecordSchema.and(FamilyCsvRecordOneParentSchema.or(FamilyCsvRecordTwoParentsSchema));
+const ParsedFamilyCsvRecordSchema = BaseFamilyCsvRecordSchema.and(FamilyCsvRecordOneParentSchema.or(FamilyCsvRecordTwoParentsSchema));
+type ParsedFamilyCsvRecord = z.infer<typeof ParsedFamilyCsvRecordSchema>;
 
 function parseFamilyRecords(data: FamilyCsvRecordWithInfo[]): ParsedFamilyCsvData {
   const campers: ParsedFamilyCsvData["campers"] = {};
   const parents: ParsedFamilyCsvData["parents"] = {};
 
   data.forEach(({ record, info }) => {
-    const camperId: number = parseInt(record.PersonID);
-    const parent1Id: number = parseInt(record["F1P1 Person ID"]);
-    const parent2Id: number = "F1P2 Person ID" in record ? parseInt(record["F1P2 Person ID"]) : NaN;
-
-    const validationResult = FamilyCsvRecordSchema.safeParse(record);
+    const validationResult = ParsedFamilyCsvRecordSchema.safeParse(record);
     if (!validationResult.success) {
-      console.log(validationResult)
-    const errorPrefix = `Invalid record on line ${info.lines}: `;
-
+      throw Error(`Invalid record on line ${info.lines}. Please fix before uploading.`);
     }
 
+    const parsedRecord: ParsedFamilyCsvRecord = validationResult.data;
+    const camperId = parsedRecord.PersonID;
+    const parent1Id = parsedRecord["F1P1 Person ID"];
+    const parent2Id = parsedRecord["F1P2 Person ID"];
     campers[camperId] = {
-      id: parseInt(record.PersonID),
+      id: camperId,
       name: {
         firstName: record["First Name"],
         lastName: record["Last Name"],
       },
-      parentIds: Number.isNaN(parent2Id)
+      parentIds: parent2Id === undefined
         ? [parent1Id]
         : [parent1Id, parent2Id],
     };
@@ -105,7 +104,7 @@ function parseFamilyRecords(data: FamilyCsvRecordWithInfo[]): ParsedFamilyCsvDat
       }
     }
 
-    if ("F1P2 Person ID" in record && !Number.isNaN(parent2Id)) {
+    if (parent2Id) {
       if (parents[parent2Id]) {
         parents[parent2Id].camperIds.push(camperId);
       } else {
