@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { parse } from "csv-parse/sync";
+import { parse, Info } from "csv-parse/sync";
 import { ParsedFamilyCsvData } from "./types";
 
 interface ParseFamilyCsvRequest {
@@ -16,23 +16,37 @@ interface BaseFamilyCSVRecord {
   "F1P1 Login/Email": string;
 }
 
-type FamilyCSVRecord = BaseFamilyCSVRecord | BaseFamilyCSVRecord & {
+interface FamilyCsvRecordOneParent extends BaseFamilyCSVRecord {
+  "F1P2 First Name": "";
+  "F1P2 Last Name": "";
+  "F1P2 Person ID": "";
+  "F1P2 Login/Email": "";
+}
+
+interface FamilyCsvRecordTwoParents extends BaseFamilyCSVRecord {
   "F1P2 First Name": string;
   "F1P2 Last Name": string;
   "F1P2 Person ID": string;
   "F1P2 Login/Email": string;
+}
+
+type FamilyCSVRecord = FamilyCsvRecordOneParent | FamilyCsvRecordTwoParents;
+
+type FamilyCsvRecordWithInfo = {
+  record: FamilyCSVRecord;
+  info: Info;
 };
 
-function parseFamilyRecords(records: FamilyCSVRecord[]): ParsedFamilyCsvData {
+function parseFamilyRecords(data: FamilyCsvRecordWithInfo[]): ParsedFamilyCsvData {
   const campers: ParsedFamilyCsvData["campers"] = {};
   const parents: ParsedFamilyCsvData["parents"] = {};
 
-  records.forEach((record) => {
+  data.forEach(({ record, info }) => {
     const camperId: number = parseInt(record.PersonID);
     const parent1Id: number = parseInt(record["F1P1 Person ID"]);
     const parent2Id: number = "F1P2 Person ID" in record ? parseInt(record["F1P2 Person ID"]) : NaN;
 
-    if (Number.isNaN(camperId) || Number.isNaN(parent1Id)) return;
+
 
     campers[camperId] = {
       id: parseInt(record.PersonID),
@@ -91,7 +105,7 @@ const REQUIRED_COLUMNS = [
 export async function parseFamilyCsv(req: ParseFamilyCsvRequest): Promise<ParsedFamilyCsvData> {
   const { csvFile } = req;
   const rawText = await csvFile.text();
-  const records = parse(rawText, {
+  const data = parse(rawText, {
     columns: (cols: string[]) => {
       const missingColumns = REQUIRED_COLUMNS.filter(col => !cols.includes(col));
       if (missingColumns.length > 0) {
@@ -99,9 +113,10 @@ export async function parseFamilyCsv(req: ParseFamilyCsvRequest): Promise<Parsed
       }
       return cols;
     },
+    info: true,
     skip_empty_lines: true
-  }) as FamilyCSVRecord[];
-  return parseFamilyRecords(records);
+  }) as FamilyCsvRecordWithInfo[];
+  return parseFamilyRecords(data);
 }
 
 export default function useParseFamilyCsv() {
