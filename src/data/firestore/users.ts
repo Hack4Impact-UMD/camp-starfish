@@ -15,6 +15,7 @@ import {
 } from "firebase/firestore";
 import { setDoc, getDoc, updateDoc, deleteDoc, batchGetDocs, executeQuery } from "./firestoreClientOperations";
 import { RootLevelCollection } from "./types/collections";
+import { FirestoreQueryOptions } from "./types/queries";
 
 function fromFirestore(snapshot: DocumentSnapshot<UserDoc, UserDoc> | QueryDocumentSnapshot<UserDoc, UserDoc>): User {
   if (!snapshot.exists()) { throw Error("Document not found"); }
@@ -34,8 +35,8 @@ export async function batchGetUserDocs(ids: number[]): Promise<User[]> {
   return snapshots.map(fromFirestore);
 }
 
-export async function getAllUsers(): Promise<User[]> {
-  const snapshots = await executeQuery<UserDoc>(collection(db, RootLevelCollection.USERS) as CollectionReference<UserDoc, UserDoc>);
+export async function listUserDocs(firestoreQueryOptions: FirestoreQueryOptions<UserDoc> = {}): Promise<User[]> {
+  const snapshots = await executeQuery<UserDoc>(collection(db, RootLevelCollection.USERS) as CollectionReference<UserDoc, UserDoc>, firestoreQueryOptions);
   return snapshots.map(fromFirestore);
 }
 
