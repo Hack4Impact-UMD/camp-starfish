@@ -17,6 +17,14 @@ interface GenerateNonBunkJamboreeScheduleRequest {
 export default function generateNonBunkJamboreeSchedule(req: GenerateNonBunkJamboreeScheduleRequest): NonBunkJamboreeSectionSchedule {
   const { sessionId, sectionId, attendees, camperPreferences } = req;
 
+  // Assign periods off to staff and admin
+
+  // Assign remaining employees to periods off
+
+  // For each block
+  //   Assign campers to activities based on preferences
+  //   Assign employees to activities
+
   return {
     sessionId,
     sectionId,
