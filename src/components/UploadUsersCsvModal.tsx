@@ -11,7 +11,6 @@ import useProcessEmployeeCSV from "@/features/userManagement/useProcessEmployeeC
 import useProcessFamilyCSV from "@/features/userManagement/useProcessFamilyCSV";
 import { MBToBytes } from "@/utils/fileUtils";
 import {
-  Badge,
   Button,
   Loader,
   Radio,
@@ -174,8 +173,8 @@ export function UploadUsersCsvModal() {
                   const camperId = parseInt(camperIdStr);
                   const camper = parsedData.campers[camperId];
                   return (
-                    <div className="flex flex-row items-center w-full bg-neutral-3 rounded-sm p-xs">
-                      <Text key={camperId}>{getFullName(camper.name)}</Text>
+                    <div key={camperId} className="flex flex-row items-center w-full bg-neutral-3 rounded-sm p-xs">
+                      <Text>{getFullName(camper.name)}</Text>
                     </div>
                   );
                 })}
@@ -186,8 +185,8 @@ export function UploadUsersCsvModal() {
                   const parentId = parseInt(parentIdStr);
                   const parent = parsedData.parents[parentId];
                   return (
-                    <div className="flex flex-row items-center w-full bg-neutral-3 rounded-sm p-xs">
-                      <Text key={parentId}>
+                    <div key={parentId} className="flex flex-row items-center w-full bg-neutral-3 rounded-sm p-xs">
+                      <Text>
                         {getFullName(parent.name)} ({parent.email})
                       </Text>
                     </div>
@@ -200,8 +199,8 @@ export function UploadUsersCsvModal() {
               <Text>Employees</Text>
               {parsedData.map((employee) => {
                 return (
-                  <div className="flex flex-row justify-between items-center bg-neutral-3 rounded-sm p-xs">
-                    <Text key={employee.id}>{getFullName(employee.name)}</Text>
+                  <div key={employee.id} className="flex flex-row justify-between items-center bg-neutral-3 rounded-sm p-xs">
+                    <Text >{getFullName(employee.name)}</Text>
                     <Select
                       data={["ADMIN", "STAFF", "PHOTOGRAPHER"]}
                       value={roleSelects![employee.id]}
