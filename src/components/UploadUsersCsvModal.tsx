@@ -162,9 +162,10 @@ export function UploadUsersCsvModal() {
       )}
       {parsedData && (
         <ScrollArea.Autosize className="max-h-[40vh] w-full">
+          <Title order={6}>The following users were found. Please ensure they are correct before uploading.</Title>
           {isParsedFamilyCsvData(parsedData) ? (
             <>
-              <Title order={6}>Campers</Title>
+              <Text>Campers</Text>
               <div className="flex flex-row flex-wrap gap-xs">
                 {Object.keys(parsedData.campers).map((camperIdStr) => {
                   const camperId = parseInt(camperIdStr);
@@ -174,7 +175,7 @@ export function UploadUsersCsvModal() {
                   );
                 })}
               </div>
-              <Title order={6}>Parents</Title>
+              <Text>Parents</Text>
               <div className="flex flex-row flex-wrap gap-xs">
                 {Object.keys(parsedData.parents).map((parentIdStr) => {
                   const parentId = parseInt(parentIdStr);
@@ -187,7 +188,7 @@ export function UploadUsersCsvModal() {
             </>
           ) : (
             <div className="flex flex-col gap-xs">
-              <Title order={6}>Employees</Title>
+              <Text>Employees</Text>
               {parsedData.map((employee) => {
                 return (
                   <div className="flex flex-row justify-between items-center bg-neutral-3 rounded-sm p-xs">
