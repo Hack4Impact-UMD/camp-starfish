@@ -3,8 +3,28 @@ import {
   AdminAttendee,
   StaffAttendee,
   CamperAttendee,
+  Attendee,
 } from "@/types/sessions/sessionTypes";
 import { SectionActivityPreferences, NonBunkJamboreeSectionSchedule } from "@/types/scheduling/schedulingTypes";
+
+interface GenerateNonBunkJamboreeScheduleRequest {
+  sessionId: string;
+  sectionId: string;
+  attendees: Attendee[];
+  camperPreferences: SectionActivityPreferences;
+}
+
+export default function generateNonBunkJamboreeSchedule(req: GenerateNonBunkJamboreeScheduleRequest): NonBunkJamboreeSectionSchedule {
+  const { sessionId, sectionId, attendees, camperPreferences } = req;
+
+  return {
+    sessionId,
+    sectionId,
+    alternatePeriodsOff: {},
+    blocks: {},
+    type: "NON-BUNK-JAMBO"
+  }
+}
 
 export class NonBunkJamboreeScheduler {
   schedule: NonBunkJamboreeSectionSchedule | null = null;
