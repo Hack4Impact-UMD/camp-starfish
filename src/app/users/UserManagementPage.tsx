@@ -57,7 +57,7 @@ export default function UserManagementPage({ users }: UserManagementPageProps) {
 
   const [globalFilter, setGlobalFilter] = useState("");
   const [roleFilter, setRoleFilter] = useState<string | null>(null);
-  const [sorting, setSorting] = useState<SortingState>([]);
+  const [sorting, setSorting] = useState<SortingState>([{ id: "firstName", desc: false }]);
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 });
 
   const data = useMemo(() => {
@@ -184,11 +184,11 @@ export default function UserManagementPage({ users }: UserManagementPageProps) {
                 <Select
                   aria-label="Sort by"
                   data={[
-                    { value: "", label: "None" },
                     { value: "firstName", label: "First Name" },
                     { value: "lastName", label: "Last Name" },
                     { value: "email", label: "Email" },
                   ]}
+                  defaultValue={"firstName"}
                   value={sortValue}
                   onChange={(v) => setSorting(v ? [{ id: v, desc: false }] : [])}
                   w={150}
