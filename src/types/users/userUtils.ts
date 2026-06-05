@@ -6,17 +6,17 @@ export function getFullName(name: Name) {
 }
 
 export const ALL_ROLES: Role[] = ["CAMPER", "PARENT", "PHOTOGRAPHER", "STAFF", "ADMIN"];
-export const employeeRoles: EmployeeRole[] = ["STAFF", "PHOTOGRAPHER", "ADMIN"];
-export const attendeeRoles: AttendeeRole[] = ["CAMPER", "STAFF", "ADMIN"];
+export const EMPLOYEE_ROLES: EmployeeRole[] = ["STAFF", "PHOTOGRAPHER", "ADMIN"];
+export const ATTENDEE_ROLES: AttendeeRole[] = ["CAMPER", "STAFF", "ADMIN"];
 
 export function isEmployeeRole(role: Role): role is EmployeeRole {
   // @ts-expect-error - Type 'Role' is not assignable to type 'EmployeeRole', but this is a type guard
-  return employeeRoles.includes(role);
+  return EMPLOYEE_ROLES.includes(role);
 }
 
 export function isAttendeeRole(role: Role): role is AttendeeRole {
   // @ts-expect-error - Type 'Role' is not assignable to type 'EmployeeRole', but this is a type guard
-  return attendeeRoles.includes(role);
+  return ATTENDEE_ROLES.includes(role);
 }
 
 export function getPluralRole(role: Role) {
