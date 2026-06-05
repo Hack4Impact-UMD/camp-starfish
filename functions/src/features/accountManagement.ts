@@ -3,6 +3,7 @@ import { beforeUserCreated } from "firebase-functions/v2/identity";
 import { z } from "zod";
 import { adminAuth } from "../config/firebaseAdminConfig";
 import { getUserDocByEmail, getUserDocById, deleteUserDoc } from "../data/firestore/users";
+import { CustomClaims } from "@/auth/types/clientAuthTypes";
 
 const checkAllowlist = beforeUserCreated(async (event) => {
   const email = event.data?.email;
@@ -21,7 +22,7 @@ const checkAllowlist = beforeUserCreated(async (event) => {
       customClaims: {
         role: user.role,
         campminderId: user.id
-      }
+      } satisfies CustomClaims
     }
   } catch (error: unknown) {
     if (error instanceof Error) {
