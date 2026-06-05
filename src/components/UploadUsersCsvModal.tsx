@@ -167,9 +167,9 @@ export function UploadUsersCsvModal() {
             before uploading.
           </Title>
           {isParsedFamilyCsvData(parsedData) ? (
-            <>
-              <Text>Campers</Text>
-              <div className="flex flex-row flex-wrap gap-xs">
+            <div className="flex flex-col gap-md">
+              <div className="flex flex-col gap-xs">
+                <Text>Campers</Text>
                 {Object.keys(parsedData.campers).map((camperIdStr) => {
                   const camperId = parseInt(camperIdStr);
                   const camper = parsedData.campers[camperId];
@@ -180,8 +180,8 @@ export function UploadUsersCsvModal() {
                   );
                 })}
               </div>
-              <Text>Parents</Text>
-              <div className="flex flex-row flex-wrap gap-xs">
+              <div className="flex flex-col gap-xs">
+                <Text>Parents</Text>
                 {Object.keys(parsedData.parents).map((parentIdStr) => {
                   const parentId = parseInt(parentIdStr);
                   const parent = parsedData.parents[parentId];
@@ -194,7 +194,7 @@ export function UploadUsersCsvModal() {
                   );
                 })}
               </div>
-            </>
+            </div>
           ) : (
             <div className="flex flex-col gap-xs">
               <Text>Employees</Text>
