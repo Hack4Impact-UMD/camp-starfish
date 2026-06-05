@@ -32,8 +32,8 @@ import { MdSearch, MdDelete, MdChevronLeft, MdChevronRight } from "react-icons/m
 import { User, Role } from "@/types/users/userTypes";
 import { useAuth } from "@/auth/useAuth";
 import useDeleteUser from "@/hooks/users/useDeleteUser";
-import openDeleteUserConfirmationModal from "@/components/DeleteUserConfirmationModal";
-import { ALL_ROLES } from "@/types/users/userUtils";
+import openConfirmationModal from "@/components/modals/ConfirmationModal";
+import { ALL_ROLES, getFullName } from "@/types/users/userUtils";
 import { toNormalCase } from "@/utils/stringUtils";
 
 const ROLE_COLORS: Record<Role, string> = {
@@ -111,7 +111,10 @@ export default function UserManagementPage({ users }: UserManagementPageProps) {
             aria-label="Delete user"
             disabled={isSelf}
             title={isSelf ? "You cannot delete your own account" : undefined}
-            onClick={() => openDeleteUserConfirmationModal({ user })}
+            onClick={() =>   openConfirmationModal({
+                title: `Delete User "${getFullName(user.name)}"?`,
+                onConfirm: () => deleteUserById({ userId: user.id })
+              })}
           >
             <MdDelete size={18} />
           </ActionIcon>
