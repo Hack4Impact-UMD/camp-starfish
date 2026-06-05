@@ -3,12 +3,20 @@ import { httpsCallable } from "firebase/functions";
 import { functions } from "@/config/firebase";
 import useNotifications from "@/features/notifications/useNotifications";
 
+interface DeleteUserRequest {
+  userId: number;
+}
+
+async function deleteUser(req: DeleteUserRequest) {
+  const { userId } = req;
+  await httpsCallable(functions, "deleteUserAccount")({ userId });
+}
+
 export default function useDeleteUser() {
   const queryClient = useQueryClient();
   const { success, error } = useNotifications();
   return useMutation({
-    // Deletes the user's Auth account + Firestore record server-side (admin-gated).
-    mutationFn: (id: number) => httpsCallable(functions, "deleteUserAccount")({ userId: id }),
+    mutationFn: (req: DeleteUserRequest) => deleteUser(req),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
       success("User deleted successfully!");

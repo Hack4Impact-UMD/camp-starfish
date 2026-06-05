@@ -32,7 +32,7 @@ import { MdSearch, MdDelete, MdChevronLeft, MdChevronRight } from "react-icons/m
 import { User, Role } from "@/types/users/userTypes";
 import { useAuth } from "@/auth/useAuth";
 import useDeleteUser from "@/hooks/users/useDeleteUser";
-import { openDeleteUserModal } from "./userModals";
+import openDeleteUserConfirmationModal from "@/components/DeleteUserConfirmationModal";
 import { ALL_ROLES } from "@/types/users/userUtils";
 import { toNormalCase } from "@/utils/stringUtils";
 
@@ -80,7 +80,7 @@ export default function UserManagementPage({ users }: UserManagementPageProps) {
     },
     {
       id: "email",
-      accessorFn: (row) => row.email ?? "",
+      accessorFn: (row) => 'email' in row ? row.email : "N/A",
       header: "EMAIL",
       cell: (info) => <Text size="sm">{info.getValue<string>() || "—"}</Text>,
     },
@@ -111,7 +111,7 @@ export default function UserManagementPage({ users }: UserManagementPageProps) {
             aria-label="Delete user"
             disabled={isSelf}
             title={isSelf ? "You cannot delete your own account" : undefined}
-            onClick={() => openDeleteUserModal({ user, onConfirm: () => deleteUserById(user.id) })}
+            onClick={() => openDeleteUserConfirmationModal({ user })}
           >
             <MdDelete size={18} />
           </ActionIcon>
