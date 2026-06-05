@@ -7,7 +7,7 @@ interface ParseFamilyCsvRequest {
   csvFile: File;
 }
 
-interface BaseFamilyCSVRecord {
+interface BaseRawFamilyCSVRecord {
   "First Name": string;
   "Last Name": string;
   PersonID: string;
@@ -17,24 +17,24 @@ interface BaseFamilyCSVRecord {
   "F1P1 Login/Email": string;
 }
 
-interface FamilyCsvRecordOneParent extends BaseFamilyCSVRecord {
+interface RawFamilyCsvRecordOneParent extends BaseRawFamilyCSVRecord {
   "F1P2 First Name": "";
   "F1P2 Last Name": "";
   "F1P2 Person ID": "";
   "F1P2 Login/Email": "";
 }
 
-interface FamilyCsvRecordTwoParents extends BaseFamilyCSVRecord {
+interface RawFamilyCsvRecordTwoParents extends BaseRawFamilyCSVRecord {
   "F1P2 First Name": string;
   "F1P2 Last Name": string;
   "F1P2 Person ID": string;
   "F1P2 Login/Email": string;
 }
 
-type FamilyCSVRecord = FamilyCsvRecordOneParent | FamilyCsvRecordTwoParents;
+type RawFamilyCSVRecord = RawFamilyCsvRecordOneParent | RawFamilyCsvRecordTwoParents;
 
-type FamilyCsvRecordWithInfo = {
-  record: FamilyCSVRecord;
+type RawFamilyCsvRecordWithInfo = {
+  record: RawFamilyCSVRecord;
   info: Info;
 };
 
@@ -65,7 +65,7 @@ const FamilyCsvRecordTwoParentsSchema = z.object({
 const ParsedFamilyCsvRecordSchema = BaseFamilyCsvRecordSchema.and(FamilyCsvRecordOneParentSchema.or(FamilyCsvRecordTwoParentsSchema));
 type ParsedFamilyCsvRecord = z.infer<typeof ParsedFamilyCsvRecordSchema>;
 
-function parseFamilyRecords(data: FamilyCsvRecordWithInfo[]): ParsedFamilyCsvData {
+function parseFamilyRecords(data: RawFamilyCsvRecordWithInfo[]): ParsedFamilyCsvData {
   const campers: ParsedFamilyCsvData["campers"] = {};
   const parents: ParsedFamilyCsvData["parents"] = {};
 
@@ -104,7 +104,7 @@ function parseFamilyRecords(data: FamilyCsvRecordWithInfo[]): ParsedFamilyCsvDat
       }
     }
 
-    if (parent2Id) {
+    if (parent2Id !== undefined) {
       if (parents[parent2Id]) {
         parents[parent2Id].camperIds.push(camperId);
       } else {
@@ -146,7 +146,7 @@ export async function parseFamilyCsv(req: ParseFamilyCsvRequest): Promise<Parsed
     },
     info: true,
     skip_empty_lines: true
-  }) as FamilyCsvRecordWithInfo[];
+  }) as RawFamilyCsvRecordWithInfo[];
   return parseFamilyRecords(data);
 }
 
