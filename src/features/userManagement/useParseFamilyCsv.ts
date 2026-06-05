@@ -41,10 +41,10 @@ type FamilyCsvRecordWithInfo = {
 const BaseFamilyCsvRecordSchema = z.object({
   "First Name": z.string().min(1),
   "Last Name": z.string().min(1),
-  PersonID: z.coerce.number(),
+  PersonID: z.preprocess(value => value === "" ? NaN : value, z.coerce.number()),
   "F1P1 First Name": z.string().min(1),
   "F1P1 Last Name": z.string().min(1),
-  "F1P1 Person ID": z.coerce.number(),
+  "F1P1 Person ID": z.preprocess(value => value === "" ? NaN : value, z.coerce.number()),
   "F1P1 Login/Email": z.string().email(),
 })
 
@@ -58,7 +58,7 @@ const FamilyCsvRecordOneParentSchema = z.object({
 const FamilyCsvRecordTwoParentsSchema = z.object({
   "F1P2 First Name": z.string().min(1),
   "F1P2 Last Name": z.string().min(1),
-  "F1P2 Person ID": z.coerce.number(),
+  "F1P2 Person ID": z.preprocess(value => value === "" ? NaN : value, z.coerce.number()),
   "F1P2 Login/Email": z.string().email(),
 })
 
