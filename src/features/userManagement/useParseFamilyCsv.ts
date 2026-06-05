@@ -1,6 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { parse, Info } from "csv-parse/sync";
 import { ParsedFamilyCsvData } from "./types";
+import { z } from "zod";
 
 interface ParseFamilyCsvRequest {
   csvFile: File;
@@ -37,6 +38,32 @@ type FamilyCsvRecordWithInfo = {
   info: Info;
 };
 
+const BaseFamilyCsvRecordSchema = z.object({
+  "First Name": z.string().min(1),
+  "Last Name": z.string().min(1),
+  PersonID: z.coerce.number(),
+  "F1P1 First Name": z.string().min(1),
+  "F1P1 Last Name": z.string().min(1),
+  "F1P1 Person ID": z.coerce.number(),
+  "F1P1 Login/Email": z.string().min(1),
+})
+
+const FamilyCsvRecordOneParentSchema = z.object({
+  "F1P2 First Name": z.string().max(0),
+  "F1P2 Last Name": z.string().max(0),
+  "F1P2 Person ID": z.string().max(0),
+  "F1P2 Login/Email": z.string().max(0),
+});
+
+const FamilyCsvRecordTwoParentsSchema = z.object({
+  "F1P2 First Name": z.string().min(1),
+  "F1P2 Last Name": z.string().min(1),
+  "F1P2 Person ID": z.coerce.number(),
+  "F1P2 Login/Email": z.string().min(1),
+})
+
+const FamilyCsvRecordSchema = BaseFamilyCsvRecordSchema.and(FamilyCsvRecordOneParentSchema.or(FamilyCsvRecordTwoParentsSchema));
+
 function parseFamilyRecords(data: FamilyCsvRecordWithInfo[]): ParsedFamilyCsvData {
   const campers: ParsedFamilyCsvData["campers"] = {};
   const parents: ParsedFamilyCsvData["parents"] = {};
@@ -46,7 +73,12 @@ function parseFamilyRecords(data: FamilyCsvRecordWithInfo[]): ParsedFamilyCsvDat
     const parent1Id: number = parseInt(record["F1P1 Person ID"]);
     const parent2Id: number = "F1P2 Person ID" in record ? parseInt(record["F1P2 Person ID"]) : NaN;
 
+    const validationResult = FamilyCsvRecordSchema.safeParse(record);
+    if (!validationResult.success) {
+      console.log(validationResult)
+    const errorPrefix = `Invalid record on line ${info.lines}: `;
 
+    }
 
     campers[camperId] = {
       id: parseInt(record.PersonID),
