@@ -6,102 +6,117 @@ import {
   TextInput,
   Stack,
   Box,
-  Text,
-  LoadingOverlay,
 } from "@mantine/core";
-import { DatePickerInput } from "@mantine/dates";
+import { DatePickerInput, DatesRangeValue } from "@mantine/dates";
 import moment, { Moment } from "moment";
 import useCreateSection from "@/hooks/sections/useCreateSection";
 import useUpdateSection from "@/hooks/sections/useUpdateSection";
 import useDeleteSection from "@/hooks/sections/useDeleteSection";
-import { isSchedulingSectionType } from "@/types/sessions/sessionTypeGuards";
-import {
-  Section,
-  SchedulingSection,
-  CommonSection,
-  SectionType,
-} from "@/types/sessions/sessionTypes";
+import { Section, SectionType } from "@/types/sessions/sessionTypes";
 import useSection from "@/hooks/sections/useSection";
 import { modals } from "@mantine/modals";
+import ErrorPage from "@/app/error";
+import LoadingAnimation from "./LoadingAnimation";
+import {
+  getFullSectionTypeName,
+  sectionTypes,
+} from "@/types/sessions/sessionUtils";
 
-interface EditSectionModalProps {
-  sessionId: string;
-  sectionId?: string;
-  selectedStartDate?: Moment;
-  selectedEndDate?: Moment;
+type EditSectionModalProps =
+  | {
+      sessionId: string;
+      sectionId?: never;
+      initialStartDate: Moment;
+      initialEndDate: Moment;
+    }
+  | {
+      sessionId: string;
+      sectionId: string;
+      initialStartDate?: never;
+      initialEndDate?: never;
+    };
+
+export function EditSectionModal(props: EditSectionModalProps) {
+  const { sessionId, sectionId, initialStartDate, initialEndDate } = props;
+  const sectionQuery = useSection(sessionId, sectionId);
+
+  if (sectionQuery.isError) {
+    return <ErrorPage error={sectionQuery.error} />;
+  } else if (sectionQuery.isLoading) {
+    return <LoadingAnimation />;
+  } else if (sectionId && sectionQuery.isSuccess) {
+    return <EditSectionModalContent section={sectionQuery.data} />;
+  }
+  return (
+    <EditSectionModalContent
+      sessionId={sessionId}
+      initialStartDate={initialStartDate}
+      initialEndDate={initialEndDate}
+    />
+  );
 }
 
-export default function EditSectionModal({
-  sessionId,
-  sectionId,
-  selectedStartDate,
-  selectedEndDate,
-}: EditSectionModalProps) {
-  const { data: section, isLoading: isLoadingSection } = useSection(
-    sessionId,
-    sectionId || "",
-  );
-  const isEditMode = !!sectionId;
+type EditSectionModalContentProps =
+  | {
+      section: Section;
+      sessionId?: never;
+      initialStartDate?: never;
+      initialEndDate?: never;
+    }
+  | {
+      sessionId: string;
+      initialStartDate?: Moment;
+      initialEndDate?: Moment;
+      section?: never;
+    };
 
-  const [startDate, setStartDate] = useState<Moment | null>(
-    (isEditMode ? moment(section?.startDate) : selectedStartDate) ?? null,
-  );
-  const [endDate, setEndDate] = useState<Moment | null>(
-    (isEditMode ? moment(section?.endDate) : selectedEndDate) ?? null,
-  );
+export function EditSectionModalContent(props: EditSectionModalContentProps) {
+  const { sessionId, section, initialStartDate, initialEndDate } = props;
+
+  const isEditMode = !!section;
+
+  const [dateRange, setDateRange] = useState<DatesRangeValue>([
+    (isEditMode
+      ? moment(section.startDate).toDate()
+      : initialStartDate?.toDate()) ?? null,
+    (isEditMode
+      ? moment(section.endDate).toDate()
+      : initialEndDate?.toDate()) ?? null,
+  ]);
   const [scheduleType, setScheduleType] = useState<SectionType | null>(
     section?.type ?? null,
   );
   const [name, setName] = useState<string>(section?.name ?? "");
 
-  const createMutation = useCreateSection();
-  const updateMutation = useUpdateSection();
-  const deleteMutation = useDeleteSection();
-
-  const handleStartDateChange = (value: string | null) => {
-    setStartDate(value ? moment(value) : null);
-  };
-  const handleEndDateChange = (value: string | null) => {
-    setEndDate(value ? moment(value) : null);
-  };
+  const createSectionMutation = useCreateSection();
+  const updateSectionMutation = useUpdateSection();
+  const deleteSectionMutation = useDeleteSection();
 
   const handleSubmit = () => {
-    if (!startDate || !endDate || !name || !scheduleType) return;
-    const baseSectionData = {
-      name,
-      type: scheduleType,
-      startDate: startDate.toISOString(),
-      endDate: endDate.toISOString(),
-    };
-
-    let sectionData: Section;
-    if (isSchedulingSectionType(scheduleType)) {
-      sectionData = {
-        ...baseSectionData,
-        type: scheduleType,
-        isScheduleOutdated: false,
-        id: sectionId || "",
-        sessionId
-      } satisfies SchedulingSection;
-    } else {
-      sectionData = {
-        ...baseSectionData,
-        type: "COMMON",
-        id: sectionId || "",
-        sessionId        
-      } satisfies CommonSection;
-    }
-
+    if (!dateRange[0] || !dateRange[1] || !name || !scheduleType) return;
     if (isEditMode) {
-      updateMutation.mutate(
-        { sessionId, sectionId, updates: sectionData },
+      updateSectionMutation.mutate(
+        {
+          sessionId: section.sessionId,
+          sectionId: section.id,
+          name,
+          startDate: moment(dateRange[0]),
+          endDate: moment(dateRange[1]),
+          type: scheduleType,
+        },
         {
           onSuccess: () => modals.closeAll(),
         },
       );
     } else {
-      createMutation.mutate(
-        { sessionId, section: sectionData },
+      createSectionMutation.mutate(
+        {
+          sessionId,
+          name,
+          startDate: moment(dateRange[0]),
+          endDate: moment(dateRange[1]),
+          type: scheduleType,
+        },
         {
           onSuccess: () => modals.closeAll(),
         },
@@ -110,125 +125,82 @@ export default function EditSectionModal({
   };
 
   const handleDelete = () => {
-    if (!sectionId) return;
-    deleteMutation.mutate({ sessionId, sectionId });
+    if (!isEditMode) return;
+    deleteSectionMutation.mutate({
+      sessionId: section.sessionId,
+      sectionId: section.id,
+    });
   };
 
-  const isLoading =
-    createMutation.isPending ||
-    updateMutation.isPending ||
-    deleteMutation.isPending ||
-    isLoadingSection;
+  const mutationIsPending =
+    createSectionMutation.isPending ||
+    updateSectionMutation.isPending ||
+    deleteSectionMutation.isPending;
 
   return (
     <Box className="p-lg bg-white m-auto">
-      <LoadingOverlay
-        visible={isLoading}
-        classNames={{
-          overlay: "blur-xs",
-        }}
-      />
-
       <Stack className="gap-md">
-        {/* Date range selection (start date to end date) */}
-        <Box>
-          <Text className="mb-sm">Date(s)</Text>
-          <Group>
-            {/* Start date (user selectable via calendar) */}
-            <DatePickerInput
-              placeholder="Start Date"
-              value={startDate?.toDate()}
-              onChange={handleStartDateChange}
-              valueFormat="ddd, MMM D"
-              classNames={{
-                root: "flex-1",
-                input: "size-sm rounded-md w-full",
-              }}
-            />
-            <Text>to</Text>
-            {/* End date (user selectable via calendar) */}
-            <DatePickerInput
-              placeholder="End Date"
-              value={endDate?.toDate()}
-              onChange={handleEndDateChange}
-              valueFormat="ddd, MMM D"
-              classNames={{
-                root: "flex-1",
-                input: "size-sm rounded-md w-full",
-              }}
-            />
-          </Group>
-        </Box>
-
-        {/* Schedule type radio selection */}
-        <Box>
-          <Radio.Group
-            label="Schedule Type"
-            value={scheduleType}
-            onChange={(newScheduleType) =>
-              setScheduleType(newScheduleType as SectionType)
-            }
-            classNames={{
-              label: "text-md",
-            }}
-          >
-            <Stack className="gap-xs">
-              <Radio
-                value={"BUNK-JAMBO" satisfies SectionType}
-                label="Bunk Jamboree"
-              />
-              <Radio
-                value={"NON-BUNK-JAMBO" satisfies SectionType}
-                label="Non-Bunk Jamboree"
-              />
-              <Radio value={"BUNDLE" satisfies SectionType} label="Bundle" />
-              <Radio
-                value={"COMMON" satisfies SectionType}
-                label="Non-Scheduling"
-              />
-            </Stack>
-          </Radio.Group>
-        </Box>
-
         <TextInput
           label="Name"
           value={name}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
             setName(e.currentTarget.value)
           }
-          classNames={{
-            root: "w-3/4",
-            label: "text-md",
-          }}
+        />
+        <DatePickerInput
+          label="Dates"
+          placeholder="Select section dates"
+          type="range"
+          value={dateRange}
+          onChange={setDateRange}
+          valueFormat="MMM DD, YYYY"
         />
 
-        {/* Action buttons: Delete and Done */}
+        <Radio.Group
+          label="Schedule Type"
+          value={scheduleType}
+          onChange={(newScheduleType) =>
+            setScheduleType(newScheduleType as SectionType)
+          }
+        >
+          <Stack className="gap-xs">
+            {sectionTypes.map((type: SectionType) => (
+              <Radio key={type} value={type} label={getFullSectionTypeName(type)} />
+            ))}
+          </Stack>
+        </Radio.Group>
+
         <Group className="justify-center gap-sm">
           {isEditMode && (
             <Button
               color="error"
               onClick={handleDelete}
-              loading={deleteMutation.isPending}
-              disabled={isLoading}
-              classNames={{
-                root: "flex-1",
-              }}
+              loading={deleteSectionMutation.isPending}
+              disabled={mutationIsPending}
             >
               Delete
             </Button>
           )}
           <Button
             onClick={handleSubmit}
-            loading={createMutation.isPending || updateMutation.isPending}
-            disabled={!name || !startDate || isLoading}
-            classNames={{
-              root: "flex-1",
-            }}
+            loading={
+              isEditMode
+                ? updateSectionMutation.isPending
+                : createSectionMutation.isPending
+            }
+            disabled={!name || !dateRange[0] || !dateRange[1] || !scheduleType || mutationIsPending}
           >
-            {isEditMode ? "Save Changes" : "Create Section"}
+            {isEditMode ? "Update Section" : "Create Section"}
           </Button>
         </Group>
       </Stack>
     </Box>
   );
+}
+
+export default function openEditSectionModal(props: EditSectionModalProps) {
+  modals.open({
+    title: props.sectionId ? "Update Section" : "Create Section",
+    children: <EditSectionModal {...props} />,
+  });
 }

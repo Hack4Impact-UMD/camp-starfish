@@ -15,6 +15,7 @@ export interface Name {
 }
 
 export type Role = "CAMPER" | "PARENT" | "STAFF" | "PHOTOGRAPHER" | "ADMIN";
+export type EmployeeRole = Extract<Role, "STAFF" | "PHOTOGRAPHER" | "ADMIN">
 export type Gender = "Male" | "Female" | "Other";
 
 export type PhotoPermissions = "PUBLIC" | "PRIVATE";

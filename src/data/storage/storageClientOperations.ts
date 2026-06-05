@@ -1,20 +1,24 @@
 import { storage } from "@/config/firebase";
-import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { deleteObject, getBlob, getDownloadURL, ref, uploadBytes } from "firebase/storage";
+
+export interface UploadFileItem {
+  file: File;
+  path: string;
+}
 
 export async function uploadFile(file: File, path: string) {
   const uploadRef = ref(storage, path);
   await uploadBytes(uploadRef, file);
 }
 
-export async function uploadFiles(files: File[], paths: string[]) {
-  if (files.length !== paths.length) {
-    throw new Error("Number of images must be equal to the number of paths");
-  }
-  const uploadPromises = files.map((file, i) => {
-    return uploadFile(file, paths[i]);
-  });
-
+export async function uploadFiles(items: UploadFileItem[]) {
+  const uploadPromises = items.map(({ file, path }) => uploadFile(file, path));
   await Promise.all(uploadPromises);
+}
+
+export async function deleteFile(path: string) {
+  const deleteRef = ref(storage, path);
+  await deleteObject(deleteRef);
 }
 
 export async function getFileURL(path: string) {
@@ -24,5 +28,15 @@ export async function getFileURL(path: string) {
 
 export async function getFileURLs(paths: string[]) {
   const downloadPromises = paths.map((path) => getFileURL(path));
+  return await Promise.all(downloadPromises);
+}
+
+export async function getFileBlob(path: string) {
+  const downloadRef = ref(storage, path);
+  return await getBlob(downloadRef);
+}
+
+export async function getFileBlobs(paths: string[]) {
+  const downloadPromises = paths.map((path) => getFileBlob(path));
   return await Promise.all(downloadPromises);
 }

@@ -1,7 +1,6 @@
 import { DatePickerInput } from "@mantine/dates";
 import DatePickerThemeExtension from "./DatePickerThemeExtension";
 import TextInputThemeExtension from "./TextInputThemeExtension";
-import theme from "../theme";
 
 const DatePickerInputThemeExtension = DatePickerInput.extend({
   classNames: (theme, props, ctx) => {

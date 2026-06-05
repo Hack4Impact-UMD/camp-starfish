@@ -1,28 +1,60 @@
-import { updateSection } from "@/data/firestore/sections";
-import useNotifications from "@/features/notifications/useNotifications";
-import { Section } from "@/types/sessions/sessionTypes";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { updateSectionDoc } from "@/data/firestore/sections";
+import { SectionType } from "@/types/sessions/sessionTypes";
+import { useMutation } from "@tanstack/react-query";
+import { deleteField, Timestamp } from "firebase/firestore";
+import { Moment } from "moment";
 
-interface UseUpdateSectionVariables {
+interface UpdateSectionRequest {
   sessionId: string;
   sectionId: string;
-  updates: Partial<Section>;
+  name?: string;
+  startDate?: Moment;
+  endDate?: Moment;
+  type?: SectionType;
+}
+
+async function updateSection(req: UpdateSectionRequest) {
+  const { sessionId, sectionId, ...updates } = req;
+  switch (updates.type) {
+    case "COMMON":
+      await updateSectionDoc(sessionId, sectionId, {
+        name: updates.name,
+        startDate: updates.startDate ? Timestamp.fromDate(updates.startDate.toDate()) : undefined,
+        endDate: updates.endDate ? Timestamp.fromDate(updates.endDate.toDate()) : undefined,
+        type: "COMMON",
+        publishedAt: deleteField()
+      });
+      break;
+    case "BUNDLE":
+    case "BUNK-JAMBO":
+    case "NON-BUNK-JAMBO":
+      await updateSectionDoc(sessionId, sectionId, {
+        name: updates.name,
+        startDate: updates.startDate ? Timestamp.fromDate(updates.startDate.toDate()) : undefined,
+        endDate: updates.endDate ? Timestamp.fromDate(updates.endDate.toDate()) : undefined,
+        type: updates.type,
+        publishedAt: null
+      });
+      break;
+    default:
+      await updateSectionDoc(sessionId, sectionId, {
+        name: updates.name,
+        startDate: updates.startDate ? Timestamp.fromDate(updates.startDate.toDate()) : undefined,
+        endDate: updates.endDate ? Timestamp.fromDate(updates.endDate.toDate()) : undefined,
+      });
+  }
+
+
+  await updateSectionDoc(sessionId, sectionId, {
+    type: "BUNK-JAMBO",
+  });
 }
 
 export default function useUpdateSection() {
-  const queryClient = useQueryClient();
-  const notifications = useNotifications();
-
   return useMutation({
-    mutationFn: ({ sessionId, sectionId, updates }: UseUpdateSectionVariables) =>
-      updateSection(sessionId, sectionId, updates),
-    onSuccess: (_, { sectionId, sessionId }) => {
-      queryClient.invalidateQueries({ queryKey: ['sessions', sessionId] });
-      queryClient.invalidateQueries({ queryKey: ['sessions', sessionId, 'sections', sectionId] });
-      notifications.success('Section updated successfully!')
-    },
-    onError: () => {
-      notifications.error('Failed to update section. Please try again.');
+    mutationFn: (req: UpdateSectionRequest) => updateSection(req),
+    onSuccess: (_data, { sectionId, sessionId }, _result, { client }) => {
+      client.invalidateQueries({ queryKey: ['sessions', sessionId, 'sections', sectionId] });
     }
   });
 }
