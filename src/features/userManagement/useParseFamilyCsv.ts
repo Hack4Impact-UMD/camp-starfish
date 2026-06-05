@@ -49,10 +49,10 @@ const BaseFamilyCsvRecordSchema = z.object({
 })
 
 const FamilyCsvRecordOneParentSchema = z.object({
-  "F1P2 First Name": z.string().max(0),
-  "F1P2 Last Name": z.string().max(0),
-  "F1P2 Person ID": z.string().max(0),
-  "F1P2 Login/Email": z.string().max(0),
+  "F1P2 First Name": z.string().max(0).transform(() => undefined),
+  "F1P2 Last Name": z.string().max(0).transform(() => undefined),
+  "F1P2 Person ID": z.string().max(0).transform(() => undefined),
+  "F1P2 Login/Email": z.string().max(0).transform(() => undefined),
 });
 
 const FamilyCsvRecordTwoParentsSchema = z.object({
