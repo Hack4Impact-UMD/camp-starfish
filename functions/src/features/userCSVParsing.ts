@@ -1,6 +1,6 @@
 import { Camper, Parent, Role, UnregisteredCamper, UnregisteredEmployee, UnregisteredParent } from "@/types/users/userTypes";
 import { HttpsError, onCall } from "firebase-functions/https"
-import { ParseFamilyCSVResponse } from "@/features/userManagement/parseFamilyCSV";
+import { ParsedFamilyCsvData } from "@/features/userManagement/types";
 import { adminDb } from "../config/firebaseAdminConfig";
 import { batchGetUserDocs, createUserDoc, updateUserDoc } from "../data/firestore/users";
 import partition from "@/utils/data/partition";
@@ -12,7 +12,7 @@ export const handleFamilyCSVUpload = onCall(async (req) => {
     throw new HttpsError("permission-denied", "You do not have permission to create new users.");
   }
 
-  const { campers, parents } = req.data as ParseFamilyCSVResponse;
+  const { campers, parents } = req.data as ParsedFamilyCsvData;
 
   await adminDb.runTransaction(async (transaction) => {
     const allIds: number[] = [...Object.keys(campers), ...Object.keys(parents)].map(id => parseInt(id));
