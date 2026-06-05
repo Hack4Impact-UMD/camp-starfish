@@ -21,7 +21,7 @@ import {
 import { MdAccountCircle } from "react-icons/md";
 import useUserDirectory from "@/hooks/users/useUserDirectory";
 import {
-  attendeeRoles,
+  ATTENDEE_ROLES,
   getFullName,
   getPluralRole,
 } from "@/types/users/userUtils";
@@ -119,7 +119,7 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
           }
         >
           <div className="flex gap-md mt-md">
-            {attendeeRoles.map((attendeeRole) => (
+            {ATTENDEE_ROLES.map((attendeeRole) => (
               <Radio
                 key={attendeeRole}
                 value={attendeeRole}
