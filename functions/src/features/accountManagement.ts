@@ -1,8 +1,8 @@
 import { CallableRequest, HttpsError, onCall } from "firebase-functions/https";
 import { beforeUserCreated } from "firebase-functions/v2/identity";
 import { z } from "zod";
-import { getUserByEmail, getUserById, deleteUser } from "../data/firestore/users";
 import { adminAuth } from "../config/firebaseAdminConfig";
+import { getUserDocByEmail, getUserDocById, deleteUserDoc } from "../data/firestore/users";
 
 const checkAllowlist = beforeUserCreated(async (event) => {
   const email = event.data?.email;
@@ -16,7 +16,7 @@ const checkAllowlist = beforeUserCreated(async (event) => {
   }
 
   try {
-    const user = await getUserByEmail(email);
+    const user = await getUserDocByEmail(email);
     return {
       customClaims: {
         role: user.role,
@@ -64,14 +64,14 @@ const deleteUserAccount = onCall(async (req: CallableRequest<unknown>) => {
 
   let user;
   try {
-    user = await getUserById(userId);
+    user = await getUserDocById(userId);
   } catch {
     throw new HttpsError("not-found", "User not found.");
   }
 
   // Revoke access first: delete the Auth account if one exists for this email. Some users
   // (e.g. campers without logins) may have no Auth account, which is fine.
-  if (user.email) {
+  if ('email' in user && user.email) {
     try {
       const authUser = await adminAuth.getUserByEmail(user.email);
       await adminAuth.deleteUser(authUser.uid);
@@ -83,7 +83,7 @@ const deleteUserAccount = onCall(async (req: CallableRequest<unknown>) => {
   }
 
   try {
-    await deleteUser(userId);
+    await deleteUserDoc(userId);
   } catch {
     throw new HttpsError("internal", "Failed to delete the user record.");
   }

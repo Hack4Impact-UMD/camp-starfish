@@ -31,9 +31,7 @@ export default function SessionPage(props: SessionPageProps) {
         </Text>
       </Flex>
       <div className="flex flex-row w-full gap-lg">
-        <div className="w-full">
-          <SessionCalendar session={session} />
-        </div>
+        <SessionCalendar sessionId={session.id} />
         <SmallDirectoryBlock sessionId={session.id} />
       </div>
     </Flex>
