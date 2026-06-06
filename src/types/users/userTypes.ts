@@ -6,7 +6,7 @@
 export type Role = "CAMPER" | "PARENT" | "STAFF" | "PHOTOGRAPHER" | "ADMIN";
 export type FamilyRole = Extract<Role, "CAMPER" | "PARENT">;
 export type EmployeeRole = Extract<Role, "STAFF" | "PHOTOGRAPHER" | "ADMIN">;
-export type CounselorRole = Extract<Role, "STAFF" | "ADMIN">;
+export type CounselorRole = Extract<EmployeeRole, "STAFF" | "ADMIN">;
 
 interface BaseUnregisteredUser {
   id: number;
@@ -14,8 +14,6 @@ interface BaseUnregisteredUser {
   role: Role;
   uid: string | null;
 }
-
-type UnregisteredUserPickFields = "id" | "name" | "role" | "uid";
 
 export interface UnregisteredCamper extends BaseUnregisteredUser {
   role: "CAMPER";
@@ -44,6 +42,9 @@ export interface UnregisteredAdmin extends BaseUnregisteredUser {
 }
 
 export type UnregisteredUser = UnregisteredCamper | UnregisteredParent | UnregisteredPhotographer | UnregisteredStaff | UnregisteredAdmin;
+export type UnregisteredFamilyMember = UnregisteredCamper | UnregisteredParent;
+export type UnregisteredEmployee = UnregisteredPhotographer | UnregisteredCounselor;
+export type UnregisteredCounselor = UnregisteredStaff | UnregisteredAdmin;
 
 interface BaseRegisteredUser {
   id: number;
@@ -70,13 +71,11 @@ export interface Camper extends BaseRegisteredUser {
   parentIds: number[];
   nonoListIds: number[];
 }
-export type UnregisteredCamper = Pick<Camper, "id" | "name" | "role" | "parentIds">
 
 export interface Parent extends BaseRegisteredUser {
   role: "PARENT";
   camperIds: number[];
 }
-export type UnregisteredParent = Pick<Parent, "id" | "name" | "role" | "email" | "camperIds">
 
 export interface Photographer extends BaseRegisteredUser {
   role: "PHOTOGRAPHER";
@@ -87,7 +86,6 @@ export interface Counselor extends BaseRegisteredUser {
   nonoListIds: number[];
   yesyesListIds: number[];
 }
-export type UnregisteredCounselor = Pick<Counselor, "id" | "name" | "role" | "email">;
 
 export interface Staff extends Counselor {
   role: "STAFF"
@@ -98,8 +96,6 @@ export interface Admin extends Counselor {
 }
 
 export type Employee = Staff | Photographer | Admin;
-export type UnregisteredEmployee = Pick<Employee, "id" | "name" | "role" | "email">;
 
-export type UnregisteredUser = UnregisteredCamper | UnregisteredParent | UnregisteredEmployee;
 export type RegisteredUser = Camper | Parent | Photographer | Staff | Admin;
 export type User = RegisteredUser | UnregisteredUser;
