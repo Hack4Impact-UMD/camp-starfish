@@ -1,55 +1,12 @@
-// user pipeline 
-// starts off as unregistered user
-// gets uid upon registered
-// gets full profile once fills out form
-
 export type Role = "CAMPER" | "PARENT" | "STAFF" | "PHOTOGRAPHER" | "ADMIN";
 export type FamilyRole = Extract<Role, "CAMPER" | "PARENT">;
 export type EmployeeRole = Extract<Role, "STAFF" | "PHOTOGRAPHER" | "ADMIN">;
 export type CounselorRole = Extract<EmployeeRole, "STAFF" | "ADMIN">;
 
-interface BaseUnregisteredUser {
+interface BaseUser {
   id: number;
-  name: Name;
-  role: Role;
-  uid: string | null;
-}
-
-export interface UnregisteredCamper extends BaseUnregisteredUser {
-  role: "CAMPER";
-  parentIds: number[];
-}
-
-export interface UnregisteredParent extends BaseUnregisteredUser {
-  role: "PARENT";
-  camperIds: number[];
+  uid: string;
   email: string;
-}
-
-export interface UnregisteredPhotographer extends BaseUnregisteredUser {
-  role: "PHOTOGRAPHER";
-  email: string;
-}
-
-export interface UnregisteredStaff extends BaseUnregisteredUser {
-  role: "STAFF";
-  email: string;
-}
-
-export interface UnregisteredAdmin extends BaseUnregisteredUser {
-  role: "ADMIN";
-  email: string;
-}
-
-export type UnregisteredUser = UnregisteredCamper | UnregisteredParent | UnregisteredPhotographer | UnregisteredStaff | UnregisteredAdmin;
-export type UnregisteredFamilyMember = UnregisteredCamper | UnregisteredParent;
-export type UnregisteredEmployee = UnregisteredPhotographer | UnregisteredCounselor;
-export type UnregisteredCounselor = UnregisteredStaff | UnregisteredAdmin;
-
-interface BaseRegisteredUser {
-  id: number;
-  uid?: string;
-  email?: string;
   name: Name;
   role: Role;
   gender: Gender;
@@ -66,23 +23,23 @@ export interface Name {
 export type Gender = "Male" | "Female" | "Other";
 
 export type PhotoPermissions = "PUBLIC" | "PRIVATE";
-export interface Camper extends BaseRegisteredUser {
+export interface Camper extends BaseUser {
   role: "CAMPER";
   photoPermissions: PhotoPermissions;
   parentIds: number[];
   nonoListIds: number[];
 }
 
-export interface Parent extends BaseRegisteredUser {
+export interface Parent extends BaseUser {
   role: "PARENT";
   camperIds: number[];
 }
 
-export interface Photographer extends BaseRegisteredUser {
+export interface Photographer extends BaseUser {
   role: "PHOTOGRAPHER";
 }
 
-export interface Counselor extends BaseRegisteredUser {
+export interface Counselor extends BaseUser {
   role: "STAFF" | "ADMIN";
   nonoListIds: number[];
   yesyesListIds: number[];
@@ -96,7 +53,6 @@ export interface Admin extends Counselor {
   role: "ADMIN"
 }
 
+export type FamilyMember = Camper | Parent;
 export type Employee = Staff | Photographer | Admin;
-
-export type RegisteredUser = Camper | Parent | Photographer | Staff | Admin;
-export type User = RegisteredUser | UnregisteredUser;
+export type User = Camper | Parent | Photographer | Staff | Admin;
