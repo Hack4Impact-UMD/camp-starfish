@@ -1,15 +1,14 @@
 import { httpsCallable } from "firebase/functions";
 import { functions } from "@/config/firebase";
 import { useMutation } from "@tanstack/react-query";
-import { UnregisteredEmployee } from "@/types/users/userTypes";
+import { Employee } from "@/types/users/userTypes";
 
 interface ProcessEmployeeCSVRequest {
-  parsedEmployeeCsvData: UnregisteredEmployee[];
+  employees: Pick<Employee, "id" | "name" | "email" | "role" | "gender" | "dateOfBirth">[];
 }
 
 async function processEmployeeCSV(req: ProcessEmployeeCSVRequest) {
-  const { parsedEmployeeCsvData } = req;
-  await httpsCallable(functions, "handleEmployeeCSVUpload")(parsedEmployeeCsvData);
+  await httpsCallable(functions, "handleEmployeeCSVUpload")(req);
 }
 
 export default function useProcessEmployeeCSV() {

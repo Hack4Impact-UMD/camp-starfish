@@ -1,15 +1,15 @@
 import { httpsCallable } from "firebase/functions";
 import { functions } from "@/config/firebase";
 import { useMutation } from "@tanstack/react-query";
-import { ParsedFamilyCsvData } from "./types";
+import { Camper, Parent } from "@/types/users/userTypes";
 
 interface ProcessFamilyCSVRequest {
-  parsedFamilyCsvData: ParsedFamilyCsvData;
+  campers: Pick<Camper, "id" | "name" | "parentIds" | "gender" | "dateOfBirth">;
+  parents: Pick<Parent, "id" | "name" | "email" | "camperIds" | "gender" | "dateOfBirth">;
 }
 
 async function processFamilyCSV(req: ProcessFamilyCSVRequest) {
-  const { parsedFamilyCsvData } = req;
-  await httpsCallable(functions, "handleFamilyCSVUpload")(parsedFamilyCsvData);
+  await httpsCallable(functions, "handleFamilyCSVUpload")(req);
 }
 
 export default function useProcessFamilyCSV() {
