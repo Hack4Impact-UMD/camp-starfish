@@ -58,6 +58,7 @@ interface BaseRegisteredUser {
 
 export interface Name {
   firstName: string;
+  preferredName?: string;
   middleName?: string;
   lastName: string;
 }
