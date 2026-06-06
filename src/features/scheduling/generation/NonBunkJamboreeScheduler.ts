@@ -12,12 +12,34 @@ interface GenerateNonBunkJamboreeScheduleRequest {
   sectionId: string;
   attendees: Attendee[];
   camperPreferences: SectionActivityPreferences;
+  numBlocks: number;
 }
 
 export default function generateNonBunkJamboreeSchedule(req: GenerateNonBunkJamboreeScheduleRequest): NonBunkJamboreeSectionSchedule {
-  const { sessionId, sectionId, attendees, camperPreferences } = req;
+  const { sessionId, sectionId, attendees, camperPreferences, numBlocks } = req;
+
+  const campers: CamperAttendee[] = [];
+  const staff: StaffAttendee[] = [];
+  const admins: AdminAttendee[] = [];
+  for (const attendee of attendees) {
+    switch (attendee.role) {
+      case "CAMPER":
+        campers.push(attendee);
+        break;
+      case "STAFF":
+        staff.push(attendee);
+        break;
+      case "ADMIN":
+        admins.push(attendee);
+        break;
+      default: throw Error("Unknown attendee role");
+    }
+  }
 
   // Assign periods off to staff and admin
+  for (let i = 0; i < numBlocks; i++) {
+    const blockId = 
+  }
 
   // Assign remaining employees to periods off
 
