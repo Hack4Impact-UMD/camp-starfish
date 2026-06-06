@@ -247,5 +247,6 @@ export default function openUploadUsersCsvModal() {
   modals.open({
     title: "Upload Users CSV",
     children: <UploadUsersCsvModal />,
+    size: 'xl'
   });
 }
