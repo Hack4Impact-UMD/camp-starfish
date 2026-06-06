@@ -25,6 +25,7 @@ import { useState } from "react";
 import { MdOutlineFileUpload } from "react-icons/md";
 import { EmployeeRole } from "@/types/users/userTypes";
 import { getFullName } from "@/types/users/userUtils";
+import EmployeeUsersInputTable from "./EmployeeUsersInputTable";
 
 const usersCsvTypeToLabel: Record<UsersCsvType, string> = {
   FAMILY: "Families (Campers + Parents)",
@@ -194,28 +195,7 @@ export function UploadUsersCsvModal() {
                 })}
               </div>
             </div>
-          ) : (
-            <div className="flex flex-col gap-xs">
-              <Text>Employees</Text>
-              {parsedData.map((employee) => {
-                return (
-                  <div key={employee.id} className="flex flex-row justify-between items-center bg-neutral-3 rounded-sm p-xs">
-                    <Text >{getFullName(employee.name)}</Text>
-                    <Select
-                      data={["ADMIN", "STAFF", "PHOTOGRAPHER"]}
-                      value={roleSelects![employee.id]}
-                      defaultValue="STAFF"
-                      onChange={(role) =>
-                        setRoleSelects((prev) =>
-                          prev ? { ...prev, [employee.id]: role! } : null,
-                        )
-                      }
-                    />
-                  </div>
-                );
-              })}
-            </div>
-          )}
+          ) : <EmployeeUsersInputTable employees={parsedData} roleSelects={roleSelects!} setRoleSelects={setRoleSelects} />}
         </ScrollArea.Autosize>
       )}
       <Button
