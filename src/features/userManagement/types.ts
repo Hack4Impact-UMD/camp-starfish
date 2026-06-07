@@ -10,10 +10,6 @@ export interface ParsedFamilyCsvData {
 export type ParsedEmployeeCsvData = Pick<Employee, "id" | "name" | "email">[];
 export type ParsedUsersCsvData = ParsedFamilyCsvData | ParsedEmployeeCsvData;
 
-
-type Bruh = 
-type 
-
 export function isParsedFamilyCsvData(data: ParsedUsersCsvData): data is ParsedFamilyCsvData {
   return "campers" in data && "parents" in data;
 }
