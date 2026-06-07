@@ -39,8 +39,12 @@ export function UploadUsersCsvModal() {
   const [roleSelects, setRoleSelects] = useState<{
     [employeeId: number]: EmployeeRole | null;
   } | null>(null);
-  const [genderSelects, setGenderSelects] = useState<{ [employeeId: number]: Gender | null; }>({});
-  const [dateOfBirthSelects, setDateOfBirthSelects] = useState<{ [employeeId: number]: Moment | null; }>({});
+  const [genderSelects, setGenderSelects] = useState<{
+    [employeeId: number]: Gender | null;
+  }>({});
+  const [dateOfBirthSelects, setDateOfBirthSelects] = useState<{
+    [employeeId: number]: Moment | null;
+  }>({});
 
   const parseFamilyCsvMutation = useParseFamilyCsv();
   const parseEmployeeCsvMutation = useParseEmployeeCsv();
@@ -57,17 +61,45 @@ export function UploadUsersCsvModal() {
     processEmployeeCsvMutation.reset();
     if (usersCsvType === "FAMILY") {
       parseEmployeeCsvMutation.reset();
-      parseFamilyCsvMutation.mutate({ csvFile });
-      setRoleSelects(null);
+      parseFamilyCsvMutation.mutate(
+        { csvFile },
+        {
+          onSuccess: (data) => {
+            const genderSelects: { [employeeId: number]: Gender | null } = {};
+            const dateOfBirthSelects: { [employeeId: number]: Moment | null } =
+              {};
+            [
+              ...Object.values(data.campers),
+              ...Object.values(data.parents),
+            ].forEach((familyMember) => {
+              genderSelects[familyMember.id] = null;
+              dateOfBirthSelects[familyMember.id] = null;
+            });
+            setGenderSelects(genderSelects);
+            setDateOfBirthSelects(dateOfBirthSelects);
+            setRoleSelects(null);
+          },
+        },
+      );
     } else {
       parseFamilyCsvMutation.reset();
       parseEmployeeCsvMutation.mutate(
         { csvFile },
         {
           onSuccess: (data) => {
-            const roleSelects: { [employeeId: number]: EmployeeRole | null; } = {};
-            data.forEach((employee) => (roleSelects[employee.id] = null));
+            const roleSelects: { [employeeId: number]: EmployeeRole | null } =
+              {};
+            const genderSelects: { [employeeId: number]: Gender | null } = {};
+            const dateOfBirthSelects: { [employeeId: number]: Moment | null } =
+              {};
+            data.forEach((employee) => {
+              roleSelects[employee.id] = null;
+              genderSelects[employee.id] = null;
+              dateOfBirthSelects[employee.id] = null;
+            });
             setRoleSelects(roleSelects);
+            setGenderSelects(genderSelects);
+            setDateOfBirthSelects(dateOfBirthSelects);
           },
         },
       );
