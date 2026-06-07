@@ -1,23 +1,38 @@
 import { ParsedEmployeeCsvData } from "@/features/userManagement/types";
-import { ColumnDef, createColumnHelper, useReactTable } from "@tanstack/react-table";
+import { createColumnHelper, getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import { Select, Text } from "@mantine/core";
 import { getFullName } from "@/types/users/userUtils";
-import { Employee, EmployeeRole } from "@/types/users/userTypes";
+import { Employee, EmployeeRole, Gender } from "@/types/users/userTypes";
 import { DatePicker } from "@mantine/dates";
+import { Moment } from "moment";
+import { useMemo } from "react";
+import { Nullable } from "@/utils/types/typeUtils";
 
 interface EmployeeUsersInputTableProps {
   employees: ParsedEmployeeCsvData;
   roleSelects: {
-    [employeeId: number]: EmployeeRole;
+    [employeeId: number]: EmployeeRole | null;
   };
   setRoleSelects: React.Dispatch<
     React.SetStateAction<{
-      [employeeId: number]: EmployeeRole;
+      [employeeId: number]: EmployeeRole | null;
     } | null>
+  >;
+  genderSelects: { [employeeId: number]: Gender | null; };
+  setGenderSelects: React.Dispatch<
+    React.SetStateAction<{
+      [employeeId: number]: Gender | null;
+    }>
+  >;
+  dateOfBirthSelects: { [employeeId: number]: Moment | null };
+  setDateOfBirthSelects: React.Dispatch<
+    React.SetStateAction<{
+      [employeeId: number]: Moment | null;
+    }>
   >;
 }
 
-const columnHelper = createColumnHelper<Pick<Employee, "id" | "name" | "email" | "role" | "gender" | "dateOfBirth">>();
+const columnHelper = createColumnHelper<ParsedEmployeeCsvData[number] & Nullable<Pick<Employee, "role" | "gender" | "dateOfBirth">>>();
 
 const columns = [
   columnHelper.accessor((row) => row.id, {
@@ -52,12 +67,21 @@ const columns = [
 export default function EmployeeUsersInputTable(
   props: EmployeeUsersInputTableProps,
 ) {
-  const { employees, roleSelects, setRoleSelects } = props;
+  const { employees, roleSelects, setRoleSelects, genderSelects, setGenderSelects, dateOfBirthSelects, setDateOfBirthSelects } = props;
+
+  const data = useMemo(() => {
+    return employees.map((employee) => ({
+      ...employee,
+      role: roleSelects[employee.id],
+      gender: genderSelects[employee.id],
+      dateOfBirth: dateOfBirthSelects[employee.id],
+    }))
+  }, [employees, roleSelects, genderSelects, dateOfBirthSelects]);
 
   const table = useReactTable({
-    data: employees,
+    data,
     columns,
-    getCoreRowModel: (rows) => rows,
+    getCoreRowModel: getCoreRowModel(),
   })
 
   return (
