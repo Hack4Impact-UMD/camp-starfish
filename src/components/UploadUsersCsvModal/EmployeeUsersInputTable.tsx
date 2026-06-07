@@ -1,8 +1,9 @@
 import { ParsedEmployeeCsvData } from "@/features/userManagement/types";
-import { useReactTable } from "@tanstack/react-table";
+import { ColumnDef, createColumnHelper, useReactTable } from "@tanstack/react-table";
 import { Select, Text } from "@mantine/core";
 import { getFullName } from "@/types/users/userUtils";
-import { EmployeeRole } from "@/types/users/userTypes";
+import { Employee, EmployeeRole } from "@/types/users/userTypes";
+import { DatePicker } from "@mantine/dates";
 
 interface EmployeeUsersInputTableProps {
   employees: ParsedEmployeeCsvData;
@@ -16,10 +17,48 @@ interface EmployeeUsersInputTableProps {
   >;
 }
 
+const columnHelper = createColumnHelper<Pick<Employee, "id" | "name" | "email" | "role" | "gender" | "dateOfBirth">>();
+
+const columns = [
+  columnHelper.accessor((row) => row.id, {
+    id: "id",
+    header: "ID",
+  }),
+  columnHelper.accessor((row) => getFullName(row.name), {
+    id: "name",
+    header: "Name",
+  }),
+  columnHelper.accessor(row => row.email, {
+    id: "email",
+    header: "Email",
+  }),
+  columnHelper.display({
+    id: "role",
+    header: "Role",
+    cell: () => <Select />
+  }),
+  columnHelper.display({
+    id: "gender",
+    header: "Gender",
+    cell: () => <Select />
+  }),
+  columnHelper.display({
+    id: "dateOfBirth",
+    header: "Date of Birth",
+    cell: () => <DatePicker />
+  })
+];
+
 export default function EmployeeUsersInputTable(
   props: EmployeeUsersInputTableProps,
 ) {
   const { employees, roleSelects, setRoleSelects } = props;
+
+  const table = useReactTable({
+    data: employees,
+    columns,
+    getCoreRowModel: (rows) => rows,
+  })
 
   return (
     <div className="flex flex-col gap-xs">
