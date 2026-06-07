@@ -119,6 +119,40 @@ export function UploadUsersCsvModal() {
     parseCsvFile(csvType, csvFile);
   };
 
+  const areAllFieldsFilled = () => {
+    if (!parsedData) {
+      return true;
+    } else if (csvType === "FAMILY" && isParsedFamilyCsvData(parsedData)) {
+      for (const familyMember of [
+        ...Object.values(parsedData.campers),
+        ...Object.values(parsedData.parents),
+      ]) {
+        if (
+          !genderSelects[familyMember.id] ||
+          !dateOfBirthSelects[familyMember.id]
+        ) {
+          return false;
+        }
+      }
+      return true;
+    } else if (
+      csvType === "EMPLOYEE" &&
+      isParsedEmployeeCsvData(parsedData) &&
+      roleSelects
+    ) {
+      for (const employee of parsedData) {
+        if (
+          !roleSelects[employee.id] ||
+          !genderSelects[employee.id] ||
+          !dateOfBirthSelects[employee.id]
+        ) {
+          return false;
+        }
+      }
+      return true;
+    }
+  };
+
   const handleSubmit = () => {
     if (!parsedData) {
       return;
@@ -209,7 +243,10 @@ export function UploadUsersCsvModal() {
                   const camperId = parseInt(camperIdStr);
                   const camper = parsedData.campers[camperId];
                   return (
-                    <div key={camperId} className="flex flex-row items-center w-full bg-neutral-3 rounded-sm p-xs">
+                    <div
+                      key={camperId}
+                      className="flex flex-row items-center w-full bg-neutral-3 rounded-sm p-xs"
+                    >
                       <Text>{getFullName(camper.name)}</Text>
                     </div>
                   );
@@ -221,7 +258,10 @@ export function UploadUsersCsvModal() {
                   const parentId = parseInt(parentIdStr);
                   const parent = parsedData.parents[parentId];
                   return (
-                    <div key={parentId} className="flex flex-row items-center w-full bg-neutral-3 rounded-sm p-xs">
+                    <div
+                      key={parentId}
+                      className="flex flex-row items-center w-full bg-neutral-3 rounded-sm p-xs"
+                    >
                       <Text>
                         {getFullName(parent.name)} ({parent.email})
                       </Text>
@@ -230,13 +270,23 @@ export function UploadUsersCsvModal() {
                 })}
               </div>
             </div>
-          ) : <EmployeeUsersInputTable employees={parsedData} roleSelects={roleSelects!} setRoleSelects={setRoleSelects} genderSelects={genderSelects} setGenderSelects={setGenderSelects} dateOfBirthSelects={dateOfBirthSelects} setDateOfBirthSelects={setDateOfBirthSelects} />}
+          ) : (
+            <EmployeeUsersInputTable
+              employees={parsedData}
+              roleSelects={roleSelects!}
+              setRoleSelects={setRoleSelects}
+              genderSelects={genderSelects}
+              setGenderSelects={setGenderSelects}
+              dateOfBirthSelects={dateOfBirthSelects}
+              setDateOfBirthSelects={setDateOfBirthSelects}
+            />
+          )}
         </ScrollArea.Autosize>
       )}
       <Button
         classNames={{ root: "self-center" }}
         onClick={handleSubmit}
-        disabled={parsedData === undefined}
+        disabled={parsedData === undefined || !areAllFieldsFilled()}
         loading={
           processFamilyCsvMutation.isPending ||
           processEmployeeCsvMutation.isPending
@@ -262,6 +312,6 @@ export default function openUploadUsersCsvModal() {
   modals.open({
     title: "Upload Users CSV",
     children: <UploadUsersCsvModal />,
-    size: 'auto'
+    size: "auto",
   });
 }
