@@ -65,8 +65,8 @@ export function UploadUsersCsvModal() {
         { csvFile },
         {
           onSuccess: (data) => {
-            const roleSelects: { [employeeId: number]: EmployeeRole } = {};
-            data.forEach((employee) => (roleSelects[employee.id] = "STAFF"));
+            const roleSelects: { [employeeId: number]: EmployeeRole | null; } = {};
+            data.forEach((employee) => (roleSelects[employee.id] = null));
             setRoleSelects(roleSelects);
           },
         },
