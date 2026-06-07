@@ -1,3 +1,5 @@
+import { Moment } from "moment";
+
 export type Role = "CAMPER" | "PARENT" | "STAFF" | "PHOTOGRAPHER" | "ADMIN";
 export type FamilyRole = Extract<Role, "CAMPER" | "PARENT">;
 export type EmployeeRole = Extract<Role, "STAFF" | "PHOTOGRAPHER" | "ADMIN">;
@@ -10,7 +12,7 @@ interface BaseUser {
   name: Name;
   role: Role;
   gender: Gender;
-  dateOfBirth: string;
+  dateOfBirth: Moment;
 }
 
 export interface Name {
