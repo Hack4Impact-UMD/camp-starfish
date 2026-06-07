@@ -6,13 +6,13 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { Select, Table, Text } from "@mantine/core";
-import { getFullName } from "@/types/users/userUtils";
+import { EMPLOYEE_ROLES, GENDERS, getFullName } from "@/types/users/userUtils";
 import { Employee, EmployeeRole, Gender } from "@/types/users/userTypes";
-import { DatePicker, DatePickerInput } from "@mantine/dates";
+import { DatePickerInput } from "@mantine/dates";
 import { Moment } from "moment";
 import { useMemo } from "react";
 import { Nullable } from "@/utils/types/typeUtils";
-import DatePickerInputThemeExtension from "@/styles/components/DatePickerInputThemeExtension";
+import moment from "moment";
 
 interface EmployeeUsersInputTableProps {
   employees: ParsedEmployeeCsvData;
@@ -38,41 +38,6 @@ interface EmployeeUsersInputTableProps {
   >;
 }
 
-const columnHelper = createColumnHelper<
-  ParsedEmployeeCsvData[number] &
-    Nullable<Pick<Employee, "role" | "gender" | "dateOfBirth">>
->();
-
-const columns = [
-  columnHelper.accessor((row) => row.id, {
-    id: "id",
-    header: "ID",
-  }),
-  columnHelper.accessor((row) => getFullName(row.name), {
-    id: "name",
-    header: "Name",
-  }),
-  columnHelper.accessor((row) => row.email, {
-    id: "email",
-    header: "Email",
-  }),
-  columnHelper.display({
-    id: "role",
-    header: "Role",
-    cell: () => <Select />,
-  }),
-  columnHelper.display({
-    id: "gender",
-    header: "Gender",
-    cell: () => <Select />,
-  }),
-  columnHelper.display({
-    id: "dateOfBirth",
-    header: "Date of Birth",
-    cell: () => <DatePickerInput />,
-  }),
-];
-
 export default function EmployeeUsersInputTable(
   props: EmployeeUsersInputTableProps,
 ) {
@@ -86,14 +51,77 @@ export default function EmployeeUsersInputTable(
     setDateOfBirthSelects,
   } = props;
 
-  const data = useMemo(() => {
-    return employees.map((employee) => ({
-      ...employee,
-      role: roleSelects[employee.id],
-      gender: genderSelects[employee.id],
-      dateOfBirth: dateOfBirthSelects[employee.id],
-    }));
-  }, [employees, roleSelects, genderSelects, dateOfBirthSelects]);
+  const data = useMemo(
+    () =>
+      employees.map((employee) => ({
+        ...employee,
+        role: roleSelects[employee.id],
+        gender: genderSelects[employee.id],
+        dateOfBirth: dateOfBirthSelects[employee.id],
+      })),
+    [employees, roleSelects, genderSelects, dateOfBirthSelects],
+  );
+  console.log(data);
+
+  const columns = useMemo(() => {
+    const columnHelper = createColumnHelper<
+      ParsedEmployeeCsvData[number] &
+        Nullable<Pick<Employee, "role" | "gender" | "dateOfBirth">>
+    >();
+
+    return [
+      columnHelper.accessor((row) => row.id, {
+        id: "id",
+        header: "ID",
+      }),
+      columnHelper.accessor((row) => getFullName(row.name), {
+        id: "name",
+        header: "Name",
+      }),
+      columnHelper.accessor((row) => row.email, {
+        id: "email",
+        header: "Email",
+      }),
+      columnHelper.display({
+        id: "role",
+        header: "Role",
+        cell: (props) => (
+          <Select
+            data={EMPLOYEE_ROLES}
+            value={props.row.original.role}
+            onChange={(val) => setRoleSelects((prev) => ({
+                ...prev,
+                [props.cell.row.original.id]: val,
+              }))
+            }
+          />
+        ),
+      }),
+      columnHelper.display({
+        id: "gender",
+        header: "Gender",
+        cell: (props) => (<Select
+          data={GENDERS}
+          value={props.row.original.gender}
+          onChange={(val) => setGenderSelects((prev) => ({
+            ...prev,
+            [props.cell.row.original.id]: val,
+          }))}
+        />),
+      }),
+      columnHelper.display({
+        id: "dateOfBirth",
+        header: "Date of Birth",
+        cell: (props) => (<DatePickerInput
+          value={props.row.original.dateOfBirth?.toDate()}
+          onChange={(val) => setDateOfBirthSelects((prev) => ({
+            ...prev,
+            [props.cell.row.original.id]: moment(val),
+          }))}
+        />),
+      }),
+    ];
+  }, []);
 
   const table = useReactTable({
     data,
