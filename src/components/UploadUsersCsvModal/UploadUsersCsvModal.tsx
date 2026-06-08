@@ -27,6 +27,7 @@ import { EmployeeRole, Gender } from "@/types/users/userTypes";
 import { getFullName } from "@/types/users/userUtils";
 import EmployeeUsersInputTable from "./EmployeeUsersInputTable";
 import { Moment } from "moment";
+import FamilyUsersInputTables from "./FamilyUsersInputTables";
 
 const usersCsvTypeToLabel: Record<UsersCsvType, string> = {
   FAMILY: "Families (Campers + Parents)",
@@ -236,40 +237,13 @@ export function UploadUsersCsvModal() {
             before uploading.
           </Title>
           {isParsedFamilyCsvData(parsedData) ? (
-            <div className="flex flex-col gap-md">
-              <div className="flex flex-col gap-xs">
-                <Text>Campers</Text>
-                {Object.keys(parsedData.campers).map((camperIdStr) => {
-                  const camperId = parseInt(camperIdStr);
-                  const camper = parsedData.campers[camperId];
-                  return (
-                    <div
-                      key={camperId}
-                      className="flex flex-row items-center w-full bg-neutral-3 rounded-sm p-xs"
-                    >
-                      <Text>{getFullName(camper.name)}</Text>
-                    </div>
-                  );
-                })}
-              </div>
-              <div className="flex flex-col gap-xs">
-                <Text>Parents</Text>
-                {Object.keys(parsedData.parents).map((parentIdStr) => {
-                  const parentId = parseInt(parentIdStr);
-                  const parent = parsedData.parents[parentId];
-                  return (
-                    <div
-                      key={parentId}
-                      className="flex flex-row items-center w-full bg-neutral-3 rounded-sm p-xs"
-                    >
-                      <Text>
-                        {getFullName(parent.name)} ({parent.email})
-                      </Text>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
+            <FamilyUsersInputTables
+              familyMembers={parsedData}
+              genderSelects={genderSelects}
+              setGenderSelects={setGenderSelects}
+              dateOfBirthSelects={dateOfBirthSelects}
+              setDateOfBirthSelects={setDateOfBirthSelects}
+            />
           ) : (
             <EmployeeUsersInputTable
               employees={parsedData}
