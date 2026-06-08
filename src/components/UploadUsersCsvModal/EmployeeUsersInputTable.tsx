@@ -138,7 +138,9 @@ export default function EmployeeUsersInputTable(
             <Table.Tr key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
                 <Table.Th key={header.id}>
-                  {header.column.columnDef.header}
+                  {flexRender(
+                    header.column.columnDef.header,
+                    header.getContext(),)}
                 </Table.Th>
               ))}
             </Table.Tr>
