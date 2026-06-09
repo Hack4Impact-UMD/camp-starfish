@@ -8,7 +8,7 @@ export type CounselorRole = Extract<EmployeeRole, "STAFF" | "ADMIN">;
 interface BaseUser {
   id: number;
   uid: string;
-  email: string;
+  email?: string;
   name: Name;
   role: Role;
   gender: Gender;
@@ -34,15 +34,18 @@ export interface Camper extends BaseUser {
 
 export interface Parent extends BaseUser {
   role: "PARENT";
+  email: string;
   camperIds: number[];
 }
 
 export interface Photographer extends BaseUser {
   role: "PHOTOGRAPHER";
+  email: string;
 }
 
 export interface Counselor extends BaseUser {
   role: "STAFF" | "ADMIN";
+  email: string;
   nonoListIds: number[];
   yesyesListIds: number[];
 }
