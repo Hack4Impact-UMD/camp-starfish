@@ -3,7 +3,7 @@ import { functions } from "@/config/firebase";
 import { useMutation } from "@tanstack/react-query";
 import { Employee } from "@/types/users/userTypes";
 
-interface ProcessEmployeeCSVRequest {
+export interface ProcessEmployeeCSVRequest {
   employees: Pick<Employee, "id" | "name" | "email" | "role" | "gender" | "dateOfBirth">[];
 }
 

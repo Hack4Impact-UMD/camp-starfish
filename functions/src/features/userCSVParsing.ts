@@ -1,6 +1,7 @@
-import { Camper, Parent, Role, UnregisteredCamper, UnregisteredEmployee, UnregisteredParent } from "@/types/users/userTypes";
+import { Camper, Parent, Role } from "@/types/users/userTypes";
 import { HttpsError, onCall } from "firebase-functions/https"
-import { ParsedFamilyCsvData } from "@/features/userManagement/types";
+import { ProcessFamilyCSVRequest } from "@/features/userManagement/useProcessFamilyCSV";
+import { ProcessEmployeeCSVRequest } from "@/features/userManagement/useProcessEmployeeCSV";
 import { adminDb } from "../config/firebaseAdminConfig";
 import { batchGetUserDocs, createUserDoc, updateUserDoc } from "../data/firestore/users";
 import partition from "@/utils/data/partition";
@@ -12,7 +13,7 @@ export const handleFamilyCSVUpload = onCall(async (req) => {
     throw new HttpsError("permission-denied", "You do not have permission to create new users.");
   }
 
-  const { campers, parents } = req.data as ParsedFamilyCsvData;
+  const { campers, parents } = req.data as ProcessFamilyCSVRequest;
 
   await adminDb.runTransaction(async (transaction) => {
     const allIds: number[] = [...Object.keys(campers), ...Object.keys(parents)].map(id => parseInt(id));
@@ -24,7 +25,12 @@ export const handleFamilyCSVUpload = onCall(async (req) => {
     const promises = [
       newCampers.map((camper) => {
         const { id, ...camperDoc } = camper;
-        return createUserDoc(id, { ...camperDoc, role: "CAMPER" }, transaction);
+        return createUserDoc(id, {
+          ...camperDoc,
+          role: "CAMPER",
+          photoPermissions: "PRIVATE",
+          nonoListIds: [],
+        }, transaction);
       }),
       newParents.map((parent) => {
         const { id, ...parentDoc } = parent;
@@ -32,19 +38,17 @@ export const handleFamilyCSVUpload = onCall(async (req) => {
       }),
       existingCamperUpdates.map((camperUpdates) => {
         const { id, ...docUpdates } = camperUpdates;
-        const existingCamper = existingUsers.find(camper => camper.id === id) as Camper | UnregisteredCamper;
+        const existingCamper = existingUsers.find(camper => camper.id === id) as Camper;
         if (existingCamper.name.firstName === docUpdates.name.firstName && existingCamper.name.middleName === docUpdates.name.middleName && existingCamper.name.lastName === docUpdates.name.lastName && docUpdates.parentIds.every(parentId => existingCamper.parentIds.includes(parentId))) return;
         return updateUserDoc(id, {
-          name: docUpdates.name,
           parentIds: FieldValue.arrayUnion(...camperUpdates.parentIds),
         }, transaction);
       }),
       existingParentUpdates.map((parentUpdates) => {
         const { id, ...docUpdates } = parentUpdates;
-        const existingParent = existingUsers.find(parent => parent.id === id) as Parent | UnregisteredParent;
+        const existingParent = existingUsers.find(parent => parent.id === id) as Parent;
         if (existingParent.name.firstName === docUpdates.name.firstName && existingParent.name.middleName === docUpdates.name.middleName && existingParent.name.lastName === docUpdates.name.lastName && docUpdates.camperIds.every(camperId => existingParent.camperIds.includes(camperId))) return;
         return updateUserDoc(id, {
-          name: docUpdates.name,
           camperIds: FieldValue.arrayUnion(...docUpdates.camperIds),
         }, transaction);
       })
@@ -59,14 +63,19 @@ export const handleEmployeeCSVUpload = onCall(async (req) => {
     throw new HttpsError("permission-denied", "You do not have permission to create new users.");
   }
 
-  const employees = req.data as UnregisteredEmployee[];
+  const employees = (req.data as ProcessEmployeeCSVRequest).employees;
   await adminDb.runTransaction(async (transaction) => {
     const allIds: number[] = employees.map(employee => employee.id);
     const existingEmployees = await batchGetUserDocs(allIds);
     const newEmployees = employees.filter(employee => !existingEmployees.some(user => user.id === employee.id));
     const promises = newEmployees.map(employee => {
       const { id, ...employeeDoc } = employee;
-      return createUserDoc(id, employeeDoc, transaction);
+      // @ts-expect-error - don't add fields that don't exist on Photographer type
+      return createUserDoc(id, employeeDoc.role === "PHOTOGRAPHER" ? employeeDoc : {
+        ...employeeDoc,
+        nonoListIds: [],
+        yesyesListIds: []
+      }, transaction);
     });
     await Promise.all(promises);
   })

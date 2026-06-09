@@ -3,7 +3,7 @@ import { functions } from "@/config/firebase";
 import { useMutation } from "@tanstack/react-query";
 import { Camper, Parent } from "@/types/users/userTypes";
 
-interface ProcessFamilyCSVRequest {
+export interface ProcessFamilyCSVRequest {
   campers: Pick<Camper, "id" | "name" | "parentIds" | "gender" | "dateOfBirth">[];
   parents: Pick<Parent, "id" | "name" | "email" | "camperIds" | "gender" | "dateOfBirth">[];
 }
