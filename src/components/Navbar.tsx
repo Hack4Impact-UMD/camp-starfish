@@ -28,6 +28,11 @@ const navbarLinks: { name: string; href: string; roles: Role[] }[] = [
     href: "/campers",
     roles: ["ADMIN"],
   },
+  {
+    name: "Users",
+    href: "/users",
+    roles: ["ADMIN"],
+  },
 ];
 
 const Navbar: React.FC = () => {

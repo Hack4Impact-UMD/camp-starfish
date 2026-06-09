@@ -53,11 +53,12 @@ service cloud.firestore {
       allow read, write: if isStaffOrAdmin();
     }
 
+    // Reads are admin-only, plus any signed-in user may read their own doc
+    // (needed to resolve a parent's camper ids). Writes go through the
+    // deleteUserAccount / CSV-upload callables (Admin SDK bypasses rules),
+    // so client writes are denied to keep Auth and Firestore in sync.
     match /users/{userId} {
-      // Any signed-in user may read their own user doc (needed to resolve a
-      // parent's camper ids); only staff/admin may read others or write.
-      allow read: if isStaffOrAdmin() || (isAuthenticated() && userId == myCampminderId());
-      allow write: if isStaffOrAdmin();
+      allow read: if isAdmin() || (isAuthenticated() && userId == myCampminderId());
     }
 
     // Sessions collection — staff/admin only. Parents resolve their album via
