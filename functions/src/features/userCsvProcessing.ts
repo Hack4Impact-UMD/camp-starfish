@@ -1,13 +1,13 @@
 import { Camper, Parent, Role } from "@/types/users/userTypes";
 import { CallableRequest, HttpsError, onCall } from "firebase-functions/https"
-import { ProcessFamilyCSVRequest } from "@/features/userManagement/useProcessFamilyCSV";
-import { ProcessEmployeeCSVRequest } from "@/features/userManagement/useProcessEmployeeCSV";
+import { ProcessFamilyCSVRequest } from "@/features/userManagement/useProcessFamilyCsv";
+import { ProcessEmployeeCSVRequest } from "@/features/userManagement/useProcessEmployeeCsv";
 import { adminDb } from "../config/firebaseAdminConfig";
 import { batchGetUserDocs, createUserDoc, updateUserDoc } from "../data/firestore/users";
 import partition from "@/utils/data/partition";
 import { FieldValue } from "firebase-admin/firestore";
 
-export const handleFamilyCSVUpload = onCall(async (req: CallableRequest<ProcessFamilyCSVRequest>) => {
+export const processFamilyCsv = onCall(async (req: CallableRequest<ProcessFamilyCSVRequest>) => {
   const role: Role | undefined = req.auth?.token.role;
   if (!role || role !== "ADMIN") {
     throw new HttpsError("permission-denied", "You do not have permission to create new users.");
@@ -57,7 +57,7 @@ export const handleFamilyCSVUpload = onCall(async (req: CallableRequest<ProcessF
   });
 });
 
-export const handleEmployeeCSVUpload = onCall(async (req: CallableRequest<ProcessEmployeeCSVRequest>) => {
+export const processEmployeeCsv = onCall(async (req: CallableRequest<ProcessEmployeeCSVRequest>) => {
   const role: Role | undefined = req.auth?.token.role;
   if (role !== "ADMIN") {
     throw new HttpsError("permission-denied", "You do not have permission to create new users.");

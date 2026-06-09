@@ -7,7 +7,7 @@ interface ParseFamilyCsvRequest {
   csvFile: File;
 }
 
-interface BaseRawFamilyCSVRecord {
+interface BaseRawFamilyCsvRecord {
   "First Name": string;
   "Last Name": string;
   PersonID: string;
@@ -17,24 +17,24 @@ interface BaseRawFamilyCSVRecord {
   "F1P1 Login/Email": string;
 }
 
-interface RawFamilyCsvRecordOneParent extends BaseRawFamilyCSVRecord {
+interface RawFamilyCsvRecordOneParent extends BaseRawFamilyCsvRecord {
   "F1P2 First Name": "";
   "F1P2 Last Name": "";
   "F1P2 Person ID": "";
   "F1P2 Login/Email": "";
 }
 
-interface RawFamilyCsvRecordTwoParents extends BaseRawFamilyCSVRecord {
+interface RawFamilyCsvRecordTwoParents extends BaseRawFamilyCsvRecord {
   "F1P2 First Name": string;
   "F1P2 Last Name": string;
   "F1P2 Person ID": string;
   "F1P2 Login/Email": string;
 }
 
-type RawFamilyCSVRecord = RawFamilyCsvRecordOneParent | RawFamilyCsvRecordTwoParents;
+type RawFamilyCsvRecord = RawFamilyCsvRecordOneParent | RawFamilyCsvRecordTwoParents;
 
 type RawFamilyCsvRecordWithInfo = {
-  record: RawFamilyCSVRecord;
+  record: RawFamilyCsvRecord;
   info: Info;
 };
 

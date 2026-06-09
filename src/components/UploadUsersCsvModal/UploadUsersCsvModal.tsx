@@ -7,17 +7,10 @@ import {
 } from "@/features/userManagement/types";
 import useParseFamilyCsv from "@/features/userManagement/useParseFamilyCsv";
 import useParseEmployeeCsv from "@/features/userManagement/useParseEmployeeCsv";
-import useProcessEmployeeCSV from "@/features/userManagement/useProcessEmployeeCSV";
-import useProcessFamilyCSV from "@/features/userManagement/useProcessFamilyCSV";
+import useProcessEmployeeCsv from "@/features/userManagement/useProcessEmployeeCsv";
+import useProcessFamilyCsv from "@/features/userManagement/useProcessFamilyCsv";
 import { MBToBytes } from "@/utils/fileUtils";
-import {
-  Button,
-  Loader,
-  Radio,
-  ScrollArea,
-  Text,
-  Title,
-} from "@mantine/core";
+import { Button, Loader, Radio, ScrollArea, Text, Title } from "@mantine/core";
 import { Dropzone, DropzoneProps } from "@mantine/dropzone";
 import { modals } from "@mantine/modals";
 import { useState } from "react";
@@ -52,8 +45,8 @@ export function UploadUsersCsvModal() {
       ? parseFamilyCsvMutation.data
       : parseEmployeeCsvMutation.data;
 
-  const processFamilyCsvMutation = useProcessFamilyCSV();
-  const processEmployeeCsvMutation = useProcessEmployeeCSV();
+  const processFamilyCsvMutation = useProcessFamilyCsv();
+  const processEmployeeCsvMutation = useProcessEmployeeCsv();
 
   const parseCsvFile = (usersCsvType: UsersCsvType, csvFile: File) => {
     processFamilyCsvMutation.reset();
@@ -188,7 +181,7 @@ export function UploadUsersCsvModal() {
             role: roleSelects[employee.id],
             gender: genderSelects[employee.id],
             dateOfBirth: dateOfBirthSelects[employee.id],
-          }))
+          })),
         },
         { onSuccess: () => modals.closeAll() },
       );
