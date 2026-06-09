@@ -8,7 +8,7 @@ export interface ProcessEmployeeCSVRequest {
 }
 
 async function processEmployeeCSV(req: ProcessEmployeeCSVRequest) {
-  await httpsCallable(functions, "handleEmployeeCSVUpload")(req);
+  await httpsCallable(functions, "processEmployeeCsv")(req);
 }
 
 export default function useProcessEmployeeCSV() {
