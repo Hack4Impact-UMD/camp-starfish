@@ -51,7 +51,7 @@ export default function FamilyUsersInputTables(
 
   const camperData = useMemo(
     () =>
-      Object.values(familyMembers.campers).map((camper) => ({
+      familyMembers.campers.map((camper) => ({
         ...camper,
         gender: genderSelects[camper.id],
         dateOfBirth: dateOfBirthSelects[camper.id],
@@ -116,7 +116,7 @@ export default function FamilyUsersInputTables(
 
   const parentData = useMemo(
     () =>
-      Object.values(familyMembers.parents).map((parent) => ({
+      familyMembers.parents.map((parent) => ({
         ...parent,
         gender: genderSelects[parent.id],
         dateOfBirth: dateOfBirthSelects[parent.id],

@@ -69,10 +69,7 @@ export function UploadUsersCsvModal() {
             const genderSelects: { [employeeId: number]: Gender | null } = {};
             const dateOfBirthSelects: { [employeeId: number]: Moment | null } =
               {};
-            [
-              ...Object.values(data.campers),
-              ...Object.values(data.parents),
-            ].forEach((familyMember) => {
+            [...data.campers, ...data.parents].forEach((familyMember) => {
               genderSelects[familyMember.id] = null;
               dateOfBirthSelects[familyMember.id] = null;
             });
@@ -125,8 +122,8 @@ export function UploadUsersCsvModal() {
       return true;
     } else if (csvType === "FAMILY" && isParsedFamilyCsvData(parsedData)) {
       for (const familyMember of [
-        ...Object.values(parsedData.campers),
-        ...Object.values(parsedData.parents),
+        ...parsedData.campers,
+        ...parsedData.parents,
       ]) {
         if (
           !genderSelects[familyMember.id] ||
@@ -163,7 +160,20 @@ export function UploadUsersCsvModal() {
       !roleSelects
     ) {
       processFamilyCsvMutation.mutate(
-        { parsedFamilyCsvData: parsedData },
+        {
+          // @ts-expect-error - Submit button is disabled if any field is missing
+          campers: parsedData.campers.map((camper) => ({
+            ...camper,
+            gender: genderSelects[camper.id],
+            dateOfBirth: dateOfBirthSelects[camper.id],
+          })),
+          // @ts-expect-error - Submit button is disabled if any field is missing
+          parents: parsedData.parents.map((parent) => ({
+            ...parent,
+            gender: genderSelects[parent.id],
+            dateOfBirth: dateOfBirthSelects[parent.id],
+          })),
+        },
         { onSuccess: () => modals.closeAll() },
       );
       processEmployeeCsvMutation.reset();
@@ -177,7 +187,15 @@ export function UploadUsersCsvModal() {
         role: roleSelects[employee.id],
       }));
       processEmployeeCsvMutation.mutate(
-        { parsedEmployeeCsvData: employeeData },
+        {
+          // @ts-expect-error - Submit button is disabled if any field is missing
+          employees: parsedData.map((employee) => ({
+            ...employee,
+            role: roleSelects[employee.id],
+            gender: genderSelects[employee.id],
+            dateOfBirth: dateOfBirthSelects[employee.id],
+          }))
+        },
         { onSuccess: () => modals.closeAll() },
       );
       processFamilyCsvMutation.reset();
