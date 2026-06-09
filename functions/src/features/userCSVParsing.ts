@@ -1,5 +1,5 @@
 import { Camper, Parent, Role } from "@/types/users/userTypes";
-import { HttpsError, onCall } from "firebase-functions/https"
+import { CallableRequest, HttpsError, onCall } from "firebase-functions/https"
 import { ProcessFamilyCSVRequest } from "@/features/userManagement/useProcessFamilyCSV";
 import { ProcessEmployeeCSVRequest } from "@/features/userManagement/useProcessEmployeeCSV";
 import { adminDb } from "../config/firebaseAdminConfig";
@@ -7,13 +7,13 @@ import { batchGetUserDocs, createUserDoc, updateUserDoc } from "../data/firestor
 import partition from "@/utils/data/partition";
 import { FieldValue } from "firebase-admin/firestore";
 
-export const handleFamilyCSVUpload = onCall(async (req) => {
+export const handleFamilyCSVUpload = onCall(async (req: CallableRequest<ProcessFamilyCSVRequest>) => {
   const role: Role | undefined = req.auth?.token.role;
   if (!role || role !== "ADMIN") {
     throw new HttpsError("permission-denied", "You do not have permission to create new users.");
   }
 
-  const { campers, parents } = req.data as ProcessFamilyCSVRequest;
+  const { campers, parents } = req.data;
 
   await adminDb.runTransaction(async (transaction) => {
     const allIds: number[] = [...Object.keys(campers), ...Object.keys(parents)].map(id => parseInt(id));
@@ -57,13 +57,13 @@ export const handleFamilyCSVUpload = onCall(async (req) => {
   });
 });
 
-export const handleEmployeeCSVUpload = onCall(async (req) => {
+export const handleEmployeeCSVUpload = onCall(async (req: CallableRequest<ProcessEmployeeCSVRequest>) => {
   const role: Role | undefined = req.auth?.token.role;
   if (role !== "ADMIN") {
     throw new HttpsError("permission-denied", "You do not have permission to create new users.");
   }
 
-  const employees = (req.data as ProcessEmployeeCSVRequest).employees;
+  const employees = req.data.employees;
   await adminDb.runTransaction(async (transaction) => {
     const allIds: number[] = employees.map(employee => employee.id);
     const existingEmployees = await batchGetUserDocs(allIds);
