@@ -7,7 +7,7 @@ export type CounselorRole = Extract<EmployeeRole, "STAFF" | "ADMIN">;
 
 interface BaseUser {
   id: number;
-  uid: string;
+  uid?: string;
   email?: string;
   name: Name;
   role: Role;
