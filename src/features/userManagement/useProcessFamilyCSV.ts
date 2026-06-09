@@ -4,8 +4,8 @@ import { useMutation } from "@tanstack/react-query";
 import { Camper, Parent } from "@/types/users/userTypes";
 
 interface ProcessFamilyCSVRequest {
-  campers: Pick<Camper, "id" | "name" | "parentIds" | "gender" | "dateOfBirth">;
-  parents: Pick<Parent, "id" | "name" | "email" | "camperIds" | "gender" | "dateOfBirth">;
+  campers: Pick<Camper, "id" | "name" | "parentIds" | "gender" | "dateOfBirth">[];
+  parents: Pick<Parent, "id" | "name" | "email" | "camperIds" | "gender" | "dateOfBirth">[];
 }
 
 async function processFamilyCSV(req: ProcessFamilyCSVRequest) {

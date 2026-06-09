@@ -4,8 +4,8 @@ export type UsersCsvType = "FAMILY" | "EMPLOYEE";
 export const usersCsvTypes: UsersCsvType[] = ["FAMILY", "EMPLOYEE"];
 
 export interface ParsedFamilyCsvData {
-  campers: { [camperId: number]: Pick<Camper, "id" | "name" | "parentIds">; };
-  parents: { [parentId: number]: Pick<Parent, "id" | "name" | "email" | "camperIds">; };
+  campers: Pick<Camper, "id" | "name" | "parentIds">[];
+  parents: Pick<Parent, "id" | "name" | "email" | "camperIds">[];
 }
 export type ParsedEmployeeCsvData = Pick<Employee, "id" | "name" | "email">[];
 export type ParsedUsersCsvData = ParsedFamilyCsvData | ParsedEmployeeCsvData;

@@ -2,6 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import { parse, Info } from "csv-parse/sync";
 import { ParsedFamilyCsvData } from "./types";
 import { z } from "zod";
+import { isParenthesizedExpression } from "typescript";
 
 interface ParseFamilyCsvRequest {
   csvFile: File;
@@ -66,8 +67,8 @@ const ParsedFamilyCsvRecordSchema = BaseFamilyCsvRecordSchema.and(FamilyCsvRecor
 type ParsedFamilyCsvRecord = z.infer<typeof ParsedFamilyCsvRecordSchema>;
 
 function parseFamilyRecords(data: RawFamilyCsvRecordWithInfo[]): ParsedFamilyCsvData {
-  const campers: ParsedFamilyCsvData["campers"] = {};
-  const parents: ParsedFamilyCsvData["parents"] = {};
+  const campersById: { [camperId: number]: ParsedFamilyCsvData["campers"][number]; } = {};
+  const parentsById: { [parentId: number]: ParsedFamilyCsvData["parents"][number]; } = {};
 
   data.forEach(({ record, info }) => {
     const validationResult = ParsedFamilyCsvRecordSchema.safeParse(record);
@@ -79,7 +80,7 @@ function parseFamilyRecords(data: RawFamilyCsvRecordWithInfo[]): ParsedFamilyCsv
     const camperId = parsedRecord.PersonID;
     const parent1Id = parsedRecord["F1P1 Person ID"];
     const parent2Id = parsedRecord["F1P2 Person ID"];
-    campers[camperId] = {
+    campersById[camperId] = {
       id: camperId,
       name: {
         firstName: record["First Name"],
@@ -90,10 +91,10 @@ function parseFamilyRecords(data: RawFamilyCsvRecordWithInfo[]): ParsedFamilyCsv
         : [parent1Id, parent2Id],
     };
 
-    if (parents[parent1Id]) {
-      parents[parent1Id].camperIds.push(camperId);
+    if (parentsById[parent1Id]) {
+      parentsById[parent1Id].camperIds.push(camperId);
     } else {
-      parents[parent1Id] = {
+      parentsById[parent1Id] = {
         id: parseInt(record["F1P1 Person ID"]),
         name: {
           firstName: record["F1P1 First Name"],
@@ -105,10 +106,10 @@ function parseFamilyRecords(data: RawFamilyCsvRecordWithInfo[]): ParsedFamilyCsv
     }
 
     if (parent2Id !== undefined) {
-      if (parents[parent2Id]) {
-        parents[parent2Id].camperIds.push(camperId);
+      if (parentsById[parent2Id]) {
+        parentsById[parent2Id].camperIds.push(camperId);
       } else {
-        parents[parent2Id] = {
+        parentsById[parent2Id] = {
           id: parent2Id,
           name: {
             firstName: record["F1P2 First Name"],
@@ -120,7 +121,10 @@ function parseFamilyRecords(data: RawFamilyCsvRecordWithInfo[]): ParsedFamilyCsv
       }
     }
   });
-  return { campers, parents };
+  return {
+    campers: Object.values(campersById),
+    parents: Object.values(parentsById)
+  };
 }
 
 const REQUIRED_COLUMNS = [
