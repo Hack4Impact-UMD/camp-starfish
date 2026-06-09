@@ -121,7 +121,7 @@ export default function EmployeeUsersInputTable(
         />),
       }),
     ];
-  }, []);
+  }, [setRoleSelects, setGenderSelects, setDateOfBirthSelects]);
 
   const table = useReactTable({
     data,

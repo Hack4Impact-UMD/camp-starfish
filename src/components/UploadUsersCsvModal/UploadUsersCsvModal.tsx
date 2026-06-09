@@ -15,7 +15,6 @@ import {
   Loader,
   Radio,
   ScrollArea,
-  Select,
   Text,
   Title,
 } from "@mantine/core";
@@ -24,7 +23,6 @@ import { modals } from "@mantine/modals";
 import { useState } from "react";
 import { MdOutlineFileUpload } from "react-icons/md";
 import { EmployeeRole, Gender } from "@/types/users/userTypes";
-import { getFullName } from "@/types/users/userUtils";
 import EmployeeUsersInputTable from "./EmployeeUsersInputTable";
 import { Moment } from "moment";
 import FamilyUsersInputTables from "./FamilyUsersInputTables";
@@ -182,10 +180,6 @@ export function UploadUsersCsvModal() {
       isParsedEmployeeCsvData(parsedData) &&
       roleSelects
     ) {
-      const employeeData = parsedData.map((employee) => ({
-        ...employee,
-        role: roleSelects[employee.id],
-      }));
       processEmployeeCsvMutation.mutate(
         {
           // @ts-expect-error - Submit button is disabled if any field is missing

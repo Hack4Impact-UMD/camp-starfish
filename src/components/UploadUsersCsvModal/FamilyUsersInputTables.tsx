@@ -1,5 +1,4 @@
 import {
-  ParsedEmployeeCsvData,
   ParsedFamilyCsvData,
 } from "@/features/userManagement/types";
 import {
@@ -9,11 +8,9 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { Select, Table, Text } from "@mantine/core";
-import { EMPLOYEE_ROLES, GENDERS, getFullName } from "@/types/users/userUtils";
+import { GENDERS, getFullName } from "@/types/users/userUtils";
 import {
   Camper,
-  Employee,
-  EmployeeRole,
   Gender,
 } from "@/types/users/userTypes";
 import { DatePickerInput } from "@mantine/dates";
@@ -106,7 +103,7 @@ export default function FamilyUsersInputTables(
         ),
       }),
     ];
-  }, []);
+  }, [setGenderSelects, setDateOfBirthSelects]);
 
   const camperTable = useReactTable({
     data: camperData,
@@ -175,7 +172,7 @@ export default function FamilyUsersInputTables(
         ),
       }),
     ];
-  }, []);
+  }, [setGenderSelects, setDateOfBirthSelects]);
 
   const parentTable = useReactTable({
     data: parentData,
