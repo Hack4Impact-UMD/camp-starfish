@@ -77,11 +77,12 @@ export interface CounselorDoc extends BaseUserDoc {
 }
 
 export interface StaffDoc extends CounselorDoc {
-  role: "STAFF"
+  role: "STAFF";
 }
 
 export interface AdminDoc extends CounselorDoc {
-  role: "ADMIN"
+  role: "ADMIN";
+  isSuperAdmin: boolean;
 }
 
 export type FamilyMemberDoc = CamperDoc | ParentDoc;
