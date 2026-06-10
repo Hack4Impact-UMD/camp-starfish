@@ -3,16 +3,16 @@ import { functions } from "@/config/firebase";
 import { useMutation } from "@tanstack/react-query";
 import { Employee } from "@/types/users/userTypes";
 
-export interface ProcessEmployeeCSVRequest {
+export interface ProcessEmployeeCsvRequest {
   employees: Pick<Employee, "id" | "name" | "email" | "role" | "gender" | "dateOfBirth">[];
 }
 
-async function processEmployeeCSV(req: ProcessEmployeeCSVRequest) {
-  await httpsCallable(functions, "processEmployeeCsv")(req);
+async function processEmployeeCsv(req: ProcessEmployeeCsvRequest) {
+  await httpsCallable(functions, "processEmployeeCsv")(JSON.stringify(req));
 }
 
-export default function useProcessEmployeeCSV() {
+export default function useProcessEmployeeCsv() {
   return useMutation({
-    mutationFn: (req: ProcessEmployeeCSVRequest) => processEmployeeCSV(req)
+    mutationFn: (req: ProcessEmployeeCsvRequest) => processEmployeeCsv(req)
   })
 }
