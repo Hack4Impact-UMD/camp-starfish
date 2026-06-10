@@ -31,7 +31,8 @@ export function generateAdmin(): Admin {
     dateOfBirth: moment(faker.date.birthdate({ mode: 'age', min: 18, max: 60 }).toISOString()),
     uid: faker.string.alphanumeric(28),
     nonoListIds: [],
-    yesyesListIds: []
+    yesyesListIds: [],
+    isSuperAdmin: false
   }
 }
 
