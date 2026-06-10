@@ -32,9 +32,14 @@ service cloud.firestore {
       return string(request.auth.token.campminderId);
     }
 
-    // The camper ids belonging to the signed-in parent.
+    // The camper ids belonging to the signed-in parent. Falls back to an empty
+    // list (clean deny) instead of erroring the whole rule when the parent's
+    // /users doc is missing or lacks camperIds. exists() + get() on the same
+    // doc are cached, so this costs one read.
     function myCamperIds() {
-      return get(/databases/$(database)/documents/users/$(myCampminderId())).data.camperIds;
+      return exists(/databases/$(database)/documents/users/$(myCampminderId()))
+        ? get(/databases/$(database)/documents/users/$(myCampminderId())).data.get('camperIds', [])
+        : [];
     }
 
     // Whether the given session includes one of the signed-in parent's campers.

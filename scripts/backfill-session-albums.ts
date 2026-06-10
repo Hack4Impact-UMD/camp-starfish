@@ -25,9 +25,7 @@ async function main() {
   const sessions = await db.collection("sessions").get();
   console.log(`Found ${sessions.size} session(s).`);
 
-  let written = 0;
-  let failed = 0;
-  for (const doc of sessions.docs) {
+  const results = await Promise.all(sessions.docs.map(async (doc) => {
     const data = doc.data();
     const projection = {
       attendeeIds: data.attendeeIds ?? [],
@@ -35,12 +33,14 @@ async function main() {
     };
     try {
       await db.collection("sessionAlbums").doc(doc.id).set(projection);
-      written++;
+      return true;
     } catch (error) {
-      failed++;
       console.error(`  ✗ ${doc.id}`, error);
+      return false;
     }
-  }
+  }));
+  const written = results.filter(Boolean).length;
+  const failed = results.length - written;
 
   console.log(`\nBackfilled ${written} sessionAlbums (${failed} failed).`);
 }

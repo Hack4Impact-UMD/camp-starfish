@@ -452,8 +452,11 @@ export function openEditActivitiesModal(props: EditActivitiesModalProps) {
   modals.open({
     fullScreen: true,
     children: <EditActivitiesModal {...props} />,
-    // The in-content "Back" button (which saves first) replaces the default close.
+    // The in-content "Back" button (which saves first) replaces the default close,
+    // so block every other dismissal path that would skip the save.
     withCloseButton: false,
+    closeOnEscape: false,
+    closeOnClickOutside: false,
     classNames: {
       body: "p-0",
     },

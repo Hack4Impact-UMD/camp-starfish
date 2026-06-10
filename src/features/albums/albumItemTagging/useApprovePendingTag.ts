@@ -1,5 +1,5 @@
 import { updateAlbumItemDoc } from "@/data/firestore/albumItems";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import useAlbumItemTagMutation from "@/features/albums/albumItemTagging/useAlbumItemTagMutation";
 import { arrayRemove, arrayUnion } from "firebase/firestore";
 
 interface ApprovePendingTagRequest {
@@ -17,11 +17,5 @@ async function approvePendingTag(req: ApprovePendingTagRequest) {
 }
 
 export default function useApprovePendingTag() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (req: ApprovePendingTagRequest) => approvePendingTag(req),
-    onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['albums', variables.albumId, 'albumItems', variables.albumItemId] });
-    }
-  })
+  return useAlbumItemTagMutation((req: ApprovePendingTagRequest) => approvePendingTag(req));
 }

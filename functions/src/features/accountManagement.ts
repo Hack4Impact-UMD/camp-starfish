@@ -13,7 +13,8 @@ const checkAllowlist = beforeUserCreated(async (event) => {
 
   const devAndNpoEmails = [process.env.DEV_EMAILS?.split(',') || [], process.env.NPO_EMAILS?.split(',') || []].flat();
   if (devAndNpoEmails.includes(email) || process.env.NODE_ENV === 'development') {
-    return { customClaims: { role: "ADMIN" } }
+    // No campminderId: these accounts are allowlisted by email and have no /users doc.
+    return { customClaims: { role: "ADMIN" } satisfies CustomClaims }
   }
 
   try {
