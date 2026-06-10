@@ -1,7 +1,7 @@
 import { AlbumItemReportStatus, UserDirectory } from "@/types/albums/albumTypes";
 import { ProgramArea, SectionSchedule } from "@/types/scheduling/schedulingTypes";
 import { AgeGroup, Bunk, Freeplay, NightSchedule, Post, SchedulingSectionType, SectionType } from "@/types/sessions/sessionTypes";
-import { Gender, Name, Role, User } from "@/types/users/userTypes";
+import { Gender, Name, Role } from "@/types/users/userTypes";
 import { DistributiveOmit } from "@/utils/types/typeUtils";
 import { Timestamp } from "firebase/firestore";
 
@@ -49,8 +49,6 @@ interface BaseUserDoc {
   gender: Gender;
   dateOfBirth: Timestamp;
 }
-
-export type Gender = "Male" | "Female" | "Other";
 
 export type PhotoPermissions = "PUBLIC" | "PRIVATE";
 export interface CamperDoc extends BaseUserDoc {

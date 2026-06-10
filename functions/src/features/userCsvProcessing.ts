@@ -1,5 +1,5 @@
 import { Camper, Parent, Role } from "@/types/users/userTypes";
-import { CallableRequest, HttpsError, onCall } from "firebase-functions/https"
+import { HttpsError, onCall } from "firebase-functions/https"
 import { ProcessFamilyCsvRequest } from "@/features/userManagement/useProcessFamilyCsv";
 import { ProcessEmployeeCsvRequest } from "@/features/userManagement/useProcessEmployeeCsv";
 import { adminDb } from "../config/firebaseAdminConfig";
