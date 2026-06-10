@@ -28,7 +28,12 @@ import {
   Flex,
   UnstyledButton,
 } from "@mantine/core";
-import { MdSearch, MdDelete, MdChevronLeft, MdChevronRight } from "react-icons/md";
+import {
+  MdSearch,
+  MdDelete,
+  MdChevronLeft,
+  MdChevronRight,
+} from "react-icons/md";
 import { User, Role } from "@/types/users/userTypes";
 import { useAuth } from "@/auth/useAuth";
 import useDeleteUser from "@/hooks/users/useDeleteUser";
@@ -48,7 +53,7 @@ interface UserManagementPageProps {
   users: User[];
 }
 
-export default function UserManagementPage({ users }: UserManagementPageProps) {
+export default function UsersPage({ users }: UserManagementPageProps) {
   const { token } = useAuth();
   // `campminderId` is set as a custom claim at account creation and equals the user's id.
   const currentUserId = token?.claims.campminderId as number | undefined;
@@ -57,7 +62,9 @@ export default function UserManagementPage({ users }: UserManagementPageProps) {
 
   const [globalFilter, setGlobalFilter] = useState("");
   const [roleFilter, setRoleFilter] = useState<string | null>(null);
-  const [sorting, setSorting] = useState<SortingState>([{ id: "firstName", desc: false }]);
+  const [sorting, setSorting] = useState<SortingState>([
+    { id: "firstName", desc: false },
+  ]);
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 });
 
   const data = useMemo(() => {
@@ -65,64 +72,70 @@ export default function UserManagementPage({ users }: UserManagementPageProps) {
     return users.filter((u) => u.role === roleFilter);
   }, [users, roleFilter]);
 
-  const columns = useMemo<ColumnDef<User>[]>(() => [
-    {
-      id: "firstName",
-      accessorFn: (row) => row.name.firstName,
-      header: "FIRST NAME",
-      cell: (info) => <Text size="sm">{info.getValue<string>() || "—"}</Text>,
-    },
-    {
-      id: "lastName",
-      accessorFn: (row) => row.name.lastName,
-      header: "LAST NAME",
-      cell: (info) => <Text size="sm">{info.getValue<string>() || "—"}</Text>,
-    },
-    {
-      id: "email",
-      accessorFn: (row) => 'email' in row ? row.email : "N/A",
-      header: "EMAIL",
-      cell: (info) => <Text size="sm">{info.getValue<string>() || "—"}</Text>,
-    },
-    {
-      id: "role",
-      accessorFn: (row) => row.role,
-      header: "ROLE",
-      cell: (info) => {
-        const role = info.getValue<Role>();
-        return (
-          <Badge color={ROLE_COLORS[role]} variant="light" radius="sm">
-            {toNormalCase(role)}
-          </Badge>
-        );
+  const columns = useMemo<ColumnDef<User>[]>(
+    () => [
+      {
+        id: "firstName",
+        accessorFn: (row) => row.name.firstName,
+        header: "FIRST NAME",
+        cell: (info) => <Text size="sm">{info.getValue<string>() || "—"}</Text>,
       },
-      enableSorting: false,
-    },
-    {
-      id: "actions",
-      header: "ACTIONS",
-      cell: (info) => {
-        const user = info.row.original;
-        const isSelf = currentUserId !== undefined && currentUserId === user.id;
-        return (
-          <ActionIcon
-            color="red"
-            variant="subtle"
-            aria-label="Delete user"
-            disabled={isSelf}
-            title={isSelf ? "You cannot delete your own account" : undefined}
-            onClick={() =>   openConfirmationModal({
-                title: `Delete User "${getFullName(user.name)}"?`,
-                onConfirm: () => deleteUserById({ userId: user.id })
-              })}
-          >
-            <MdDelete size={18} />
-          </ActionIcon>
-        );
+      {
+        id: "lastName",
+        accessorFn: (row) => row.name.lastName,
+        header: "LAST NAME",
+        cell: (info) => <Text size="sm">{info.getValue<string>() || "—"}</Text>,
       },
-      enableSorting: false,
-    },
-  ], [currentUserId, deleteUserById]);
+      {
+        id: "email",
+        accessorFn: (row) => ("email" in row ? row.email : "N/A"),
+        header: "EMAIL",
+        cell: (info) => <Text size="sm">{info.getValue<string>() || "—"}</Text>,
+      },
+      {
+        id: "role",
+        accessorFn: (row) => row.role,
+        header: "ROLE",
+        cell: (info) => {
+          const role = info.getValue<Role>();
+          return (
+            <Badge color={ROLE_COLORS[role]} variant="light" radius="sm">
+              {toNormalCase(role)}
+            </Badge>
+          );
+        },
+        enableSorting: false,
+      },
+      {
+        id: "actions",
+        header: "ACTIONS",
+        cell: (info) => {
+          const user = info.row.original;
+          const isSelf =
+            currentUserId !== undefined && currentUserId === user.id;
+          return (
+            <ActionIcon
+              color="red"
+              variant="subtle"
+              aria-label="Delete user"
+              disabled={isSelf}
+              title={isSelf ? "You cannot delete your own account" : undefined}
+              onClick={() =>
+                openConfirmationModal({
+                  title: `Delete User "${getFullName(user.name)}"?`,
+                  onConfirm: () => deleteUserById({ userId: user.id }),
+                })
+              }
+            >
+              <MdDelete size={18} />
+            </ActionIcon>
+          );
+        },
+        enableSorting: false,
+      },
+    ],
+    [currentUserId, deleteUserById],
+  );
 
   const table = useReactTable({
     data,
@@ -150,9 +163,7 @@ export default function UserManagementPage({ users }: UserManagementPageProps) {
       <div className="px-12 py-8">
         {/* Header with accent underline */}
         <Box mb="xl">
-          <Title order={1}>
-            User Management
-          </Title>
+          <Title order={1}>User Management</Title>
           <Text color="dimmed" c="dimmed" size="md" mt="md">
             Control access, assign roles, and monitor activity
           </Text>
@@ -161,7 +172,13 @@ export default function UserManagementPage({ users }: UserManagementPageProps) {
         {/* Toolbar + table card */}
         <Paper withBorder radius="lg" shadow="xs" p="lg">
           {/* Search & Filter Bar */}
-          <Flex justify="space-between" align="center" gap="md" mb="lg" wrap="wrap">
+          <Flex
+            justify="space-between"
+            align="center"
+            gap="md"
+            mb="lg"
+            wrap="wrap"
+          >
             <Group gap="lg" wrap="wrap">
               <TextInput
                 placeholder="Search users..."
@@ -170,7 +187,11 @@ export default function UserManagementPage({ users }: UserManagementPageProps) {
                 leftSection={<MdSearch size={16} />}
                 w={280}
               />
-              <Radio.Group value={roleFilter ?? ""} onChange={(v) => setRoleFilter(v || null)} aria-label="Filter by role">
+              <Radio.Group
+                value={roleFilter ?? ""}
+                onChange={(v) => setRoleFilter(v || null)}
+                aria-label="Filter by role"
+              >
                 <Group gap="md">
                   <Radio value="" label="All" />
                   {ALL_ROLES.map((r) => (
@@ -193,7 +214,9 @@ export default function UserManagementPage({ users }: UserManagementPageProps) {
                   ]}
                   defaultValue={"firstName"}
                   value={sortValue}
-                  onChange={(v) => setSorting(v ? [{ id: v, desc: false }] : [])}
+                  onChange={(v) =>
+                    setSorting(v ? [{ id: v, desc: false }] : [])
+                  }
                   w={150}
                   allowDeselect={false}
                 />
@@ -229,7 +252,10 @@ export default function UserManagementPage({ users }: UserManagementPageProps) {
                     {hg.headers.map((header) => (
                       <Table.Th key={header.id} className="whitespace-nowrap">
                         <Text size="sm" fw={600}>
-                          {flexRender(header.column.columnDef.header, header.getContext())}
+                          {flexRender(
+                            header.column.columnDef.header,
+                            header.getContext(),
+                          )}
                         </Text>
                       </Table.Th>
                     ))}
@@ -239,7 +265,10 @@ export default function UserManagementPage({ users }: UserManagementPageProps) {
               <Table.Tbody>
                 {table.getRowModel().rows.length === 0 ? (
                   <Table.Tr>
-                    <Table.Td colSpan={columns.length} className="text-center p-8">
+                    <Table.Td
+                      colSpan={columns.length}
+                      className="text-center p-8"
+                    >
                       <Text c="dimmed">No users found.</Text>
                     </Table.Td>
                   </Table.Tr>
@@ -248,7 +277,10 @@ export default function UserManagementPage({ users }: UserManagementPageProps) {
                     <Table.Tr key={row.id}>
                       {row.getVisibleCells().map((cell) => (
                         <Table.Td key={cell.id}>
-                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext(),
+                          )}
                         </Table.Td>
                       ))}
                     </Table.Tr>
@@ -259,7 +291,13 @@ export default function UserManagementPage({ users }: UserManagementPageProps) {
           </ScrollArea>
 
           {/* Pagination */}
-          <Flex align="center" justify="space-between" mt="lg" gap="sm" wrap="wrap">
+          <Flex
+            align="center"
+            justify="space-between"
+            mt="lg"
+            gap="sm"
+            wrap="wrap"
+          >
             <Box w={180} visibleFrom="sm" />
             <Group gap="md" justify="center">
               <UnstyledButton
@@ -285,7 +323,9 @@ export default function UserManagementPage({ users }: UserManagementPageProps) {
               </UnstyledButton>
             </Group>
             <Text size="sm" c="dimmed" w={180} ta="right">
-              {totalRows === 0 ? "No entries" : `Showing ${start}–${end} out of ${totalRows} entries`}
+              {totalRows === 0
+                ? "No entries"
+                : `Showing ${start}–${end} out of ${totalRows} entries`}
             </Text>
           </Flex>
         </Paper>

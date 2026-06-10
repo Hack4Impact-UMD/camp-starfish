@@ -4,10 +4,10 @@ import RequireAuth from "@/auth/RequireAuth";
 import { useAuth } from "@/auth/useAuth";
 import LoadingPage from "@/app/loading";
 import ErrorPage from "@/app/error";
-import UserManagementPage from "./UserManagementPage";
+import UsersPage from "./UsersPage";
 import useUserList from "@/hooks/users/useUserList";
 
-export default function UsersPage() {
+export default function UsersRoute() {
   const { token } = useAuth();
   const usersQuery = useUserList();
 
@@ -20,7 +20,7 @@ export default function UsersPage() {
       authCases={[
         {
           authFn: () => token?.claims.role === "ADMIN",
-          component: <UserManagementPage users={usersQuery.data} />,
+          component: <UsersPage users={usersQuery.data} />,
         },
       ]}
     />
