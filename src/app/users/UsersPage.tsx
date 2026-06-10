@@ -40,6 +40,9 @@ import useDeleteUser from "@/hooks/users/useDeleteUser";
 import openConfirmationModal from "@/components/modals/ConfirmationModal";
 import { ALL_ROLES, getFullName } from "@/types/users/userUtils";
 import { toNormalCase } from "@/utils/stringUtils";
+import useUserList from "@/hooks/users/useUserList";
+import LoadingPage from "../loading";
+import ErrorPage from "../error";
 
 const ROLE_COLORS: Record<Role, string> = {
   ADMIN: "error",
@@ -49,11 +52,23 @@ const ROLE_COLORS: Record<Role, string> = {
   CAMPER: "orange",
 };
 
-interface UserManagementPageProps {
+export default function UsersPage() {
+  const usersQuery = useUserList();
+  switch (usersQuery.status) {
+    case "pending":
+      return <LoadingPage />;
+    case "error":
+      return <ErrorPage error={new Error("Error loading users")} />;
+    case "success":
+      return <UsersPageContent users={usersQuery.data} />;
+  }
+}
+
+interface UsersPageContentProps {
   users: User[];
 }
 
-export default function UsersPage({ users }: UserManagementPageProps) {
+export function UsersPageContent({ users }: UsersPageContentProps) {
   const { token } = useAuth();
   // `campminderId` is set as a custom claim at account creation and equals the user's id.
   const currentUserId = token?.claims.campminderId as number | undefined;
