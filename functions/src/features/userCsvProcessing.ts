@@ -6,14 +6,23 @@ import { adminDb } from "../config/firebaseAdminConfig";
 import { batchGetUserDocs, createUserDoc, updateUserDoc } from "../data/firestore/users";
 import partition from "@/utils/data/partition";
 import { FieldValue } from "firebase-admin/firestore";
+import moment from "moment";
 
-export const processFamilyCsv = onCall(async (req: CallableRequest<ProcessFamilyCsvRequest>) => {
+export const processFamilyCsv = onCall(async (req) => {
   const role: Role | undefined = req.auth?.token.role;
   if (!role || role !== "ADMIN") {
     throw new HttpsError("permission-denied", "You do not have permission to create new users.");
   }
 
-  const { campers, parents } = req.data;
+  const input = JSON.parse(req.data) as ProcessFamilyCsvRequest;
+  const campers = input.campers.map(camper => ({
+    ...camper,
+    dateOfBirth: moment(camper.dateOfBirth)
+  }));
+  const parents = input.parents.map(parent => ({
+    ...parent,
+    dateOfBirth: moment(parent.dateOfBirth)
+  }))
 
   await adminDb.runTransaction(async (transaction) => {
     const allIds: number[] = [...Object.keys(campers), ...Object.keys(parents)].map(id => parseInt(id));
@@ -63,8 +72,10 @@ export const processEmployeeCsv = onCall(async (req) => {
     throw new HttpsError("permission-denied", "You do not have permission to create new users.");
   }
 
-  const employees = (JSON.parse(req.data) as ProcessEmployeeCsvRequest).employees;
-  console.log(employees);
+  const employees = (JSON.parse(req.data) as ProcessEmployeeCsvRequest).employees.map(employee => ({
+    ...employee,
+    dateOfBirth: moment(employee.dateOfBirth)
+  }));
   await adminDb.runTransaction(async (transaction) => {
     const allIds: number[] = employees.map(employee => employee.id);
     const existingEmployees = await batchGetUserDocs(allIds);

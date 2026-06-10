@@ -9,7 +9,7 @@ export interface ProcessFamilyCsvRequest {
 }
 
 async function processFamilyCsv(req: ProcessFamilyCsvRequest) {
-  await httpsCallable(functions, "processFamilyCsv")(req);
+  await httpsCallable(functions, "processFamilyCsv")(JSON.stringify(req));
 }
 
 export default function useProcessFamilyCsv() {
