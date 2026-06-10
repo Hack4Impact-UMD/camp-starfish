@@ -236,31 +236,32 @@ export function UploadUsersCsvModal() {
         </Text>
       )}
       {parsedData && (
-        <ScrollArea.Autosize className="max-h-[40vh] w-full">
+        <>
           <Title order={6}>
-            The following users were found. Please ensure they are correct
-            before uploading.
+            The following users were found. Please provide the missing fields before uploading.
           </Title>
-          {isParsedFamilyCsvData(parsedData) ? (
-            <FamilyUsersInputTables
-              familyMembers={parsedData}
-              genderSelects={genderSelects}
-              setGenderSelects={setGenderSelects}
-              dateOfBirthSelects={dateOfBirthSelects}
-              setDateOfBirthSelects={setDateOfBirthSelects}
-            />
-          ) : (
-            <EmployeeUsersInputTable
-              employees={parsedData}
-              roleSelects={roleSelects!}
-              setRoleSelects={setRoleSelects}
-              genderSelects={genderSelects}
-              setGenderSelects={setGenderSelects}
-              dateOfBirthSelects={dateOfBirthSelects}
-              setDateOfBirthSelects={setDateOfBirthSelects}
-            />
-          )}
-        </ScrollArea.Autosize>
+          <ScrollArea.Autosize className="max-h-[40vh] w-full">
+            {isParsedFamilyCsvData(parsedData) ? (
+              <FamilyUsersInputTables
+                familyMembers={parsedData}
+                genderSelects={genderSelects}
+                setGenderSelects={setGenderSelects}
+                dateOfBirthSelects={dateOfBirthSelects}
+                setDateOfBirthSelects={setDateOfBirthSelects}
+              />
+            ) : (
+              <EmployeeUsersInputTable
+                employees={parsedData}
+                roleSelects={roleSelects!}
+                setRoleSelects={setRoleSelects}
+                genderSelects={genderSelects}
+                setGenderSelects={setGenderSelects}
+                dateOfBirthSelects={dateOfBirthSelects}
+                setDateOfBirthSelects={setDateOfBirthSelects}
+              />
+            )}
+          </ScrollArea.Autosize>
+        </>
       )}
       <Button
         classNames={{ root: "self-center" }}
