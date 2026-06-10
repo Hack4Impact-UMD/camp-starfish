@@ -5,7 +5,7 @@ import { ProcessEmployeeCsvRequest } from "@/features/userManagement/useProcessE
 import { adminDb } from "../config/firebaseAdminConfig";
 import { batchGetUserDocs, createUserDoc, updateUserDoc } from "../data/firestore/users";
 import partition from "@/utils/data/partition";
-import { FieldValue } from "firebase-admin/firestore";
+import { FieldValue, Timestamp } from "firebase-admin/firestore";
 import moment from "moment";
 
 export const processFamilyCsv = onCall(async (req) => {
@@ -36,6 +36,7 @@ export const processFamilyCsv = onCall(async (req) => {
         const { id, ...camperDoc } = camper;
         return createUserDoc(id, {
           ...camperDoc,
+          dateOfBirth: Timestamp.fromDate(moment(camperDoc.dateOfBirth).toDate()),
           role: "CAMPER",
           photoPermissions: "PRIVATE",
           nonoListIds: [],
@@ -43,7 +44,7 @@ export const processFamilyCsv = onCall(async (req) => {
       }),
       newParents.map((parent) => {
         const { id, ...parentDoc } = parent;
-        return createUserDoc(id, { ...parentDoc, role: "PARENT" }, transaction);
+        return createUserDoc(id, { ...parentDoc, role: "PARENT", dateOfBirth: Timestamp.fromDate(moment(parentDoc.dateOfBirth).toDate()) }, transaction);
       }),
       existingCamperUpdates.map((camperUpdates) => {
         const { id, ...docUpdates } = camperUpdates;
@@ -82,9 +83,10 @@ export const processEmployeeCsv = onCall(async (req) => {
     const newEmployees = employees.filter(employee => !existingEmployees.some(user => user.id === employee.id));
     const promises = newEmployees.map(employee => {
       const { id, ...employeeDoc } = employee;
-      // @ts-expect-error - don't add fields that don't exist on Photographer type
-      return createUserDoc(id, employeeDoc.role === "PHOTOGRAPHER" ? employeeDoc : {
+      // @ts-expect-error - prevent extra fields from being added to Photographer type
+      return createUserDoc(id, employeeDoc.role === "PHOTOGRAPHER" ? {...employeeDoc, dateOfBirth: Timestamp.fromDate(moment(employeeDoc.dateOfBirth).toDate()) } : {
         ...employeeDoc,
+        dateOfBirth: Timestamp.fromDate(moment(employeeDoc.dateOfBirth).toDate()),
         nonoListIds: [],
         yesyesListIds: []
       }, transaction);
