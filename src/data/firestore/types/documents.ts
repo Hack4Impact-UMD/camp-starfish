@@ -1,7 +1,7 @@
 import { AlbumItemReportStatus, UserDirectory } from "@/types/albums/albumTypes";
 import { ProgramArea, SectionSchedule } from "@/types/scheduling/schedulingTypes";
 import { AgeGroup, Bunk, Freeplay, NightSchedule, Post, SchedulingSectionType, SectionType } from "@/types/sessions/sessionTypes";
-import { Gender, Name, Role, User } from "@/types/users/userTypes";
+import { Gender, Name, Role } from "@/types/users/userTypes";
 import { DistributiveOmit } from "@/utils/types/typeUtils";
 import { Timestamp } from "firebase/firestore";
 
@@ -41,7 +41,52 @@ export interface ResolvedAlbumItemReportDoc extends BaseAlbumItemReportDoc {
 };
 export type AlbumItemReportDoc = PendingAlbumItemReportDoc | ResolvedAlbumItemReportDoc;
 
-export type UserDoc = DistributiveOmit<User, "id">;
+interface BaseUserDoc {
+  uid?: string;
+  email?: string;
+  name: Name;
+  role: Role;
+  gender: Gender;
+  dateOfBirth: Timestamp;
+}
+
+export type PhotoPermissions = "PUBLIC" | "PRIVATE";
+export interface CamperDoc extends BaseUserDoc {
+  role: "CAMPER";
+  photoPermissions: PhotoPermissions;
+  parentIds: number[];
+  nonoListIds: number[];
+}
+
+export interface ParentDoc extends BaseUserDoc {
+  role: "PARENT";
+  email: string;
+  camperIds: number[];
+}
+
+export interface PhotographerDoc extends BaseUserDoc {
+  role: "PHOTOGRAPHER";
+  email: string;
+}
+
+export interface CounselorDoc extends BaseUserDoc {
+  role: "STAFF" | "ADMIN";
+  email: string;
+  nonoListIds: number[];
+  yesyesListIds: number[];
+}
+
+export interface StaffDoc extends CounselorDoc {
+  role: "STAFF"
+}
+
+export interface AdminDoc extends CounselorDoc {
+  role: "ADMIN"
+}
+
+export type FamilyMemberDoc = CamperDoc | ParentDoc;
+export type EmployeeDoc = StaffDoc | PhotographerDoc | AdminDoc;
+export type UserDoc = CamperDoc | ParentDoc | PhotographerDoc | StaffDoc | AdminDoc;
 
 export interface SessionDoc {
   name: string;

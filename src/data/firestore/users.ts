@@ -16,12 +16,15 @@ import {
 import { setDoc, getDoc, updateDoc, deleteDoc, batchGetDocs, executeQuery } from "./firestoreClientOperations";
 import { RootLevelCollection } from "./types/collections";
 import { FirestoreQueryOptions } from "./types/queries";
+import moment from "moment";
 
 function fromFirestore(snapshot: DocumentSnapshot<UserDoc, UserDoc> | QueryDocumentSnapshot<UserDoc, UserDoc>): User {
   if (!snapshot.exists()) { throw Error("Document not found"); }
+  const userDoc = snapshot.data();
   return {
     id: Number(snapshot.ref.id),
-    ...snapshot.data()
+    ...userDoc,
+    dateOfBirth: moment(userDoc.dateOfBirth.toDate())
   }
 }
 

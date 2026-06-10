@@ -1,5 +1,5 @@
 import { AttendeeRole } from "../sessions/sessionTypes";
-import { EmployeeRole, Name, Role } from "./userTypes";
+import { EmployeeRole, Gender, Name, Role } from "./userTypes";
 
 export function getFullName(name: Name) {
   return `${name.firstName} ${name.middleName ? `${name.middleName} ` : ''}${name.lastName}`
@@ -8,6 +8,8 @@ export function getFullName(name: Name) {
 export const ALL_ROLES: Role[] = ["CAMPER", "PARENT", "PHOTOGRAPHER", "STAFF", "ADMIN"];
 export const EMPLOYEE_ROLES: EmployeeRole[] = ["STAFF", "PHOTOGRAPHER", "ADMIN"];
 export const ATTENDEE_ROLES: AttendeeRole[] = ["CAMPER", "STAFF", "ADMIN"];
+
+export const GENDERS: Gender[] = ["Male", "Female", "Other"];
 
 export function isEmployeeRole(role: Role): role is EmployeeRole {
   // @ts-expect-error - Type 'Role' is not assignable to type 'EmployeeRole', but this is a type guard
