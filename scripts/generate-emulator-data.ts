@@ -2,7 +2,7 @@ import { faker } from "@faker-js/faker";
 import { Admin, Camper, Gender, Name, Parent, Photographer, Staff } from "@/types/users/userTypes";
 import { Album } from "@/types/albums/albumTypes";
 import { CommonSection, SchedulingSection, Section, Session } from "@/types/sessions/sessionTypes";
-import { BundleActivityWithAssignments, BundleBlock, BundleSectionSchedule, BunkJamboreeActivityWithAssignments, BunkJamboreeBlock, BunkJamboreeSectionSchedule, JamboreeActivity, NonBunkJamboreeActivityWithAssignments, NonBunkJamboreeBlock, NonBunkJamboreeSectionSchedule } from "@/types/scheduling/schedulingTypes";
+import { BundleActivityWithAssignments, BundleBlock, BundleSectionSchedule, BunkJamboreeActivityWithAssignments, BunkJamboreeBlock, BunkJamboreeSectionSchedule, NonBunkJamboreeActivityWithAssignments, NonBunkJamboreeBlock, NonBunkJamboreeSectionSchedule } from "@/types/scheduling/schedulingTypes";
 import moment from "moment";
 
 export function resetFaker() {
