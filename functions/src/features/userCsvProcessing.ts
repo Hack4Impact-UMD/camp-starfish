@@ -84,7 +84,7 @@ export const processEmployeeCsv = onCall(async (req) => {
     const promises = newEmployees.map(employee => {
       const { id, ...employeeDoc } = employee;
       // @ts-expect-error - prevent extra fields from being added to Photographer type
-      return createUserDoc(id, employeeDoc.role === "PHOTOGRAPHER" ? {...employeeDoc, dateOfBirth: Timestamp.fromDate(moment(employeeDoc.dateOfBirth).toDate()) } : {
+      return createUserDoc(id, employeeDoc.role === "PHOTOGRAPHER" ? { ...employeeDoc, dateOfBirth: Timestamp.fromDate(moment(employeeDoc.dateOfBirth).toDate()) } : {
         ...employeeDoc,
         dateOfBirth: Timestamp.fromDate(moment(employeeDoc.dateOfBirth).toDate()),
         nonoListIds: [],
