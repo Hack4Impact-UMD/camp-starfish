@@ -22,7 +22,7 @@ const checkAllowlist = beforeUserCreated(async (event) => {
       customClaims: (user.role === "ADMIN" ?
         {
           role: "ADMIN",
-          camperminderId: user.id,
+          campminderId: user.id,
           isSuperAdmin: false
         } : {
           role: user.role,

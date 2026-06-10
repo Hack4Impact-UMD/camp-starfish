@@ -8,7 +8,7 @@ export interface NonAdminCustomClaims {
 
 export interface AdminCustomClaims {
   role: "ADMIN";
-  camperminderId: number;
+  campminderId: number;
   isSuperAdmin: boolean;
 }
 
