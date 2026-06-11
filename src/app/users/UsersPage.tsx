@@ -126,33 +126,33 @@ export function UsersPageContent({ users }: UsersPageContentProps) {
         },
         enableSorting: false,
       },
-      {
-        id: "actions",
-        header: "ACTIONS",
-        cell: (info) => {
-          const user = info.row.original;
-          const isSelf =
-            currentUserId !== undefined && currentUserId === user.id;
-          return (
-            <ActionIcon
-              color="red"
-              variant="subtle"
-              aria-label="Delete user"
-              disabled={isSelf}
-              title={isSelf ? "You cannot delete your own account" : undefined}
-              onClick={() =>
-                openConfirmationModal({
-                  title: `Delete User "${getFullName(user.name)}"?`,
-                  onConfirm: () => deleteUserById({ userId: user.id }),
-                })
-              }
-            >
-              <MdDelete size={18} />
-            </ActionIcon>
-          );
-        },
-        enableSorting: false,
-      },
+      // {
+      //   id: "actions",
+      //   header: "ACTIONS",
+      //   cell: (info) => {
+      //     const user = info.row.original;
+      //     const isSelf =
+      //       currentUserId !== undefined && currentUserId === user.id;
+      //     return (
+      //       <ActionIcon
+      //         color="red"
+      //         variant="subtle"
+      //         aria-label="Delete user"
+      //         disabled={isSelf}
+      //         title={isSelf ? "You cannot delete your own account" : undefined}
+      //         onClick={() =>
+      //           openConfirmationModal({
+      //             title: `Delete User "${getFullName(user.name)}"?`,
+      //             onConfirm: () => deleteUserById({ userId: user.id }),
+      //           })
+      //         }
+      //       >
+      //         <MdDelete size={18} />
+      //       </ActionIcon>
+      //     );
+      //   },
+      //   enableSorting: false,
+      // },
     ],
     [currentUserId, deleteUserById],
   );
