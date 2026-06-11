@@ -2,29 +2,39 @@ import { CallableRequest, HttpsError, onCall } from "firebase-functions/https";
 import { beforeUserCreated } from "firebase-functions/v2/identity";
 import { z } from "zod";
 import { adminAuth } from "../config/firebaseAdminConfig";
-import { getUserDocByEmail, getUserDocById, deleteUserDoc } from "../data/firestore/users";
+import { getUserDocByEmail, getUserDocById, deleteUserDoc, updateUserDoc } from "../data/firestore/users";
 import { CustomClaims } from "@/auth/types/clientAuthTypes";
 import { isAdmin } from "@/types/users/userTypeGuards";
 
 const checkAllowlist = beforeUserCreated(async (event) => {
-  const email = event.data?.email;
+  if (!event.data) {
+    throw new HttpsError("invalid-argument", "Missing user data");
+  }
+
+  const email = event.data.email;
   if (!email) {
     throw new HttpsError("failed-precondition", "User has no email address");
   }
 
   try {
     const user = await getUserDocByEmail(email);
-    return {
-      customClaims: (user.role === "ADMIN" ?
-        {
-          role: "ADMIN",
-          campminderId: user.id,
-          isSuperAdmin: false
-        } : {
-          role: user.role,
-          campminderId: user.id
-        }) satisfies CustomClaims
+    if (user.uid) {
+      throw new HttpsError("failed-precondition", "User already has an account");
     }
+
+    const customClaims: CustomClaims = (user.role === "ADMIN" ?
+      {
+        role: "ADMIN",
+        campminderId: user.id,
+        isSuperAdmin: false
+      } : {
+        role: user.role,
+        campminderId: user.id
+      }) satisfies CustomClaims
+    const uid = event.data.uid;
+    await adminAuth.setCustomUserClaims(uid, customClaims);
+    await updateUserDoc(user.id, { uid });
+    
   } catch (error: unknown) {
     if (error instanceof Error) {
       if (error.message === "No user with email found") {
