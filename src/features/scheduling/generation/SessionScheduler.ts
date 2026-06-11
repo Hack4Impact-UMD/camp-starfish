@@ -1,6 +1,14 @@
 
 import { StaffAttendee, AdminAttendee, NightSchedule, Session, Section } from "@/types/sessions/sessionTypes";
 
+interface GenerateSessionScheduleRequest {
+  session: Session;
+}
+
+export default function generateSessionSchedule() {
+
+}
+
 export class SessionScheduler {
   session: Session | undefined;
   sections: Section[] = [];
