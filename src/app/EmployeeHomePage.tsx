@@ -27,9 +27,9 @@ export default function EmployeeHomePage() {
           description="Use the activity scheduler to organize campers and staff"
         />
         <GalleryCardOne 
-          title="CAMPERS" 
-          href="/campers" 
-          description="Access the cohort list and each camper's details"
+          title="USERS"
+          href="/users" 
+          description="Create and manage user accounts"
         />
       </div>
     </div>
