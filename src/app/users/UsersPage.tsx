@@ -29,12 +29,14 @@ import {
   UnstyledButton,
   Breadcrumbs,
   Anchor,
+  Tooltip,
 } from "@mantine/core";
 import {
   MdSearch,
   MdDelete,
   MdChevronLeft,
   MdChevronRight,
+  MdUploadFile,
 } from "react-icons/md";
 import { User, Role } from "@/types/users/userTypes";
 import { useAuth } from "@/auth/useAuth";
@@ -45,6 +47,7 @@ import { toNormalCase } from "@/utils/stringUtils";
 import useUserList from "@/hooks/users/useUserList";
 import LoadingPage from "../loading";
 import ErrorPage from "../error";
+import openUploadUsersCsvModal from "@/components/UploadUsersCsvModal/UploadUsersCsvModal";
 
 const ROLE_COLORS: Record<Role, string> = {
   ADMIN: "error",
@@ -185,7 +188,14 @@ export function UsersPageContent({ users }: UsersPageContentProps) {
             </Anchor>
           ))}
         </Breadcrumbs>
-        <Title order={1}>Users</Title>
+        <div className="flex items-center justify-between">
+          <Title order={1}>Users</Title>
+          <Tooltip label="Upload Users CSV">
+            <ActionIcon color="aqua" onClick={() => openUploadUsersCsvModal()}>
+              <MdUploadFile size={30} />
+            </ActionIcon>
+          </Tooltip>
+        </div>
       </div>
       <Paper withBorder radius="lg" shadow="xs" p="lg">
         <Flex
