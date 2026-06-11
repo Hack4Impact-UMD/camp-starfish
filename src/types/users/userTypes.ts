@@ -51,11 +51,12 @@ export interface Counselor extends BaseUser {
 }
 
 export interface Staff extends Counselor {
-  role: "STAFF"
+  role: "STAFF";
 }
 
 export interface Admin extends Counselor {
-  role: "ADMIN"
+  role: "ADMIN";
+  isSuperAdmin: boolean;
 }
 
 export type FamilyMember = Camper | Parent;

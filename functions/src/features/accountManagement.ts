@@ -19,10 +19,15 @@ const checkAllowlist = beforeUserCreated(async (event) => {
   try {
     const user = await getUserDocByEmail(email);
     return {
-      customClaims: {
-        role: user.role,
-        campminderId: user.id
-      } satisfies CustomClaims
+      customClaims: (user.role === "ADMIN" ?
+        {
+          role: "ADMIN",
+          campminderId: user.id,
+          isSuperAdmin: false
+        } : {
+          role: user.role,
+          campminderId: user.id
+        }) satisfies CustomClaims
     }
   } catch (error: unknown) {
     if (error instanceof Error) {
