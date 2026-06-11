@@ -76,6 +76,6 @@ export async function updateAttendeeDoc(campminderId: number, sessionId: string,
   await updateDoc<AttendeeDoc>(doc(db, RootLevelCollection.SESSIONS, sessionId, SessionsSubcollection.ATTENDEES, String(campminderId)) as DocumentReference<AttendeeDoc, AttendeeDoc>, updates, instance);
 }
 
-export async function deleteAttendeeDoc(camperminderId: number, sessionId: string, instance?: Transaction | WriteBatch): Promise<void> {
-  await deleteDoc<AttendeeDoc>(doc(db, RootLevelCollection.SESSIONS, sessionId, SessionsSubcollection.ATTENDEES, String(camperminderId)) as DocumentReference<AttendeeDoc, AttendeeDoc>, instance);
+export async function deleteAttendeeDoc(campminderId: number, sessionId: string, instance?: Transaction | WriteBatch): Promise<void> {
+  await deleteDoc<AttendeeDoc>(doc(db, RootLevelCollection.SESSIONS, sessionId, SessionsSubcollection.ATTENDEES, String(campminderId)) as DocumentReference<AttendeeDoc, AttendeeDoc>, instance);
 }

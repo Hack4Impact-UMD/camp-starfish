@@ -2,7 +2,7 @@ import { faker } from "@faker-js/faker";
 import { Admin, Camper, Gender, Name, Parent, Photographer, Staff } from "@/types/users/userTypes";
 import { Album } from "@/types/albums/albumTypes";
 import { CommonSection, SchedulingSection, Section, Session } from "@/types/sessions/sessionTypes";
-import { BundleActivity, BundleActivityWithAssignments, BundleBlock, BundleSectionSchedule, BunkJamboreeActivityWithAssignments, BunkJamboreeBlock, BunkJamboreeSectionSchedule, JamboreeActivity, NonBunkJamboreeActivityWithAssignments, NonBunkJamboreeBlock, NonBunkJamboreeSectionSchedule } from "@/types/scheduling/schedulingTypes";
+import { BundleActivityWithAssignments, BundleBlock, BundleSectionSchedule, BunkJamboreeActivityWithAssignments, BunkJamboreeBlock, BunkJamboreeSectionSchedule, NonBunkJamboreeActivityWithAssignments, NonBunkJamboreeBlock, NonBunkJamboreeSectionSchedule } from "@/types/scheduling/schedulingTypes";
 import moment from "moment";
 
 export function resetFaker() {
@@ -31,7 +31,8 @@ export function generateAdmin(): Admin {
     dateOfBirth: moment(faker.date.birthdate({ mode: 'age', min: 18, max: 60 }).toISOString()),
     uid: faker.string.alphanumeric(28),
     nonoListIds: [],
-    yesyesListIds: []
+    yesyesListIds: [],
+    isSuperAdmin: false
   }
 }
 
