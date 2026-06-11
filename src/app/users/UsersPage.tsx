@@ -27,6 +27,8 @@ import {
   ActionIcon,
   Flex,
   UnstyledButton,
+  Breadcrumbs,
+  Anchor,
 } from "@mantine/core";
 import {
   MdSearch,
@@ -174,8 +176,17 @@ export function UsersPageContent({ users }: UsersPageContentProps) {
   const hasFilters = !!globalFilter || !!roleFilter;
 
   return (
-    <div className="flex flex-col self-center w-4/5 gap-5">
-      <Title order={1}>Users</Title>
+    <div className="flex flex-col w-6/7 grow mx-auto px-4 py-6 gap-6">
+      <div className="flex flex-col gap-xs">
+        <Breadcrumbs separator=">>">
+          {[{ title: "USERS", href: "/users" }].map((breadcrumb) => (
+            <Anchor href={breadcrumb.href} key={breadcrumb.title}>
+              <Title order={6}>{breadcrumb.title}</Title>
+            </Anchor>
+          ))}
+        </Breadcrumbs>
+        <Title order={1}>Users</Title>
+      </div>
       <Paper withBorder radius="lg" shadow="xs" p="lg">
         <Flex
           justify="space-between"
