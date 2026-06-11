@@ -12,11 +12,6 @@ const checkAllowlist = beforeUserCreated(async (event) => {
     throw new HttpsError("failed-precondition", "User has no email address");
   }
 
-  const devAndNpoEmails = [process.env.DEV_EMAILS?.split(',') || [], process.env.NPO_EMAILS?.split(',') || []].flat();
-  if (devAndNpoEmails.includes(email) || process.env.NODE_ENV === 'development') {
-    return { customClaims: { role: "ADMIN" } }
-  }
-
   try {
     const user = await getUserDocByEmail(email);
     return {
