@@ -3,13 +3,13 @@
 import React from "react";
 import Link from "next/link";
 import darkBgLogo from "../assets/logos/darkBgLogo.png";
-import profile from "../assets/logos/Profile.png";
+import { MdAccountCircle } from "react-icons/md";
 import { useAuth } from "@/auth/useAuth";
-import { Role } from "@/types/personTypes";
+import { Role } from "@/types/users/userTypes";
 import Image from "next/image";
 
 const navbarLinks: { name: string; href: string; roles: Role[] }[] = [
-  { name: "Programs", href: "/programs", roles: ["STAFF", "ADMIN"] },
+  { name: "Sessions", href: "/sessions", roles: ["STAFF", "ADMIN"] },
   {
     name: "Campers",
     href: "/campers",
@@ -19,6 +19,11 @@ const navbarLinks: { name: string; href: string; roles: Role[] }[] = [
     name: "Albums",
     href: "/albums",
     roles: ["STAFF", "ADMIN", "PHOTOGRAPHER", "PARENT"],
+  },
+  {
+    name: "Users",
+    href: "/users",
+    roles: ["ADMIN"],
   },
 ];
 
@@ -60,12 +65,7 @@ const Navbar: React.FC = () => {
       {auth.token && (
         <div className="flex-none">
           <Link href="/profile">
-            <Image
-              className="w-[62px] h-[62px] flex-none cursor-pointer"
-              src={profile.src}
-              alt="Profile"
-              width={50} height={50}
-            />
+            <MdAccountCircle size={50} color="gray" />
           </Link>
         </div>
       )}
