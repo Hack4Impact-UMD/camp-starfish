@@ -6,6 +6,8 @@ import {
   Attendee,
 } from "@/types/sessions/sessionTypes";
 import { SectionActivityPreferences, NonBunkJamboreeSectionSchedule } from "@/types/scheduling/schedulingTypes";
+import { getBlockIdFromNum } from "@/types/scheduling/schedulingUtils";
+import { shuffle } from "@/utils/data/shuffle";
 
 interface GenerateNonBunkJamboreeScheduleRequest {
   sessionId: string;
@@ -37,8 +39,9 @@ export default function generateNonBunkJamboreeSchedule(req: GenerateNonBunkJamb
   }
 
   // Assign periods off to staff and admin
+  const counselors = shuffle([...staff, ...admins]);
   for (let i = 0; i < numBlocks; i++) {
-    const blockId = 
+    const blockId = getBlockIdFromNum(i);
   }
 
   // Assign remaining employees to periods off
