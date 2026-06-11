@@ -13,12 +13,15 @@ import {
 import { createDoc, getDoc, updateDoc, deleteDoc, executeQuery, batchGetDocs } from "./firestoreAdminOperations";
 import { RootLevelCollection } from "@/data/firestore/types/collections";
 import { adminDb } from "../../config/firebaseAdminConfig";
+import moment from "moment";
 
 function fromFirestore(snapshot: DocumentSnapshot<UserDoc, UserDoc> | QueryDocumentSnapshot<UserDoc, UserDoc>): User {
   if (!snapshot.exists) { throw Error("Document not found"); };
+  const userDoc = snapshot.data() as UserDoc;
   return {
     id: Number(snapshot.ref.id),
-    ...snapshot.data() as UserDoc
+    ...userDoc,
+    dateOfBirth: moment(userDoc.dateOfBirth.toDate())
   }
 }
 

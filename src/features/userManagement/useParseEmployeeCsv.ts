@@ -8,7 +8,7 @@ interface ParseEmployeeCsvRequest {
   csvFile: File;
 }
 
-interface RawEmployeeCSVRecord {
+interface RawEmployeeCsvRecord {
   "First Name": string;
   "Last Name": string;
   PersonID: string;
@@ -16,7 +16,7 @@ interface RawEmployeeCSVRecord {
 }
 
 interface RawEmployeeCsvRecordWithInfo {
-  record: RawEmployeeCSVRecord;
+  record: RawEmployeeCsvRecord;
   info: Info;
 }
 

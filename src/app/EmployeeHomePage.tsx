@@ -31,11 +31,11 @@ export default function EmployeeHomePage() {
         />
         {auth.role === "ADMIN" && (
           <GalleryCardOne
-            title="CAMPERS"
-            href="/campers"
-            description="Access the cohort list and each camper's details"
+            title="USERS"
+            href="/users"
+            description="Create and manage user accounts"
             icon={<MdGroups size={32} />}
-            buttonLabel="VIEW CAMPERS"
+            buttonLabel="VIEW USERS"
           />
         )}
       </div>

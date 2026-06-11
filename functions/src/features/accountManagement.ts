@@ -4,6 +4,7 @@ import { z } from "zod";
 import { adminAuth } from "../config/firebaseAdminConfig";
 import { getUserDocByEmail, getUserDocById, deleteUserDoc } from "../data/firestore/users";
 import { CustomClaims } from "@/auth/types/clientAuthTypes";
+import { isAdmin } from "@/types/users/userTypeGuards";
 
 const checkAllowlist = beforeUserCreated(async (event) => {
   const email = event.data?.email;
@@ -11,19 +12,18 @@ const checkAllowlist = beforeUserCreated(async (event) => {
     throw new HttpsError("failed-precondition", "User has no email address");
   }
 
-  const devAndNpoEmails = [process.env.DEV_EMAILS?.split(',') || [], process.env.NPO_EMAILS?.split(',') || []].flat();
-  if (devAndNpoEmails.includes(email) || process.env.NODE_ENV === 'development') {
-    // No campminderId: these accounts are allowlisted by email and have no /users doc.
-    return { customClaims: { role: "ADMIN" } satisfies CustomClaims }
-  }
-
   try {
     const user = await getUserDocByEmail(email);
     return {
-      customClaims: {
-        role: user.role,
-        campminderId: user.id
-      } satisfies CustomClaims
+      customClaims: (user.role === "ADMIN" ?
+        {
+          role: "ADMIN",
+          campminderId: user.id,
+          isSuperAdmin: false
+        } : {
+          role: user.role,
+          campminderId: user.id
+        }) satisfies CustomClaims
     }
   } catch (error: unknown) {
     if (error instanceof Error) {
@@ -67,6 +67,9 @@ const deleteUserAccount = onCall(async (req: CallableRequest<unknown>) => {
   let user;
   try {
     user = await getUserDocById(userId);
+    if (isAdmin(user) && user.isSuperAdmin) {
+      throw new HttpsError("failed-precondition", "Super admin account cannot be deleted.");
+    }
   } catch {
     throw new HttpsError("not-found", "User not found.");
   }

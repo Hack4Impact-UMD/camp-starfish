@@ -8,7 +8,7 @@ interface ParseFamilyCsvRequest {
   csvFile: File;
 }
 
-interface BaseRawFamilyCSVRecord {
+interface BaseRawFamilyCsvRecord {
   "First Name": string;
   "Last Name": string;
   PersonID: string;
@@ -18,24 +18,24 @@ interface BaseRawFamilyCSVRecord {
   "F1P1 Login/Email": string;
 }
 
-interface RawFamilyCsvRecordOneParent extends BaseRawFamilyCSVRecord {
+interface RawFamilyCsvRecordOneParent extends BaseRawFamilyCsvRecord {
   "F1P2 First Name": "";
   "F1P2 Last Name": "";
   "F1P2 Person ID": "";
   "F1P2 Login/Email": "";
 }
 
-interface RawFamilyCsvRecordTwoParents extends BaseRawFamilyCSVRecord {
+interface RawFamilyCsvRecordTwoParents extends BaseRawFamilyCsvRecord {
   "F1P2 First Name": string;
   "F1P2 Last Name": string;
   "F1P2 Person ID": string;
   "F1P2 Login/Email": string;
 }
 
-type RawFamilyCSVRecord = RawFamilyCsvRecordOneParent | RawFamilyCsvRecordTwoParents;
+type RawFamilyCsvRecord = RawFamilyCsvRecordOneParent | RawFamilyCsvRecordTwoParents;
 
 type RawFamilyCsvRecordWithInfo = {
-  record: RawFamilyCSVRecord;
+  record: RawFamilyCsvRecord;
   info: Info;
 };
 
@@ -67,8 +67,8 @@ const ParsedFamilyCsvRecordSchema = BaseFamilyCsvRecordSchema.and(FamilyCsvRecor
 type ParsedFamilyCsvRecord = z.infer<typeof ParsedFamilyCsvRecordSchema>;
 
 function parseFamilyRecords(data: RawFamilyCsvRecordWithInfo[]): ParsedFamilyCsvData {
-  const campers: ParsedFamilyCsvData["campers"] = {};
-  const parents: ParsedFamilyCsvData["parents"] = {};
+  const campersById: { [camperId: number]: ParsedFamilyCsvData["campers"][number]; } = {};
+  const parentsById: { [parentId: number]: ParsedFamilyCsvData["parents"][number]; } = {};
   const invalidLines: number[] = [];
 
   data.forEach(({ record, info }) => {
@@ -82,7 +82,7 @@ function parseFamilyRecords(data: RawFamilyCsvRecordWithInfo[]): ParsedFamilyCsv
     const camperId = parsedRecord.PersonID;
     const parent1Id = parsedRecord["F1P1 Person ID"];
     const parent2Id = parsedRecord["F1P2 Person ID"];
-    campers[camperId] = {
+    campersById[camperId] = {
       id: camperId,
       name: {
         firstName: record["First Name"],
@@ -93,10 +93,10 @@ function parseFamilyRecords(data: RawFamilyCsvRecordWithInfo[]): ParsedFamilyCsv
         : [parent1Id, parent2Id],
     };
 
-    if (parents[parent1Id]) {
-      parents[parent1Id].camperIds.push(camperId);
+    if (parentsById[parent1Id]) {
+      parentsById[parent1Id].camperIds.push(camperId);
     } else {
-      parents[parent1Id] = {
+      parentsById[parent1Id] = {
         id: parseInt(record["F1P1 Person ID"]),
         name: {
           firstName: record["F1P1 First Name"],
@@ -108,10 +108,10 @@ function parseFamilyRecords(data: RawFamilyCsvRecordWithInfo[]): ParsedFamilyCsv
     }
 
     if (parent2Id !== undefined) {
-      if (parents[parent2Id]) {
-        parents[parent2Id].camperIds.push(camperId);
+      if (parentsById[parent2Id]) {
+        parentsById[parent2Id].camperIds.push(camperId);
       } else {
-        parents[parent2Id] = {
+        parentsById[parent2Id] = {
           id: parent2Id,
           name: {
             firstName: record["F1P2 First Name"],
@@ -126,7 +126,10 @@ function parseFamilyRecords(data: RawFamilyCsvRecordWithInfo[]): ParsedFamilyCsv
   if (invalidLines.length > 0) {
     throw Error(`Invalid record(s) on line(s) ${invalidLines.join(", ")}. Please fix before uploading.`);
   }
-  return { campers, parents };
+  return {
+    campers: Object.values(campersById),
+    parents: Object.values(parentsById)
+  };
 }
 
 const REQUIRED_COLUMNS = [

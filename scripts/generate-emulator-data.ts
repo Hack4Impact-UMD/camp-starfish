@@ -2,7 +2,7 @@ import { faker } from "@faker-js/faker";
 import { Admin, Camper, Gender, Name, Parent, Photographer, Staff } from "@/types/users/userTypes";
 import { Album } from "@/types/albums/albumTypes";
 import { CommonSection, SchedulingSection, Section, Session } from "@/types/sessions/sessionTypes";
-import { BundleActivity, BundleActivityWithAssignments, BundleBlock, BundleSectionSchedule, BunkJamboreeActivityWithAssignments, BunkJamboreeBlock, BunkJamboreeSectionSchedule, JamboreeActivity, NonBunkJamboreeActivityWithAssignments, NonBunkJamboreeBlock, NonBunkJamboreeSectionSchedule } from "@/types/scheduling/schedulingTypes";
+import { BundleActivityWithAssignments, BundleBlock, BundleSectionSchedule, BunkJamboreeActivityWithAssignments, BunkJamboreeBlock, BunkJamboreeSectionSchedule, NonBunkJamboreeActivityWithAssignments, NonBunkJamboreeBlock, NonBunkJamboreeSectionSchedule } from "@/types/scheduling/schedulingTypes";
 import moment from "moment";
 
 export function resetFaker() {
@@ -28,10 +28,11 @@ export function generateAdmin(): Admin {
     role: "ADMIN",
     gender: generateGender(),
     email: faker.internet.email(),
-    dateOfBirth: faker.date.birthdate({ mode: 'age', min: 18, max: 60 }).toISOString(),
+    dateOfBirth: moment(faker.date.birthdate({ mode: 'age', min: 18, max: 60 }).toISOString()),
     uid: faker.string.alphanumeric(28),
     nonoListIds: [],
-    yesyesListIds: []
+    yesyesListIds: [],
+    isSuperAdmin: false
   }
 }
 
@@ -42,7 +43,7 @@ export function generateStaff(): Staff {
     role: "STAFF",
     gender: generateGender(),
     email: faker.internet.email(),
-    dateOfBirth: faker.date.birthdate({ mode: 'age', min: 18, max: 60 }).toISOString(),
+    dateOfBirth: moment(faker.date.birthdate({ mode: 'age', min: 18, max: 60 }).toISOString()),
     uid: faker.string.alphanumeric(28),
     nonoListIds: [],
     yesyesListIds: []
@@ -54,7 +55,7 @@ export function generateCamper(): Camper {
     id: faker.number.int({ min: 10000000, max: 99999999 }),
     name: generateName(),
     role: "CAMPER",
-    dateOfBirth: faker.date.birthdate({ mode: 'age', min: 7, max: 18 }).toISOString(),
+    dateOfBirth: moment(faker.date.birthdate({ mode: 'age', min: 7, max: 18 }).toISOString()),
     gender: generateGender(),
     ...(faker.datatype.boolean() ? { email: faker.internet.email() } : {}),
     uid: faker.string.alphanumeric(28),
@@ -68,7 +69,7 @@ export function generateParent(): Parent {
   return {
     id: faker.number.int({ min: 10000000, max: 99999999 }),
     name: generateName(),
-    dateOfBirth: faker.date.birthdate({ mode: 'age', min: 25, max: 60 }).toISOString(),
+    dateOfBirth: moment(faker.date.birthdate({ mode: 'age', min: 25, max: 60 }).toISOString()),
     role: "PARENT",
     gender: generateGender(),
     email: faker.internet.email(),
@@ -82,7 +83,7 @@ export function generatePhotographer(): Photographer {
     id: faker.number.int({ min: 10000000, max: 99999999 }),
     name: generateName(),
     role: "PHOTOGRAPHER",
-    dateOfBirth: faker.date.birthdate({ mode: 'age', min: 18, max: 60 }).toISOString(),
+    dateOfBirth: moment(faker.date.birthdate({ mode: 'age', min: 18, max: 60 }).toISOString()),
     gender: generateGender(),
     email: faker.internet.email(),
     uid: faker.string.alphanumeric(28),

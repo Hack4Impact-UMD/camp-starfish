@@ -195,9 +195,8 @@ Logos (`darkBgLogo.png`, etc.), illustrations, background patterns.
 
 ### Account Management (`features/accountManagement.ts`)
 - **`checkAllowlist`** — `beforeUserCreated` blocking trigger. Sequence:
-  1. Treats emails in `DEV_EMAILS` / `NPO_EMAILS` env vars as `ADMIN`.
-  2. Otherwise looks the email up in Firestore user collections (`campers`, `parents`, `staff`, `admins`, `photographers`) and assigns the matching role as a custom claim.
-  3. Throws `permission-denied` if no record exists.
+  1. Looks the email up in Firestore user collections (`campers`, `parents`, `staff`, `admins`, `photographers`) and assigns the matching role as a custom claim.
+  2. Throws `permission-denied` if no record exists.
 
 ### Albums (`features/albums.ts`)
 - **`onAlbumDeleted`** — Recursive delete of album doc + thumbnail in Storage.
