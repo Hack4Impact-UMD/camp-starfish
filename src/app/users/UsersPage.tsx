@@ -174,177 +174,164 @@ export function UsersPageContent({ users }: UsersPageContentProps) {
   const hasFilters = !!globalFilter || !!roleFilter;
 
   return (
-    <div className="min-h-screen bg-white">
-      <div className="px-12 py-8">
-        {/* Header with accent underline */}
-        <Box mb="xl">
-          <Title order={1}>User Management</Title>
-          <Text color="dimmed" c="dimmed" size="md" mt="md">
-            Control access, assign roles, and monitor activity
-          </Text>
-        </Box>
-
-        {/* Toolbar + table card */}
-        <Paper withBorder radius="lg" shadow="xs" p="lg">
-          {/* Search & Filter Bar */}
-          <Flex
-            justify="space-between"
-            align="center"
-            gap="md"
-            mb="lg"
-            wrap="wrap"
-          >
-            <Group gap="lg" wrap="wrap">
-              <TextInput
-                placeholder="Search users..."
-                value={globalFilter}
-                onChange={(e) => setGlobalFilter(e.target.value)}
-                leftSection={<MdSearch size={16} />}
-                w={280}
-              />
-              <Radio.Group
-                value={roleFilter ?? ""}
-                onChange={(v) => setRoleFilter(v || null)}
-                aria-label="Filter by role"
-              >
-                <Group gap="md">
-                  <Radio value="" label="All" />
-                  {ALL_ROLES.map((r) => (
-                    <Radio key={r} value={r} label={toNormalCase(r)} />
-                  ))}
-                </Group>
-              </Radio.Group>
-            </Group>
-            <Group gap="sm">
-              <Group gap="xs" wrap="nowrap">
-                <Text size="sm" c="dimmed">
-                  Sort by
-                </Text>
-                <Select
-                  aria-label="Sort by"
-                  data={[
-                    { value: "firstName", label: "First Name" },
-                    { value: "lastName", label: "Last Name" },
-                    { value: "email", label: "Email" },
-                  ]}
-                  defaultValue={"firstName"}
-                  value={sortValue}
-                  onChange={(v) =>
-                    setSorting(v ? [{ id: v, desc: false }] : [])
-                  }
-                  w={150}
-                  allowDeselect={false}
-                />
-              </Group>
-              {hasFilters && (
-                <Button
-                  variant="light"
-                  color="red"
-                  onClick={() => {
-                    setGlobalFilter("");
-                    setRoleFilter(null);
-                  }}
-                >
-                  Clear
-                </Button>
-              )}
-            </Group>
-          </Flex>
-
-          {/* Table */}
-          <ScrollArea>
-            <Table
-              striped={false}
-              highlightOnHover
-              withTableBorder
-              withColumnBorders
-              verticalSpacing="sm"
-              className="[&_td]:text-center [&_th]:text-center"
+    <div className="flex flex-col self-center w-4/5 gap-5">
+      <Title order={1}>Users</Title>
+      <Paper withBorder radius="lg" shadow="xs" p="lg">
+        <Flex
+          justify="space-between"
+          align="center"
+          gap="md"
+          mb="lg"
+          wrap="wrap"
+        >
+          <Group gap="lg" wrap="wrap">
+            <TextInput
+              placeholder="Search users..."
+              value={globalFilter}
+              onChange={(e) => setGlobalFilter(e.target.value)}
+              leftSection={<MdSearch size={16} />}
+              w={280}
+            />
+            <Radio.Group
+              value={roleFilter ?? ""}
+              onChange={(v) => setRoleFilter(v || null)}
+              aria-label="Filter by role"
             >
-              <Table.Thead className="bg-gray-1">
-                {table.getHeaderGroups().map((hg) => (
-                  <Table.Tr key={hg.id}>
-                    {hg.headers.map((header) => (
-                      <Table.Th key={header.id} className="whitespace-nowrap">
-                        <Text size="sm" fw={600}>
-                          {flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
-                          )}
-                        </Text>
-                      </Table.Th>
+              <Group gap="md">
+                <Radio value="" label="All" />
+                {ALL_ROLES.map((r) => (
+                  <Radio key={r} value={r} label={toNormalCase(r)} />
+                ))}
+              </Group>
+            </Radio.Group>
+          </Group>
+          <Group gap="sm">
+            <Group gap="xs" wrap="nowrap">
+              <Text size="sm" c="dimmed">
+                Sort by
+              </Text>
+              <Select
+                aria-label="Sort by"
+                data={[
+                  { value: "firstName", label: "First Name" },
+                  { value: "lastName", label: "Last Name" },
+                  { value: "email", label: "Email" },
+                ]}
+                defaultValue={"firstName"}
+                value={sortValue}
+                onChange={(v) => setSorting(v ? [{ id: v, desc: false }] : [])}
+                w={150}
+                allowDeselect={false}
+              />
+            </Group>
+            {hasFilters && (
+              <Button
+                variant="light"
+                color="red"
+                onClick={() => {
+                  setGlobalFilter("");
+                  setRoleFilter(null);
+                }}
+              >
+                Clear
+              </Button>
+            )}
+          </Group>
+        </Flex>
+
+        {/* Table */}
+        <ScrollArea>
+          <Table
+            striped={false}
+            highlightOnHover
+            withTableBorder
+            withColumnBorders
+            verticalSpacing="sm"
+            className="[&_td]:text-center [&_th]:text-center"
+          >
+            <Table.Thead className="bg-gray-1">
+              {table.getHeaderGroups().map((hg) => (
+                <Table.Tr key={hg.id}>
+                  {hg.headers.map((header) => (
+                    <Table.Th key={header.id} className="whitespace-nowrap">
+                      <Text size="sm" fw={600}>
+                        {flexRender(
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
+                      </Text>
+                    </Table.Th>
+                  ))}
+                </Table.Tr>
+              ))}
+            </Table.Thead>
+            <Table.Tbody>
+              {table.getRowModel().rows.length === 0 ? (
+                <Table.Tr>
+                  <Table.Td
+                    colSpan={columns.length}
+                    className="text-center p-8"
+                  >
+                    <Text c="dimmed">No users found.</Text>
+                  </Table.Td>
+                </Table.Tr>
+              ) : (
+                table.getRowModel().rows.map((row) => (
+                  <Table.Tr key={row.id}>
+                    {row.getVisibleCells().map((cell) => (
+                      <Table.Td key={cell.id}>
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext(),
+                        )}
+                      </Table.Td>
                     ))}
                   </Table.Tr>
-                ))}
-              </Table.Thead>
-              <Table.Tbody>
-                {table.getRowModel().rows.length === 0 ? (
-                  <Table.Tr>
-                    <Table.Td
-                      colSpan={columns.length}
-                      className="text-center p-8"
-                    >
-                      <Text c="dimmed">No users found.</Text>
-                    </Table.Td>
-                  </Table.Tr>
-                ) : (
-                  table.getRowModel().rows.map((row) => (
-                    <Table.Tr key={row.id}>
-                      {row.getVisibleCells().map((cell) => (
-                        <Table.Td key={cell.id}>
-                          {flexRender(
-                            cell.column.columnDef.cell,
-                            cell.getContext(),
-                          )}
-                        </Table.Td>
-                      ))}
-                    </Table.Tr>
-                  ))
-                )}
-              </Table.Tbody>
-            </Table>
-          </ScrollArea>
+                ))
+              )}
+            </Table.Tbody>
+          </Table>
+        </ScrollArea>
 
-          {/* Pagination */}
-          <Flex
-            align="center"
-            justify="space-between"
-            mt="lg"
-            gap="sm"
-            wrap="wrap"
-          >
-            <Box w={180} visibleFrom="sm" />
-            <Group gap="md" justify="center">
-              <UnstyledButton
-                onClick={() => table.previousPage()}
-                disabled={!table.getCanPreviousPage()}
-                className="flex items-center gap-1 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                <MdChevronLeft size={18} />
-                Previous
-              </UnstyledButton>
-              <Box className="rounded-md border bg-gray-3" px="sm" py={4}>
-                <Text size="sm" fw={600}>
-                  {pageIndex + 1}
-                </Text>
-              </Box>
-              <UnstyledButton
-                onClick={() => table.nextPage()}
-                disabled={!table.getCanNextPage()}
-                className="flex items-center gap-1 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                Next
-                <MdChevronRight size={18} />
-              </UnstyledButton>
-            </Group>
-            <Text size="sm" c="dimmed" w={180} ta="right">
-              {totalRows === 0
-                ? "No entries"
-                : `Showing ${start}–${end} out of ${totalRows} entries`}
-            </Text>
-          </Flex>
-        </Paper>
-      </div>
+        {/* Pagination */}
+        <Flex
+          align="center"
+          justify="space-between"
+          mt="lg"
+          gap="sm"
+          wrap="wrap"
+        >
+          <Box w={180} visibleFrom="sm" />
+          <Group gap="md" justify="center">
+            <UnstyledButton
+              onClick={() => table.previousPage()}
+              disabled={!table.getCanPreviousPage()}
+              className="flex items-center gap-1 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              <MdChevronLeft size={18} />
+              Previous
+            </UnstyledButton>
+            <Box className="rounded-md border bg-gray-3" px="sm" py={4}>
+              <Text size="sm" fw={600}>
+                {pageIndex + 1}
+              </Text>
+            </Box>
+            <UnstyledButton
+              onClick={() => table.nextPage()}
+              disabled={!table.getCanNextPage()}
+              className="flex items-center gap-1 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              Next
+              <MdChevronRight size={18} />
+            </UnstyledButton>
+          </Group>
+          <Text size="sm" c="dimmed" w={180} ta="right">
+            {totalRows === 0
+              ? "No entries"
+              : `Showing ${start}–${end} out of ${totalRows} entries`}
+          </Text>
+        </Flex>
+      </Paper>
     </div>
   );
 }
