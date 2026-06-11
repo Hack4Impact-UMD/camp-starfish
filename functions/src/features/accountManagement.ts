@@ -4,6 +4,7 @@ import { z } from "zod";
 import { adminAuth } from "../config/firebaseAdminConfig";
 import { getUserDocByEmail, getUserDocById, deleteUserDoc } from "../data/firestore/users";
 import { CustomClaims } from "@/auth/types/clientAuthTypes";
+import { isAdmin } from "@/types/users/userTypeGuards";
 
 const checkAllowlist = beforeUserCreated(async (event) => {
   const email = event.data?.email;
@@ -71,6 +72,9 @@ const deleteUserAccount = onCall(async (req: CallableRequest<unknown>) => {
   let user;
   try {
     user = await getUserDocById(userId);
+    if (isAdmin(user) && user.isSuperAdmin) {
+      throw new HttpsError("failed-precondition", "Super admin account cannot be deleted.");
+    }
   } catch {
     throw new HttpsError("not-found", "User not found.");
   }
