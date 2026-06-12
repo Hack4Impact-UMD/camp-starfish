@@ -15,13 +15,13 @@ import {
 } from "firebase/firestore";
 import { setDoc, getDoc, updateDoc, executeQuery, deleteDoc, mapSnapshotsToPaginatedQueryResult } from "./firestoreClientOperations";
 import { RootLevelCollection, SessionsSubcollection } from "./types/collections";
-import { Moment } from "moment";
+import moment, { Moment } from "moment";
 import { FirestoreQueryOptions, PaginatedQueryResponse } from "./types/queries";
 
 function fromFirestore(snapshot: DocumentSnapshot<NightScheduleDoc, NightScheduleDoc> | QueryDocumentSnapshot<NightScheduleDoc, NightScheduleDoc>): NightSchedule {
   if (!snapshot.exists()) { throw Error("Document not found"); }
   return {
-    date: snapshot.ref.id,
+    date: moment(snapshot.ref.id).startOf('day'),
     sessionId: snapshot.ref.parent.parent!.id,
     ...snapshot.data()
   }

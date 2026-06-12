@@ -14,7 +14,7 @@ import {
   Session,
 } from "@/types/sessions/sessionTypes";
 import { getFullName } from "@/types/users/userUtils";
-import moment from "moment";
+import moment, { Moment } from "moment";
 import useListAttendees from "@/hooks/attendees/useListAttendees";
 import useNightScheduleList from "@/hooks/nightSchedules/useNightScheduleList";
 import {
@@ -72,7 +72,7 @@ interface NightScheduleTableContentProps {
 }
 
 interface NightScheduleTableRow {
-  date: string;
+  date: Moment;
   position: NightSchedulePosition;
   bunks: Record<number, StaffAttendee[]>;
 }
@@ -172,7 +172,7 @@ function NightScheduleTableContent(props: NightScheduleTableContentProps) {
         cell: ({ row }) => (
           <div>
             <Text className="text-sm font-semibold">
-              Day {getDayNumOfSession(row.original.date, session)}
+              Day {getDayNumOfSession(row.original.date.format("YYYY-MM-DD"), session)}
             </Text>
             <Text className="text-xs font-semibold text-[#868e96]">
               {moment(row.original.date).format("MMM D, YYYY")}

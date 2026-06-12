@@ -77,7 +77,7 @@ export interface Bunk {
 export type NightSchedulePosition = "COUNSELOR-ON-DUTY" | "NIGHT-BUNK-DUTY" | "ROVER" | "DAY OFF";
 export interface NightSchedule {
   sessionId: string;
-  date: string;
+  date: Moment;
   bunks: {
     [bunkNum: number]: Record<NightSchedulePosition, number[]>
   }
@@ -85,7 +85,7 @@ export interface NightSchedule {
 
 export interface Freeplay {
   sessionId: string;
-  date: string;
+  date: Moment;
   posts: { [postId: string]: number[]; };
   buddies: Record<number, number[]>;
 }
