@@ -1,6 +1,6 @@
 import { AlbumItemReportStatus, UserDirectory } from "@/types/albums/albumTypes";
 import { ProgramArea, SectionSchedule } from "@/types/scheduling/schedulingTypes";
-import { AgeGroup, Bunk, Freeplay, NightSchedule, Post, SchedulingSectionType, SectionType } from "@/types/sessions/sessionTypes";
+import { AgeGroup, Bunk, DaysOff, Freeplay, NightSchedule, Post, SchedulingSectionType, SectionType } from "@/types/sessions/sessionTypes";
 import { Gender, Name, Role } from "@/types/users/userTypes";
 import { DistributiveOmit } from "@/utils/types/typeUtils";
 import { Timestamp } from "firebase/firestore";
@@ -153,3 +153,10 @@ export type FreeplayDoc = Omit<Freeplay, "date" | "sessionId">;
 
 export type ProgramAreaDoc = Omit<ProgramArea, "id">;
 export type PostDoc = Omit<Post, "id">;
+
+export interface DaysOffDoc {
+  daysOffInSession: Timestamp[];
+  daysOffByCounselorId: {
+    [counselorId: number]: Timestamp[];
+  }
+}

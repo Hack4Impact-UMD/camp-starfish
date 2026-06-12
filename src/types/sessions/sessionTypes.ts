@@ -96,3 +96,11 @@ export interface Post {
   description?: string;
   requiresAdminSupervision: boolean;
 }
+
+export interface DaysOff {
+  sessionId: string;
+  daysOffInSession: Moment[];
+  daysOffByCounselorId: {
+    [counselorId: number]: Moment[];
+  }
+}
