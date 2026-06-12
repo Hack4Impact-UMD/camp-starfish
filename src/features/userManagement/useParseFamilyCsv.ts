@@ -1,5 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { parse, Info } from "csv-parse/sync";
+import { requireCsvColumns } from "./csvUtils";
 import { ParsedFamilyCsvData } from "./types";
 import { z } from "zod";
 
@@ -68,11 +69,13 @@ type ParsedFamilyCsvRecord = z.infer<typeof ParsedFamilyCsvRecordSchema>;
 function parseFamilyRecords(data: RawFamilyCsvRecordWithInfo[]): ParsedFamilyCsvData {
   const campersById: { [camperId: number]: ParsedFamilyCsvData["campers"][number]; } = {};
   const parentsById: { [parentId: number]: ParsedFamilyCsvData["parents"][number]; } = {};
+  const invalidLines: number[] = [];
 
   data.forEach(({ record, info }) => {
     const validationResult = ParsedFamilyCsvRecordSchema.safeParse(record);
     if (!validationResult.success) {
-      throw Error(`Invalid record on line ${info.lines}. Please fix before uploading.`);
+      invalidLines.push(info.lines);
+      return;
     }
 
     const parsedRecord: ParsedFamilyCsvRecord = validationResult.data;
@@ -120,6 +123,9 @@ function parseFamilyRecords(data: RawFamilyCsvRecordWithInfo[]): ParsedFamilyCsv
       }
     }
   });
+  if (invalidLines.length > 0) {
+    throw Error(`Invalid record(s) on line(s) ${invalidLines.join(", ")}. Please fix before uploading.`);
+  }
   return {
     campers: Object.values(campersById),
     parents: Object.values(parentsById)
@@ -140,13 +146,7 @@ export async function parseFamilyCsv(req: ParseFamilyCsvRequest): Promise<Parsed
   const { csvFile } = req;
   const rawText = await csvFile.text();
   const data = parse(rawText, {
-    columns: (cols: string[]) => {
-      const missingColumns = REQUIRED_COLUMNS.filter(col => !cols.includes(col));
-      if (missingColumns.length > 0) {
-        throw Error("Missing columns: " + missingColumns.join(", "));
-      }
-      return cols;
-    },
+    columns: requireCsvColumns(REQUIRED_COLUMNS),
     info: true,
     skip_empty_lines: true
   }) as RawFamilyCsvRecordWithInfo[];

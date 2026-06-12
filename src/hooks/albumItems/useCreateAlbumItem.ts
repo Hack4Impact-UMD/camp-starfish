@@ -1,6 +1,6 @@
 import { createAlbumItemDoc, deleteAlbumItemDoc } from "@/data/firestore/albumItems";
 import { uploadFile } from "@/data/storage/storageClientOperations";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Timestamp } from "firebase/firestore";
 import moment from "moment";
 
@@ -31,8 +31,12 @@ async function createAlbumItem(req: CreateAlbumItemRequest) {
 }
 
 export default function useCreateAlbumItem() {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationKey: ['albumItems', 'create'],
-    mutationFn: async (req: CreateAlbumItemRequest) => createAlbumItem(req)
+    mutationFn: async (req: CreateAlbumItemRequest) => createAlbumItem(req),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['albums', variables.albumId, 'albumItems'] });
+    }
   })
 }

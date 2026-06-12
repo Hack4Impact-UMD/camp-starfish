@@ -11,6 +11,13 @@ export interface Session {
   attendeeIds: number[];
 }
 
+// Parent-facing projection of a session's album linkage (see sessionAlbums).
+export interface SessionAlbum {
+  sessionId: string;
+  attendeeIds: number[];
+  linkedAlbumId?: string;
+}
+
 export type SchedulingSectionType = "BUNDLE" | "BUNK-JAMBO" | "NON-BUNK-JAMBO";
 export type SectionType = SchedulingSectionType | "COMMON";
 

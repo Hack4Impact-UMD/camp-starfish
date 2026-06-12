@@ -1,7 +1,13 @@
 import { Moment } from "moment";
 import { useMemo, useState } from "react";
-import { ActionIcon, Title, Tooltip } from "@mantine/core";
-import { Section, SectionType, Session } from "@/types/sessions/sessionTypes";
+import { ActionIcon, Text, Title, Tooltip } from "@mantine/core";
+import { modals } from "@mantine/modals";
+import {
+  Section,
+  SchedulingSection,
+  SectionType,
+  Session,
+} from "@/types/sessions/sessionTypes";
 import moment from "moment";
 import classNames from "classnames";
 import openEditSectionModal from "@/components/EditSectionModal";
@@ -9,10 +15,14 @@ import { MonthView, ScheduleHeader, ScheduleSingleEventData } from "@mantine/sch
 import { MdChevronLeft, MdChevronRight } from "react-icons/md";
 import { momentRangesOverlap } from "@/utils/timeUtils";
 import useSectionList from "@/hooks/sections/useSectionList";
-import LoadingAnimation from "@/components/LoadingAnimation";
+import LoadingPage from "@/app/loading";
 import { useRouter } from "next/navigation";
 import useSession from "@/hooks/sessions/useSession";
 import ErrorPage from "@/app/error";
+import { isSchedulingSection } from "@/types/sessions/sessionTypeGuards";
+import { getSectionSchedule } from "@/data/firestore/sectionSchedules";
+import { openEditActivitiesModal } from "@/components/EditActivitiesModal";
+import { SectionsSubcollection } from "@/data/firestore/types/collections";
 
 interface SessionCalendarProps {
   sessionId: string;
@@ -24,7 +34,7 @@ export default function SessionCalendar(props: SessionCalendarProps) {
   const sectionsQuery = useSectionList(sessionId, { orderBy: [{ fieldPath: "startDate", direction: "asc" }] });
 
   if (sessionQuery.isPending || sectionsQuery.isPending) {
-    return <LoadingAnimation />;
+    return <LoadingPage />;
   } else if (sessionQuery.isError) {
     return <ErrorPage error={sessionQuery.error} />;
   } else if (sectionsQuery.isError) {
@@ -39,6 +49,13 @@ const sectionTypeToEventColor: Record<SectionType, ScheduleSingleEventData['colo
   "BUNDLE": "orange",
   "BUNK-JAMBO": "green",
   "NON-BUNK-JAMBO": "aqua"
+}
+
+const sectionTypeLabel: Record<SectionType, string> = {
+  "COMMON": "Common",
+  "BUNDLE": "Bundle",
+  "BUNK-JAMBO": "Bunk Jamboree",
+  "NON-BUNK-JAMBO": "Non-Bunk Jamboree"
 }
 
 interface SessionCalendarContentProps {
@@ -102,6 +119,44 @@ function SessionCalendarContent(props: SessionCalendarContentProps) {
       initialStartDate: startDate,
       initialEndDate: endDate,
     });
+  };
+
+  // Single-day click: if the day falls within an existing scheduling section,
+  // open that section's activities editor; otherwise start creating a section.
+  const handleDayClick = async (date: Moment) => {
+    const selectedSection = sections.find(
+      (section): section is SchedulingSection =>
+        isSchedulingSection(section) &&
+        typeof section.id === "string" &&
+        section.id.trim() !== "" &&
+        section.id !== SectionsSubcollection.SCHEDULE &&
+        date.isBetween(section.startDate, section.endDate, "day", "[]"),
+    );
+
+    if (!selectedSection) {
+      openCreateSectionModal(
+        date.clone().startOf("day"),
+        date.clone().endOf("day"),
+      );
+      return;
+    }
+
+    try {
+      const schedule = await getSectionSchedule(session.id, selectedSection.id);
+      openEditActivitiesModal({
+        section: selectedSection,
+        sections,
+        sessionId: session.id,
+        initialSchedule: schedule ?? undefined,
+      });
+    } catch {
+      modals.open({
+        title: "Error",
+        children: (
+          <Text>Failed to load section activities. Please try again.</Text>
+        ),
+      });
+    }
   };
 
   return (
@@ -186,12 +241,9 @@ function SessionCalendarContent(props: SessionCalendarContentProps) {
         highlightToday={false}
         firstDayOfWeek={0}
         withDragSlotSelect
-        onDayClick={(date) =>
-          openCreateSectionModal(
-            moment(date).startOf("day"),
-            moment(date).endOf("day"),
-          )
-        }
+        onDayClick={(date) => {
+          void handleDayClick(moment(date));
+        }}
         onSlotDragEnd={(rangeStart, rangeEnd) =>
           openCreateSectionModal(
             moment(rangeStart).startOf("day"),
@@ -209,6 +261,22 @@ function SessionCalendarContent(props: SessionCalendarContentProps) {
           }
         }}
       />
+      {/* Color key for section types */}
+      <div className="flex flex-wrap items-center gap-4 mt-3">
+        {(Object.keys(sectionTypeToEventColor) as SectionType[]).map((type) => (
+          <div key={type} className="flex items-center gap-1.5">
+            <span
+              className="inline-block w-3 h-3 rounded-sm"
+              style={{
+                backgroundColor: `var(--mantine-color-${sectionTypeToEventColor[type]}-filled)`,
+              }}
+            />
+            <Text className="text-xs text-neutral-6">
+              {sectionTypeLabel[type]}
+            </Text>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

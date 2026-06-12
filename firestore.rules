@@ -19,17 +19,55 @@ service cloud.firestore {
       return isStaff() || isAdmin();
     }
 
+    function isParent() {
+      return isAuthenticated() && request.auth.token.role == "PARENT";
+    }
+
+    function isPhotographer() {
+      return isAuthenticated() && request.auth.token.role == "PHOTOGRAPHER";
+    }
+
+    // The signed-in user's CampMinder id (their /users doc id), as a string.
+    function myCampminderId() {
+      return string(request.auth.token.campminderId);
+    }
+
+    // The camper ids belonging to the signed-in parent. Falls back to an empty
+    // list (clean deny) instead of erroring the whole rule when the parent's
+    // /users doc is missing or lacks camperIds. exists() + get() on the same
+    // doc are cached, so this costs one read.
+    function myCamperIds() {
+      return exists(/databases/$(database)/documents/users/$(myCampminderId()))
+        ? get(/databases/$(database)/documents/users/$(myCampminderId())).data.get('camperIds', [])
+        : [];
+    }
+
+    // Whether the given session includes one of the signed-in parent's campers.
+    function sessionHasMyCamper(sessionId) {
+      return exists(/databases/$(database)/documents/sessions/$(sessionId))
+        && 'attendeeIds' in get(/databases/$(database)/documents/sessions/$(sessionId)).data
+        && get(/databases/$(database)/documents/sessions/$(sessionId)).data.attendeeIds.hasAny(myCamperIds());
+    }
+
+    // Whether the given album doc is linked to a session with the parent's camper.
+    function albumLinkedToMyCamper(albumData) {
+      return 'linkedSessionId' in albumData && sessionHasMyCamper(albumData.linkedSessionId);
+    }
+
     match /userDirectory/{pageId} {
       allow read, write: if isStaffOrAdmin();
     }
 
-    // Reads are admin-only; writes go through the deleteUserAccount callable / Admin SDK
-    // (which bypass rules), so client writes are denied to keep Auth and Firestore in sync.
+    // Reads are admin-only, plus any signed-in user may read their own doc
+    // (needed to resolve a parent's camper ids). Writes go through the
+    // deleteUserAccount / CSV-upload callables (Admin SDK bypasses rules),
+    // so client writes are denied to keep Auth and Firestore in sync.
     match /users/{userId} {
-      allow read: if isAdmin();
+      allow read: if isAdmin() || (isAuthenticated() && userId == myCampminderId());
     }
 
-    // Sessions collection
+    // Sessions collection — staff/admin only. Parents resolve their album via
+    // the narrow /sessionAlbums projection instead of reading full sessions.
     match /sessions/{sessionId} {
       allow read: if isStaffOrAdmin();
       allow write: if isStaffOrAdmin();
@@ -68,21 +106,26 @@ service cloud.firestore {
       }
     }
     
+    // Parent-facing projection of a session's album linkage (mirrored by a
+    // Cloud Function). Parents may read it only for a session their camper
+    // attends; it is never written from the client.
+    match /sessionAlbums/{sessionId} {
+      allow read: if isStaffOrAdmin()
+        || (isParent() && 'attendeeIds' in resource.data && resource.data.attendeeIds.hasAny(myCamperIds()));
+      allow write: if false;
+    }
+
     // Albums collection
     match /albums/{albumId} {
-      allow read: if isStaffOrAdmin();
-      allow write: if isStaffOrAdmin();
-      
+      allow read: if isStaffOrAdmin() || isPhotographer()
+        || (isParent() && albumLinkedToMyCamper(resource.data));
+      allow write: if isStaffOrAdmin() || isPhotographer();
+
       match /albumItems/{albumItemId} {
-        allow read: if isStaffOrAdmin();
-        allow write: if isStaffOrAdmin();
+        allow read: if isStaffOrAdmin() || isPhotographer()
+          || (isParent() && albumLinkedToMyCamper(get(/databases/$(database)/documents/albums/$(albumId)).data));
+        allow write: if isStaffOrAdmin() || isPhotographer();
       }
-    }
-    
-    // Users collection (all roles unified)
-    match /users/{userId} {
-      allow read: if isAdmin();
-      allow write: if isAdmin();
     }
 
     // User collections

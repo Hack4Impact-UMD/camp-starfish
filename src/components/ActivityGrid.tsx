@@ -18,6 +18,7 @@ export default function ActivityGrid(props: ActivityGridProps) {
 
   if (scheduleQuery.isError) return <p>Error loading schedule</p>;
   else if (scheduleQuery.isPending) return <LoadingPage />;
+  else if (!scheduleQuery.data) return <p>No schedule found</p>;
   return <ActivityGridContent schedule={scheduleQuery.data} />;
 }
 
