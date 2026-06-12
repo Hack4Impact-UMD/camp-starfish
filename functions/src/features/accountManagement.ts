@@ -18,6 +18,9 @@ const checkAllowlist = beforeUserCreated(async (event) => {
 
   try {
     const user = await getUserDocByEmail(email);
+    if (user.uid) {
+      throw new HttpsError("failed-precondition", "An user with this email already exists");
+    }
     await updateUserDoc(user.id, { uid: event.data.uid });
     return {
       customClaims: (user.role === "ADMIN" ?
