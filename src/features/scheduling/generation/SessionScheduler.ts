@@ -1,6 +1,7 @@
 
 import { StaffAttendee, AdminAttendee, NightSchedule, Session, Section, CounselorAttendee } from "@/types/sessions/sessionTypes";
 import { groupBy } from "@/utils/data/groupBy";
+import shuffle from "@/utils/data/shuffle";
 import { Moment } from "moment";
 
 interface GenerateSessionScheduleRequest {
@@ -26,12 +27,7 @@ export default function generateSessionSchedule(req: GenerateSessionScheduleRequ
         throw Error("Unknown counselor role");
     }
   }
-
   const staffByBunk = groupBy(staff, staff => staff.bunk);
-
-  // figure out when days off are
-  const numDaysInSession = session.endDate.diff(session.startDate, 'days') + 1;
-  const numDaysOffPerCounselor = Math.floor(numDaysInSession / 7);
 
   const daysOffByWeek = groupBy(dayOffDays, day => day.week());
   if (session.startDate.day() !== session.startDate.clone().startOf('week').day()) {
@@ -41,13 +37,22 @@ export default function generateSessionSchedule(req: GenerateSessionScheduleRequ
     delete daysOffByWeek[session.endDate.week()];
   }
 
+  const daysOffByCounselorId: { [counselorId: number]: Moment[] } = {};
+  counselors.forEach(counselor => daysOffByCounselorId[counselor.attendeeId] = []);
+  for (const weekNum in daysOffByWeek) {
+    const daysOffInWeek = daysOffByWeek[weekNum];
+    const counselorAssignmentOrder: number[] = shuffle([-1, ...Object.keys(staffByBunk).map(bunk => Number(bunk))]).flatMap(bunkNum => bunkNum === -1 ? shuffle(admins.map(admin => admin.attendeeId)) : shuffle(staffByBunk[bunkNum].map(staff => staff.attendeeId)));
+    let dayInWeekIndex = 0;
+    while (counselorAssignmentOrder.length !== 0) {
+      const counselorId = counselorAssignmentOrder.shift();
+      // @ts-expect-error - counselorId is guaranteed to be a number at this point
+      daysOffByCounselorId[counselorId].push(daysOffInWeek[dayInWeekIndex]);
+      dayInWeekIndex = (dayInWeekIndex + 1) % daysOffInWeek.length;
+    }
+  } 
 
 
-  // assign counselors to days off - split up counselors by bunk
-
-
-  // assign employees to days off
-  // assign remaining employees to night schedules
+  // assign employees to night schedules
 
 }
 
