@@ -7,6 +7,7 @@ import { MdAccountCircle } from "react-icons/md";
 import { useAuth } from "@/auth/useAuth";
 import { Role } from "@/types/users/userTypes";
 import Image from "next/image";
+import { Text } from "@mantine/core";
 
 const navbarLinks: { name: string; href: string; roles: Role[] }[] = [
   { name: "Sessions", href: "/sessions", roles: ["STAFF", "ADMIN"] },
@@ -29,10 +30,10 @@ const navbarLinks: { name: string; href: string; roles: Role[] }[] = [
 
 const Navbar: React.FC = () => {
   const auth = useAuth();
-  const role: Role = auth.token?.claims.role as Role;
+  const role = auth.role;
 
   return (
-    <nav className="w-full h-full bg-camp-primary px-32 flex items-center justify-between gap-20">
+    <nav className="w-full h-full bg-primary-9 px-32 flex items-center justify-between gap-20">
       {/* Logo on the left */}
       <div className="flex-none">
         <Link href="/" className="min-h-[50px]">
@@ -50,12 +51,12 @@ const Navbar: React.FC = () => {
       {auth.token && (
         <div className="flex gap-20 text-white text-[20px] font-bold leading-6 font-lato shrink">
           {navbarLinks
-            .filter((item) => item.roles.includes(role))
+            .filter((item) => role && item.roles.includes(role))
             .map((item, index) => (
               <Link key={index} href={item.href} className="cursor-pointer">
-                <span className="cursor-pointer shrink font-lato font-bold">
+                <Text className="cursor-pointer font-Lato font-bold">
                   {item.name}
-                </span>
+                </Text>
               </Link>
             ))}
         </div>

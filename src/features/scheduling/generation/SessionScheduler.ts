@@ -1,12 +1,25 @@
 
-import { StaffAttendee, AdminAttendee, NightSchedule, Session, Section } from "@/types/sessions/sessionTypes";
+import { StaffAttendee, AdminAttendee, NightSchedule, Session, Section, CounselorAttendee } from "@/types/sessions/sessionTypes";
+import { Moment } from "moment";
 
 interface GenerateSessionScheduleRequest {
   session: Session;
+  counselors: CounselorAttendee[];
+  dayOffDays: Moment[];
 }
 
-export default function generateSessionSchedule() {
+export default function generateSessionSchedule(req: GenerateSessionScheduleRequest) {
+  const { session, counselors, dayOffDays } = req;
 
+  // figure out when days off are
+  const numDaysInSession = session.endDate.diff(session.startDate, 'days');
+  const numDaysOffPerCounselor = Math.floor(session)
+  // divide session into weeks floor
+  // assign counselors to days off - split up counselors by bunk
+
+
+  // assign employees to days off
+  // assign remaining employees to night schedules
 }
 
 export class SessionScheduler {
