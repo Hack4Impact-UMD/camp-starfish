@@ -74,7 +74,7 @@ export interface Bunk {
   camperIds: number[];
 }
 
-export type NightSchedulePosition = "COUNSELOR-ON-DUTY" | "NIGHT-BUNK-DUTY" | "ROVER" | "DAY OFF";
+export type NightSchedulePosition = "COUNSELOR-ON-DUTY" | "NIGHT-BUNK-DUTY" | "ROVER";
 export interface NightSchedule {
   sessionId: string;
   date: string;
