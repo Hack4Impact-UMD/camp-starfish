@@ -1,5 +1,6 @@
 
 import { StaffAttendee, AdminAttendee, NightSchedule, Session, Section, CounselorAttendee } from "@/types/sessions/sessionTypes";
+import { groupBy } from "@/utils/data/groupBy";
 import { Moment } from "moment";
 
 interface GenerateSessionScheduleRequest {
@@ -12,15 +13,27 @@ export default function generateSessionSchedule(req: GenerateSessionScheduleRequ
   const { session, counselors, dayOffDays } = req;
 
   // figure out when days off are
-  const numDaysInSession = session.endDate.diff(session.startDate, 'days');
-  const numDaysOffPerCounselor = Math.floor(session)
-  // divide session into weeks floor
+  const numDaysInSession = session.endDate.diff(session.startDate, 'days') + 1;
+  const numDaysOffPerCounselor = Math.floor(numDaysInSession / 7);
+
+  const daysOffByWeek = groupBy(dayOffDays, day => day.week());
+  if (session.startDate.day() !== session.startDate.clone().startOf('week').day()) {
+    delete daysOffByWeek[session.startDate.week()];
+  }
+  if (session.endDate.day() !== session.endDate.clone().endOf('week').day()) {
+    delete daysOffByWeek[session.endDate.week()];
+  }
+
+
   // assign counselors to days off - split up counselors by bunk
 
 
   // assign employees to days off
   // assign remaining employees to night schedules
+
 }
+
+function getWeeksWithDaysO
 
 export class SessionScheduler {
   session: Session | undefined;
