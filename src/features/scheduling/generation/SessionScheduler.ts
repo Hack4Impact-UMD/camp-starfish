@@ -41,6 +41,9 @@ export default function generateSessionSchedule(req: GenerateSessionScheduleRequ
   counselors.forEach(counselor => daysOffByCounselorId[counselor.attendeeId] = []);
   for (const weekNum in daysOffByWeek) {
     const daysOffInWeek = daysOffByWeek[weekNum];
+    if (daysOffInWeek.length === 0) {
+      throw Error("No days off in week");
+    }
     const counselorAssignmentOrder: number[] = shuffle([-1, ...Object.keys(staffByBunk).map(bunk => Number(bunk))]).flatMap(bunkNum => bunkNum === -1 ? shuffle(admins.map(admin => admin.attendeeId)) : shuffle(staffByBunk[bunkNum].map(staff => staff.attendeeId)));
     let dayInWeekIndex = 0;
     while (counselorAssignmentOrder.length !== 0) {
@@ -53,10 +56,9 @@ export default function generateSessionSchedule(req: GenerateSessionScheduleRequ
 
 
   // assign employees to night schedules
-
+  // for each night (every day except session end date)
 }
 
-function getWeeksWithDaysO
 
 export class SessionScheduler {
   session: Session | undefined;
