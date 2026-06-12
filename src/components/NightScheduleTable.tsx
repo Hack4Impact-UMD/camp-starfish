@@ -24,7 +24,7 @@ import {
 import LoadingPage from "@/app/loading";
 import {
   getNightSchedulePositionAbbreviation,
-  nightSchedulePositions,
+  NIGHT_SCHEDULE_POSITIONS,
 } from "@/types/sessions/nightScheduleUtils";
 import useSession from "@/hooks/sessions/useSession";
 import { getDayNumOfSession } from "@/types/sessions/sessionUtils";
@@ -117,7 +117,7 @@ function NightScheduleTableContent(props: NightScheduleTableContentProps) {
           );
           const staffOff = staffInBunk.filter((staffId: number) => {
             const staff = staffById[staffId];
-            return staff.daysOff.some(dayOff => dayOff.isSame(date, 'day'));
+            return staff.daysOff.some((dayOff) => dayOff.isSame(date, "day"));
           });
           return staffOff.map((staffId: number) => staffById[staffId]);
         }
@@ -133,7 +133,8 @@ function NightScheduleTableContent(props: NightScheduleTableContentProps) {
           const roverStaff = allStaffInBunk.filter((staffId: number) => {
             if (assignedStaff.has(staffId)) return false;
             const staff = staffById[staffId];
-            if (staff.daysOff.some(dayOff => dayOff.isSame(date, 'day'))) return false;
+            if (staff.daysOff.some((dayOff) => dayOff.isSame(date, "day")))
+              return false;
             return true;
           });
 
@@ -149,7 +150,7 @@ function NightScheduleTableContent(props: NightScheduleTableContentProps) {
   const data: NightScheduleTableRow[] = useMemo(() => {
     const rows: NightScheduleTableRow[] = [];
     nightShifts.forEach((nightShift: NightSchedule) => {
-      nightSchedulePositions.forEach((position: NightSchedulePosition) => {
+      NIGHT_SCHEDULE_POSITIONS.forEach((position: NightSchedulePosition) => {
         const row: NightScheduleTableRow = {
           date: nightShift.date,
           position: position,
@@ -247,7 +248,7 @@ function NightScheduleTableContent(props: NightScheduleTableContentProps) {
                   return (
                     <Table.Td
                       key={cell.id}
-                      rowSpan={nightSchedulePositions.length}
+                      rowSpan={NIGHT_SCHEDULE_POSITIONS.length}
                       className="text-center align-middle font-semibold bg-gray-200 border border-gray-300"
                     >
                       {flexRender(
