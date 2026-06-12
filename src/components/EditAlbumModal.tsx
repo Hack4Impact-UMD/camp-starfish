@@ -12,6 +12,7 @@ import useUpdateAlbum from "@/hooks/albums/useUpdateAlbum";
 import useNotifications from "@/features/notifications/useNotifications";
 import useAlbum from "@/hooks/albums/useAlbum";
 import { Album } from "@/types/albums/albumTypes";
+import { albumFormSchema } from "@/schemas/albums";
 
 interface EditAlbumModalProps {
   albumId?: string;
@@ -35,6 +36,7 @@ function EditAlbumModalContent(props: EditAlbumModalContentProps) {
   const [albumName, setAlbumName] = useState<string>(album?.name ?? "");
   const [albumNameError, setAlbumNameError] = useState<string | null>(null);
   const [albumThumbnail, setAlbumThumbnail] = useState<File | null>(null);
+  const [thumbnailTouched, setThumbnailTouched] = useState<boolean>(false);
 
   const albumThumbnailUrl = useMemo(
     () => (albumThumbnail ? URL.createObjectURL(albumThumbnail) : null),
@@ -58,11 +60,21 @@ function EditAlbumModalContent(props: EditAlbumModalContentProps) {
           root: "w-2/3 m-md",
           indicator: "cursor-pointer",
         }}
-        label={<MdClose onClick={() => setAlbumThumbnail(null)} />}
+        label={
+          <MdClose
+            onClick={() => {
+              setAlbumThumbnail(null);
+              setThumbnailTouched(true);
+            }}
+          />
+        }
         size={20}
       >
         <Dropzone
-          onDrop={(files: FileWithPath[]) => setAlbumThumbnail(files[0])}
+          onDrop={(files: FileWithPath[]) => {
+            setAlbumThumbnail(files[0]);
+            setThumbnailTouched(true);
+          }}
           multiple={false}
           classNames={{
             root: "flex justify-center items-center w-full h-full aspect-square bg-blue-0 border cursor-pointer",
@@ -110,15 +122,28 @@ function EditAlbumModalContent(props: EditAlbumModalContentProps) {
             createAlbumMutation.isPending || updateAlbumMutation.isPending
           }
           onClick={() => {
-            if (!albumName) {
-              setAlbumNameError("Album name is required");
+            const result = albumFormSchema.safeParse({
+              name: albumName,
+              thumbnail: albumThumbnail,
+            });
+
+            if (!result.success) {
+              const fieldErrors = result.error.flatten().fieldErrors;
+              if (fieldErrors.name?.[0]) {
+                setAlbumNameError(fieldErrors.name[0]);
+              }
+              if (fieldErrors.thumbnail?.[0]) {
+                notifications.error(fieldErrors.thumbnail[0]);
+              }
               return;
-            } else if (album) {
+            }
+
+            if (album) {
               updateAlbumMutation.mutate(
                 {
                   albumId: album.id,
-                  name: albumName,
-                  thumbnail: albumThumbnail,
+                  name: result.data.name,
+                  thumbnail: thumbnailTouched ? albumThumbnail : undefined,
                 },
                 {
                   onSuccess: () => modals.closeAll(),
@@ -131,7 +156,7 @@ function EditAlbumModalContent(props: EditAlbumModalContentProps) {
             } else {
               createAlbumMutation.mutate(
                 {
-                  name: albumName,
+                  name: result.data.name,
                   thumbnail: albumThumbnail ?? undefined,
                 },
                 {
