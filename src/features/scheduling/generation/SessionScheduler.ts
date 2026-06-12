@@ -12,6 +12,23 @@ interface GenerateSessionScheduleRequest {
 export default function generateSessionSchedule(req: GenerateSessionScheduleRequest) {
   const { session, counselors, dayOffDays } = req;
 
+  const staff: StaffAttendee[] = [];
+  const admins: AdminAttendee[] = [];
+  for (const counselor of counselors) {
+    switch (counselor.role) {
+      case "STAFF":
+        staff.push(counselor);
+        break;
+      case "ADMIN":
+        admins.push(counselor);
+        break;
+      default:
+        throw Error("Unknown counselor role");
+    }
+  }
+
+  const staffByBunk = groupBy(staff, staff => staff.bunk);
+
   // figure out when days off are
   const numDaysInSession = session.endDate.diff(session.startDate, 'days') + 1;
   const numDaysOffPerCounselor = Math.floor(numDaysInSession / 7);
@@ -23,6 +40,7 @@ export default function generateSessionSchedule(req: GenerateSessionScheduleRequ
   if (session.endDate.day() !== session.endDate.clone().endOf('week').day()) {
     delete daysOffByWeek[session.endDate.week()];
   }
+
 
 
   // assign counselors to days off - split up counselors by bunk

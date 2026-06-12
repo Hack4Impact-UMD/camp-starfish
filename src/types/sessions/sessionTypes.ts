@@ -65,7 +65,7 @@ export interface AdminAttendee extends BaseAttendee {
   snapshot: BaseAttendee['snapshot'] & { yesyesList: number[] };
 }
 export type Attendee = CamperAttendee | StaffAttendee | AdminAttendee;
-export type CounselorAttendee = CamperAttendee | StaffAttendee;
+export type CounselorAttendee = StaffAttendee | AdminAttendee;
 
 export interface Bunk {
   bunkNum: number;
