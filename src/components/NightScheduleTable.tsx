@@ -184,7 +184,7 @@ function NightScheduleTableContent(props: NightScheduleTableContentProps) {
             <Text className="text-sm font-semibold">
               Day {getDayNumOfSession(row.original.date, session)}
             </Text>
-            <Text className="text-xs font-semibold text-[#868e96]">
+            <Text className="text-xs font-semibold text-gray-6">
               {moment(row.original.date).format("MMM D, YYYY")}
             </Text>
           </div>
