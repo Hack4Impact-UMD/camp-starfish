@@ -10,10 +10,10 @@ export function getNightSchedulePositionFullName(nightSchedulePosition: NightSch
   }[nightSchedulePosition];
 }
 
-export function getNightSchedulePositionAbbreviation(nightScheudlePosition: NightSchedulePosition): string {
+export function getNightSchedulePositionAbbreviation(nightSchedulePosition: NightSchedulePosition): string {
   return {
     "COUNSELOR-ON-DUTY": "COD",
     "NIGHT-BUNK-DUTY": "NBD",
     ROVER: "ROVER",
-  }[nightScheudlePosition];
+  }[nightSchedulePosition];
 }

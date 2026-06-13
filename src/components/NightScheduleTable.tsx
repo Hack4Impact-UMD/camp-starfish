@@ -33,6 +33,15 @@ interface NightScheduleTableProps {
   sessionId: string;
 }
 
+type NightScheduleTablePosition = NightSchedulePosition | "DAY OFF"
+
+function getNightScheduleTablePositionAbbreviation(position: NightScheduleTablePosition): string {
+  if (position === "DAY OFF") {
+    return "DO";
+  }
+  return getNightSchedulePositionAbbreviation(position);
+}
+
 export default function NightScheduleTable(props: NightScheduleTableProps) {
   const { sessionId } = props;
 
@@ -73,7 +82,7 @@ interface NightScheduleTableContentProps {
 
 interface NightScheduleTableRow {
   date: string;
-  position: NightSchedulePosition;
+  position: NightScheduleTablePosition;
   bunks: Record<number, StaffAttendee[]>;
 }
 
@@ -94,7 +103,7 @@ function NightScheduleTableContent(props: NightScheduleTableContentProps) {
     (
       nightShift: NightSchedule,
       bunkNum: number,
-      position: NightSchedulePosition,
+      position: NightScheduleTablePosition,
     ): StaffAttendee[] => {
       const bunkData = nightShift.bunks[bunkNum];
 
@@ -182,7 +191,7 @@ function NightScheduleTableContent(props: NightScheduleTableContentProps) {
         ),
       },
       {
-        accessorFn: (row) => getNightSchedulePositionAbbreviation(row.position),
+        accessorFn: (row) => getNightScheduleTablePositionAbbreviation(row.position),
         header: "POSITION",
         size: 100,
       },
