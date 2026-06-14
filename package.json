@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "emulators": "firebase emulators:start --import ./test/emulatorData",
     "build": "next build",
     "compile": "npx tsc --noEmit",
     "start": "next start",
