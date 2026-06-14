@@ -56,12 +56,10 @@ export interface StaffAttendee extends BaseAttendee {
   programCounselorFor?: string;
   bunk: number;
   isLeadBunkCounselor: boolean;
-  daysOff: Moment[];
   snapshot: BaseAttendee['snapshot'] & { yesyesList: number[] };
 }
 export interface AdminAttendee extends BaseAttendee {
   role: "ADMIN";
-  daysOff: Moment[];
   snapshot: BaseAttendee['snapshot'] & { yesyesList: number[] };
 }
 export type Attendee = CamperAttendee | StaffAttendee | AdminAttendee;
