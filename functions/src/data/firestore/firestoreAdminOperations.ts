@@ -2,7 +2,7 @@ import { AggregateField, AggregateType, CollectionGroup, CollectionReference, Do
 import { isFirebaseError } from "../../types/error";
 import { Collection } from "@/data/firestore/types/collections";
 import { adminDb } from "../../config/firebaseAdminConfig";
-import { DistributiveKeyof } from "@/utils/types/typeUtils";
+import { DistributiveKeyof, NonEmptyArray } from "@/utils/types/typeUtils";
 
 export async function getDoc<DbModelType extends DocumentData>(ref: DocumentReference<DbModelType, DbModelType>, transaction?: Transaction): Promise<DocumentSnapshot<DbModelType, DbModelType>> {
   let doc: DocumentSnapshot<DbModelType, DbModelType>;
@@ -103,7 +103,7 @@ type EndCursorClause =
   | { endBefore?: never; endAt: DocumentSnapshot | unknown[]; }
   | { endBefore?: never; endAt?: never; };
 
-type FirestoreQueryOptions<DbModelType extends DocumentData> = {
+export type FirestoreQueryOptions<DbModelType extends DocumentData> = {
   where?: WhereClause<DbModelType>[];
   orderBy?: OrderByClause<DbModelType>[];
 } & LimitClause & StartCursorClause & EndCursorClause;
@@ -149,6 +149,26 @@ export async function executeQuery<DbModelType extends DocumentData>(collection:
     return querySnapshot.docs;
   } catch {
     throw Error("Failed to execute query");
+  }
+}
+
+export type PaginatedQueryResponse<AppModelType, DbModelType extends DocumentData> =
+  | {
+    docs: [];
+    firstSnapshot?: never;
+    lastSnapshot?: never;
+  }
+  | {
+    docs: NonEmptyArray<AppModelType>;
+    firstSnapshot: QueryDocumentSnapshot<DbModelType, DbModelType>;
+    lastSnapshot: QueryDocumentSnapshot<DbModelType, DbModelType>;
+  }
+
+export function mapSnapshotsToPaginatedQueryResult<AppModelType, DbModelType extends DocumentData>(snapshots: QueryDocumentSnapshot<DbModelType, DbModelType>[], mapFunc: (snapshot: QueryDocumentSnapshot<DbModelType, DbModelType>) => AppModelType): PaginatedQueryResponse<AppModelType, DbModelType> {
+  return snapshots.length === 0 ? { docs: [] } : {
+    docs: snapshots.map(mapFunc) as NonEmptyArray<AppModelType>,
+    firstSnapshot: snapshots[0],
+    lastSnapshot: snapshots[snapshots.length - 1]
   }
 }
 

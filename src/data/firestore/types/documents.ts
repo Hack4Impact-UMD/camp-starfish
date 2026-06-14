@@ -128,13 +128,11 @@ interface StaffAttendeeDoc extends BaseAttendeeDoc {
   programCounselorFor?: string;
   bunk: number;
   isLeadBunkCounselor: boolean;
-  daysOff: Timestamp[];
   snapshot: BaseAttendeeDoc['snapshot'] & { yesyesList: number[]; };
 }
 
 interface AdminAttendeeDoc extends BaseAttendeeDoc {
   role: "ADMIN";
-  daysOff: Timestamp[];
   snapshot: BaseAttendeeDoc['snapshot'] & { yesyesList: number[]; };
 }
 
@@ -160,3 +158,10 @@ export type FreeplayDoc = Omit<Freeplay, "date" | "sessionId">;
 
 export type ProgramAreaDoc = Omit<ProgramArea, "id">;
 export type PostDoc = Omit<Post, "id">;
+
+export interface DaysOffScheduleDoc {
+  daysOffInSession: Timestamp[];
+  daysOffByCounselorId: {
+    [counselorId: number]: Timestamp[];
+  }
+}

@@ -63,12 +63,10 @@ export interface StaffAttendee extends BaseAttendee {
   programCounselorFor?: string;
   bunk: number;
   isLeadBunkCounselor: boolean;
-  daysOff: Moment[];
   snapshot: BaseAttendee['snapshot'] & { yesyesList: number[] };
 }
 export interface AdminAttendee extends BaseAttendee {
   role: "ADMIN";
-  daysOff: Moment[];
   snapshot: BaseAttendee['snapshot'] & { yesyesList: number[] };
 }
 export type Attendee = CamperAttendee | StaffAttendee | AdminAttendee;
@@ -81,7 +79,7 @@ export interface Bunk {
   camperIds: number[];
 }
 
-export type NightSchedulePosition = "COUNSELOR-ON-DUTY" | "NIGHT-BUNK-DUTY" | "ROVER" | "DAY OFF";
+export type NightSchedulePosition = "COUNSELOR-ON-DUTY" | "NIGHT-BUNK-DUTY" | "ROVER";
 export interface NightSchedule {
   sessionId: string;
   date: string;
@@ -102,4 +100,12 @@ export interface Post {
   name: string;
   description?: string;
   requiresAdminSupervision: boolean;
+}
+
+export interface DaysOffSchedule {
+  sessionId: string;
+  daysOffInSession: Moment[];
+  daysOffByCounselorId: {
+    [counselorId: number]: Moment[];
+  }
 }
