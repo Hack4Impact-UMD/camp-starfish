@@ -95,7 +95,7 @@ export interface Post {
   requiresAdminSupervision: boolean;
 }
 
-export interface DaysOff {
+export interface DaysOffSchedule {
   sessionId: string;
   daysOffInSession: Moment[];
   daysOffByCounselorId: {

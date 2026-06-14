@@ -22,7 +22,7 @@ export const enum SessionsSubcollection {
   ATTENDEES = "attendees",
   SECTIONS = "sections",
   BUNKS = "bunks",
-  DAYS_OFF = "daysOff",
+  DAYS_OFF_SCHEDULE = "daysOffSchedule",
   NIGHT_SCHEDULES = "nightSchedules",
   FREEPLAYS = "freeplays"
 }

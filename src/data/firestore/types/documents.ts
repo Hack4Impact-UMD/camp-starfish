@@ -152,7 +152,7 @@ export type FreeplayDoc = Omit<Freeplay, "date" | "sessionId">;
 export type ProgramAreaDoc = Omit<ProgramArea, "id">;
 export type PostDoc = Omit<Post, "id">;
 
-export interface DaysOffDoc {
+export interface DaysOffScheduleDoc {
   daysOffInSession: Timestamp[];
   daysOffByCounselorId: {
     [counselorId: number]: Timestamp[];
