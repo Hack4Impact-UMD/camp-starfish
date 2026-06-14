@@ -1,16 +1,16 @@
 
-import { StaffAttendee, AdminAttendee, NightSchedule, Session, Section, CounselorAttendee } from "@/types/sessions/sessionTypes";
+import { StaffAttendee, AdminAttendee, NightSchedule, Session, Section, CounselorAttendee, DaysOffSchedule } from "@/types/sessions/sessionTypes";
 import { groupBy } from "@/utils/data/groupBy";
 import shuffle from "@/utils/data/shuffle";
 import { Moment } from "moment";
 
-interface GenerateSessionScheduleRequest {
+interface GenerateDaysOffScheduleRequest {
   session: Session;
   counselors: CounselorAttendee[];
   dayOffDays: Moment[];
 }
 
-export default function generateSessionSchedule(req: GenerateSessionScheduleRequest) {
+export default function generateDaysOffSchedule(req: GenerateDaysOffScheduleRequest): DaysOffSchedule {
   const { session, counselors, dayOffDays } = req;
 
   const staff: StaffAttendee[] = [];
@@ -57,6 +57,11 @@ export default function generateSessionSchedule(req: GenerateSessionScheduleRequ
 
   // assign employees to night schedules
   // for each night (every day except session end date)
+  return {
+    sessionId: session.id,
+    daysOffInSession: [],
+    daysOffByCounselorId: {},
+  }
 }
 
 
