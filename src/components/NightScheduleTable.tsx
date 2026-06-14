@@ -12,6 +12,7 @@ import {
   NightSchedulePosition,
   StaffAttendee,
   Session,
+  DaysOffSchedule,
 } from "@/types/sessions/sessionTypes";
 import { getFullName } from "@/types/users/userUtils";
 import moment, { Moment } from "moment";
@@ -24,18 +25,29 @@ import {
 import LoadingPage from "@/app/loading";
 import {
   getNightSchedulePositionAbbreviation,
-  nightSchedulePositions,
+  NIGHT_SCHEDULE_POSITIONS,
 } from "@/types/sessions/nightScheduleUtils";
 import useSession from "@/hooks/sessions/useSession";
 import { getDayNumOfSession } from "@/types/sessions/sessionUtils";
+import useDaysOffSchedule from "@/hooks/daysOffSchedules/useDaysOffSchedule";
 
 interface NightScheduleTableProps {
   sessionId: string;
 }
 
+type NightScheduleTablePosition = NightSchedulePosition | "DAY OFF"
+
+function getNightScheduleTablePositionAbbreviation(position: NightScheduleTablePosition): string {
+  if (position === "DAY OFF") {
+    return "DO";
+  }
+  return getNightSchedulePositionAbbreviation(position);
+}
+
 export default function NightScheduleTable(props: NightScheduleTableProps) {
   const { sessionId } = props;
 
+  const { data: daysOffSchedule, status: daysOffScheduleStatus } = useDaysOffSchedule(sessionId);
   const { data: session, status: sessionStatus } = useSession(sessionId);
   const { data: attendees = [], status: attendeesStatus } =
     useListAttendees(sessionId);
@@ -43,12 +55,14 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
     useNightScheduleList(sessionId);
 
   if (
+    daysOffScheduleStatus === "error" ||
     sessionStatus === "error" ||
     attendeesStatus === "error" ||
     nightShiftsStatus === "error"
   ) {
     return <p>Error loading session data</p>;
   } else if (
+    daysOffScheduleStatus === "pending" ||
     sessionStatus === "pending" ||
     attendeesStatus === "pending" ||
     nightShiftsStatus === "pending"
@@ -58,6 +72,7 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
 
   return (
     <NightScheduleTableContent
+      daysOffSchedule={daysOffSchedule}
       session={session}
       attendees={attendees}
       nightShifts={nightShifts.docs}
@@ -66,6 +81,7 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
 }
 
 interface NightScheduleTableContentProps {
+  daysOffSchedule: DaysOffSchedule;
   session: Session;
   attendees: Attendee[];
   nightShifts: NightSchedule[];
@@ -73,12 +89,12 @@ interface NightScheduleTableContentProps {
 
 interface NightScheduleTableRow {
   date: Moment;
-  position: NightSchedulePosition;
+  position: NightScheduleTablePosition;
   bunks: Record<number, StaffAttendee[]>;
 }
 
 function NightScheduleTableContent(props: NightScheduleTableContentProps) {
-  const { session, attendees, nightShifts } = props;
+  const { daysOffSchedule, session, attendees, nightShifts } = props;
 
   const { staffById, staffByBunk, bunkNums } = useMemo(() => {
     const staff = attendees.filter((att: Attendee) => att.role === "STAFF");
@@ -94,7 +110,7 @@ function NightScheduleTableContent(props: NightScheduleTableContentProps) {
     (
       nightShift: NightSchedule,
       bunkNum: number,
-      position: NightSchedulePosition,
+      position: NightScheduleTablePosition,
     ): StaffAttendee[] => {
       const bunkData = nightShift.bunks[bunkNum];
 
@@ -116,8 +132,7 @@ function NightScheduleTableContent(props: NightScheduleTableContentProps) {
             staffByBunk[bunkNum].map((att) => att.attendeeId) || [],
           );
           const staffOff = staffInBunk.filter((staffId: number) => {
-            const staff = staffById[staffId];
-            return staff.daysOff.some(dayOff => dayOff.isSame(date, 'day'));
+            return daysOffSchedule.daysOffByCounselorId[staffId].some((dayOff) => dayOff.isSame(date, "day"));
           });
           return staffOff.map((staffId: number) => staffById[staffId]);
         }
@@ -132,8 +147,8 @@ function NightScheduleTableContent(props: NightScheduleTableContentProps) {
 
           const roverStaff = allStaffInBunk.filter((staffId: number) => {
             if (assignedStaff.has(staffId)) return false;
-            const staff = staffById[staffId];
-            if (staff.daysOff.some(dayOff => dayOff.isSame(date, 'day'))) return false;
+            if (daysOffSchedule.daysOffByCounselorId[staffId].some((dayOff) => dayOff.isSame(date, "day")))
+              return false;
             return true;
           });
 
@@ -143,13 +158,13 @@ function NightScheduleTableContent(props: NightScheduleTableContentProps) {
           return [];
       }
     },
-    [staffByBunk, staffById],
+    [staffByBunk, staffById, daysOffSchedule.daysOffByCounselorId],
   );
 
   const data: NightScheduleTableRow[] = useMemo(() => {
     const rows: NightScheduleTableRow[] = [];
     nightShifts.forEach((nightShift: NightSchedule) => {
-      nightSchedulePositions.forEach((position: NightSchedulePosition) => {
+      NIGHT_SCHEDULE_POSITIONS.forEach((position: NightSchedulePosition) => {
         const row: NightScheduleTableRow = {
           date: nightShift.date,
           position: position,
@@ -174,14 +189,14 @@ function NightScheduleTableContent(props: NightScheduleTableContentProps) {
             <Text className="text-sm font-semibold">
               Day {getDayNumOfSession(row.original.date.format("YYYY-MM-DD"), session)}
             </Text>
-            <Text className="text-xs font-semibold text-[#868e96]">
+            <Text className="text-xs font-semibold text-gray-6">
               {moment(row.original.date).format("MMM D, YYYY")}
             </Text>
           </div>
         ),
       },
       {
-        accessorFn: (row) => getNightSchedulePositionAbbreviation(row.position),
+        accessorFn: (row) => getNightScheduleTablePositionAbbreviation(row.position),
         header: "POSITION",
         size: 100,
       },
@@ -247,7 +262,7 @@ function NightScheduleTableContent(props: NightScheduleTableContentProps) {
                   return (
                     <Table.Td
                       key={cell.id}
-                      rowSpan={nightSchedulePositions.length}
+                      rowSpan={NIGHT_SCHEDULE_POSITIONS.length}
                       className="text-center align-middle font-semibold bg-gray-200 border border-gray-300"
                     >
                       {flexRender(
