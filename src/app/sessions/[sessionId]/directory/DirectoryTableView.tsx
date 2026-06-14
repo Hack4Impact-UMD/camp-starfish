@@ -27,6 +27,7 @@ import {
 } from "@tanstack/react-table";
 import { MdSearch } from "react-icons/md";
 import LoadingPage from "@/app/loading";
+import useDaysOffSchedule from "@/hooks/daysOffSchedules/useDaysOffSchedule";
 
 type LargeDirectoryBlockProps = {
   sessionId: string;
@@ -39,6 +40,7 @@ export default function DirectoryTableView({
     isLoading,
     isError,
   } = useListAttendees(sessionId);
+  const daysOffScheduleQuery = useDaysOffSchedule(sessionId);
   const [selectedRole, setSelectedRole] = useState<AttendeeRole>("CAMPER");
   const [sortNameOption, setSortNameOption] = useState<string | null>(null);
 
@@ -177,19 +179,16 @@ export default function DirectoryTableView({
           header: "GENDER",
           cell: (info) => render(info.getValue()),
         },
-
         {
           accessorKey: "nonoList",
           header: "NO-NO LIST",
           cell: (info) => renderIdListAsNames(info.getValue<number[]>()),
         },
-
         {
           accessorKey: "yesyesList",
           header: "YES-YES LIST",
           cell: (info) => renderIdListAsNames(info.getValue<number[]>()),
         },
-
         {
           accessorFn: (row) => (row as StaffAttendee).programCounselorFor,
           header: "Program Counselor",
@@ -204,7 +203,7 @@ export default function DirectoryTableView({
           },
         },
         {
-          accessorKey: "daysOff",
+          accessorFn: (row) => daysOffScheduleQuery.data?.daysOffByCounselorId[row.attendeeId].map(d => d.format("YYYY-MM-DD")),
           header: "Days Off",
           cell: (info) => {
             const dates = info.getValue<string[]>();
@@ -248,7 +247,7 @@ export default function DirectoryTableView({
         },
 
         {
-          accessorKey: "daysOff",
+          accessorFn: (row) => daysOffScheduleQuery.data?.daysOffByCounselorId[row.attendeeId].map(d => d.format("YYYY-MM-DD")),
           header: "Days Off",
           cell: (info) => {
             const dates = info.getValue<string[]>();
