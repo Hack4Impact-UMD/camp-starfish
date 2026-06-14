@@ -2,10 +2,11 @@ import { toRecord } from "@/utils/data/toRecord";
 import { StaffAttendee, AdminAttendee, CamperAttendee, Freeplay, Post, Attendee } from "../../../types/sessions/sessionTypes";
 import { groupBy } from "@/utils/data/groupBy";
 import partition from "@/utils/data/partition";
+import { Moment } from "moment";
 
 interface GenerateFreeplayScheduleRequest {
   sessionId: string;
-  date: string;
+  date: Moment;
   attendees: Attendee[];
   posts: Post[];
   otherFreeplaysInSession: Freeplay[];
