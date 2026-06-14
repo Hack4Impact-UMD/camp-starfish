@@ -15,7 +15,6 @@ import {
 } from "firebase/firestore";
 import { setDoc, getDoc, updateDoc, executeQuery, deleteDoc } from "./firestoreClientOperations";
 import { RootLevelCollection, SessionsSubcollection } from "./types/collections";
-import moment from "moment";
 import { FirestoreQueryOptions } from "./types/queries";
 
 function fromFirestore(snapshot: DocumentSnapshot<AttendeeDoc, AttendeeDoc> | QueryDocumentSnapshot<AttendeeDoc, AttendeeDoc>): Attendee {
@@ -27,7 +26,6 @@ function fromFirestore(snapshot: DocumentSnapshot<AttendeeDoc, AttendeeDoc> | Qu
         attendeeId: Number(snapshot.ref.id),
         sessionId: snapshot.ref.parent.parent!.id,
         role: "ADMIN",
-        daysOff: attendeeDoc.daysOff.map(timestamp => moment(timestamp.toDate())),
         snapshot: attendeeDoc.snapshot
       } satisfies AdminAttendee;
     case "STAFF":
@@ -35,7 +33,6 @@ function fromFirestore(snapshot: DocumentSnapshot<AttendeeDoc, AttendeeDoc> | Qu
         attendeeId: Number(snapshot.ref.id),
         sessionId: snapshot.ref.parent.parent!.id,
         role: "STAFF",
-        daysOff: attendeeDoc.daysOff.map(timestamp => moment(timestamp.toDate())),
         snapshot: attendeeDoc.snapshot,
         bunk: attendeeDoc.bunk,
         isLeadBunkCounselor: attendeeDoc.isLeadBunkCounselor,
