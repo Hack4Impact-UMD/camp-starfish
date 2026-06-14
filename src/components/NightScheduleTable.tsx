@@ -132,7 +132,6 @@ function NightScheduleTableContent(props: NightScheduleTableContentProps) {
             staffByBunk[bunkNum].map((att) => att.attendeeId) || [],
           );
           const staffOff = staffInBunk.filter((staffId: number) => {
-            const staff = staffById[staffId];
             return daysOffSchedule.daysOffByCounselorId[staffId].some((dayOff) => dayOff.isSame(date, "day"));
           });
           return staffOff.map((staffId: number) => staffById[staffId]);
@@ -148,7 +147,6 @@ function NightScheduleTableContent(props: NightScheduleTableContentProps) {
 
           const roverStaff = allStaffInBunk.filter((staffId: number) => {
             if (assignedStaff.has(staffId)) return false;
-            const staff = staffById[staffId];
             if (daysOffSchedule.daysOffByCounselorId[staffId].some((dayOff) => dayOff.isSame(date, "day")))
               return false;
             return true;
@@ -160,7 +158,7 @@ function NightScheduleTableContent(props: NightScheduleTableContentProps) {
           return [];
       }
     },
-    [staffByBunk, staffById],
+    [staffByBunk, staffById, daysOffSchedule.daysOffByCounselorId],
   );
 
   const data: NightScheduleTableRow[] = useMemo(() => {
