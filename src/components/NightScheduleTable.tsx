@@ -12,6 +12,7 @@ import {
   NightSchedulePosition,
   StaffAttendee,
   Session,
+  DaysOffSchedule,
 } from "@/types/sessions/sessionTypes";
 import { getFullName } from "@/types/users/userUtils";
 import moment from "moment";
@@ -28,6 +29,7 @@ import {
 } from "@/types/sessions/nightScheduleUtils";
 import useSession from "@/hooks/sessions/useSession";
 import { getDayNumOfSession } from "@/types/sessions/sessionUtils";
+import useDaysOffSchedule from "@/hooks/daysOffSchedules/useDaysOffSchedule";
 
 interface NightScheduleTableProps {
   sessionId: string;
@@ -45,6 +47,7 @@ function getNightScheduleTablePositionAbbreviation(position: NightScheduleTableP
 export default function NightScheduleTable(props: NightScheduleTableProps) {
   const { sessionId } = props;
 
+  const { data: daysOffSchedule, status: daysOffScheduleStatus } = useDaysOffSchedule(sessionId);
   const { data: session, status: sessionStatus } = useSession(sessionId);
   const { data: attendees = [], status: attendeesStatus } =
     useListAttendees(sessionId);
@@ -52,12 +55,14 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
     useNightScheduleList(sessionId);
 
   if (
+    daysOffScheduleStatus === "error" ||
     sessionStatus === "error" ||
     attendeesStatus === "error" ||
     nightShiftsStatus === "error"
   ) {
     return <p>Error loading session data</p>;
   } else if (
+    daysOffScheduleStatus === "pending" ||
     sessionStatus === "pending" ||
     attendeesStatus === "pending" ||
     nightShiftsStatus === "pending"
@@ -67,6 +72,7 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
 
   return (
     <NightScheduleTableContent
+      daysOffSchedule={daysOffSchedule}
       session={session}
       attendees={attendees}
       nightShifts={nightShifts.docs}
@@ -75,6 +81,7 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
 }
 
 interface NightScheduleTableContentProps {
+  daysOffSchedule: DaysOffSchedule;
   session: Session;
   attendees: Attendee[];
   nightShifts: NightSchedule[];
@@ -87,7 +94,7 @@ interface NightScheduleTableRow {
 }
 
 function NightScheduleTableContent(props: NightScheduleTableContentProps) {
-  const { session, attendees, nightShifts } = props;
+  const { daysOffSchedule, session, attendees, nightShifts } = props;
 
   const { staffById, staffByBunk, bunkNums } = useMemo(() => {
     const staff = attendees.filter((att: Attendee) => att.role === "STAFF");
@@ -126,7 +133,7 @@ function NightScheduleTableContent(props: NightScheduleTableContentProps) {
           );
           const staffOff = staffInBunk.filter((staffId: number) => {
             const staff = staffById[staffId];
-            return staff.daysOff.some((dayOff) => dayOff.isSame(date, "day"));
+            return daysOffSchedule.daysOffByCounselorId[staffId].some((dayOff) => dayOff.isSame(date, "day"));
           });
           return staffOff.map((staffId: number) => staffById[staffId]);
         }
@@ -142,7 +149,7 @@ function NightScheduleTableContent(props: NightScheduleTableContentProps) {
           const roverStaff = allStaffInBunk.filter((staffId: number) => {
             if (assignedStaff.has(staffId)) return false;
             const staff = staffById[staffId];
-            if (staff.daysOff.some((dayOff) => dayOff.isSame(date, "day")))
+            if (daysOffSchedule.daysOffByCounselorId[staffId].some((dayOff) => dayOff.isSame(date, "day")))
               return false;
             return true;
           });
