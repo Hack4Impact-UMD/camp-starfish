@@ -1,7 +1,8 @@
 import { onRequest } from "firebase-functions/https";
 import { adminAuth } from "../config/firebaseAdminConfig";
 import { getFunctionsURL } from "@/utils/firebaseUtils";
-import { Credentials, OAuth2Client, TokenPayload } from "google-auth-library";
+import { Credentials, TokenPayload } from "google-auth-library";
+import { OAuth2Client } from "googleapis-common";
 import { setGoogleCredentials, updateGoogleCredentials } from "../data/firestore/googleCredentials";
 
 const handleOAuth2Code = onRequest(async (req, res) => {

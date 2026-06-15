@@ -1,6 +1,6 @@
 import { onCall } from "firebase-functions/https";
 import moment from "moment";
-import { OAuth2Client } from "google-auth-library";
+import { OAuth2Client } from "googleapis-common";
 import { getFunctionsURL } from "@/utils/firebaseUtils";
 import { refreshAccessToken } from "./googleOAuth2";
 import { GoogleApis } from "googleapis";
