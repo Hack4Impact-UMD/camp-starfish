@@ -48,4 +48,4 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: npm install --include=optional sharp
-      - run: cd apps-script && npm run lint && npm run build && npm install -g @google/clasp && clasp push --force
+      - run: cd apps-script && npm run lint && npm run build && npm install -g @google/clasp && echo '${{ secrets.LOCAL_CLASPRC_JSON }}' > .clasprc.json && cho '${{ secrets.GLOBAL_CLASPRC_JSON }}' > ~/.clasprc.json && clasp push --force
