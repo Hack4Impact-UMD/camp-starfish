@@ -1,6 +1,6 @@
-import { initializeApp } from "firebase/app";
+import { initializeApp, getApps, getApp } from "firebase/app";
 import { connectAuthEmulator, getAuth } from "firebase/auth";
-import { connectFirestoreEmulator, initializeFirestore } from "firebase/firestore";
+import { connectFirestoreEmulator, getFirestore, initializeFirestore } from "firebase/firestore";
 import { connectFunctionsEmulator, getFunctions } from "firebase/functions";
 import { connectStorageEmulator, getStorage } from "firebase/storage";
 
@@ -14,13 +14,18 @@ const firebaseConfig = {
   measurementId: "G-S3K5R4T5K8",
 };
 
-const app = initializeApp(firebaseConfig);
+const isFirstInit = !getApps().length;
+const app = isFirstInit ? initializeApp(firebaseConfig) : getApp();
 export const auth = getAuth(app);
-export const db = initializeFirestore(app, { ignoreUndefinedProperties: true });
+export const db = isFirstInit
+  ? initializeFirestore(app, { ignoreUndefinedProperties: true })
+  : getFirestore(app);
 export const storage = getStorage(app);
 export const functions = getFunctions(app, 'us-central1');
 
-if (process.env.NODE_ENV !== "production") {
+// Only connect to emulators on the first initialization; re-running this on a
+// hot reload (with a reused app instance) would throw "emulator already started".
+if (isFirstInit && process.env.NODE_ENV !== "production") {
   connectAuthEmulator(auth, 'http://localhost:9099');
   connectFirestoreEmulator(db, 'localhost', 8080);
   connectFunctionsEmulator(functions, "localhost", 5001);

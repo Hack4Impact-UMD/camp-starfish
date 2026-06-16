@@ -66,10 +66,16 @@ export default function DownloadDaySchedulePDFButton(
     freeplayQuery.status === "pending" ||
     sectionQuery.status === "pending" ||
     scheduleQuery.status === "pending" ||
-    (isBundleSectionSchedule(scheduleQuery.data) &&
+    (scheduleQuery.data != null &&
+      isBundleSectionSchedule(scheduleQuery.data) &&
       programAreasQuery.status === "pending")
   ) {
     return cloneElement(baseExportButton, { loading: true });
+  } else if (scheduleQuery.data == null) {
+    return cloneElement(baseExportButton, {
+      onClick: () =>
+        notifications.error("Failed to generate PDF. Please try again later."),
+    });
   }
   return (
     <DownloadDaySchedulePDFButtonContent

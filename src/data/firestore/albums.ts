@@ -3,7 +3,7 @@ import { Album } from "@/types/albums/albumTypes";
 import { AlbumDoc } from "./types/documents";
 import { v4 as uuid } from "uuid";
 import { RootLevelCollection } from "./types/collections";
-import { setDoc, deleteDoc, getDoc, updateDoc, executeQuery, mapSnapshotsToPaginatedQueryResult } from "./firestoreClientOperations";
+import { setDoc, deleteDoc, getDoc, updateDoc, executeQuery, mapSnapshotsToPaginatedQueryResult, batchGetDocs } from "./firestoreClientOperations";
 import { FirestoreQueryOptions, PaginatedQueryResponse } from "./types/queries";
 import { collection, CollectionReference, doc, DocumentReference, DocumentSnapshot, QueryDocumentSnapshot, Transaction, UpdateData, WithFieldValue, WriteBatch } from "firebase/firestore";
 import moment from "moment";
@@ -30,6 +30,11 @@ export async function getAlbumDoc(id: string, transaction?: Transaction): Promis
 export async function getAlbumDocs(queryOptions?: FirestoreQueryOptions<AlbumDoc>): Promise<PaginatedQueryResponse<Album, AlbumDoc>> {
   const snapshots = await executeQuery<AlbumDoc>(collection(db, RootLevelCollection.ALBUMS) as CollectionReference<AlbumDoc, AlbumDoc>, queryOptions);
   return mapSnapshotsToPaginatedQueryResult(snapshots, fromFirestore);
+}
+
+export async function batchGetAlbumDocs(ids: string[]): Promise<Album[]> {
+  const snapshots = await batchGetDocs<AlbumDoc>(collection(db, RootLevelCollection.ALBUMS) as CollectionReference<AlbumDoc, AlbumDoc>, ids);
+  return snapshots.map(fromFirestore);
 }
 
 export async function createAlbumDoc(album: WithFieldValue<AlbumDoc>, instance?: Transaction | WriteBatch): Promise<string> {
