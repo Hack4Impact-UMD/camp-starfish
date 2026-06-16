@@ -48,4 +48,4 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: npm install --include=optional sharp
-      - run: cd apps-script && npm run lint && npm run build
+      - run: cd apps-script && npm run lint && npm run build && clasp push --force
