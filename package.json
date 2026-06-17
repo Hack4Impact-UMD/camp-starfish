@@ -4,7 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "preemulators": "cp ./.env.development ./functions/.env",
     "emulators": "firebase emulators:start --import ./test/emulatorData",
+    "postemulators": "rm ./functions/.env",
     "build": "next build",
     "compile": "npx tsc --noEmit",
     "start": "next start",
