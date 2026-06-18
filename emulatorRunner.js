@@ -1,24 +1,20 @@
-const { spawn } = require('child_process');
+import { execSync, spawn } from "child_process";
+import fs from "fs";
 
-// 1. Start your main process (e.g., 'npm run dev')
-// On Windows, use shell: true to support npm commands natively
-const mainProcess = spawn('npm', ['run', 'emulators:start'], { stdio: 'inherit', shell: true });
+execSync("cp ./.env.development ./functions/.env");
+console.log("✓ Copied .env.development to functions/.env");
 
-function runCleanup() {
-  console.log('\nUser interrupted! Executing final script...');
-  
-  // 2. Trigger the script you want to run after the kill
-  // Using spawnSync blocks the exit until the cleanup finishes
-  spawn('npm', ['run', 'emulators:cleanup'], { stdio: 'inherit', shell: true });
-  
-  process.exit(0);
-}
+spawn(
+  "firebase",
+  ["emulators:start", "--import", "./test/emulatorData"],
+  { stdio: "inherit", shell: true }
+);
 
-// 3. Catch Ctrl+C (SIGINT) and kill events
-process.on('SIGINT', runCleanup);
-process.on('SIGTERM', runCleanup);
+const cleanup = () => {
+  fs.unlinkSync("./functions/.env");
+  console.log("✓ Cleaned up functions/.env");
+  process.exit();
+};
 
-// Forward the exit code if the main process finishes on its own
-mainProcess.on('exit', (code) => {
-  process.exit(code || 0);
-});
+process.on("SIGINT", cleanup);
+process.on("SIGTERM", cleanup);

@@ -5,8 +5,6 @@
   "scripts": {
     "dev": "next dev",
     "emulators": "node ./emulatorRunner.js",
-    "emulators:start": "cp ./.env.development ./functions/.env && firebase emulators:start --import ./test/emulatorData",
-    "emulators:cleanup": "rm ./functions/.env",
     "build": "next build",
     "compile": "npx tsc --noEmit",
     "start": "next start",
