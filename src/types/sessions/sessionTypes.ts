@@ -63,6 +63,7 @@ export interface AdminAttendee extends BaseAttendee {
   snapshot: BaseAttendee['snapshot'] & { yesyesList: number[] };
 }
 export type Attendee = CamperAttendee | StaffAttendee | AdminAttendee;
+export type CounselorAttendee = StaffAttendee | AdminAttendee;
 
 export interface Bunk {
   bunkNum: number;
@@ -75,7 +76,7 @@ export interface Bunk {
 export type NightSchedulePosition = "COUNSELOR-ON-DUTY" | "NIGHT-BUNK-DUTY" | "ROVER";
 export interface NightSchedule {
   sessionId: string;
-  date: string;
+  date: Moment;
   bunks: {
     [bunkNum: number]: Record<NightSchedulePosition, number[]>
   }
@@ -83,7 +84,7 @@ export interface NightSchedule {
 
 export interface Freeplay {
   sessionId: string;
-  date: string;
+  date: Moment;
   posts: { [postId: string]: number[]; };
   buddies: Record<number, number[]>;
 }
