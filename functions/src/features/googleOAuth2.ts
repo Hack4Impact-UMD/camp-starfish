@@ -19,8 +19,8 @@ const handleOAuth2Code = onRequest(async (req, res) => {
 
   const oAuth2Client = new OAuth2Client({
     client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
-    client_secret: process.env.GOOGLE_CLIENT_SECRET,
-    redirect_uris: [getFunctionsURL('handleOAuth2Code')],
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    redirectUri: getFunctionsURL('handleOAuth2Code'),
   })
 
   let tokens: Credentials;
