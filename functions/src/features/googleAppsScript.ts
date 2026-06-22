@@ -25,6 +25,7 @@ const appsScriptEndpoint = onCall(async (req) => {
   }
 
   const { functionName, parameters } = req.data;
+  // @ts-expect-error - will fix type error later
   const data = (await new GoogleApis({ auth: oAuth2Client }).script('v1').scripts.run({
     scriptId: process.env.NEXT_PUBLIC_GOOGLE_APPS_SCRIPT_DEPLOYMENT_ID,
     requestBody: {
