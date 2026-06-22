@@ -10,6 +10,7 @@ import Providers from "@/components/Providers";
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { FormDevtoolsPanel } from "@tanstack/react-form-devtools";
+import { getEnvironment } from "@/utils/utils";
 
 const lato = localFont({
   src: [
@@ -161,7 +162,7 @@ export default function RootLayout({
           <div className="w-full">
             <Footer />
           </div>
-          {process.env.NODE_ENV !== 'production' && <TanStackDevtools
+          {getEnvironment() === 'development' && <TanStackDevtools
             plugins={[
               {
                 name: "Query",

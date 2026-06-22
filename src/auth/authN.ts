@@ -18,7 +18,7 @@ export async function signInWithGooglePopup() {
 export async function signInWithMicrosoftPopup() {
   try {
     return await signInWithPopup(auth, new OAuthProvider("microsoft.com"));
-  } catch (error : unknown) {
+  } catch (error: unknown) {
     if (error instanceof Error) {
       if (error.message !== "auth/popup-closed-by-user") {
         throw Error(error.message)
