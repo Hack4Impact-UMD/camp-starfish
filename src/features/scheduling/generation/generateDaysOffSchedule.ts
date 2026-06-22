@@ -4,6 +4,8 @@ import { groupBy } from "@/utils/data/groupBy";
 import shuffle from "@/utils/data/shuffle";
 import { Moment } from "moment";
 
+// TODO: give staff and admins on each other yesYesLists the same days off
+
 interface GenerateDaysOffScheduleRequest {
   session: Session;
   counselors: CounselorAttendee[];
