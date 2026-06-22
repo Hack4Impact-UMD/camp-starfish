@@ -7,7 +7,7 @@ function isValidEnvironment(env: string | undefined): env is Environment {
 }
 
 export function getEnvironment(): Environment {
-  if (process.env.NODE_ENV !== undefined && process.env.NODE_ENV !== "test") {
+  if (process.env.NODE_ENV !== undefined && isValidEnvironment(process.env.NODE_ENV)) {
     return process.env.NODE_ENV;
   } else if (isValidEnvironment(process.env.NEXT_PUBLIC_NODE_ENV)) {
     return process.env.NEXT_PUBLIC_NODE_ENV;
