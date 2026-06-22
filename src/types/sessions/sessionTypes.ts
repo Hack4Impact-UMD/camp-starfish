@@ -1,5 +1,6 @@
 import { Moment } from "moment";
 import { Gender, Name, Role } from "../users/userTypes";
+import { StrictExtract } from "@/utils/types/typeUtils";
 
 export interface Session {
   id: string;
@@ -29,7 +30,7 @@ export interface SchedulingSection extends BaseSection {
 }
 export type Section = CommonSection | SchedulingSection;
 
-export type AttendeeRole = Extract<Role, "ADMIN" | "CAMPER" | "STAFF">;
+export type AttendeeRole = StrictExtract<Role, "ADMIN" | "CAMPER" | "STAFF">;
 
 interface BaseAttendee {
   attendeeId: number;
