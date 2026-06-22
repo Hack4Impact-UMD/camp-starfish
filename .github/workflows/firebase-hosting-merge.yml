@@ -16,6 +16,7 @@ jobs:
       GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
       NEXT_PUBLIC_MICROSOFT_CLIENT_ID: ${{ secrets.NEXT_PUBLIC_MICROSOFT_CLIENT_ID }}
       MICROSOFT_CLIENT_SECRET: ${{ secrets.MICROSOFT_CLIENT_SECRET }}
+      NEXT_PUBLIC_NODE_ENV: production
     steps:
       - uses: actions/checkout@v4
 
@@ -49,6 +50,7 @@ jobs:
       GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
       NEXT_PUBLIC_MICROSOFT_CLIENT_ID: ${{ secrets.NEXT_PUBLIC_MICROSOFT_CLIENT_ID }}
       MICROSOFT_CLIENT_SECRET: ${{ secrets.MICROSOFT_CLIENT_SECRET }}
+      NEXT_PUBLIC_NODE_ENV: production
     steps:
       - uses: actions/checkout@v4
 
