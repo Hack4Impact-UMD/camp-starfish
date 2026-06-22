@@ -2,7 +2,7 @@ import { execSync, spawn } from "child_process";
 import fs from "fs";
 
 execSync("cp ./.env.development ./functions/.env");
-console.log("✓ Copied .env.development to functions/.env"); 
+console.log("✓ Copied .env.development to functions/.env");
 
 spawn(
   "firebase",
