@@ -12,5 +12,5 @@ export function getEnvironment(): Environment {
   } else if (isValidEnvironment(process.env.NEXT_PUBLIC_NODE_ENV)) {
     return process.env.NEXT_PUBLIC_NODE_ENV;
   }
-  return "production";
+  return "development";
 }
