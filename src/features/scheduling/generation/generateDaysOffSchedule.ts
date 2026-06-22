@@ -47,8 +47,7 @@ export default function generateDaysOffSchedule(req: GenerateDaysOffScheduleRequ
     const counselorAssignmentOrder: number[] = shuffle([-1, ...Object.keys(staffByBunk).map(bunk => Number(bunk))]).flatMap(bunkNum => bunkNum === -1 ? shuffle(admins.map(admin => admin.attendeeId)) : shuffle(staffByBunk[bunkNum].map(staff => staff.attendeeId)));
     let dayInWeekIndex = 0;
     while (counselorAssignmentOrder.length !== 0) {
-      const counselorId = counselorAssignmentOrder.shift();
-      // @ts-expect-error - counselorId is guaranteed to be a number at this point
+      const counselorId = Number(counselorAssignmentOrder.shift());
       daysOffByCounselorId[counselorId].push(daysOffInWeek[dayInWeekIndex]);
       dayInWeekIndex = (dayInWeekIndex + 1) % daysOffInWeek.length;
     }
