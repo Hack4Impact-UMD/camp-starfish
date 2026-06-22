@@ -1,5 +1,6 @@
 import { Bunk, DaysOffSchedule, NightSchedule, NightSchedulePosition, Session } from "@/types/sessions/sessionTypes";
 import { getObjectKeysAsNumbers } from "@/utils/stringUtils";
+import { StrictExtract } from "@/utils/types/typeUtils";
 
 interface GenerateNightSchedulesRequest {
   session: Session;
@@ -31,6 +32,7 @@ const MIN_COUNSELORS_ON_DUTY = 2;
 const MIN_NIGHT_BUNK_DUTY = 2;
 
 function generateNightSchedulesForBunk(bunk: Bunk, daysOffSchedule: DaysOffSchedule, session: Session): { [date: string]: Record<NightSchedulePosition, number[]>; } {
+  const positionCounts: { [counselorId: number]: Record<StrictExtract<NightSchedulePosition, "COUNSELOR-ON-DUTY" | "NIGHT-BUNK-DUTY">, number>; } = {};
   for (let currDate = session.startDate.clone(); currDate.isBefore(session.endDate, "day"); currDate = currDate.clone().add(1, 'day')) {
     const counselorsWithDayOff: number[] = [];
     const counselorsWithTomorrowOff: number[] = [];
@@ -55,15 +57,15 @@ function generateNightSchedulesForBunk(bunk: Bunk, daysOffSchedule: DaysOffSched
     };
     for (let i = 0; i < MIN_COUNSELORS_ON_DUTY; i++) {
       const eligibleCounselorIds = bunk.counselorIds.filter(counselorId => !counselorsWithDayOff.includes(counselorId) && !counselorsWithTomorrowOff.includes(counselorId) && !isAssigned(assignments, counselorId));
-      // determine who is eligible
-      // determine least number of COD assignments
-      // assign least assigned indivudual
+      const eligibleCounselorIdsSortedByLeastCod = eligibleCounselorIds.sort((a, b) => positionCounts[a]["COUNSELOR-ON-DUTY"] - positionCounts[b]["COUNSELOR-ON-DUTY"]);
+      const assignedCounselorId = eligibleCounselorIdsSortedByLeastCod[0];
+      assignments["COUNSELOR-ON-DUTY"].push(assignedCounselorId);
     }
     for (let i = 0; i < MIN_NIGHT_BUNK_DUTY; i++) {
       const eligibleCounselorIds = bunk.counselorIds.filter(counselorId => !counselorsWithDayOff.includes(counselorId) && !isAssigned(assignments, counselorId));
-      // determine who is eligible
-      // determine least number of NBD assignments
-      // assign least assigned individual
+      const eligibleCounselorIdsSortedByLeastNbd = eligibleCounselorIds.sort((a, b) => positionCounts[a]["NIGHT-BUNK-DUTY"] - positionCounts[b]["NIGHT-BUNK-DUTY"]);
+      const assignedCounselorId = eligibleCounselorIdsSortedByLeastNbd[0];
+      assignments["NIGHT-BUNK-DUTY"].push(assignedCounselorId);
     }
     const remainingCounselorIds = bunk.counselorIds.filter(counselorId => !counselorsWithDayOff.includes(counselorId) && !isAssigned(assignments, counselorId));
     assignments["ROVER"] = remainingCounselorIds;
