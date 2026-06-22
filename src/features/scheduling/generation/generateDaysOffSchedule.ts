@@ -5,6 +5,7 @@ import shuffle from "@/utils/data/shuffle";
 import { Moment } from "moment";
 
 // TODO: give staff and admins on each other yesYesLists the same days off
+// TODO: take section activities into account when assigning days off, namely for program counselor assignments
 
 interface GenerateDaysOffScheduleRequest {
   session: Session;
