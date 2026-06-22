@@ -4,6 +4,9 @@ import { groupBy } from "@/utils/data/groupBy";
 import shuffle from "@/utils/data/shuffle";
 import { Moment } from "moment";
 
+// TODO: give staff and admins on each other yesYesLists the same days off
+// TODO: take section activities into account when assigning days off, namely for program counselor assignments
+
 interface GenerateDaysOffScheduleRequest {
   session: Session;
   counselors: CounselorAttendee[];
@@ -47,8 +50,7 @@ export default function generateDaysOffSchedule(req: GenerateDaysOffScheduleRequ
     const counselorAssignmentOrder: number[] = shuffle([-1, ...Object.keys(staffByBunk).map(bunk => Number(bunk))]).flatMap(bunkNum => bunkNum === -1 ? shuffle(admins.map(admin => admin.attendeeId)) : shuffle(staffByBunk[bunkNum].map(staff => staff.attendeeId)));
     let dayInWeekIndex = 0;
     while (counselorAssignmentOrder.length !== 0) {
-      const counselorId = counselorAssignmentOrder.shift();
-      // @ts-expect-error - counselorId is guaranteed to be a number at this point
+      const counselorId = Number(counselorAssignmentOrder.shift());
       daysOffByCounselorId[counselorId].push(daysOffInWeek[dayInWeekIndex]);
       dayInWeekIndex = (dayInWeekIndex + 1) % daysOffInWeek.length;
     }
