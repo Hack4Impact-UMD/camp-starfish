@@ -26,7 +26,7 @@ const handleOAuth2Code = onRequest(async (req, res) => {
   let tokens: Credentials;
   try {
     tokens = (await oAuth2Client.getToken(code)).tokens;
-  } catch (err){
+  } catch {
     res.status(303).redirect(`${process.env.NEXT_PUBLIC_DOMAIN}?error=true`);
     return;
   }
