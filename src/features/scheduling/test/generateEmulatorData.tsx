@@ -4,7 +4,7 @@ import { CamperAttendeeID, StaffAttendeeID, AdminAttendeeID, AgeGroup, SectionSc
   ProgramAreaID,
   SchedulingSectionID} from "@/types/sessionTypes";
 
-import { NonBunkJamboreeScheduler } from "../generation/NonBunkJamboreeScheduler";
+import { NonBunkJamboreeScheduler } from "../generation/generateNonBunkJamboreeSchedule";
 
 import moment from "moment";
 import { faker } from '@faker-js/faker';
