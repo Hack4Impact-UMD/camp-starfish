@@ -3,6 +3,8 @@ import shuffle from "@/utils/data/shuffle";
 import { getObjectKeysAsNumbers } from "@/utils/stringUtils";
 import { StrictExtract } from "@/utils/types/typeUtils";
 
+// TODO: handle days when counselors are "ALL ON"
+
 interface GenerateNightSchedulesRequest {
   session: Session;
   daysOffSchedule: DaysOffSchedule;
