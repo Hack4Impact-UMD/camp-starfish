@@ -15,7 +15,7 @@ export default function generateNightSchedules(req: GenerateNightSchedulesReques
   const adminIds = [...req.adminIds];
 
   const nightSchedulesByDate: { [date: string]: NightSchedule; } = {};
-  for (let currDate = session.startDate.clone(); currDate.isBefore(session.endDate, "day"); currDate = currDate.clone().add(1, 'day')) {
+  for (let currDate = session.startDate.clone(); currDate.isBefore(session.endDate, "day"); currDate = currDate.add(1, 'day')) {
     nightSchedulesByDate[currDate.format("YYYY-MM-DD")] = {
       sessionId: session.id,
       date: currDate.clone(),
