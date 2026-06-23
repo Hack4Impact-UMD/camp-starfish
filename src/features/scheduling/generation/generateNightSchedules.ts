@@ -1,4 +1,5 @@
 import { Bunk, DaysOffSchedule, NightSchedule, NightSchedulePosition, Session } from "@/types/sessions/sessionTypes";
+import shuffle from "@/utils/data/shuffle";
 import { getObjectKeysAsNumbers } from "@/utils/stringUtils";
 import { StrictExtract } from "@/utils/types/typeUtils";
 
@@ -6,14 +7,16 @@ interface GenerateNightSchedulesRequest {
   session: Session;
   daysOffSchedule: DaysOffSchedule;
   bunks: Bunk[];
+  adminIds: number[];
 }
 
 export default function generateNightSchedules(req: GenerateNightSchedulesRequest): NightSchedule[] {
   const { session, daysOffSchedule, bunks } = req;
+  const adminIds = [...req.adminIds];
 
-  const nightSchedules: { [date: string]: NightSchedule; } = {};
+  const nightSchedulesByDate: { [date: string]: NightSchedule; } = {};
   for (let currDate = session.startDate.clone(); currDate.isBefore(session.endDate, "day"); currDate = currDate.clone().add(1, 'day')) {
-    nightSchedules[currDate.format("YYYY-MM-DD")] = {
+    nightSchedulesByDate[currDate.format("YYYY-MM-DD")] = {
       sessionId: session.id,
       date: currDate.clone(),
       bunks: {}
@@ -22,10 +25,39 @@ export default function generateNightSchedules(req: GenerateNightSchedulesReques
   for (const bunk of bunks) {
     const bunkSchedules = generateNightSchedulesForBunk(bunk, daysOffSchedule, session);
     for (const dateStr in bunkSchedules) {
-      nightSchedules[dateStr].bunks[bunk.bunkNum] = bunkSchedules[dateStr];
+      nightSchedulesByDate[dateStr].bunks[bunk.bunkNum] = bunkSchedules[dateStr];
     }
   }
-  return Object.values(nightSchedules);
+
+  const nightSchedules = Object.values(nightSchedulesByDate);
+  for (const nightSchedule of nightSchedules) {
+    const roverIdsToBunkNum: { [counselorId: number]: number; } = {};
+    for (const bunkNum of getObjectKeysAsNumbers(nightSchedule.bunks)) {
+      for (const roverId of nightSchedule.bunks[bunkNum]["ROVER"]) {
+        roverIdsToBunkNum[roverId] = bunkNum;
+      }
+    }
+
+    for (const bunkNum of getObjectKeysAsNumbers(nightSchedule.bunks)) {
+      nightSchedule.bunks[bunkNum]["COUNSELOR-ON-DUTY"] = nightSchedule.bunks[bunkNum]["COUNSELOR-ON-DUTY"].map(counselorId => {
+        if (counselorId !== -1) return counselorId;
+        const adminId = shuffle(adminIds).shift();
+        return adminId ?? null;
+      }).filter(counselorId => counselorId !== null);
+      nightSchedule.bunks[bunkNum]["NIGHT-BUNK-DUTY"] = nightSchedule.bunks[bunkNum]["NIGHT-BUNK-DUTY"].map(counselorId => {
+        if (counselorId !== -1) return counselorId;
+        const roverId = shuffle(getObjectKeysAsNumbers(roverIdsToBunkNum)).shift();
+        if (!roverId) {
+          const adminId = shuffle(adminIds).shift();
+          return adminId ?? null;
+        }
+        nightSchedule.bunks[roverIdsToBunkNum[roverId]]["ROVER"] = nightSchedule.bunks[roverIdsToBunkNum[roverId]]["ROVER"].filter(id => id !== roverId);
+        delete roverIdsToBunkNum[roverId];
+        return roverId;
+      }).filter(counselorId => counselorId !== null)
+    }
+  }
+  return Object.values(nightSchedulesByDate);
 }
 
 const MIN_COUNSELORS_ON_DUTY = 2;
@@ -88,7 +120,7 @@ function generateNightSchedulesForBunk(bunk: Bunk, daysOffSchedule: DaysOffSched
     const remainingCounselorIds = bunk.counselorIds.filter(counselorId => !counselorsWithDayOff.includes(counselorId) && !isAssigned(dayAssignments, counselorId));
     dayAssignments["ROVER"] = remainingCounselorIds;
 
-    assignments[currDate.format("YYYY-MM-DD")] = dayAssignments;    
+    assignments[currDate.format("YYYY-MM-DD")] = dayAssignments;
   }
   return assignments;
 }
