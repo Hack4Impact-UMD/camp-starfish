@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import { useState } from "react";
 import GoogleIcon from "@/assets/icons/Google.svg";
 import MicrosoftIcon from "@/assets/icons/Microsoft.svg";
 import BackgroundPattern from "@/components/BackgroundPattern";
@@ -22,16 +22,6 @@ export default function LoginPage() {
   const signInWithMicrosoft = async () => {
     try {
       await signInWithMicrosoftPopup();
-    }
-    catch {
-      setError("An error occurred while trying to sign in. Please try again.");
-    }
-  }
-
-  const generateTestSession = async () => {
-    try {
-      const data = await generateSession();
-      console.log(data);
     }
     catch {
       setError("An error occurred while trying to sign in. Please try again.");
@@ -70,14 +60,6 @@ export default function LoginPage() {
         >
           <Image src={MicrosoftIcon.src} alt="Microsoft" width={32} height={32} />
           Sign in with Microsoft
-        </button>
-
-        <button
-          onClick={generateTestSession}
-          className="flex flex-row justify-around items-center w-5/6 max-w-[344px] bg-white 
-                    mt-5 py-4 px-12 rounded-full shadow-[0_4px_4px_-1px_rgba(0,0,0,0.2)] font-lato text-xl text-gray-600">
-          <Image src={MicrosoftIcon.src} alt="Microsoft" width={32} height={32} />
-          Generate Test
         </button>
 
         {/* Error Message */}

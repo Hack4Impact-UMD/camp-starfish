@@ -1,3 +1,4 @@
+import { getEnvironment } from "@/utils/utils";
 import { initializeApp } from "firebase/app";
 import { connectAuthEmulator, getAuth } from "firebase/auth";
 import { connectFirestoreEmulator, initializeFirestore } from "firebase/firestore";
@@ -20,7 +21,7 @@ export const db = initializeFirestore(app, { ignoreUndefinedProperties: true });
 export const storage = getStorage(app);
 export const functions = getFunctions(app, 'us-central1');
 
-if (process.env.NODE_ENV !== "production") {
+if (getEnvironment() === "development") {
   connectAuthEmulator(auth, 'http://localhost:9099');
   connectFirestoreEmulator(db, 'localhost', 8080);
   connectFunctionsEmulator(functions, "localhost", 5001);
