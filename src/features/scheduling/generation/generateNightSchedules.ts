@@ -12,7 +12,6 @@ interface GenerateNightSchedulesRequest {
 
 export default function generateNightSchedules(req: GenerateNightSchedulesRequest): NightSchedule[] {
   const { session, daysOffSchedule, bunks } = req;
-  const adminIds = [...req.adminIds];
 
   const nightSchedulesByDate: { [date: string]: NightSchedule; } = {};
   for (let currDate = session.startDate.clone(); currDate.isBefore(session.endDate, "day"); currDate = currDate.add(1, 'day')) {
@@ -38,17 +37,19 @@ export default function generateNightSchedules(req: GenerateNightSchedulesReques
       }
     }
 
+    const availableAdminIds = [...req.adminIds];
+
     for (const bunkNum of getObjectKeysAsNumbers(nightSchedule.bunks)) {
       nightSchedule.bunks[bunkNum]["COUNSELOR-ON-DUTY"] = nightSchedule.bunks[bunkNum]["COUNSELOR-ON-DUTY"].map(counselorId => {
         if (counselorId !== -1) return counselorId;
-        const adminId = shuffle(adminIds).shift();
+        const adminId = shuffle(availableAdminIds).shift();
         return adminId ?? null;
       }).filter(counselorId => counselorId !== null);
       nightSchedule.bunks[bunkNum]["NIGHT-BUNK-DUTY"] = nightSchedule.bunks[bunkNum]["NIGHT-BUNK-DUTY"].map(counselorId => {
         if (counselorId !== -1) return counselorId;
         const roverId = shuffle(getObjectKeysAsNumbers(roverIdsToBunkNum)).shift();
         if (!roverId) {
-          const adminId = shuffle(adminIds).shift();
+          const adminId = shuffle(availableAdminIds).shift();
           return adminId ?? null;
         }
         nightSchedule.bunks[roverIdsToBunkNum[roverId]]["ROVER"] = nightSchedule.bunks[roverIdsToBunkNum[roverId]]["ROVER"].filter(id => id !== roverId);
