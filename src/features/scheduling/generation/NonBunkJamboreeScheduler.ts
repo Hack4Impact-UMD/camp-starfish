@@ -7,7 +7,7 @@ import {
 } from "@/types/sessions/sessionTypes";
 import { SectionActivityPreferences, NonBunkJamboreeSectionSchedule } from "@/types/scheduling/schedulingTypes";
 import { getBlockIdFromNum } from "@/types/scheduling/schedulingUtils";
-import { shuffle } from "@/utils/data/shuffle";
+import shuffle from "@/utils/data/shuffle";
 
 interface GenerateNonBunkJamboreeScheduleRequest {
   sessionId: string;
