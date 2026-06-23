@@ -101,7 +101,7 @@ function generateNightSchedulesForBunk(bunk: Bunk, daysOffSchedule: DaysOffSched
         dayAssignments["COUNSELOR-ON-DUTY"].push(-1);
         continue;
       }
-      const eligibleCounselorIdsSortedByLeastCod = eligibleCounselorIds.sort((a, b) => positionCounts[a]["COUNSELOR-ON-DUTY"] - positionCounts[b]["COUNSELOR-ON-DUTY"]);
+      const eligibleCounselorIdsSortedByLeastCod = shuffle(eligibleCounselorIds).sort((a, b) => positionCounts[a]["COUNSELOR-ON-DUTY"] - positionCounts[b]["COUNSELOR-ON-DUTY"]);
       const assignedCounselorId = eligibleCounselorIdsSortedByLeastCod[0];
       dayAssignments["COUNSELOR-ON-DUTY"].push(assignedCounselorId);
       positionCounts[assignedCounselorId]["COUNSELOR-ON-DUTY"]++;
@@ -112,7 +112,7 @@ function generateNightSchedulesForBunk(bunk: Bunk, daysOffSchedule: DaysOffSched
         dayAssignments["NIGHT-BUNK-DUTY"].push(-1);
         continue;
       }
-      const eligibleCounselorIdsSortedByLeastNbd = eligibleCounselorIds.sort((a, b) => positionCounts[a]["NIGHT-BUNK-DUTY"] - positionCounts[b]["NIGHT-BUNK-DUTY"]);
+      const eligibleCounselorIdsSortedByLeastNbd = shuffle(eligibleCounselorIds).sort((a, b) => positionCounts[a]["NIGHT-BUNK-DUTY"] - positionCounts[b]["NIGHT-BUNK-DUTY"]);
       const assignedCounselorId = eligibleCounselorIdsSortedByLeastNbd[0];
       dayAssignments["NIGHT-BUNK-DUTY"].push(assignedCounselorId);
       positionCounts[assignedCounselorId]["NIGHT-BUNK-DUTY"]++;
