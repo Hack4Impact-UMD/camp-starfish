@@ -3,7 +3,6 @@ export function toNormalCase(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 }
 
-export function getObjectKeysAsNumbers(obj: any): number[] {
-  if (typeof obj !== "object") return [];
+export function getObjectKeysAsNumbers(obj: object): number[] {
   return Object.keys(obj).map(key => Number(key))
 }
