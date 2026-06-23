@@ -33,6 +33,13 @@ const MIN_NIGHT_BUNK_DUTY = 2;
 
 function generateNightSchedulesForBunk(bunk: Bunk, daysOffSchedule: DaysOffSchedule, session: Session): { [date: string]: Record<NightSchedulePosition, number[]>; } {
   const positionCounts: { [counselorId: number]: Record<StrictExtract<NightSchedulePosition, "COUNSELOR-ON-DUTY" | "NIGHT-BUNK-DUTY">, number>; } = {};
+  for (const counselorId of bunk.counselorIds) {
+    positionCounts[counselorId] = {
+      "COUNSELOR-ON-DUTY": 0,
+      "NIGHT-BUNK-DUTY": 0
+    };
+  }
+
   const assignments: ReturnType<typeof generateNightSchedulesForBunk> = {};
   for (let currDate = session.startDate.clone(); currDate.isBefore(session.endDate, "day"); currDate = currDate.clone().add(1, 'day')) {
     const counselorsWithDayOff: number[] = [];
@@ -65,6 +72,7 @@ function generateNightSchedulesForBunk(bunk: Bunk, daysOffSchedule: DaysOffSched
       const eligibleCounselorIdsSortedByLeastCod = eligibleCounselorIds.sort((a, b) => positionCounts[a]["COUNSELOR-ON-DUTY"] - positionCounts[b]["COUNSELOR-ON-DUTY"]);
       const assignedCounselorId = eligibleCounselorIdsSortedByLeastCod[0];
       dayAssignments["COUNSELOR-ON-DUTY"].push(assignedCounselorId);
+      positionCounts[assignedCounselorId]["COUNSELOR-ON-DUTY"]++;
     }
     for (let i = 0; i < MIN_NIGHT_BUNK_DUTY; i++) {
       const eligibleCounselorIds = bunk.counselorIds.filter(counselorId => !counselorsWithDayOff.includes(counselorId) && !isAssigned(dayAssignments, counselorId));
@@ -75,6 +83,7 @@ function generateNightSchedulesForBunk(bunk: Bunk, daysOffSchedule: DaysOffSched
       const eligibleCounselorIdsSortedByLeastNbd = eligibleCounselorIds.sort((a, b) => positionCounts[a]["NIGHT-BUNK-DUTY"] - positionCounts[b]["NIGHT-BUNK-DUTY"]);
       const assignedCounselorId = eligibleCounselorIdsSortedByLeastNbd[0];
       dayAssignments["NIGHT-BUNK-DUTY"].push(assignedCounselorId);
+      positionCounts[assignedCounselorId]["NIGHT-BUNK-DUTY"]++;
     }
     const remainingCounselorIds = bunk.counselorIds.filter(counselorId => !counselorsWithDayOff.includes(counselorId) && !isAssigned(dayAssignments, counselorId));
     dayAssignments["ROVER"] = remainingCounselorIds;
