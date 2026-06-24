@@ -38,17 +38,18 @@ export default function generateNonBunkJamboreeSchedule(req: GenerateNonBunkJamb
     }
   }
 
+  // For each block:
+  //   Assign campers to activity preferences based on preferences
+
+  // Assign counselors to periods off
+  // For each block:
+  //   Assign counselors to activities based on availability 
+
   // Assign periods off to staff and admin
   const counselors = shuffle([...staff, ...admins]);
   for (let i = 0; i < numBlocks; i++) {
     const blockId = getBlockIdFromNum(i);
   }
-
-  // Assign remaining employees to periods off
-
-  // For each block
-  //   Assign campers to activities based on preferences
-  //   Assign employees to activities
 
   return {
     sessionId,
