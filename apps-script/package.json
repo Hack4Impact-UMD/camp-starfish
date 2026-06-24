@@ -2,7 +2,7 @@
   "name": "apps-script",
   "scripts": {
     "lint": "eslint src",
-    "build": "rm -rf dist && node build.mts && cp src/appsscript.json dist/appsscript.json",
+    "build": "rm -rf dist && node build.mjs && cp src/appsscript.json dist/appsscript.json",
     "deploy": "npm run build && clasp push --force"
   },
   "devDependencies": {
