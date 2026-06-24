@@ -40,6 +40,7 @@ export default function generateNonBunkJamboreeSchedule(req: GenerateNonBunkJamb
 
   // For each block:
   //   Assign campers to activity preferences based on preferences
+  //   Assign program counselors to activities
 
   // Assign counselors to periods off
   // For each block:
