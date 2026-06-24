@@ -46,9 +46,6 @@ jobs:
     if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: "npm"
+      - uses: actions/checkout@v4
       - run: npm install --include=optional sharp
       - run: cd apps-script && npm run lint && npm run build
