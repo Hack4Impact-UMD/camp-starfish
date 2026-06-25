@@ -99,7 +99,7 @@ export default function generateNonBunkJamboreeSchedule(req: GenerateNonBunkJamb
         eligibleActivities = block.activities;
       }
       const chosenActivity = shuffle(eligibleActivities)[0];
-      chosenActivity.staffIds.push(admin.attendeeId);
+      chosenActivity.adminIds.push(admin.attendeeId);
     }
   }
 
