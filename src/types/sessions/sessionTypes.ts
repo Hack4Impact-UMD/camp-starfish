@@ -39,7 +39,7 @@ interface BaseAttendee {
   snapshot: {
     name: Name
     gender: Gender;
-    age: number;
+    dateOfBirth: Moment;
     nonoList: number[];
   };
   role: AttendeeRole;

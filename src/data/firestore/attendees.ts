@@ -16,6 +16,7 @@ import {
 import { setDoc, getDoc, updateDoc, executeQuery, deleteDoc } from "./firestoreClientOperations";
 import { RootLevelCollection, SessionsSubcollection } from "./types/collections";
 import { FirestoreQueryOptions } from "./types/queries";
+import moment from "moment";
 
 function fromFirestore(snapshot: DocumentSnapshot<AttendeeDoc, AttendeeDoc> | QueryDocumentSnapshot<AttendeeDoc, AttendeeDoc>): Attendee {
   if (!snapshot.exists()) { throw Error("Document not found"); }
@@ -26,14 +27,26 @@ function fromFirestore(snapshot: DocumentSnapshot<AttendeeDoc, AttendeeDoc> | Qu
         attendeeId: Number(snapshot.ref.id),
         sessionId: snapshot.ref.parent.parent!.id,
         role: "ADMIN",
-        snapshot: attendeeDoc.snapshot
+        snapshot: {
+          dateOfBirth: moment(attendeeDoc.snapshot.dateOfBirth.toDate()),
+          gender: attendeeDoc.snapshot.gender,
+          name: attendeeDoc.snapshot.name,
+          nonoList: attendeeDoc.snapshot.nonoList,
+          yesyesList: attendeeDoc.snapshot.yesyesList
+        }
       } satisfies AdminAttendee;
     case "STAFF":
       return {
         attendeeId: Number(snapshot.ref.id),
         sessionId: snapshot.ref.parent.parent!.id,
         role: "STAFF",
-        snapshot: attendeeDoc.snapshot,
+        snapshot: {
+          dateOfBirth: moment(attendeeDoc.snapshot.dateOfBirth.toDate()),
+          gender: attendeeDoc.snapshot.gender,
+          name: attendeeDoc.snapshot.name,
+          nonoList: attendeeDoc.snapshot.nonoList,
+          yesyesList: attendeeDoc.snapshot.yesyesList
+        },
         bunk: attendeeDoc.bunk,
         isLeadBunkCounselor: attendeeDoc.isLeadBunkCounselor,
         programCounselorFor: attendeeDoc.programCounselorFor
@@ -43,7 +56,12 @@ function fromFirestore(snapshot: DocumentSnapshot<AttendeeDoc, AttendeeDoc> | Qu
         attendeeId: Number(snapshot.ref.id),
         sessionId: snapshot.ref.parent.parent!.id,
         role: "CAMPER",
-        snapshot: attendeeDoc.snapshot,
+        snapshot: {
+          dateOfBirth: moment(attendeeDoc.snapshot.dateOfBirth.toDate()),
+          gender: attendeeDoc.snapshot.gender,
+          name: attendeeDoc.snapshot.name,
+          nonoList: attendeeDoc.snapshot.nonoList,
+        },
         ageGroup: attendeeDoc.ageGroup,
         bunk: attendeeDoc.bunk,
         isOptedOutFromSwim: attendeeDoc.isOptedOutFromSwim,
