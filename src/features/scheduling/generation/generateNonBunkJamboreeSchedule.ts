@@ -81,7 +81,14 @@ export default function generateNonBunkJamboreeSchedule(req: GenerateNonBunkJamb
     }
   }
 
-  // assign periods off
+  const numBlocks = Object.keys(newSchedule.blocks).length;
+  let currBlockNum = 0;
+  const shuffledStaff = shuffle(staff);
+  const shuffledAdmins = shuffle(admins);
+  for (const counselor of [...shuffledStaff, ...shuffledAdmins]) {
+    newSchedule.blocks[getBlockIdFromNum(currBlockNum)].periodsOff.push(counselor.attendeeId);
+    currBlockNum = (currBlockNum + 1) % numBlocks;
+  }
 
   for (const [_blockId, block] of Object.entries(newSchedule.blocks)) {
     for (const staffMember of staff) {
