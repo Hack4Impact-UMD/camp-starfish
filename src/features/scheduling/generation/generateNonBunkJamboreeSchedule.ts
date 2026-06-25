@@ -14,10 +14,11 @@ interface GenerateNonBunkJamboreeScheduleRequest {
   section: SchedulingSection;
   attendees: Attendee[];
   camperPreferences: SectionActivityPreferences;
+  currentSchedule: NonBunkJamboreeSectionSchedule;
 }
 
 export default function generateNonBunkJamboreeSchedule(req: GenerateNonBunkJamboreeScheduleRequest): NonBunkJamboreeSectionSchedule {
-  const { section, attendees, camperPreferences } = req;
+  const { section, attendees, camperPreferences, currentSchedule } = req;
 
   const campers: CamperAttendee[] = [];
   const staff: StaffAttendee[] = [];
@@ -35,6 +36,28 @@ export default function generateNonBunkJamboreeSchedule(req: GenerateNonBunkJamb
         break;
       default: throw Error("Unknown attendee role");
     }
+  }
+
+  const newSchedule: NonBunkJamboreeSectionSchedule = {
+    sessionId: currentSchedule.sessionId,
+    sectionId: currentSchedule.sectionId,
+    type: "NON-BUNK-JAMBO",
+    blocks: Object.entries(currentSchedule.blocks).reduce((prev, [blockId, block]) => {
+      prev[blockId] = {
+        activities: currentSchedule.blocks[blockId].activities.map(activity => ({
+          ...activity,
+          camperIds: [],
+          staffIds: [],
+          adminIds: [],
+        })),
+        periodsOff: []
+      };
+      return prev;
+    }, {} as NonBunkJamboreeSectionSchedule["blocks"]),
+    alternatePeriodsOff: Object.entries(currentSchedule.alternatePeriodsOff).reduce((prev, [periodId, _counselorIds]) => {
+      prev[periodId] = [];
+      return prev;
+    }, {} as NonBunkJamboreeSectionSchedule["alternatePeriodsOff"]),
   }
 
   const blocks: NonBunkJamboreeSectionSchedule['blocks'] = {};
@@ -60,13 +83,7 @@ export default function generateNonBunkJamboreeSchedule(req: GenerateNonBunkJamb
     const blockId = getBlockIdFromNum(i);
   }
 
-  return {
-    sessionId,
-    sectionId,
-    alternatePeriodsOff: {},
-    blocks: {},
-    type: "NON-BUNK-JAMBO"
-  }
+  return newSchedule;
 }
 
 export class NonBunkJamboreeScheduler {
