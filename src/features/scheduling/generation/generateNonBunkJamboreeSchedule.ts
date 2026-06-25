@@ -1,4 +1,3 @@
-/* Campers have been assigned individually instead of by bunk*/
 import {
   AdminAttendee,
   StaffAttendee,
@@ -8,7 +7,7 @@ import {
 import { SectionActivityPreferences, NonBunkJamboreeSectionSchedule } from "@/types/scheduling/schedulingTypes";
 import { getBlockIdFromNum } from "@/types/scheduling/schedulingUtils";
 import shuffle from "@/utils/data/shuffle";
-import { doesConflictExist, getActivityAttendeeIds } from "./schedulingUtils";
+import { doesConflictExist, getActivityAttendeeIds, getYesYesListGroups } from "./schedulingUtils";
 
 interface GenerateNonBunkJamboreeScheduleRequest {
   attendees: Attendee[];
@@ -72,12 +71,13 @@ export default function generateNonBunkJamboreeSchedule(req: GenerateNonBunkJamb
     }
   }
 
-  const numBlocks = Object.keys(newSchedule.blocks).length;
-  let currBlockNum = 0;
   const shuffledStaff = shuffle(staff);
   const shuffledAdmins = shuffle(admins);
-  for (const counselor of [...shuffledStaff, ...shuffledAdmins]) {
-    newSchedule.blocks[getBlockIdFromNum(currBlockNum)].periodsOff.push(counselor.attendeeId);
+  const yesyesListGroups = getYesYesListGroups([...shuffledStaff, ...shuffledAdmins]);
+  const numBlocks = Object.keys(newSchedule.blocks).length;
+  let currBlockNum = 0;
+  for (const yesyesListGroup of yesyesListGroups) {
+    newSchedule.blocks[getBlockIdFromNum(currBlockNum)].periodsOff.push(...yesyesListGroup);
     currBlockNum = (currBlockNum + 1) % numBlocks;
   }
 
