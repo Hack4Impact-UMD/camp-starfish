@@ -271,7 +271,7 @@ export default function DirectoryTableView({
     }
 
     return [];
-  }, [selectedRole, getNameFromId, daysOffScheduleQuery]);
+  }, [selectedRole, getNameFromId, daysOffScheduleQuery, sessionQuery.data?.startDate]);
 
   const table = useReactTable({
     data,
