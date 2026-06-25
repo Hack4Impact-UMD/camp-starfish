@@ -102,7 +102,7 @@ interface BaseAttendeeDoc {
   snapshot: {
     name: Name;
     gender: Gender;
-    age: number;
+    dateOfBirth: Timestamp;
     nonoList: number[];
   }
   role: Role;
