@@ -59,12 +59,6 @@ export default function generateNonBunkJamboreeSchedule(req: GenerateNonBunkJamb
     }, {} as NonBunkJamboreeSectionSchedule["alternatePeriodsOff"]),
   }
 
-  const attendeeIds = attendees.map(attendee => attendee.attendeeId);
-  const unassignedSetsByBlockId: { [blockId: string]: Set<number>; } = Object.keys(newSchedule.blocks).reduce((prev, blockId) => {
-    unassignedSetsByBlockId[blockId] = new Set<number>(attendeeIds);
-    return prev;
-  }, {});
-
   for (const [blockId, block] of Object.entries(newSchedule.blocks)) {
     const sortedCampers = shuffle(campers).sort((a, b) => b.snapshot.dateOfBirth.diff(a.snapshot.dateOfBirth, "years"));
     for (const camper of sortedCampers) {
