@@ -79,8 +79,9 @@ export default function generateNonBunkJamboreeSchedule(req: GenerateNonBunkJamb
     currBlockNum = (currBlockNum + 1) % numBlocks;
   }
 
-  for (const [_blockId, block] of Object.entries(newSchedule.blocks)) {
+  for (const [blockId, block] of Object.entries(newSchedule.blocks)) {
     for (const staffMember of staff) {
+      if (newSchedule.blocks[blockId].periodsOff.includes(staffMember.attendeeId)) continue;
       let eligibleActivities = block.activities.filter((activity) => !doesConflictExist(staffMember, getActivityAttendeeIds(activity)));
       if (eligibleActivities.length === 0) {
         eligibleActivities = block.activities;
@@ -90,6 +91,7 @@ export default function generateNonBunkJamboreeSchedule(req: GenerateNonBunkJamb
     }
 
     for (const admin of admins) {
+      if (newSchedule.blocks[blockId].periodsOff.includes(admin.attendeeId)) continue;
       let eligibleActivities = block.activities.filter((activity) => !doesConflictExist(admin, getActivityAttendeeIds(activity)));
       if (eligibleActivities.length === 0) {
         eligibleActivities = block.activities;
