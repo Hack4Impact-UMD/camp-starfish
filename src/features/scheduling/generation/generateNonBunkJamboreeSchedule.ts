@@ -4,21 +4,20 @@ import {
   StaffAttendee,
   CamperAttendee,
   Attendee,
+  SchedulingSection,
 } from "@/types/sessions/sessionTypes";
 import { SectionActivityPreferences, NonBunkJamboreeSectionSchedule } from "@/types/scheduling/schedulingTypes";
 import { getBlockIdFromNum } from "@/types/scheduling/schedulingUtils";
 import shuffle from "@/utils/data/shuffle";
 
 interface GenerateNonBunkJamboreeScheduleRequest {
-  sessionId: string;
-  sectionId: string;
+  section: SchedulingSection;
   attendees: Attendee[];
   camperPreferences: SectionActivityPreferences;
-  numBlocks: number;
 }
 
 export default function generateNonBunkJamboreeSchedule(req: GenerateNonBunkJamboreeScheduleRequest): NonBunkJamboreeSectionSchedule {
-  const { sessionId, sectionId, attendees, camperPreferences, numBlocks } = req;
+  const { section, attendees, camperPreferences } = req;
 
   const campers: CamperAttendee[] = [];
   const staff: StaffAttendee[] = [];
@@ -36,6 +35,15 @@ export default function generateNonBunkJamboreeSchedule(req: GenerateNonBunkJamb
         break;
       default: throw Error("Unknown attendee role");
     }
+  }
+
+  const blocks: NonBunkJamboreeSectionSchedule['blocks'] = {};
+  for (let i = 0; i < section.numBlocks; i++) {
+    const blockId = getBlockIdFromNum(i);
+    blocks[blockId] = {
+      activities: [],
+      periodsOff: []
+    };
   }
 
   // For each block:
