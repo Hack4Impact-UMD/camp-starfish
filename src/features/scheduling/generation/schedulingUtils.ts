@@ -65,7 +65,18 @@ export function getYesYesListGroups(counselors: CounselorAttendee[]): number[][]
       yesyesListGroups.push(group);
     }
   }
-  return yesyesListGroups;
+  return yesyesListGroups.sort((group1, group2) => {
+    const containsAdmin = (counselorId: number) => counselorsById[counselorId].role === "ADMIN";
+    const group1ContainsAdmin = group1.some(containsAdmin);
+    const group2ContainsAdmin = group2.some(containsAdmin);
+    if (group1ContainsAdmin === group2ContainsAdmin) {
+      return 0;
+    } else if (group1ContainsAdmin) {
+      return -1;
+    } else {
+      return 1;
+    }
+  });
 }
 
 function getYesYesListGroup(firstCounselorId: number, visited: Set<number>, counselorsById: Record<number, CounselorAttendee>): number[] {
