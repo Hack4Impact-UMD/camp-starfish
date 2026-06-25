@@ -4,23 +4,20 @@ import {
   StaffAttendee,
   CamperAttendee,
   Attendee,
-  SchedulingSection,
 } from "@/types/sessions/sessionTypes";
-import { SectionActivityPreferences, NonBunkJamboreeSectionSchedule, NonBunkJamboreeActivityWithAssignments } from "@/types/scheduling/schedulingTypes";
+import { SectionActivityPreferences, NonBunkJamboreeSectionSchedule } from "@/types/scheduling/schedulingTypes";
 import { getBlockIdFromNum } from "@/types/scheduling/schedulingUtils";
 import shuffle from "@/utils/data/shuffle";
 import { doesConflictExist, getActivityAttendeeIds } from "./schedulingUtils";
-import { BlockList } from "net";
 
 interface GenerateNonBunkJamboreeScheduleRequest {
-  section: SchedulingSection;
   attendees: Attendee[];
   sectionActivityPreferences: SectionActivityPreferences;
   currentSchedule: NonBunkJamboreeSectionSchedule;
 }
 
 export default function generateNonBunkJamboreeSchedule(req: GenerateNonBunkJamboreeScheduleRequest): NonBunkJamboreeSectionSchedule {
-  const { section, attendees, sectionActivityPreferences, currentSchedule } = req;
+  const { attendees, sectionActivityPreferences, currentSchedule } = req;
 
   const campers: CamperAttendee[] = [];
   const staff: StaffAttendee[] = [];
@@ -44,7 +41,7 @@ export default function generateNonBunkJamboreeSchedule(req: GenerateNonBunkJamb
     sessionId: currentSchedule.sessionId,
     sectionId: currentSchedule.sectionId,
     type: "NON-BUNK-JAMBO",
-    blocks: Object.entries(currentSchedule.blocks).reduce((prev, [blockId, block]) => {
+    blocks: Object.entries(currentSchedule.blocks).reduce((prev, [blockId, _block]) => {
       prev[blockId] = {
         activities: currentSchedule.blocks[blockId].activities.map(activity => ({
           ...activity,
