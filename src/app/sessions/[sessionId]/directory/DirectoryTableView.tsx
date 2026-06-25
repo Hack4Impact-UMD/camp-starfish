@@ -1,6 +1,10 @@
 import { flexRender } from "@tanstack/react-table";
 import { useCallback, useMemo, useState } from "react";
-import { Attendee, AttendeeRole, StaffAttendee } from "@/types/sessions/sessionTypes";
+import {
+  Attendee,
+  AttendeeRole,
+  StaffAttendee,
+} from "@/types/sessions/sessionTypes";
 import {
   Button,
   Container,
@@ -28,6 +32,7 @@ import {
 import { MdSearch } from "react-icons/md";
 import LoadingPage from "@/app/loading";
 import useDaysOffSchedule from "@/hooks/daysOffSchedules/useDaysOffSchedule";
+import useSession from "@/hooks/sessions/useSession";
 
 type LargeDirectoryBlockProps = {
   sessionId: string;
@@ -41,6 +46,8 @@ export default function DirectoryTableView({
     isError,
   } = useListAttendees(sessionId);
   const daysOffScheduleQuery = useDaysOffSchedule(sessionId);
+  const sessionQuery = useSession(sessionId);
+
   const [selectedRole, setSelectedRole] = useState<AttendeeRole>("CAMPER");
   const [sortNameOption, setSortNameOption] = useState<string | null>(null);
 
@@ -136,19 +143,16 @@ export default function DirectoryTableView({
           header: "GENDER",
           cell: (info) => render(info.getValue()),
         },
-
         {
           accessorKey: "nonoList",
           header: "NO-NO LIST",
           cell: (info) => renderIdListAsNames(info.getValue<number[]>()),
         },
-
         {
-          accessorFn: (row) => row.snapshot.age,
-          header: "AGE",
+          accessorFn: (row) => sessionQuery.data?.startDate.diff(row.snapshot.dateOfBirth, "years"),
+          header: "AGE AT SESSION START",
           cell: (info) => render(info.getValue()),
         },
-
         {
           accessorKey: "level",
           header: "SWIM LEVEL",
@@ -203,7 +207,10 @@ export default function DirectoryTableView({
           },
         },
         {
-          accessorFn: (row) => daysOffScheduleQuery.data?.daysOffByCounselorId[row.attendeeId].map(d => d.format("YYYY-MM-DD")),
+          accessorFn: (row) =>
+            daysOffScheduleQuery.data?.daysOffByCounselorId[row.attendeeId].map(
+              (d) => d.format("YYYY-MM-DD"),
+            ),
           header: "Days Off",
           cell: (info) => {
             const dates = info.getValue<string[]>();
@@ -247,7 +254,10 @@ export default function DirectoryTableView({
         },
 
         {
-          accessorFn: (row) => daysOffScheduleQuery.data?.daysOffByCounselorId[row.attendeeId].map(d => d.format("YYYY-MM-DD")),
+          accessorFn: (row) =>
+            daysOffScheduleQuery.data?.daysOffByCounselorId[row.attendeeId].map(
+              (d) => d.format("YYYY-MM-DD"),
+            ),
           header: "Days Off",
           cell: (info) => {
             const dates = info.getValue<string[]>();
@@ -269,6 +279,9 @@ export default function DirectoryTableView({
     state: {
       globalFilter,
       pagination,
+      columnVisibility: {
+        "AGE AT SESSION START": sessionQuery.isSuccess
+      }
     },
     onGlobalFilterChange: setGlobalFilter,
     getCoreRowModel: getCoreRowModel(),
@@ -312,9 +325,7 @@ export default function DirectoryTableView({
                 input:
                   "w-[342px] bg-white! border! border-neutral-4! text-neutral-7",
               }}
-              leftSection={
-                <MdSearch size={16} className="text-neutral-5" />
-              }
+              leftSection={<MdSearch size={16} className="text-neutral-5" />}
             />
 
             <Flex gap="sm" direction="row">
