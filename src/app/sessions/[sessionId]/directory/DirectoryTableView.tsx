@@ -280,7 +280,7 @@ export default function DirectoryTableView({
       globalFilter,
       pagination,
       columnVisibility: {
-        "AGE AT SESSION START": false
+        "AGE AT SESSION START": sessionQuery.isSuccess
       }
     },
     onGlobalFilterChange: setGlobalFilter,
