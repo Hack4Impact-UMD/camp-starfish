@@ -60,14 +60,15 @@ export default function generateNonBunkJamboreeSchedule(req: GenerateNonBunkJamb
     }, {} as NonBunkJamboreeSectionSchedule["alternatePeriodsOff"]),
   }
 
-  const blocks: NonBunkJamboreeSectionSchedule['blocks'] = {};
-  for (let i = 0; i < section.numBlocks; i++) {
-    const blockId = getBlockIdFromNum(i);
-    blocks[blockId] = {
-      activities: [],
-      periodsOff: []
-    };
-  }
+  const attendeeIds = attendees.map(attendee => attendee.attendeeId);
+  const unassignedSetsByBlockId: { [blockId: string]: Set<number>; } = Object.keys(newSchedule.blocks).reduce((prev, blockId) => {
+    unassignedSetsByBlockId[blockId] = new Set<number>(attendeeIds);
+    return prev;
+  }, {});
+
+  
+  // For each camper:
+  //   Assign them to their required activities
 
   // For each block:
   //   Assign campers to activity preferences based on preferences
@@ -390,7 +391,7 @@ export class NonBunkJamboreeScheduler {
       const availableStaff = this.staff.filter(
         s =>
           !this.schedule.blocks[blockID].periodsOff.includes(s.id) &&
-          !s.daysOff.includes(this.currDate) 
+          !s.daysOff.includes(this.currDate)
       );
 
       // shuffle
@@ -489,9 +490,9 @@ export class NonBunkJamboreeScheduler {
             }
 
             receiver.assignments.staffIds.push(staffId);
-            
+
           }
-          
+
         }
       };
 
@@ -520,7 +521,7 @@ export class NonBunkJamboreeScheduler {
 
 
   //assigning admins to activity blocks
-  assignAdmin(){
+  assignAdmin() {
 
 
     for (const blockID of this.blocksToAssign) {
@@ -529,13 +530,13 @@ export class NonBunkJamboreeScheduler {
 
       const activities = this.schedule.blocks[blockID].activities;
       if (!activities || activities.length === 0) throw new Error("Block has no activities");
-      
+
       // Build array of available admins
       const availableAdmins = this.admins.filter(
-        admin => !this.schedule.blocks[blockID].periodsOff.includes(admin.id) && 
-        !admin.daysOff.includes(this.currDate) &&
-        !activities.some(activity => activity.assignments.adminIds.includes(admin.id))
-      );      
+        admin => !this.schedule.blocks[blockID].periodsOff.includes(admin.id) &&
+          !admin.daysOff.includes(this.currDate) &&
+          !activities.some(activity => activity.assignments.adminIds.includes(admin.id))
+      );
 
 
       // Shuffle admins
@@ -548,7 +549,7 @@ export class NonBunkJamboreeScheduler {
 
       const unassignedAdmin: AdminAttendeeID[] = [];
 
-      const MAX_CAPACITY_ADMINS = Math.floor(availableAdmins.length/activities.length);
+      const MAX_CAPACITY_ADMINS = Math.floor(availableAdmins.length / activities.length);
       for (const admin of availableAdmins) {
         const activity = activities.find((a) =>
           a.assignments.adminIds.length < MAX_CAPACITY_ADMINS &&
@@ -566,11 +567,10 @@ export class NonBunkJamboreeScheduler {
         const activity = activities
           .sort((a, b) => b.assignments.camperIds.length - a.assignments.camperIds.length)
           .find((a) => !doesConflictExist(admin, [...a.assignments.camperIds, ...a.assignments.staffIds, ...a.assignments.adminIds]));
-        if (activity) 
-        {
+        if (activity) {
           activity.assignments.adminIds.push(admin.id);
           stillUnassigned.delete(admin.id);
-        } 
+        }
 
 
       }
@@ -580,8 +580,8 @@ export class NonBunkJamboreeScheduler {
 
       // Check if there's at least one admin assigned to each activity
       const missingAdmins = this.schedule.blocks[blockID].activities.some((activity) => activity.assignments.adminIds.length === 0);
-      if (missingAdmins) console.warn(blockID, "No admin assigned to activity");  
-      
+      if (missingAdmins) console.warn(blockID, "No admin assigned to activity");
+
     }
 
 
