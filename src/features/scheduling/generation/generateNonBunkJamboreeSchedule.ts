@@ -71,9 +71,7 @@ export default function generateNonBunkJamboreeSchedule(req: GenerateNonBunkJamb
     }
   }
 
-  const shuffledStaff = shuffle(staff);
-  const shuffledAdmins = shuffle(admins);
-  const yesyesListGroups = getYesYesListGroups([...shuffledStaff, ...shuffledAdmins]);
+  const yesyesListGroups = getYesYesListGroups([...shuffle(admins), ...shuffle(staff)]);
   const numBlocks = Object.keys(newSchedule.blocks).length;
   let currBlockNum = 0;
   for (const yesyesListGroup of yesyesListGroups) {
