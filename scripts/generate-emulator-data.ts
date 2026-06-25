@@ -148,6 +148,7 @@ export function generateSections(session: Session): Section[] {
         sessionId: session.id,
         startDate: currDate,
         endDate: currDate.clone().add(3, 'days'),
+        numBlocks: 5
       } satisfies SchedulingSection);
       sections.push({
         id: faker.string.uuid(),
@@ -156,6 +157,7 @@ export function generateSections(session: Session): Section[] {
         sessionId: session.id,
         startDate: currDate,
         endDate: currDate.clone().add(3, 'days'),
+        numBlocks: 5
       } satisfies SchedulingSection);
       currDate.add(4, 'days')
       continue;
@@ -168,6 +170,7 @@ export function generateSections(session: Session): Section[] {
         sessionId: session.id,
         startDate: currDate,
         endDate: currDate.clone().add(3, 'days'),
+        numBlocks: 5
       } satisfies SchedulingSection)
     }
     currDate.add(daysLeft, 'days');
