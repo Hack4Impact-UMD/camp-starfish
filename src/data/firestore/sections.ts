@@ -43,7 +43,6 @@ function fromFirestore(snapshot: DocumentSnapshot<SectionDoc, SectionDoc> | Quer
         endDate: moment(sectionDoc.endDate.toDate()),
         type: sectionDoc.type,
         publishedAt: sectionDoc.publishedAt ? moment(sectionDoc.publishedAt.toDate()) : undefined,
-        numBlocks: sectionDoc.numBlocks
       } satisfies SchedulingSection;
     default: throw Error("Unknown section type");
   }

@@ -141,7 +141,6 @@ export interface CommonSectionDoc extends BaseSectionDoc { type: "COMMON" };
 export interface SchedulingSectionDoc extends BaseSectionDoc {
   type: SchedulingSectionType;
   publishedAt: Timestamp | null;
-  numBlocks: number;
 }
 export type SectionDoc = CommonSectionDoc | SchedulingSectionDoc;
 

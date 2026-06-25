@@ -20,7 +20,6 @@ async function createSection(req: CreateSectionRequest) {
     endDate: Timestamp.fromDate(rest.endDate.clone().endOf('day').toDate()),
     type: rest.type,
     publishedAt: null,
-    numBlocks: 5
   })
 }
 

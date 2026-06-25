@@ -27,7 +27,6 @@ export interface CommonSection extends BaseSection { type: "COMMON" };
 export interface SchedulingSection extends BaseSection {
   type: SchedulingSectionType;
   publishedAt?: Moment;
-  numBlocks: number;
 }
 export type Section = CommonSection | SchedulingSection;
 
