@@ -1,3 +1,4 @@
+import { IndividualActivityAssignments } from "@/types/scheduling/schedulingTypes";
 import { isAdminAttendee, isCamperAttendee } from "@/types/sessions/sessionTypeGuards";
 import { Attendee, Freeplay } from "@/types/sessions/sessionTypes";
 
@@ -6,6 +7,10 @@ export function doesConflictExist(attendee: Attendee, otherAttendeeIds: number[]
     return attendee.snapshot.nonoList.some((id) => otherAttendeeIds.includes(id))
   }
   return attendee.snapshot.nonoList.some((id) => otherAttendeeIds.includes(id)) || attendee.snapshot.yesyesList.some((id) => otherAttendeeIds.includes(id));
+}
+
+export function getActivityAttendeeIds(assignees: IndividualActivityAssignments) {
+  return [...assignees.camperIds, ...assignees.staffIds, ...assignees.adminIds];
 }
 
 export function getFreeplayAssignmentId(freeplay: Freeplay, id: number): number[] | number | string | null {

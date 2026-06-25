@@ -6,19 +6,21 @@ import {
   Attendee,
   SchedulingSection,
 } from "@/types/sessions/sessionTypes";
-import { SectionActivityPreferences, NonBunkJamboreeSectionSchedule } from "@/types/scheduling/schedulingTypes";
+import { SectionActivityPreferences, NonBunkJamboreeSectionSchedule, NonBunkJamboreeActivityWithAssignments } from "@/types/scheduling/schedulingTypes";
 import { getBlockIdFromNum } from "@/types/scheduling/schedulingUtils";
 import shuffle from "@/utils/data/shuffle";
+import { doesConflictExist, getActivityAttendeeIds } from "./schedulingUtils";
+import { BlockList } from "net";
 
 interface GenerateNonBunkJamboreeScheduleRequest {
   section: SchedulingSection;
   attendees: Attendee[];
-  camperPreferences: SectionActivityPreferences;
+  sectionActivityPreferences: SectionActivityPreferences;
   currentSchedule: NonBunkJamboreeSectionSchedule;
 }
 
 export default function generateNonBunkJamboreeSchedule(req: GenerateNonBunkJamboreeScheduleRequest): NonBunkJamboreeSectionSchedule {
-  const { section, attendees, camperPreferences, currentSchedule } = req;
+  const { section, attendees, sectionActivityPreferences, currentSchedule } = req;
 
   const campers: CamperAttendee[] = [];
   const staff: StaffAttendee[] = [];
@@ -66,22 +68,43 @@ export default function generateNonBunkJamboreeSchedule(req: GenerateNonBunkJamb
     return prev;
   }, {});
 
+  for (const [blockId, block] of Object.entries(newSchedule.blocks)) {
+    const sortedCampers = shuffle(campers).sort((a, b) => b.snapshot.dateOfBirth.diff(a.snapshot.dateOfBirth, "years"));
+    for (const camper of sortedCampers) {
+      const camperPrefs = sectionActivityPreferences.blocks[blockId][camper.attendeeId];
+      let eligibleActivities = block.activities.filter((activity) => !doesConflictExist(camper, getActivityAttendeeIds(activity)));
+      if (eligibleActivities.length === 0) {
+        eligibleActivities = block.activities;
+      }
+      const chosenActivity = eligibleActivities.sort((a, b) => camperPrefs[a.name] - camperPrefs[b.name])[0];
+      chosenActivity.camperIds.push(camper.attendeeId);
+    }
+
+    for (const staffMember of staff) {
+      let eligibleActivities = block.activities.filter((activity) => !doesConflictExist(staffMember, getActivityAttendeeIds(activity)));
+      if (eligibleActivities.length === 0) {
+        eligibleActivities = block.activities;
+      }
+      const chosenActivity = shuffle(eligibleActivities)[0];
+      chosenActivity.staffIds.push(staffMember.attendeeId);
+    }
+
+    for (const admin of admins) {
+      let eligibleActivities = block.activities.filter((activity) => !doesConflictExist(admin, getActivityAttendeeIds(activity)));
+      if (eligibleActivities.length === 0) {
+        eligibleActivities = block.activities;
+      }
+      const chosenActivity = shuffle(eligibleActivities)[0];
+      chosenActivity.staffIds.push(admin.attendeeId);
+    }
+  }
 
 
-  
-
-  // For each block:
-  //   Assign campers to activity preferences based on preferences
 
   // Assign counselors to periods off
   // For each block:
   //   Assign counselors to activities based on availability 
-
   // Assign periods off to staff and admin
-  const counselors = shuffle([...staff, ...admins]);
-  for (let i = 0; i < numBlocks; i++) {
-    const blockId = getBlockIdFromNum(i);
-  }
 
   return newSchedule;
 }
