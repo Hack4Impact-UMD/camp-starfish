@@ -148,8 +148,8 @@ export default function DirectoryTableView({
           header: "NO-NO LIST",
           cell: (info) => renderIdListAsNames(info.getValue<number[]>()),
         },
-        sessionQuery.isSuccess && {
-          accessorFn: (row) => sessionQuery.data.startDate.diff(row.snapshot.dateOfBirth, "years"),
+        {
+          accessorFn: (row) => sessionQuery.data?.startDate.diff(row.snapshot.dateOfBirth, "years"),
           header: "AGE AT SESSION START",
           cell: (info) => render(info.getValue()),
         },
@@ -279,6 +279,9 @@ export default function DirectoryTableView({
     state: {
       globalFilter,
       pagination,
+      columnVisibility: {
+        "AGE AT SESSION START": false
+      }
     },
     onGlobalFilterChange: setGlobalFilter,
     getCoreRowModel: getCoreRowModel(),
