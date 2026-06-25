@@ -79,7 +79,11 @@ export default function generateNonBunkJamboreeSchedule(req: GenerateNonBunkJamb
       const chosenActivity = eligibleActivities.sort((a, b) => camperPrefs[a.name] - camperPrefs[b.name])[0];
       chosenActivity.camperIds.push(camper.attendeeId);
     }
+  }
 
+  // assign periods off
+
+  for (const [_blockId, block] of Object.entries(newSchedule.blocks)) {
     for (const staffMember of staff) {
       let eligibleActivities = block.activities.filter((activity) => !doesConflictExist(staffMember, getActivityAttendeeIds(activity)));
       if (eligibleActivities.length === 0) {
@@ -100,11 +104,7 @@ export default function generateNonBunkJamboreeSchedule(req: GenerateNonBunkJamb
   }
 
 
-
   // Assign counselors to periods off
-  // For each block:
-  //   Assign counselors to activities based on availability 
-  // Assign periods off to staff and admin
 
   return newSchedule;
 }
