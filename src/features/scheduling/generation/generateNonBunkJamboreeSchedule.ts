@@ -4,7 +4,7 @@ import {
   CamperAttendee,
   Attendee,
 } from "@/types/sessions/sessionTypes";
-import { SectionActivityPreferences, NonBunkJamboreeSectionSchedule } from "@/types/scheduling/schedulingTypes";
+import { SectionActivityPreferences, NonBunkJamboreeSectionSchedule, NonBunkJamboreeActivityWithAssignments } from "@/types/scheduling/schedulingTypes";
 import { getBlockIdFromNum } from "@/types/scheduling/schedulingUtils";
 import shuffle from "@/utils/data/shuffle";
 import { doesConflictExist, getActivityAttendeeIds, getYesYesListGroups } from "./schedulingUtils";
@@ -18,7 +18,7 @@ interface GenerateNonBunkJamboreeScheduleRequest {
 /*
 Requirements:
 1. 1:1 Ratio
-2. Evenish split between activities
+2. Evenish split between activities - done
 3. Counselors assigned randomly to activities & periods off - done
 4. Respect nonoList - done
 5. Respect yesyesList - done
@@ -92,25 +92,35 @@ export default function generateNonBunkJamboreeSchedule(req: GenerateNonBunkJamb
     currBlockNum = (currBlockNum + 1) % numBlocks;
   }
 
-  for (const [blockId, block] of Object.entries(newSchedule.blocks)) {
-    for (const staffMember of staff) {
-      if (newSchedule.blocks[blockId].periodsOff.includes(staffMember.attendeeId)) continue;
-      let eligibleActivities = block.activities.filter((activity) => !doesConflictExist(staffMember, getActivityAttendeeIds(activity)));
+  for (const [_blockId, block] of Object.entries(newSchedule.blocks)) {
+    const adminsToAssign = shuffle(admins.filter((admin) => !block.periodsOff.includes(admin.attendeeId)));
+    const staffToAssign = shuffle(staff.filter((staffMember) => !block.periodsOff.includes(staffMember.attendeeId)));
+
+    const numAdminsAssigned = Math.min(admins.length, block.activities.length);
+    const shuffledActivities = shuffle(block.activities);
+    for (let i = 0; i < numAdminsAssigned; i++) {
+      shuffledActivities[i].adminIds.push(adminsToAssign[i].attendeeId);
+    }
+
+    if (numAdminsAssigned !== admins.length) {
+      const remainingAdmins = adminsToAssign.slice(numAdminsAssigned);
+      for (const admin of remainingAdmins) {
+        let eligibleActivities = block.activities.filter((activity) => !doesConflictExist(admin, getActivityAttendeeIds(activity)));
+        if (eligibleActivities.length === 0) {
+          eligibleActivities = block.activities;
+        }
+        const chosenActivity = shuffle(eligibleActivities)[0];
+        chosenActivity.adminIds.push(admin.attendeeId);
+      }
+    }
+
+    for (const staffMember of staffToAssign) {
+        let eligibleActivities = block.activities.filter((activity) => !doesConflictExist(staffMember, getActivityAttendeeIds(activity)));
       if (eligibleActivities.length === 0) {
         eligibleActivities = block.activities;
       }
       const chosenActivity = shuffle(eligibleActivities)[0];
       chosenActivity.staffIds.push(staffMember.attendeeId);
-    }
-
-    for (const admin of admins) {
-      if (newSchedule.blocks[blockId].periodsOff.includes(admin.attendeeId)) continue;
-      let eligibleActivities = block.activities.filter((activity) => !doesConflictExist(admin, getActivityAttendeeIds(activity)));
-      if (eligibleActivities.length === 0) {
-        eligibleActivities = block.activities;
-      }
-      const chosenActivity = shuffle(eligibleActivities)[0];
-      chosenActivity.adminIds.push(admin.attendeeId);
     }
   }
 
