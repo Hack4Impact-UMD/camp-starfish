@@ -4,7 +4,7 @@ import {
   CamperAttendee,
   Attendee,
 } from "@/types/sessions/sessionTypes";
-import { SectionActivityPreferences, NonBunkJamboreeSectionSchedule, NonBunkJamboreeActivityWithAssignments } from "@/types/scheduling/schedulingTypes";
+import { SectionActivityPreferences, NonBunkJamboreeSectionSchedule } from "@/types/scheduling/schedulingTypes";
 import { getBlockIdFromNum } from "@/types/scheduling/schedulingUtils";
 import shuffle from "@/utils/data/shuffle";
 import { doesConflictExist, getActivityAttendeeIds, getYesYesListGroups } from "./schedulingUtils";
