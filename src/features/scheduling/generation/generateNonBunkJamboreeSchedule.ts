@@ -7,7 +7,7 @@ import {
 import { SectionActivityPreferences, NonBunkJamboreeSectionSchedule } from "@/types/scheduling/schedulingTypes";
 import { getBlockIdFromNum } from "@/types/scheduling/schedulingUtils";
 import shuffle from "@/utils/data/shuffle";
-import { doesConflictExist, getActivityAttendeeIds, getYesYesListGroups } from "./schedulingUtils";
+import { canIndividualBeAssignedToActivity, getAllAttendeeIdsFromIndividualAssignments, getYesYesListGroups } from "./schedulingUtils";
 
 interface GenerateNonBunkJamboreeScheduleRequest {
   attendees: Attendee[];
@@ -63,7 +63,7 @@ export default function generateNonBunkJamboreeSchedule(req: GenerateNonBunkJamb
     const maxCampersPerActivity = Math.ceil(sortedCampers.length / block.activities.length);
     for (const camper of sortedCampers) {
       const camperPrefs = sectionActivityPreferences.blocks[blockId][camper.attendeeId];
-      let eligibleActivities = block.activities.filter((activity) => activity.camperIds.length < maxCampersPerActivity && !doesConflictExist(camper, getActivityAttendeeIds(activity)));
+      let eligibleActivities = block.activities.filter((activity) => activity.camperIds.length < maxCampersPerActivity && !canIndividualBeAssignedToActivity(camper, getAllAttendeeIdsFromIndividualAssignments(activity)));
       if (eligibleActivities.length === 0) {
         eligibleActivities = block.activities;
       }
@@ -85,7 +85,7 @@ export default function generateNonBunkJamboreeSchedule(req: GenerateNonBunkJamb
     const staffToAssign = shuffle(staff.filter((staffMember) => !block.periodsOff.includes(staffMember.attendeeId)));
 
     const maxCounselorsPerActivity = Math.ceil((adminsToAssign.length + staffToAssign.length) / block.activities.length);
-    
+
     const numAdminsAssigned = Math.min(admins.length, block.activities.length);
     const shuffledActivities = shuffle(block.activities);
     for (let i = 0; i < numAdminsAssigned; i++) {
@@ -95,7 +95,7 @@ export default function generateNonBunkJamboreeSchedule(req: GenerateNonBunkJamb
     if (numAdminsAssigned !== admins.length) {
       const remainingAdmins = adminsToAssign.slice(numAdminsAssigned);
       for (const admin of remainingAdmins) {
-        let eligibleActivities = block.activities.filter((activity) => activity.adminIds.length + activity.staffIds.length < maxCounselorsPerActivity && !doesConflictExist(admin, getActivityAttendeeIds(activity)));
+        let eligibleActivities = block.activities.filter((activity) => activity.adminIds.length + activity.staffIds.length < maxCounselorsPerActivity && !canIndividualBeAssignedToActivity(admin, getAllAttendeeIdsFromIndividualAssignments(activity)));
         if (eligibleActivities.length === 0) {
           eligibleActivities = block.activities;
         }
@@ -105,7 +105,7 @@ export default function generateNonBunkJamboreeSchedule(req: GenerateNonBunkJamb
     }
 
     for (const staffMember of staffToAssign) {
-        let eligibleActivities = block.activities.filter((activity) => activity.adminIds.length + activity.staffIds.length < maxCounselorsPerActivity && !doesConflictExist(staffMember, getActivityAttendeeIds(activity)));
+      let eligibleActivities = block.activities.filter((activity) => activity.adminIds.length + activity.staffIds.length < maxCounselorsPerActivity && !canIndividualBeAssignedToActivity(staffMember, getAllAttendeeIdsFromIndividualAssignments(activity)));
       if (eligibleActivities.length === 0) {
         eligibleActivities = block.activities;
       }

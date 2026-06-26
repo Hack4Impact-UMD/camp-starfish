@@ -8,7 +8,7 @@ import {
 import { SectionActivityPreferences, BunkJamboreeSectionSchedule } from "@/types/scheduling/schedulingTypes";
 import { getBlockIdFromNum } from "@/types/scheduling/schedulingUtils";
 import shuffle from "@/utils/data/shuffle";
-import { doesConflictExist, getActivityAttendeeIds, getYesYesListGroups } from "./schedulingUtils";
+import { canIndividualBeAssignedToActivity, getAllAttendeeIdsFromIndividualAssignments, getYesYesListGroups } from "./schedulingUtils";
 
 interface GenerateBunkJamboreeScheduleRequest {
   attendees: Attendee[];
@@ -97,7 +97,7 @@ export default function generateBunkJamboreeSchedule(req: GenerateBunkJamboreeSc
     if (numAdminsAssigned !== admins.length) {
       const remainingAdmins = adminsToAssign.slice(numAdminsAssigned);
       for (const admin of remainingAdmins) {
-        let eligibleActivities = block.activities.filter((activity) => activity.adminIds.length + activity.staffIds.length < maxCounselorsPerActivity && !doesConflictExist(admin, getActivityAttendeeIds(activity)));
+        let eligibleActivities = block.activities.filter((activity) => activity.adminIds.length + activity.staffIds.length < maxCounselorsPerActivity && !canIndividualBeAssignedToActivity(admin, getAllAttendeeIdsFromIndividualAssignments(activity)));
         if (eligibleActivities.length === 0) {
           eligibleActivities = block.activities;
         }
@@ -107,7 +107,7 @@ export default function generateBunkJamboreeSchedule(req: GenerateBunkJamboreeSc
     }
 
     for (const staffMember of staffToAssign) {
-      let eligibleActivities = block.activities.filter((activity) => activity.adminIds.length + activity.staffIds.length < maxCounselorsPerActivity && !doesConflictExist(staffMember, getActivityAttendeeIds(activity)));
+      let eligibleActivities = block.activities.filter((activity) => activity.adminIds.length + activity.staffIds.length < maxCounselorsPerActivity && !canIndividualBeAssignedToActivity(staffMember, getAllAttendeeIdsFromIndividualAssignments(activity)));
       if (eligibleActivities.length === 0) {
         eligibleActivities = block.activities;
       }

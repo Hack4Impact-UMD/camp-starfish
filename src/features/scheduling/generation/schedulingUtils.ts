@@ -3,15 +3,20 @@ import { isAdminAttendee, isCamperAttendee } from "@/types/sessions/sessionTypeG
 import { Attendee, CounselorAttendee, Freeplay } from "@/types/sessions/sessionTypes";
 import { toRecord } from "@/utils/data/toRecord";
 
-export function doesConflictExist(attendee: Attendee, otherAttendeeIds: number[]) {
+export function canBeAssignedToIndividualAssignments(attendee: Attendee, assignments: IndividualActivityAssignments) {
+  const allActivityAttendeeIds = getAllAttendeeIdsFromIndividualAssignments(assignments);
   if (isCamperAttendee(attendee)) {
-    return attendee.snapshot.nonoList.some((id) => otherAttendeeIds.includes(id))
+    return attendee.snapshot.nonoList.some((id) => allActivityAttendeeIds.includes(id))
   }
-  return attendee.snapshot.nonoList.some((id) => otherAttendeeIds.includes(id)) || attendee.snapshot.yesyesList.some((id) => otherAttendeeIds.includes(id));
+  return attendee.snapshot.nonoList.some((id) => allActivityAttendeeIds.includes(id)) || attendee.snapshot.yesyesList.some((id) => getAllCounelorIdsFromIndividualAssignments(assignments).includes(id));
 }
 
-export function getActivityAttendeeIds(assignees: IndividualActivityAssignments) {
-  return [...assignees.camperIds, ...assignees.staffIds, ...assignees.adminIds];
+export function getAllAttendeeIdsFromIndividualAssignments(assignments: IndividualActivityAssignments) {
+  return [...assignments.camperIds, ...assignments.staffIds, ...assignments.adminIds];
+}
+
+export function getAllCounelorIdsFromIndividualAssignments(assignments: IndividualActivityAssignments) {
+  return [...assignments.staffIds, ...assignments.adminIds];
 }
 
 export function getFreeplayAssignmentId(freeplay: Freeplay, id: number): number[] | number | string | null {
