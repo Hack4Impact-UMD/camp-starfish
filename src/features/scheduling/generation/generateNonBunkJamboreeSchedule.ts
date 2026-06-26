@@ -15,18 +15,6 @@ interface GenerateNonBunkJamboreeScheduleRequest {
   currentSchedule: NonBunkJamboreeSectionSchedule;
 }
 
-/*
-Requirements:
-1. 1:1 Ratio
-2. Evenish split between activities - done
-3. Counselors assigned randomly to activities & periods off - done
-4. Respect nonoList - done
-5. Respect yesyesList - done
-6. Campers assigned by activity preferences - done
-7. Each activity has at least 1 admin - done
-
-*/
-
 export default function generateNonBunkJamboreeSchedule(req: GenerateNonBunkJamboreeScheduleRequest): NonBunkJamboreeSectionSchedule {
   const { attendees, sectionActivityPreferences, currentSchedule } = req;
 
