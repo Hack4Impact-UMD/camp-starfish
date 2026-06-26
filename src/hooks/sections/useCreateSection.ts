@@ -19,7 +19,7 @@ async function createSection(req: CreateSectionRequest) {
     startDate: Timestamp.fromDate(rest.startDate.clone().startOf('day').toDate()),
     endDate: Timestamp.fromDate(rest.endDate.clone().endOf('day').toDate()),
     type: rest.type,
-    publishedAt: null
+    publishedAt: null,
   })
 }
 

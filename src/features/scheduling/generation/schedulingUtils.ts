@@ -1,11 +1,17 @@
+import { IndividualActivityAssignments } from "@/types/scheduling/schedulingTypes";
 import { isAdminAttendee, isCamperAttendee } from "@/types/sessions/sessionTypeGuards";
-import { Attendee, Freeplay } from "@/types/sessions/sessionTypes";
+import { Attendee, CounselorAttendee, Freeplay } from "@/types/sessions/sessionTypes";
+import { toRecord } from "@/utils/data/toRecord";
 
 export function doesConflictExist(attendee: Attendee, otherAttendeeIds: number[]) {
   if (isCamperAttendee(attendee)) {
     return attendee.snapshot.nonoList.some((id) => otherAttendeeIds.includes(id))
   }
   return attendee.snapshot.nonoList.some((id) => otherAttendeeIds.includes(id)) || attendee.snapshot.yesyesList.some((id) => otherAttendeeIds.includes(id));
+}
+
+export function getActivityAttendeeIds(assignees: IndividualActivityAssignments) {
+  return [...assignees.camperIds, ...assignees.staffIds, ...assignees.adminIds];
 }
 
 export function getFreeplayAssignmentId(freeplay: Freeplay, id: number): number[] | number | string | null {
@@ -47,4 +53,31 @@ export function groupAttendeesByBunk<T extends Attendee>(attendees: T[]): Record
     attendeesByBunk[attendee.bunk].push(attendee);
   });
   return attendeesByBunk;
+}
+
+export function getYesYesListGroups(counselors: CounselorAttendee[]): number[][] {
+  const yesyesListGroups: number[][] = [];
+  const counselorsById = toRecord(counselors, (counselor) => counselor.attendeeId);
+  const visitedCounselorIds = new Set<number>();
+  for (const counselor of counselors) {
+    if (!visitedCounselorIds.has(counselor.attendeeId)) {
+      const group = getYesYesListGroup(counselor.attendeeId, visitedCounselorIds, counselorsById);
+      yesyesListGroups.push(group);
+    }
+  }
+  return yesyesListGroups;
+}
+
+function getYesYesListGroup(firstCounselorId: number, visited: Set<number>, counselorsById: Record<number, CounselorAttendee>): number[] {
+  const group: number[] = [];
+  const stack: number[] = [firstCounselorId];
+  while (stack.length !== 0) {
+    const nextCounselorId = stack.pop()!;
+    if (!visited.has(nextCounselorId)) {
+      group.push(nextCounselorId);
+      stack.push(...counselorsById[nextCounselorId].snapshot.yesyesList);
+      visited.add(nextCounselorId);
+    }
+  }
+  return group;
 }
