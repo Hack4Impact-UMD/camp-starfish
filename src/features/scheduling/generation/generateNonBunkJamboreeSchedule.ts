@@ -23,7 +23,7 @@ Requirements:
 4. Respect nonoList - done
 5. Respect yesyesList - done
 6. Campers assigned by activity preferences - done
-7. Each activity has at least 1 admin
+7. Each activity has at least 1 admin - done
 
 */
 
@@ -96,6 +96,8 @@ export default function generateNonBunkJamboreeSchedule(req: GenerateNonBunkJamb
     const adminsToAssign = shuffle(admins.filter((admin) => !block.periodsOff.includes(admin.attendeeId)));
     const staffToAssign = shuffle(staff.filter((staffMember) => !block.periodsOff.includes(staffMember.attendeeId)));
 
+    const maxCounselorsPerActivity = Math.ceil((adminsToAssign.length + staffToAssign.length) / block.activities.length);
+    
     const numAdminsAssigned = Math.min(admins.length, block.activities.length);
     const shuffledActivities = shuffle(block.activities);
     for (let i = 0; i < numAdminsAssigned; i++) {
@@ -105,7 +107,7 @@ export default function generateNonBunkJamboreeSchedule(req: GenerateNonBunkJamb
     if (numAdminsAssigned !== admins.length) {
       const remainingAdmins = adminsToAssign.slice(numAdminsAssigned);
       for (const admin of remainingAdmins) {
-        let eligibleActivities = block.activities.filter((activity) => !doesConflictExist(admin, getActivityAttendeeIds(activity)));
+        let eligibleActivities = block.activities.filter((activity) => activity.adminIds.length + activity.staffIds.length < maxCounselorsPerActivity && !doesConflictExist(admin, getActivityAttendeeIds(activity)));
         if (eligibleActivities.length === 0) {
           eligibleActivities = block.activities;
         }
@@ -115,7 +117,7 @@ export default function generateNonBunkJamboreeSchedule(req: GenerateNonBunkJamb
     }
 
     for (const staffMember of staffToAssign) {
-        let eligibleActivities = block.activities.filter((activity) => !doesConflictExist(staffMember, getActivityAttendeeIds(activity)));
+        let eligibleActivities = block.activities.filter((activity) => activity.adminIds.length + activity.staffIds.length < maxCounselorsPerActivity && !doesConflictExist(staffMember, getActivityAttendeeIds(activity)));
       if (eligibleActivities.length === 0) {
         eligibleActivities = block.activities;
       }
