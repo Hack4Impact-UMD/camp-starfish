@@ -46,9 +46,8 @@ export default function generateBunkJamboreeSchedule(req: GenerateBunkJamboreeSc
       prev[blockId] = {
         activities: currentSchedule.blocks[blockId].activities.map(activity => ({
           ...activity,
-          camperIds: [],
-          staffIds: [],
           adminIds: [],
+          bunkNums: [],
         })),
         periodsOff: []
       };
@@ -61,16 +60,17 @@ export default function generateBunkJamboreeSchedule(req: GenerateBunkJamboreeSc
   }
 
   for (const [blockId, block] of Object.entries(newSchedule.blocks)) {
-    const sortedCampers = shuffle(campers).sort((a, b) => b.snapshot.dateOfBirth.diff(a.snapshot.dateOfBirth, "years"));
-    const maxCampersPerActivity = Math.ceil(sortedCampers.length / block.activities.length);
-    for (const camper of sortedCampers) {
-      const camperPrefs = bunkActivityPreferences.blocks[blockId][camper.attendeeId];
-      let eligibleActivities = block.activities.filter((activity) => activity.camperIds.length < maxCampersPerActivity && !doesConflictExist(camper, getActivityAttendeeIds(activity)));
+    const shuffledBunks = shuffle(bunks)
+    const maxBunksPerActivity = Math.ceil(shuffledBunks.length / block.activities.length);
+
+    for (const bunk of shuffledBunks) {
+      const bunkPrefs = bunkActivityPreferences.blocks[blockId][bunk.bunkNum];
+      let eligibleActivities = block.activities.filter((activity) => activity.bunkNums.length < maxBunksPerActivity && true); // fix to check for conflicts 
       if (eligibleActivities.length === 0) {
         eligibleActivities = block.activities;
       }
-      const chosenActivity = eligibleActivities.sort((a, b) => camperPrefs[a.name] - camperPrefs[b.name])[0];
-      chosenActivity.camperIds.push(camper.attendeeId);
+      const chosenActivity = eligibleActivities.sort((a, b) => bunkPrefs[a.name] - bunkPrefs[b.name])[0];
+      chosenActivity.bunkNums.push(bunk.bunkNum);
     }
   }
 
@@ -87,7 +87,7 @@ export default function generateBunkJamboreeSchedule(req: GenerateBunkJamboreeSc
     const staffToAssign = shuffle(staff.filter((staffMember) => !block.periodsOff.includes(staffMember.attendeeId)));
 
     const maxCounselorsPerActivity = Math.ceil((adminsToAssign.length + staffToAssign.length) / block.activities.length);
-    
+
     const numAdminsAssigned = Math.min(admins.length, block.activities.length);
     const shuffledActivities = shuffle(block.activities);
     for (let i = 0; i < numAdminsAssigned; i++) {
@@ -107,7 +107,7 @@ export default function generateBunkJamboreeSchedule(req: GenerateBunkJamboreeSc
     }
 
     for (const staffMember of staffToAssign) {
-        let eligibleActivities = block.activities.filter((activity) => activity.adminIds.length + activity.staffIds.length < maxCounselorsPerActivity && !doesConflictExist(staffMember, getActivityAttendeeIds(activity)));
+      let eligibleActivities = block.activities.filter((activity) => activity.adminIds.length + activity.staffIds.length < maxCounselorsPerActivity && !doesConflictExist(staffMember, getActivityAttendeeIds(activity)));
       if (eligibleActivities.length === 0) {
         eligibleActivities = block.activities;
       }
