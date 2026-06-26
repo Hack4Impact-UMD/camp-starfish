@@ -15,6 +15,18 @@ interface GenerateNonBunkJamboreeScheduleRequest {
   currentSchedule: NonBunkJamboreeSectionSchedule;
 }
 
+/*
+Requirements:
+1. 1:1 Ratio
+2. Evenish split between activities
+3. Counselors assigned randomly to activities & periods off - done
+4. Respect nonoList - done
+5. Respect yesyesList - done
+6. Campers assigned by activity preferences - done
+7. Each activity has at least 1 admin
+
+*/
+
 export default function generateNonBunkJamboreeSchedule(req: GenerateNonBunkJamboreeScheduleRequest): NonBunkJamboreeSectionSchedule {
   const { attendees, sectionActivityPreferences, currentSchedule } = req;
 
@@ -60,9 +72,10 @@ export default function generateNonBunkJamboreeSchedule(req: GenerateNonBunkJamb
 
   for (const [blockId, block] of Object.entries(newSchedule.blocks)) {
     const sortedCampers = shuffle(campers).sort((a, b) => b.snapshot.dateOfBirth.diff(a.snapshot.dateOfBirth, "years"));
+    const maxCampersPerActivity = Math.ceil(sortedCampers.length / block.activities.length);
     for (const camper of sortedCampers) {
       const camperPrefs = sectionActivityPreferences.blocks[blockId][camper.attendeeId];
-      let eligibleActivities = block.activities.filter((activity) => !doesConflictExist(camper, getActivityAttendeeIds(activity)));
+      let eligibleActivities = block.activities.filter((activity) => activity.camperIds.length < maxCampersPerActivity && !doesConflictExist(camper, getActivityAttendeeIds(activity)));
       if (eligibleActivities.length === 0) {
         eligibleActivities = block.activities;
       }
