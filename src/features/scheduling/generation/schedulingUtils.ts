@@ -1,21 +1,22 @@
-import { IndividualActivityAssignments } from "@/types/scheduling/schedulingTypes";
+import { BunkActivityAssignments, IndividualActivityAssignments } from "@/types/scheduling/schedulingTypes";
 import { isAdminAttendee, isCamperAttendee } from "@/types/sessions/sessionTypeGuards";
-import { Attendee, CounselorAttendee, Freeplay } from "@/types/sessions/sessionTypes";
+import { AdminAttendee, Attendee, Bunk, CounselorAttendee, Freeplay } from "@/types/sessions/sessionTypes";
 import { toRecord } from "@/utils/data/toRecord";
 
-export function canBeAssignedToIndividualAssignments(attendee: Attendee, assignments: IndividualActivityAssignments) {
-  const allActivityAttendeeIds = getAllAttendeeIdsFromIndividualAssignments(assignments);
+export function canBeAssignedToIndividualActivityAssignments(attendee: Attendee, assignments: IndividualActivityAssignments) {
+  const attendeeIds = getAttendeeIdsFromIndividualActivityAssignments(assignments);
   if (isCamperAttendee(attendee)) {
-    return attendee.snapshot.nonoList.some((id) => allActivityAttendeeIds.includes(id))
+    return attendee.snapshot.nonoList.every((id) => !attendeeIds.includes(id))
   }
-  return attendee.snapshot.nonoList.some((id) => allActivityAttendeeIds.includes(id)) || attendee.snapshot.yesyesList.some((id) => getAllCounelorIdsFromIndividualAssignments(assignments).includes(id));
+  const counselorIds = getCounelorIdsFromIndividualActivityAssignments(assignments);
+  return attendee.snapshot.nonoList.every((id) => !attendeeIds.includes(id)) || attendee.snapshot.yesyesList.some((id) => !counselorIds.includes(id));
 }
 
-export function getAllAttendeeIdsFromIndividualAssignments(assignments: IndividualActivityAssignments) {
+export function getAttendeeIdsFromIndividualActivityAssignments(assignments: IndividualActivityAssignments) {
   return [...assignments.camperIds, ...assignments.staffIds, ...assignments.adminIds];
 }
 
-export function getAllCounelorIdsFromIndividualAssignments(assignments: IndividualActivityAssignments) {
+export function getCounelorIdsFromIndividualActivityAssignments(assignments: IndividualActivityAssignments) {
   return [...assignments.staffIds, ...assignments.adminIds];
 }
 
