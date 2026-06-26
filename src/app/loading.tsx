@@ -1,21 +1,17 @@
 "use client";
 
+import { Title } from "@mantine/core";
 import LoadingAnimation from "../components/LoadingAnimation";
 
-/**
- * Loading Component
- * Displays looping animated loading indicator using 4 SVG images. Cycles through each image 
- * every 500ms. Uses Framer Motion for smooth transitions.
- */
 export default function LoadingPage() {
-    return (
-        <div className="flex flex-col items-center justify-center h-full w-full bg-white">
-            <h1 className="font-lato text-black text-[32px] font-extrabold leading-normal transform uppercase">Loading...</h1>
-            <div
-                className="relative w-24 h-24 flex justify-center items-center"
-            >
-                <LoadingAnimation />
-            </div>
-        </div>
-    );
+  return (
+    <div className="flex flex-col items-center justify-center h-full w-full bg-white">
+      <Title order={1} classNames={{ root: "font-extrabold" }}>
+        Loading...
+      </Title>
+      <div className="w-1/4">
+        <LoadingAnimation />
+      </div>
+    </div>
+  );
 }

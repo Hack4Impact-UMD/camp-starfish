@@ -11,21 +11,17 @@ jobs:
       FIREBASE_CLI_EXPERIMENTS: webframeworks
       NEXT_PUBLIC_DOMAIN: ${{ secrets.NEXT_PUBLIC_DOMAIN }}
       NEXT_PUBLIC_FIREBASE_API_KEY: ${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY }}
-      NEXT_PUBLIC_GOOGLE_APPS_SCRIPT_DEPLOYMENT_ID: ${{ secrets.GOOGLE_APPS_SCRIPT_DEPLOYMENT_ID }}
+      GOOGLE_APPS_SCRIPT_DEPLOYMENT_ID: ${{ secrets.GOOGLE_APPS_SCRIPT_DEPLOYMENT_ID }}
       NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${{ secrets.NEXT_PUBLIC_GOOGLE_CLIENT_ID }}
       GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
       NEXT_PUBLIC_MICROSOFT_CLIENT_ID: ${{ secrets.NEXT_PUBLIC_MICROSOFT_CLIENT_ID }}
       MICROSOFT_CLIENT_SECRET: ${{ secrets.MICROSOFT_CLIENT_SECRET }}
-      DEV_EMAILS: ${{ secrets.DEV_EMAILS }}
-      NPO_EMAILS: ${{ secrets.NPO_EMAILS }}
+      NEXT_PUBLIC_NODE_ENV: production
     steps:
       - uses: actions/checkout@v4
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: "npm"
 
       - name: Install dependencies (sharp needs to be rebuilt for Linux)
         run: npm install --include=optional sharp
@@ -51,16 +47,12 @@ jobs:
       GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
       NEXT_PUBLIC_MICROSOFT_CLIENT_ID: ${{ secrets.NEXT_PUBLIC_MICROSOFT_CLIENT_ID }}
       MICROSOFT_CLIENT_SECRET: ${{ secrets.MICROSOFT_CLIENT_SECRET }}
-      DEV_EMAILS: ${{ secrets.DEV_EMAILS }}
-      NPO_EMAILS: ${{ secrets.NPO_EMAILS }}
+      NEXT_PUBLIC_NODE_ENV: production
     steps:
       - uses: actions/checkout@v4
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: "npm"
 
       - name: Install CLASP
         run: npm install -g @google/clasp

@@ -1,16 +1,13 @@
-import { AdminAttendeeID, StaffAttendeeID, CamperAttendeeID, SectionSchedule, SectionPreferences, BunkID, SchedulingSectionID } from "@/types/sessionTypes";
-import { doesConflictExist } from "./schedulingUtils";
-import moment from "moment";
+import { AdminAttendee, Bunk } from "@/types/sessions/sessionTypes";
+import { BunkJamboreeSectionSchedule, SectionActivityPreferences } from "@/types/scheduling/schedulingTypes";
 
 export class BunkJamboreeScheduler {
-  schedule: SectionSchedule<"BUNK-JAMBO"> = { blocks: {}, alternatePeriodsOff: {} };
+  schedule: BunkJamboreeSectionSchedule | null = null;
 
-  bunks: BunkID[] = [];
-  admins: AdminAttendeeID[] = [];
-  staff: StaffAttendeeID[] = [];
-  campers: CamperAttendeeID[] = [];
-  
-  preferences: SectionPreferences = {};
+  bunks: Bunk[] = [];
+  admins: AdminAttendee[] = [];
+
+  preferences: SectionActivityPreferences | null = null;
 
   blocksToAssign: string[] = [];
 
@@ -30,17 +27,13 @@ export class BunkJamboreeScheduler {
 
   constructor() { }
 
-  withSchedule(schedule: SectionSchedule<"BUNK-JAMBO">): BunkJamboreeScheduler { this.schedule = schedule; return this; }
+  withSchedule(schedule: BunkJamboreeSectionSchedule): BunkJamboreeScheduler { this.schedule = schedule; return this; }
 
-  withBunks(bunks: BunkID[]): BunkJamboreeScheduler { this.bunks = bunks; return this; }
+  withBunks(bunks: Bunk[]): BunkJamboreeScheduler { this.bunks = bunks; return this; }
 
-  withStaff(staff: StaffAttendeeID[]): BunkJamboreeScheduler { this.staff = staff; return this; }
+  withAdmins(admins: AdminAttendee[]): BunkJamboreeScheduler { this.admins = admins; return this; }
 
-  withAdmins(admins: AdminAttendeeID[]): BunkJamboreeScheduler { this.admins = admins; return this; }
-
-  withCampers(campers: CamperAttendeeID[]): BunkJamboreeScheduler { this.campers = campers; return this; }
-
-  withPreferences(preferences: SectionPreferences): BunkJamboreeScheduler { this.preferences = preferences; return this; }
+  withPreferences(preferences: SectionActivityPreferences): BunkJamboreeScheduler { this.preferences = preferences; return this; }
 
   withSectionID(sectionID: SchedulingSectionID): BunkJamboreeScheduler { this.sectionID = sectionID; return this; }
 

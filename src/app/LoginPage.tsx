@@ -1,21 +1,15 @@
 "use client";
-import React, { useState } from "react";
+import { useState } from "react";
 import GoogleIcon from "@/assets/icons/Google.svg";
 import MicrosoftIcon from "@/assets/icons/Microsoft.svg";
-import ErrorIcon from "@/assets/icons/errorIcon.svg";
 import BackgroundPattern from "@/components/BackgroundPattern";
-import { useAuth } from "@/auth/useAuth";
 import { signInWithGooglePopup } from "@/auth/authN";
 import Image from "next/image";
 import { signInWithMicrosoftPopup } from "@/auth/authN";
-import { generateSession } from "@/features/scheduling/test/generateEmulatorData";
+import { MdError } from "react-icons/md";
 
 export default function LoginPage() {
   const [error, setError] = useState<string>("");
-
-  const auth = useAuth();
-
-  const errorDisplay = error ? error : auth.error;
 
   const signInWithGoogle = async () => {
     try {
@@ -31,16 +25,6 @@ export default function LoginPage() {
     }
     catch {
       setError("An error occurred while trying to sign in. Please try again.");
-    }
-  }
-
-  const generateTestData = async () => {
-    try {
-      const data = await generateSession();
-      console.log(data);
-    }
-    catch {
-      setError("An error occurred generating data. Please try again.");
     }
   }
 
@@ -78,22 +62,12 @@ export default function LoginPage() {
           Sign in with Microsoft
         </button>
 
-        <button
-          onClick={generateTestData}
-          className="flex flex-row justify-around items-center w-5/6 max-w-[344px] bg-white 
-                    mt-5 py-4 px-12 rounded-full shadow-[0_4px_4px_-1px_rgba(0,0,0,0.2)] font-lato text-xl text-gray-600"
-        >
-          <Image src={MicrosoftIcon.src} alt="Microsoft" width={32} height={32} />
-          Generate Test
-        </button>
-
-
         {/* Error Message */}
-        {errorDisplay && (
+        {error && (
           <div className="flex flex-row w-5/6 mt-[14px]">
-            <Image src={ErrorIcon.src} alt="Error Icon" width={32} height={32} />
+            <MdError className="text-error" size={32} />
             <p className="text-[#D32F2F] text-sm font-lato text-left pl-2">
-              {errorDisplay}
+              {error}
             </p>
           </div>
         )}
