@@ -1,8 +1,5 @@
 name: Redeploy Site on Push to Main
-on:
-  push:
-    branches: 
-      - main
+on: pull_request
 jobs:
   deploy_firebase:
     name: Deploy Next.js App to Firebase
