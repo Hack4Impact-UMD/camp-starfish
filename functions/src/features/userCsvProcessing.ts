@@ -49,7 +49,7 @@ export const processFamilyCsv = onCall(async (req) => {
       existingCamperUpdates.map((camperUpdates) => {
         const { id, ...docUpdates } = camperUpdates;
         const existingCamper = existingUsers.find(camper => camper.id === id) as Camper;
-        if (existingCamper.name.firstName === docUpdates.name.firstName && existingCamper.name.middleName === docUpdates.name.middleName && existingCamper.name.lastName === docUpdates.name.lastName && docUpdates.parentIds.every(parentId => existingCamper.parentIds.includes(parentId))) return;
+        if (docUpdates.parentIds.every(parentId => existingCamper.parentIds.includes(parentId))) return;
         return updateUserDoc(id, {
           parentIds: FieldValue.arrayUnion(...camperUpdates.parentIds),
         }, transaction);
@@ -57,7 +57,7 @@ export const processFamilyCsv = onCall(async (req) => {
       existingParentUpdates.map((parentUpdates) => {
         const { id, ...docUpdates } = parentUpdates;
         const existingParent = existingUsers.find(parent => parent.id === id) as Parent;
-        if (existingParent.name.firstName === docUpdates.name.firstName && existingParent.name.middleName === docUpdates.name.middleName && existingParent.name.lastName === docUpdates.name.lastName && docUpdates.camperIds.every(camperId => existingParent.camperIds.includes(camperId))) return;
+        if (docUpdates.camperIds.every(camperId => existingParent.camperIds.includes(camperId))) return;
         return updateUserDoc(id, {
           camperIds: FieldValue.arrayUnion(...docUpdates.camperIds),
         }, transaction);
