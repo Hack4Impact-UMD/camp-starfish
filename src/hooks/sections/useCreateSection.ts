@@ -36,7 +36,7 @@ async function createSection(req: CreateSectionRequest) {
       type: rest.type,
       publishedAt: null,
     }, transaction);
-    await setSectionScheduleDoc(sessionId, sectionId, sectionScheduleDoc);
+    await setSectionScheduleDoc(sessionId, sectionId, sectionScheduleDoc, transaction);
   })
 }
 
