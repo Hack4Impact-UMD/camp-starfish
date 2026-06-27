@@ -38,8 +38,8 @@ export default function generateBunkJamboreeSchedule(req: GenerateBunkJamboreeSc
       default: throw Error("Unknown attendee role");
     }
   }
-  const campersById = toRecord(campers, campers => campers.id);
-  const staffById = toRecord(staff, staff => staff.id);
+  const campersById = toRecord(campers, campers => campers.attendeeId);
+  const staffById = toRecord(staff, staff => staff.attendeeId);
 
   const newSchedule: BunkJamboreeSectionSchedule = {
     sessionId: currentSchedule.sessionId,
