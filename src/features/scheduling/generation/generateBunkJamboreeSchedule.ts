@@ -3,20 +3,23 @@ import {
   StaffAttendee,
   CamperAttendee,
   Attendee,
+  Bunk,
 } from "@/types/sessions/sessionTypes";
-import { SectionActivityPreferences, NonBunkJamboreeSectionSchedule } from "@/types/scheduling/schedulingTypes";
+import { SectionActivityPreferences, BunkJamboreeSectionSchedule } from "@/types/scheduling/schedulingTypes";
 import { getBlockIdFromNum } from "@/types/scheduling/schedulingUtils";
 import shuffle from "@/utils/data/shuffle";
-import { canBeAssignedToIndividualActivityAssignments, getYesYesListGroups } from "./schedulingUtils";
+import { canBeAssignedToBunkAssignments, getYesYesListGroups } from "./schedulingUtils";
+import { toRecord } from "@/utils/data/toRecord";
 
-interface GenerateNonBunkJamboreeScheduleRequest {
+interface GenerateBunkJamboreeScheduleRequest {
   attendees: Attendee[];
-  sectionActivityPreferences: SectionActivityPreferences;
-  currentSchedule: NonBunkJamboreeSectionSchedule;
+  bunks: Bunk[];
+  bunkActivityPreferences: SectionActivityPreferences;
+  currentSchedule: BunkJamboreeSectionSchedule;
 }
 
-export default function generateNonBunkJamboreeSchedule(req: GenerateNonBunkJamboreeScheduleRequest): NonBunkJamboreeSectionSchedule {
-  const { attendees, sectionActivityPreferences, currentSchedule } = req;
+export default function generateBunkJamboreeSchedule(req: GenerateBunkJamboreeScheduleRequest): BunkJamboreeSectionSchedule {
+  const { attendees, bunks, bunkActivityPreferences, currentSchedule } = req;
 
   const campers: CamperAttendee[] = [];
   const staff: StaffAttendee[] = [];
@@ -35,44 +38,48 @@ export default function generateNonBunkJamboreeSchedule(req: GenerateNonBunkJamb
       default: throw Error("Unknown attendee role");
     }
   }
+  const campersById = toRecord(campers, campers => campers.attendeeId);
+  const staffById = toRecord(staff, staff => staff.attendeeId);
 
-  const newSchedule: NonBunkJamboreeSectionSchedule = {
+  const newSchedule: BunkJamboreeSectionSchedule = {
     sessionId: currentSchedule.sessionId,
     sectionId: currentSchedule.sectionId,
-    type: "NON-BUNK-JAMBO",
+    type: "BUNK-JAMBO",
     blocks: Object.entries(currentSchedule.blocks).reduce((prev, [blockId, _block]) => {
       prev[blockId] = {
         activities: currentSchedule.blocks[blockId].activities.map(activity => ({
           ...activity,
-          camperIds: [],
-          staffIds: [],
           adminIds: [],
+          bunkNums: [],
         })),
         periodsOff: []
       };
       return prev;
-    }, {} as NonBunkJamboreeSectionSchedule["blocks"]),
+    }, {} as BunkJamboreeSectionSchedule["blocks"]),
     alternatePeriodsOff: Object.entries(currentSchedule.alternatePeriodsOff).reduce((prev, [periodId, _counselorIds]) => {
       prev[periodId] = [];
       return prev;
-    }, {} as NonBunkJamboreeSectionSchedule["alternatePeriodsOff"]),
+    }, {} as BunkJamboreeSectionSchedule["alternatePeriodsOff"]),
   }
 
+  const bunksByBunkNum = toRecord(bunks, bunks => bunks.bunkNum);  
   for (const [blockId, block] of Object.entries(newSchedule.blocks)) {
-    const sortedCampers = shuffle(campers).sort((a, b) => b.snapshot.dateOfBirth.diff(a.snapshot.dateOfBirth, "years"));
-    const maxCampersPerActivity = Math.ceil(sortedCampers.length / block.activities.length);
-    for (const camper of sortedCampers) {
-      const camperPrefs = sectionActivityPreferences.blocks[blockId][camper.attendeeId];
-      let eligibleActivities = block.activities.filter((activity) => activity.camperIds.length < maxCampersPerActivity && canBeAssignedToIndividualActivityAssignments(camper, activity));
+    const shuffledBunks = shuffle(bunks)
+    const maxBunksPerActivity = Math.ceil(shuffledBunks.length / block.activities.length);
+
+    for (const bunk of shuffledBunks) {
+      const bunkMembersById = toRecord([...bunk.camperIds.map((camperId: number) => campersById[camperId]), ...bunk.counselorIds.map((counselorId: number) => staffById[counselorId])], (bunkMember: CamperAttendee | StaffAttendee) => bunkMember.attendeeId);
+      const bunkPrefs = bunkActivityPreferences.blocks[blockId][bunk.bunkNum];
+      let eligibleActivities = block.activities.filter((activity) => activity.bunkNums.length < maxBunksPerActivity && canBeAssignedToBunkAssignments(bunk, activity, bunksByBunkNum, bunkMembersById));
       if (eligibleActivities.length === 0) {
         eligibleActivities = block.activities;
       }
-      const chosenActivity = eligibleActivities.sort((a, b) => camperPrefs[a.name] - camperPrefs[b.name])[0];
-      chosenActivity.camperIds.push(camper.attendeeId);
+      const chosenActivity = eligibleActivities.sort((a, b) => bunkPrefs[a.name] - bunkPrefs[b.name])[0];
+      chosenActivity.bunkNums.push(bunk.bunkNum);
     }
   }
 
-  const yesyesListGroups = getYesYesListGroups([...shuffle(admins), ...shuffle(staff)]);
+  const yesyesListGroups = getYesYesListGroups([...shuffle(admins), ...shuffle(staff).sort((a, b) => a.bunk - b.bunk)]);
   const numBlocks = Object.keys(newSchedule.blocks).length;
   let currBlockNum = 0;
   for (const yesyesListGroup of yesyesListGroups) {
@@ -82,10 +89,7 @@ export default function generateNonBunkJamboreeSchedule(req: GenerateNonBunkJamb
 
   for (const [_blockId, block] of Object.entries(newSchedule.blocks)) {
     const adminsToAssign = shuffle(admins.filter((admin) => !block.periodsOff.includes(admin.attendeeId)));
-    const staffToAssign = shuffle(staff.filter((staffMember) => !block.periodsOff.includes(staffMember.attendeeId)));
-
-    const maxCounselorsPerActivity = Math.ceil((adminsToAssign.length + staffToAssign.length) / block.activities.length);
-
+    const maxAdminsPerActivity = Math.ceil(adminsToAssign.length / block.activities.length);
     const numAdminsAssigned = Math.min(admins.length, block.activities.length);
     const shuffledActivities = shuffle(block.activities);
     for (let i = 0; i < numAdminsAssigned; i++) {
@@ -95,22 +99,13 @@ export default function generateNonBunkJamboreeSchedule(req: GenerateNonBunkJamb
     if (numAdminsAssigned !== admins.length) {
       const remainingAdmins = adminsToAssign.slice(numAdminsAssigned);
       for (const admin of remainingAdmins) {
-        let eligibleActivities = block.activities.filter((activity) => activity.adminIds.length + activity.staffIds.length < maxCounselorsPerActivity && canBeAssignedToIndividualActivityAssignments(admin, activity));
+        let eligibleActivities = block.activities.filter((activity) => activity.adminIds.length < maxAdminsPerActivity && canBeAssignedToBunkAssignments(admin, activity, bunksByBunkNum));
         if (eligibleActivities.length === 0) {
           eligibleActivities = block.activities;
         }
         const chosenActivity = shuffle(eligibleActivities)[0];
         chosenActivity.adminIds.push(admin.attendeeId);
       }
-    }
-
-    for (const staffMember of staffToAssign) {
-      let eligibleActivities = block.activities.filter((activity) => activity.adminIds.length + activity.staffIds.length < maxCounselorsPerActivity && canBeAssignedToIndividualActivityAssignments(staffMember, activity));
-      if (eligibleActivities.length === 0) {
-        eligibleActivities = block.activities;
-      }
-      const chosenActivity = shuffle(eligibleActivities)[0];
-      chosenActivity.staffIds.push(staffMember.attendeeId);
     }
   }
 
