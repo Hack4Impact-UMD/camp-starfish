@@ -20,7 +20,7 @@ interface UpdateSectionRequest {
 async function updateSection(req: UpdateSectionRequest) {
   const { sessionId, sectionId, ...updates } = req;
   switch (updates.type) {
-    case "COMMON":
+    case "COMMON": {
       await runTransaction(db, async (transaction: Transaction) => {
         await Promise.all([
           updateSectionDoc(sessionId, sectionId, {
@@ -34,9 +34,10 @@ async function updateSection(req: UpdateSectionRequest) {
         ]);
       });
       break;
+    }
     case "BUNDLE":
     case "BUNK-JAMBO":
-    case "NON-BUNK-JAMBO":
+    case "NON-BUNK-JAMBO": {
       const sectionUpdates: UpdateData<SchedulingSectionDoc> = {
         name: updates.name,
         startDate: updates.startDate ? Timestamp.fromDate(updates.startDate.clone().startOf('day').toDate()) : undefined,
@@ -52,12 +53,14 @@ async function updateSection(req: UpdateSectionRequest) {
         ])
       });
       break;
-    default:
+    }
+    default: {
       await updateSectionDoc(sessionId, sectionId, {
         name: updates.name,
         startDate: updates.startDate ? Timestamp.fromDate(updates.startDate.clone().startOf('day').toDate()) : undefined,
         endDate: updates.endDate ? Timestamp.fromDate(updates.endDate.clone().endOf('day').toDate()) : undefined,
       });
+    }
   }
 }
 
