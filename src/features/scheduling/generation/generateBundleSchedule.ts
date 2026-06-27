@@ -1,5 +1,116 @@
-import { StaffAttendee, CamperAttendee, AdminAttendee } from "@/types/sessions/sessionTypes";
+import { StaffAttendee, CamperAttendee, AdminAttendee, Attendee } from "@/types/sessions/sessionTypes";
 import { BundleSectionSchedule, SectionActivityPreferences } from "@/types/scheduling/schedulingTypes";
+import shuffle from "@/utils/data/shuffle";
+import { getYesYesListGroups } from "./schedulingUtils";
+import { getBlockIdFromNum } from "@/types/scheduling/schedulingUtils";
+
+interface GenerateBundleScheduleRequest {
+  attendees: Attendee[];
+  camperActivityPreferences: SectionActivityPreferences;
+  currentSchedule: BundleSectionSchedule;
+}
+
+export default function generateBundleSchedule(req: GenerateBundleScheduleRequest): BundleSectionSchedule {
+  const { attendees, camperActivityPreferences, currentSchedule } = req;
+
+  const campers: CamperAttendee[] = [];
+  const staff: StaffAttendee[] = [];
+  const admins: AdminAttendee[] = [];
+  for (const attendee of attendees) {
+    switch (attendee.role) {
+      case "CAMPER":
+        campers.push(attendee);
+        break;
+      case "STAFF":
+        staff.push(attendee);
+        break;
+      case "ADMIN":
+        admins.push(attendee);
+        break;
+      default: throw Error("Unknown attendee role");
+    }
+  }
+
+  const newSchedule: BundleSectionSchedule = {
+    sessionId: currentSchedule.sessionId,
+    sectionId: currentSchedule.sectionId,
+    type: "BUNDLE",
+    blocks: Object.entries(currentSchedule.blocks).reduce((prev, [blockId, _block]) => {
+      prev[blockId] = {
+        activities: currentSchedule.blocks[blockId].activities.map(activity => ({
+          ...activity,
+          camperIds: [],
+          staffIds: [],
+          adminIds: [],
+        })),
+        periodsOff: []
+      };
+      return prev;
+    }, {} as BundleSectionSchedule["blocks"]),
+    alternatePeriodsOff: Object.entries(currentSchedule.alternatePeriodsOff).reduce((prev, [periodId, _counselorIds]) => {
+      prev[periodId] = [];
+      return prev;
+    }, {} as BundleSectionSchedule["alternatePeriodsOff"]),
+  }
+
+  for (const [blockId, block] of Object.entries(newSchedule.blocks)) {
+    const sortedCampers = shuffle(campers).sort((a, b) => b.snapshot.dateOfBirth.diff(a.snapshot.dateOfBirth, "years"));
+    const maxCampersPerActivity = Math.ceil(sortedCampers.length / block.activities.length);
+    for (const camper of sortedCampers) {
+      const camperPrefs = camperActivityPreferences.blocks[blockId][camper.attendeeId];
+      let eligibleActivities = block.activities.filter((activity) => activity.camperIds.length < maxCampersPerActivity && canBeAssignedToIndividualActivityAssignments(camper, activity));
+      if (eligibleActivities.length === 0) {
+        eligibleActivities = block.activities;
+      }
+      const chosenActivity = eligibleActivities.sort((a, b) => camperPrefs[a.name] - camperPrefs[b.name])[0];
+      chosenActivity.camperIds.push(camper.attendeeId);
+    }
+  }
+
+  const yesyesListGroups = getYesYesListGroups([...shuffle(admins), ...shuffle(staff)]);
+  const numBlocks = Object.keys(newSchedule.blocks).length;
+  let currBlockNum = 0;
+  for (const yesyesListGroup of yesyesListGroups) {
+    newSchedule.blocks[getBlockIdFromNum(currBlockNum)].periodsOff.push(...yesyesListGroup);
+    currBlockNum = (currBlockNum + 1) % numBlocks;
+  }
+
+  for (const [_blockId, block] of Object.entries(newSchedule.blocks)) {
+    const adminsToAssign = shuffle(admins.filter((admin) => !block.periodsOff.includes(admin.attendeeId)));
+    const staffToAssign = shuffle(staff.filter((staffMember) => !block.periodsOff.includes(staffMember.attendeeId)));
+
+    const maxCounselorsPerActivity = Math.ceil((adminsToAssign.length + staffToAssign.length) / block.activities.length);
+
+    const numAdminsAssigned = Math.min(admins.length, block.activities.length);
+    const shuffledActivities = shuffle(block.activities);
+    for (let i = 0; i < numAdminsAssigned; i++) {
+      shuffledActivities[i].adminIds.push(adminsToAssign[i].attendeeId);
+    }
+
+    if (numAdminsAssigned !== admins.length) {
+      const remainingAdmins = adminsToAssign.slice(numAdminsAssigned);
+      for (const admin of remainingAdmins) {
+        let eligibleActivities = block.activities.filter((activity) => activity.adminIds.length + activity.staffIds.length < maxCounselorsPerActivity && canBeAssignedToIndividualActivityAssignments(admin, activity));
+        if (eligibleActivities.length === 0) {
+          eligibleActivities = block.activities;
+        }
+        const chosenActivity = shuffle(eligibleActivities)[0];
+        chosenActivity.adminIds.push(admin.attendeeId);
+      }
+    }
+
+    for (const staffMember of staffToAssign) {
+      let eligibleActivities = block.activities.filter((activity) => activity.adminIds.length + activity.staffIds.length < maxCounselorsPerActivity && canBeAssignedToIndividualActivityAssignments(staffMember, activity));
+      if (eligibleActivities.length === 0) {
+        eligibleActivities = block.activities;
+      }
+      const chosenActivity = shuffle(eligibleActivities)[0];
+      chosenActivity.staffIds.push(staffMember.attendeeId);
+    }
+  }
+
+  return newSchedule;
+}
 
 export class BundleScheduler {
   bundleNum: number = -1;
@@ -23,7 +134,7 @@ export class BundleScheduler {
     sessionId: ""
   };
 
-  currDate: string =  "";
+  currDate: string = "";
 
   constructor() { }
 
@@ -42,7 +153,7 @@ export class BundleScheduler {
   withCampersPrefs(campersPrefs: SectionActivityPreferences): BundleScheduler { this.camperPrefs = campersPrefs; return this; }
 
   forBlocks(blockIds: string[]): BundleScheduler { this.blocksToAssign = blockIds; return this; }
-  
+
   setCurrDate() {
     this.currDate = moment(this.sectionID.startDate)
       .add(this.bundleNum - 1, "day")
@@ -79,7 +190,7 @@ export class BundleScheduler {
         if (!wf_activity) throw new Error("WF activity not found");
 
         // Ensure arrays exist before pushing
-        wf_activity.assignments ??= { staffIds: [], adminIds: [], camperIds: []  }; // camperIds if you have it
+        wf_activity.assignments ??= { staffIds: [], adminIds: [], camperIds: [] }; // camperIds if you have it
         wf_activity.assignments.staffIds ??= [];
         wf_activity.assignments.adminIds ??= [];
 
@@ -109,13 +220,13 @@ export class BundleScheduler {
         // continue to next block
       }
     }
-    
+
   }
 
 
   /* Each staff member and admin needs to have 1 period off per day */
   assignPeriodsOff() {
-    
+
     this.assignPrelimActivities();
 
     // Filter out all staff/admin that have the day OFF 
@@ -314,14 +425,14 @@ export class BundleScheduler {
 
       swimBlocks.forEach(blockId => {
         const block = this.schedule.blocks[blockId];
-        const activity = block?.activities.find(act => act.programArea.id === WF_ID );
+        const activity = block?.activities.find(act => act.programArea.id === WF_ID);
         if (activity && activity.assignments.camperIds.length < MAX_CAPACITY_NAV && !added && !doesConflictExist(camper, activity.assignments.camperIds)) {
           activity.assignments.camperIds.push(camper.id);
           added = true;
         }
       });
     });
-    
+
     // Goes through each ocp camper and assigns them to a waterfront activity
     ocp_campers.forEach(camper => {
       added = false;
@@ -339,7 +450,7 @@ export class BundleScheduler {
 
         // Uses original ocp campers list to calculate max capacity for even distribution
         MAX_CAPACITY_OCP = Math.ceil(ocp_campers.length / 2);
-      } 
+      }
 
       // If bundleNum, not one, then level and swim opt out must be checked
       else {
@@ -358,7 +469,7 @@ export class BundleScheduler {
         if (activity && activity.assignments.camperIds.length < MAX_CAPACITY_OCP && !added) {
           activity.assignments.camperIds.push(camper.id);
           added = true;
-          
+
         }
       });
 
@@ -366,7 +477,7 @@ export class BundleScheduler {
 
   }
 
-	// Assigns campers to their Bundle activities for all blocks in the bundle
+  // Assigns campers to their Bundle activities for all blocks in the bundle
   assignCampers() {
     this.assignSwimmingBlock();
     this.assignOCPChats();
@@ -543,7 +654,7 @@ export class BundleScheduler {
       const availableStaff = this.staff.filter(
         s =>
           !this.schedule.blocks[blockID].periodsOff.includes(s.id) &&
-          !s.daysOff.includes(this.currDate) && 
+          !s.daysOff.includes(this.currDate) &&
           !s.programCounselor
       );
 
@@ -667,7 +778,7 @@ export class BundleScheduler {
 
 
   // Assigns admin staff randomly to each activity in the given block
-  assignAdmin(){
+  assignAdmin() {
 
     const WF_ID = 'WF';
 
@@ -677,14 +788,14 @@ export class BundleScheduler {
 
       const activities = this.schedule.blocks[blockID].activities;
       if (!activities || activities.length === 0) throw new Error("Block has no activities");
-      
+
       // Build array of available admins
       const availableAdmins = this.admins.filter(
-        admin => !this.schedule.blocks[blockID].periodsOff.includes(admin.id) && 
-        !admin.daysOff.includes(this.currDate) &&
-        !activities.some(activity => activity.assignments.adminIds.includes(admin.id))
+        admin => !this.schedule.blocks[blockID].periodsOff.includes(admin.id) &&
+          !admin.daysOff.includes(this.currDate) &&
+          !activities.some(activity => activity.assignments.adminIds.includes(admin.id))
       );
-      
+
       const nonWFActivities = activities.filter(a => a.programArea.id !== WF_ID);
 
 
@@ -698,7 +809,7 @@ export class BundleScheduler {
 
       const unassignedAdmin: AdminAttendeeID[] = [];
 
-      const MAX_CAPACITY_ADMINS = availableAdmins.length/nonWFActivities.length;
+      const MAX_CAPACITY_ADMINS = availableAdmins.length / nonWFActivities.length;
       for (const admin of availableAdmins) {
         const activity = nonWFActivities.find((a) =>
           a.assignments.adminIds.length < MAX_CAPACITY_ADMINS &&
@@ -711,7 +822,7 @@ export class BundleScheduler {
 
       if (unassignedAdmin.length > 0) console.warn(blockID, "Unassigned admins: ", unassignedAdmin);
 
-      
+
     }
   }
 }
