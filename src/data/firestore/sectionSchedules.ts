@@ -1,5 +1,5 @@
 import { SectionSchedule } from "@/types/scheduling/schedulingTypes";
-import { SectionDoc, SectionScheduleDoc } from "./types/documents";
+import { SectionScheduleDoc } from "./types/documents";
 import { collection, CollectionReference, doc, DocumentReference, DocumentSnapshot, QueryDocumentSnapshot, Transaction, UpdateData, WithFieldValue, WriteBatch } from "firebase/firestore";
 import { deleteDoc, executeQuery, getDoc, setDoc, updateDoc } from "./firestoreClientOperations";
 import { db } from "@/config/firebase";

@@ -1,7 +1,7 @@
 import { db } from "@/config/firebase";
 import { updateSectionDoc } from "@/data/firestore/sections";
 import { deleteSectionScheduleDoc, setSectionScheduleDoc } from "@/data/firestore/sectionSchedules";
-import { SchedulingSectionDoc, SectionDoc } from "@/data/firestore/types/documents";
+import { SchedulingSectionDoc } from "@/data/firestore/types/documents";
 import { DEFAULT_NUMBER_BLOCKS, getEmptySectionScheduleDoc } from "@/types/scheduling/schedulingUtils";
 import { SectionType } from "@/types/sessions/sessionTypes";
 import { useMutation } from "@tanstack/react-query";

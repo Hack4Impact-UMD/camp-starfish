@@ -1,8 +1,7 @@
 import { db } from "@/config/firebase";
 import { createSectionDoc } from "@/data/firestore/sections";
 import { setSectionScheduleDoc } from "@/data/firestore/sectionSchedules";
-import { SectionScheduleDoc } from "@/data/firestore/types/documents";
-import { DEFAULT_NUMBER_BLOCKS, getBlockIdFromNum, getEmptySectionScheduleDoc } from "@/types/scheduling/schedulingUtils";
+import { DEFAULT_NUMBER_BLOCKS, getEmptySectionScheduleDoc } from "@/types/scheduling/schedulingUtils";
 import { SectionType } from "@/types/sessions/sessionTypes";
 import { useMutation } from "@tanstack/react-query";
 import { runTransaction, Timestamp, Transaction } from "firebase/firestore";
