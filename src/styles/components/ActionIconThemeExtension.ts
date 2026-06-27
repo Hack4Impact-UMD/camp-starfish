@@ -4,7 +4,7 @@ import classNames from "classnames";
 const ActionItemThemeExtension = ActionIcon.extend({
   classNames: (_theme, props, _ctx) => {
     return {
-      root: classNames('border-2', {
+      root: classNames({
         'hover:rounded-xl hover:bg-[#00000010]': props.variant === "transparent"
       })
     }

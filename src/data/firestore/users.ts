@@ -3,6 +3,8 @@ import { User } from "@/types/users/userTypes";
 import { UserDoc } from "./types/documents";
 import {
   doc,
+  collection,
+  CollectionReference,
   Transaction,
   WriteBatch,
   QueryDocumentSnapshot,
@@ -10,17 +12,19 @@ import {
   DocumentSnapshot,
   WithFieldValue,
   UpdateData,
-  collection,
-  CollectionReference,
 } from "firebase/firestore";
-import { setDoc, getDoc, updateDoc, deleteDoc, batchGetDocs } from "./firestoreClientOperations";
+import { setDoc, getDoc, updateDoc, deleteDoc, batchGetDocs, executeQuery } from "./firestoreClientOperations";
 import { RootLevelCollection } from "./types/collections";
+import { FirestoreQueryOptions } from "./types/queries";
+import moment from "moment";
 
 function fromFirestore(snapshot: DocumentSnapshot<UserDoc, UserDoc> | QueryDocumentSnapshot<UserDoc, UserDoc>): User {
   if (!snapshot.exists()) { throw Error("Document not found"); }
+  const userDoc = snapshot.data();
   return {
     id: Number(snapshot.ref.id),
-    ...snapshot.data()
+    ...userDoc,
+    dateOfBirth: moment(userDoc.dateOfBirth.toDate())
   }
 }
 
@@ -31,6 +35,11 @@ export async function getUserDoc(id: number, transaction?: Transaction): Promise
 
 export async function batchGetUserDocs(ids: number[]): Promise<User[]> {
   const snapshots = await batchGetDocs<UserDoc>(collection(db, RootLevelCollection.USERS) as CollectionReference<UserDoc, UserDoc>, ids.map(id => String(id)));
+  return snapshots.map(fromFirestore);
+}
+
+export async function listUserDocs(firestoreQueryOptions: FirestoreQueryOptions<UserDoc> = {}): Promise<User[]> {
+  const snapshots = await executeQuery<UserDoc>(collection(db, RootLevelCollection.USERS) as CollectionReference<UserDoc, UserDoc>, firestoreQueryOptions);
   return snapshots.map(fromFirestore);
 }
 
