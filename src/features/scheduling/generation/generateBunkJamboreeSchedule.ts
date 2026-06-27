@@ -8,7 +8,7 @@ import {
 import { SectionActivityPreferences, BunkJamboreeSectionSchedule } from "@/types/scheduling/schedulingTypes";
 import { getBlockIdFromNum } from "@/types/scheduling/schedulingUtils";
 import shuffle from "@/utils/data/shuffle";
-import { canBeAssignedToBunkAssignments, canBeAssignedToIndividualActivityAssignments, getYesYesListGroups } from "./schedulingUtils";
+import { canBeAssignedToBunkAssignments, getYesYesListGroups } from "./schedulingUtils";
 import { toRecord } from "@/utils/data/toRecord";
 
 interface GenerateBunkJamboreeScheduleRequest {
@@ -40,7 +40,6 @@ export default function generateBunkJamboreeSchedule(req: GenerateBunkJamboreeSc
   }
   const campersById = toRecord(campers, campers => campers.id);
   const staffById = toRecord(staff, staff => staff.id);
-  const adminsById = toRecord(admins, admins => admins.id);
 
   const newSchedule: BunkJamboreeSectionSchedule = {
     sessionId: currentSchedule.sessionId,
@@ -71,7 +70,7 @@ export default function generateBunkJamboreeSchedule(req: GenerateBunkJamboreeSc
     for (const bunk of shuffledBunks) {
       const bunkMembersById = toRecord([...bunk.camperIds.map((camperId: number) => campersById[camperId]), ...bunk.counselorIds.map((counselorId: number) => staffById[counselorId])], (bunkMember: CamperAttendee | StaffAttendee) => bunkMember.attendeeId);
       const bunkPrefs = bunkActivityPreferences.blocks[blockId][bunk.bunkNum];
-      let eligibleActivities = block.activities.filter((activity) => activity.bunkNums.length < maxBunksPerActivity && canBeAssignedToBunkAssignments(bunk, activity, bunkMembersById, bunksByBunkNum));
+      let eligibleActivities = block.activities.filter((activity) => activity.bunkNums.length < maxBunksPerActivity && canBeAssignedToBunkAssignments(bunk, activity, bunksByBunkNum, bunkMembersById));
       if (eligibleActivities.length === 0) {
         eligibleActivities = block.activities;
       }
@@ -80,7 +79,7 @@ export default function generateBunkJamboreeSchedule(req: GenerateBunkJamboreeSc
     }
   }
 
-  const yesyesListGroups = getYesYesListGroups([...shuffle(admins), ...shuffle(staff)]);
+  const yesyesListGroups = getYesYesListGroups([...shuffle(admins), ...shuffle(staff).sort((a, b) => a.bunk - b.bunk)]);
   const numBlocks = Object.keys(newSchedule.blocks).length;
   let currBlockNum = 0;
   for (const yesyesListGroup of yesyesListGroups) {
@@ -90,10 +89,7 @@ export default function generateBunkJamboreeSchedule(req: GenerateBunkJamboreeSc
 
   for (const [_blockId, block] of Object.entries(newSchedule.blocks)) {
     const adminsToAssign = shuffle(admins.filter((admin) => !block.periodsOff.includes(admin.attendeeId)));
-    const staffToAssign = shuffle(staff.filter((staffMember) => !block.periodsOff.includes(staffMember.attendeeId)));
-
-    const maxCounselorsPerActivity = Math.ceil((adminsToAssign.length + staffToAssign.length) / block.activities.length);
-
+    const maxAdminsPerActivity = Math.ceil(adminsToAssign.length / block.activities.length);
     const numAdminsAssigned = Math.min(admins.length, block.activities.length);
     const shuffledActivities = shuffle(block.activities);
     for (let i = 0; i < numAdminsAssigned; i++) {
@@ -103,22 +99,13 @@ export default function generateBunkJamboreeSchedule(req: GenerateBunkJamboreeSc
     if (numAdminsAssigned !== admins.length) {
       const remainingAdmins = adminsToAssign.slice(numAdminsAssigned);
       for (const admin of remainingAdmins) {
-        let eligibleActivities = block.activities.filter((activity) => activity.adminIds.length + activity.staffIds.length < maxCounselorsPerActivity && !canBeAssignedToIndividualActivityAssignments(admin, activity));
+        let eligibleActivities = block.activities.filter((activity) => activity.adminIds.length < maxAdminsPerActivity && canBeAssignedToBunkAssignments(admin, activity, bunksByBunkNum));
         if (eligibleActivities.length === 0) {
           eligibleActivities = block.activities;
         }
         const chosenActivity = shuffle(eligibleActivities)[0];
         chosenActivity.adminIds.push(admin.attendeeId);
       }
-    }
-
-    for (const staffMember of staffToAssign) {
-      let eligibleActivities = block.activities.filter((activity) => activity.adminIds.length + activity.staffIds.length < maxCounselorsPerActivity && !canBeAssignedToIndividualActivityAssignments(staffMember, activity));
-      if (eligibleActivities.length === 0) {
-        eligibleActivities = block.activities;
-      }
-      const chosenActivity = shuffle(eligibleActivities)[0];
-      chosenActivity.staffIds.push(staffMember.attendeeId);
     }
   }
 

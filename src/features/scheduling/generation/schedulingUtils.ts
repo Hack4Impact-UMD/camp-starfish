@@ -20,12 +20,16 @@ export function getCounelorIdsFromIndividualActivityAssignments(assignments: Ind
   return [...assignments.staffIds, ...assignments.adminIds];
 }
 
-export function canBeAssignedToBunkAssignments(assignee: AdminAttendee | Bunk, assignments: BunkActivityAssignments, bunkMembersById: { [bunkMemberId: number]: StaffAttendee | CamperAttendee }, bunksByBunkNum: { [bunkNum: number]: Bunk }) {
+export function canBeAssignedToBunkAssignments(assignee: Bunk, assignments: BunkActivityAssignments, bunksByBunkNum: { [bunkNum: number]: Bunk; }, bunkMembersById: { [bunkMemberId: number]: StaffAttendee | CamperAttendee }): boolean
+export function canBeAssignedToBunkAssignments(assignee: AdminAttendee, assignments: BunkActivityAssignments, bunksByBunkNum: { [bunkNum: number]: Bunk; }): boolean
+export function canBeAssignedToBunkAssignments(assignee: AdminAttendee | Bunk, assignments: BunkActivityAssignments, bunksByBunkNum: { [bunkNum: number]: Bunk; }, bunkMembersById?: { [bunkMemberId: number]: StaffAttendee | CamperAttendee }): boolean {
   const attendeeIds = getAttendeeIdsFromBunkAssignments(assignments, bunksByBunkNum);
   const counselorIds = getCounselorIdsFromBunkAssignments(assignments, bunksByBunkNum);
   if ('attendeeId' in assignee) {
     return assignee.snapshot.nonoList.every((id) => !attendeeIds.includes(id)) || assignee.snapshot.yesyesList.every((id) => !counselorIds.includes(id));
-  }
+  } else if (!bunkMembersById) {
+    throw Error("Missing bunkMembersById field when checking if bunk can be assigned to bunk activity assignments.");
+  };
   return assignments.bunkNums.every((bunkNum: number) => {
     const bunk = bunksByBunkNum[bunkNum];
     return bunk.camperIds.every((camperId: number) => {
