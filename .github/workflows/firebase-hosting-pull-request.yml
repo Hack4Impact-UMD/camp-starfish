@@ -1,7 +1,7 @@
 name: Redeploy Site on Push to Main
 on:
   push:
-    branches:
+    branches: 
       - main
 jobs:
   deploy_firebase:
