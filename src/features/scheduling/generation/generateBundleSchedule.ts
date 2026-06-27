@@ -1,7 +1,7 @@
 import { StaffAttendee, CamperAttendee, AdminAttendee, Attendee } from "@/types/sessions/sessionTypes";
 import { BundleSectionSchedule, SectionActivityPreferences } from "@/types/scheduling/schedulingTypes";
 import shuffle from "@/utils/data/shuffle";
-import { getYesYesListGroups } from "./schedulingUtils";
+import { canBeAssignedToIndividualActivityAssignments, getYesYesListGroups } from "./schedulingUtils";
 import { getBlockIdFromNum } from "@/types/scheduling/schedulingUtils";
 
 interface GenerateBundleScheduleRequest {
