@@ -1,6 +1,6 @@
 import { BunkActivityAssignments, IndividualActivityAssignments } from "@/types/scheduling/schedulingTypes";
 import { isAdminAttendee, isCamperAttendee } from "@/types/sessions/sessionTypeGuards";
-import { AdminAttendee, Attendee, Bunk, CounselorAttendee, Freeplay } from "@/types/sessions/sessionTypes";
+import { AdminAttendee, Attendee, Bunk, CamperAttendee, CounselorAttendee, Freeplay, StaffAttendee } from "@/types/sessions/sessionTypes";
 import { toRecord } from "@/utils/data/toRecord";
 
 export function canBeAssignedToIndividualActivityAssignments(attendee: Attendee, assignments: IndividualActivityAssignments) {
@@ -18,6 +18,36 @@ export function getAttendeeIdsFromIndividualActivityAssignments(assignments: Ind
 
 export function getCounelorIdsFromIndividualActivityAssignments(assignments: IndividualActivityAssignments) {
   return [...assignments.staffIds, ...assignments.adminIds];
+}
+
+export function canBeAssignedToBunkAssignments(assignee: AdminAttendee | Bunk, assignments: BunkActivityAssignments, bunkMembersById: { [bunkMemberId: number]: StaffAttendee | CamperAttendee }, bunksByBunkNum: { [bunkNum: number]: Bunk }) {
+  const attendeeIds = getAttendeeIdsFromBunkAssignments(assignments, bunksByBunkNum);
+  const counselorIds = getCounselorIdsFromBunkAssignments(assignments, bunksByBunkNum);
+  if ('attendeeId' in assignee) {
+    return assignee.snapshot.nonoList.every((id) => !attendeeIds.includes(id)) || assignee.snapshot.yesyesList.every((id) => !counselorIds.includes(id));
+  }
+  return assignments.bunkNums.every((bunkNum: number) => {
+    const bunk = bunksByBunkNum[bunkNum];
+    return bunk.camperIds.every((camperId: number) => {
+      const camper = bunkMembersById[camperId] as CamperAttendee;
+      return camper.snapshot.nonoList.every((id) => !attendeeIds.includes(id));
+    }) && bunk.counselorIds.every((counselorId: number) => {
+      const staffer = bunkMembersById[counselorId] as StaffAttendee;
+      return staffer.snapshot.nonoList.every((id) => !attendeeIds.includes(id)) && staffer.snapshot.yesyesList.every((id) => !counselorIds.includes(id));
+    })
+  })
+}
+
+export function getAttendeeIdsFromBunkAssignments(assignments: BunkActivityAssignments, bunksByBunkNum: { [bunkNum: number]: Bunk }) {
+  const attendeeIds = [...assignments.adminIds];
+  assignments.bunkNums.forEach((bunkNum: number) => attendeeIds.push(...bunksByBunkNum[bunkNum].camperIds, ...bunksByBunkNum[bunkNum].counselorIds));
+  return attendeeIds;
+}
+
+export function getCounselorIdsFromBunkAssignments(assignments: BunkActivityAssignments, bunksByBunkNum: { [bunkNum: number]: Bunk }) {
+  const attendeeIds = [...assignments.adminIds];
+  assignments.bunkNums.forEach((bunkNum: number) => attendeeIds.push(...bunksByBunkNum[bunkNum].counselorIds));
+  return attendeeIds;
 }
 
 export function getFreeplayAssignmentId(freeplay: Freeplay, id: number): number[] | number | string | null {
