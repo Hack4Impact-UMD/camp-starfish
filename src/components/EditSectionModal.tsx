@@ -99,10 +99,10 @@ export function EditSectionModalContent(props: EditSectionModalContentProps) {
         {
           sessionId: section.sessionId,
           sectionId: section.id,
-          name,
-          startDate: moment(dateRange[0]),
-          endDate: moment(dateRange[1]),
-          type: scheduleType,
+          name: section.name !== name ? name : undefined,
+          startDate: moment(dateRange[0]).isSame(section.startDate) ? undefined : moment(dateRange[0]),
+          endDate: moment(dateRange[1]).isSame(section.endDate) ? undefined : moment(dateRange[1]),
+          type: scheduleType !== section.type ? scheduleType : undefined,
         },
         {
           onSuccess: () => modals.closeAll(),
