@@ -157,9 +157,9 @@ export default function generateBundleSchedule(req: GenerateBundleScheduleReques
       shuffledActivities[i].adminIds.push(adminsToAssign[i].attendeeId);
     }
 
-    if (numAdminsAssigned !== admins.length) {
-      const remainingAdmins = adminsToAssign.slice(numAdminsAssigned);
-      for (const admin of remainingAdmins) {
+    if (numAdminsAssigned !== adminsToAssign.length) {
+      const remainingAdminsToAssign = adminsToAssign.slice(numAdminsAssigned);
+      for (const admin of remainingAdminsToAssign) {
         let eligibleActivities = block.activities.filter((activity) => activity.adminIds.length + activity.staffIds.length < maxCounselorsPerActivity && canBeAssignedToIndividualActivityAssignments(admin, activity));
         if (eligibleActivities.length === 0) {
           eligibleActivities = block.activities;
