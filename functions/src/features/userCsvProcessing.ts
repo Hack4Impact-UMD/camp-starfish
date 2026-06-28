@@ -25,7 +25,7 @@ export const processFamilyCsv = onCall(async (req) => {
   }))
 
   await adminDb.runTransaction(async (transaction) => {
-    const allIds: number[] = [...Object.keys(campers), ...Object.keys(parents)].map(id => parseInt(id));
+    const allIds: number[] = [...campers.map(camper => camper.id), ...parents.map(parent => parent.id)];
     const existingUsers = await batchGetUserDocs(allIds);
 
     const { trueGroup: existingCamperUpdates, falseGroup: newCampers } = partition(Object.values(campers), (camper) => existingUsers.some(user => user.id === camper.id));
