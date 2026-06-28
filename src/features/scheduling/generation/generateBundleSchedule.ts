@@ -134,7 +134,14 @@ export default function generateBundleSchedule(req: GenerateBundleScheduleReques
   const numBlocks = Object.keys(newSchedule.blocks).length;
   let currBlockNum = 0;
   for (const yesyesListGroup of yesyesListGroups) {
-    newSchedule.blocks[getBlockIdFromNum(currBlockNum)].periodsOff.push(...yesyesListGroup);
+    const blockId = getBlockIdFromNum(currBlockNum);
+    if (yesyesListGroup.some(counselorId => newSchedule.blocks[blockId].activities.some(activity => activity.staffIds.includes(counselorId)))) {
+      const alternatePeriodsOff = Object.keys(newSchedule.alternatePeriodsOff);
+      const chosenAlternatePeriodOff = shuffle(alternatePeriodsOff)[0];
+      newSchedule.alternatePeriodsOff[chosenAlternatePeriodOff].push(...yesyesListGroup);
+    } else {
+      newSchedule.blocks[blockId].periodsOff.push(...yesyesListGroup);
+    }
     currBlockNum = (currBlockNum + 1) % numBlocks;
   }
 
