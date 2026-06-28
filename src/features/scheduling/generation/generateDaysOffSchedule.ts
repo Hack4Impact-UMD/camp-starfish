@@ -2,7 +2,19 @@
 import { StaffAttendee, AdminAttendee, Session, CounselorAttendee, DaysOffSchedule } from "@/types/sessions/sessionTypes";
 import { groupBy } from "@/utils/data/groupBy";
 import shuffle from "@/utils/data/shuffle";
+import { useMutation } from "@tanstack/react-query";
 import { Moment } from "moment";
+
+export default function useGenerateDaysOffSchedule(req: GenerateDaysOffScheduleRequest) {
+  return useMutation({
+    mutationFn: async (req: { sessionId: string; sectionId: string; }, { client }) => {
+      return generateDaysOffSchedule({
+        session: await client.ensureQueryData(['sessions', req.sessionId]) as Session,
+        counselors: await client.ensureQueryData(['sessions', req.sessionId, 'attendees'])
+      });
+    }
+  })
+}
 
 // TODO: give staff and admins on each other yesYesLists the same days off
 // TODO: take section activities into account when assigning days off, namely for program counselor assignments
@@ -13,7 +25,7 @@ interface GenerateDaysOffScheduleRequest {
   daysOffInSession: Moment[];
 }
 
-export default function generateDaysOffSchedule(req: GenerateDaysOffScheduleRequest): DaysOffSchedule {
+export function generateDaysOffSchedule(req: GenerateDaysOffScheduleRequest): DaysOffSchedule {
   const { session, counselors, daysOffInSession } = req;
 
   const staff: StaffAttendee[] = [];
