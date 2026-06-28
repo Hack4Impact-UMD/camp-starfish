@@ -125,7 +125,7 @@ export default function generateBundleSchedule(req: GenerateBundleScheduleReques
       if (eligibleActivities.length === 0) {
         eligibleActivities = block.activities;
       }
-      const chosenActivity = eligibleActivities.sort((a, b) => camperPrefs[a.name] - camperPrefs[b.name])[0];
+      const chosenActivity = eligibleActivities.sort((a, b) => camperPrefs[a.programAreaId] - camperPrefs[b.programAreaId])[0];
       chosenActivity.camperIds.push(camper.attendeeId);
     }
   }
