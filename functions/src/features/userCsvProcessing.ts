@@ -25,11 +25,11 @@ export const processFamilyCsv = onCall(async (req) => {
   }))
 
   await adminDb.runTransaction(async (transaction) => {
-    const allIds: number[] = [...Object.keys(campers), ...Object.keys(parents)].map(id => parseInt(id));
+    const allIds: number[] = [...campers.map(camper => camper.id), ...parents.map(parent => parent.id)];
     const existingUsers = await batchGetUserDocs(allIds);
 
-    const { trueGroup: existingCamperUpdates, falseGroup: newCampers } = partition(Object.values(campers), (camper) => existingUsers.some(user => user.id === camper.id));
-    const { trueGroup: existingParentUpdates, falseGroup: newParents } = partition(Object.values(parents), (parent) => existingUsers.some(user => user.id === parent.id));
+    const { trueGroup: existingCamperUpdates, falseGroup: newCampers } = partition(campers, (camper) => existingUsers.some(user => user.id === camper.id));
+    const { trueGroup: existingParentUpdates, falseGroup: newParents } = partition(parents, (parent) => existingUsers.some(user => user.id === parent.id));
 
     const promises = [
       newCampers.map((camper) => {
@@ -49,15 +49,15 @@ export const processFamilyCsv = onCall(async (req) => {
       existingCamperUpdates.map((camperUpdates) => {
         const { id, ...docUpdates } = camperUpdates;
         const existingCamper = existingUsers.find(camper => camper.id === id) as Camper;
-        if (existingCamper.name.firstName === docUpdates.name.firstName && existingCamper.name.middleName === docUpdates.name.middleName && existingCamper.name.lastName === docUpdates.name.lastName && docUpdates.parentIds.every(parentId => existingCamper.parentIds.includes(parentId))) return;
+        if (docUpdates.parentIds.every(parentId => existingCamper.parentIds.includes(parentId))) return;
         return updateUserDoc(id, {
-          parentIds: FieldValue.arrayUnion(...camperUpdates.parentIds),
+          parentIds: FieldValue.arrayUnion(...docUpdates.parentIds),
         }, transaction);
       }),
       existingParentUpdates.map((parentUpdates) => {
         const { id, ...docUpdates } = parentUpdates;
         const existingParent = existingUsers.find(parent => parent.id === id) as Parent;
-        if (existingParent.name.firstName === docUpdates.name.firstName && existingParent.name.middleName === docUpdates.name.middleName && existingParent.name.lastName === docUpdates.name.lastName && docUpdates.camperIds.every(camperId => existingParent.camperIds.includes(camperId))) return;
+        if (docUpdates.camperIds.every(camperId => existingParent.camperIds.includes(camperId))) return;
         return updateUserDoc(id, {
           camperIds: FieldValue.arrayUnion(...docUpdates.camperIds),
         }, transaction);
