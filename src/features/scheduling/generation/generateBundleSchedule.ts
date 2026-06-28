@@ -63,7 +63,7 @@ export default function generateBundleSchedule(req: GenerateBundleScheduleReques
   const programCounselorsByProgramArea = groupBy(programCounselors, programCounselor => programCounselor.programCounselorFor!);
   for (const block of Object.values(newSchedule.blocks)) {
     for (const activity of block.activities) {
-      const eligibleProgramCounselors = programCounselorsByProgramArea[activity.programAreaId]?.filter(programCounselor => daysOffSchedule.daysOffByCounselorId[programCounselor.attendeeId].every(dayOff => !isDayInRange(dayOff, [section.startDate, section.endDate])));
+      const eligibleProgramCounselors = programCounselorsByProgramArea[activity.programAreaId].filter(programCounselor => daysOffSchedule.daysOffByCounselorId[programCounselor.attendeeId].every(dayOff => !isDayInRange(dayOff, [section.startDate, section.endDate])));
       if (!eligibleProgramCounselors) {
         continue;
       }
