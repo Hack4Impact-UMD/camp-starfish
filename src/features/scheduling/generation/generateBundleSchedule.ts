@@ -103,8 +103,20 @@ export default function generateBundleSchedule(req: GenerateBundleScheduleReques
     const chosenSwimActivity = shuffle(eligibleSwimActivities)[0];
     chosenSwimActivity.camperIds.push(camper.attendeeId);
   }
-  
-  // assign OCP Chats to OCP campers
+
+  const ocpChatActivities = Object.values(newSchedule.blocks).map((block) => block.activities.find(activity => activity.programAreaId === "OCP")).filter(activity => !!activity);
+  const maxOcpCampersPerChatActivity = Math.ceil(ocpCampers.length / ocpChatActivities.length);
+  for (const camper of shuffle(ocpCampers)) {
+    let eligibleOcpChatActivities = ocpChatActivities.filter(ocpChatActivity => ocpChatActivity.camperIds.length < maxOcpCampersPerChatActivity && canBeAssignedToIndividualActivityAssignments(camper, ocpChatActivity));
+    if (eligibleOcpChatActivities.length === 0) {
+      eligibleOcpChatActivities = ocpChatActivities.filter(ocpChatActivity => canBeAssignedToIndividualActivityAssignments(camper, ocpChatActivity));
+      if (eligibleOcpChatActivities.length === 0) {
+        eligibleOcpChatActivities = ocpChatActivities;
+      }
+    }
+    const chosenOcpChatActivity = shuffle(eligibleOcpChatActivities)[0];
+    chosenOcpChatActivity.camperIds.push(camper.attendeeId);
+  }
 
   for (const [blockId, block] of Object.entries(newSchedule.blocks)) {
     const sortedCampers = shuffle(campers).sort((a, b) => b.snapshot.dateOfBirth.diff(a.snapshot.dateOfBirth, "years"));
