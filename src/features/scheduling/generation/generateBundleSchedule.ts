@@ -1,17 +1,23 @@
-import { StaffAttendee, CamperAttendee, AdminAttendee, Attendee } from "@/types/sessions/sessionTypes";
+import { StaffAttendee, CamperAttendee, AdminAttendee, Attendee, DaysOffSchedule, Section } from "@/types/sessions/sessionTypes";
 import { BundleSectionSchedule, SectionActivityPreferences } from "@/types/scheduling/schedulingTypes";
 import shuffle from "@/utils/data/shuffle";
 import { canBeAssignedToIndividualActivityAssignments, getYesYesListGroups } from "./schedulingUtils";
 import { getBlockIdFromNum } from "@/types/scheduling/schedulingUtils";
+import partition from "@/utils/data/partition";
+import { groupBy } from "@/utils/data/groupBy";
+import { isDayInRange } from "@/utils/timeUtils";
+import { sectionTypes } from "@/types/sessions/sessionUtils";
 
 interface GenerateBundleScheduleRequest {
   attendees: Attendee[];
   camperActivityPreferences: SectionActivityPreferences;
   currentSchedule: BundleSectionSchedule;
+  daysOffSchedule: DaysOffSchedule;
+  section: Section;
 }
 
 export default function generateBundleSchedule(req: GenerateBundleScheduleRequest): BundleSectionSchedule {
-  const { attendees, camperActivityPreferences, currentSchedule } = req;
+  const { attendees, camperActivityPreferences, currentSchedule, daysOffSchedule, section } = req;
 
   const campers: CamperAttendee[] = [];
   const staff: StaffAttendee[] = [];
@@ -52,6 +58,21 @@ export default function generateBundleSchedule(req: GenerateBundleScheduleReques
       return prev;
     }, {} as BundleSectionSchedule["alternatePeriodsOff"]),
   }
+
+  const { trueGroup: programCounselors, falseGroup: remainingStaff } = partition(staff, staffer => staffer.programCounselorFor !== undefined);
+  const programCounselorsByProgramArea = groupBy(programCounselors, programCounselor => programCounselor.programCounselorFor!);
+  for (const [_blockId, block] of Object.entries(newSchedule.blocks)) {
+    for (const activity of block.activities) {
+      const eligibleProgramCounselors = programCounselorsByProgramArea[activity.programAreaId]?.filter(programCounselor => daysOffSchedule.daysOffByCounselorId[programCounselor.attendeeId].every(dayOff => !isDayInRange(dayOff, [section.startDate, section.endDate])));
+      if (!eligibleProgramCounselors) {
+        continue;
+      }
+      activity.adminIds.push(...eligibleProgramCounselors.map(counselor => counselor.attendeeId));
+    }
+  }
+  
+  // assign swim blocks to all campers
+  // assign OCP Chats to OCP campers
 
   for (const [blockId, block] of Object.entries(newSchedule.blocks)) {
     const sortedCampers = shuffle(campers).sort((a, b) => b.snapshot.dateOfBirth.diff(a.snapshot.dateOfBirth, "years"));
