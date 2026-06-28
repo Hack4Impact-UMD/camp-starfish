@@ -8,6 +8,7 @@ import { groupBy } from "@/utils/data/groupBy";
 import { isDayInRange } from "@/utils/timeUtils";
 import { sectionTypes } from "@/types/sessions/sessionUtils";
 import { el } from "@faker-js/faker";
+import BlockRatiosGrid from "../exporting/BlockRatiosGrid";
 
 interface GenerateBundleScheduleRequest {
   attendees: Attendee[];
@@ -75,12 +76,12 @@ export default function generateBundleSchedule(req: GenerateBundleScheduleReques
 
   const { trueGroup: navCampers, falseGroup: ocpCampers } = partition(campers, camper => camper.ageGroup === "NAV");
 
-  const navSwimActivities = Object.entries(newSchedule.blocks).map(([_blockId, block]) => block.activities.find(activity => activity.programAreaId === "WF" && activity.ageGroup === "NAV")).filter(block => !!block);
+  const navSwimActivities = Object.entries(newSchedule.blocks).map(([_blockId, block]) => block.activities.find(activity => activity.programAreaId === "WF" && activity.ageGroup === "NAV")).filter(activity => !!activity);
   const maxNavCampersPerSwimActivity = Math.ceil(navCampers.length / navSwimActivities.length);
   for (const camper of shuffle(navCampers)) {
-    let eligibleSwimActivities = navSwimActivities.filter(swimBlock => swimBlock.camperIds.length < maxNavCampersPerSwimActivity && canBeAssignedToIndividualActivityAssignments(camper, swimBlock));
+    let eligibleSwimActivities = navSwimActivities.filter(swimActivity => swimActivity.camperIds.length < maxNavCampersPerSwimActivity && canBeAssignedToIndividualActivityAssignments(camper, swimActivity));
     if (eligibleSwimActivities.length === 0) {
-      eligibleSwimActivities = navSwimActivities.filter(swimBlock => canBeAssignedToIndividualActivityAssignments(camper, swimBlock));
+      eligibleSwimActivities = navSwimActivities.filter(swimActivity => canBeAssignedToIndividualActivityAssignments(camper, swimActivity));
       if (eligibleSwimActivities.length === 0) {
         eligibleSwimActivities = navSwimActivities;
       }
@@ -89,13 +90,13 @@ export default function generateBundleSchedule(req: GenerateBundleScheduleReques
     chosenSwimActivity.camperIds.push(camper.attendeeId);
   }
 
-  const ocpCampersNeedingSwimBlocks = ocpCampers.filter(camper => isFirstBundleOfSession || (camper.level >= 4 && camper.isOptedOutFromSwim));
-  const ocpSwimActivities = Object.entries(newSchedule.blocks).map(([_blockId, block]) => block.activities.find(activity => activity.programAreaId === "WF" && activity.ageGroup === "OCP")).filter(block => !!block);
-  const maxOcpCampersPerSwimActivity = Math.ceil(ocpCampersNeedingSwimBlocks.length / navSwimActivities.length);
-  for (const camper of shuffle(ocpCampersNeedingSwimBlocks)) {
-    let eligibleSwimActivities = ocpSwimActivities.filter(swimBlock => swimBlock.camperIds.length < maxOcpCampersPerSwimActivity && canBeAssignedToIndividualActivityAssignments(camper, swimBlock));
+  const ocpCampersNeedingSwimActivities = ocpCampers.filter(camper => isFirstBundleOfSession || (camper.level >= 4 && camper.isOptedOutFromSwim));
+  const ocpSwimActivities = Object.values(newSchedule.blocks).map((block) => block.activities.find(activity => activity.programAreaId === "WF" && activity.ageGroup === "OCP")).filter(activity => !!activity);
+  const maxOcpCampersPerSwimActivity = Math.ceil(ocpCampersNeedingSwimActivities.length / navSwimActivities.length);
+  for (const camper of shuffle(ocpCampersNeedingSwimActivities)) {
+    let eligibleSwimActivities = ocpSwimActivities.filter(swimActivity => swimActivity.camperIds.length < maxOcpCampersPerSwimActivity && canBeAssignedToIndividualActivityAssignments(camper, swimActivity));
     if (eligibleSwimActivities.length === 0) {
-      eligibleSwimActivities = ocpSwimActivities.filter(swimBlock => canBeAssignedToIndividualActivityAssignments(camper, swimBlock));
+      eligibleSwimActivities = ocpSwimActivities.filter(swimActivity => canBeAssignedToIndividualActivityAssignments(camper, swimActivity));
       if (eligibleSwimActivities.length === 0) {
         eligibleSwimActivities = ocpSwimActivities;
       }
