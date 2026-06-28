@@ -6,9 +6,6 @@ import { getBlockIdFromNum } from "@/types/scheduling/schedulingUtils";
 import partition from "@/utils/data/partition";
 import { groupBy } from "@/utils/data/groupBy";
 import { isDayInRange } from "@/utils/timeUtils";
-import { sectionTypes } from "@/types/sessions/sessionUtils";
-import { el } from "@faker-js/faker";
-import BlockRatiosGrid from "../exporting/BlockRatiosGrid";
 
 interface GenerateBundleScheduleRequest {
   attendees: Attendee[];
@@ -62,7 +59,7 @@ export default function generateBundleSchedule(req: GenerateBundleScheduleReques
     }, {} as BundleSectionSchedule["alternatePeriodsOff"]),
   }
 
-  const { trueGroup: programCounselors, falseGroup: remainingStaff } = partition(staff, staffer => staffer.programCounselorFor !== undefined);
+  const programCounselors = staff.filter(staffer => staffer.programCounselorFor !== undefined);
   const programCounselorsByProgramArea = groupBy(programCounselors, programCounselor => programCounselor.programCounselorFor!);
   for (const [_blockId, block] of Object.entries(newSchedule.blocks)) {
     for (const activity of block.activities) {
