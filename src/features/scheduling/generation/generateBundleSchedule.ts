@@ -120,7 +120,7 @@ export default function generateBundleSchedule(req: GenerateBundleScheduleReques
   }
 
   for (const [blockId, block] of Object.entries(newSchedule.blocks)) {
-    const sortedCampers = shuffle(campers).sort((a, b) => b.snapshot.dateOfBirth.diff(a.snapshot.dateOfBirth, "years"));
+    const sortedCampers = shuffle(campers.filter(camper => block.activities.every(activity => !activity.camperIds.includes(camper.attendeeId))).sort((a, b) => b.snapshot.dateOfBirth.diff(a.snapshot.dateOfBirth, "years")));
     const maxCampersPerActivity = Math.ceil(sortedCampers.length / block.activities.length);
     for (const camper of sortedCampers) {
       const camperPrefs = camperActivityPreferences.blocks[blockId][camper.attendeeId];
@@ -143,7 +143,7 @@ export default function generateBundleSchedule(req: GenerateBundleScheduleReques
 
   for (const [_blockId, block] of Object.entries(newSchedule.blocks)) {
     const adminsToAssign = shuffle(admins.filter((admin) => !block.periodsOff.includes(admin.attendeeId)));
-    const staffToAssign = shuffle(staff.filter((staffMember) => !block.periodsOff.includes(staffMember.attendeeId)));
+    const staffToAssign = shuffle(staff.filter((staffMember) => !block.periodsOff.includes(staffMember.attendeeId) && block.activities.every(activity => !activity.staffIds.includes(staffMember.attendeeId))));
 
     const maxCounselorsPerActivity = Math.ceil((adminsToAssign.length + staffToAssign.length) / block.activities.length);
 
