@@ -41,9 +41,9 @@ export default function generateBundleSchedule(req: GenerateBundleScheduleReques
     sessionId: currentSchedule.sessionId,
     sectionId: currentSchedule.sectionId,
     type: "BUNDLE",
-    blocks: Object.entries(currentSchedule.blocks).reduce((prev, [blockId, _block]) => {
+    blocks: Object.entries(currentSchedule.blocks).reduce((prev, [blockId, block]) => {
       prev[blockId] = {
-        activities: currentSchedule.blocks[blockId].activities.map(activity => ({
+        activities: block.activities.map(activity => ({
           ...activity,
           camperIds: [],
           staffIds: [],
@@ -53,7 +53,7 @@ export default function generateBundleSchedule(req: GenerateBundleScheduleReques
       };
       return prev;
     }, {} as BundleSectionSchedule["blocks"]),
-    alternatePeriodsOff: Object.entries(currentSchedule.alternatePeriodsOff).reduce((prev, [periodId, _counselorIds]) => {
+    alternatePeriodsOff: Object.keys(currentSchedule.alternatePeriodsOff).reduce((prev, periodId) => {
       prev[periodId] = [];
       return prev;
     }, {} as BundleSectionSchedule["alternatePeriodsOff"]),
@@ -61,7 +61,7 @@ export default function generateBundleSchedule(req: GenerateBundleScheduleReques
 
   const programCounselors = staff.filter(staffer => staffer.programCounselorFor !== undefined);
   const programCounselorsByProgramArea = groupBy(programCounselors, programCounselor => programCounselor.programCounselorFor!);
-  for (const [_blockId, block] of Object.entries(newSchedule.blocks)) {
+  for (const block of Object.values(newSchedule.blocks)) {
     for (const activity of block.activities) {
       const eligibleProgramCounselors = programCounselorsByProgramArea[activity.programAreaId]?.filter(programCounselor => daysOffSchedule.daysOffByCounselorId[programCounselor.attendeeId].every(dayOff => !isDayInRange(dayOff, [section.startDate, section.endDate])));
       if (!eligibleProgramCounselors) {
@@ -73,7 +73,7 @@ export default function generateBundleSchedule(req: GenerateBundleScheduleReques
 
   const { trueGroup: navCampers, falseGroup: ocpCampers } = partition(campers, camper => camper.ageGroup === "NAV");
 
-  const navSwimActivities = Object.entries(newSchedule.blocks).map(([_blockId, block]) => block.activities.find(activity => activity.programAreaId === "WF" && activity.ageGroup === "NAV")).filter(activity => !!activity);
+  const navSwimActivities = Object.values(newSchedule.blocks).map((block) => block.activities.find(activity => activity.programAreaId === "WF" && activity.ageGroup === "NAV")).filter(activity => !!activity);
   const maxNavCampersPerSwimActivity = Math.ceil(navCampers.length / navSwimActivities.length);
   for (const camper of shuffle(navCampers)) {
     let eligibleSwimActivities = navSwimActivities.filter(swimActivity => swimActivity.camperIds.length < maxNavCampersPerSwimActivity && canBeAssignedToIndividualActivityAssignments(camper, swimActivity));
@@ -138,7 +138,7 @@ export default function generateBundleSchedule(req: GenerateBundleScheduleReques
     currBlockNum = (currBlockNum + 1) % numBlocks;
   }
 
-  for (const [_blockId, block] of Object.entries(newSchedule.blocks)) {
+  for (const block of Object.values(newSchedule.blocks)) {
     const adminsToAssign = shuffle(admins.filter((admin) => !block.periodsOff.includes(admin.attendeeId)));
     const staffToAssign = shuffle(staff.filter((staffMember) => !block.periodsOff.includes(staffMember.attendeeId) && block.activities.every(activity => !activity.staffIds.includes(staffMember.attendeeId))));
 
