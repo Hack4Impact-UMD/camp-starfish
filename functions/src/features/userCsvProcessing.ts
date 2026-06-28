@@ -28,8 +28,8 @@ export const processFamilyCsv = onCall(async (req) => {
     const allIds: number[] = [...campers.map(camper => camper.id), ...parents.map(parent => parent.id)];
     const existingUsers = await batchGetUserDocs(allIds);
 
-    const { trueGroup: existingCamperUpdates, falseGroup: newCampers } = partition(Object.values(campers), (camper) => existingUsers.some(user => user.id === camper.id));
-    const { trueGroup: existingParentUpdates, falseGroup: newParents } = partition(Object.values(parents), (parent) => existingUsers.some(user => user.id === parent.id));
+    const { trueGroup: existingCamperUpdates, falseGroup: newCampers } = partition(campers, (camper) => existingUsers.some(user => user.id === camper.id));
+    const { trueGroup: existingParentUpdates, falseGroup: newParents } = partition(parents, (parent) => existingUsers.some(user => user.id === parent.id));
 
     const promises = [
       newCampers.map((camper) => {
@@ -51,7 +51,7 @@ export const processFamilyCsv = onCall(async (req) => {
         const existingCamper = existingUsers.find(camper => camper.id === id) as Camper;
         if (docUpdates.parentIds.every(parentId => existingCamper.parentIds.includes(parentId))) return;
         return updateUserDoc(id, {
-          parentIds: FieldValue.arrayUnion(...camperUpdates.parentIds),
+          parentIds: FieldValue.arrayUnion(...docUpdates.parentIds),
         }, transaction);
       }),
       existingParentUpdates.map((parentUpdates) => {
