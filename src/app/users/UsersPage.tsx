@@ -33,16 +33,12 @@ import {
 } from "@mantine/core";
 import {
   MdSearch,
-  MdDelete,
   MdChevronLeft,
   MdChevronRight,
   MdUploadFile,
 } from "react-icons/md";
 import { User, Role } from "@/types/users/userTypes";
-import { useAuth } from "@/auth/useAuth";
-import useDeleteUser from "@/hooks/users/useDeleteUser";
-import openConfirmationModal from "@/components/modals/ConfirmationModal";
-import { ALL_ROLES, getFullName } from "@/types/users/userUtils";
+import { ALL_ROLES } from "@/types/users/userUtils";
 import { toNormalCase } from "@/utils/stringUtils";
 import useUserList from "@/hooks/users/useUserList";
 import LoadingPage from "../loading";
@@ -74,12 +70,6 @@ interface UsersPageContentProps {
 }
 
 export function UsersPageContent({ users }: UsersPageContentProps) {
-  const { token } = useAuth();
-  // `campminderId` is set as a custom claim at account creation and equals the user's id.
-  const currentUserId = token?.claims.campminderId as number | undefined;
-
-  const { mutate: deleteUserById } = useDeleteUser();
-
   const [globalFilter, setGlobalFilter] = useState("");
   const [roleFilter, setRoleFilter] = useState<string | null>(null);
   const [sorting, setSorting] = useState<SortingState>([
@@ -126,35 +116,8 @@ export function UsersPageContent({ users }: UsersPageContentProps) {
         },
         enableSorting: false,
       },
-      // {
-      //   id: "actions",
-      //   header: "ACTIONS",
-      //   cell: (info) => {
-      //     const user = info.row.original;
-      //     const isSelf =
-      //       currentUserId !== undefined && currentUserId === user.id;
-      //     return (
-      //       <ActionIcon
-      //         color="red"
-      //         variant="subtle"
-      //         aria-label="Delete user"
-      //         disabled={isSelf}
-      //         title={isSelf ? "You cannot delete your own account" : undefined}
-      //         onClick={() =>
-      //           openConfirmationModal({
-      //             title: `Delete User "${getFullName(user.name)}"?`,
-      //             onConfirm: () => deleteUserById({ userId: user.id }),
-      //           })
-      //         }
-      //       >
-      //         <MdDelete size={18} />
-      //       </ActionIcon>
-      //     );
-      //   },
-      //   enableSorting: false,
-      // },
     ],
-    [currentUserId, deleteUserById],
+    [],
   );
 
   const table = useReactTable({

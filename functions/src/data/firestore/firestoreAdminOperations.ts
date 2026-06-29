@@ -2,7 +2,8 @@ import { AggregateField, AggregateType, CollectionGroup, CollectionReference, Do
 import { isFirebaseError } from "../../types/error";
 import { Collection } from "@/data/firestore/types/collections";
 import { adminDb } from "../../config/firebaseAdminConfig";
-import { DistributiveKeyof } from "@/utils/types/typeUtils";
+import { DistributiveKeyof, NonEmptyArray } from "@/utils/types/typeUtils";
+import { StrictExtract } from "../../../../src/utils/types/typeUtils";
 
 export async function getDoc<DbModelType extends DocumentData>(ref: DocumentReference<DbModelType, DbModelType>, transaction?: Transaction): Promise<DocumentSnapshot<DbModelType, DbModelType>> {
   let doc: DocumentSnapshot<DbModelType, DbModelType>;
@@ -103,7 +104,7 @@ type EndCursorClause =
   | { endBefore?: never; endAt: DocumentSnapshot | unknown[]; }
   | { endBefore?: never; endAt?: never; };
 
-type FirestoreQueryOptions<DbModelType extends DocumentData> = {
+export type FirestoreQueryOptions<DbModelType extends DocumentData> = {
   where?: WhereClause<DbModelType>[];
   orderBy?: OrderByClause<DbModelType>[];
 } & LimitClause & StartCursorClause & EndCursorClause;
@@ -152,6 +153,26 @@ export async function executeQuery<DbModelType extends DocumentData>(collection:
   }
 }
 
+export type PaginatedQueryResponse<AppModelType, DbModelType extends DocumentData> =
+  | {
+    docs: [];
+    firstSnapshot?: never;
+    lastSnapshot?: never;
+  }
+  | {
+    docs: NonEmptyArray<AppModelType>;
+    firstSnapshot: QueryDocumentSnapshot<DbModelType, DbModelType>;
+    lastSnapshot: QueryDocumentSnapshot<DbModelType, DbModelType>;
+  }
+
+export function mapSnapshotsToPaginatedQueryResult<AppModelType, DbModelType extends DocumentData>(snapshots: QueryDocumentSnapshot<DbModelType, DbModelType>[], mapFunc: (snapshot: QueryDocumentSnapshot<DbModelType, DbModelType>) => AppModelType): PaginatedQueryResponse<AppModelType, DbModelType> {
+  return snapshots.length === 0 ? { docs: [] } : {
+    docs: snapshots.map(mapFunc) as NonEmptyArray<AppModelType>,
+    firstSnapshot: snapshots[0],
+    lastSnapshot: snapshots[snapshots.length - 1]
+  }
+}
+
 const FIRESTORE_WHERE_IN_LIMIT = 30;
 export async function batchGetDocs<DbModelType extends DocumentData>(collection: CollectionReference<DbModelType, DbModelType> | Collection, ids: string[], transaction?: Transaction): Promise<QueryDocumentSnapshot<DbModelType, DbModelType>[]> {
   try {
@@ -168,8 +189,8 @@ export async function batchGetDocs<DbModelType extends DocumentData>(collection:
 }
 
 type AggregationClause<DbModelType> = { aggregateFieldName: string; } & (
-  | { operation: Extract<AggregateType, 'count'>; }
-  | { operation: Extract<AggregateType, 'sum' | 'avg'>; sourceFieldPath: FirestoreDocumentFieldPath<DbModelType>; })
+  | { operation: StrictExtract<AggregateType, 'count'>; }
+  | { operation: StrictExtract<AggregateType, 'sum' | 'avg'>; sourceFieldPath: FirestoreDocumentFieldPath<DbModelType>; })
 
 type AggregationQueryOptions<DbModelType extends DocumentData> = FirestoreQueryOptions<DbModelType> & { aggregations: AggregationClause<DbModelType>[]; }
 
