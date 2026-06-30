@@ -20,7 +20,7 @@ import {
   ActionIcon,
   Tooltip,
 } from "@mantine/core";
-import useListAttendees from "@/hooks/attendees/useListAttendees";
+import useAttendeeList from "@/hooks/attendees/useAttendeeList";
 import { DirectoryTableCell } from "./DirectoryTableCell";
 import moment from "moment";
 import {
@@ -43,11 +43,7 @@ type LargeDirectoryBlockProps = {
 export default function DirectoryTableView({
   sessionId,
 }: LargeDirectoryBlockProps) {
-  const {
-    data: attendeeList,
-    isLoading,
-    isError,
-  } = useListAttendees(sessionId);
+  const { data: attendeeList, isLoading, isError } = useAttendeeList(sessionId);
   const daysOffScheduleQuery = useDaysOffSchedule(sessionId);
   const sessionQuery = useSession(sessionId);
 
