@@ -1,4 +1,6 @@
 
+import { getUseAttendeeListOptions } from "@/hooks/attendees/useAttendeeList";
+import { getUseSessionOptions } from "@/hooks/sessions/useSession";
 import { StaffAttendee, AdminAttendee, Session, CounselorAttendee, DaysOffSchedule } from "@/types/sessions/sessionTypes";
 import { groupBy } from "@/utils/data/groupBy";
 import shuffle from "@/utils/data/shuffle";
@@ -8,9 +10,14 @@ import { Moment } from "moment";
 export default function useGenerateDaysOffSchedule(req: GenerateDaysOffScheduleRequest) {
   return useMutation({
     mutationFn: async (req: { sessionId: string; sectionId: string; }, { client }) => {
+      const session = await client.ensureQueryData(getUseSessionOptions(req.sessionId));
+      const counselors = await client.ensureQueryData(getUseAttendeeListOptions(req.sessionId, {
+        where: [{ fieldPath: "role", operation: "in", value: ["STAFF", "ADMIN"] }],
+      }))
       return generateDaysOffSchedule({
         session: await client.ensureQueryData(['sessions', req.sessionId]) as Session,
-        counselors: await client.ensureQueryData(['sessions', req.sessionId, 'attendees'])
+        counselors: await client.ensureQueryData(['sessions', req.sessionId, 'attendees']),
+        daysOffInSession: await client.ensureQueryData(['sessions', req.sessionId, ''])
       });
     }
   })
@@ -66,7 +73,7 @@ export function generateDaysOffSchedule(req: GenerateDaysOffScheduleRequest): Da
       daysOffByCounselorId[counselorId].push(daysOffInWeek[dayInWeekIndex]);
       dayInWeekIndex = (dayInWeekIndex + 1) % daysOffInWeek.length;
     }
-  } 
+  }
 
   return {
     sessionId: session.id,
