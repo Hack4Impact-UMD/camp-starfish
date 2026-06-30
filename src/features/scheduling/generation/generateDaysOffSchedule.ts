@@ -7,17 +7,28 @@ import shuffle from "@/utils/data/shuffle";
 import { useMutation } from "@tanstack/react-query";
 import { Moment } from "moment";
 
-export default function useGenerateDaysOffSchedule(req: GenerateDaysOffScheduleRequest) {
+interface UseGenerateDaysOffScheduleRequest {
+  sessionId: string;
+  sectionId: string;
+}
+
+export default function useGenerateDaysOffSchedule() {
   return useMutation({
-    mutationFn: async (req: { sessionId: string; sectionId: string; }, { client }) => {
+    mutationFn: async (req: UseGenerateDaysOffScheduleRequest, { client }) => {
       const session = await client.ensureQueryData(getUseSessionOptions(req.sessionId));
       const counselors = await client.ensureQueryData(getUseAttendeeListOptions(req.sessionId, {
         where: [{ fieldPath: "role", operation: "in", value: ["STAFF", "ADMIN"] }],
-      }))
+      })) as CounselorAttendee[];
+
+      const daysOffInSession: Moment[] = [];
+      for (let curr = session.startDate.clone(); curr.isSameOrBefore(session.endDate); curr = curr.add(1, 'days')) {
+        daysOffInSession.push(curr.clone());
+      }
+
       return generateDaysOffSchedule({
-        session: await client.ensureQueryData(['sessions', req.sessionId]) as Session,
-        counselors: await client.ensureQueryData(['sessions', req.sessionId, 'attendees']),
-        daysOffInSession: await client.ensureQueryData(['sessions', req.sessionId, ''])
+        session,
+        counselors,
+        daysOffInSession
       });
     }
   })
