@@ -1,7 +1,35 @@
+import { getUseAttendeeListOptions } from "@/hooks/attendees/useAttendeeList";
+import { getUseBunkListOptions } from "@/hooks/bunks/useBunkList";
+import { getUseDaysOffScheduleOptions } from "@/hooks/daysOffSchedules/useDaysOffSchedule";
+import { getUseSessionOptions } from "@/hooks/sessions/useSession";
 import { Bunk, DaysOffSchedule, NightSchedule, NightSchedulePosition, Session } from "@/types/sessions/sessionTypes";
 import shuffle from "@/utils/data/shuffle";
 import { getObjectKeysAsNumbers } from "@/utils/stringUtils";
 import { StrictExtract } from "@/utils/types/typeUtils";
+import { useMutation } from "@tanstack/react-query";
+
+interface UseGenerateNightSchedulesRequest {
+  sessionId: string;
+}
+
+export function useGenerateNightSchedules() {
+  return useMutation({
+    mutationFn: async (req: UseGenerateNightSchedulesRequest, { client }) => {
+      const { sessionId } = req;
+      const session = await client.ensureQueryData(getUseSessionOptions(sessionId));
+      const daysOffSchedule = await client.ensureQueryData(getUseDaysOffScheduleOptions(sessionId));
+      const bunks = (await client.ensureInfiniteQueryData(getUseBunkListOptions(sessionId, {}))).pages.flatMap(page => page.docs);
+      const adminIds = (await client.ensureQueryData(getUseAttendeeListOptions(sessionId, { where: [{ fieldPath: "role", operation: "in", value: ["ADMIN"] }] }))).map(attendee => attendee.attendeeId);
+
+      generateNightSchedules({
+        session,
+        daysOffSchedule,
+        bunks,
+        adminIds 
+      })
+    }
+  })
+}
 
 // TODO: handle days when counselors are "ALL ON"
 
