@@ -2,12 +2,12 @@ import { listFreeplayDocs } from "@/data/firestore/freeplays";
 import { FreeplayDoc } from "@/data/firestore/types/documents";
 import { FirestoreQueryOptions } from "@/data/firestore/types/queries";
 import { Freeplay } from "@/types/sessions/sessionTypes";
-import { infiniteQueryOptions, queryOptions, skipToken, useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { infiniteQueryOptions, skipToken, useInfiniteQuery } from "@tanstack/react-query";
 import { TanstackQueryFirestorePageParam } from "../types/tanstackQueryTypes";
 
 export function getUseFreeplayListOptions(sessionId: string | undefined, firestoreQueryOptions: FirestoreQueryOptions<FreeplayDoc> = {}) {
   return infiniteQueryOptions({
-    queryKey: ['sessions', sessionId, 'freeplays', queryOptions],
+    queryKey: ['sessions', sessionId, 'freeplays', firestoreQueryOptions],
     queryFn: sessionId ? (async ({ pageParam, client }) => {
       const updatedQueryOptions = firestoreQueryOptions ? { ...firestoreQueryOptions } : {};
       if (pageParam) {
