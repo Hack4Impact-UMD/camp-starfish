@@ -6,6 +6,39 @@ import { getBlockIdFromNum } from "@/types/scheduling/schedulingUtils";
 import partition from "@/utils/data/partition";
 import { groupBy } from "@/utils/data/groupBy";
 import { isDayInRange } from "@/utils/timeUtils";
+import { useMutation } from "@tanstack/react-query";
+import { getUseAttendeeListOptions } from "@/hooks/attendees/useAttendeeList";
+import { getUseSectionScheduleOptions } from "@/hooks/schedules/useSectionSchedule";
+import { getUseDaysOffScheduleOptions } from "@/hooks/daysOffSchedules/useDaysOffSchedule";
+import { getUseSectionOptions } from "@/hooks/sections/useSection";
+import { getUseSectionListOptions } from "@/hooks/sections/useSectionList";
+
+interface UseGenerateBundleScheduleRequest {
+  sessionId: string;
+  sectionId: string;
+}
+
+export default function useGenerateBundleSchedule() {
+  return useMutation({
+    mutationFn: async (req: UseGenerateBundleScheduleRequest, { client }) => {
+      const { sessionId, sectionId } = req;
+
+      const attendees = (await client.ensureInfiniteQueryData(getUseAttendeeListOptions(sessionId))).pages.flatMap(page => page.docs);
+      const camperActivityPreferences = await client.ensureQueryData();
+      const currentSchedule = await client.ensureQueryData(getUseSectionScheduleOptions(sessionId, sectionId)) as BundleSectionSchedule;
+      const daysOffSchedule = await client.ensureQueryData(getUseDaysOffScheduleOptions(sessionId));
+      const firstBundleOfSession = (await client.ensureInfiniteQueryData(getUseSectionListOptions(sessionId, {
+        where: [{ fieldPath: "type", operation: "==", value: "BUNDLE" }],
+        orderBy: [{ fieldPath: "startDate", direction: "asc" }],
+        limit: 1
+      }))).pages[0].docs[0] as Section;
+      const isFirstBundleOfSession = firstBundleOfSession.id === sectionId;
+      const section = isFirstBundleOfSession ? firstBundleOfSession : await client.ensureQueryData(getUseSectionOptions(sessionId, sectionId));
+
+      return generateBundleSchedule({ attendees, camperActivityPreferences, currentSchedule, daysOffSchedule, section, isFirstBundleOfSession });
+    }
+  })
+}
 
 interface GenerateBundleScheduleRequest {
   attendees: Attendee[];
@@ -16,7 +49,7 @@ interface GenerateBundleScheduleRequest {
   isFirstBundleOfSession: boolean;
 }
 
-export default function generateBundleSchedule(req: GenerateBundleScheduleRequest): BundleSectionSchedule {
+export function generateBundleSchedule(req: GenerateBundleScheduleRequest): BundleSectionSchedule {
   const { attendees, camperActivityPreferences, currentSchedule, daysOffSchedule, section, isFirstBundleOfSession } = req;
 
   const campers: CamperAttendee[] = [];
