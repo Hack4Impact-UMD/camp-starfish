@@ -10,6 +10,30 @@ import { getBlockIdFromNum } from "@/types/scheduling/schedulingUtils";
 import shuffle from "@/utils/data/shuffle";
 import { canBeAssignedToBunkAssignments, getYesYesListGroups } from "./schedulingUtils";
 import { toRecord } from "@/utils/data/toRecord";
+import { useMutation } from "@tanstack/react-query";
+import { getUseAttendeeListOptions } from "@/hooks/attendees/useAttendeeList";
+import { getUseBunkListOptions } from "@/hooks/bunks/useBunkList";
+import { getUseSectionScheduleOptions } from "@/hooks/schedules/useSectionSchedule";
+
+interface UseGenerateBunkJamboreeScheduleRequest {
+  sessionId: string;
+  sectionId: string;
+}
+
+export default function useGenerateBunkJamboreeSchedule() {
+  return useMutation({
+    mutationFn: async (req: UseGenerateBunkJamboreeScheduleRequest, { client }) => {
+      const { sessionId, sectionId } = req;
+
+      const attendees = await client.ensureQueryData(getUseAttendeeListOptions(sessionId));
+      const bunkActivityPreferences = await client.ensureQueryData();
+      const bunks = (await client.ensureInfiniteQueryData(getUseBunkListOptions(sessionId))).pages.flatMap(page => page.docs);
+      const currentSchedule = await client.ensureQueryData(getUseSectionScheduleOptions(sessionId, sectionId)) as BunkJamboreeSectionSchedule;
+
+      return generateBunkJamboreeSchedule({ attendees, bunkActivityPreferences, bunks, currentSchedule });
+    }
+  })
+}
 
 interface GenerateBunkJamboreeScheduleRequest {
   attendees: Attendee[];
