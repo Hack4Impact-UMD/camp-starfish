@@ -13,9 +13,9 @@ import {
   WithFieldValue,
   UpdateData,
 } from "firebase/firestore";
-import { setDoc, getDoc, updateDoc, deleteDoc, batchGetDocs, executeQuery } from "./firestoreClientOperations";
+import { setDoc, getDoc, updateDoc, deleteDoc, batchGetDocs, executeQuery, mapSnapshotsToPaginatedQueryResult } from "./firestoreClientOperations";
 import { RootLevelCollection } from "./types/collections";
-import { FirestoreQueryOptions } from "./types/queries";
+import { FirestoreQueryOptions, PaginatedQueryResponse } from "./types/queries";
 
 function fromFirestore(snapshot: DocumentSnapshot<PostDoc, PostDoc> | QueryDocumentSnapshot<PostDoc, PostDoc>): Post {
   if (!snapshot.exists()) { throw Error("Document not found"); }
@@ -44,9 +44,9 @@ export async function batchGetPostDocs(postIds: string[]): Promise<Post[]> {
   return snapshots.map(fromFirestore);
 }
 
-export async function listPostDocs(firestoreQueryOptions: FirestoreQueryOptions<PostDoc> = {}): Promise<Post[]> {
+export async function listPostDocs(firestoreQueryOptions: FirestoreQueryOptions<PostDoc> = {}): Promise<PaginatedQueryResponse<Post, PostDoc>> {
   const snapshots = await executeQuery<PostDoc>(getPostCollectionRef(), firestoreQueryOptions);
-  return snapshots.map(fromFirestore);
+  return mapSnapshotsToPaginatedQueryResult(snapshots, fromFirestore);
 }
 
 export async function setPostDoc(postId: string, Post: WithFieldValue<PostDoc>, instance?: Transaction | WriteBatch): Promise<void> {
