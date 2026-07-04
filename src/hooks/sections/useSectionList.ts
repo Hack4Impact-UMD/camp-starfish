@@ -2,7 +2,7 @@ import { listSectionDocs } from "@/data/firestore/sections";
 import { SectionDoc } from "@/data/firestore/types/documents";
 import { FirestoreQueryOptions } from "@/data/firestore/types/queries";
 import { Section } from "@/types/sessions/sessionTypes";
-import { infiniteQueryOptions, useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { infiniteQueryOptions, useInfiniteQuery } from "@tanstack/react-query";
 import { TanstackQueryFirestorePageParam } from "../types/tanstackQueryTypes";
 
 export function getUseSectionListOptions(sessionId: string, firestoreQueryOptions: FirestoreQueryOptions<SectionDoc> = {}) {

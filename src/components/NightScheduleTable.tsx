@@ -52,7 +52,7 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
   const { data: daysOffSchedule, status: daysOffScheduleStatus } =
     useDaysOffSchedule(sessionId);
   const { data: session, status: sessionStatus } = useSession(sessionId);
-  const { data: attendees = [], status: attendeesStatus } =
+  const { data: attendees, status: attendeesStatus } =
     useAttendeeList(sessionId);
   const { data: nightShifts, status: nightShiftsStatus } =
     useNightScheduleList(sessionId);
@@ -77,7 +77,7 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
     <NightScheduleTableContent
       daysOffSchedule={daysOffSchedule}
       session={session}
-      attendees={attendees}
+      attendees={attendees.pages.flatMap(page => page.docs)}
       nightShifts={nightShifts.docs}
     />
   );

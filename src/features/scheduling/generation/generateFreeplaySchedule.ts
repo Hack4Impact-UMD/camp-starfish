@@ -18,7 +18,7 @@ export default function useGenerateFreeplaySchedule() {
     mutationFn: async (req: UseGenerateFreeplayScheduleRequest, { client }) => {
       const { sessionId, date } = req;
 
-      const attendees = await client.ensureQueryData(getUseAttendeeListOptions(sessionId));
+      const attendees = (await client.ensureInfiniteQueryData(getUseAttendeeListOptions(sessionId))).pages.flatMap(page => page.docs);
       const posts = (await client.ensureInfiniteQueryData(getUsePostListOptions())).pages.flatMap(page => page.docs);
       const otherFreeplaysInSession = (await client.ensureInfiniteQueryData(getUseFreeplayListOptions(sessionId, {
         where: [{ fieldPath: '__name__', operation: "!=", value: date.format("YYYY-MM-DD") }]

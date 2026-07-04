@@ -74,7 +74,7 @@ export default function DownloadDaySchedulePDFButton(
   }
   return (
     <DownloadDaySchedulePDFButtonContent
-      attendees={attendeesQuery.data}
+      attendees={attendeesQuery.data.pages.flatMap(page => page.docs)}
       section={sectionQuery.data}
       schedule={scheduleQuery.data}
       freeplay={freeplayQuery.data}

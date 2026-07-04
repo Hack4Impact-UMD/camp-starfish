@@ -19,7 +19,7 @@ export function useGenerateNightSchedules() {
       const session = await client.ensureQueryData(getUseSessionOptions(sessionId));
       const daysOffSchedule = await client.ensureQueryData(getUseDaysOffScheduleOptions(sessionId));
       const bunks = (await client.ensureInfiniteQueryData(getUseBunkListOptions(sessionId, {}))).pages.flatMap(page => page.docs);
-      const adminIds = (await client.ensureQueryData(getUseAttendeeListOptions(sessionId, { where: [{ fieldPath: "role", operation: "in", value: ["ADMIN"] }] }))).map(attendee => attendee.attendeeId);
+      const adminIds = (await client.ensureInfiniteQueryData(getUseAttendeeListOptions(sessionId, { where: [{ fieldPath: "role", operation: "in", value: ["ADMIN"] }] }))).pages.flatMap(page => page.docs.map(attendee => attendee.attendeeId));
 
       return generateNightSchedules({
         session,

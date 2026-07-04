@@ -9,16 +9,17 @@ import { Moment } from "moment";
 
 interface UseGenerateDaysOffScheduleRequest {
   sessionId: string;
-  sectionId: string;
 }
 
 export default function useGenerateDaysOffSchedule() {
   return useMutation({
     mutationFn: async (req: UseGenerateDaysOffScheduleRequest, { client }) => {
-      const session = await client.ensureQueryData(getUseSessionOptions(req.sessionId));
-      const counselors = await client.ensureQueryData(getUseAttendeeListOptions(req.sessionId, {
+      const { sessionId } = req;
+
+      const session = await client.ensureQueryData(getUseSessionOptions(sessionId));
+      const counselors = (await client.ensureInfiniteQueryData(getUseAttendeeListOptions(sessionId, {
         where: [{ fieldPath: "role", operation: "in", value: ["STAFF", "ADMIN"] }],
-      })) as CounselorAttendee[];
+      }))).pages.flatMap(page => page.docs) as CounselorAttendee[];
 
       const daysOffInSession: Moment[] = [];
       for (let curr = session.startDate.clone(); curr.isSameOrBefore(session.endDate); curr = curr.add(1, 'days')) {

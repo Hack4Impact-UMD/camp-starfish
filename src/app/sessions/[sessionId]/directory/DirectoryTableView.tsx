@@ -43,7 +43,8 @@ type LargeDirectoryBlockProps = {
 export default function DirectoryTableView({
   sessionId,
 }: LargeDirectoryBlockProps) {
-  const { data: attendeeList, isLoading, isError } = useAttendeeList(sessionId);
+  const { data: attendeeData, isLoading, isError } = useAttendeeList(sessionId);
+  const attendeeList = attendeeData?.pages.flatMap(page => page.docs);
   const daysOffScheduleQuery = useDaysOffSchedule(sessionId);
   const sessionQuery = useSession(sessionId);
 
