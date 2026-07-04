@@ -3,6 +3,30 @@ import { StaffAttendee, AdminAttendee, CamperAttendee, Freeplay, Post, Attendee 
 import { groupBy } from "@/utils/data/groupBy";
 import partition from "@/utils/data/partition";
 import { Moment } from "moment";
+import { useMutation } from "@tanstack/react-query";
+import { getUseAttendeeListOptions } from "@/hooks/attendees/useAttendeeList";
+import { getUseFreeplayListOptions } from "@/hooks/freeplays/useFreeplayList";
+
+interface UseGenerateFreeplayScheduleRequest {
+  sessionId: string;
+  date: Moment;
+}
+
+export default function useGenerateFreeplaySchedule() {
+  return useMutation({
+    mutationFn: async (req: UseGenerateFreeplayScheduleRequest, { client }) => {
+      const { sessionId, date } = req;
+
+      const attendees = await client.ensureQueryData(getUseAttendeeListOptions(sessionId));
+      const posts = await client.ensureQueryData(getUsePostsOptions());
+      const otherFreeplaysInSession = (await client.ensureQueryData(getUseFreeplayListOptions(sessionId, {
+        where: [{ fieldPath: '__name__', operation: "!=", value: date.format("YYYY-MM-DD") }]
+      }))).docs;
+
+      return generateFreeplaySchedule({ sessionId, date, attendees, posts, otherFreeplaysInSession });
+    }
+  })
+}
 
 interface GenerateFreeplayScheduleRequest {
   sessionId: string;
