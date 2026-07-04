@@ -19,9 +19,9 @@ export default function useGenerateFreeplaySchedule() {
 
       const attendees = await client.ensureQueryData(getUseAttendeeListOptions(sessionId));
       const posts = await client.ensureQueryData(getUsePostsOptions());
-      const otherFreeplaysInSession = (await client.ensureQueryData(getUseFreeplayListOptions(sessionId, {
+      const otherFreeplaysInSession = (await client.ensureInfiniteQueryData(getUseFreeplayListOptions(sessionId, {
         where: [{ fieldPath: '__name__', operation: "!=", value: date.format("YYYY-MM-DD") }]
-      }))).docs;
+      }))).pages.flatMap(page => page.docs);
 
       return generateFreeplaySchedule({ sessionId, date, attendees, posts, otherFreeplaysInSession });
     }
