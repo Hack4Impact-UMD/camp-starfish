@@ -22,7 +22,7 @@ export default function useGenerateNonBunkJamboreeSchedule() {
     mutationFn: async (req: UseGenerateNonBunkJamboreeScheduleRequest, { client }) => {
       const { sessionId, sectionId } = req;
 
-      const attendees = await client.ensureQueryData(getUseAttendeeListOptions(sessionId));
+      const attendees = (await client.ensureInfiniteQueryData(getUseAttendeeListOptions(sessionId))).pages.flatMap(page => page.docs);
       const sectionActivityPreferences = await client.ensureQueryData();
       const currentSchedule = await client.ensureQueryData(getUseSectionScheduleOptions(sessionId, sectionId)) as NonBunkJamboreeSectionSchedule;
 
