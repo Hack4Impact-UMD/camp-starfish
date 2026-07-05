@@ -1,4 +1,4 @@
-import { SectionScheduleDoc } from "@/data/firestore/types/documents";
+import { ActivityPreferencesDoc, SectionScheduleDoc } from "@/data/firestore/types/documents";
 import { isBundleActivity } from "@/types/scheduling/schedulingTypeGuards";
 import { Activity } from "@/types/scheduling/schedulingTypes";
 import { SchedulingSectionType } from "../sessions/sessionTypes";
@@ -26,6 +26,16 @@ export function getEmptySectionScheduleDoc(type: SchedulingSectionType, numBlock
     }
   }
   return sectionScheduleDoc;
+}
+
+export function getEmptyActivityPreferencesDoc(numBlocks: number) {
+  const activityPreferencesDoc: ActivityPreferencesDoc = {
+    blocks: {}
+  }
+  for (let i = 0; i < numBlocks; i++) {
+    activityPreferencesDoc.blocks[getBlockIdFromNum(i)] = {}
+  }
+  return activityPreferencesDoc;
 }
 
 export const DEFAULT_NUMBER_BLOCKS = 5;
