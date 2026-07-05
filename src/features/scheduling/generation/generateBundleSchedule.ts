@@ -12,6 +12,7 @@ import { getUseSectionScheduleOptions } from "@/hooks/schedules/useSectionSchedu
 import { getUseDaysOffScheduleOptions } from "@/hooks/daysOffSchedules/useDaysOffSchedule";
 import { getUseSectionOptions } from "@/hooks/sections/useSection";
 import { getUseSectionListOptions } from "@/hooks/sections/useSectionList";
+import { getUseActivityPreferencesOptions } from "@/hooks/activityPreferences/useActivityPreferences";
 
 interface UseGenerateBundleScheduleRequest {
   sessionId: string;
@@ -24,7 +25,7 @@ export default function useGenerateBundleSchedule() {
       const { sessionId, sectionId } = req;
 
       const attendees = (await client.ensureInfiniteQueryData(getUseAttendeeListOptions(sessionId))).pages.flatMap(page => page.docs);
-      const camperActivityPreferences = await client.ensureQueryData();
+      const camperActivityPreferences = await client.ensureQueryData(getUseActivityPreferencesOptions(req));
       const currentSchedule = await client.ensureQueryData(getUseSectionScheduleOptions(sessionId, sectionId)) as BundleSectionSchedule;
       const daysOffSchedule = await client.ensureQueryData(getUseDaysOffScheduleOptions(sessionId));
       const firstBundleOfSession = (await client.ensureInfiniteQueryData(getUseSectionListOptions(sessionId, {

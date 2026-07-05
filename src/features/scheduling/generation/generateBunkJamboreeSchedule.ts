@@ -14,6 +14,7 @@ import { useMutation } from "@tanstack/react-query";
 import { getUseAttendeeListOptions } from "@/hooks/attendees/useAttendeeList";
 import { getUseBunkListOptions } from "@/hooks/bunks/useBunkList";
 import { getUseSectionScheduleOptions } from "@/hooks/schedules/useSectionSchedule";
+import { getUseActivityPreferencesOptions } from "@/hooks/activityPreferences/useActivityPreferences";
 
 interface UseGenerateBunkJamboreeScheduleRequest {
   sessionId: string;
@@ -26,7 +27,7 @@ export default function useGenerateBunkJamboreeSchedule() {
       const { sessionId, sectionId } = req;
 
       const attendees = (await client.ensureInfiniteQueryData(getUseAttendeeListOptions(sessionId))).pages.flatMap(page => page.docs);
-      const bunkActivityPreferences = await client.ensureQueryData();
+      const bunkActivityPreferences = await client.ensureQueryData(getUseActivityPreferencesOptions(req));
       const bunks = (await client.ensureInfiniteQueryData(getUseBunkListOptions(sessionId))).pages.flatMap(page => page.docs);
       const currentSchedule = await client.ensureQueryData(getUseSectionScheduleOptions(sessionId, sectionId)) as BunkJamboreeSectionSchedule;
 
@@ -42,7 +43,7 @@ interface GenerateBunkJamboreeScheduleRequest {
   currentSchedule: BunkJamboreeSectionSchedule;
 }
 
-export default function generateBunkJamboreeSchedule(req: GenerateBunkJamboreeScheduleRequest): BunkJamboreeSectionSchedule {
+export function generateBunkJamboreeSchedule(req: GenerateBunkJamboreeScheduleRequest): BunkJamboreeSectionSchedule {
   const { attendees, bunks, bunkActivityPreferences, currentSchedule } = req;
 
   const campers: CamperAttendee[] = [];

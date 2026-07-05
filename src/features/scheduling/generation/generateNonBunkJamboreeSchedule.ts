@@ -11,6 +11,7 @@ import { canBeAssignedToIndividualActivityAssignments, getYesYesListGroups } fro
 import { useMutation } from "@tanstack/react-query";
 import { getUseAttendeeListOptions } from "@/hooks/attendees/useAttendeeList";
 import { getUseSectionScheduleOptions } from "@/hooks/schedules/useSectionSchedule";
+import { getUseActivityPreferencesOptions } from "@/hooks/activityPreferences/useActivityPreferences";
 
 interface UseGenerateNonBunkJamboreeScheduleRequest {
   sessionId: string;
@@ -23,7 +24,7 @@ export default function useGenerateNonBunkJamboreeSchedule() {
       const { sessionId, sectionId } = req;
 
       const attendees = (await client.ensureInfiniteQueryData(getUseAttendeeListOptions(sessionId))).pages.flatMap(page => page.docs);
-      const sectionActivityPreferences = await client.ensureQueryData();
+      const sectionActivityPreferences = await client.ensureQueryData(getUseActivityPreferencesOptions(req));
       const currentSchedule = await client.ensureQueryData(getUseSectionScheduleOptions(sessionId, sectionId)) as NonBunkJamboreeSectionSchedule;
 
       return generateNonBunkJamboreeSchedule({ attendees, sectionActivityPreferences, currentSchedule });
@@ -37,7 +38,7 @@ interface GenerateNonBunkJamboreeScheduleRequest {
   currentSchedule: NonBunkJamboreeSectionSchedule;
 }
 
-export default function generateNonBunkJamboreeSchedule(req: GenerateNonBunkJamboreeScheduleRequest): NonBunkJamboreeSectionSchedule {
+export function generateNonBunkJamboreeSchedule(req: GenerateNonBunkJamboreeScheduleRequest): NonBunkJamboreeSectionSchedule {
   const { attendees, sectionActivityPreferences, currentSchedule } = req;
 
   const campers: CamperAttendee[] = [];
