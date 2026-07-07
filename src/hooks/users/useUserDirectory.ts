@@ -1,6 +1,6 @@
 import { executeUserDirectoryQuery } from "@/data/firestore/userDirectory";
 import { UserDirectory } from "@/types/albums/albumTypes";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, UseQueryOptions } from "@tanstack/react-query";
 
 export async function getUserDirectory(): Promise<Omit<UserDirectory, 'page'>> {
   const pages = await executeUserDirectoryQuery();
@@ -10,9 +10,10 @@ export async function getUserDirectory(): Promise<Omit<UserDirectory, 'page'>> {
   return fullDirectory;
 }
 
-export default function useUserDirectory() {
+export default function useUserDirectory(tanstackQueryOptions: Omit<UseQueryOptions<Awaited<ReturnType<typeof getUserDirectory>>>, "queryKey" | "queryFn">) {
   return useQuery({
     queryKey: ['user-directory'],
-    queryFn: getUserDirectory
+    queryFn: getUserDirectory,
+    ...tanstackQueryOptions,
   })
 }
