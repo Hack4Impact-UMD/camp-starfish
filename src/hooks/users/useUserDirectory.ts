@@ -10,7 +10,7 @@ export async function getFullUserDirectory(): Promise<Omit<UserDirectory, 'page'
   return fullDirectory;
 }
 
-export default function useUserDirectory(tanstackQueryOptions: Omit<UseQueryOptions<Awaited<ReturnType<typeof getFullUserDirectory>>>, "queryKey" | "queryFn">) {
+export default function useUserDirectory(tanstackQueryOptions: Omit<UseQueryOptions<Awaited<ReturnType<typeof getFullUserDirectory>>>, "queryKey" | "queryFn"> = {}) {
   return useQuery({
     queryKey: ['user-directory'],
     queryFn: getFullUserDirectory,
