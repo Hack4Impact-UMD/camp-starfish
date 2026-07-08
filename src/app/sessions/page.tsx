@@ -12,7 +12,7 @@ export default function Page() {
       authCases={[
         {
           authFn: () =>
-            !!token?.claims.role && token.claims.role !== "PHOTOGRAPHER",
+            token?.claims.role === "ADMIN" || token?.claims.role === "STAFF",
           component: <SessionsPage />,
         },
       ]}
