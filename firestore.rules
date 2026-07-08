@@ -82,6 +82,13 @@ service cloud.firestore {
           allow read: if isStaffOrAdmin();
           allow create, update, delete: if isStaffOrAdmin();
         }
+
+        // Activity preferences subcollection (written alongside the schedule
+        // when a scheduling section is created)
+        match /activityPreferences/{activityPreferencesId} {
+          allow read: if isStaffOrAdmin();
+          allow create, update, delete: if isStaffOrAdmin();
+        }
       }
       
       // Other subcollections
