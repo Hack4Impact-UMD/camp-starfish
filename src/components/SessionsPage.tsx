@@ -5,11 +5,12 @@ import {
   Button,
   Group,
   Title,
-  Menu,
   ActionIcon,
   Text,
   Tooltip,
 } from "@mantine/core";
+import LoadingPage from "@/app/loading";
+import ErrorPage from "@/app/error";
 import moment from "moment";
 import SessionCard from "@/components/SessionCard";
 import { openCreateSessionModal } from "@/components/CreateSessionModal";
@@ -117,25 +118,24 @@ export default function SessionsPage() {
             </ActionIcon>
           </Tooltip>
 
-          <Menu>
-            <Menu.Target>
-              <Button color="green" rightSection={<MdAdd size={30} />}>
-                Create Session
-              </Button>
-            </Menu.Target>
-
-            <Menu.Dropdown>
-              <Menu.Item onClick={openCreateSessionModal}>
-                Standard Session
-              </Menu.Item>
-              <Menu.Item onClick={openCreateSessionModal}>
-                Customized Session
-              </Menu.Item>
-            </Menu.Dropdown>
-          </Menu>
+          <Button
+            color="green"
+            rightSection={<MdAdd size={30} />}
+            onClick={openCreateSessionModal}
+          >
+            Create Session
+          </Button>
         </Group>
       </Group>
-      {sessions.length > 0 && (
+      {sessionsQuery.isPending ? (
+        <LoadingPage />
+      ) : sessionsQuery.isError ? (
+        <ErrorPage error={sessionsQuery.error} />
+      ) : sessions.length === 0 ? (
+        <Text className="text-center text-neutral-5 my-xl">
+          No sessions yet. Use “Create Session” to add the first one.
+        </Text>
+      ) : (
         <>
           <CardGallery
             items={sessions}
