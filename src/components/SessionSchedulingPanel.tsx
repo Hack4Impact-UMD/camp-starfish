@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Button, Title, Text, Stack, Group, Divider } from "@mantine/core";
-import { DatePicker } from "@mantine/dates";
+import { DatePicker, DatePickerInput } from "@mantine/dates";
 import moment from "moment";
 import { Timestamp } from "firebase/firestore";
 import { useQueryClient } from "@tanstack/react-query";
@@ -10,10 +10,14 @@ import { CounselorAttendee, Session } from "@/types/sessions/sessionTypes";
 import useListAttendees from "@/hooks/attendees/useListAttendees";
 import useDaysOffSchedule from "@/hooks/daysOffSchedules/useDaysOffSchedule";
 import useBunkList from "@/hooks/bunks/useBunkList";
+import usePosts from "@/hooks/posts/usePosts";
+import useFreeplayList from "@/hooks/freeplays/useFreeplayList";
 import generateDaysOffSchedule from "@/features/scheduling/generation/generateDaysOffSchedule";
 import generateNightSchedules from "@/features/scheduling/generation/generateNightSchedules";
+import generateFreeplaySchedule from "@/features/scheduling/generation/generateFreeplaySchedule";
 import { createDaysOffScheduleDoc } from "@/data/firestore/daysOffSchedules";
 import { createNightScheduleDoc } from "@/data/firestore/nightSchedules";
+import { createFreeplay } from "@/data/firestore/freeplays";
 import { DaysOffScheduleDoc } from "@/data/firestore/types/documents";
 import NightScheduleTable from "@/components/NightScheduleTable";
 import useNotifications from "@/features/notifications/useNotifications";
@@ -28,10 +32,14 @@ export default function SessionSchedulingPanel({ session }: { session: Session }
   const attendeesQuery = useListAttendees(session.id);
   const daysOffQuery = useDaysOffSchedule(session.id);
   const bunksQuery = useBunkList(session.id);
+  const postsQuery = usePosts();
+  const freeplaysQuery = useFreeplayList(session.id);
 
   const [selectedDaysOff, setSelectedDaysOff] = useState<string[]>([]);
   const [generatingDaysOff, setGeneratingDaysOff] = useState(false);
   const [generatingNights, setGeneratingNights] = useState(false);
+  const [freeplayDate, setFreeplayDate] = useState<string | null>(null);
+  const [generatingFreeplay, setGeneratingFreeplay] = useState(false);
 
   const attendees = attendeesQuery.data ?? [];
   const counselors = attendees.filter(
@@ -117,6 +125,46 @@ export default function SessionSchedulingPanel({ session }: { session: Session }
     }
   };
 
+  const handleGenerateFreeplay = async () => {
+    if (!freeplayDate || attendees.length === 0) {
+      notifications.error(
+        "Pick a date and make sure the session has attendees.",
+      );
+      return;
+    }
+    setGeneratingFreeplay(true);
+    try {
+      const date = moment(freeplayDate);
+      // Exclude the target date so regenerating it doesn't double-count against itself.
+      const otherFreeplaysInSession = (freeplaysQuery.data?.docs ?? []).filter(
+        (freeplay) => !freeplay.date.isSame(date, "day"),
+      );
+      const generated = generateFreeplaySchedule({
+        sessionId: session.id,
+        date,
+        attendees,
+        posts: postsQuery.data ?? [],
+        otherFreeplaysInSession,
+      });
+      await createFreeplay(session.id, date, {
+        posts: generated.posts,
+        buddies: generated.buddies,
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["sessions", session.id, "freeplays"],
+      });
+      notifications.success("Freeplay schedule generated.");
+    } catch (error) {
+      notifications.error(
+        error instanceof Error
+          ? error.message
+          : "Freeplay generation failed. Please try again.",
+      );
+    } finally {
+      setGeneratingFreeplay(false);
+    }
+  };
+
   return (
     <div className="flex flex-col border border-black p-4 bg-neutral-2 gap-md">
       <Title order={2}>Scheduling</Title>
@@ -162,6 +210,37 @@ export default function SessionSchedulingPanel({ session }: { session: Session }
             onClick={handleGenerateNights}
           >
             Generate night schedules
+          </Button>
+        </Group>
+      </Stack>
+
+      <Divider />
+
+      <Stack className="gap-xs">
+        <Text className="font-semibold">Freeplay</Text>
+        <Text className="text-sm text-neutral-6">
+          Generate a freeplay schedule for a single day. Requires attendees;
+          post assignments use the session&apos;s posts.
+        </Text>
+        <Group className="items-end gap-lg">
+          <DatePickerInput
+            label="Freeplay date"
+            placeholder="Select a day"
+            value={freeplayDate}
+            onChange={setFreeplayDate}
+            minDate={session.startDate.format("YYYY-MM-DD")}
+            maxDate={session.endDate.format("YYYY-MM-DD")}
+            valueFormat="MMM DD, YYYY"
+          />
+          <Button
+            color="green"
+            loading={generatingFreeplay}
+            disabled={
+              generatingFreeplay || !freeplayDate || attendees.length === 0
+            }
+            onClick={handleGenerateFreeplay}
+          >
+            Generate freeplay
           </Button>
         </Group>
       </Stack>
