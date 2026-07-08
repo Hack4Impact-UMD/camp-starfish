@@ -111,6 +111,11 @@ service cloud.firestore {
         allow read: if isStaffOrAdmin();
         allow write: if isStaffOrAdmin();
       }
+
+      match /daysOffSchedule/{daysOffScheduleId} {
+        allow read: if isStaffOrAdmin();
+        allow write: if isStaffOrAdmin();
+      }
     }
     
     // Parent-facing projection of a session's album linkage (mirrored by a
