@@ -1,6 +1,7 @@
 "use client";
 
 import { Card, Stack, Title, Text, ActionIcon } from "@mantine/core";
+import { KeyboardEvent } from "react";
 import { Moment } from "moment";
 import { useRouter } from "next/navigation";
 import { useDeleteSession } from "@/hooks/sessions/useDeleteSession";
@@ -87,7 +88,21 @@ export default function SessionCard(props: SessionCardProps) {
           "bg-neutral-2": isSelected,
         }),
       }}
-      onDoubleClick={() => router.push(`/sessions/${sessionId}`)}
+      onClick={editMode ? undefined : () => router.push(`/sessions/${sessionId}`)}
+      onDoubleClick={editMode ? undefined : () => router.push(`/sessions/${sessionId}`)}
+      role={editMode ? undefined : "link"}
+      tabIndex={editMode ? undefined : 0}
+      aria-label={editMode ? undefined : "Open session"}
+      onKeyDown={
+        editMode
+          ? undefined
+          : (event: KeyboardEvent) => {
+              if (event.key === "Enter") {
+                event.preventDefault();
+                router.push(`/sessions/${sessionId}`);
+              }
+            }
+      }
     >
       {content}
     </Card>
