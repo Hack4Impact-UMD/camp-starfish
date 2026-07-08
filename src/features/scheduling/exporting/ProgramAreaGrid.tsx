@@ -190,16 +190,13 @@ export default function ProgramAreaGrid({
 
               {/* Area Cells */}
               {areas.map((area) => {
+                const activity = blockActivitiesByProgramArea[area.id];
                 return (
                   <View
-                    key={`${blockId}-${area}`}
-                    style={
-                      blockActivitiesByProgramArea[area.id]
-                        ? [styles.cell, styles.emptyCell]
-                        : styles.cell
-                    }
+                    key={`${blockId}-${area.id}`}
+                    style={activity ? styles.cell : [styles.cell, styles.emptyCell]}
                   >
-                    {renderActivityText(blockActivitiesByProgramArea[area.id])}
+                    {activity && renderActivityText(activity)}
                   </View>
                 );
               })}

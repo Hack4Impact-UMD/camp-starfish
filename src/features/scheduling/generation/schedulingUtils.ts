@@ -1,6 +1,7 @@
 import { BunkActivityAssignments, IndividualActivityAssignments } from "@/types/scheduling/schedulingTypes";
-import { isAdminAttendee, isCamperAttendee } from "@/types/sessions/sessionTypeGuards";
+import { isAdminAttendee, isCamperAttendee, isStaffAttendee } from "@/types/sessions/sessionTypeGuards";
 import { AdminAttendee, Attendee, Bunk, CamperAttendee, CounselorAttendee, Freeplay, StaffAttendee } from "@/types/sessions/sessionTypes";
+import { getFullName } from "@/types/users/userUtils";
 import { toRecord } from "@/utils/data/toRecord";
 
 export function canBeAssignedToIndividualActivityAssignments(attendee: Attendee, assignments: IndividualActivityAssignments) {
@@ -93,6 +94,34 @@ export function groupAttendeesByBunk<T extends Attendee>(attendees: T[]): Record
     attendeesByBunk[attendee.bunk].push(attendee);
   });
   return attendeesByBunk;
+}
+
+export function getAttendeeName(attendeesById: Record<number, Attendee>, attendeeId: number): string {
+  const attendee = attendeesById[attendeeId];
+  return attendee ? getFullName(attendee.snapshot.name) : `#${attendeeId}`;
+}
+
+export interface AttendeeGroups {
+  campers: CamperAttendee[];
+  staff: StaffAttendee[];
+  admins: AdminAttendee[];
+  attendeesById: Record<number, Attendee>;
+  campersByBunk: Record<number, CamperAttendee[]>;
+  staffByBunk: Record<number, StaffAttendee[]>;
+}
+
+export function getAttendeeGroups(attendees: Attendee[]): AttendeeGroups {
+  const campers = attendees.filter(isCamperAttendee);
+  const staff = attendees.filter(isStaffAttendee);
+  const admins = attendees.filter(isAdminAttendee);
+  return {
+    campers,
+    staff,
+    admins,
+    attendeesById: getAttendeesById(attendees),
+    campersByBunk: groupAttendeesByBunk(campers),
+    staffByBunk: groupAttendeesByBunk(staff),
+  };
 }
 
 export function getYesYesListGroups(counselors: CounselorAttendee[]): number[][] {
