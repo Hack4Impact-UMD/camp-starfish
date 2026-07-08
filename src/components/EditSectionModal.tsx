@@ -96,19 +96,36 @@ export function EditSectionModalContent(props: EditSectionModalContentProps) {
   const handleSubmit = () => {
     if (!dateRange[0] || !dateRange[1] || !name || !scheduleType) return;
     if (isEditMode) {
-      updateSectionMutation.mutate(
-        {
-          sessionId: section.sessionId,
-          sectionId: section.id,
-          name: section.name !== name ? name : undefined,
-          startDate: moment(dateRange[0]).isSame(section.startDate) ? undefined : moment(dateRange[0]),
-          endDate: moment(dateRange[1]).isSame(section.endDate) ? undefined : moment(dateRange[1]),
-          type: scheduleType !== section.type ? scheduleType : undefined,
-        },
-        {
-          onSuccess: () => modals.closeAll(),
-        },
-      );
+      const submitUpdate = () =>
+        updateSectionMutation.mutate(
+          {
+            sessionId: section.sessionId,
+            sectionId: section.id,
+            name: section.name !== name ? name : undefined,
+            startDate: moment(dateRange[0]).isSame(section.startDate) ? undefined : moment(dateRange[0]),
+            endDate: moment(dateRange[1]).isSame(section.endDate) ? undefined : moment(dateRange[1]),
+            type: scheduleType !== section.type ? scheduleType : undefined,
+          },
+          {
+            onSuccess: () => modals.closeAll(),
+          },
+        );
+
+      // Changing the schedule type destroys the section's existing schedule and
+      // activity preferences (delete for COMMON, reset-to-empty otherwise), so
+      // require explicit confirmation before committing a type change.
+      if (scheduleType !== section.type) {
+        openConfirmationModal({
+          title: `Change "${section.name}" to a ${getFullSectionTypeName(scheduleType)} section?`,
+          message:
+            scheduleType === "COMMON"
+              ? "WARNING: This deletes the section's schedule and activity preferences. This cannot be undone."
+              : "WARNING: This resets the section's schedule and activity preferences to empty, and unpublishes it. This cannot be undone.",
+          onConfirm: submitUpdate,
+        });
+      } else {
+        submitUpdate();
+      }
     } else {
       createSectionMutation.mutate(
         {
