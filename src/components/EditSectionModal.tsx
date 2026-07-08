@@ -21,6 +21,7 @@ import {
   getFullSectionTypeName,
   sectionTypes,
 } from "@/types/sessions/sessionUtils";
+import openConfirmationModal from "./modals/ConfirmationModal";
 
 type EditSectionModalProps =
   | {
@@ -126,9 +127,15 @@ export function EditSectionModalContent(props: EditSectionModalContentProps) {
 
   const handleDelete = () => {
     if (!isEditMode) return;
-    deleteSectionMutation.mutate({
-      sessionId: section.sessionId,
-      sectionId: section.id,
+    openConfirmationModal({
+      title: `Are you sure you want to delete the section "${section.name}"?`,
+      message:
+        "WARNING: This action cannot be undone. The section's schedule and activity preferences will also be deleted.",
+      onConfirm: () =>
+        deleteSectionMutation.mutate(
+          { sessionId: section.sessionId, sectionId: section.id },
+          { onSuccess: () => modals.closeAll() },
+        ),
     });
   };
 
