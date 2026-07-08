@@ -7,6 +7,7 @@ import moment from "moment";
 import SessionCalendar from "./SessionCalendar";
 import { SmallDirectoryBlock } from "@/components/SmallDirectoryBlock";
 import { openEditSessionModal } from "@/components/EditSessionModal";
+import SessionSchedulingPanel from "@/components/SessionSchedulingPanel";
 import underline from "@/assets/sessionUnderline.svg";
 
 interface SessionPageProps {
@@ -59,6 +60,7 @@ export default function SessionPage(props: SessionPageProps) {
           <SmallDirectoryBlock sessionId={session.id} />
         </div>
       </div>
+      <SessionSchedulingPanel session={session} />
     </Flex>
   );
 }
