@@ -31,5 +31,6 @@ export const enum SessionsSubcollection {
 }
 
 export const enum SectionsSubcollection {
-  SCHEDULE = "schedule"
+  SCHEDULE = "schedule",
+  ACTIVITY_PREFERENCES = "activityPreferences"
 }

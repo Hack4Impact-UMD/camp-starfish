@@ -73,9 +73,12 @@ export interface BunkActivityAssignments {
 }
 export type ActivityAssignments = IndividualActivityAssignments | BunkActivityAssignments;
 
-export interface SectionActivityPreferences {
+export type ActivityPreferences = {
   sessionId: string;
   sectionId: string;
+} & SectionActivityPreferences;
+
+export interface SectionActivityPreferences {
   blocks: { [blockId: string]: BlockActivityPreferences }
 }
 

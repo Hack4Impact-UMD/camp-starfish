@@ -15,7 +15,7 @@ const checkAllowlist = beforeUserCreated(async (event) => {
   if (!email) {
     throw new HttpsError("failed-precondition", "User has no email address");
   }
-
+  
   try {
     const user = await getUserDocByEmail(email);
     if (user.uid) {

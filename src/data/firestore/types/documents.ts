@@ -1,5 +1,5 @@
 import { AlbumItemReportStatus, UserDirectory } from "@/types/albums/albumTypes";
-import { ProgramArea, SectionSchedule } from "@/types/scheduling/schedulingTypes";
+import { ActivityPreferences, ProgramArea, SectionSchedule } from "@/types/scheduling/schedulingTypes";
 import { AgeGroup, Bunk, Freeplay, NightSchedule, Post, SchedulingSectionType, SectionType } from "@/types/sessions/sessionTypes";
 import { Gender, Name, Role } from "@/types/users/userTypes";
 import { DistributiveOmit } from "@/utils/types/typeUtils";
@@ -109,7 +109,7 @@ interface BaseAttendeeDoc {
   snapshot: {
     name: Name;
     gender: Gender;
-    age: number;
+    dateOfBirth: Timestamp;
     nonoList: number[];
   }
   role: Role;
@@ -165,3 +165,5 @@ export interface DaysOffScheduleDoc {
     [counselorId: number]: Timestamp[];
   }
 }
+
+export type ActivityPreferencesDoc = Omit<ActivityPreferences, "sessionId" | "sectionId">;

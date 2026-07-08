@@ -1,4 +1,4 @@
-import { DistributiveKeyof, NonEmptyArray } from "@/utils/types/typeUtils";
+import { DistributiveKeyof, NonEmptyArray, StrictExtract } from "@/utils/types/typeUtils";
 import { AggregateType, DocumentData, DocumentSnapshot, QueryDocumentSnapshot, SetOptions, Transaction, UpdateData, WhereFilterOp, WriteBatch } from "firebase/firestore";
 
 export type SetDocOptions = SetDocMergeOptions | SetDocOverwriteOptions;
@@ -57,7 +57,7 @@ export type PaginatedQueryResponse<AppModelType, DbModelType extends DocumentDat
   }
 
 export type AggregationClause<DbModelType> = { aggregateFieldName: string; } & (
-  | { operation: Extract<AggregateType, 'count'>; }
-  | { operation: Extract<AggregateType, 'sum' | 'avg'>; sourceFieldPath: FirestoreDocumentFieldPath<DbModelType>; })
+  | { operation: StrictExtract<AggregateType, 'count'>; }
+  | { operation: StrictExtract<AggregateType, 'sum' | 'avg'>; sourceFieldPath: FirestoreDocumentFieldPath<DbModelType>; })
 
 export type AggregationQueryOptions<DbModelType extends DocumentData> = FirestoreQueryOptions<DbModelType> & { aggregations: AggregationClause<DbModelType>[]; }

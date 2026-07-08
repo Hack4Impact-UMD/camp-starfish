@@ -1,9 +1,10 @@
+import { StrictExtract } from "@/utils/types/typeUtils";
 import { Moment } from "moment";
 
 export type Role = "CAMPER" | "PARENT" | "STAFF" | "PHOTOGRAPHER" | "ADMIN";
-export type FamilyRole = Extract<Role, "CAMPER" | "PARENT">;
-export type EmployeeRole = Extract<Role, "STAFF" | "PHOTOGRAPHER" | "ADMIN">;
-export type CounselorRole = Extract<EmployeeRole, "STAFF" | "ADMIN">;
+export type FamilyRole = StrictExtract<Role, "CAMPER" | "PARENT">;
+export type EmployeeRole = StrictExtract<Role, "STAFF" | "PHOTOGRAPHER" | "ADMIN">;
+export type CounselorRole = StrictExtract<EmployeeRole, "STAFF" | "ADMIN">;
 
 interface BaseUser {
   id: number;

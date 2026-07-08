@@ -1,5 +1,6 @@
 import { Moment } from "moment";
 import { Gender, Name, Role } from "../users/userTypes";
+import { StrictExtract } from "@/utils/types/typeUtils";
 
 export interface Session {
   id: string;
@@ -36,7 +37,7 @@ export interface SchedulingSection extends BaseSection {
 }
 export type Section = CommonSection | SchedulingSection;
 
-export type AttendeeRole = Extract<Role, "ADMIN" | "CAMPER" | "STAFF">;
+export type AttendeeRole = StrictExtract<Role, "ADMIN" | "CAMPER" | "STAFF">;
 
 interface BaseAttendee {
   attendeeId: number;
@@ -44,7 +45,7 @@ interface BaseAttendee {
   snapshot: {
     name: Name
     gender: Gender;
-    age: number;
+    dateOfBirth: Moment;
     nonoList: number[];
   };
   role: AttendeeRole;
@@ -70,6 +71,7 @@ export interface AdminAttendee extends BaseAttendee {
   snapshot: BaseAttendee['snapshot'] & { yesyesList: number[] };
 }
 export type Attendee = CamperAttendee | StaffAttendee | AdminAttendee;
+export type CounselorAttendee = StaffAttendee | AdminAttendee;
 
 export interface Bunk {
   bunkNum: number;
@@ -82,7 +84,7 @@ export interface Bunk {
 export type NightSchedulePosition = "COUNSELOR-ON-DUTY" | "NIGHT-BUNK-DUTY" | "ROVER";
 export interface NightSchedule {
   sessionId: string;
-  date: string;
+  date: Moment;
   bunks: {
     [bunkNum: number]: Record<NightSchedulePosition, number[]>
   }
@@ -90,7 +92,7 @@ export interface NightSchedule {
 
 export interface Freeplay {
   sessionId: string;
-  date: string;
+  date: Moment;
   posts: { [postId: string]: number[]; };
   buddies: Record<number, number[]>;
 }

@@ -3,6 +3,7 @@ import { isFirebaseError } from "../../types/error";
 import { Collection } from "@/data/firestore/types/collections";
 import { adminDb } from "../../config/firebaseAdminConfig";
 import { DistributiveKeyof, NonEmptyArray } from "@/utils/types/typeUtils";
+import { StrictExtract } from "../../../../src/utils/types/typeUtils";
 
 export async function getDoc<DbModelType extends DocumentData>(ref: DocumentReference<DbModelType, DbModelType>, transaction?: Transaction): Promise<DocumentSnapshot<DbModelType, DbModelType>> {
   let doc: DocumentSnapshot<DbModelType, DbModelType>;
@@ -188,8 +189,8 @@ export async function batchGetDocs<DbModelType extends DocumentData>(collection:
 }
 
 type AggregationClause<DbModelType> = { aggregateFieldName: string; } & (
-  | { operation: Extract<AggregateType, 'count'>; }
-  | { operation: Extract<AggregateType, 'sum' | 'avg'>; sourceFieldPath: FirestoreDocumentFieldPath<DbModelType>; })
+  | { operation: StrictExtract<AggregateType, 'count'>; }
+  | { operation: StrictExtract<AggregateType, 'sum' | 'avg'>; sourceFieldPath: FirestoreDocumentFieldPath<DbModelType>; })
 
 type AggregationQueryOptions<DbModelType extends DocumentData> = FirestoreQueryOptions<DbModelType> & { aggregations: AggregationClause<DbModelType>[]; }
 

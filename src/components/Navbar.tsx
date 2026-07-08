@@ -33,7 +33,7 @@ const navbarLinks: { name: string; href: string; roles: Role[] }[] = [
 const Navbar: React.FC = () => {
   const auth = useAuth();
   const router = useRouter();
-  const role = auth.token?.claims.role as Role | undefined;
+  const role = auth.role;
 
   const handleLogout = async () => {
     await signOut();
@@ -57,7 +57,7 @@ const Navbar: React.FC = () => {
         {auth.token && (
           <div className="flex gap-10 text-white text-[20px] font-bold">
             {navbarLinks
-              .filter((item) => role !== undefined && item.roles.includes(role))
+              .filter((item) => role !== null && item.roles.includes(role))
               .map((item) => (
                 <Link
                   key={item.name}

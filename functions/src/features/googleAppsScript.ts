@@ -1,6 +1,6 @@
 import { onCall } from "firebase-functions/https";
 import moment from "moment";
-import { OAuth2Client } from "google-auth-library";
+import { OAuth2Client } from "googleapis-common";
 import { getFunctionsURL } from "@/utils/firebaseUtils";
 import { refreshAccessToken } from "./googleOAuth2";
 import { GoogleApis } from "googleapis";
@@ -25,8 +25,9 @@ const appsScriptEndpoint = onCall(async (req) => {
   }
 
   const { functionName, parameters } = req.data;
+
   const data = (await new GoogleApis({ auth: oAuth2Client }).script('v1').scripts.run({
-    scriptId: process.env.NEXT_PUBLIC_GOOGLE_APPS_SCRIPT_DEPLOYMENT_ID,
+    scriptId: process.env.GOOGLE_APPS_SCRIPT_DEPLOYMENT_ID,
     requestBody: {
       function: functionName,
       parameters,

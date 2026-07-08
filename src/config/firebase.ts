@@ -1,3 +1,4 @@
+import { getEnvironment } from "@/utils/utils";
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { connectAuthEmulator, getAuth } from "firebase/auth";
 import { connectFirestoreEmulator, getFirestore, initializeFirestore } from "firebase/firestore";
@@ -25,7 +26,7 @@ export const functions = getFunctions(app, 'us-central1');
 
 // Only connect to emulators on the first initialization; re-running this on a
 // hot reload (with a reused app instance) would throw "emulator already started".
-if (isFirstInit && process.env.NODE_ENV !== "production") {
+if (isFirstInit && getEnvironment() === "development") {
   connectAuthEmulator(auth, 'http://localhost:9099');
   connectFirestoreEmulator(db, 'localhost', 8080);
   connectFunctionsEmulator(functions, "localhost", 5001);
