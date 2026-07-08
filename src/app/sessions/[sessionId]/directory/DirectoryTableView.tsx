@@ -1,6 +1,7 @@
 import { flexRender } from "@tanstack/react-table";
 import { useCallback, useMemo, useState } from "react";
 import {
+  AdminAttendee,
   Attendee,
   AttendeeRole,
   StaffAttendee,
@@ -134,17 +135,12 @@ export default function DirectoryTableView({
           cell: (info) => render(info.getValue()),
         },
         {
-          accessorKey: "health",
-          header: "HEALTH",
-          cell: (info) => render(info.getValue()),
-        },
-        {
-          accessorKey: "gender",
+          accessorFn: (row) => row.snapshot.gender,
           header: "GENDER",
           cell: (info) => render(info.getValue()),
         },
         {
-          accessorKey: "nonoList",
+          accessorFn: (row) => row.snapshot.nonoList,
           header: "NO-NO LIST",
           cell: (info) => renderIdListAsNames(info.getValue<number[]>()),
         },
@@ -179,17 +175,17 @@ export default function DirectoryTableView({
           cell: (info) => render(info.getValue()),
         },
         {
-          accessorKey: "gender",
+          accessorFn: (row) => row.snapshot.gender,
           header: "GENDER",
           cell: (info) => render(info.getValue()),
         },
         {
-          accessorKey: "nonoList",
+          accessorFn: (row) => row.snapshot.nonoList,
           header: "NO-NO LIST",
           cell: (info) => renderIdListAsNames(info.getValue<number[]>()),
         },
         {
-          accessorKey: "yesyesList",
+          accessorFn: (row) => (row as StaffAttendee | AdminAttendee).snapshot.yesyesList,
           header: "YES-YES LIST",
           cell: (info) => renderIdListAsNames(info.getValue<number[]>()),
         },
@@ -199,7 +195,7 @@ export default function DirectoryTableView({
           cell: (info) => render(info.getValue()),
         },
         {
-          accessorKey: "leadBunkCounselor",
+          accessorFn: (row) => (row as StaffAttendee).isLeadBunkCounselor,
           header: "Lead Bunk Counselor",
           cell: (info) => {
             const val = info.getValue<boolean>();
@@ -208,7 +204,7 @@ export default function DirectoryTableView({
         },
         {
           accessorFn: (row) =>
-            daysOffScheduleQuery.data?.daysOffByCounselorId[row.attendeeId].map(
+            daysOffScheduleQuery.data?.daysOffByCounselorId[row.attendeeId]?.map(
               (d) => d.format("YYYY-MM-DD"),
             ),
           header: "Days Off",
@@ -216,7 +212,7 @@ export default function DirectoryTableView({
             const dates = info.getValue<string[]>();
             if (!dates || dates.length === 0) return render("N/A");
             return render(
-              dates.map((d) => moment(d).format("MM-YYYY")).join(", "),
+              dates.map((d) => moment(d).format("MM/DD/YYYY")).join(", "),
             );
           },
         },
@@ -236,26 +232,26 @@ export default function DirectoryTableView({
           cell: (info) => render(info.getValue()),
         },
         {
-          accessorKey: "gender",
+          accessorFn: (row) => row.snapshot.gender,
           header: "GENDER",
           cell: (info) => render(info.getValue()),
         },
 
         {
-          accessorKey: "nonoList",
+          accessorFn: (row) => row.snapshot.nonoList,
           header: "NO-NO LIST",
           cell: (info) => renderIdListAsNames(info.getValue<number[]>()),
         },
 
         {
-          accessorKey: "yesyesList",
+          accessorFn: (row) => (row as StaffAttendee | AdminAttendee).snapshot.yesyesList,
           header: "YES-YES LIST",
           cell: (info) => renderIdListAsNames(info.getValue<number[]>()),
         },
 
         {
           accessorFn: (row) =>
-            daysOffScheduleQuery.data?.daysOffByCounselorId[row.attendeeId].map(
+            daysOffScheduleQuery.data?.daysOffByCounselorId[row.attendeeId]?.map(
               (d) => d.format("YYYY-MM-DD"),
             ),
           header: "Days Off",
@@ -263,7 +259,7 @@ export default function DirectoryTableView({
             const dates = info.getValue<string[]>();
             if (!dates || dates.length === 0) return render("N/A");
             return render(
-              dates.map((d) => moment(d).format("MM-YYYY")).join(", "),
+              dates.map((d) => moment(d).format("MM/DD/YYYY")).join(", "),
             );
           },
         },
