@@ -13,6 +13,9 @@ async function deleteSection(req: DeleteSectionRequest) {
 
 export default function useDeleteSection() {
   return useMutation({
-    mutationFn: (req : DeleteSectionRequest) => deleteSection(req)
+    mutationFn: (req : DeleteSectionRequest) => deleteSection(req),
+    onSuccess: (_data, { sessionId }, _result, { client }) => {
+      client.invalidateQueries({ queryKey: ['sessions', sessionId, 'sections'] });
+    }
   });
 }

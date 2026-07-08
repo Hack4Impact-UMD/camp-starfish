@@ -21,6 +21,9 @@ async function updateSession(req: UpdateSessionRequest) {
 
 export default function useUpdateSession() {
   return useMutation({
-    mutationFn: (req: UpdateSessionRequest) => updateSession(req)
+    mutationFn: (req: UpdateSessionRequest) => updateSession(req),
+    onSuccess: (_data, _vars, _result, { client }) => {
+      client.invalidateQueries({ queryKey: ['sessions'] });
+    }
   });
 }

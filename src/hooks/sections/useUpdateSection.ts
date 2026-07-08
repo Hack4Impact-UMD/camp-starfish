@@ -71,8 +71,8 @@ async function updateSection(req: UpdateSectionRequest) {
 export default function useUpdateSection() {
   return useMutation({
     mutationFn: (req: UpdateSectionRequest) => updateSection(req),
-    onSuccess: (_data, { sectionId, sessionId }, _result, { client }) => {
-      client.invalidateQueries({ queryKey: ['sessions', sessionId, 'sections', sectionId] });
+    onSuccess: (_data, { sessionId }, _result, { client }) => {
+      client.invalidateQueries({ queryKey: ['sessions', sessionId, 'sections'] });
     }
   });
 }

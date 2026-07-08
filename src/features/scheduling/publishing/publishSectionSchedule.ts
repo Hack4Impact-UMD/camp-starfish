@@ -13,6 +13,9 @@ interface PublishSectionSecheduleParams {
 
 export function usePublishSectionSchedule() {
   return useMutation({
-    mutationFn: ({ sessionId, sectionId }: PublishSectionSecheduleParams) => publishSectionSchedule(sessionId, sectionId)
+    mutationFn: ({ sessionId, sectionId }: PublishSectionSecheduleParams) => publishSectionSchedule(sessionId, sectionId),
+    onSuccess: (_data, { sessionId }, _result, { client }) => {
+      client.invalidateQueries({ queryKey: ['sessions', sessionId, 'sections'] });
+    }
   })
 }

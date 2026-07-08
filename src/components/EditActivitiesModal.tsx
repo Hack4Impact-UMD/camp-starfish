@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useCallback, useRef, useMemo } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Text, Title, ActionIcon, Flex, Alert, Button } from "@mantine/core";
 import { MdArrowBack, MdChevronLeft, MdChevronRight, MdErrorOutline } from "react-icons/md";
 import { modals } from "@mantine/modals";
@@ -71,6 +72,7 @@ export default function EditActivitiesModal({
     initialSchedule ? mapScheduleToBlocks(initialSchedule) : initialBlocks,
   );
   const [modalState, setModalState] = useState<ModalState>({ opened: false, blockId: null });
+  const queryClient = useQueryClient();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [saveInProgress, setSaveInProgress] = useState(false);
@@ -194,6 +196,9 @@ export default function EditActivitiesModal({
 
       // Keep cache in sync so back-navigation shows the saved state
       schedulesRef.current.set(section.id, blockItems);
+      queryClient.invalidateQueries({
+        queryKey: ['sessions', sessionIdRef.current, 'sections', section.id, 'schedule'],
+      });
 
       return true;
     } catch {
@@ -202,7 +207,7 @@ export default function EditActivitiesModal({
     } finally {
       setSaveInProgress(false);
     }
-  }, [section]);
+  }, [section, queryClient]);
 
   // Save current section's blocks before navigating away
   const saveCurrentSection = useCallback(async (): Promise<boolean> => {
