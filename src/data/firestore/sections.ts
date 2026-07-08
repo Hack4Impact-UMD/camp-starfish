@@ -42,7 +42,14 @@ function fromFirestore(snapshot: DocumentSnapshot<SectionDoc, SectionDoc> | Quer
         startDate: moment(sectionDoc.startDate.toDate()),
         endDate: moment(sectionDoc.endDate.toDate()),
         type: sectionDoc.type,
-        publishedAt: sectionDoc.publishedAt ? moment(sectionDoc.publishedAt.toDate()) : undefined,
+        // Legacy docs may hold an ISO string (pre-2026-07 publish bug); accept both.
+        publishedAt: sectionDoc.publishedAt
+          ? moment(
+              typeof (sectionDoc.publishedAt as unknown) === "string"
+                ? (sectionDoc.publishedAt as unknown as string)
+                : sectionDoc.publishedAt.toDate(),
+            )
+          : undefined,
       } satisfies SchedulingSection;
     default: throw Error("Unknown section type");
   }

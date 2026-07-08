@@ -10,6 +10,7 @@ import useSection from "@/hooks/sections/useSection";
 import DownloadDaySchedulePDFButton from "@/features/scheduling/exporting/DownloadDaySchedulePDFButton";
 import { isCommonSection } from "@/types/sessions/sessionTypeGuards";
 import ActivityGrid from "@/components/ActivityGrid";
+import useNotifications from "@/features/notifications/useNotifications";
 
 interface SectionPageProps {
   sessionId: string;
@@ -47,6 +48,7 @@ function SectionPageContent(props: SectionPageContentProps) {
   const { session, section } = props;
 
   const publishMutation = usePublishSectionSchedule();
+  const notifications = useNotifications();
 
   return (
     <div className="flex flex-col gap-md p-md">
@@ -68,11 +70,20 @@ function SectionPageContent(props: SectionPageContentProps) {
         <div className="flex gap-2">
           <Button
             color="green"
+            loading={publishMutation.isPending}
+            disabled={publishMutation.isPending}
             onClick={() => {
-              publishMutation.mutate({
-                sessionId: session.id,
-                sectionId: section.id,
-              });
+              publishMutation.mutate(
+                {
+                  sessionId: session.id,
+                  sectionId: section.id,
+                },
+                {
+                  onSuccess: () => notifications.success("Schedule published."),
+                  onError: () =>
+                    notifications.error("Failed to publish schedule. Please try again."),
+                },
+              );
             }}
           >
             PUBLISH

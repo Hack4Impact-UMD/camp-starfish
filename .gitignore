@@ -67,3 +67,4 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 SKILL.md
+/plans
