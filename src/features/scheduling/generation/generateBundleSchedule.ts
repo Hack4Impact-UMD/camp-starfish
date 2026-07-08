@@ -63,8 +63,10 @@ export default function generateBundleSchedule(req: GenerateBundleScheduleReques
   const programCounselorsByProgramArea = groupBy(programCounselors, programCounselor => programCounselor.programCounselorFor!);
   for (const block of Object.values(newSchedule.blocks)) {
     for (const activity of block.activities) {
-      const eligibleProgramCounselors = programCounselorsByProgramArea[activity.programAreaId].filter(programCounselor => daysOffSchedule.daysOffByCounselorId[programCounselor.attendeeId].every(dayOff => !isDayInRange(dayOff, [section.startDate, section.endDate])));
-      if (!eligibleProgramCounselors) {
+      // No program counselor may cover this area, and a counselor may have no
+      // days-off entry — both are valid sparse states, not errors.
+      const eligibleProgramCounselors = (programCounselorsByProgramArea[activity.programAreaId] ?? []).filter(programCounselor => (daysOffSchedule.daysOffByCounselorId[programCounselor.attendeeId] ?? []).every(dayOff => !isDayInRange(dayOff, [section.startDate, section.endDate])));
+      if (eligibleProgramCounselors.length === 0) {
         continue;
       }
       activity.adminIds.push(...eligibleProgramCounselors.map(counselor => counselor.attendeeId));
@@ -93,7 +95,7 @@ export default function generateBundleSchedule(req: GenerateBundleScheduleReques
   const ocpSwimActivities = Object.values(newSchedule.blocks).map((block) => block.activities.find(activity => activity.programAreaId === "WF" && activity.ageGroup === "OCP")).filter(activity => !!activity);
   if (ocpSwimActivities.length !== 0) {
     const ocpCampersNeedingSwimActivities = ocpCampers.filter(camper => isFirstBundleOfSession || (camper.level >= 4 && camper.isOptedOutFromSwim));
-    const maxOcpCampersPerSwimActivity = Math.ceil(ocpCampersNeedingSwimActivities.length / navSwimActivities.length);
+    const maxOcpCampersPerSwimActivity = Math.ceil(ocpCampersNeedingSwimActivities.length / ocpSwimActivities.length);
     for (const camper of shuffle(ocpCampersNeedingSwimActivities)) {
       let eligibleSwimActivities = ocpSwimActivities.filter(swimActivity => swimActivity.camperIds.length < maxOcpCampersPerSwimActivity && canBeAssignedToIndividualActivityAssignments(camper, swimActivity));
       if (eligibleSwimActivities.length === 0) {
@@ -128,12 +130,13 @@ export default function generateBundleSchedule(req: GenerateBundleScheduleReques
     const sortedCampers = shuffle(campers.filter(camper => block.activities.every(activity => !activity.camperIds.includes(camper.attendeeId))).sort((a, b) => b.snapshot.dateOfBirth.diff(a.snapshot.dateOfBirth, "years")));
     const maxCampersPerActivity = Math.ceil(sortedCampers.length / block.activities.length);
     for (const camper of sortedCampers) {
-      const camperPrefs = camperActivityPreferences.blocks[blockId][camper.attendeeId];
+      // A camper may be missing from the preferences doc; treat as no preference.
+      const camperPrefs = camperActivityPreferences.blocks[blockId]?.[camper.attendeeId] ?? {};
       let eligibleActivities = block.activities.filter((activity) => activity.camperIds.length < maxCampersPerActivity && canBeAssignedToIndividualActivityAssignments(camper, activity));
       if (eligibleActivities.length === 0) {
         eligibleActivities = block.activities;
       }
-      const chosenActivity = eligibleActivities.sort((a, b) => camperPrefs[a.programAreaId] - camperPrefs[b.programAreaId])[0];
+      const chosenActivity = eligibleActivities.sort((a, b) => (camperPrefs[a.programAreaId] ?? Number.MAX_SAFE_INTEGER) - (camperPrefs[b.programAreaId] ?? Number.MAX_SAFE_INTEGER))[0];
       chosenActivity.camperIds.push(camper.attendeeId);
     }
   }
@@ -159,7 +162,9 @@ export default function generateBundleSchedule(req: GenerateBundleScheduleReques
 
     const maxCounselorsPerActivity = Math.ceil((adminsToAssign.length + staffToAssign.length) / block.activities.length);
 
-    const numAdminsAssigned = Math.min(admins.length, block.activities.length);
+    // Bound by the admins actually available in this block (not all admins) —
+    // an admin on a period off would otherwise index past adminsToAssign.
+    const numAdminsAssigned = Math.min(adminsToAssign.length, block.activities.length);
     const shuffledActivities = shuffle(block.activities);
     for (let i = 0; i < numAdminsAssigned; i++) {
       shuffledActivities[i].adminIds.push(adminsToAssign[i].attendeeId);
