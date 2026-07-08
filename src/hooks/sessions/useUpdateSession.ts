@@ -14,8 +14,8 @@ async function updateSession(req: UpdateSessionRequest) {
   const { sessionId, ...updates } = req;
   await updateSessionDoc(sessionId, {
     name: updates.name,
-    startDate: updates.startDate ? Timestamp.fromDate(updates.startDate.toDate()) : undefined,
-    endDate: updates.endDate ? Timestamp.fromDate(updates.endDate.toDate()) : undefined
+    startDate: updates.startDate ? Timestamp.fromDate(updates.startDate.clone().startOf('day').toDate()) : undefined,
+    endDate: updates.endDate ? Timestamp.fromDate(updates.endDate.clone().endOf('day').toDate()) : undefined
   });
 }
 

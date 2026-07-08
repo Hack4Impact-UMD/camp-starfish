@@ -1,8 +1,12 @@
+"use client";
+
 import { Session } from "@/types/sessions/sessionTypes";
-import { Flex, Title, Text } from "@mantine/core";
+import { ActionIcon, Flex, Title, Text, Tooltip } from "@mantine/core";
+import { MdEdit } from "react-icons/md";
 import moment from "moment";
 import SessionCalendar from "./SessionCalendar";
 import { SmallDirectoryBlock } from "@/components/SmallDirectoryBlock";
+import { openEditSessionModal } from "@/components/EditSessionModal";
 import underline from "@/assets/sessionUnderline.svg";
 
 interface SessionPageProps {
@@ -37,6 +41,15 @@ export default function SessionPage(props: SessionPageProps) {
             ? ""
             : `-${sessionEndDate.format("MMMM YYYY")}`}
         </Text>
+        <Tooltip label="Edit session">
+          <ActionIcon
+            variant="subtle"
+            aria-label="Edit session"
+            onClick={() => openEditSessionModal(session)}
+          >
+            <MdEdit size={22} />
+          </ActionIcon>
+        </Tooltip>
       </Flex>
       <div className="flex flex-row w-full gap-lg items-start">
         <div className="flex-1 min-w-0">
