@@ -33,7 +33,7 @@ export async function getDaysOffScheduleDoc(sessionId: string, transaction?: Tra
 
 export async function listDaysOffScheduleDocs(sessionId: string, queryOptions?: FirestoreQueryOptions<DaysOffScheduleDoc>): Promise<PaginatedQueryResponse<DaysOffSchedule, DaysOffScheduleDoc>> {
   const snapshots = await executeQuery<DaysOffScheduleDoc>(getDaysOffScheduleCollectionRef(sessionId), queryOptions);
-  return mapSnapshotsToPaginatedQueryResult(snapshots, fromFirestore);
+  return mapSnapshotsToPaginatedQueryResult(snapshots, fromFirestore, queryOptions && 'limit' in queryOptions ? queryOptions.limit : undefined);
 }
 
 export async function createDaysOffScheduleDoc(sessionId: string, daysOff: WithFieldValue<DaysOffScheduleDoc>, instance?: Transaction | WriteBatch): Promise<void> {

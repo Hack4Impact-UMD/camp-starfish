@@ -37,5 +37,5 @@ export async function listSessionAlbumDocs(
     >,
     options,
   );
-  return mapSnapshotsToPaginatedQueryResult(snapshots, fromFirestore);
+  return mapSnapshotsToPaginatedQueryResult(snapshots, fromFirestore, options && 'limit' in options ? options.limit : undefined);
 }

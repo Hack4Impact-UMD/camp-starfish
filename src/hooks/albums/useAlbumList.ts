@@ -26,6 +26,6 @@ export default function useAlbumList(queryOptions?: FirestoreQueryOptions<AlbumD
     },
     initialPageParam: undefined as TanstackQueryFirestorePageParam<AlbumDoc> | undefined,
     getPreviousPageParam: (firstPage) => firstPage.firstSnapshot ? ({ direction: 'previous' as const, snapshot: firstPage.firstSnapshot }) : undefined,
-    getNextPageParam: (lastPage) => lastPage.lastSnapshot ? ({ direction: 'next' as const, snapshot: lastPage.lastSnapshot }) : undefined,
+    getNextPageParam: (lastPage) => lastPage.hasMore && lastPage.lastSnapshot ? ({ direction: 'next' as const, snapshot: lastPage.lastSnapshot }) : undefined,
   });
 }

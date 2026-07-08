@@ -25,7 +25,7 @@ export default function useBunkList(sessionId: string, firestoreQueryOptions?: F
     },
     initialPageParam: undefined as TanstackQueryFirestorePageParam<BunkDoc> | undefined,
     getPreviousPageParam: (firstPage) => firstPage.firstSnapshot ? ({ direction: 'previous' as const, snapshot: firstPage.firstSnapshot }) : undefined,
-    getNextPageParam: (lastPage) => lastPage.lastSnapshot ? ({ direction: 'next' as const, snapshot: lastPage.lastSnapshot }) : undefined,
+    getNextPageParam: (lastPage) => lastPage.hasMore && lastPage.lastSnapshot ? ({ direction: 'next' as const, snapshot: lastPage.lastSnapshot }) : undefined,
     enabled
   });
 }

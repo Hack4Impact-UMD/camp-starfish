@@ -29,7 +29,7 @@ export async function getAlbumDoc(id: string, transaction?: Transaction): Promis
 
 export async function getAlbumDocs(queryOptions?: FirestoreQueryOptions<AlbumDoc>): Promise<PaginatedQueryResponse<Album, AlbumDoc>> {
   const snapshots = await executeQuery<AlbumDoc>(collection(db, RootLevelCollection.ALBUMS) as CollectionReference<AlbumDoc, AlbumDoc>, queryOptions);
-  return mapSnapshotsToPaginatedQueryResult(snapshots, fromFirestore);
+  return mapSnapshotsToPaginatedQueryResult(snapshots, fromFirestore, queryOptions && 'limit' in queryOptions ? queryOptions.limit : undefined);
 }
 
 export async function batchGetAlbumDocs(ids: string[]): Promise<Album[]> {

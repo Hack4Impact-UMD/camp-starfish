@@ -34,7 +34,7 @@ export async function getNightScheduleDoc(date: Moment, sessionId: string, trans
 
 export async function listNightScheduleDocs(sessionId: string, firestoreQueryOptions: FirestoreQueryOptions<NightScheduleDoc>): Promise<PaginatedQueryResponse<NightSchedule, NightScheduleDoc>> {
   const snapshots = await executeQuery<NightScheduleDoc>(collection(db, RootLevelCollection.SESSIONS, sessionId, SessionsSubcollection.NIGHT_SCHEDULES) as CollectionReference<NightScheduleDoc, NightScheduleDoc>, firestoreQueryOptions);
-  return mapSnapshotsToPaginatedQueryResult(snapshots, fromFirestore);
+  return mapSnapshotsToPaginatedQueryResult(snapshots, fromFirestore, 'limit' in firestoreQueryOptions ? firestoreQueryOptions.limit : undefined);
 }
 
 export async function createNightScheduleDoc(sessionId: string, date: Moment, nightShift: WithFieldValue<NightScheduleDoc>, instance?: Transaction | WriteBatch): Promise<void> {
