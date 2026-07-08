@@ -14,6 +14,7 @@ import { Button } from "@mantine/core";
 import useNotifications from "@/features/notifications/useNotifications";
 import { MdOpenInNew } from "react-icons/md";
 import { isBundleSectionSchedule } from "@/types/scheduling/schedulingTypeGuards";
+import { getAttendeeGroups } from "@/features/scheduling/generation/schedulingUtils";
 import useProgramAreaBatch from "@/hooks/programAreas/useProgramAreaBatch";
 import { Moment } from "moment";
 
@@ -96,11 +97,7 @@ function DownloadDaySchedulePDFButtonContent(
   const { attendees, section, schedule, freeplay, programAreas } = props;
 
   const { admins, staff, campers } = useMemo(
-    () => ({
-      admins: attendees.filter((att) => att.role === "ADMIN"),
-      staff: attendees.filter((att) => att.role === "STAFF"),
-      campers: attendees.filter((att) => att.role === "CAMPER"),
-    }),
+    () => getAttendeeGroups(attendees),
     [attendees],
   );
 

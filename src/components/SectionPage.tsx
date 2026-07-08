@@ -9,6 +9,7 @@ import useSession from "@/hooks/sessions/useSession";
 import useSection from "@/hooks/sections/useSection";
 import DownloadDaySchedulePDFButton from "@/features/scheduling/exporting/DownloadDaySchedulePDFButton";
 import { isCommonSection } from "@/types/sessions/sessionTypeGuards";
+import ActivityGrid from "@/components/ActivityGrid";
 
 interface SectionPageProps {
   sessionId: string;
@@ -48,39 +49,42 @@ function SectionPageContent(props: SectionPageContentProps) {
   const publishMutation = usePublishSectionSchedule();
 
   return (
-    <div className="flex flex-col gap-md md:flex-row md:items-center md:justify-between p-md">
-      <div>
-        <Title order={1} className="text-2xl mb-2 font-bold">
-          {session.name}
-        </Title>
-        <Text className="text-sm text-primary-5 mb-4 italic">
-          {`Last generated: ${
-            section && section.publishedAt
-              ? moment(section.publishedAt).format(
-                  "MM/DD/YYYY hh:mm:ss A",
-                )
-              : "N/A"
-          }`}
-        </Text>
+    <div className="flex flex-col gap-md p-md">
+      <div className="flex flex-col gap-md md:flex-row md:items-center md:justify-between">
+        <div>
+          <Title order={1} className="text-2xl mb-2 font-bold">
+            {session.name}
+          </Title>
+          <Text className="text-sm text-primary-5 mb-4 italic">
+            {`Last generated: ${
+              section && section.publishedAt
+                ? moment(section.publishedAt).format(
+                    "MM/DD/YYYY hh:mm:ss A",
+                  )
+                : "N/A"
+            }`}
+          </Text>
+        </div>
+        <div className="flex gap-2">
+          <Button
+            color="green"
+            onClick={() => {
+              publishMutation.mutate({
+                sessionId: session.id,
+                sectionId: section.id,
+              });
+            }}
+          >
+            PUBLISH
+          </Button>
+          <DownloadDaySchedulePDFButton
+            sectionId={section.id}
+            sessionId={session.id}
+            date={section.startDate}
+          />
+        </div>
       </div>
-      <div className="flex gap-2">
-        <Button
-          color="green"
-          onClick={() => {
-            publishMutation.mutate({
-              sessionId: session.id,
-              sectionId: section.id,
-            });
-          }}
-        >
-          PUBLISH
-        </Button>
-        <DownloadDaySchedulePDFButton
-          sectionId={section.id}
-          sessionId={session.id}
-          date={section.startDate}
-        />
-      </div>
+      <ActivityGrid sessionId={session.id} section={section} />
     </div>
   );
 }

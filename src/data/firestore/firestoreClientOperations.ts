@@ -19,6 +19,10 @@ export async function getDoc<DbModelType extends DocumentData>(ref: DocumentRefe
   return doc;
 }
 
+export function isNotFoundError(error: unknown): boolean {
+  return error instanceof Error && error.message === "Document not found";
+}
+
 export async function assertDocumentDoesNotExist(ref: DocumentReference, instance?: Transaction): Promise<void> {
   const doc = await (instance ? instance.get(ref) : getFirestore(ref));
   if (doc.exists()) {
