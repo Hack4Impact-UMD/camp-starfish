@@ -19,14 +19,13 @@ import {
   MdClose,
 } from "react-icons/md";
 import { MdAccountCircle } from "react-icons/md";
-import useUserDirectory from "@/hooks/users/useUserDirectory";
 import {
   ATTENDEE_ROLES,
   getFullName,
   getPluralRole,
 } from "@/types/users/userUtils";
 import useBunkList from "@/hooks/bunks/useBunkList";
-import useSession from "@/hooks/sessions/useSession";
+import useListAttendees from "@/hooks/attendees/useListAttendees";
 
 type SmallDirectoryBlockProps = {
   sessionId: string;
@@ -39,28 +38,25 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
   );
   const [isBunkErrorOpen, setIsBunkErrorOpen] = useState<boolean>(true);
 
-  const sessionQuery = useSession(sessionId);
-  const userDirectoryQuery = useUserDirectory();
+  const attendeesQuery = useListAttendees(sessionId);
   const bunksQuery = useBunkList(sessionId);
 
   const attendeesToDisplay = useMemo(() => {
-    if (!userDirectoryQuery.data || !sessionQuery.data) return [];
-    return Object.keys(userDirectoryQuery.data)
-      .filter((userId) =>
-        sessionQuery.data.attendeeIds.includes(Number(userId)),
-      )
-      .map((userId) => ({
-        id: Number(userId),
-        ...userDirectoryQuery.data[Number(userId)],
-      }))
+    if (!attendeesQuery.data) return [];
+    return attendeesQuery.data
       .filter(
-        (user) =>
-          user.role === roleFilter &&
-          getFullName(user.name)
+        (attendee) =>
+          attendee.role === roleFilter &&
+          getFullName(attendee.snapshot.name)
             .toLowerCase()
             .includes(searchQuery.toLowerCase()),
+      )
+      .sort((a, b) =>
+        getFullName(a.snapshot.name).localeCompare(
+          getFullName(b.snapshot.name),
+        ),
       );
-  }, [sessionQuery.data, userDirectoryQuery.data, roleFilter, searchQuery]);
+  }, [attendeesQuery.data, roleFilter, searchQuery]);
 
   const usersToBunk = useMemo(() => {
     if (!bunksQuery.data) return [];
@@ -76,14 +72,14 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
   }, [bunksQuery.data]);
 
   let smallDirectoryBlockContent = <></>;
-  if (userDirectoryQuery.isError || sessionQuery.isError) {
+  if (attendeesQuery.isError) {
     smallDirectoryBlockContent = (
       <div className="flex items-center gap-sm p-sm bg-error-0 border border-error rounded-md">
         <MdErrorOutline size={32} className="text-error" />
         <Text className="text-error">Unable to load directory</Text>
       </div>
     );
-  } else if (userDirectoryQuery.isPending || sessionQuery.isPending) {
+  } else if (attendeesQuery.isPending) {
     smallDirectoryBlockContent = (
       <Text className="text-neutral">Loading directory...</Text>
     );
@@ -133,12 +129,13 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
             {attendeesToDisplay.map((attendee) => (
               <div
                 className="flex items-center gap-xs py-sm border-b last:border-b-0"
-                key={attendee.id}
+                key={attendee.attendeeId}
               >
                 <MdAccountCircle />
                 <Text className="font-bold">
-                  {getFullName(attendee.name)}
-                  {usersToBunk[attendee.id] && ` (${usersToBunk[attendee.id]})`}
+                  {getFullName(attendee.snapshot.name)}
+                  {usersToBunk[attendee.attendeeId] &&
+                    ` (${usersToBunk[attendee.attendeeId]})`}
                 </Text>
               </div>
             ))}
