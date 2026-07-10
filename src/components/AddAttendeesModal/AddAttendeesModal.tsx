@@ -7,6 +7,7 @@ import { getFullName, isAttendeeRole } from "@/types/users/userUtils";
 import { getObjectEntriesWithNumberKeys } from "@/utils/stringUtils";
 import {
   Button,
+  Checkbox,
   MultiSelect,
   NumberInput,
   Select,
@@ -158,7 +159,10 @@ export function AddAttendeesModal(props: AddAttendeesModalProps) {
           </Table>
         </Stepper.Step>
       </Stepper>
-      <Button onClick={nextStep}></Button>
+      <div className="flex justify-around w-full">
+        <Button onClick={prevStep}>Prev</Button>
+        <Button onClick={nextStep}>Next</Button>
+      </div>
     </div>
   );
 }
