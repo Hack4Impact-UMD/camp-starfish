@@ -63,7 +63,7 @@ export function AddAttendeesModal(props: AddAttendeesModalProps) {
 
   return (
     <div className="flex flex-col items-center w-full">
-      <Stepper active={activeStep} onStepClick={setActiveStep}>
+      <Stepper active={activeStep} allowNextStepsSelect={false}>
         <Stepper.Step label="Select attendees">
           <MultiSelect
             classNames={{
