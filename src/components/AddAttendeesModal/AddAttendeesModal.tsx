@@ -25,8 +25,10 @@ export function AddAttendeesModal(props: AddAttendeesModalProps) {
 
   if (sessionQuery.isPending || userDirectoryQuery.isPending)
     return <LoadingPage />;
-  else if (sessionQuery.isError || userDirectoryQuery.isError)
-    return <ErrorPage error={sessionQuery.error || userDirectoryQuery.error} />;
+  else if (sessionQuery.isError)
+    return <ErrorPage error={sessionQuery.error} />
+  else if (userDirectoryQuery.isError)
+    return <ErrorPage error={userDirectoryQuery.error} />
 
   return <div>
     <Select data={Object.entries(potentialSessionAttendees).map(([userId, user]) => ({ value: userId, label: getFullName(user.name) }))}>
