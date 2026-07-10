@@ -6,9 +6,9 @@ import { getFullName, isAttendeeRole } from "@/types/users/userUtils";
 import {
   getObjectEntriesWithNumberKeys,
 } from "@/utils/stringUtils";
-import { Select } from "@mantine/core";
+import { MultiSelect, Select } from "@mantine/core";
 import { modals } from "@mantine/modals";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
 interface AddAttendeesModalProps {
   sessionId: string;
@@ -16,6 +16,8 @@ interface AddAttendeesModalProps {
 
 export function AddAttendeesModal(props: AddAttendeesModalProps) {
   const { sessionId } = props;
+
+  const [selectedAttendeeIds, setSelectedAttendeeIds] = useState<number[]>([]);
 
   const sessionQuery = useSession(sessionId);
   const userDirectoryQuery = useUserDirectory();
@@ -39,15 +41,19 @@ export function AddAttendeesModal(props: AddAttendeesModalProps) {
     return <ErrorPage error={userDirectoryQuery.error} />;
 
   return (
-    <div>
-      <Select
-        data={Object.entries(potentialSessionAttendees).map(
+    <div className="flex flex-col items-center w-full">
+      <MultiSelect
+        classNames={{
+          root: 'w-full',
+        }}
+        data={getObjectEntriesWithNumberKeys(potentialSessionAttendees).map(
           ([userId, user]) => ({
             value: userId,
             label: getFullName(user.name),
           }),
         )}
-      ></Select>
+      />
+      {selectedAttendeeIds.map((attendeeId) => <div>{getFullName(userDirectoryQuery.data[attendeeId].name)}</div>)}
     </div>
   );
 }
