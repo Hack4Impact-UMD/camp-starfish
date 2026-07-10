@@ -108,13 +108,52 @@ export function AddAttendeesModal(props: AddAttendeesModalProps) {
               {camperIds.map((camperId) => {
                 const camperDirectoryEntry = userDirectoryQuery.data[camperId];
                 return (
-                <Table.Tr>
-                  <Table.Td>{camperId}</Table.Td>
-                  <Table.Td>{getFullName(camperDirectoryEntry.name)}</Table.Td>
-                  <Table.Td><Select data={AGE_GROUPS}/></Table.Td>
-                  <Table.Td><NumberInput/></Table.Td>
-                </Table.Tr>
-              )})}
+                  <Table.Tr>
+                    <Table.Td>{camperId}</Table.Td>
+                    <Table.Td>
+                      {getFullName(camperDirectoryEntry.name)}
+                    </Table.Td>
+                    <Table.Td>
+                      <Select data={AGE_GROUPS} />
+                    </Table.Td>
+                    <Table.Td>
+                      <NumberInput />
+                    </Table.Td>
+                  </Table.Tr>
+                );
+              })}
+            </Table.Tbody>
+          </Table>
+        </Stepper.Step>
+        <Stepper.Step label="Fill in Staff Data">
+          <Table>
+            <Table.Thead>
+              <Table.Tr>
+                <Table.Th>ID</Table.Th>
+                <Table.Th>Name</Table.Th>
+                <Table.Th>Bunk</Table.Th>
+                <Table.Th>Is Bunk Counselor?</Table.Th>
+              </Table.Tr>
+            </Table.Thead>
+            <Table.Tbody>
+              {staffIds.map((stafferId) => {
+                const stafferDirectoryEntry =
+                  userDirectoryQuery.data[stafferId];
+                return (
+                  <Table.Tr>
+                    <Table.Td>{stafferId}</Table.Td>
+                    <Table.Td>
+                      {getFullName(stafferDirectoryEntry.name)}
+                    </Table.Td>
+                    <Table.Td>
+                      <NumberInput />
+                    </Table.Td>
+                    <Table.Td>
+                      <Checkbox />
+                    </Table.Td>
+                  </Table.Tr>
+                );
+              })}
             </Table.Tbody>
           </Table>
         </Stepper.Step>
