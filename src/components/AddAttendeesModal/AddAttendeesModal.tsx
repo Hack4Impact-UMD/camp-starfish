@@ -157,8 +157,6 @@ export function AddAttendeesModal(props: AddAttendeesModalProps) {
             </Table.Tbody>
           </Table>
         </Stepper.Step>
-        <Stepper.Step label="Fill in Staff Data"></Stepper.Step>
-        <Stepper.Completed>Completed</Stepper.Completed>
       </Stepper>
       <Button onClick={nextStep}></Button>
     </div>
