@@ -44,7 +44,8 @@ interface BaseAttendee {
   role: AttendeeRole;
 }
 
-export type AgeGroup = "OCP" | "NAV";
+export type AgeGroup = "NAV" | "OCP";
+export const AGE_GROUPS: AgeGroup[] = ["NAV", "OCP"];
 export interface CamperAttendee extends BaseAttendee {
   role: "CAMPER";
   ageGroup: AgeGroup;
