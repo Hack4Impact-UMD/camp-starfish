@@ -35,6 +35,7 @@ import { MdPersonAdd, MdSearch } from "react-icons/md";
 import LoadingPage from "@/app/loading";
 import useDaysOffSchedule from "@/hooks/daysOffSchedules/useDaysOffSchedule";
 import useSession from "@/hooks/sessions/useSession";
+import openAddAttendeesModal from "@/components/AddAttendeesModal/AddAttendeesModal";
 
 type LargeDirectoryBlockProps = {
   sessionId: string;
@@ -326,7 +327,7 @@ export default function DirectoryTableView({
         <Title order={3}>
           DIRECTORY
         </Title>
-        <ActionIcon color="aqua">
+        <ActionIcon color="aqua" onClick={() => openAddAttendeesModal(sessionId)}>
           <Tooltip label="Add Attendees">
             <MdPersonAdd size={30} />
           </Tooltip>
