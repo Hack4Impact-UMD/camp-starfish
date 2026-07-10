@@ -92,6 +92,6 @@ export default function openAddAttendeesModal(sessionId: string) {
   modals.open({
     title: "Add Attendees",
     children: <AddAttendeesModal sessionId={sessionId} />,
-    size: 'auto'
+    size: 'xl'
   });
 }
