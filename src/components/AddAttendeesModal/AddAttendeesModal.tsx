@@ -16,6 +16,7 @@ import {
 } from "@mantine/core";
 import { modals } from "@mantine/modals";
 import { useMemo, useState } from "react";
+import SelectAttendeesScreen from "./SelectAttendeesScreen";
 
 interface AddAttendeesModalProps {
   sessionId: string;
@@ -34,7 +35,6 @@ export function AddAttendeesModal(props: AddAttendeesModalProps) {
   const [activeStep, setActiveStep] = useState<AddAttendeesModalScreens>(
     AddAttendeesModalScreens.SELECT_ATTENDEES,
   );
-  const [selectedAttendeeIds, setSelectedAttendeeIds] = useState<number[]>([]);
 
   const prevStep = () =>
     setActiveStep((activeStep) =>
@@ -48,20 +48,6 @@ export function AddAttendeesModal(props: AddAttendeesModalProps) {
         ? activeStep
         : activeStep + 1,
     );
-
-  const sessionQuery = useSession(sessionId);
-  const userDirectoryQuery = useUserDirectory();
-
-  const potentialSessionAttendees = useMemo(() => {
-    if (!userDirectoryQuery.data || !sessionQuery.data) return {};
-    return Object.fromEntries(
-      getObjectEntriesWithNumberKeys(userDirectoryQuery.data || {}).filter(
-        ([userId, user]) =>
-          isAttendeeRole(user.role) &&
-          !sessionQuery.data.attendeeIds.includes(userId),
-      ),
-    );
-  }, [sessionQuery.data?.attendeeIds, userDirectoryQuery.data]);
 
   if (sessionQuery.isPending || userDirectoryQuery.isPending)
     return <LoadingPage />;
@@ -81,18 +67,7 @@ export function AddAttendeesModal(props: AddAttendeesModalProps) {
     <div className="flex flex-col items-center w-full">
       <Stepper active={activeStep} allowNextStepsSelect={false}>
         <Stepper.Step label="Select Attendees">
-          <MultiSelect
-            classNames={{
-              root: "w-full",
-            }}
-            data={getObjectEntriesWithNumberKeys(potentialSessionAttendees).map(
-              ([userId, user]) => ({
-                value: userId,
-                label: getFullName(user.name),
-              }),
-            )}
-            onChange={(attendeeIds) => setSelectedAttendeeIds(attendeeIds)}
-          />
+          <SelectAttendeesScreen />;
         </Stepper.Step>
         <Stepper.Step label="Input Camper Data">
           <Table>
