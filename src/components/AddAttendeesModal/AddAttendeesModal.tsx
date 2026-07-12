@@ -1,22 +1,12 @@
-import ErrorPage from "@/app/error";
-import LoadingPage from "@/app/loading";
-import useSession from "@/hooks/sessions/useSession";
-import useUserDirectory from "@/hooks/users/useUserDirectory";
-import { AGE_GROUPS } from "@/types/sessions/sessionTypes";
-import { getFullName, isAttendeeRole } from "@/types/users/userUtils";
-import { getObjectEntriesWithNumberKeys } from "@/utils/stringUtils";
 import {
   Button,
-  Checkbox,
-  MultiSelect,
-  NumberInput,
-  Select,
   Stepper,
-  Table,
 } from "@mantine/core";
 import { modals } from "@mantine/modals";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import SelectAttendeesScreen from "./SelectAttendeesScreen";
+import InputCamperDataScreen from "./InputCamperDataScreen";
+import InputStaffDataScreen from "./InputStaffDataScreen";
 
 interface AddAttendeesModalProps {
   sessionId: string;
@@ -49,20 +39,6 @@ export function AddAttendeesModal(props: AddAttendeesModalProps) {
         : activeStep + 1,
     );
 
-  if (sessionQuery.isPending || userDirectoryQuery.isPending)
-    return <LoadingPage />;
-  else if (sessionQuery.isError)
-    return <ErrorPage error={sessionQuery.error} />;
-  else if (userDirectoryQuery.isError)
-    return <ErrorPage error={userDirectoryQuery.error} />;
-
-  const camperIds = selectedAttendeeIds.filter(
-    (attendeeId) => userDirectoryQuery.data[attendeeId].role === "CAMPER",
-  );
-  const staffIds = selectedAttendeeIds.filter(
-    (attendeeId) => userDirectoryQuery.data[attendeeId].role === "STAFF",
-  );
-
   return (
     <div className="flex flex-col items-center w-full">
       <Stepper active={activeStep} allowNextStepsSelect={false}>
@@ -70,67 +46,10 @@ export function AddAttendeesModal(props: AddAttendeesModalProps) {
           <SelectAttendeesScreen />;
         </Stepper.Step>
         <Stepper.Step label="Input Camper Data">
-          <Table>
-            <Table.Thead>
-              <Table.Tr>
-                <Table.Th>ID</Table.Th>
-                <Table.Th>Name</Table.Th>
-                <Table.Th>Age Group</Table.Th>
-                <Table.Th>Bunk</Table.Th>
-              </Table.Tr>
-            </Table.Thead>
-            <Table.Tbody>
-              {camperIds.map((camperId) => {
-                const camperDirectoryEntry = userDirectoryQuery.data[camperId];
-                return (
-                  <Table.Tr>
-                    <Table.Td>{camperId}</Table.Td>
-                    <Table.Td>
-                      {getFullName(camperDirectoryEntry.name)}
-                    </Table.Td>
-                    <Table.Td>
-                      <Select data={AGE_GROUPS} />
-                    </Table.Td>
-                    <Table.Td>
-                      <NumberInput />
-                    </Table.Td>
-                  </Table.Tr>
-                );
-              })}
-            </Table.Tbody>
-          </Table>
+          <InputCamperDataScreen />
         </Stepper.Step>
         <Stepper.Step label="Input Staff Data">
-          <Table>
-            <Table.Thead>
-              <Table.Tr>
-                <Table.Th>ID</Table.Th>
-                <Table.Th>Name</Table.Th>
-                <Table.Th>Bunk</Table.Th>
-                <Table.Th>Is Bunk Counselor?</Table.Th>
-              </Table.Tr>
-            </Table.Thead>
-            <Table.Tbody>
-              {staffIds.map((stafferId) => {
-                const stafferDirectoryEntry =
-                  userDirectoryQuery.data[stafferId];
-                return (
-                  <Table.Tr>
-                    <Table.Td>{stafferId}</Table.Td>
-                    <Table.Td>
-                      {getFullName(stafferDirectoryEntry.name)}
-                    </Table.Td>
-                    <Table.Td>
-                      <NumberInput />
-                    </Table.Td>
-                    <Table.Td>
-                      <Checkbox />
-                    </Table.Td>
-                  </Table.Tr>
-                );
-              })}
-            </Table.Tbody>
-          </Table>
+          <InputStaffDataScreen />
         </Stepper.Step>
       </Stepper>
       <div className="flex justify-around w-full">
