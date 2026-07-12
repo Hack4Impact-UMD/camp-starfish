@@ -8,8 +8,9 @@ import { getObjectEntriesWithNumberKeys } from "@/utils/stringUtils";
 import { getFullName, isAttendeeRole } from "@/types/users/userUtils";
 import { useMemo } from "react";
 import { MultiSelect } from "@mantine/core";
+import { AttendeeRole } from "@/types/sessions/sessionTypes";
 
-export default function SelectAttendeesScreen() {
+export default function SelectAttendeesScreen({ sessionId }: { sessionId: string }) {
   const selectedAttendeeIds = useSelectedAttendeeIds();
   const { selectAttendeeId, deselectAttendeeId } = useAddAttendeesModalStoreActions();
 
@@ -35,11 +36,12 @@ export default function SelectAttendeesScreen() {
       data={getObjectEntriesWithNumberKeys(potentialSessionAttendees).map(
         ([userId, user]) => ({
           value: userId,
-          label: getFullName(user.name),
+          label: getFullName(user.name) + " - " + userId,
         }),
       )}
-      onOptionSubmit={(attendeeId) => selectAttendeeId(attendeeId, userDirectoryQuery.data?[attendeeId].role)}
-      onRemove={(attendeeId) => deselectAttendeeId(attendeeId, userDirectoryQuery.data[attendeeId].role)}
+      value={selectedAttendeeIds}
+      onOptionSubmit={(attendeeId) => selectAttendeeId(attendeeId, userDirectoryQuery.data?.[attendeeId].role as AttendeeRole)}
+      onRemove={(attendeeId) => deselectAttendeeId(attendeeId, userDirectoryQuery.data?.[attendeeId].role as AttendeeRole)}
     />
   );
 }
