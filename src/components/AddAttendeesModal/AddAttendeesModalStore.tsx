@@ -32,7 +32,7 @@ type AddAttendeesModalStore = AddAttendeesModalStoreState & {
   actions: AddAttendeesModalStoreActions;
 };
 
-export const useAddAttendeesModalStore = create<AddAttendeesModalStore>(
+const useAddAttendeesModalStore = create<AddAttendeesModalStore>(
   (set) => ({
     selectedAttendeeIds: [],
     additionalCamperData: {},
@@ -72,3 +72,8 @@ export const useAddAttendeesModalStore = create<AddAttendeesModalStore>(
     },
   }),
 );
+
+export const useSelectedAttendeeIds = () => useAddAttendeesModalStore((state) => state.selectedAttendeeIds);
+export const useAdditionalCamperData = () => useAddAttendeesModalStore((state) => state.additionalCamperData);
+export const useadditionalStaffData = () => useAddAttendeesModalStore((state) => state.additionalStaffData);
+export const useAddAttendeesModalStoreActions = () => useAddAttendeesModalStore((state) => state.actions);
