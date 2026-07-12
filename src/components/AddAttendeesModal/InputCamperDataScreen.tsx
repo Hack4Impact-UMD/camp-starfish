@@ -18,6 +18,7 @@ import { useMemo } from "react";
 export default function InputCamperDataScreen() {
   const additionalCamperData = useAdditionalCamperData();
   const { setAgeGroup, setBunk } = useAddAttendeesModalStoreActions();
+  console.log(additionalCamperData)
 
   const camperIds = useMemo(() => getObjectKeysAsNumbers(additionalCamperData), [additionalCamperData]);
 
@@ -43,7 +44,7 @@ export default function InputCamperDataScreen() {
     ),
     columnHelper.accessor((camperId) => additionalCamperData[camperId]?.bunk, {
       header: "Bunk",
-      cell: ({ cell }) => <NumberInput value={cell.getValue()} onChange={(val) => setBunk(cell.row.original, Number(val) ?? undefined)} />,
+      cell: ({ cell }) => <NumberInput value={cell.getValue()} onChange={(val) => setBunk(cell.row.original, Number(val))} />,
     }),
   ], [userDirectoryQuery.data]);
 
