@@ -13,7 +13,6 @@ import {
   Select,
   Stepper,
   Table,
-  TableTbody,
 } from "@mantine/core";
 import { modals } from "@mantine/modals";
 import { useMemo, useState } from "react";
@@ -24,8 +23,8 @@ interface AddAttendeesModalProps {
 
 const enum AddAttendeesModalScreens {
   SELECT_ATTENDEES,
-  FILL_IN_CAMPER_DATA,
-  FILL_IN_STAFF_DATA,
+  INPUT_CAMPER_DATA,
+  INPUT_STAFF_DATA,
   CONFIRMATION,
 }
 
@@ -81,7 +80,7 @@ export function AddAttendeesModal(props: AddAttendeesModalProps) {
   return (
     <div className="flex flex-col items-center w-full">
       <Stepper active={activeStep} allowNextStepsSelect={false}>
-        <Stepper.Step label="Select attendees">
+        <Stepper.Step label="Select Attendees">
           <MultiSelect
             classNames={{
               root: "w-full",
@@ -95,7 +94,7 @@ export function AddAttendeesModal(props: AddAttendeesModalProps) {
             onChange={(attendeeIds) => setSelectedAttendeeIds(attendeeIds)}
           />
         </Stepper.Step>
-        <Stepper.Step label="Fill in Camper Data">
+        <Stepper.Step label="Input Camper Data">
           <Table>
             <Table.Thead>
               <Table.Tr>
@@ -126,7 +125,7 @@ export function AddAttendeesModal(props: AddAttendeesModalProps) {
             </Table.Tbody>
           </Table>
         </Stepper.Step>
-        <Stepper.Step label="Fill in Staff Data">
+        <Stepper.Step label="Input Staff Data">
           <Table>
             <Table.Thead>
               <Table.Tr>
