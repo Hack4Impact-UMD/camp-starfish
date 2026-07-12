@@ -15,7 +15,7 @@ interface AddAttendeesModalStoreState {
   >;
   additionalStaffData: Record<
     number,
-    Partial<Pick<StaffAttendee, "bunk" | "isLeadBunkCounselor">>
+    Partial<Pick<StaffAttendee, "bunk">> & Pick<StaffAttendee, "isLeadBunkCounselor">
   >;
 }
 
@@ -54,7 +54,9 @@ const useAddAttendeesModalStore = create<AddAttendeesModalStore>((set) => ({
             selectedAttendeeIds: [...state.selectedAttendeeIds, attendeeId],
             additionalStaffData: {
               ...state.additionalStaffData,
-              [attendeeId]: {},
+              [attendeeId]: {
+                isLeadBunkCounselor: false
+              },
             },
           }));
         case "ADMIN":
