@@ -23,7 +23,7 @@ interface AddAttendeesModalStoreActions {
   selectAttendeeId: (attendeeId: number, role: AttendeeRole) => void;
   deselectAttendeeId: (attendeeId: number, role: AttendeeRole) => void;
   setBunk: (attendeeId: number, bunkNum: number) => void;
-  setAgeGroup: (attendeeId: number, ageGroup: AgeGroup) => void;
+  setAgeGroup: (attendeeId: number, ageGroup: AgeGroup | undefined) => void;
   setIsBunkCounselor: (
     attendeeId: number,
     isLeadBunkCounselor: boolean,
@@ -39,7 +39,7 @@ const useAddAttendeesModalStore = create<AddAttendeesModalStore>((set) => ({
   additionalCamperData: {},
   additionalStaffData: {},
   actions: {
-    selectAttendeeId: (attendeeId: number, role: AttendeeRole) => {
+    selectAttendeeId: (attendeeId, role) => {
       switch (role) {
         case "CAMPER":
           return set((state) => ({
@@ -63,7 +63,7 @@ const useAddAttendeesModalStore = create<AddAttendeesModalStore>((set) => ({
           }));
       }
     },
-    deselectAttendeeId: (attendeeId: number, role: AttendeeRole) => {
+    deselectAttendeeId: (attendeeId, role) => {
       switch (role) {
         case "CAMPER":
           return set((state) => ({
@@ -96,7 +96,7 @@ const useAddAttendeesModalStore = create<AddAttendeesModalStore>((set) => ({
       }
     },
 
-    setBunk: (attendeeId: number, bunkNum: number) =>
+    setBunk: (attendeeId, bunkNum) =>
       set((state) => {
         if (attendeeId in state.additionalCamperData) {
           return {
@@ -121,7 +121,7 @@ const useAddAttendeesModalStore = create<AddAttendeesModalStore>((set) => ({
         }
         return {};
       }),
-    setAgeGroup: (attendeeId: number, ageGroup: AgeGroup) =>
+    setAgeGroup: (attendeeId, ageGroup) =>
       set((state) => {
         if (attendeeId in state.additionalCamperData) {
           return {
@@ -136,7 +136,7 @@ const useAddAttendeesModalStore = create<AddAttendeesModalStore>((set) => ({
         }
         return {};
       }),
-    setIsBunkCounselor: (attendeeId: number, isLeadBunkCounselor: boolean) =>
+    setIsBunkCounselor: (attendeeId, isLeadBunkCounselor) =>
       set((state) => {
         if (attendeeId in state.additionalStaffData) {
           return {
