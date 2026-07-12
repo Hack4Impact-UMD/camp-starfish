@@ -43,7 +43,7 @@ export function AddAttendeesModal(props: AddAttendeesModalProps) {
     <div className="flex flex-col items-center w-full">
       <Stepper active={activeStep} allowNextStepsSelect={false}>
         <Stepper.Step label="Select Attendees">
-          <SelectAttendeesScreen />;
+          <SelectAttendeesScreen sessionId={sessionId}/>
         </Stepper.Step>
         <Stepper.Step label="Input Camper Data">
           <InputCamperDataScreen />
