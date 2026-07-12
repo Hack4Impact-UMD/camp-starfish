@@ -26,7 +26,7 @@ export default function InputCamperDataScreen() {
   if (!userDirectoryQuery.data) return <div>Bruh</div>;
 
   const columnHelper = createColumnHelper<number>();
-  const columns = [
+  const columns = useMemo(() => [
     columnHelper.accessor((camperId) => camperId, { header: "ID" }),
     columnHelper.accessor(
       (camperId) => getFullName(userDirectoryQuery.data?.[camperId].name),
@@ -37,15 +37,15 @@ export default function InputCamperDataScreen() {
       {
         header: "Age Group",
         cell: ({ cell }) => (
-          <Select value={cell.getValue()} data={AGE_GROUPS} />
+          <Select value={cell.getValue()} data={AGE_GROUPS} onChange={(val) => setAgeGroup(cell.row.original, val ?? undefined)} />
         ),
       },
     ),
     columnHelper.accessor((camperId) => additionalCamperData[camperId]?.bunk, {
       header: "Bunk",
-      cell: ({ cell }) => <NumberInput value={cell.getValue()} />,
+      cell: ({ cell }) => <NumberInput value={cell.getValue()} onChange={(val) => setBunk(cell.row.original, Number(val) ?? undefined)} />,
     }),
-  ];
+  ], [userDirectoryQuery.data]);
 
   const table = useReactTable({
     data: camperIds,
