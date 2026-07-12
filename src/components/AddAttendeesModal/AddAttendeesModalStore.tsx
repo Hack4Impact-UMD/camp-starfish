@@ -24,7 +24,7 @@ interface AddAttendeesModalStoreActions {
   deselectAttendeeId: (attendeeId: number, role: AttendeeRole) => void;
   setBunk: (attendeeId: number, bunkNum: number) => void;
   setAgeGroup: (attendeeId: number, ageGroup: AgeGroup | undefined) => void;
-  setIsBunkCounselor: (
+  setIsLeadBunkCounselor: (
     attendeeId: number,
     isLeadBunkCounselor: boolean,
   ) => void;
@@ -136,7 +136,7 @@ const useAddAttendeesModalStore = create<AddAttendeesModalStore>((set) => ({
         }
         return {};
       }),
-    setIsBunkCounselor: (attendeeId, isLeadBunkCounselor) =>
+    setIsLeadBunkCounselor: (attendeeId, isLeadBunkCounselor) =>
       set((state) => {
         if (attendeeId in state.additionalStaffData) {
           return {
