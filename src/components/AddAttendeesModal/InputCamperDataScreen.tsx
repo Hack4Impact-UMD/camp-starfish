@@ -17,7 +17,8 @@ import { useMemo } from "react";
 
 export default function InputCamperDataScreen() {
   const additionalCamperData = useAdditionalCamperData();
-  const { prevStep, nextStep, setAgeGroup, setBunk } = useAddAttendeesModalStoreActions();
+  const { prevStep, nextStep, setAgeGroup, setBunk } =
+    useAddAttendeesModalStoreActions();
 
   const camperIds = useMemo(
     () => getObjectKeysAsNumbers(additionalCamperData),
@@ -28,7 +29,11 @@ export default function InputCamperDataScreen() {
 
   if (!userDirectoryQuery.data) return <div>Bruh</div>;
 
-  const isAllAdditionalCamperDataInputted = camperIds.every(camperId => additionalCamperData[camperId].ageGroup && additionalCamperData[camperId].bunk);
+  const isAllAdditionalCamperDataInputted = camperIds.every(
+    (camperId) =>
+      additionalCamperData[camperId].ageGroup &&
+      additionalCamperData[camperId].bunk,
+  );
 
   const columns = useMemo(() => {
     const columnHelper = createColumnHelper<number>();
@@ -90,7 +95,7 @@ export default function InputCamperDataScreen() {
           {table.getRowModel().rows.map((row) => (
             <Table.Tr key={row.id}>
               {row.getAllCells().map((cell) => (
-                <Table.Td>
+                <Table.Td key={cell.id}>
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </Table.Td>
               ))}
@@ -100,7 +105,12 @@ export default function InputCamperDataScreen() {
       </Table>
       <div className="flex flex-row justify-around w-full">
         <Button onClick={prevStep}>Previous</Button>
-        <Button onClick={nextStep} disabled={!isAllAdditionalCamperDataInputted}>Next</Button>
+        <Button
+          onClick={nextStep}
+          disabled={!isAllAdditionalCamperDataInputted}
+        >
+          Next
+        </Button>
       </div>
     </div>
   );
