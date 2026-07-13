@@ -10,13 +10,13 @@ import {
 } from "./AddAttendeesModalStore";
 import useUserDirectory from "@/hooks/users/useUserDirectory";
 import { getFullName } from "@/types/users/userUtils";
-import { Checkbox, NumberInput, Table } from "@mantine/core";
+import { Button, Checkbox, NumberInput, Table } from "@mantine/core";
 import { getObjectKeysAsNumbers } from "@/utils/stringUtils";
 import { useMemo } from "react";
 
 export default function InputStaffDataScreen() {
   const additionalStaffData = useadditionalStaffData();
-  const { setBunk, setIsLeadBunkCounselor } =
+  const { prevStep, nextStep, setBunk, setIsLeadBunkCounselor } =
     useAddAttendeesModalStoreActions();
 
   console.log(additionalStaffData);
@@ -29,6 +29,8 @@ export default function InputStaffDataScreen() {
   const userDirectoryQuery = useUserDirectory();
 
   if (!userDirectoryQuery.data) return <div>Bruh</div>;
+
+  const isAllAdditionalStaffDataInputted = staffIds.every(stafferId => additionalStaffData[stafferId].bunk);
 
   const columns = useMemo(() => {
     const columnHelper = createColumnHelper<number>();
@@ -82,27 +84,38 @@ export default function InputStaffDataScreen() {
   });
 
   return (
-    <Table>
-      <Table.Thead>
-        {table.getHeaderGroups().map((headerGroup) => (
-          <Table.Tr key={headerGroup.id}>
-            {headerGroup.headers.map((header) => (
-              <Table.Th key={header.id}>{header.id}</Table.Th>
-            ))}
-          </Table.Tr>
-        ))}
-      </Table.Thead>
-      <Table.Tbody>
-        {table.getRowModel().rows.map((row) => (
-          <Table.Tr key={row.id}>
-            {row.getAllCells().map((cell) => (
-              <Table.Td key={cell.id}>
-                {flexRender(cell.column.columnDef.cell, cell.getContext())}
-              </Table.Td>
-            ))}
-          </Table.Tr>
-        ))}
-      </Table.Tbody>
-    </Table>
+    <div className="flex flex-col gap-sm">
+      <Table>
+        <Table.Thead>
+          {table.getHeaderGroups().map((headerGroup) => (
+            <Table.Tr key={headerGroup.id}>
+              {headerGroup.headers.map((header) => (
+                <Table.Th key={header.id}>{header.id}</Table.Th>
+              ))}
+            </Table.Tr>
+          ))}
+        </Table.Thead>
+        <Table.Tbody>
+          {table.getRowModel().rows.map((row) => (
+            <Table.Tr key={row.id}>
+              {row.getAllCells().map((cell) => (
+                <Table.Td key={cell.id}>
+                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                </Table.Td>
+              ))}
+            </Table.Tr>
+          ))}
+        </Table.Tbody>
+      </Table>{" "}
+      <div className="flex flex-row justify-around w-full">
+        <Button onClick={prevStep}>Previous</Button>
+        <Button
+          onClick={nextStep}
+          disabled={!isAllAdditionalStaffDataInputted}
+        >
+          Next
+        </Button>
+      </div>
+    </div>
   );
 }
