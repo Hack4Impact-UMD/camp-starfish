@@ -7,7 +7,14 @@ import {
 import { getObjectEntriesWithNumberKeys } from "@/utils/stringUtils";
 import { create } from "zustand";
 
+const enum AddAttendeesModalScreens {
+  SELECT_ATTENDEES,
+  INPUT_CAMPER_DATA,
+  INPUT_STAFF_DATA,
+  CONFIRMATION,
+}
 interface AddAttendeesModalStoreState {
+  activeStep: AddAttendeesModalScreens;
   selectedAttendeeIds: number[];
   additionalCamperData: Record<
     number,
@@ -20,6 +27,8 @@ interface AddAttendeesModalStoreState {
 }
 
 interface AddAttendeesModalStoreActions {
+  prevStep: () => void;
+  nextStep: () => void;
   selectAttendeeId: (attendeeId: number, role: AttendeeRole) => void;
   deselectAttendeeId: (attendeeId: number, role: AttendeeRole) => void;
   setBunk: (attendeeId: number, bunkNum: number) => void;
@@ -35,10 +44,13 @@ type AddAttendeesModalStore = AddAttendeesModalStoreState & {
 };
 
 const useAddAttendeesModalStore = create<AddAttendeesModalStore>((set) => ({
+  activeStep: AddAttendeesModalScreens.SELECT_ATTENDEES,
   selectedAttendeeIds: [],
   additionalCamperData: {},
   additionalStaffData: {},
   actions: {
+    prevStep: () => set((state) => state.activeStep === AddAttendeesModalScreens.SELECT_ATTENDEES ? ({}) : ({ activeStep: state.activeStep - 1 })),
+    nextStep: () => set((state) => state.activeStep === AddAttendeesModalScreens.CONFIRMATION ? ({}) : ({ activeStep: state.activeStep + 1 })),
     selectAttendeeId: (attendeeId, role) => {
       switch (role) {
         case "CAMPER":
@@ -156,6 +168,7 @@ const useAddAttendeesModalStore = create<AddAttendeesModalStore>((set) => ({
   },
 }));
 
+export const useActiveStep = () => useAddAttendeesModalStore((state) => state.activeStep);
 export const useSelectedAttendeeIds = () =>
   useAddAttendeesModalStore((state) => state.selectedAttendeeIds);
 export const useAdditionalCamperData = () =>

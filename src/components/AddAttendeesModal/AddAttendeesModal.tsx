@@ -1,43 +1,18 @@
-import {
-  Button,
-  Stepper,
-} from "@mantine/core";
+import { Stepper } from "@mantine/core";
 import { modals } from "@mantine/modals";
-import { useState } from "react";
 import SelectAttendeesScreen from "./SelectAttendeesScreen";
 import InputCamperDataScreen from "./InputCamperDataScreen";
 import InputStaffDataScreen from "./InputStaffDataScreen";
+import { useActiveStep } from "./AddAttendeesModalStore";
 
 interface AddAttendeesModalProps {
   sessionId: string;
 }
 
-const enum AddAttendeesModalScreens {
-  SELECT_ATTENDEES,
-  INPUT_CAMPER_DATA,
-  INPUT_STAFF_DATA,
-  CONFIRMATION,
-}
-
 export function AddAttendeesModal(props: AddAttendeesModalProps) {
   const { sessionId } = props;
 
-  const [activeStep, setActiveStep] = useState<AddAttendeesModalScreens>(
-    AddAttendeesModalScreens.SELECT_ATTENDEES,
-  );
-
-  const prevStep = () =>
-    setActiveStep((activeStep) =>
-      activeStep === AddAttendeesModalScreens.SELECT_ATTENDEES
-        ? activeStep
-        : activeStep - 1,
-    );
-  const nextStep = () =>
-    setActiveStep((activeStep) =>
-      activeStep === AddAttendeesModalScreens.CONFIRMATION
-        ? activeStep
-        : activeStep + 1,
-    );
+  const activeStep = useActiveStep();
 
   return (
     <div className="flex flex-col items-center w-full">
@@ -52,10 +27,6 @@ export function AddAttendeesModal(props: AddAttendeesModalProps) {
           <InputStaffDataScreen />
         </Stepper.Step>
       </Stepper>
-      <div className="flex justify-around w-full">
-        <Button onClick={prevStep}>Prev</Button>
-        <Button onClick={nextStep}>Next</Button>
-      </div>
     </div>
   );
 }
