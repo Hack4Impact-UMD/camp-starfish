@@ -30,9 +30,9 @@ export default function InputStaffDataScreen() {
 
   if (!userDirectoryQuery.data) return <div>Bruh</div>;
 
-  const columnHelper = createColumnHelper<number>();
-  const columns = useMemo(
-    () => [
+  const columns = useMemo(() => {
+    const columnHelper = createColumnHelper<number>();
+    return [
       columnHelper.accessor((stafferId) => stafferId, { header: "ID" }),
       columnHelper.accessor(
         (stafferId) => getFullName(userDirectoryQuery.data?.[stafferId].name),
@@ -55,13 +55,25 @@ export default function InputStaffDataScreen() {
         {
           header: "Is Lead Bunk Counselor",
           cell: ({ cell }) => (
-            <Checkbox checked={cell.getValue()} onChange={(event) => setIsLeadBunkCounselor(cell.row.original, event.currentTarget.checked)} />
+            <Checkbox
+              checked={cell.getValue()}
+              onChange={(event) =>
+                setIsLeadBunkCounselor(
+                  cell.row.original,
+                  event.currentTarget.checked,
+                )
+              }
+            />
           ),
         },
       ),
-    ],
-    [userDirectoryQuery.data, additionalStaffData, columnHelper, setBunk, setIsLeadBunkCounselor],
-  );
+    ];
+  }, [
+    userDirectoryQuery.data,
+    additionalStaffData,
+    setBunk,
+    setIsLeadBunkCounselor,
+  ]);
 
   const table = useReactTable({
     data: staffIds,
@@ -84,7 +96,7 @@ export default function InputStaffDataScreen() {
         {table.getRowModel().rows.map((row) => (
           <Table.Tr key={row.id}>
             {row.getAllCells().map((cell) => (
-              <Table.Td>
+              <Table.Td key={cell.id}>
                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
               </Table.Td>
             ))}

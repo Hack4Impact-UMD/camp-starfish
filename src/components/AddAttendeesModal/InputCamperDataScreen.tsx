@@ -30,9 +30,9 @@ export default function InputCamperDataScreen() {
 
   const isAllAdditionalCamperDataInputted = camperIds.every(camperId => additionalCamperData[camperId].ageGroup && additionalCamperData[camperId].bunk);
 
-  const columnHelper = createColumnHelper<number>();
-  const columns = useMemo(
-    () => [
+  const columns = useMemo(() => {
+    const columnHelper = createColumnHelper<number>();
+    return [
       columnHelper.accessor((camperId) => camperId, { header: "ID" }),
       columnHelper.accessor(
         (camperId) => getFullName(userDirectoryQuery.data?.[camperId].name),
@@ -65,15 +65,8 @@ export default function InputCamperDataScreen() {
           ),
         },
       ),
-    ],
-    [
-      userDirectoryQuery.data,
-      additionalCamperData,
-      columnHelper,
-      setAgeGroup,
-      setBunk,
-    ],
-  );
+    ];
+  }, [userDirectoryQuery.data, additionalCamperData, setAgeGroup, setBunk]);
 
   const table = useReactTable({
     data: camperIds,
