@@ -8,73 +8,82 @@ import {
   useAddAttendeesModalStoreActions,
   useAdditionalCamperData,
 } from "./AddAttendeesModalStore";
-import { AGE_GROUPS } from "@/types/sessions/sessionTypes";
+import { AGE_GROUPS, AgeGroup } from "@/types/sessions/sessionTypes";
 import useUserDirectory from "@/hooks/users/useUserDirectory";
 import { getFullName } from "@/types/users/userUtils";
 import { Button, NumberInput, Select, Table } from "@mantine/core";
 import { getObjectKeysAsNumbers } from "@/utils/stringUtils";
 import { useMemo } from "react";
+import { Name } from "@/types/users/userTypes";
+
+interface InputCamperDataTableRow {
+  camperId: number;
+  name: Name;
+  ageGroup: AgeGroup | undefined;
+  bunk: number | undefined;
+}
 
 export default function InputCamperDataScreen() {
   const additionalCamperData = useAdditionalCamperData();
   const { prevStep, nextStep, setAgeGroup, setBunk } =
     useAddAttendeesModalStoreActions();
 
-  const camperIds = useMemo(
-    () => getObjectKeysAsNumbers(additionalCamperData),
-    [additionalCamperData],
-  );
-
   const userDirectoryQuery = useUserDirectory();
+
+  const data: InputCamperDataTableRow[] = useMemo(() => {
+    const camperIds = getObjectKeysAsNumbers(additionalCamperData);
+    return camperIds.map((camperId) => ({
+      camperId,
+      name: userDirectoryQuery.data?.[camperId].name as Name,
+      ageGroup: additionalCamperData[camperId].ageGroup,
+      bunk: additionalCamperData[camperId].bunk,
+    }));
+  }, [userDirectoryQuery.data, additionalCamperData]);
 
   if (!userDirectoryQuery.data) return <div>Bruh</div>;
 
-  const isAllAdditionalCamperDataInputted = camperIds.every(
-    (camperId) =>
-      additionalCamperData[camperId].ageGroup &&
-      additionalCamperData[camperId].bunk,
-  );
+  const isAllAdditionalCamperDataInputted = data.every((row) => row.ageGroup && row.bunk);
 
   const columns = useMemo(() => {
-    const columnHelper = createColumnHelper<number>();
+    const columnHelper = createColumnHelper<InputCamperDataTableRow>();
     return [
-      columnHelper.accessor((camperId) => camperId, { header: "ID" }),
+      columnHelper.accessor('camperId', { header: "ID" }),
       columnHelper.accessor(
-        (camperId) => getFullName(userDirectoryQuery.data?.[camperId].name),
+        (row) => getFullName(row.name),
         { header: "Name" },
       ),
       columnHelper.accessor(
-        (camperId) => additionalCamperData[camperId]?.ageGroup,
+        'ageGroup',
         {
           header: "Age Group",
-          cell: ({ cell }) => (
+          cell: ({ cell, row }) => (
             <Select
               value={cell.getValue()}
               data={AGE_GROUPS}
               onChange={(val) =>
-                setAgeGroup(cell.row.original, val ?? undefined)
+                setAgeGroup(row.original.camperId, val ?? undefined)
               }
             />
           ),
         },
       ),
       columnHelper.accessor(
-        (camperId) => additionalCamperData[camperId]?.bunk,
+        'bunk',
         {
           header: "Bunk",
-          cell: ({ cell }) => (
+          cell: ({ cell, row }) => (
             <NumberInput
               value={cell.getValue()}
-              onChange={(val) => setBunk(cell.row.original, Number(val))}
+              onChange={(val) => setBunk(row.original.camperId, Number(val))}
             />
           ),
         },
       ),
     ];
-  }, [userDirectoryQuery.data, additionalCamperData, setAgeGroup, setBunk]);
+  }, [setAgeGroup, setBunk]);
 
   const table = useReactTable({
-    data: camperIds,
+    data,
     columns,
     getCoreRowModel: getCoreRowModel(),
   });
