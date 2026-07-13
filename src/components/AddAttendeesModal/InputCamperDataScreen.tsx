@@ -107,7 +107,7 @@ export default function InputCamperDataScreen() {
       </Table>
       <div className="flex flex-row justify-around w-full">
         <Button onClick={prevStep}>Previous</Button>
-        <Button onClick={nextStep} disabled={() => !isAllAdditionalCamperDataInputted()}>Next</Button>
+        <Button onClick={nextStep} disabled={!isAllAdditionalCamperDataInputted}>Next</Button>
       </div>
     </div>
   );
