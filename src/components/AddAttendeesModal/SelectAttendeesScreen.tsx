@@ -7,12 +7,17 @@ import useUserDirectory from "@/hooks/users/useUserDirectory";
 import { getObjectEntriesWithNumberKeys } from "@/utils/stringUtils";
 import { getFullName, isAttendeeRole } from "@/types/users/userUtils";
 import { useMemo } from "react";
-import { MultiSelect } from "@mantine/core";
+import { Button, MultiSelect } from "@mantine/core";
 import { AttendeeRole } from "@/types/sessions/sessionTypes";
 
-export default function SelectAttendeesScreen({ sessionId }: { sessionId: string }) {
+export default function SelectAttendeesScreen({
+  sessionId,
+}: {
+  sessionId: string;
+}) {
   const selectedAttendeeIds = useSelectedAttendeeIds();
-  const { selectAttendeeId, deselectAttendeeId } = useAddAttendeesModalStoreActions();
+  const { prevStep, nextStep, selectAttendeeId, deselectAttendeeId } =
+    useAddAttendeesModalStoreActions();
 
   const sessionQuery = useSession(sessionId);
   const userDirectoryQuery = useUserDirectory();
@@ -29,19 +34,35 @@ export default function SelectAttendeesScreen({ sessionId }: { sessionId: string
   }, [sessionQuery.data, userDirectoryQuery.data]);
 
   return (
-    <MultiSelect
-      classNames={{
-        root: "w-full",
-      }}
-      data={getObjectEntriesWithNumberKeys(potentialSessionAttendees).map(
-        ([userId, user]) => ({
-          value: userId,
-          label: getFullName(user.name) + " - " + userId,
-        }),
-      )}
-      value={selectedAttendeeIds}
-      onOptionSubmit={(attendeeId) => selectAttendeeId(attendeeId, userDirectoryQuery.data?.[attendeeId].role as AttendeeRole)}
-      onRemove={(attendeeId) => deselectAttendeeId(attendeeId, userDirectoryQuery.data?.[attendeeId].role as AttendeeRole)}
-    />
+    <div className="flex flex-col gap-sm">
+      <MultiSelect
+        classNames={{
+          root: "w-full",
+        }}
+        data={getObjectEntriesWithNumberKeys(potentialSessionAttendees).map(
+          ([userId, user]) => ({
+            value: userId,
+            label: getFullName(user.name) + " - " + userId,
+          }),
+        )}
+        value={selectedAttendeeIds}
+        onOptionSubmit={(attendeeId) =>
+          selectAttendeeId(
+            attendeeId,
+            userDirectoryQuery.data?.[attendeeId].role as AttendeeRole,
+          )
+        }
+        onRemove={(attendeeId) =>
+          deselectAttendeeId(
+            attendeeId,
+            userDirectoryQuery.data?.[attendeeId].role as AttendeeRole,
+          )
+        }
+      />
+      <div className="flex flex-row justify-around w-full">
+        <Button onClick={prevStep} disabled>Previous</Button>
+        <Button onClick={nextStep} disabled={selectedAttendeeIds.length === 0}>Next</Button>
+      </div>
+    </div>
   );
 }
