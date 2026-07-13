@@ -13,55 +13,69 @@ import { getFullName } from "@/types/users/userUtils";
 import { Button, Checkbox, NumberInput, Table } from "@mantine/core";
 import { getObjectKeysAsNumbers } from "@/utils/stringUtils";
 import { useMemo } from "react";
+import { Name } from "@/types/users/userTypes";
+
+interface InputStaffTableRow {
+  stafferId: number;
+  name: Name;
+  bunk: number | undefined;
+  isLeadBunkCounselor: boolean;
+}
 
 export default function InputStaffDataScreen() {
   const additionalStaffData = useadditionalStaffData();
   const { prevStep, nextStep, setBunk, setIsLeadBunkCounselor } =
     useAddAttendeesModalStoreActions();
 
-  console.log(additionalStaffData);
-
-  const staffIds = useMemo(
-    () => getObjectKeysAsNumbers(additionalStaffData),
-    [additionalStaffData],
-  );
-
   const userDirectoryQuery = useUserDirectory();
+
+  const data = useMemo(
+    () => {
+      const staffIds = getObjectKeysAsNumbers(additionalStaffData);
+      return staffIds.map(stafferId => ({
+        stafferId,
+        name: userDirectoryQuery.data?.[stafferId].name as Name,
+        bunk: additionalStaffData[stafferId].bunk,
+        isLeadBunkCounselor: additionalStaffData[stafferId].isLeadBunkCounselor
+      }))
+    },
+    [additionalStaffData, userDirectoryQuery.data],
+  );
 
   if (!userDirectoryQuery.data) return <div>Bruh</div>;
 
-  const isAllAdditionalStaffDataInputted = staffIds.every(stafferId => additionalStaffData[stafferId].bunk);
+  const isAllAdditionalStaffDataInputted = data.every(row => row.bunk);
 
   const columns = useMemo(() => {
-    const columnHelper = createColumnHelper<number>();
+    const columnHelper = createColumnHelper<InputStaffTableRow>();
     return [
-      columnHelper.accessor((stafferId) => stafferId, { header: "ID" }),
+      columnHelper.accessor('stafferId', { header: "ID" }),
       columnHelper.accessor(
-        (stafferId) => getFullName(userDirectoryQuery.data?.[stafferId].name),
+        (row) => getFullName(row.name),
         { header: "Name" },
       ),
-      columnHelper.accessor(
-        (stafferId) => additionalStaffData[stafferId].bunk,
+      columnHelper.display(
         {
           header: "Bunk",
-          cell: ({ cell }) => (
+          cell: ({ cell, row }) => (
             <NumberInput
-              value={cell.getValue()}
-              onChange={(val) => setBunk(cell.row.original, Number(val))}
+              key={cell.id}
+              value={row.original.bunk}
+              onChange={(val) => setBunk(row.original.stafferId, Number(val))}
             />
           ),
         },
       ),
-      columnHelper.accessor(
-        (stafferId) => additionalStaffData[stafferId].isLeadBunkCounselor,
+      columnHelper.display(
         {
           header: "Is Lead Bunk Counselor",
-          cell: ({ cell }) => (
+          cell: ({ cell, row }) => (
             <Checkbox
-              checked={cell.getValue()}
+              key={cell.id}
+              checked={row.original.isLeadBunkCounselor}
               onChange={(event) =>
                 setIsLeadBunkCounselor(
-                  cell.row.original,
+                  row.original.stafferId,
                   event.currentTarget.checked,
                 )
               }
@@ -71,14 +85,12 @@ export default function InputStaffDataScreen() {
       ),
     ];
   }, [
-    userDirectoryQuery.data,
-    additionalStaffData,
     setBunk,
     setIsLeadBunkCounselor,
   ]);
 
   const table = useReactTable({
-    data: staffIds,
+    data,
     columns,
     getCoreRowModel: getCoreRowModel(),
   });
@@ -106,7 +118,7 @@ export default function InputStaffDataScreen() {
             </Table.Tr>
           ))}
         </Table.Tbody>
-      </Table>{" "}
+      </Table>
       <div className="flex flex-row justify-around w-full">
         <Button onClick={prevStep}>Previous</Button>
         <Button
