@@ -46,7 +46,7 @@ export default function InputCamperDataScreen() {
       header: "Bunk",
       cell: ({ cell }) => <NumberInput value={cell.getValue()} onChange={(val) => setBunk(cell.row.original, Number(val))} />,
     }),
-  ], [userDirectoryQuery.data]);
+  ], [userDirectoryQuery.data, additionalCamperData, columnHelper, setAgeGroup, setBunk]);
 
   const table = useReactTable({
     data: camperIds,

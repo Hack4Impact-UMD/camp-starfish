@@ -26,7 +26,7 @@ export default function SelectAttendeesScreen({ sessionId }: { sessionId: string
           !sessionQuery.data.attendeeIds.includes(userId),
       ),
     );
-  }, [sessionQuery.data?.attendeeIds, userDirectoryQuery.data]);
+  }, [sessionQuery.data, userDirectoryQuery.data]);
 
   return (
     <MultiSelect

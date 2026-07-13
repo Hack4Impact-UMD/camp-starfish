@@ -19,6 +19,8 @@ export default function InputStaffDataScreen() {
   const { setBunk, setIsLeadBunkCounselor } =
     useAddAttendeesModalStoreActions();
 
+  console.log(additionalStaffData);
+
   const staffIds = useMemo(
     () => getObjectKeysAsNumbers(additionalStaffData),
     [additionalStaffData],
@@ -37,7 +39,7 @@ export default function InputStaffDataScreen() {
         { header: "Name" },
       ),
       columnHelper.accessor(
-        (stafferId) => additionalStaffData[stafferId]?.bunk,
+        (stafferId) => additionalStaffData[stafferId].bunk,
         {
           header: "Bunk",
           cell: ({ cell }) => (
@@ -49,7 +51,7 @@ export default function InputStaffDataScreen() {
         },
       ),
       columnHelper.accessor(
-        (stafferId) => additionalStaffData[stafferId]?.isLeadBunkCounselor,
+        (stafferId) => additionalStaffData[stafferId].isLeadBunkCounselor,
         {
           header: "Is Lead Bunk Counselor",
           cell: ({ cell }) => (
@@ -58,7 +60,7 @@ export default function InputStaffDataScreen() {
         },
       ),
     ],
-    [userDirectoryQuery.data],
+    [userDirectoryQuery.data, additionalStaffData, columnHelper, setBunk, setIsLeadBunkCounselor],
   );
 
   const table = useReactTable({
