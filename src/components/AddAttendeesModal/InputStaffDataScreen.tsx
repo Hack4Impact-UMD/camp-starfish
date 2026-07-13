@@ -54,19 +54,21 @@ export default function InputStaffDataScreen() {
         (row) => getFullName(row.name),
         { header: "Name" },
       ),
-      columnHelper.display(
+      columnHelper.accessor(
+        'bunk',
         {
           header: "Bunk",
           cell: ({ cell, row }) => (
             <NumberInput
               key={cell.id}
-              value={row.original.bunk}
+              value={cell.getValue()}
               onChange={(val) => setBunk(row.original.stafferId, Number(val))}
             />
           ),
         },
       ),
-      columnHelper.display(
+      columnHelper.accessor(
+        'isLeadBunkCounselor',
         {
           header: "Is Lead Bunk Counselor",
           cell: ({ cell, row }) => (
@@ -102,7 +104,7 @@ export default function InputStaffDataScreen() {
           {table.getHeaderGroups().map((headerGroup) => (
             <Table.Tr key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
-                <Table.Th key={header.id}>{header.id}</Table.Th>
+                <Table.Th key={header.id}>{flexRender(header.column.columnDef.header, header.getContext())}</Table.Th>
               ))}
             </Table.Tr>
           ))}

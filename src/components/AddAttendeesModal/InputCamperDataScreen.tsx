@@ -86,7 +86,7 @@ export default function InputCamperDataScreen() {
           {table.getHeaderGroups().map((headerGroup) => (
             <Table.Tr key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
-                <Table.Th key={header.id}>{header.id}</Table.Th>
+                <Table.Th key={header.id}>{flexRender(header.column.columnDef.header, header.getContext())}</Table.Th>
               ))}
             </Table.Tr>
           ))}
