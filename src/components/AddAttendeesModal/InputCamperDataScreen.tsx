@@ -9,7 +9,7 @@ import {
   useAdditionalCamperData,
 } from "./AddAttendeesModalStore";
 import { AGE_GROUPS, AgeGroup } from "@/types/sessions/sessionTypes";
-import useUserDirectory, { getUseUserDirectoryOptions } from "@/hooks/users/useUserDirectory";
+import { getUseUserDirectoryOptions } from "@/hooks/users/useUserDirectory";
 import { getFullName } from "@/types/users/userUtils";
 import { Button, NumberInput, Select, Table } from "@mantine/core";
 import { getObjectKeysAsNumbers } from "@/utils/stringUtils";

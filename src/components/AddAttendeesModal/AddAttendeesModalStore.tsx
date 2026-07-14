@@ -172,7 +172,7 @@ export const useSelectedAttendeeIds = () =>
   useAddAttendeesModalStore((state) => state.selectedAttendeeIds);
 export const useAdditionalCamperData = () =>
   useAddAttendeesModalStore((state) => state.additionalCamperData);
-export const useadditionalStaffData = () =>
+export const useAdditionalStaffData = () =>
   useAddAttendeesModalStore((state) => state.additionalStaffData);
 export const useAddAttendeesModalStoreActions = () =>
   useAddAttendeesModalStore((state) => state.actions);

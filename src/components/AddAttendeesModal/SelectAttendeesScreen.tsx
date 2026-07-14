@@ -1,9 +1,9 @@
-import useSession, { getUseSessionOptions } from "@/hooks/sessions/useSession";
+import { getUseSessionOptions } from "@/hooks/sessions/useSession";
 import {
   useAddAttendeesModalStoreActions,
   useSelectedAttendeeIds,
 } from "./AddAttendeesModalStore";
-import useUserDirectory, { getUseUserDirectoryOptions } from "@/hooks/users/useUserDirectory";
+import { getUseUserDirectoryOptions } from "@/hooks/users/useUserDirectory";
 import { getObjectEntriesWithNumberKeys } from "@/utils/stringUtils";
 import { getFullName, isAttendeeRole } from "@/types/users/userUtils";
 import { useMemo } from "react";
