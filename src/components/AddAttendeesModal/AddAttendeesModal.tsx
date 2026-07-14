@@ -8,6 +8,7 @@ import { Suspense } from "react";
 import LoadingPage from "@/app/loading";
 import { ErrorBoundary } from "react-error-boundary";
 import ErrorPage from "@/app/error";
+import ConfirmationScreen from "./ConfirmationScreen";
 
 interface AddAttendeesModalProps {
   sessionId: string;
@@ -15,9 +16,7 @@ interface AddAttendeesModalProps {
 
 export function AddAttendeesModal(props: AddAttendeesModalProps) {
   const { sessionId } = props;
-
   const activeStep = useActiveStep();
-
   return (
     <ErrorBoundary fallbackRender={({ error }) => <ErrorPage error={error} />}>
       <Suspense fallback={<LoadingPage />}>
@@ -31,6 +30,9 @@ export function AddAttendeesModal(props: AddAttendeesModalProps) {
           <Stepper.Step label="Input Staff Data">
             <InputStaffDataScreen />
           </Stepper.Step>
+          <Stepper.Completed>
+            <ConfirmationScreen sessionId={sessionId} />
+          </Stepper.Completed>
         </Stepper>
       </Suspense>
     </ErrorBoundary>
