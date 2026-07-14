@@ -1,14 +1,15 @@
-import useSession from "@/hooks/sessions/useSession";
+import useSession, { getUseSessionOptions } from "@/hooks/sessions/useSession";
 import {
   useAddAttendeesModalStoreActions,
   useSelectedAttendeeIds,
 } from "./AddAttendeesModalStore";
-import useUserDirectory from "@/hooks/users/useUserDirectory";
+import { getUseUserDirectoryOptions } from "@/hooks/users/useUserDirectory";
 import { getObjectEntriesWithNumberKeys } from "@/utils/stringUtils";
 import { getFullName, isAttendeeRole } from "@/types/users/userUtils";
 import { useMemo } from "react";
 import { Button, MultiSelect } from "@mantine/core";
 import { AttendeeRole } from "@/types/sessions/sessionTypes";
+import { useSuspenseQueries } from "@tanstack/react-query";
 
 export default function SelectAttendeesScreen({
   sessionId,
@@ -19,8 +20,12 @@ export default function SelectAttendeesScreen({
   const { prevStep, nextStep, selectAttendeeId, deselectAttendeeId } =
     useAddAttendeesModalStoreActions();
 
-  const sessionQuery = useSession(sessionId);
-  const userDirectoryQuery = useUserDirectory();
+  const [sessionQuery, userDirectoryQuery] = useSuspenseQueries({
+    queries: [
+      getUseSessionOptions(sessionId),
+      getUseUserDirectoryOptions()
+    ]
+  })
 
   const potentialSessionAttendees = useMemo(() => {
     if (!userDirectoryQuery.data || !sessionQuery.data) return {};

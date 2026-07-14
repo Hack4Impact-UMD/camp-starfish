@@ -4,6 +4,10 @@ import SelectAttendeesScreen from "./SelectAttendeesScreen";
 import InputCamperDataScreen from "./InputCamperDataScreen";
 import InputStaffDataScreen from "./InputStaffDataScreen";
 import { useActiveStep } from "./AddAttendeesModalStore";
+import { Suspense } from "react";
+import LoadingPage from "@/app/loading";
+import { ErrorBoundary } from "react-error-boundary";
+import ErrorPage from "@/app/error";
 
 interface AddAttendeesModalProps {
   sessionId: string;
@@ -15,19 +19,21 @@ export function AddAttendeesModal(props: AddAttendeesModalProps) {
   const activeStep = useActiveStep();
 
   return (
-    <div className="flex flex-col items-center w-full">
-      <Stepper active={activeStep} allowNextStepsSelect={false}>
-        <Stepper.Step label="Select Attendees">
-          <SelectAttendeesScreen sessionId={sessionId}/>
-        </Stepper.Step>
-        <Stepper.Step label="Input Camper Data">
-          <InputCamperDataScreen />
-        </Stepper.Step>
-        <Stepper.Step label="Input Staff Data">
-          <InputStaffDataScreen />
-        </Stepper.Step>
-      </Stepper>
-    </div>
+    <ErrorBoundary fallbackRender={({ error }) => <ErrorPage error={error} />}>
+      <Suspense fallback={<LoadingPage />}>
+        <Stepper active={activeStep} allowNextStepsSelect={false}>
+          <Stepper.Step label="Select Attendees">
+            <SelectAttendeesScreen sessionId={sessionId} />
+          </Stepper.Step>
+          <Stepper.Step label="Input Camper Data">
+            <InputCamperDataScreen />
+          </Stepper.Step>
+          <Stepper.Step label="Input Staff Data">
+            <InputStaffDataScreen />
+          </Stepper.Step>
+        </Stepper>
+      </Suspense>
+    </ErrorBoundary>
   );
 }
 
