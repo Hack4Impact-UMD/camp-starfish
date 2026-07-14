@@ -1,21 +1,40 @@
 import { functions } from "@/config/firebase";
 import { useMutation } from "@tanstack/react-query";
-import { AdminAttendee, CamperAttendee, StaffAttendee } from "@/types/sessions/sessionTypes";
+import { AGE_GROUPS } from "@/types/sessions/sessionTypes";
 import { httpsCallable } from "firebase/functions";
+import { z } from "zod";
 
-export type CreateCamperAttendeeRequest = Pick<CamperAttendee, "attendeeId" | "role" | "ageGroup" | "bunk">;
-export type CreateStaffAttendeeRequest = Pick<StaffAttendee, "attendeeId" | "role" | "bunk" | "isLeadBunkCounselor">;
-export type CreateAdminAttendeeRequest = Pick<AdminAttendee, "attendeeId" | "role">;
+const CreateCamperAttendeeRequestSchema = z.object({
+  attendeeId: z.number().min(1),
+  role: z.literal("CAMPER"),
+  ageGroup: z.enum(AGE_GROUPS),
+  bunk: z.number().min(1),
+})
 
-export type CreateAttendeeRequest =
-  | CreateCamperAttendeeRequest
-  | CreateStaffAttendeeRequest
-  | CreateAdminAttendeeRequest;
+const CreateStaffAttendeeRequestSchema = z.object({
+  attendeeId: z.number().min(1),
+  role: z.literal("STAFF"),
+  bunk: z.number().min(1),
+  isLeadBunkCounselor: z.boolean()
+});
 
-export interface CreateAttendeesRequest {
-  sessionId: string;
-  attendees: CreateAttendeeRequest[];
-}
+const CreateAdminAttendeeRequestSchema = z.object({
+  attendeeId: z.number().min(1),
+  role: z.literal("ADMIN")
+});
+
+const CreateAttendeeRequestSchema = z.union([CreateCamperAttendeeRequestSchema, CreateStaffAttendeeRequestSchema, CreateAdminAttendeeRequestSchema]);
+
+const CreateAttendeesRequestSchema = z.object({
+  sessionId: z.string().uuid(),
+  attendees: z.array(CreateAttendeeRequestSchema),
+})
+
+export type CreateCamperAttendeeRequest = z.infer<typeof CreateCamperAttendeeRequestSchema>;
+export type CreateStaffAttendeeRequest = z.infer<typeof CreateStaffAttendeeRequestSchema>;
+export type CreateAdminAttendeeRequest = z.infer<typeof CreateAdminAttendeeRequestSchema>;
+export type CreateAttendeeRequest = z.infer<typeof CreateAttendeeRequestSchema>;
+export type CreateAttendeesRequest = z.infer<typeof CreateAttendeesRequestSchema>;
 
 export async function createAttendees(req: CreateAttendeesRequest) {
   await httpsCallable(functions, "createAttendees")(req);
