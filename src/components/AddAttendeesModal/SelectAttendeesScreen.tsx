@@ -42,7 +42,7 @@ export default function SelectAttendeesScreen({
         data={getObjectEntriesWithNumberKeys(potentialSessionAttendees).map(
           ([userId, user]) => ({
             value: userId,
-            label: getFullName(user.name) + " - " + userId,
+            label: getFullName(user.name),
           }),
         )}
         value={selectedAttendeeIds}
