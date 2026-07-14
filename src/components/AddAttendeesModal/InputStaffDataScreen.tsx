@@ -8,12 +8,13 @@ import {
   useAddAttendeesModalStoreActions,
   useadditionalStaffData,
 } from "./AddAttendeesModalStore";
-import useUserDirectory from "@/hooks/users/useUserDirectory";
+import useUserDirectory, { getUseUserDirectoryOptions } from "@/hooks/users/useUserDirectory";
 import { getFullName } from "@/types/users/userUtils";
 import { Button, Checkbox, NumberInput, Table } from "@mantine/core";
 import { getObjectKeysAsNumbers } from "@/utils/stringUtils";
 import { useMemo } from "react";
 import { Name } from "@/types/users/userTypes";
+import { useSuspenseQuery } from "@tanstack/react-query";
 
 interface InputStaffTableRow {
   stafferId: number;
@@ -27,14 +28,14 @@ export default function InputStaffDataScreen() {
   const { prevStep, nextStep, setBunk, setIsLeadBunkCounselor } =
     useAddAttendeesModalStoreActions();
 
-  const userDirectoryQuery = useUserDirectory();
+  const userDirectoryQuery = useSuspenseQuery(getUseUserDirectoryOptions());
 
   const data = useMemo(
     () => {
       const staffIds = getObjectKeysAsNumbers(additionalStaffData);
       return staffIds.map(stafferId => ({
         stafferId,
-        name: userDirectoryQuery.data?.[stafferId].name as Name,
+        name: userDirectoryQuery.data[stafferId].name,
         bunk: additionalStaffData[stafferId].bunk,
         isLeadBunkCounselor: additionalStaffData[stafferId].isLeadBunkCounselor
       }))

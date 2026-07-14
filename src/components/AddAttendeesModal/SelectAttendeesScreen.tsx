@@ -3,7 +3,7 @@ import {
   useAddAttendeesModalStoreActions,
   useSelectedAttendeeIds,
 } from "./AddAttendeesModalStore";
-import { getUseUserDirectoryOptions } from "@/hooks/users/useUserDirectory";
+import useUserDirectory, { getUseUserDirectoryOptions } from "@/hooks/users/useUserDirectory";
 import { getObjectEntriesWithNumberKeys } from "@/utils/stringUtils";
 import { getFullName, isAttendeeRole } from "@/types/users/userUtils";
 import { useMemo } from "react";
@@ -28,9 +28,8 @@ export default function SelectAttendeesScreen({
   })
 
   const potentialSessionAttendees = useMemo(() => {
-    if (!userDirectoryQuery.data || !sessionQuery.data) return {};
     return Object.fromEntries(
-      getObjectEntriesWithNumberKeys(userDirectoryQuery.data || {}).filter(
+      getObjectEntriesWithNumberKeys(userDirectoryQuery.data).filter(
         ([userId, user]) =>
           isAttendeeRole(user.role) &&
           !sessionQuery.data.attendeeIds.includes(userId),
@@ -54,13 +53,13 @@ export default function SelectAttendeesScreen({
         onOptionSubmit={(attendeeId) =>
           selectAttendeeId(
             attendeeId,
-            userDirectoryQuery.data?.[attendeeId].role as AttendeeRole,
+            userDirectoryQuery.data[attendeeId].role as AttendeeRole,
           )
         }
         onRemove={(attendeeId) =>
           deselectAttendeeId(
             attendeeId,
-            userDirectoryQuery.data?.[attendeeId].role as AttendeeRole,
+            userDirectoryQuery.data[attendeeId].role as AttendeeRole,
           )
         }
       />

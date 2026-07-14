@@ -9,12 +9,13 @@ import {
   useAdditionalCamperData,
 } from "./AddAttendeesModalStore";
 import { AGE_GROUPS, AgeGroup } from "@/types/sessions/sessionTypes";
-import useUserDirectory from "@/hooks/users/useUserDirectory";
+import useUserDirectory, { getUseUserDirectoryOptions } from "@/hooks/users/useUserDirectory";
 import { getFullName } from "@/types/users/userUtils";
 import { Button, NumberInput, Select, Table } from "@mantine/core";
 import { getObjectKeysAsNumbers } from "@/utils/stringUtils";
 import { useMemo } from "react";
 import { Name } from "@/types/users/userTypes";
+import { useSuspenseQuery } from "@tanstack/react-query";
 
 interface InputCamperDataTableRow {
   camperId: number;
@@ -28,19 +29,17 @@ export default function InputCamperDataScreen() {
   const { prevStep, nextStep, setAgeGroup, setBunk } =
     useAddAttendeesModalStoreActions();
 
-  const userDirectoryQuery = useUserDirectory();
+  const userDirectoryQuery = useSuspenseQuery(getUseUserDirectoryOptions());
 
   const data: InputCamperDataTableRow[] = useMemo(() => {
     const camperIds = getObjectKeysAsNumbers(additionalCamperData);
     return camperIds.map((camperId) => ({
       camperId,
-      name: userDirectoryQuery.data?.[camperId].name as Name,
+      name: userDirectoryQuery.data[camperId].name,
       ageGroup: additionalCamperData[camperId].ageGroup,
       bunk: additionalCamperData[camperId].bunk,
     }));
   }, [userDirectoryQuery.data, additionalCamperData]);
-
-  if (!userDirectoryQuery.data) return <div>Bruh</div>;
 
   const isAllAdditionalCamperDataInputted = data.every((row) => row.ageGroup && row.bunk);
 
