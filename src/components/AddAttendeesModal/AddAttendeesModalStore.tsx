@@ -109,7 +109,6 @@ const useAddAttendeesModalStore = create<AddAttendeesModalStore>((set) => ({
           }));
       }
     },
-
     setBunk: (attendeeId, bunkNum) =>
       set((state) => {
         if (attendeeId in state.additionalCamperData) {
