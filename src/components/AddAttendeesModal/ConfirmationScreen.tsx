@@ -5,6 +5,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { ConfirmationModalContent } from "../modals/ConfirmationModal";
 import useCreateAttendees, { CreateAdminAttendeeRequest, CreateCamperAttendeeRequest, CreateStaffAttendeeRequest } from "@/hooks/attendees/useCreateAttendees";
 import { getObjectKeysAsNumbers } from "@/utils/stringUtils";
+import { MdCheck } from "react-icons/md";
 
 interface ConfirmationScreenProps {
   sessionId: string;
@@ -49,10 +50,15 @@ export default function ConfirmationScreen(props: ConfirmationScreenProps) {
     })
   }
 
+  if (createAttendeesMutation.isSuccess) {
+    return <><MdCheck></MdCheck><Title order={4}>{`${selectedAttendeeIds.length} attendee${selectedAttendeeIds.length === 1 ? "" : "s"} added successfully!`}</Title></>;
+  }
+
   return (
     <div className="flex flex-col items-center gap-sm">
-      <ConfirmationModalContent title={`This action will add ${selectedAttendeeIds.length} attendees to session "${sessionQuery.data.name}"`} message="WARNING: This action cannot be easily undone." />
-      <Button color="aqua" classNames={{ root: 'w-1/5' }} onClick={onConfirm}>Confirm</Button>
+      <ConfirmationModalContent title={`This action will add ${selectedAttendeeIds.length} attendee${selectedAttendeeIds.length === 1 ? "" : "s"} to session "${sessionQuery.data.name}"`} message="WARNING: This action cannot be easily undone." />
+      <Button color="aqua" classNames={{ root: 'w-1/5' }} onClick={onConfirm} loading={createAttendeesMutation.isPending}>Confirm</Button>
+      {createAttendeesMutation.isError && <Title order={4} className="text-error">{createAttendeesMutation.error.message}</Title>}
       <div className="flex flex-row justify-around w-full">
         <Button onClick={prevStep}>Previous</Button>
         <Button onClick={nextStep} disabled>
