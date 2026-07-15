@@ -1,4 +1,5 @@
 import {
+  AGE_GROUPS,
   AgeGroup,
   AttendeeRole,
   CamperAttendee,
@@ -6,6 +7,7 @@ import {
 } from "@/types/sessions/sessionTypes";
 import { getObjectEntriesWithNumberKeys } from "@/utils/stringUtils";
 import { create } from "zustand";
+import { z } from "zod";
 
 const enum AddAttendeesModalScreens {
   SELECT_ATTENDEES,
@@ -13,6 +15,7 @@ const enum AddAttendeesModalScreens {
   INPUT_STAFF_DATA,
   CONFIRMATION,
 }
+
 interface AddAttendeesModalStoreState {
   activeStep: AddAttendeesModalScreens;
   selectedAttendeeIds: number[];
@@ -25,6 +28,16 @@ interface AddAttendeesModalStoreState {
     Partial<Pick<StaffAttendee, "bunk">> & Pick<StaffAttendee, "isLeadBunkCounselor">
   >;
 }
+
+export const CompletedAdditionalCamperDataSchema = z.record(z.number().min(1), z.object({
+  ageGroup: z.enum(AGE_GROUPS),
+  bunk: z.number().min(1)
+}));
+
+export const CompletedAdditionalStaffDataSchema = z.record(z.number().min(1), z.object({
+  bunk: z.number().min(1),
+  isLeadBunkCounselor: z.boolean()
+}))
 
 interface AddAttendeesModalStoreActions {
   prevStep: () => void;
