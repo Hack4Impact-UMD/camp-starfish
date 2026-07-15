@@ -29,12 +29,12 @@ interface AddAttendeesModalStoreState {
   >;
 }
 
-export const InputCamperDataFormValidator = z.record(z.number().min(1), z.object({
+export const InputCamperDataFormValidator = z.record(z.coerce.number().min(1), z.object({
   ageGroup: z.enum(AGE_GROUPS),
   bunk: z.number().min(1)
 }));
 
-export const InputStaffDataFormValidator = z.record(z.number().min(1), z.object({
+export const InputStaffDataFormValidator = z.record(z.coerce.number().min(1), z.object({
   bunk: z.number().min(1),
   isLeadBunkCounselor: z.boolean()
 }))
