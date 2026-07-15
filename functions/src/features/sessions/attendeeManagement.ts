@@ -33,6 +33,7 @@ export const createAttendees = onCall(async (req) => {
           level: 1,
           role: "CAMPER",
           snapshot: {
+            // @ts-expect-error - Timestamp class in Firestore client & admin SDKs are slightly different, doesn't affect functionality
             dateOfBirth: Timestamp.fromDate(user.dateOfBirth.toDate()),
             gender: user.gender,
             name: user.name,
@@ -45,6 +46,7 @@ export const createAttendees = onCall(async (req) => {
           isLeadBunkCounselor: attendeeRequest.isLeadBunkCounselor,
           role: "STAFF",
           snapshot: {
+            // @ts-expect-error - Timestamp class in Firestore client & admin SDKs are slightly different, doesn't affect functionality
             dateOfBirth: Timestamp.fromDate(user.dateOfBirth.toDate()),
             gender: user.gender,
             name: user.name,
@@ -56,6 +58,7 @@ export const createAttendees = onCall(async (req) => {
         return createAttendeeDoc(user.id, sessionId, {
           role: "ADMIN",
           snapshot: {
+            // @ts-expect-error - Timestamp class in Firestore client & admin SDKs are slightly different, doesn't affect functionality
             dateOfBirth: Timestamp.fromDate(user.dateOfBirth.toDate()),
             gender: user.gender,
             name: user.name,
