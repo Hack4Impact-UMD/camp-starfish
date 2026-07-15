@@ -18,7 +18,7 @@ export function AddAttendeesModal(props: AddAttendeesModalProps) {
   const { sessionId } = props;
   const activeStep = useActiveStep();
   return (
-    <ErrorBoundary fallbackRender={({ error }) => <ErrorPage error={error} />}>
+    <ErrorBoundary fallbackRender={({ error }) => <ErrorPage error={error instanceof Error ? error : Error("Unknown Error")} />}>
       <Suspense fallback={<LoadingPage />}>
         <Stepper active={activeStep} allowNextStepsSelect={false}>
           <Stepper.Step label="Select Attendees">
