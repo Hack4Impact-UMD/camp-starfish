@@ -1,5 +1,5 @@
 import { Button, Title } from "@mantine/core";
-import { useAddAttendeesModalStoreActions, useAdditionalCamperData, useAdditionalStaffData, useSelectedAttendeeIds } from "./AddAttendeesModalStore";
+import { InputCamperDataFormValidator, InputStaffDataFormValidator, useAddAttendeesModalStoreActions, useAdditionalCamperData, useAdditionalStaffData, useSelectedAttendeeIds } from "./AddAttendeesModalStore";
 import { getUseSessionOptions } from "@/hooks/sessions/useSession";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { ConfirmationModalContent } from "../modals/ConfirmationModal";
@@ -24,21 +24,30 @@ export default function ConfirmationScreen(props: ConfirmationScreenProps) {
   const createAttendeesMutation = useCreateAttendees();
 
   const onConfirm = () => {
-    const camperIds = getObjectKeysAsNumbers(additionalCamperData);
-    const staffIds = getObjectKeysAsNumbers(additionalStaffData);
+    const additionalCamperDataValidationResult = InputCamperDataFormValidator.safeParse(additionalCamperData);
+    const additionalStaffDataValidationResult = InputStaffDataFormValidator.safeParse(additionalStaffData);
+    if (!additionalCamperDataValidationResult.success || !additionalStaffDataValidationResult.success) {
+      throw Error("Invalid camper or staff data");
+    }
+
+    const validatedAdditionalCamperData = additionalCamperDataValidationResult.data;
+    const validatedAdditionalStaffData = additionalStaffDataValidationResult.data;
+
+    const camperIds = getObjectKeysAsNumbers(validatedAdditionalCamperData);
+    const staffIds = getObjectKeysAsNumbers(validatedAdditionalStaffData);
     const adminIds = selectedAttendeeIds.filter(attendeeId => !camperIds.includes(attendeeId) && !staffIds.includes(attendeeId));
 
     const createCamperAttendeeRequests: CreateCamperAttendeeRequest[] = camperIds.map(camperId => ({
       attendeeId: camperId,
       role: "CAMPER",
-      ageGroup: additionalCamperData[camperId].ageGroup,
-      bunk: additionalCamperData[camperId].bunk
+      ageGroup: validatedAdditionalCamperData[camperId].ageGroup,
+      bunk: validatedAdditionalCamperData[camperId].bunk
     }));
     const createStaffAttendeeRequests: CreateStaffAttendeeRequest[] = staffIds.map(stafferId => ({
       attendeeId: stafferId,
       role: "STAFF",
-      bunk: additionalStaffData[stafferId].bunk,
-      isLeadBunkCounselor: additionalStaffData[stafferId].isLeadBunkCounselor
+      bunk: validatedAdditionalStaffData[stafferId].bunk,
+      isLeadBunkCounselor: validatedAdditionalStaffData[stafferId].isLeadBunkCounselor
     }));
     const createAdminAttendeeRequests: CreateAdminAttendeeRequest[] = adminIds.map(adminId => ({
       attendeeId: adminId,
