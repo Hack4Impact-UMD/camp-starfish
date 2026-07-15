@@ -5,6 +5,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import {
+  InputCamperDataFormValidator,
   useAddAttendeesModalStoreActions,
   useAdditionalCamperData,
 } from "./AddAttendeesModalStore";
@@ -41,7 +42,7 @@ export default function InputCamperDataScreen() {
     }));
   }, [userDirectoryQuery.data, additionalCamperData]);
 
-  const isAllAdditionalCamperDataInputted = data.every((row) => row.ageGroup && row.bunk);
+  const additionalCamperDataValidationResult = InputCamperDataFormValidator.safeParse(additionalCamperData);
 
   const columns = useMemo(() => {
     const columnHelper = createColumnHelper<InputCamperDataTableRow>();
@@ -115,7 +116,7 @@ export default function InputCamperDataScreen() {
         <Button onClick={prevStep}>Previous</Button>
         <Button
           onClick={nextStep}
-          disabled={!isAllAdditionalCamperDataInputted}
+          disabled={!additionalCamperDataValidationResult.success}
         >
           Next
         </Button>

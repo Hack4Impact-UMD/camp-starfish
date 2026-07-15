@@ -5,6 +5,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import {
+  InputStaffDataFormValidator,
   useAddAttendeesModalStoreActions,
   useAdditionalStaffData,
 } from "./AddAttendeesModalStore";
@@ -40,7 +41,7 @@ export default function InputStaffDataScreen() {
     }));
   }, [additionalStaffData, userDirectoryQuery.data]);
 
-  const isAllAdditionalStaffDataInputted = data.every((row) => row.bunk);
+  const additionalStaffDataValidationResult = InputStaffDataFormValidator.safeParse(additionalStaffData);
 
   const columns = useMemo(() => {
     const columnHelper = createColumnHelper<InputStaffTableRow>();
@@ -112,7 +113,7 @@ export default function InputStaffDataScreen() {
       </Table>
       <div className="flex flex-row justify-around w-full">
         <Button onClick={prevStep}>Previous</Button>
-        <Button onClick={nextStep} disabled={!isAllAdditionalStaffDataInputted}>
+        <Button onClick={nextStep} disabled={!additionalStaffDataValidationResult.success}>
           Next
         </Button>
       </div>
