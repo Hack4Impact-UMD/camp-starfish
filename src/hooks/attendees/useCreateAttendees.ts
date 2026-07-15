@@ -25,7 +25,7 @@ const CreateAdminAttendeeRequestSchema = z.object({
 
 const CreateAttendeeRequestSchema = z.union([CreateCamperAttendeeRequestSchema, CreateStaffAttendeeRequestSchema, CreateAdminAttendeeRequestSchema]);
 
-const CreateAttendeesRequestSchema = z.object({
+export const CreateAttendeesRequestSchema = z.object({
   sessionId: z.string().uuid(),
   attendees: z.array(CreateAttendeeRequestSchema),
 })
@@ -37,6 +37,7 @@ export type CreateAttendeeRequest = z.infer<typeof CreateAttendeeRequestSchema>;
 export type CreateAttendeesRequest = z.infer<typeof CreateAttendeesRequestSchema>;
 
 export async function createAttendees(req: CreateAttendeesRequest) {
+  console.log(req);
   await httpsCallable(functions, "createAttendees")(req);
 }
 
