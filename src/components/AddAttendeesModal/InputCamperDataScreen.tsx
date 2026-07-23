@@ -6,7 +6,7 @@ import {
 } from "@tanstack/react-table";
 import {
   InputCamperDataFormValidator,
-  useAddAttendeesModalStoreActions,
+  useAddAttendeesModalActions,
   useAdditionalCamperData,
 } from "./AddAttendeesModalStore";
 import { AGE_GROUPS, AgeGroup } from "@/types/sessions/sessionTypes";
@@ -28,7 +28,7 @@ interface InputCamperDataTableRow {
 export default function InputCamperDataScreen() {
   const additionalCamperData = useAdditionalCamperData();
   const { prevStep, nextStep, setAgeGroup, setBunk } =
-    useAddAttendeesModalStoreActions();
+    useAddAttendeesModalActions();
 
   const userDirectoryQuery = useSuspenseQuery(getUseUserDirectoryOptions());
 
@@ -42,43 +42,35 @@ export default function InputCamperDataScreen() {
     }));
   }, [userDirectoryQuery.data, additionalCamperData]);
 
-  const additionalCamperDataValidationResult = InputCamperDataFormValidator.safeParse(additionalCamperData);
+  const additionalCamperDataValidationResult =
+    InputCamperDataFormValidator.safeParse(additionalCamperData);
 
   const columns = useMemo(() => {
     const columnHelper = createColumnHelper<InputCamperDataTableRow>();
     return [
-      columnHelper.accessor('camperId', { header: "ID" }),
-      columnHelper.accessor(
-        (row) => getFullName(row.name),
-        { header: "Name" },
-      ),
-      columnHelper.accessor(
-        'ageGroup',
-        {
-          header: "Age Group",
-          cell: ({ cell, row }) => (
-            <Select
-              value={cell.getValue()}
-              data={AGE_GROUPS}
-              onChange={(val) =>
-                setAgeGroup(row.original.camperId, val ?? undefined)
-              }
-            />
-          ),
-        },
-      ),
-      columnHelper.accessor(
-        'bunk',
-        {
-          header: "Bunk",
-          cell: ({ cell, row }) => (
-            <NumberInput
-              value={cell.getValue()}
-              onChange={(val) => setBunk(row.original.camperId, Number(val))}
-            />
-          ),
-        },
-      ),
+      columnHelper.accessor("camperId", { header: "ID" }),
+      columnHelper.accessor((row) => getFullName(row.name), { header: "Name" }),
+      columnHelper.accessor("ageGroup", {
+        header: "Age Group",
+        cell: ({ cell, row }) => (
+          <Select
+            value={cell.getValue()}
+            data={AGE_GROUPS}
+            onChange={(val) =>
+              setAgeGroup(row.original.camperId, val ?? undefined)
+            }
+          />
+        ),
+      }),
+      columnHelper.accessor("bunk", {
+        header: "Bunk",
+        cell: ({ cell, row }) => (
+          <NumberInput
+            value={cell.getValue()}
+            onChange={(val) => setBunk(row.original.camperId, Number(val))}
+          />
+        ),
+      }),
     ];
   }, [setAgeGroup, setBunk]);
 
@@ -95,7 +87,12 @@ export default function InputCamperDataScreen() {
           {table.getHeaderGroups().map((headerGroup) => (
             <Table.Tr key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
-                <Table.Th key={header.id}>{flexRender(header.column.columnDef.header, header.getContext())}</Table.Th>
+                <Table.Th key={header.id}>
+                  {flexRender(
+                    header.column.columnDef.header,
+                    header.getContext(),
+                  )}
+                </Table.Th>
               ))}
             </Table.Tr>
           ))}

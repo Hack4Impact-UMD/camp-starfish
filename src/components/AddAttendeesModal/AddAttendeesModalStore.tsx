@@ -25,19 +25,26 @@ interface AddAttendeesModalStoreState {
   >;
   additionalStaffData: Record<
     number,
-    Partial<Pick<StaffAttendee, "bunk">> & Pick<StaffAttendee, "isLeadBunkCounselor">
+    Partial<Pick<StaffAttendee, "bunk">> &
+      Pick<StaffAttendee, "isLeadBunkCounselor">
   >;
 }
 
-export const InputCamperDataFormValidator = z.record(z.coerce.number().min(1), z.object({
-  ageGroup: z.enum(AGE_GROUPS),
-  bunk: z.number().min(1)
-}));
+export const InputCamperDataFormValidator = z.record(
+  z.coerce.number().min(1),
+  z.object({
+    ageGroup: z.enum(AGE_GROUPS),
+    bunk: z.number().min(1),
+  }),
+);
 
-export const InputStaffDataFormValidator = z.record(z.coerce.number().min(1), z.object({
-  bunk: z.number().min(1),
-  isLeadBunkCounselor: z.boolean()
-}))
+export const InputStaffDataFormValidator = z.record(
+  z.coerce.number().min(1),
+  z.object({
+    bunk: z.number().min(1),
+    isLeadBunkCounselor: z.boolean(),
+  }),
+);
 
 interface AddAttendeesModalStoreActions {
   prevStep: () => void;
@@ -62,8 +69,18 @@ const useAddAttendeesModalStore = create<AddAttendeesModalStore>((set) => ({
   additionalCamperData: {},
   additionalStaffData: {},
   actions: {
-    prevStep: () => set((state) => state.activeStep === AddAttendeesModalScreens.SELECT_ATTENDEES ? ({}) : ({ activeStep: state.activeStep - 1 })),
-    nextStep: () => set((state) => state.activeStep === AddAttendeesModalScreens.CONFIRMATION ? ({}) : ({ activeStep: state.activeStep + 1 })),
+    prevStep: () =>
+      set((state) =>
+        state.activeStep === AddAttendeesModalScreens.SELECT_ATTENDEES
+          ? {}
+          : { activeStep: state.activeStep - 1 },
+      ),
+    nextStep: () =>
+      set((state) =>
+        state.activeStep === AddAttendeesModalScreens.CONFIRMATION
+          ? {}
+          : { activeStep: state.activeStep + 1 },
+      ),
     selectAttendeeId: (attendeeId, role) => {
       switch (role) {
         case "CAMPER":
@@ -80,7 +97,7 @@ const useAddAttendeesModalStore = create<AddAttendeesModalStore>((set) => ({
             additionalStaffData: {
               ...state.additionalStaffData,
               [attendeeId]: {
-                isLeadBunkCounselor: false
+                isLeadBunkCounselor: false,
               },
             },
           }));
@@ -180,12 +197,13 @@ const useAddAttendeesModalStore = create<AddAttendeesModalStore>((set) => ({
   },
 }));
 
-export const useActiveStep = () => useAddAttendeesModalStore((state) => state.activeStep);
+export const useActiveStep = () =>
+  useAddAttendeesModalStore((state) => state.activeStep);
 export const useSelectedAttendeeIds = () =>
   useAddAttendeesModalStore((state) => state.selectedAttendeeIds);
 export const useAdditionalCamperData = () =>
   useAddAttendeesModalStore((state) => state.additionalCamperData);
 export const useAdditionalStaffData = () =>
   useAddAttendeesModalStore((state) => state.additionalStaffData);
-export const useAddAttendeesModalStoreActions = () =>
+export const useAddAttendeesModalActions = () =>
   useAddAttendeesModalStore((state) => state.actions);

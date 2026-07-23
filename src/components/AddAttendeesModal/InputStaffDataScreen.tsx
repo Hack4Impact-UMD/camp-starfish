@@ -6,7 +6,7 @@ import {
 } from "@tanstack/react-table";
 import {
   InputStaffDataFormValidator,
-  useAddAttendeesModalStoreActions,
+  useAddAttendeesModalActions,
   useAdditionalStaffData,
 } from "./AddAttendeesModalStore";
 import { getUseUserDirectoryOptions } from "@/hooks/users/useUserDirectory";
@@ -27,7 +27,7 @@ interface InputStaffTableRow {
 export default function InputStaffDataScreen() {
   const additionalStaffData = useAdditionalStaffData();
   const { prevStep, nextStep, setBunk, setIsLeadBunkCounselor } =
-    useAddAttendeesModalStoreActions();
+    useAddAttendeesModalActions();
 
   const userDirectoryQuery = useSuspenseQuery(getUseUserDirectoryOptions());
 
@@ -41,7 +41,8 @@ export default function InputStaffDataScreen() {
     }));
   }, [additionalStaffData, userDirectoryQuery.data]);
 
-  const additionalStaffDataValidationResult = InputStaffDataFormValidator.safeParse(additionalStaffData);
+  const additionalStaffDataValidationResult =
+    InputStaffDataFormValidator.safeParse(additionalStaffData);
 
   const columns = useMemo(() => {
     const columnHelper = createColumnHelper<InputStaffTableRow>();
@@ -113,7 +114,10 @@ export default function InputStaffDataScreen() {
       </Table>
       <div className="flex flex-row justify-around w-full">
         <Button onClick={prevStep}>Previous</Button>
-        <Button onClick={nextStep} disabled={!additionalStaffDataValidationResult.success}>
+        <Button
+          onClick={nextStep}
+          disabled={!additionalStaffDataValidationResult.success}
+        >
           Next
         </Button>
       </div>

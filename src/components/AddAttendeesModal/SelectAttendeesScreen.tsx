@@ -1,6 +1,6 @@
 import { getUseSessionOptions } from "@/hooks/sessions/useSession";
 import {
-  useAddAttendeesModalStoreActions,
+  useAddAttendeesModalActions,
   useSelectedAttendeeIds,
 } from "./AddAttendeesModalStore";
 import { getUseUserDirectoryOptions } from "@/hooks/users/useUserDirectory";
@@ -18,14 +18,11 @@ export default function SelectAttendeesScreen({
 }) {
   const selectedAttendeeIds = useSelectedAttendeeIds();
   const { prevStep, nextStep, selectAttendeeId, deselectAttendeeId } =
-    useAddAttendeesModalStoreActions();
+    useAddAttendeesModalActions();
 
   const [sessionQuery, userDirectoryQuery] = useSuspenseQueries({
-    queries: [
-      getUseSessionOptions(sessionId),
-      getUseUserDirectoryOptions()
-    ]
-  })
+    queries: [getUseSessionOptions(sessionId), getUseUserDirectoryOptions()],
+  });
 
   const potentialSessionAttendees = useMemo(() => {
     return Object.fromEntries(
@@ -64,8 +61,12 @@ export default function SelectAttendeesScreen({
         }
       />
       <div className="flex flex-row justify-around w-full">
-        <Button onClick={prevStep} disabled>Previous</Button>
-        <Button onClick={nextStep} disabled={selectedAttendeeIds.length === 0}>Next</Button>
+        <Button onClick={prevStep} disabled>
+          Previous
+        </Button>
+        <Button onClick={nextStep} disabled={selectedAttendeeIds.length === 0}>
+          Next
+        </Button>
       </div>
     </div>
   );

@@ -2,7 +2,7 @@ import { Button, Title } from "@mantine/core";
 import {
   InputCamperDataFormValidator,
   InputStaffDataFormValidator,
-  useAddAttendeesModalStoreActions,
+  useAddAttendeesModalActions,
   useAdditionalCamperData,
   useAdditionalStaffData,
   useSelectedAttendeeIds,
@@ -28,7 +28,7 @@ export default function ConfirmationScreen(props: ConfirmationScreenProps) {
   const selectedAttendeeIds = useSelectedAttendeeIds();
   const additionalCamperData = useAdditionalCamperData();
   const additionalStaffData = useAdditionalStaffData();
-  const { prevStep, nextStep } = useAddAttendeesModalStoreActions();
+  const { prevStep, nextStep } = useAddAttendeesModalActions();
 
   const sessionQuery = useSuspenseQuery(getUseSessionOptions(sessionId));
 
