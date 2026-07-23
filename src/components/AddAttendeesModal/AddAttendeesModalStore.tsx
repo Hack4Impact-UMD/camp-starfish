@@ -6,8 +6,9 @@ import {
   StaffAttendee,
 } from "@/types/sessions/sessionTypes";
 import { getObjectEntriesWithNumberKeys } from "@/utils/stringUtils";
-import { create } from "zustand";
+import { createStore, StoreApi, useStore } from "zustand";
 import { z } from "zod";
+import { createContext, useContext, useState } from "react";
 
 const enum AddAttendeesModalScreens {
   SELECT_ATTENDEES,
@@ -63,139 +64,159 @@ type AddAttendeesModalStore = AddAttendeesModalStoreState & {
   actions: AddAttendeesModalStoreActions;
 };
 
-const useAddAttendeesModalStore = create<AddAttendeesModalStore>((set) => ({
-  activeStep: AddAttendeesModalScreens.SELECT_ATTENDEES,
-  selectedAttendeeIds: [],
-  additionalCamperData: {},
-  additionalStaffData: {},
-  actions: {
-    prevStep: () =>
-      set((state) =>
-        state.activeStep === AddAttendeesModalScreens.SELECT_ATTENDEES
-          ? {}
-          : { activeStep: state.activeStep - 1 },
-      ),
-    nextStep: () =>
-      set((state) =>
-        state.activeStep === AddAttendeesModalScreens.CONFIRMATION
-          ? {}
-          : { activeStep: state.activeStep + 1 },
-      ),
-    selectAttendeeId: (attendeeId, role) => {
-      switch (role) {
-        case "CAMPER":
-          return set((state) => ({
-            selectedAttendeeIds: [...state.selectedAttendeeIds, attendeeId],
-            additionalCamperData: {
-              ...state.additionalCamperData,
-              [attendeeId]: {},
-            },
-          }));
-        case "STAFF":
-          return set((state) => ({
-            selectedAttendeeIds: [...state.selectedAttendeeIds, attendeeId],
-            additionalStaffData: {
-              ...state.additionalStaffData,
-              [attendeeId]: {
-                isLeadBunkCounselor: false,
-              },
-            },
-          }));
-        case "ADMIN":
-          return set((state) => ({
-            selectedAttendeeIds: [...state.selectedAttendeeIds, attendeeId],
-          }));
-      }
-    },
-    deselectAttendeeId: (attendeeId, role) => {
-      switch (role) {
-        case "CAMPER":
-          return set((state) => ({
-            selectedAttendeeIds: state.selectedAttendeeIds.filter(
-              (a) => a !== attendeeId,
-            ),
-            additionalCamperData: Object.fromEntries(
-              getObjectEntriesWithNumberKeys(state.additionalCamperData).filter(
-                ([camperId, _camper]) => camperId !== attendeeId,
-              ),
-            ),
-          }));
-        case "STAFF":
-          return set((state) => ({
-            selectedAttendeeIds: state.selectedAttendeeIds.filter(
-              (a) => a !== attendeeId,
-            ),
-            additionalStaffData: Object.fromEntries(
-              getObjectEntriesWithNumberKeys(state.additionalStaffData).filter(
-                ([stafferId, _staffer]) => stafferId !== attendeeId,
-              ),
-            ),
-          }));
-        case "ADMIN":
-          return set((state) => ({
-            selectedAttendeeIds: state.selectedAttendeeIds.filter(
-              (a) => a !== attendeeId,
-            ),
-          }));
-      }
-    },
-    setBunk: (attendeeId, bunkNum) =>
-      set((state) => {
-        if (attendeeId in state.additionalCamperData) {
-          return {
-            additionalCamperData: {
-              ...state.additionalCamperData,
-              [attendeeId]: {
-                ...state.additionalCamperData[attendeeId],
-                bunk: bunkNum,
-              },
-            },
-          };
-        } else if (attendeeId in state.additionalStaffData) {
-          return {
-            additionalStaffData: {
-              ...state.additionalStaffData,
-              [attendeeId]: {
-                ...state.additionalStaffData[attendeeId],
-                bunk: bunkNum,
-              },
-            },
-          };
-        }
-        return {};
-      }),
-    setAgeGroup: (attendeeId, ageGroup) =>
-      set((state) => {
-        if (attendeeId in state.additionalCamperData) {
-          return {
-            additionalCamperData: {
-              ...state.additionalCamperData,
-              [attendeeId]: {
-                ...state.additionalCamperData[attendeeId],
-                ageGroup,
-              },
-            },
-          };
-        }
-        return {};
-      }),
-    setIsLeadBunkCounselor: (attendeeId, isLeadBunkCounselor) =>
-      set((state) => {
-        if (attendeeId in state.additionalStaffData) {
-          return {
-            additionalStaffData: {
-              ...state.additionalStaffData,
-              [attendeeId]: {
-                ...state.additionalStaffData[attendeeId],
-                isLeadBunkCounselor,
-              },
-            },
-          };
-        }
-        return {};
-      }),
-  },
-}));
+const AddAttendeesModalStoreContext = createContext<StoreApi<AddAttendeesModalStore> | null>(null);
+
+export default function AddAttendeesModalStoreProvider({ children }: { children: React.ReactNode }) {
+  const [store] = useState(() =>
+    createStore<AddAttendeesModalStore>((set) => ({
+      activeStep: AddAttendeesModalScreens.SELECT_ATTENDEES,
+      selectedAttendeeIds: [],
+      additionalCamperData: {},
+      additionalStaffData: {},
+      actions: {
+        prevStep: () =>
+          set((state) =>
+            state.activeStep === AddAttendeesModalScreens.SELECT_ATTENDEES
+              ? {}
+              : { activeStep: state.activeStep - 1 },
+          ),
+        nextStep: () =>
+          set((state) =>
+            state.activeStep === AddAttendeesModalScreens.CONFIRMATION
+              ? {}
+              : { activeStep: state.activeStep + 1 },
+          ),
+        selectAttendeeId: (attendeeId, role) => {
+          switch (role) {
+            case "CAMPER":
+              return set((state) => ({
+                selectedAttendeeIds: [...state.selectedAttendeeIds, attendeeId],
+                additionalCamperData: {
+                  ...state.additionalCamperData,
+                  [attendeeId]: {},
+                },
+              }));
+            case "STAFF":
+              return set((state) => ({
+                selectedAttendeeIds: [...state.selectedAttendeeIds, attendeeId],
+                additionalStaffData: {
+                  ...state.additionalStaffData,
+                  [attendeeId]: {
+                    isLeadBunkCounselor: false,
+                  },
+                },
+              }));
+            case "ADMIN":
+              return set((state) => ({
+                selectedAttendeeIds: [...state.selectedAttendeeIds, attendeeId],
+              }));
+          }
+        },
+        deselectAttendeeId: (attendeeId, role) => {
+          switch (role) {
+            case "CAMPER":
+              return set((state) => ({
+                selectedAttendeeIds: state.selectedAttendeeIds.filter(
+                  (a) => a !== attendeeId,
+                ),
+                additionalCamperData: Object.fromEntries(
+                  getObjectEntriesWithNumberKeys(
+                    state.additionalCamperData,
+                  ).filter(([camperId, _camper]) => camperId !== attendeeId),
+                ),
+              }));
+            case "STAFF":
+              return set((state) => ({
+                selectedAttendeeIds: state.selectedAttendeeIds.filter(
+                  (a) => a !== attendeeId,
+                ),
+                additionalStaffData: Object.fromEntries(
+                  getObjectEntriesWithNumberKeys(
+                    state.additionalStaffData,
+                  ).filter(([stafferId, _staffer]) => stafferId !== attendeeId),
+                ),
+              }));
+            case "ADMIN":
+              return set((state) => ({
+                selectedAttendeeIds: state.selectedAttendeeIds.filter(
+                  (a) => a !== attendeeId,
+                ),
+              }));
+          }
+        },
+        setBunk: (attendeeId, bunkNum) =>
+          set((state) => {
+            if (attendeeId in state.additionalCamperData) {
+              return {
+                additionalCamperData: {
+                  ...state.additionalCamperData,
+                  [attendeeId]: {
+                    ...state.additionalCamperData[attendeeId],
+                    bunk: bunkNum,
+                  },
+                },
+              };
+            } else if (attendeeId in state.additionalStaffData) {
+              return {
+                additionalStaffData: {
+                  ...state.additionalStaffData,
+                  [attendeeId]: {
+                    ...state.additionalStaffData[attendeeId],
+                    bunk: bunkNum,
+                  },
+                },
+              };
+            }
+            return {};
+          }),
+        setAgeGroup: (attendeeId, ageGroup) =>
+          set((state) => {
+            if (attendeeId in state.additionalCamperData) {
+              return {
+                additionalCamperData: {
+                  ...state.additionalCamperData,
+                  [attendeeId]: {
+                    ...state.additionalCamperData[attendeeId],
+                    ageGroup,
+                  },
+                },
+              };
+            }
+            return {};
+          }),
+        setIsLeadBunkCounselor: (attendeeId, isLeadBunkCounselor) =>
+          set((state) => {
+            if (attendeeId in state.additionalStaffData) {
+              return {
+                additionalStaffData: {
+                  ...state.additionalStaffData,
+                  [attendeeId]: {
+                    ...state.additionalStaffData[attendeeId],
+                    isLeadBunkCounselor,
+                  },
+                },
+              };
+            }
+            return {};
+          }),
+      },
+    })),
+  );
+
+  return (
+    <AddAttendeesModalStoreContext.Provider value={store}>
+      {children}
+    </AddAttendeesModalStoreContext.Provider>
+  );
+}
+
+const useAddAttendeesModalStore = (selector: (state: AddAttendeesModalStore) => unknown) => {
+  const store = useContext(AddAttendeesModalStoreContext);
+  if (!store) {
+    throw new Error("Missing AddAttendeesModalStoreProvider");
+  }
+  return useStore(store, selector);
+}
 
 export const useActiveStep = () =>
   useAddAttendeesModalStore((state) => state.activeStep);
