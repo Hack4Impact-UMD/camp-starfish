@@ -1,7 +1,7 @@
 import { functions } from "@/config/firebase";
 import { useMutation } from "@tanstack/react-query";
 import { httpsCallable } from "firebase/functions";
-import { CreateAttendeesRequest } from "./validators";
+import { CreateAttendeesRequest } from "./types";
 
 export async function createAttendees(req: CreateAttendeesRequest) {
   console.log(req);
