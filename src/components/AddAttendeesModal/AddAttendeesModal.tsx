@@ -55,6 +55,9 @@ export default function openAddAttendeesModal(sessionId: string) {
         <AddAttendeesModal sessionId={sessionId} />
       </AddAttendeesModalStoreProvider>
     ),
+    classNames: {
+      body: 'p-sm'
+    },
     size: "xl",
   });
 }
