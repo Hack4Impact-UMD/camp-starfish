@@ -10,11 +10,12 @@ import {
 import { getUseSessionOptions } from "@/hooks/sessions/useSession";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { ConfirmationModalContent } from "../modals/ConfirmationModal";
-import useCreateAttendees, {
+import useCreateAttendees from "@/hooks/attendees/useCreateAttendees";
+import {
   CreateAdminAttendeeRequest,
   CreateCamperAttendeeRequest,
   CreateStaffAttendeeRequest,
-} from "@/hooks/attendees/useCreateAttendees";
+} from "@/hooks/attendees/types";
 import { getObjectKeysAsNumbers } from "@/utils/stringUtils";
 import { MdCheckCircle } from "react-icons/md";
 
