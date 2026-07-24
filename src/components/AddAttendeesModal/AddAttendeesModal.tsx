@@ -3,7 +3,9 @@ import { modals } from "@mantine/modals";
 import SelectAttendeesScreen from "./SelectAttendeesScreen";
 import InputCamperDataScreen from "./InputCamperDataScreen";
 import InputStaffDataScreen from "./InputStaffDataScreen";
-import { useActiveStep } from "./AddAttendeesModalStore";
+import AddAttendeesModalStoreProvider, {
+  useActiveStep,
+} from "./AddAttendeesModalStore";
 import { Suspense } from "react";
 import LoadingPage from "@/app/loading";
 import { ErrorBoundary } from "react-error-boundary";
@@ -18,7 +20,13 @@ export function AddAttendeesModal(props: AddAttendeesModalProps) {
   const { sessionId } = props;
   const activeStep = useActiveStep();
   return (
-    <ErrorBoundary fallbackRender={({ error }) => <ErrorPage error={error instanceof Error ? error : Error("Unknown Error")} />}>
+    <ErrorBoundary
+      fallbackRender={({ error }) => (
+        <ErrorPage
+          error={error instanceof Error ? error : Error("Unknown Error")}
+        />
+      )}
+    >
       <Suspense fallback={<LoadingPage />}>
         <Stepper active={activeStep} allowNextStepsSelect={false}>
           <Stepper.Step label="Select Attendees">
@@ -42,7 +50,11 @@ export function AddAttendeesModal(props: AddAttendeesModalProps) {
 export default function openAddAttendeesModal(sessionId: string) {
   modals.open({
     title: "Add Attendees",
-    children: <AddAttendeesModal sessionId={sessionId} />,
+    children: (
+      <AddAttendeesModalStoreProvider>
+        <AddAttendeesModal sessionId={sessionId} />
+      </AddAttendeesModalStoreProvider>
+    ),
     size: "xl",
   });
 }
