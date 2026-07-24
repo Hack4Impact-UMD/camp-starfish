@@ -5,7 +5,7 @@ import { toRecord } from "@/utils/data/toRecord";
 import { createAttendeeDoc } from "../../data/firestore/attendees";
 import { AdminAttendeeDoc, CamperAttendeeDoc, StaffAttendeeDoc } from "@/data/firestore/types/documents";
 import { Timestamp } from "firebase-admin/firestore";
-import { CreateAttendeesRequestSchema } from "@/hooks/attendees/validators"
+import { CreateAttendeesRequestSchema } from "@/hooks/attendees/types"
 
 export const createAttendees = onCall(async (req) => {
   if (!req.auth || !req.auth.token.role) {
