@@ -210,7 +210,7 @@ export default function AddAttendeesModalStoreProvider({ children }: { children:
   );
 }
 
-const useAddAttendeesModalStore = (selector: (state: AddAttendeesModalStore) => unknown) => {
+function useAddAttendeesModalStore<T>(selector: (state: AddAttendeesModalStore) => T) {
   const store = useContext(AddAttendeesModalStoreContext);
   if (!store) {
     throw new Error("Missing AddAttendeesModalStoreProvider");
