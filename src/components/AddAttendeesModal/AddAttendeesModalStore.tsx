@@ -31,7 +31,7 @@ interface AddAttendeesModalStoreState {
   >;
 }
 
-export const InputCamperDataFormValidator = z.record(
+export const AdditionalCamperDataSchema = z.record(
   z.coerce.number().min(1),
   z.object({
     ageGroup: z.enum(AGE_GROUPS),
@@ -39,7 +39,7 @@ export const InputCamperDataFormValidator = z.record(
   }),
 );
 
-export const InputStaffDataFormValidator = z.record(
+export const AdditionalStaffDataSchema = z.record(
   z.coerce.number().min(1),
   z.object({
     bunk: z.number().min(1),
@@ -64,9 +64,14 @@ type AddAttendeesModalStore = AddAttendeesModalStoreState & {
   actions: AddAttendeesModalStoreActions;
 };
 
-const AddAttendeesModalStoreContext = createContext<StoreApi<AddAttendeesModalStore> | null>(null);
+const AddAttendeesModalStoreContext =
+  createContext<StoreApi<AddAttendeesModalStore> | null>(null);
 
-export default function AddAttendeesModalStoreProvider({ children }: { children: React.ReactNode }) {
+export default function AddAttendeesModalStoreProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const [store] = useState(() =>
     createStore<AddAttendeesModalStore>((set) => ({
       activeStep: AddAttendeesModalScreens.SELECT_ATTENDEES,
@@ -210,7 +215,9 @@ export default function AddAttendeesModalStoreProvider({ children }: { children:
   );
 }
 
-function useAddAttendeesModalStore<T>(selector: (state: AddAttendeesModalStore) => T) {
+function useAddAttendeesModalStore<T>(
+  selector: (state: AddAttendeesModalStore) => T,
+) {
   const store = useContext(AddAttendeesModalStoreContext);
   if (!store) {
     throw new Error("Missing AddAttendeesModalStoreProvider");

@@ -1,7 +1,7 @@
 import { Button, Title } from "@mantine/core";
 import {
-  InputCamperDataFormValidator,
-  InputStaffDataFormValidator,
+  AdditionalCamperDataSchema,
+  AdditionalStaffDataSchema,
   useAddAttendeesModalActions,
   useAdditionalCamperData,
   useAdditionalStaffData,
@@ -37,9 +37,9 @@ export default function ConfirmationScreen(props: ConfirmationScreenProps) {
 
   const onConfirm = () => {
     const additionalCamperDataValidationResult =
-      InputCamperDataFormValidator.safeParse(additionalCamperData);
+      AdditionalCamperDataSchema.safeParse(additionalCamperData);
     const additionalStaffDataValidationResult =
-      InputStaffDataFormValidator.safeParse(additionalStaffData);
+      AdditionalStaffDataSchema.safeParse(additionalStaffData);
     if (
       !additionalCamperDataValidationResult.success ||
       !additionalStaffDataValidationResult.success

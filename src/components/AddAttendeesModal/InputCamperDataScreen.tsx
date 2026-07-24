@@ -5,7 +5,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import {
-  InputCamperDataFormValidator,
+  AdditionalCamperDataSchema,
   useAddAttendeesModalActions,
   useAdditionalCamperData,
 } from "./AddAttendeesModalStore";
@@ -43,7 +43,7 @@ export default function InputCamperDataScreen() {
   }, [userDirectoryQuery.data, additionalCamperData]);
 
   const additionalCamperDataValidationResult =
-    InputCamperDataFormValidator.safeParse(additionalCamperData);
+    AdditionalCamperDataSchema.safeParse(additionalCamperData);
 
   const columns = useMemo(() => {
     const columnHelper = createColumnHelper<InputCamperDataTableRow>();

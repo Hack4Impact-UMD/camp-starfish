@@ -5,7 +5,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import {
-  InputStaffDataFormValidator,
+  AdditionalStaffDataSchema,
   useAddAttendeesModalActions,
   useAdditionalStaffData,
 } from "./AddAttendeesModalStore";
@@ -42,7 +42,7 @@ export default function InputStaffDataScreen() {
   }, [additionalStaffData, userDirectoryQuery.data]);
 
   const additionalStaffDataValidationResult =
-    InputStaffDataFormValidator.safeParse(additionalStaffData);
+    AdditionalStaffDataSchema.safeParse(additionalStaffData);
 
   const columns = useMemo(() => {
     const columnHelper = createColumnHelper<InputStaffTableRow>();
