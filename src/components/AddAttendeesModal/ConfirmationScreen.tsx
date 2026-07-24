@@ -16,7 +16,7 @@ import useCreateAttendees, {
   CreateStaffAttendeeRequest,
 } from "@/hooks/attendees/useCreateAttendees";
 import { getObjectKeysAsNumbers } from "@/utils/stringUtils";
-import { MdCheck } from "react-icons/md";
+import { MdCheckCircle } from "react-icons/md";
 
 interface ConfirmationScreenProps {
   sessionId: string;
@@ -90,12 +90,12 @@ export default function ConfirmationScreen(props: ConfirmationScreenProps) {
 
   if (createAttendeesMutation.isSuccess) {
     return (
-      <>
-        <MdCheck></MdCheck>
+      <div className="flex flex-col items-center gap-sm">
+        <MdCheckCircle className="text-success" size={100}></MdCheckCircle>
         <Title
           order={4}
         >{`${selectedAttendeeIds.length} attendee${selectedAttendeeIds.length === 1 ? "" : "s"} added successfully!`}</Title>
-      </>
+      </div>
     );
   }
 
