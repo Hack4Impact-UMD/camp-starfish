@@ -17,6 +17,8 @@ import {
   Group,
   Text,
   Title,
+  ActionIcon,
+  Tooltip,
 } from "@mantine/core";
 import useListAttendees from "@/hooks/attendees/useListAttendees";
 import { DirectoryTableCell } from "./DirectoryTableCell";
@@ -29,10 +31,11 @@ import {
   ColumnDef,
   getPaginationRowModel,
 } from "@tanstack/react-table";
-import { MdSearch } from "react-icons/md";
+import { MdPersonAdd, MdSearch } from "react-icons/md";
 import LoadingPage from "@/app/loading";
 import useDaysOffSchedule from "@/hooks/daysOffSchedules/useDaysOffSchedule";
 import useSession from "@/hooks/sessions/useSession";
+import openAddAttendeesModal from "@/components/AddAttendeesModal/AddAttendeesModal";
 
 type LargeDirectoryBlockProps = {
   sessionId: string;
@@ -149,7 +152,11 @@ export default function DirectoryTableView({
           cell: (info) => renderIdListAsNames(info.getValue<number[]>()),
         },
         {
-          accessorFn: (row) => sessionQuery.data?.startDate.diff(row.snapshot.dateOfBirth, "years"),
+          accessorFn: (row) =>
+            sessionQuery.data?.startDate.diff(
+              row.snapshot.dateOfBirth,
+              "years",
+            ),
           header: "AGE AT SESSION START",
           cell: (info) => render(info.getValue()),
         },
@@ -271,7 +278,12 @@ export default function DirectoryTableView({
     }
 
     return [];
-  }, [selectedRole, getNameFromId, daysOffScheduleQuery, sessionQuery.data?.startDate]);
+  }, [
+    selectedRole,
+    getNameFromId,
+    daysOffScheduleQuery,
+    sessionQuery.data?.startDate,
+  ]);
 
   const table = useReactTable({
     data,
@@ -280,8 +292,8 @@ export default function DirectoryTableView({
       globalFilter,
       pagination,
       columnVisibility: {
-        "AGE AT SESSION START": sessionQuery.isSuccess
-      }
+        "AGE AT SESSION START": sessionQuery.isSuccess,
+      },
     },
     onGlobalFilterChange: setGlobalFilter,
     getCoreRowModel: getCoreRowModel(),
@@ -310,9 +322,17 @@ export default function DirectoryTableView({
 
   return (
     <div className="border border-black bg-[#F7F7F7] w-[80%] mx-auto py-[20px]">
-      <Title order={3} className="text-center font-bold! mb-10!">
-        DIRECTORY
-      </Title>
+      <div className="flex flex-row justify-between px-sm">
+        <div></div>
+        <Title order={3}>
+          DIRECTORY
+        </Title>
+        <ActionIcon color="aqua" onClick={() => openAddAttendeesModal(sessionId)}>
+          <Tooltip label="Add Attendees">
+            <MdPersonAdd size={30} />
+          </Tooltip>
+        </ActionIcon>
+      </div>
 
       <Container size="90%">
         <Flex direction={"column"}>
