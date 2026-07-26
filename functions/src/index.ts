@@ -5,6 +5,7 @@ import { albumsCloudFunctions } from "./features/albums";
 import { createAlbumItemReportCloudFunction } from "./features/albumItemReporting";
 import { userDirectoryCloudFunctions } from "./features/userDirectory";
 import { processFamilyCsv, processEmployeeCsv } from "./features/userCsvProcessing";
+import { createAttendees } from "./features/sessions/attendeeManagement";
 
 module.exports = {
   ...accountManagementCloudFunctions,
@@ -14,5 +15,6 @@ module.exports = {
   createAlbumItemReportCloudFunction,
   ...userDirectoryCloudFunctions,
   processFamilyCsv,
-  processEmployeeCsv
+  processEmployeeCsv,
+  createAttendees
 }

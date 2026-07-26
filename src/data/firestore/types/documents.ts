@@ -108,7 +108,7 @@ interface BaseAttendeeDoc {
   role: Role;
 }
 
-interface CamperAttendeeDoc extends BaseAttendeeDoc {
+export interface CamperAttendeeDoc extends BaseAttendeeDoc {
   role: "CAMPER";
   ageGroup: AgeGroup;
   level: 1 | 2 | 3 | 4 | 5;
@@ -116,7 +116,7 @@ interface CamperAttendeeDoc extends BaseAttendeeDoc {
   isOptedOutFromSwim: boolean;
 }
 
-interface StaffAttendeeDoc extends BaseAttendeeDoc {
+export interface StaffAttendeeDoc extends BaseAttendeeDoc {
   role: "STAFF";
   programCounselorFor?: string;
   bunk: number;
@@ -124,7 +124,7 @@ interface StaffAttendeeDoc extends BaseAttendeeDoc {
   snapshot: BaseAttendeeDoc['snapshot'] & { yesyesList: number[]; };
 }
 
-interface AdminAttendeeDoc extends BaseAttendeeDoc {
+export interface AdminAttendeeDoc extends BaseAttendeeDoc {
   role: "ADMIN";
   snapshot: BaseAttendeeDoc['snapshot'] & { yesyesList: number[]; };
 }

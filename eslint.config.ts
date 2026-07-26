@@ -3,13 +3,21 @@ import tsParser from "@typescript-eslint/parser";
 import importPlugin from "eslint-plugin-import";
 import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTs from "eslint-config-next/typescript";
+import reactHooksPlugin from "eslint-plugin-react-hooks";
 
 const eslintConfig = [
+  ...[...nextVitals, ...nextTs].map(config => ({
+    ...config,
+    files: [
+      "./src/**/*.{ts,tsx}",
+    ],
+  })),
   {
     files: ["./**/*.{ts,tsx}",],
     plugins: {
       "@typescript-eslint": tsPlugin,
-      "import": importPlugin
+      "import": importPlugin,
+      "react-hooks": reactHooksPlugin
     },
     languageOptions: {
       parser: tsParser,
@@ -33,14 +41,9 @@ const eslintConfig = [
         },
       ],
       "import/no-unresolved": 'error',
+      "react-hooks/incompatible-library": 'off'
     },
   },
-  ...[...nextVitals, ...nextTs].map(config => ({
-    ...config,
-    files: [
-      "./src/**/*.{ts,tsx}",
-    ],
-  })),
 ]
 
 export default eslintConfig;

@@ -1,8 +1,8 @@
 import { executeUserDirectoryQuery } from "@/data/firestore/userDirectory";
 import { UserDirectory } from "@/types/albums/albumTypes";
-import { useQuery } from "@tanstack/react-query";
+import { queryOptions, useQuery } from "@tanstack/react-query";
 
-export async function getUserDirectory(): Promise<Omit<UserDirectory, 'page'>> {
+export async function getFullUserDirectory(): Promise<Omit<UserDirectory, 'page'>> {
   const pages = await executeUserDirectoryQuery();
   const fullDirectory = pages.reduce((acc, page) => ({ ...acc, ...page }), {});
   // @ts-expect-error - Typescript doesn't recognize arbitrary keys
@@ -10,9 +10,13 @@ export async function getUserDirectory(): Promise<Omit<UserDirectory, 'page'>> {
   return fullDirectory;
 }
 
-export default function useUserDirectory() {
-  return useQuery({
+export function getUseUserDirectoryOptions() {
+  return queryOptions({
     queryKey: ['user-directory'],
-    queryFn: getUserDirectory
+    queryFn: getFullUserDirectory,
   })
+}
+
+export default function useUserDirectory() {
+  return useQuery(getUseUserDirectoryOptions());
 }

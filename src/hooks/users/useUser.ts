@@ -1,9 +1,13 @@
 import { getUserDoc } from "@/data/firestore/users";
-import { useQuery } from "@tanstack/react-query";
+import { queryOptions, useQuery } from "@tanstack/react-query";
 
-export default function useUser(userId: number) {
-  return useQuery({
+export function getUseUserOptions(userId: number) {
+  return queryOptions({
     queryKey: ['user', userId],
     queryFn: () => getUserDoc(userId)
-  })
+  });
+}
+
+export default function useUser(userId: number) {
+  return useQuery(getUseUserOptions(userId));
 }
