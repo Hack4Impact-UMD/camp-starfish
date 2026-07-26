@@ -84,7 +84,7 @@ function SectionPageContent(props: SectionPageContentProps) {
           />
         </div>
       </div>
-      <ActivityGrid sessionId={session.id} section={section} />
+      <ActivityGrid sessionId={session.id} sectionId={section.id} />
     </div>
   );
 }
