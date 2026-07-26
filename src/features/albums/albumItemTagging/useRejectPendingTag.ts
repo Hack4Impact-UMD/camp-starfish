@@ -1,5 +1,5 @@
 import { updateAlbumItemDoc } from "@/data/firestore/albumItems";
-import { useMutation } from "@tanstack/react-query";
+import useAlbumItemTagMutation from "@/features/albums/albumItemTagging/useAlbumItemTagMutation";
 import { arrayRemove } from "firebase/firestore";
 
 interface RejectPendingTagRequest {
@@ -16,7 +16,5 @@ async function rejectPendingTag(req: RejectPendingTagRequest) {
 }
 
 export default function useRejectPendingTag() {
-  return useMutation({
-    mutationFn: (req: RejectPendingTagRequest) => rejectPendingTag(req)
-  })
+  return useAlbumItemTagMutation((req: RejectPendingTagRequest) => rejectPendingTag(req));
 }

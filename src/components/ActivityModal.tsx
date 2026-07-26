@@ -11,7 +11,10 @@ import { ActivityWithAssignments } from "@/types/scheduling/schedulingTypes";
 import { modals } from "@mantine/modals";
 import moment from "moment";
 import { isIndividualActivityAssignments } from "@/types/scheduling/schedulingTypeGuards";
-import { getAttendeesById } from "@/features/scheduling/generation/schedulingUtils";
+import {
+  getAttendeeName,
+  getAttendeesById,
+} from "@/features/scheduling/generation/schedulingUtils";
 import { getActivityName } from "@/types/scheduling/schedulingUtils";
 import { getFullName } from "@/types/users/userUtils";
 import { Title, Text } from "@mantine/core";
@@ -31,28 +34,31 @@ export default function ActivityModal(props: ActivityModalProps) {
   const { staffNames, camperNames } = useMemo(() => {
     const attendeesById = getAttendeesById([...campers, ...staff, ...admins]);
     const adminNames = activity.adminIds.map((adminId) =>
-      getFullName(attendeesById[adminId].snapshot.name),
+      getAttendeeName(attendeesById, adminId),
     );
     if (isIndividualActivityAssignments(activity)) {
       return {
         staffNames: [
           ...activity.staffIds.map((staffId) =>
-            getFullName(attendeesById[staffId].snapshot.name),
+            getAttendeeName(attendeesById, staffId),
           ),
           ...adminNames,
         ],
         camperNames: activity.camperIds.map((camperId) =>
-          getFullName(attendeesById[camperId].snapshot.name),
+          getAttendeeName(attendeesById, camperId),
         ),
       };
     }
 
     return {
-      staffNames: activity.bunkNums.flatMap((bunkNum) =>
-        staff
-          .filter((staff) => staff.bunk === bunkNum)
-          .map((staff) => getFullName(staff.snapshot.name)),
-      ),
+      staffNames: [
+        ...activity.bunkNums.flatMap((bunkNum) =>
+          staff
+            .filter((staff) => staff.bunk === bunkNum)
+            .map((staff) => getFullName(staff.snapshot.name)),
+        ),
+        ...adminNames,
+      ],
       camperNames: activity.bunkNums.flatMap((bunkNum) =>
         campers
           .filter((camper) => camper.bunk === bunkNum)

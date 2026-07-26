@@ -19,6 +19,10 @@ export async function getDoc<DbModelType extends DocumentData>(ref: DocumentRefe
   return doc;
 }
 
+export function isNotFoundError(error: unknown): boolean {
+  return error instanceof Error && error.message === "Document not found";
+}
+
 export async function assertDocumentDoesNotExist(ref: DocumentReference, instance?: Transaction): Promise<void> {
   const doc = await (instance ? instance.get(ref) : getFirestore(ref));
   if (doc.exists()) {
@@ -95,11 +99,13 @@ function buildQuery<DbModelType extends DocumentData>(collection: CollectionRefe
   return queryObj;
 }
 
-export function mapSnapshotsToPaginatedQueryResult<AppModelType, DbModelType extends DocumentData>(snapshots: QueryDocumentSnapshot<DbModelType, DbModelType>[], mapFunc: (snapshot: QueryDocumentSnapshot<DbModelType, DbModelType>) => AppModelType): PaginatedQueryResponse<AppModelType, DbModelType> {
-  return snapshots.length === 0 ? { docs: [] } : {
+export function mapSnapshotsToPaginatedQueryResult<AppModelType, DbModelType extends DocumentData>(snapshots: QueryDocumentSnapshot<DbModelType, DbModelType>[], mapFunc: (snapshot: QueryDocumentSnapshot<DbModelType, DbModelType>) => AppModelType, limit?: number): PaginatedQueryResponse<AppModelType, DbModelType> {
+  return snapshots.length === 0 ? { docs: [], hasMore: false } : {
     docs: snapshots.map(mapFunc) as NonEmptyArray<AppModelType>,
     firstSnapshot: snapshots[0],
-    lastSnapshot: snapshots[snapshots.length - 1]
+    lastSnapshot: snapshots[snapshots.length - 1],
+    // No limit ⇒ the query returned everything; fewer than limit ⇒ last page.
+    hasMore: limit !== undefined && snapshots.length >= limit,
   }
 }
 

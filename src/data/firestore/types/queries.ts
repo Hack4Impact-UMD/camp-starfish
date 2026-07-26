@@ -49,11 +49,13 @@ export type PaginatedQueryResponse<AppModelType, DbModelType extends DocumentDat
     docs: [];
     firstSnapshot?: never;
     lastSnapshot?: never;
+    hasMore: false;
   }
   | {
     docs: NonEmptyArray<AppModelType>;
     firstSnapshot: QueryDocumentSnapshot<DbModelType, DbModelType>;
     lastSnapshot: QueryDocumentSnapshot<DbModelType, DbModelType>;
+    hasMore: boolean;
   }
 
 export type AggregationClause<DbModelType> = { aggregateFieldName: string; } & (

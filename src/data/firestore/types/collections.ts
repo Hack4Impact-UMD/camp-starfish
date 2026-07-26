@@ -5,6 +5,9 @@ export const enum RootLevelCollection {
   ALBUMS = "albums",
   USER_DIRECTORY = "userDirectory",
   SESSIONS = "sessions",
+  // Parent-facing projection of a session's album linkage (mirrored by a Cloud
+  // Function) so parents resolve their album without reading full sessions.
+  SESSION_ALBUMS = "sessionAlbums",
   PROGRAM_AREAS = "programAreas",
   POSTS = "posts",
   GOOGLE_OAUTH2_TOKENS = "googleOAuth2Tokens",

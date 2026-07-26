@@ -9,7 +9,11 @@
     "compile": "npx tsc --noEmit",
     "start": "next start",
     "lint": "eslint src",
-    "generate:theme": "npx tailwind-preset-mantine ./src/styles/globalTheme.ts -o ./src/styles/theme.css && npx tsx scripts/generate-theme-override.ts"
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "generate:theme": "npx tailwind-preset-mantine ./src/styles/globalTheme.ts -o ./src/styles/theme.css && npx tsx scripts/generate-theme-override.ts",
+    "seed:parent-album": "npx tsx scripts/seed-parent-album-test.ts",
+    "backfill:session-albums": "npx tsx scripts/backfill-session-albums.ts"
   },
   "workspaces": [
     "functions",
@@ -67,7 +71,8 @@
     "jiti": "^2.6.1",
     "postcss": "^8",
     "tailwindcss": "^4.2.1",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.10"
   },
   "overrides": {
     "@types/react": "19.2.15",

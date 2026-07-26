@@ -1,5 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { Info, parse } from "csv-parse/sync";
+import { requireCsvColumns } from "./csvUtils";
 import { ParsedEmployeeCsvData } from "./types";
 import { z } from "zod";
 
@@ -38,31 +39,32 @@ export async function parseEmployeeCsv(req: ParseEmployeeCsvRequest): Promise<Pa
   const { csvFile } = req;
   const rawText = await csvFile.text();
   const data = parse(rawText, {
-    columns: (cols: string[]) => {
-      const missingColumns = REQUIRED_COLUMNS.filter(col => !cols.includes(col));
-      if (missingColumns.length > 0) {
-        throw Error("Missing columns: " + missingColumns.join(", "));
-      }
-      return cols;
-    },
+    columns: requireCsvColumns(REQUIRED_COLUMNS),
     info: true,
     skip_empty_lines: true
   }) as RawEmployeeCsvRecordWithInfo[];
-  return data.map(({ record, info }) => {
+  const employees: ParsedEmployeeCsvData = [];
+  const invalidLines: number[] = [];
+  data.forEach(({ record, info }) => {
     const validationResult = EmployeeCsvRecordSchema.safeParse(record);
     if (!validationResult.success) {
-      throw Error(`Invalid record on line ${info.lines}. Please fix before uploading.`);
+      invalidLines.push(info.lines);
+      return;
     }
     const parsedRecord: ParsedEmployeeCsvRecord = validationResult.data;
-    return {
+    employees.push({
       id: parsedRecord.PersonID,
       name: {
         firstName: record["First Name"],
         lastName: record["Last Name"]
       },
       email: record["Login/Email"]
-    }
+    });
   });
+  if (invalidLines.length > 0) {
+    throw Error(`Invalid record(s) on line(s) ${invalidLines.join(", ")}. Please fix before uploading.`);
+  }
+  return employees;
 }
 
 export default function useParseEmployeeCsv() {

@@ -30,5 +30,5 @@ export async function signInWithMicrosoftPopup() {
 }
 
 export async function signOut() {
-  auth.signOut();
+  await auth.signOut();
 }

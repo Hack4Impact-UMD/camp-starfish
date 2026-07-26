@@ -10,7 +10,11 @@ export default function useProgramAreaBatch(ids: string[]) {
       const queryIds = ids.filter(id => !queryClient.getQueryData(['programAreas', id]));
       const programAreas = await batchGetProgramAreaDocs(queryIds);
       programAreas.forEach(programArea => queryClient.setQueryData(['programAreas', programArea.id], programArea));
-      return ids.map(id => queryClient.getQueryData(['programAreas', id]) as ProgramArea);
+      // Ids with no backing doc resolve to undefined — drop them rather than
+      // handing callers an array with holes.
+      return ids
+        .map(id => queryClient.getQueryData<ProgramArea>(['programAreas', id]))
+        .filter((area): area is ProgramArea => area !== undefined);
     }) : skipToken
   })
 }

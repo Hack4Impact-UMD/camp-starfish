@@ -15,11 +15,12 @@ import openAlbumItemViewModal from "./AlbumItemViewModal/AlbumItemViewModal";
 interface AlbumItemCardProps {
   albumId: string;
   albumItemId: string;
+  albumItemIds: string[];
   isSelected: boolean;
 }
 
 export default function AlbumItemCard(props: AlbumItemCardProps) {
-  const { albumId, albumItemId, isSelected } = props;
+  const { albumId, albumItemId, albumItemIds, isSelected } = props;
 
   const albumItemSrcQuery = useAlbumItemSrc(albumId, albumItemId);
 
@@ -75,7 +76,13 @@ export default function AlbumItemCard(props: AlbumItemCardProps) {
           "border-4": albumItemSrcQuery.isSuccess,
         }),
       }}
-      onDoubleClick={() => openAlbumItemViewModal(albumId, albumItemId)}
+      onDoubleClick={() =>
+        openAlbumItemViewModal(
+          albumId,
+          albumItemIds,
+          albumItemIds.indexOf(albumItemId),
+        )
+      }
     >
       {cardContent}
     </Card>

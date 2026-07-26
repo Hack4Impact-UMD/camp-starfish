@@ -32,7 +32,7 @@ export async function getBunkDoc(sessionId: string, bunkNum: number, transaction
 
 export async function listBunkDocs(sessionId: string, queryOptions?: FirestoreQueryOptions<BunkDoc>): Promise<PaginatedQueryResponse<Bunk, BunkDoc>> {
   const snapshots = await executeQuery<BunkDoc>(getBunkCollectionRef(sessionId), queryOptions);
-  return mapSnapshotsToPaginatedQueryResult(snapshots, fromFirestore);
+  return mapSnapshotsToPaginatedQueryResult(snapshots, fromFirestore, queryOptions && 'limit' in queryOptions ? queryOptions.limit : undefined);
 }
 
 export async function createBunkDoc(sessionId: string, bunkNum: number, bunk: WithFieldValue<BunkDoc>, instance?: Transaction | WriteBatch): Promise<void> {

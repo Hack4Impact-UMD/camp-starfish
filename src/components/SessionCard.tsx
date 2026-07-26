@@ -1,11 +1,11 @@
 "use client";
 
 import { Card, Stack, Title, Text, ActionIcon } from "@mantine/core";
+import { KeyboardEvent } from "react";
 import { Moment } from "moment";
 import { useRouter } from "next/navigation";
 import { useDeleteSession } from "@/hooks/sessions/useDeleteSession";
 import { MdDelete } from "react-icons/md";
-import { useState } from "react";
 import classNames from "classnames";
 import useSession from "@/hooks/sessions/useSession";
 import LoadingAnimation from "./LoadingAnimation";
@@ -15,11 +15,11 @@ import openConfirmationModal from "./modals/ConfirmationModal";
 interface SessionCardProps {
   sessionId: string;
   editMode: boolean;
+  isSelected: boolean;
 }
 
 export default function SessionCard(props: SessionCardProps) {
-  const { sessionId, editMode } = props;
-  const [isSelected, setIsSelected] = useState<boolean>(false);
+  const { sessionId, editMode, isSelected } = props;
 
   const sessionQuery = useSession(sessionId);
 
@@ -27,7 +27,7 @@ export default function SessionCard(props: SessionCardProps) {
 
   const deleteSession = useDeleteSession();
 
-  const formatDate = (date: Moment) => date.format("dddd, MMMM D, YYYY");
+  const formatDate = (date: Moment) => date.format("dddd, MMMM Do");
 
   let content = <></>;
   switch (sessionQuery.status) {
@@ -41,27 +41,35 @@ export default function SessionCard(props: SessionCardProps) {
       const session = sessionQuery.data;
       content = (
         <>
-          {editMode && <ActionIcon
-            variant="transparent"
-            radius="xl"
-            onClick={() => openConfirmationModal({
-              title: `Are you sure you want to delete the session "${session.name}"?`,
-              message: "WARNING: This action cannot be undone. All schedule and attendee info related to this session will be deleted.",
-              onConfirm: () => deleteSession.mutate({ sessionId })
-            })}
-            className="hover:scale-110 transition-transform"
-          >
-            <MdDelete size={30} />
-          </ActionIcon>}
+          {editMode && (
+            <ActionIcon
+              variant="subtle"
+              color="navy.9"
+              onClick={(e) => {
+                e.stopPropagation();
+                openConfirmationModal({
+                  title: `Are you sure you want to delete the session "${session.name}"?`,
+                  message:
+                    "WARNING: This action cannot be undone. All schedule and attendee info related to this session will be deleted.",
+                  onConfirm: () => deleteSession.mutate({ sessionId }),
+                });
+              }}
+              className="absolute top-2 right-2 z-10"
+            >
+              <MdDelete size={22} />
+            </ActionIcon>
+          )}
 
-          <Stack className="gap-sm p-sm items-center">
-            <Title order={4}>{session.name}</Title>
-            <Stack className="gap-0 items-center">
+          <Stack className="gap-md">
+            <Title order={3} className="text-center font-bold text-navy-9">
+              {session.name}
+            </Title>
+            <Stack className="gap-0">
               <Text size="sm">
-                <strong>Starts:</strong> {formatDate(session.startDate)}
+                <strong>From:</strong> {formatDate(session.startDate)}
               </Text>
               <Text size="sm">
-                <strong>Ends:</strong> {formatDate(session.endDate)}
+                <strong>To:</strong> {formatDate(session.endDate)}
               </Text>
             </Stack>
           </Stack>
@@ -72,9 +80,29 @@ export default function SessionCard(props: SessionCardProps) {
   return (
     <Card
       key={sessionId}
-      classNames={{ root: classNames({ "bg-neutral-2": isSelected }) }}
-      onClick={() => setIsSelected((prev) => !prev)}
-      onDoubleClick={() => router.push(`/sessions/${sessionId}`)}
+      withBorder
+      shadow="sm"
+      radius="md"
+      classNames={{
+        root: classNames("relative cursor-pointer", {
+          "bg-neutral-2": isSelected,
+        }),
+      }}
+      onClick={editMode ? undefined : () => router.push(`/sessions/${sessionId}`)}
+      onDoubleClick={editMode ? undefined : () => router.push(`/sessions/${sessionId}`)}
+      role={editMode ? undefined : "link"}
+      tabIndex={editMode ? undefined : 0}
+      aria-label={editMode ? undefined : "Open session"}
+      onKeyDown={
+        editMode
+          ? undefined
+          : (event: KeyboardEvent) => {
+              if (event.key === "Enter") {
+                event.preventDefault();
+                router.push(`/sessions/${sessionId}`);
+              }
+            }
+      }
     >
       {content}
     </Card>

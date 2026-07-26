@@ -1,5 +1,5 @@
 import { updateAlbumItemDoc } from "@/data/firestore/albumItems";
-import { useMutation } from "@tanstack/react-query";
+import useAlbumItemTagMutation from "@/features/albums/albumItemTagging/useAlbumItemTagMutation";
 import { arrayRemove } from "firebase/firestore";
 
 interface DeleteApprovedTagRequest {
@@ -16,7 +16,5 @@ async function deleteApprovedTag(req: DeleteApprovedTagRequest) {
 }
 
 export default function useDeleteApprovedTag() {
-  return useMutation({
-    mutationFn: (req: DeleteApprovedTagRequest) => deleteApprovedTag(req)
-  })
+  return useAlbumItemTagMutation((req: DeleteApprovedTagRequest) => deleteApprovedTag(req));
 }

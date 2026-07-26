@@ -31,7 +31,7 @@ export async function getActivityPreferencesDoc(sessionId: string, sectionId: st
 
 export async function listActivityPreferencesDocs(sessionId: string, sectionId: string, queryOptions?: FirestoreQueryOptions<ActivityPreferencesDoc>): Promise<PaginatedQueryResponse<ActivityPreferences, ActivityPreferencesDoc>> {
   const snapshots = await executeQuery<ActivityPreferencesDoc>(getActivityPreferencesCollectionRef(sessionId, sectionId), queryOptions);
-  return mapSnapshotsToPaginatedQueryResult(snapshots, fromFirestore);
+  return mapSnapshotsToPaginatedQueryResult(snapshots, fromFirestore, queryOptions && 'limit' in queryOptions ? queryOptions.limit : undefined);
 }
 
 export async function setActivityPreferencesDoc(sessionId: string, sectionId: string, activityPreferences: WithFieldValue<ActivityPreferencesDoc>, instance?: Transaction | WriteBatch): Promise<void> {

@@ -1,9 +1,9 @@
 import { updateSectionDoc } from "@/data/firestore/sections";
 import { useMutation } from "@tanstack/react-query";
-import moment from "moment";
+import { Timestamp } from "firebase/firestore";
 
 export async function publishSectionSchedule(sessionId: string, sectionId: string): Promise<void> {
-  await updateSectionDoc(sessionId, sectionId, { publishedAt: moment().toISOString() });
+  await updateSectionDoc(sessionId, sectionId, { publishedAt: Timestamp.now() });
 }
 
 interface PublishSectionSecheduleParams {
@@ -13,6 +13,9 @@ interface PublishSectionSecheduleParams {
 
 export function usePublishSectionSchedule() {
   return useMutation({
-    mutationFn: ({ sessionId, sectionId }: PublishSectionSecheduleParams) => publishSectionSchedule(sessionId, sectionId)
+    mutationFn: ({ sessionId, sectionId }: PublishSectionSecheduleParams) => publishSectionSchedule(sessionId, sectionId),
+    onSuccess: (_data, { sessionId }, _result, { client }) => {
+      client.invalidateQueries({ queryKey: ['sessions', sessionId, 'sections'] });
+    }
   })
 }

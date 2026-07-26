@@ -27,8 +27,6 @@ import {
   ActionIcon,
   Flex,
   UnstyledButton,
-  Breadcrumbs,
-  Anchor,
   Tooltip,
 } from "@mantine/core";
 import {
@@ -143,22 +141,15 @@ export function UsersPageContent({ users }: UsersPageContentProps) {
 
   return (
     <div className="flex flex-col w-6/7 grow mx-auto px-4 py-6 gap-6">
-      <div className="flex flex-col gap-xs">
-        <Breadcrumbs separator=">>">
-          {[{ title: "USERS", href: "/users" }].map((breadcrumb) => (
-            <Anchor href={breadcrumb.href} key={breadcrumb.title}>
-              <Title order={6}>{breadcrumb.title}</Title>
-            </Anchor>
-          ))}
-        </Breadcrumbs>
-        <div className="flex items-center justify-between">
-          <Title order={1}>Users</Title>
-          <Tooltip label="Upload Users CSV">
-            <ActionIcon color="aqua" onClick={() => openUploadUsersCsvModal()}>
-              <MdUploadFile size={30} />
-            </ActionIcon>
-          </Tooltip>
-        </div>
+      <div className="flex items-center justify-between">
+        <Title order={1} className="text-[40px] font-bold text-navy-9">
+          Users
+        </Title>
+        <Tooltip label="Upload Users CSV">
+          <ActionIcon color="aqua" onClick={() => openUploadUsersCsvModal()}>
+            <MdUploadFile size={30} />
+          </ActionIcon>
+        </Tooltip>
       </div>
       <Paper withBorder radius="lg" shadow="xs" p="lg">
         <Flex

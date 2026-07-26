@@ -1,6 +1,6 @@
 import { SectionSchedule } from "@/types/scheduling/schedulingTypes";
 import { SectionScheduleDoc } from "./types/documents";
-import { collection, CollectionReference, doc, DocumentReference, DocumentSnapshot, QueryDocumentSnapshot, Transaction, UpdateData, WithFieldValue, WriteBatch } from "firebase/firestore";
+import { collection, CollectionReference, doc, DocumentReference, DocumentSnapshot, QueryDocumentSnapshot, Transaction, PartialWithFieldValue, UpdateData, WithFieldValue, WriteBatch, getDoc as getFirestoreDoc } from "firebase/firestore";
 import { deleteDoc, executeQuery, getDoc, setDoc, updateDoc } from "./firestoreClientOperations";
 import { db } from "@/config/firebase";
 import { RootLevelCollection, SectionsSubcollection, SessionsSubcollection } from "./types/collections";
@@ -43,4 +43,23 @@ export async function updateSectionScheduleDoc(sessionId: string, sectionId: str
 
 export async function deleteSectionScheduleDoc(sessionId: string, sectionId: string, instance?: Transaction | WriteBatch): Promise<void> {
   await deleteDoc<SectionScheduleDoc>(getSectionScheduleDocRef(sessionId, sectionId), instance);
+}
+
+// Unlike getSectionScheduleDoc, returns null (instead of throwing) when the
+// schedule document hasn't been created yet — used by the activities editor.
+export async function getSectionSchedule(sessionId: string, sectionId: string, transaction?: Transaction): Promise<SectionSchedule | null> {
+  if (!sectionId || sectionId === SectionsSubcollection.SCHEDULE) {
+    throw new Error(`Invalid sectionId provided: ${sectionId}`);
+  }
+  const ref = getSectionScheduleDocRef(sessionId, sectionId);
+  const snapshot = await (transaction ? transaction.get(ref) : getFirestoreDoc(ref));
+  if (!snapshot.exists()) return null;
+  return fromFirestore(snapshot);
+}
+
+export async function updateSectionSchedule(sessionId: string, sectionId: string, updates: PartialWithFieldValue<SectionScheduleDoc>): Promise<void> {
+  if (!sectionId || sectionId === SectionsSubcollection.SCHEDULE) {
+    throw new Error(`Invalid sectionId provided: ${sectionId}`);
+  }
+  await setDoc<SectionScheduleDoc>(getSectionScheduleDocRef(sessionId, sectionId), updates, { mergeOptions: { merge: true } });
 }

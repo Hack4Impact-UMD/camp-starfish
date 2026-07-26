@@ -14,15 +14,17 @@ import useAlbumItemSrc from "@/hooks/albumItems/useAlbumItemSrc";
 import LoadingAnimation from "./LoadingAnimation";
 import { MdCheck, MdClose, MdError } from "react-icons/md";
 import { useHover } from "@mantine/hooks";
+import openAlbumItemViewModal from "./AlbumItemViewModal/AlbumItemViewModal";
 
 interface PendingAlbumItemCardProps {
   albumId: string;
   albumItemId: string;
+  albumItemIds: string[];
   isSelected: boolean;
 }
 
 export default function PendingAlbumItemCard(props: PendingAlbumItemCardProps) {
-  const { albumId, albumItemId, isSelected } = props;
+  const { albumId, albumItemId, albumItemIds, isSelected } = props;
 
   const albumItemQuery = useAlbumItem({ albumId, albumItemId });
   const albumItemSrcQuery = useAlbumItemSrc(albumId, albumItemId);
@@ -94,6 +96,13 @@ export default function PendingAlbumItemCard(props: PendingAlbumItemCardProps) {
         }),
       }}
       ref={ref}
+      onDoubleClick={() =>
+        openAlbumItemViewModal(
+          albumId,
+          albumItemIds,
+          albumItemIds.indexOf(albumItemId),
+        )
+      }
     >
       {cardContent}
     </Card>

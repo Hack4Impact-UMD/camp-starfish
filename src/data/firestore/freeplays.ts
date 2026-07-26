@@ -23,7 +23,7 @@ export async function getFreeplayDoc(sessionId: string, date: Moment, transactio
 
 export async function listFreeplayDocs(sessionId: string, firestoreQueryOptions: FirestoreQueryOptions<FreeplayDoc> = {}): Promise<PaginatedQueryResponse<Freeplay, FreeplayDoc>> {
   const snapshots = await executeQuery<FreeplayDoc>(collection(db, RootLevelCollection.SESSIONS, sessionId, SessionsSubcollection.FREEPLAYS) as CollectionReference<FreeplayDoc, FreeplayDoc>, firestoreQueryOptions);
-  return mapSnapshotsToPaginatedQueryResult(snapshots, fromFirestore);
+  return mapSnapshotsToPaginatedQueryResult(snapshots, fromFirestore, 'limit' in firestoreQueryOptions ? firestoreQueryOptions.limit : undefined);
 }
 
 export async function createFreeplay(sessionId: string, date: Moment, freeplay: WithFieldValue<FreeplayDoc>, instance?: Transaction | WriteBatch): Promise<void> {

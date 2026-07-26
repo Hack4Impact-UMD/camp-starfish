@@ -3,8 +3,9 @@
 import { useAuth } from "@/auth/useAuth";
 import PolaroidPhotos1 from "../assets/images/PolaroidPhotos1.png";
 import pattern from "../assets/patterns/trailPattern3.svg";
-import { redirect } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
+import { Button } from "@mantine/core";
 
 export default function ParentHomePage() {
   const auth = useAuth();
@@ -17,12 +18,16 @@ export default function ParentHomePage() {
           Welcome, {auth.user?.displayName}!
         </h1>
         <p>You can view and download your camper’s photos now</p>
-        <button
-          className="bg-camp-tert-green px-12 lg:px-24 py-3 font-lato font-bold rounded-full text-white whitespace-nowrap"
-          onClick={() => redirect("/albums")}
+        <Button
+          component={Link}
+          href="/albums"
+          color="green.6"
+          radius="xl"
+          size="lg"
+          className="font-bold px-12 lg:px-24"
         >
           VIEW ALBUMS
-        </button>
+        </Button>
       </div>
 
       {/* Trail Pattern on Background */}

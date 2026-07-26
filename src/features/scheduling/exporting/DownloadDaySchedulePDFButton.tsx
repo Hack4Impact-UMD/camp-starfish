@@ -14,7 +14,8 @@ import { Button } from "@mantine/core";
 import useNotifications from "@/features/notifications/useNotifications";
 import { MdOpenInNew } from "react-icons/md";
 import { isBundleSectionSchedule } from "@/types/scheduling/schedulingTypeGuards";
-import useProgramAreaBatch from "@/hooks/programAreas/useProgramAreaBatch";
+import { getAttendeeGroups } from "@/features/scheduling/generation/schedulingUtils";
+import useProgramAreas from "@/hooks/programAreas/useProgramAreas";
 import { Moment } from "moment";
 
 const baseExportButton = <Button rightSection={<MdOpenInNew />}>EXPORT</Button>;
@@ -35,18 +36,39 @@ export default function DownloadDaySchedulePDFButton(
   const scheduleQuery = useSectionSchedule(sessionId, sectionId);
   const freeplayQuery = useFreeplay(sessionId, date);
 
-  const programAreaIds = useMemo(() => {
-    if (!scheduleQuery.data || !isBundleSectionSchedule(scheduleQuery.data))
-      return [];
-    const programAreaIds = new Set<string>();
+  const programAreasQuery = useProgramAreas();
+
+  const programAreas = useMemo(() => {
+    if (
+      !scheduleQuery.data ||
+      !isBundleSectionSchedule(scheduleQuery.data) ||
+      !programAreasQuery.data
+    )
+      return undefined;
+    const referencedIds = new Set<string>();
     Object.values(scheduleQuery.data.blocks).forEach((block) =>
       block.activities.forEach((activity) =>
-        programAreaIds.add(activity.programAreaId),
+        referencedIds.add(activity.programAreaId),
       ),
     );
-    return Array.from(programAreaIds);
-  }, [scheduleQuery.data]);
-  const programAreasQuery = useProgramAreaBatch(programAreaIds);
+    // An activity's programAreaId is a programAreas doc id in generated
+    // schedules, but the activities editor stores the area's *name* there —
+    // resolve either way. The result keeps the referenced string as its `id`
+    // so ProgramAreaGrid can match activities back to their column, and
+    // unresolvable references degrade to a name-only column instead of
+    // crashing the PDF render.
+    return Array.from(referencedIds).map((ref) => {
+      const area =
+        programAreasQuery.data.find((a) => a.id === ref) ??
+        programAreasQuery.data.find((a) => a.name === ref);
+      return {
+        id: ref,
+        name: area?.name ?? ref,
+        isDeleted: area?.isDeleted ?? false,
+        ageGroups: area?.ageGroups ?? [],
+      };
+    });
+  }, [scheduleQuery.data, programAreasQuery.data]);
 
   const notifications = useNotifications();
 
@@ -66,10 +88,16 @@ export default function DownloadDaySchedulePDFButton(
     freeplayQuery.status === "pending" ||
     sectionQuery.status === "pending" ||
     scheduleQuery.status === "pending" ||
-    (isBundleSectionSchedule(scheduleQuery.data) &&
+    (scheduleQuery.data != null &&
+      isBundleSectionSchedule(scheduleQuery.data) &&
       programAreasQuery.status === "pending")
   ) {
     return cloneElement(baseExportButton, { loading: true });
+  } else if (scheduleQuery.data == null) {
+    return cloneElement(baseExportButton, {
+      onClick: () =>
+        notifications.error("Failed to generate PDF. Please try again later."),
+    });
   }
   return (
     <DownloadDaySchedulePDFButtonContent
@@ -77,7 +105,7 @@ export default function DownloadDaySchedulePDFButton(
       section={sectionQuery.data}
       schedule={scheduleQuery.data}
       freeplay={freeplayQuery.data}
-      programAreas={programAreasQuery.data}
+      programAreas={programAreas}
     />
   );
 }
@@ -96,11 +124,7 @@ function DownloadDaySchedulePDFButtonContent(
   const { attendees, section, schedule, freeplay, programAreas } = props;
 
   const { admins, staff, campers } = useMemo(
-    () => ({
-      admins: attendees.filter((att) => att.role === "ADMIN"),
-      staff: attendees.filter((att) => att.role === "STAFF"),
-      campers: attendees.filter((att) => att.role === "CAMPER"),
-    }),
+    () => getAttendeeGroups(attendees),
     [attendees],
   );
 

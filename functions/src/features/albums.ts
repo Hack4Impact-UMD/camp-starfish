@@ -1,6 +1,7 @@
 import { AlbumsSubcollection, RootLevelCollection } from "@/data/firestore/types/collections";
 import { onDocumentCreated, onDocumentDeleted } from "firebase-functions/firestore";
 import { getAlbumDoc, updateAlbumDoc } from "../data/firestore/albums";
+import { updateSessionDoc } from "../data/firestore/sessions";
 import { FieldValue, Timestamp, UpdateData } from "firebase-admin/firestore";
 import { deleteFile } from "../data/storage/storageAdminOperations";
 import { getNewestAlbumItemInAlbum, getOldestAlbumItemInAlbum } from "../data/firestore/albumItems";
@@ -12,9 +13,23 @@ const onAlbumDeleted = onDocumentDeleted(`/${RootLevelCollection.ALBUMS}/{albumI
   const promises = [
     adminDb.recursiveDelete(adminDb.collection(RootLevelCollection.ALBUMS).doc(event.params.albumId))
   ];
-  const hasThumbnail = event.data?.data()?.hasThumbnail;
-  if (hasThumbnail) {
+  const deletedAlbum = event.data?.data() as AlbumDoc | undefined;
+  if (deletedAlbum?.hasThumbnail) {
     promises.push(deleteFile(`/albums/${event.params.albumId}/thumbnail`));
+  }
+  if (deletedAlbum?.linkedSessionId) {
+    // Clear the session's back-reference so it isn't permanently locked to a
+    // now-deleted album. The session may itself already be gone — ignore
+    // not-found. This re-fires mirrorSessionAlbumLink, refreshing the
+    // sessionAlbums projection (a write to a different collection, not a loop).
+    const linkedSessionId = deletedAlbum.linkedSessionId;
+    promises.push(
+      updateSessionDoc(linkedSessionId, {
+        linkedAlbumId: FieldValue.delete(),
+      }).catch((error) => {
+        console.warn(`Could not clear linkedAlbumId on session ${linkedSessionId}`, error);
+      }),
+    );
   }
   await Promise.all(promises);
 });

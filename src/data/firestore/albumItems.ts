@@ -31,7 +31,7 @@ export async function listAlbumItemDocs(albumId: string, queryOptions?: Firestor
     collection(db, RootLevelCollection.ALBUMS, albumId, AlbumsSubcollection.ALBUM_ITEMS) as CollectionReference<AlbumItemDoc, AlbumItemDoc>,
     queryOptions
   )
-  return mapSnapshotsToPaginatedQueryResult(snapshots, fromFirestore);
+  return mapSnapshotsToPaginatedQueryResult(snapshots, fromFirestore, queryOptions && 'limit' in queryOptions ? queryOptions.limit : undefined);
 }
 
 export async function createAlbumItemDoc(albumId: string, albumItem: WithFieldValue<AlbumItemDoc>, instance?: Transaction | WriteBatch): Promise<string> {

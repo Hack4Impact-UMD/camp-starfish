@@ -36,7 +36,7 @@ function fromFirestore(snapshot: DocumentSnapshot<SessionDoc, SessionDoc> | Quer
     endDate: moment(sessionDoc.endDate.toDate()),
     driveFolderId: sessionDoc.driveFolderId,
     linkedAlbumId: sessionDoc.linkedAlbumId,
-    attendeeIds: sessionDoc.attendeeIds
+    attendeeIds: sessionDoc.attendeeIds ?? []
   };
 }
 
@@ -47,7 +47,7 @@ export async function getSessionDoc(id: string, transaction?: Transaction): Prom
 
 export async function listSessionDocs(options: FirestoreQueryOptions<SessionDoc>): Promise<PaginatedQueryResponse<Session, SessionDoc>> {
   const snapshots = await executeQuery<SessionDoc>(collection(db, RootLevelCollection.SESSIONS) as CollectionReference<SessionDoc, SessionDoc>, options);
-  return mapSnapshotsToPaginatedQueryResult(snapshots, fromFirestore);
+  return mapSnapshotsToPaginatedQueryResult(snapshots, fromFirestore, options && 'limit' in options ? options.limit : undefined);
 }
 
 export async function createSessionDoc(session: WithFieldValue<SessionDoc>, instance?: Transaction | WriteBatch): Promise<string> {
