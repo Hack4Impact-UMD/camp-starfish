@@ -2,7 +2,7 @@
 
 import { SectionSchedule } from "@/types/scheduling/schedulingTypes";
 import { Attendee, SchedulingSection } from "@/types/sessions/sessionTypes";
-import React, { useMemo } from "react";
+import React, { use, useMemo } from "react";
 import ActivityGridRow from "@/components/ActivityGridRow";
 import { Box, SimpleGrid } from "@mantine/core";
 import useSectionSchedule from "@/hooks/schedules/useSectionSchedule";
@@ -10,18 +10,25 @@ import useListAttendees from "@/hooks/attendees/useListAttendees";
 import LoadingPage from "@/app/loading";
 import { isNotFoundError } from "@/data/firestore/firestoreClientOperations";
 import { getAttendeeGroups } from "@/features/scheduling/generation/schedulingUtils";
+import useSection from "@/hooks/sections/useSection";
+import { isSchedulingSection } from "@/types/sessions/sessionTypeGuards";
 
 interface ActivityGridProps {
   sessionId: string;
-  section: SchedulingSection;
+  sectionId: string;
 }
 
 export default function ActivityGrid(props: ActivityGridProps) {
-  const { sessionId, section } = props;
-  const scheduleQuery = useSectionSchedule(sessionId, section.id);
+  const { sessionId, sectionId } = props;
+  const sectionQuery = useSection(sessionId, sectionId);
+  const scheduleQuery = useSectionSchedule(sessionId, sectionId, sectionQuery.data && isSchedulingSection(sectionQuery.data));
   const attendeesQuery = useListAttendees(sessionId);
 
-  if (scheduleQuery.isError) {
+  if (sectionQuery.data && !isSchedulingSection(sectionQuery.data)) {
+    return <p>Not a scheduling section</p>;
+  } else if (sectionQuery.isError) {
+    return <p>Error loading section</p>;
+  } else if (scheduleQuery.isError) {
     return isNotFoundError(scheduleQuery.error) ? (
       <p>No schedule has been generated for this section yet.</p>
     ) : (
@@ -29,13 +36,13 @@ export default function ActivityGrid(props: ActivityGridProps) {
     );
   } else if (attendeesQuery.isError) {
     return <p>Error loading attendees</p>;
-  } else if (scheduleQuery.isPending || attendeesQuery.isPending) {
+  } else if (sectionQuery.isPending || scheduleQuery.isPending || attendeesQuery.isPending) {
     return <LoadingPage />;
   }
   return (
     <ActivityGridContent
       schedule={scheduleQuery.data}
-      section={section}
+      section={sectionQuery.data}
       attendees={attendeesQuery.data}
     />
   );
