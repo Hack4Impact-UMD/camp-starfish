@@ -11,6 +11,7 @@ import {
   getAttendeeName,
 } from "@/features/scheduling/generation/schedulingUtils";
 import { openActivityModal } from "@/components/ActivityModal";
+import useAttendeeDirectory from "@/hooks/attendees/useAttendeeDirectory";
 
 interface ActivityGridCellProps {
   activity: ActivityWithAssignments;
@@ -49,12 +50,21 @@ export default function ActivityGridCell(props: ActivityGridCellProps) {
   const { campers, staff, admins, attendeesById, campersByBunk, staffByBunk } =
     attendeeGroups;
 
+  const attendeeDirectoryQuery = useAttendeeDirectory(section.sessionId);
+
   return (
     <>
       <Box
         className="col-start-1 col-end-3 text-center font-bold bg-[#FFF7D5] p-[6px] text-[0.9rem] tracking-[0.3px] border border-[#001B2A] cursor-pointer"
         onClick={() =>
-          openActivityModal({ section, blockId, activity, campers, staff, admins })
+          openActivityModal({
+            section,
+            blockId,
+            activity,
+            campers,
+            staff,
+            admins,
+          })
         }
       >
         {getActivityName(activity)}
