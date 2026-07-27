@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 import {
   CamperAttendee,
   StaffAttendee,
@@ -11,13 +11,11 @@ import { ActivityWithAssignments } from "@/types/scheduling/schedulingTypes";
 import { modals } from "@mantine/modals";
 import moment from "moment";
 import { isIndividualActivityAssignments } from "@/types/scheduling/schedulingTypeGuards";
-import {
-  getAttendeeName,
-  getAttendeesById,
-} from "@/features/scheduling/generation/schedulingUtils";
 import { getActivityName } from "@/types/scheduling/schedulingUtils";
 import { getFullName } from "@/types/users/userUtils";
 import { Title, Text } from "@mantine/core";
+import useAttendeeDirectory from "@/hooks/attendees/useAttendeeDirectory";
+import LoadingPage from "@/app/loading";
 
 interface ActivityModalProps {
   section: Section;
@@ -31,21 +29,24 @@ interface ActivityModalProps {
 export default function ActivityModal(props: ActivityModalProps) {
   const { section, blockId, activity, campers, staff, admins } = props;
 
+  const attendeeDirectoryQuery = useAttendeeDirectory(section.sessionId);
+
+  if (!attendeeDirectoryQuery.isSuccess) return <LoadingPage />;
+
   const { staffNames, camperNames } = useMemo(() => {
-    const attendeesById = getAttendeesById([...campers, ...staff, ...admins]);
     const adminNames = activity.adminIds.map((adminId) =>
-      getAttendeeName(attendeesById, adminId),
+      getFullName(attendeeDirectoryQuery.data[adminId].name),
     );
     if (isIndividualActivityAssignments(activity)) {
       return {
         staffNames: [
           ...activity.staffIds.map((staffId) =>
-            getAttendeeName(attendeesById, staffId),
+            getFullName(attendeeDirectoryQuery.data[staffId].name)
           ),
           ...adminNames,
         ],
         camperNames: activity.camperIds.map((camperId) =>
-          getAttendeeName(attendeesById, camperId),
+          getFullName(attendeeDirectoryQuery.data[camperId].name)
         ),
       };
     }
@@ -85,9 +86,7 @@ export default function ActivityModal(props: ActivityModalProps) {
         </Title>
       </div>
       <div className="col-span-2 flex flex-col justify-center items-center bg-white rounded-none border-black border-b-2 py-2 w-full">
-        <Text className="text-md text-center">
-          {activity.description}
-        </Text>
+        <Text className="text-md text-center">{activity.description}</Text>
       </div>
       <Text className="text-lg font-bold mb-2 border-black border-b-2 border-r-2 w-full h-full text-center align-middle">
         Staff
