@@ -8,10 +8,10 @@ import { getActivityName } from "@/types/scheduling/schedulingUtils";
 import { getFullName } from "@/types/users/userUtils";
 import {
   AttendeeGroups,
-  getAttendeeName,
 } from "@/features/scheduling/generation/schedulingUtils";
 import { openActivityModal } from "@/components/ActivityModal";
 import useAttendeeDirectory from "@/hooks/attendees/useAttendeeDirectory";
+import LoadingPage from "@/app/loading";
 
 interface ActivityGridCellProps {
   activity: ActivityWithAssignments;
@@ -47,10 +47,14 @@ function BunkRoster(props: BunkRosterProps) {
 
 export default function ActivityGridCell(props: ActivityGridCellProps) {
   const { activity, blockId, section, attendeeGroups } = props;
-  const { campers, staff, admins, attendeesById, campersByBunk, staffByBunk } =
+  const { campers, staff, admins, campersByBunk, staffByBunk } =
     attendeeGroups;
 
   const attendeeDirectoryQuery = useAttendeeDirectory(section.sessionId);
+
+  if (!attendeeDirectoryQuery.data) {
+    return <LoadingPage />;
+  }
 
   return (
     <>
@@ -79,7 +83,7 @@ export default function ActivityGridCell(props: ActivityGridCellProps) {
         {isIndividualActivityAssignments(activity) ? (
           <ul>
             {activity.camperIds.map((camperId) => (
-              <li key={camperId}>{getAttendeeName(attendeesById, camperId)}</li>
+              <li key={camperId}>{getFullName(attendeeDirectoryQuery.data[camperId].name)}</li>
             ))}
           </ul>
         ) : (
@@ -93,11 +97,11 @@ export default function ActivityGridCell(props: ActivityGridCellProps) {
         {isIndividualActivityAssignments(activity) ? (
           <ul>
             {activity.staffIds.map((staffId) => (
-              <li key={staffId}>{getAttendeeName(attendeesById, staffId)}</li>
+              <li key={staffId}>{getFullName(attendeeDirectoryQuery.data[staffId].name)}</li>
             ))}
             {activity.adminIds.map((adminId) => (
               <li key={adminId} className="font-bold">
-                {getAttendeeName(attendeesById, adminId)}
+                {getFullName(attendeeDirectoryQuery.data[adminId].name)}
               </li>
             ))}
           </ul>
@@ -110,7 +114,7 @@ export default function ActivityGridCell(props: ActivityGridCellProps) {
             <ul>
               {activity.adminIds.map((adminId) => (
                 <li key={adminId} className="font-bold">
-                  {getAttendeeName(attendeesById, adminId)}
+                  {getFullName(attendeeDirectoryQuery.data[adminId].name)}
                 </li>
               ))}
             </ul>
