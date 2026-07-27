@@ -11,7 +11,7 @@ function combine(queries: [UseQueryResult<Omit<UserDirectory, "page">>, UseQuery
     isPending: userDirectoryQuery.isPending || sessionQuery.isPending,
     isError: userDirectoryQuery.isError || sessionQuery.isError,
     isSuccess: userDirectoryQuery.isSuccess && sessionQuery.isSuccess,
-    data: userDirectoryQuery.isSuccess && sessionQuery.isSuccess ? Object.fromEntries(getObjectEntriesWithNumberKeys(userDirectoryQuery.data).filter(([userId, _user]) => sessionQuery.data?.attendeeIds.includes(userId))) : undefined
+    data: userDirectoryQuery.isSuccess && sessionQuery.isSuccess ? Object.fromEntries(getObjectEntriesWithNumberKeys(userDirectoryQuery.data).filter(([userId, _user]) => sessionQuery.data?.attendeeIds.includes(userId))) : {}
   }
 }
 
