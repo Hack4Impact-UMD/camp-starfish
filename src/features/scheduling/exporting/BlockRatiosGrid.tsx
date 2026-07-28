@@ -6,7 +6,11 @@ import {
   AdminAttendee,
 } from "@/types/sessions/sessionTypes";
 import { SectionSchedule } from "@/types/scheduling/schedulingTypes";
-import { getAttendeesById } from "../generation/schedulingUtils";
+import {
+  getAttendeeName,
+  getAttendeesById,
+  groupAttendeesByBunk,
+} from "@/features/scheduling/generation/schedulingUtils";
 import {
   isBundleActivity,
   isIndividualActivityAssignments,
@@ -90,6 +94,8 @@ export default function BlockRatiosGrid({
   const blocks = blockIds.map((blockId) => schedule.blocks[blockId]);
 
   const attendeesById = getAttendeesById([...campers, ...staff, ...admins]);
+  const campersByBunk = groupAttendeesByBunk(campers);
+  const staffByBunk = groupAttendeesByBunk(staff);
 
   // Find the maximum number of activities across all blocks
   const maxActivities = Math.max(
@@ -161,17 +167,19 @@ export default function BlockRatiosGrid({
                     />
                   );
 
-                const camperOrBunkIds = isIndividualActivityAssignments(
-                  activity,
-                )
-                  ? activity.camperIds
-                  : activity.bunkNums;
                 const employeeIds = isIndividualActivityAssignments(activity)
                   ? [
                       ...activity.staffIds,
                       ...activity.adminIds,
                     ]
-                  : activity.adminIds;
+                  : [
+                      ...activity.bunkNums.flatMap((bunkNum) =>
+                        (staffByBunk[bunkNum] ?? []).map(
+                          (employee) => employee.attendeeId,
+                        ),
+                      ),
+                      ...activity.adminIds,
+                    ];
 
                 return (
                   <View
@@ -184,13 +192,24 @@ export default function BlockRatiosGrid({
                         { backgroundColor: rowBgColor },
                       ]}
                     >
-                      {camperOrBunkIds.map((camperOrBunkId) => (
-                        <Text key={camperOrBunkId}>
-                          {isIndividualActivityAssignments(activity)
-                            ? getFullName(attendeesById[camperOrBunkId].snapshot.name)
-                            : `Bunk ${camperOrBunkId}`}
-                        </Text>
-                      ))}
+                      {isIndividualActivityAssignments(activity)
+                        ? activity.camperIds.map((camperId) => (
+                            <Text key={camperId}>
+                              {getAttendeeName(attendeesById, camperId)}
+                            </Text>
+                          ))
+                        : activity.bunkNums.map((bunkNum) => (
+                            <View key={bunkNum}>
+                              <Text style={{ fontWeight: "bold" }}>
+                                Bunk {bunkNum}
+                              </Text>
+                              {(campersByBunk[bunkNum] ?? []).map((camper) => (
+                                <Text key={camper.attendeeId}>
+                                  {getFullName(camper.snapshot.name)}
+                                </Text>
+                              ))}
+                            </View>
+                          ))}
                     </View>
                     <View
                       style={[
@@ -198,16 +217,16 @@ export default function BlockRatiosGrid({
                         { backgroundColor: rowBgColor },
                       ]}
                     >
-                      {employeeIds.map((employeeId, idx) => (
+                      {employeeIds.map((employeeId) => (
                         <Text
-                          key={idx}
+                          key={employeeId}
                           style={
-                            attendeesById[employeeId].role === "ADMIN"
+                            attendeesById[employeeId]?.role === "ADMIN"
                               ? { fontWeight: "bold" }
                               : {}
                           }
                         >
-                          {getFullName(attendeesById[employeeId].snapshot.name)}
+                          {getAttendeeName(attendeesById, employeeId)}
                         </Text>
                       ))}
                     </View>
