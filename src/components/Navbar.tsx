@@ -33,7 +33,7 @@ const Navbar: React.FC = () => {
   const role = auth.role;
 
   return (
-    <nav className="w-full h-full bg-primary-9 px-32 flex items-center justify-between gap-20">
+    <nav className="w-full h-full bg-blue-8 px-32 flex items-center justify-between gap-20">
       {/* Logo on the left */}
       <div className="flex-none">
         <Link href="/" className="min-h-[50px]">
