@@ -12,6 +12,7 @@ import {
 import { openActivityModal } from "@/components/ActivityModal";
 import useAttendeeDirectory from "@/hooks/attendees/useAttendeeDirectory";
 import LoadingPage from "@/app/loading";
+import ErrorPage from "@/app/error";
 
 interface ActivityGridCellProps {
   activity: ActivityWithAssignments;
@@ -52,8 +53,10 @@ export default function ActivityGridCell(props: ActivityGridCellProps) {
 
   const attendeeDirectoryQuery = useAttendeeDirectory(section.sessionId);
 
-  if (!attendeeDirectoryQuery.data) {
+  if (attendeeDirectoryQuery.isPending) {
     return <LoadingPage />;
+  } else if (attendeeDirectoryQuery.isError) {
+    return <ErrorPage error={new Error("Failed to load attendee directory")} />
   }
 
   return (

@@ -16,6 +16,7 @@ import { getFullName } from "@/types/users/userUtils";
 import { Title, Text } from "@mantine/core";
 import useAttendeeDirectory from "@/hooks/attendees/useAttendeeDirectory";
 import LoadingPage from "@/app/loading";
+import ErrorPage from "@/app/error";
 
 interface ActivityModalProps {
   section: Section;
@@ -31,8 +32,12 @@ export default function ActivityModal(props: ActivityModalProps) {
 
   const attendeeDirectoryQuery = useAttendeeDirectory(section.sessionId);
 
-  if (!attendeeDirectoryQuery.isSuccess) return <LoadingPage />;
-
+  if (attendeeDirectoryQuery.isPending) {
+    return <LoadingPage />;
+  } else if (attendeeDirectoryQuery.isError) {
+    return <ErrorPage error={new Error("Failed to load attendee directory")} />
+  }
+  
   const { staffNames, camperNames } = useMemo(() => {
     const adminNames = activity.adminIds.map((adminId) =>
       getFullName(attendeeDirectoryQuery.data[adminId].name),
