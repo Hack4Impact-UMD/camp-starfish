@@ -1,4 +1,3 @@
-import { isNotFoundError } from "@/data/firestore/firestoreClientOperations";
 import { getSectionScheduleDoc } from "@/data/firestore/sectionSchedules";
 import { skipToken, useQuery } from "@tanstack/react-query";
 

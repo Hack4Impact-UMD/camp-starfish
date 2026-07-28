@@ -2,7 +2,7 @@
 
 import { SectionSchedule } from "@/types/scheduling/schedulingTypes";
 import { Attendee, SchedulingSection } from "@/types/sessions/sessionTypes";
-import React, { use, useMemo } from "react";
+import { useMemo } from "react";
 import ActivityGridRow from "@/components/ActivityGridRow";
 import { Box, SimpleGrid } from "@mantine/core";
 import useSectionSchedule from "@/hooks/schedules/useSectionSchedule";
