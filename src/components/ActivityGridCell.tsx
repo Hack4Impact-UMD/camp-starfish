@@ -8,11 +8,9 @@ import { getActivityName } from "@/types/scheduling/schedulingUtils";
 import { getFullName } from "@/types/users/userUtils";
 import {
   AttendeeGroups,
+  getAttendeeName,
 } from "@/features/scheduling/generation/schedulingUtils";
 import { openActivityModal } from "@/components/ActivityModal";
-import useAttendeeDirectory from "@/hooks/attendees/useAttendeeDirectory";
-import LoadingPage from "@/app/loading";
-import ErrorPage from "@/app/error";
 
 interface ActivityGridCellProps {
   activity: ActivityWithAssignments;
@@ -48,30 +46,15 @@ function BunkRoster(props: BunkRosterProps) {
 
 export default function ActivityGridCell(props: ActivityGridCellProps) {
   const { activity, blockId, section, attendeeGroups } = props;
-  const { campers, staff, admins, campersByBunk, staffByBunk } =
+  const { campers, staff, admins, attendeesById, campersByBunk, staffByBunk } =
     attendeeGroups;
-
-  const attendeeDirectoryQuery = useAttendeeDirectory(section.sessionId);
-
-  if (attendeeDirectoryQuery.isPending) {
-    return <LoadingPage />;
-  } else if (attendeeDirectoryQuery.isError) {
-    return <ErrorPage error={new Error("Failed to load attendee directory")} />
-  }
 
   return (
     <>
       <Box
         className="col-start-1 col-end-3 text-center font-bold bg-[#FFF7D5] p-[6px] text-[0.9rem] tracking-[0.3px] border border-[#001B2A] cursor-pointer"
         onClick={() =>
-          openActivityModal({
-            section,
-            blockId,
-            activity,
-            campers,
-            staff,
-            admins,
-          })
+          openActivityModal({ section, blockId, activity, campers, staff, admins })
         }
       >
         {getActivityName(activity)}
@@ -86,7 +69,7 @@ export default function ActivityGridCell(props: ActivityGridCellProps) {
         {isIndividualActivityAssignments(activity) ? (
           <ul>
             {activity.camperIds.map((camperId) => (
-              <li key={camperId}>{getFullName(attendeeDirectoryQuery.data[camperId].name)}</li>
+              <li key={camperId}>{getAttendeeName(attendeesById, camperId)}</li>
             ))}
           </ul>
         ) : (
@@ -100,11 +83,11 @@ export default function ActivityGridCell(props: ActivityGridCellProps) {
         {isIndividualActivityAssignments(activity) ? (
           <ul>
             {activity.staffIds.map((staffId) => (
-              <li key={staffId}>{getFullName(attendeeDirectoryQuery.data[staffId].name)}</li>
+              <li key={staffId}>{getAttendeeName(attendeesById, staffId)}</li>
             ))}
             {activity.adminIds.map((adminId) => (
               <li key={adminId} className="font-bold">
-                {getFullName(attendeeDirectoryQuery.data[adminId].name)}
+                {getAttendeeName(attendeesById, adminId)}
               </li>
             ))}
           </ul>
@@ -117,7 +100,7 @@ export default function ActivityGridCell(props: ActivityGridCellProps) {
             <ul>
               {activity.adminIds.map((adminId) => (
                 <li key={adminId} className="font-bold">
-                  {getFullName(attendeeDirectoryQuery.data[adminId].name)}
+                  {getAttendeeName(attendeesById, adminId)}
                 </li>
               ))}
             </ul>
