@@ -1,6 +1,6 @@
 import { sectionQueryOptions } from "@/hooks/sections/useSection";
 import { isSchedulingSection } from "@/types/sessions/sessionTypeGuards";
-import { QueryClient } from "@tanstack/react-query";
+import { QueryClient, useMutation } from "@tanstack/react-query";
 import { generateBundleSchedule } from "../generateBundleSchedule";
 import { BundleSectionSchedule, BunkJamboreeSectionSchedule, NonBunkJamboreeSectionSchedule, SectionSchedule } from "@/types/scheduling/schedulingTypes";
 import { generateBunkJamboreeSchedule } from "../generateBunkJamboreeSchedule";
@@ -59,5 +59,7 @@ async function generateSectionSchedule(req: GenerateSectionScheduleRequest, clie
 }
 
 export default function useGenerateSectionSchedule() {
-
+  return useMutation({
+    mutationFn: async (req: GenerateSectionScheduleRequest, { client }) => generateSectionSchedule(req, client)
+  })
 }
