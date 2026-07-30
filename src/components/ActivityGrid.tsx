@@ -6,7 +6,7 @@ import { useMemo } from "react";
 import ActivityGridRow from "@/components/ActivityGridRow";
 import { Box, SimpleGrid } from "@mantine/core";
 import useSectionSchedule from "@/hooks/schedules/useSectionSchedule";
-import useListAttendees from "@/hooks/attendees/useListAttendees";
+import useAttendeeList from "@/hooks/attendees/useAttendeeList";
 import LoadingPage from "@/app/loading";
 import { isNotFoundError } from "@/data/firestore/firestoreClientOperations";
 import { getAttendeeGroups } from "@/features/scheduling/generation/schedulingUtils";
@@ -22,7 +22,7 @@ export default function ActivityGrid(props: ActivityGridProps) {
   const { sessionId, sectionId } = props;
   const sectionQuery = useSection(sessionId, sectionId);
   const scheduleQuery = useSectionSchedule(sessionId, sectionId, sectionQuery.data && isSchedulingSection(sectionQuery.data));
-  const attendeesQuery = useListAttendees(sessionId);
+  const attendeesQuery = useAttendeeList(sessionId);
 
   if (sectionQuery.data && !isSchedulingSection(sectionQuery.data)) {
     return <p>Not a scheduling section</p>;
@@ -43,7 +43,7 @@ export default function ActivityGrid(props: ActivityGridProps) {
     <ActivityGridContent
       schedule={scheduleQuery.data}
       section={sectionQuery.data}
-      attendees={attendeesQuery.data}
+      attendees={attendeesQuery.data.pages.flatMap((page) => page.docs)}
     />
   );
 }
