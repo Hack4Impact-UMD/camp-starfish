@@ -187,6 +187,5 @@ export function generateBundleSchedule(req: GenerateBundleScheduleRequest): Bund
     }
   }
 
-  console.log('newSchedule', newSchedule)
   return newSchedule;
 }
