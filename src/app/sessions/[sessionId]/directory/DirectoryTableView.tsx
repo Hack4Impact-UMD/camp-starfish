@@ -87,7 +87,7 @@ export default function DirectoryTableView({
     }
 
     return attendeeArr;
-  }, [attendeeList, selectedRole, sortNameOption]);
+  }, [attendeeData, selectedRole, sortNameOption]);
 
   const getNameFromId = useCallback(
     (id: number) => {
@@ -95,7 +95,7 @@ export default function DirectoryTableView({
       if (!person) return null;
       return `${person.snapshot.name.firstName} ${person.snapshot.name.lastName[0]}.`;
     },
-    [attendeeList],
+    [attendeeData],
   );
 
   const columns = useMemo<ColumnDef<Attendee>[]>(() => {
