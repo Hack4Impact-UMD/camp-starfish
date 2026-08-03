@@ -11,6 +11,8 @@ import { isCommonSection } from "@/types/sessions/sessionTypeGuards";
 import ActivityGrid from "@/components/ActivityGrid";
 import useGenerateSectionSchedule from "@/features/scheduling/generation/hooks/useGenerateSectionSchedule.";
 import useSaveSectionSchedule from "@/features/scheduling/generation/hooks/useSaveSectionSchedule";
+import { openConfirmModal } from "@mantine/modals";
+import openConfirmationModal from "./modals/ConfirmationModal";
 
 interface SectionPageProps {
   sessionId: string;
@@ -52,6 +54,24 @@ function SectionPageContent(props: SectionPageContentProps) {
 
   const publishMutation = usePublishSectionSchedule();
 
+  const generateAndSaveSchedule = () =>
+    generateSectionScheduleMutation.mutate(
+      {
+        sessionId: session.id,
+        sectionId: section.id,
+      },
+      {
+        onSuccess: (data) =>
+          saveSectionScheduleMutation.mutate({
+            sectionSchedule: {
+              ...data,
+              sessionId: session.id,
+              sectionId: section.id,
+            },
+          }),
+      },
+    );
+
   return (
     <div className="flex flex-col gap-md p-md">
       <div className="flex flex-col gap-md md:flex-row md:items-center md:justify-between">
@@ -68,27 +88,11 @@ function SectionPageContent(props: SectionPageContentProps) {
           </Text>
         </div>
         <div className="flex gap-2">
-          <Button
-            color="green"
-            onClick={() =>
-              generateSectionScheduleMutation.mutate(
-                {
-                  sessionId: session.id,
-                  sectionId: section.id,
-                },
-                {
-                  onSuccess: (data) =>
-                    saveSectionScheduleMutation.mutate({
-                      sectionSchedule: {
-                        ...data,
-                        sessionId: session.id,
-                        sectionId: section.id,
-                      },
-                    }),
-                },
-              )
-            }
-          >
+          <Button color="green" onClick={() => openConfirmationModal({
+            title: "Generating a new schedule will overwrite the existing one",
+            onConfirm: generateAndSaveSchedule,
+            loading: generateSectionScheduleMutation.isPending || saveSectionScheduleMutation.isPending
+          })}>
             GENERATE
           </Button>
           <Button
