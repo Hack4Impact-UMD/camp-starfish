@@ -63,7 +63,7 @@ export function generateBundleSchedule(req: GenerateBundleScheduleRequest): Bund
   const programCounselorsByProgramArea = groupBy(programCounselors, programCounselor => programCounselor.programCounselorFor!);
   for (const block of Object.values(newSchedule.blocks)) {
     for (const activity of block.activities) {
-      const eligibleProgramCounselors = programCounselorsByProgramArea[activity.programAreaId].filter(programCounselor => daysOffSchedule.daysOffByCounselorId[programCounselor.attendeeId].every(dayOff => !isDayInRange(dayOff, [section.startDate, section.endDate])));
+      const eligibleProgramCounselors = programCounselorsByProgramArea[activity.programAreaId]?.filter(programCounselor => daysOffSchedule.daysOffByCounselorId[programCounselor.attendeeId].every(dayOff => !isDayInRange(dayOff, [section.startDate, section.endDate])));
       if (!eligibleProgramCounselors) {
         continue;
       }
@@ -89,7 +89,6 @@ export function generateBundleSchedule(req: GenerateBundleScheduleRequest): Bund
     }
   }
 
-
   const ocpSwimActivities = Object.values(newSchedule.blocks).map((block) => block.activities.find(activity => activity.programAreaId === "WF" && activity.ageGroup === "OCP")).filter(activity => !!activity);
   if (ocpSwimActivities.length !== 0) {
     const ocpCampersNeedingSwimActivities = ocpCampers.filter(camper => isFirstBundleOfSession || (camper.level >= 4 && camper.isOptedOutFromSwim));
@@ -106,7 +105,6 @@ export function generateBundleSchedule(req: GenerateBundleScheduleRequest): Bund
       chosenSwimActivity.camperIds.push(camper.attendeeId);
     }
   }
-
 
   const ocpChatActivities = Object.values(newSchedule.blocks).map((block) => block.activities.find(activity => activity.programAreaId === "OCP")).filter(activity => !!activity);
   if (ocpChatActivities.length !== 0) {
