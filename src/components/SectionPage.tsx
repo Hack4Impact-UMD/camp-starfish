@@ -88,11 +88,23 @@ function SectionPageContent(props: SectionPageContentProps) {
           </Text>
         </div>
         <div className="flex gap-2">
-          <Button color="green" onClick={() => openConfirmationModal({
-            title: "Generating a new schedule will overwrite the existing one",
-            onConfirm: generateAndSaveSchedule,
-            loading: generateSectionScheduleMutation.isPending || saveSectionScheduleMutation.isPending
-          })}>
+          <Button
+            color="green"
+            onClick={() =>
+              openConfirmationModal({
+                title:
+                  "Generating a new schedule will overwrite the existing one",
+                onConfirm: generateAndSaveSchedule,
+                loading:
+                  generateSectionScheduleMutation.isPending ||
+                  saveSectionScheduleMutation.isPending,
+              })
+            }
+            loading={
+              generateSectionScheduleMutation.isPending ||
+              saveSectionScheduleMutation.isPending
+            }
+          >
             GENERATE
           </Button>
           <Button
