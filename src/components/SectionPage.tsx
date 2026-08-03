@@ -10,6 +10,7 @@ import DownloadDaySchedulePDFButton from "@/features/scheduling/exporting/Downlo
 import { isCommonSection } from "@/types/sessions/sessionTypeGuards";
 import ActivityGrid from "@/components/ActivityGrid";
 import useGenerateSectionSchedule from "@/features/scheduling/generation/hooks/useGenerateSectionSchedule.";
+import useSaveSectionSchedule from "@/features/scheduling/generation/hooks/useSaveSectionSchedule";
 
 interface SectionPageProps {
   sessionId: string;
@@ -47,6 +48,7 @@ function SectionPageContent(props: SectionPageContentProps) {
   const { session, section } = props;
 
   const generateSectionScheduleMutation = useGenerateSectionSchedule();
+  const saveSectionScheduleMutation = useSaveSectionSchedule();
 
   const publishMutation = usePublishSectionSchedule();
 
@@ -69,10 +71,22 @@ function SectionPageContent(props: SectionPageContentProps) {
           <Button
             color="green"
             onClick={() =>
-              generateSectionScheduleMutation.mutate({
-                sessionId: session.id,
-                sectionId: section.id,
-              })
+              generateSectionScheduleMutation.mutate(
+                {
+                  sessionId: session.id,
+                  sectionId: section.id,
+                },
+                {
+                  onSuccess: (data) =>
+                    saveSectionScheduleMutation.mutate({
+                      sectionSchedule: {
+                        ...data,
+                        sessionId: session.id,
+                        sectionId: section.id,
+                      },
+                    }),
+                },
+              )
             }
           >
             GENERATE
