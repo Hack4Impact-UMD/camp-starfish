@@ -1,13 +1,12 @@
 "use client";
 
 import React from "react";
-import Link from "next/link";
 import darkBgLogo from "../assets/logos/darkBgLogo.png";
 import { MdAccountCircle } from "react-icons/md";
 import { useAuth } from "@/auth/useAuth";
 import { Role } from "@/types/users/userTypes";
 import Image from "next/image";
-import { Text } from "@mantine/core";
+import { Anchor, Text } from "@mantine/core";
 
 const navbarLinks: { name: string; href: string; roles: Role[] }[] = [
   { name: "Sessions", href: "/sessions", roles: ["STAFF", "ADMIN"] },
@@ -31,7 +30,7 @@ const Navbar: React.FC = () => {
     <nav className="w-full h-full bg-blue-8 px-32 flex items-center justify-between gap-20">
       {/* Logo on the left */}
       <div className="flex-none">
-        <Link href="/" className="min-h-[50px]">
+        <Anchor href="/" className="min-h-[50px]">
           <Image
             className="flex-none cursor-pointer"
             src={darkBgLogo.src}
@@ -39,7 +38,7 @@ const Navbar: React.FC = () => {
             width={100.94}
             height={72}
           />
-        </Link>
+        </Anchor>
       </div>
 
       {/* Centered Text Container */}
@@ -48,11 +47,11 @@ const Navbar: React.FC = () => {
           {navbarLinks
             .filter((item) => role && item.roles.includes(role))
             .map((item, index) => (
-              <Link key={index} href={item.href} className="cursor-pointer">
-                <Text className="cursor-pointer font-Lato font-bold">
+              <Anchor key={index} href={item.href} className="cursor-pointer">
+                <Text className="cursor-pointer font-Lato font-bold text-white decoration-white">
                   {item.name}
                 </Text>
-              </Link>
+              </Anchor>
             ))}
         </div>
       )}
@@ -60,9 +59,9 @@ const Navbar: React.FC = () => {
       {/* Profile Icon on the right */}
       {auth.token && (
         <div className="flex-none">
-          <Link href="/profile">
+          <Anchor href="/profile">
             <MdAccountCircle size={50} color="gray" />
-          </Link>
+          </Anchor>
         </div>
       )}
     </nav>
