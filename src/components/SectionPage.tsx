@@ -11,7 +11,6 @@ import { isCommonSection } from "@/types/sessions/sessionTypeGuards";
 import ActivityGrid from "@/components/ActivityGrid";
 import useGenerateSectionSchedule from "@/features/scheduling/generation/hooks/useGenerateSectionSchedule.";
 import useSaveSectionSchedule from "@/features/scheduling/generation/hooks/useSaveSectionSchedule";
-import { openConfirmModal } from "@mantine/modals";
 import openConfirmationModal from "./modals/ConfirmationModal";
 
 interface SectionPageProps {
