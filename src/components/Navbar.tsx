@@ -12,11 +12,6 @@ import { Text } from "@mantine/core";
 const navbarLinks: { name: string; href: string; roles: Role[] }[] = [
   { name: "Sessions", href: "/sessions", roles: ["STAFF", "ADMIN"] },
   {
-    name: "Campers",
-    href: "/campers",
-    roles: ["STAFF", "ADMIN", "PARENT"],
-  },
-  {
     name: "Albums",
     href: "/albums",
     roles: ["STAFF", "ADMIN", "PHOTOGRAPHER", "PARENT"],
