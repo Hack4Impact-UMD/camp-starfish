@@ -15,9 +15,9 @@ import {
   WithFieldValue,
 } from "firebase/firestore";
 import { RootLevelCollection, SessionsSubcollection } from "./types/collections";
-import { setDoc, deleteDoc, getDoc, updateDoc, executeQuery } from "./firestoreClientOperations";
+import { setDoc, deleteDoc, getDoc, updateDoc, executeQuery, mapSnapshotsToPaginatedQueryResult } from "./firestoreClientOperations";
 import moment from "moment";
-import { FirestoreQueryOptions } from "./types/queries";
+import { FirestoreQueryOptions, PaginatedQueryResponse } from "./types/queries";
 
 function fromFirestore(snapshot: DocumentSnapshot<SectionDoc, SectionDoc> | QueryDocumentSnapshot<SectionDoc, SectionDoc>): Section {
   if (!snapshot.exists()) { throw Error("Document not found"); };
@@ -53,9 +53,9 @@ export async function getSectionDoc(sessionId: string, sectionId: string, transa
   return fromFirestore(snapshot);
 }
 
-export async function listSectionDocs(sessionId: string, firestoreQueryOptions: FirestoreQueryOptions<SectionDoc> = {}): Promise<Section[]> {
+export async function listSectionDocs(sessionId: string, firestoreQueryOptions: FirestoreQueryOptions<SectionDoc> = {}): Promise<PaginatedQueryResponse<Section, SectionDoc>> {
   const snapshots = await executeQuery<SectionDoc>(collection(db, RootLevelCollection.SESSIONS, sessionId, SessionsSubcollection.SECTIONS) as CollectionReference<SectionDoc, SectionDoc>, firestoreQueryOptions);
-  return snapshots.map(fromFirestore);
+  return mapSnapshotsToPaginatedQueryResult(snapshots, fromFirestore);
 }
 
 export async function createSectionDoc(sessionId: string, section: WithFieldValue<SectionDoc>, instance?: Transaction | WriteBatch): Promise<string> {

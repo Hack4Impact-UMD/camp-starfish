@@ -3,6 +3,31 @@ import { StaffAttendee, AdminAttendee, CamperAttendee, Freeplay, Post, Attendee 
 import { groupBy } from "@/utils/data/groupBy";
 import partition from "@/utils/data/partition";
 import { Moment } from "moment";
+import { useMutation } from "@tanstack/react-query";
+import { getUseAttendeeListOptions } from "@/hooks/attendees/useAttendeeList";
+import { getUseFreeplayListOptions } from "@/hooks/freeplays/useFreeplayList";
+import { getUsePostListOptions } from "@/hooks/posts/usePostList";
+
+interface UseGenerateFreeplayScheduleRequest {
+  sessionId: string;
+  date: Moment;
+}
+
+export default function useGenerateFreeplaySchedule() {
+  return useMutation({
+    mutationFn: async (req: UseGenerateFreeplayScheduleRequest, { client }) => {
+      const { sessionId, date } = req;
+
+      const attendees = (await client.ensureInfiniteQueryData(getUseAttendeeListOptions(sessionId))).pages.flatMap(page => page.docs);
+      const posts = (await client.ensureInfiniteQueryData(getUsePostListOptions())).pages.flatMap(page => page.docs);
+      const otherFreeplaysInSession = (await client.ensureInfiniteQueryData(getUseFreeplayListOptions(sessionId, {
+        where: [{ fieldPath: '__name__', operation: "!=", value: date.format("YYYY-MM-DD") }]
+      }))).pages.flatMap(page => page.docs);
+
+      return generateFreeplaySchedule({ sessionId, date, attendees, posts, otherFreeplaysInSession });
+    }
+  })
+}
 
 interface GenerateFreeplayScheduleRequest {
   sessionId: string;
@@ -12,7 +37,7 @@ interface GenerateFreeplayScheduleRequest {
   otherFreeplaysInSession: Freeplay[];
 }
 
-export default function generateFreeplaySchedule(req: GenerateFreeplayScheduleRequest): Freeplay {
+export function generateFreeplaySchedule(req: GenerateFreeplayScheduleRequest): Freeplay {
   const { sessionId, date, attendees, posts, otherFreeplaysInSession } = req;
 
   const campers: CamperAttendee[] = [];

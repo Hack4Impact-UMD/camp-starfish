@@ -44,6 +44,11 @@ service cloud.firestore {
           allow read: if isStaffOrAdmin();
           allow create, update, delete: if isStaffOrAdmin();
         }
+        
+        match /activityPreferences/{activityPreferencesId} {
+          allow read: if isStaffOrAdmin();
+          allow write: if isStaffOrAdmin();
+        }
       }
       
       // Other subcollections
@@ -63,6 +68,11 @@ service cloud.firestore {
       }
       
       match /freeplays/{freeplayId} {
+        allow read: if isStaffOrAdmin();
+        allow write: if isStaffOrAdmin();
+      }
+
+      match /daysOffSchedule/{daysOffScheduleId} {
         allow read: if isStaffOrAdmin();
         allow write: if isStaffOrAdmin();
       }

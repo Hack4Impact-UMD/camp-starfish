@@ -4,7 +4,6 @@ import { httpsCallable } from "firebase/functions";
 import { CreateAttendeesRequest } from "./types";
 
 export async function createAttendees(req: CreateAttendeesRequest) {
-  console.log(req);
   await httpsCallable(functions, "createAttendees")(req);
 }
 

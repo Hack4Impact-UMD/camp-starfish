@@ -1,8 +1,39 @@
 
+import { getUseAttendeeListOptions } from "@/hooks/attendees/useAttendeeList";
+import { getUseSessionOptions } from "@/hooks/sessions/useSession";
 import { StaffAttendee, AdminAttendee, Session, CounselorAttendee, DaysOffSchedule } from "@/types/sessions/sessionTypes";
 import { groupBy } from "@/utils/data/groupBy";
 import shuffle from "@/utils/data/shuffle";
+import { useMutation } from "@tanstack/react-query";
 import { Moment } from "moment";
+
+interface UseGenerateDaysOffScheduleRequest {
+  sessionId: string;
+}
+
+export default function useGenerateDaysOffSchedule() {
+  return useMutation({
+    mutationFn: async (req: UseGenerateDaysOffScheduleRequest, { client }) => {
+      const { sessionId } = req;
+
+      const session = await client.ensureQueryData(getUseSessionOptions(sessionId));
+      const counselors = (await client.ensureInfiniteQueryData(getUseAttendeeListOptions(sessionId, {
+        where: [{ fieldPath: "role", operation: "in", value: ["STAFF", "ADMIN"] }],
+      }))).pages.flatMap(page => page.docs) as CounselorAttendee[];
+
+      const daysOffInSession: Moment[] = [];
+      for (let curr = session.startDate.clone(); curr.isSameOrBefore(session.endDate); curr = curr.add(1, 'days')) {
+        daysOffInSession.push(curr.clone());
+      }
+
+      return generateDaysOffSchedule({
+        session,
+        counselors,
+        daysOffInSession
+      });
+    }
+  })
+}
 
 // TODO: give staff and admins on each other yesYesLists the same days off
 // TODO: take section activities into account when assigning days off, namely for program counselor assignments
@@ -13,7 +44,7 @@ interface GenerateDaysOffScheduleRequest {
   daysOffInSession: Moment[];
 }
 
-export default function generateDaysOffSchedule(req: GenerateDaysOffScheduleRequest): DaysOffSchedule {
+export function generateDaysOffSchedule(req: GenerateDaysOffScheduleRequest): DaysOffSchedule {
   const { session, counselors, daysOffInSession } = req;
 
   const staff: StaffAttendee[] = [];
@@ -54,7 +85,7 @@ export default function generateDaysOffSchedule(req: GenerateDaysOffScheduleRequ
       daysOffByCounselorId[counselorId].push(daysOffInWeek[dayInWeekIndex]);
       dayInWeekIndex = (dayInWeekIndex + 1) % daysOffInWeek.length;
     }
-  } 
+  }
 
   return {
     sessionId: session.id,

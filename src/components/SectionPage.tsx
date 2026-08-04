@@ -2,7 +2,6 @@
 import { Button, Text, Title } from "@mantine/core";
 import { Session, SchedulingSection } from "@/types/sessions/sessionTypes";
 import LoadingPage from "@/app/loading";
-import React from "react";
 import { usePublishSectionSchedule } from "@/features/scheduling/publishing/publishSectionSchedule";
 import moment from "moment";
 import useSession from "@/hooks/sessions/useSession";
@@ -10,6 +9,9 @@ import useSection from "@/hooks/sections/useSection";
 import DownloadDaySchedulePDFButton from "@/features/scheduling/exporting/DownloadDaySchedulePDFButton";
 import { isCommonSection } from "@/types/sessions/sessionTypeGuards";
 import ActivityGrid from "@/components/ActivityGrid";
+import useGenerateSectionSchedule from "@/features/scheduling/generation/hooks/useGenerateSectionSchedule.";
+import useSaveSectionSchedule from "@/features/scheduling/generation/hooks/useSaveSectionSchedule";
+import openConfirmationModal from "./modals/ConfirmationModal";
 
 interface SectionPageProps {
   sessionId: string;
@@ -46,7 +48,28 @@ interface SectionPageContentProps {
 function SectionPageContent(props: SectionPageContentProps) {
   const { session, section } = props;
 
+  const generateSectionScheduleMutation = useGenerateSectionSchedule();
+  const saveSectionScheduleMutation = useSaveSectionSchedule();
+
   const publishMutation = usePublishSectionSchedule();
+
+  const generateAndSaveSchedule = () =>
+    generateSectionScheduleMutation.mutate(
+      {
+        sessionId: session.id,
+        sectionId: section.id,
+      },
+      {
+        onSuccess: (data) =>
+          saveSectionScheduleMutation.mutate({
+            sectionSchedule: {
+              ...data,
+              sessionId: session.id,
+              sectionId: section.id,
+            },
+          }),
+      },
+    );
 
   return (
     <div className="flex flex-col gap-md p-md">
@@ -58,14 +81,31 @@ function SectionPageContent(props: SectionPageContentProps) {
           <Text className="text-sm text-primary-5 mb-4 italic">
             {`Last generated: ${
               section && section.publishedAt
-                ? moment(section.publishedAt).format(
-                    "MM/DD/YYYY hh:mm:ss A",
-                  )
+                ? moment(section.publishedAt).format("MM/DD/YYYY hh:mm:ss A")
                 : "N/A"
             }`}
           </Text>
         </div>
         <div className="flex gap-2">
+          <Button
+            color="green"
+            onClick={() =>
+              openConfirmationModal({
+                title:
+                  "Generating a new schedule will overwrite the existing one",
+                onConfirm: generateAndSaveSchedule,
+                loading:
+                  generateSectionScheduleMutation.isPending ||
+                  saveSectionScheduleMutation.isPending,
+              })
+            }
+            loading={
+              generateSectionScheduleMutation.isPending ||
+              saveSectionScheduleMutation.isPending
+            }
+          >
+            GENERATE
+          </Button>
           <Button
             color="green"
             onClick={() => {

@@ -61,7 +61,6 @@ export default function EmployeeUsersInputTable(
       })),
     [employees, roleSelects, genderSelects, dateOfBirthSelects],
   );
-  console.log(data);
 
   const columns = useMemo(() => {
     const columnHelper = createColumnHelper<

@@ -1,6 +1,6 @@
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import DaySchedulePDF from "./DaySchedulePDF";
-import useListAttendees from "@/hooks/attendees/useListAttendees";
+import useAttendeeList from "@/hooks/attendees/useAttendeeList";
 import useSection from "@/hooks/sections/useSection";
 import useFreeplay from "@/hooks/freeplays/useFreeplay";
 import { cloneElement, useMemo } from "react";
@@ -31,7 +31,7 @@ export default function DownloadDaySchedulePDFButton(
 ) {
   const { sessionId, sectionId, date } = props;
 
-  const attendeesQuery = useListAttendees(sessionId);
+  const attendeesQuery = useAttendeeList(sessionId);
   const sectionQuery = useSection(sessionId, sectionId);
   const scheduleQuery = useSectionSchedule(sessionId, sectionId);
   const freeplayQuery = useFreeplay(sessionId, date);
@@ -74,7 +74,7 @@ export default function DownloadDaySchedulePDFButton(
   }
   return (
     <DownloadDaySchedulePDFButtonContent
-      attendees={attendeesQuery.data}
+      attendees={attendeesQuery.data.pages.flatMap(page => page.docs)}
       section={sectionQuery.data}
       schedule={scheduleQuery.data}
       freeplay={freeplayQuery.data}

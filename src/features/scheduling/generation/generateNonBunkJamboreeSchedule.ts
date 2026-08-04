@@ -15,7 +15,7 @@ interface GenerateNonBunkJamboreeScheduleRequest {
   currentSchedule: NonBunkJamboreeSectionSchedule;
 }
 
-export default function generateNonBunkJamboreeSchedule(req: GenerateNonBunkJamboreeScheduleRequest): NonBunkJamboreeSectionSchedule {
+export function generateNonBunkJamboreeSchedule(req: GenerateNonBunkJamboreeScheduleRequest): NonBunkJamboreeSectionSchedule {
   const { attendees, sectionActivityPreferences, currentSchedule } = req;
 
   const campers: CamperAttendee[] = [];

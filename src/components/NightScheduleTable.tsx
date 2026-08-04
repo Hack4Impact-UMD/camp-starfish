@@ -16,7 +16,7 @@ import {
 } from "@/types/sessions/sessionTypes";
 import { getFullName } from "@/types/users/userUtils";
 import moment, { Moment } from "moment";
-import useListAttendees from "@/hooks/attendees/useListAttendees";
+import useAttendeeList from "@/hooks/attendees/useAttendeeList";
 import useNightScheduleList from "@/hooks/nightSchedules/useNightScheduleList";
 import {
   getAttendeesById,
@@ -35,9 +35,11 @@ interface NightScheduleTableProps {
   sessionId: string;
 }
 
-type NightScheduleTablePosition = NightSchedulePosition | "DAY OFF"
+type NightScheduleTablePosition = NightSchedulePosition | "DAY OFF";
 
-function getNightScheduleTablePositionAbbreviation(position: NightScheduleTablePosition): string {
+function getNightScheduleTablePositionAbbreviation(
+  position: NightScheduleTablePosition,
+): string {
   if (position === "DAY OFF") {
     return "DO";
   }
@@ -47,10 +49,11 @@ function getNightScheduleTablePositionAbbreviation(position: NightScheduleTableP
 export default function NightScheduleTable(props: NightScheduleTableProps) {
   const { sessionId } = props;
 
-  const { data: daysOffSchedule, status: daysOffScheduleStatus } = useDaysOffSchedule(sessionId);
+  const { data: daysOffSchedule, status: daysOffScheduleStatus } =
+    useDaysOffSchedule(sessionId);
   const { data: session, status: sessionStatus } = useSession(sessionId);
-  const { data: attendees = [], status: attendeesStatus } =
-    useListAttendees(sessionId);
+  const { data: attendees, status: attendeesStatus } =
+    useAttendeeList(sessionId);
   const { data: nightShifts, status: nightShiftsStatus } =
     useNightScheduleList(sessionId);
 
@@ -74,7 +77,7 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
     <NightScheduleTableContent
       daysOffSchedule={daysOffSchedule}
       session={session}
-      attendees={attendees}
+      attendees={attendees.pages.flatMap(page => page.docs)}
       nightShifts={nightShifts.docs}
     />
   );
@@ -132,7 +135,9 @@ function NightScheduleTableContent(props: NightScheduleTableContentProps) {
             staffByBunk[bunkNum].map((att) => att.attendeeId) || [],
           );
           const staffOff = staffInBunk.filter((staffId: number) => {
-            return daysOffSchedule.daysOffByCounselorId[staffId].some((dayOff) => dayOff.isSame(date, "day"));
+            return daysOffSchedule.daysOffByCounselorId[staffId].some(
+              (dayOff) => dayOff.isSame(date, "day"),
+            );
           });
           return staffOff.map((staffId: number) => staffById[staffId]);
         }
@@ -147,7 +152,11 @@ function NightScheduleTableContent(props: NightScheduleTableContentProps) {
 
           const roverStaff = allStaffInBunk.filter((staffId: number) => {
             if (assignedStaff.has(staffId)) return false;
-            if (daysOffSchedule.daysOffByCounselorId[staffId].some((dayOff) => dayOff.isSame(date, "day")))
+            if (
+              daysOffSchedule.daysOffByCounselorId[staffId].some((dayOff) =>
+                dayOff.isSame(date, "day"),
+              )
+            )
               return false;
             return true;
           });
@@ -187,7 +196,11 @@ function NightScheduleTableContent(props: NightScheduleTableContentProps) {
         cell: ({ row }) => (
           <div>
             <Text className="text-sm font-semibold">
-              Day {getDayNumOfSession(row.original.date.format("YYYY-MM-DD"), session)}
+              Day{" "}
+              {getDayNumOfSession(
+                row.original.date.format("YYYY-MM-DD"),
+                session,
+              )}
             </Text>
             <Text className="text-xs font-semibold text-gray-6">
               {moment(row.original.date).format("MMM D, YYYY")}
@@ -196,7 +209,8 @@ function NightScheduleTableContent(props: NightScheduleTableContentProps) {
         ),
       },
       {
-        accessorFn: (row) => getNightScheduleTablePositionAbbreviation(row.position),
+        accessorFn: (row) =>
+          getNightScheduleTablePositionAbbreviation(row.position),
         header: "POSITION",
         size: 100,
       },
