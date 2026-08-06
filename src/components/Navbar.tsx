@@ -5,7 +5,7 @@ import darkBgLogo from "../assets/logos/darkBgLogo.png";
 import { MdAccountCircle } from "react-icons/md";
 import { useAuth } from "@/auth/useAuth";
 import { Role } from "@/types/users/userTypes";
-import { Anchor, Image, Text } from "@mantine/core";
+import { ActionIcon, Anchor, Image, Text } from "@mantine/core";
 
 const navbarLinks: { name: string; href: string; roles: Role[] }[] = [
   { name: "Sessions", href: "/sessions", roles: ["STAFF", "ADMIN"] },
@@ -57,11 +57,11 @@ const Navbar: React.FC = () => {
 
       {/* Profile Icon on the right */}
       {auth.token && (
-        <div className="flex-none">
+        <ActionIcon variant="transparent">
           <Anchor href="/profile">
             <MdAccountCircle size={50} color="gray" />
           </Anchor>
-        </div>
+        </ActionIcon>
       )}
     </nav>
   );
