@@ -47,8 +47,8 @@ const Navbar: React.FC = () => {
           {navbarLinks
             .filter((item) => role && item.roles.includes(role))
             .map((item, index) => (
-              <Anchor key={index} href={item.href} className="cursor-pointer">
-                <Text className="cursor-pointer font-Lato font-bold text-white decoration-white">
+              <Anchor key={index} href={item.href} className="cursor-pointer decoration-white">
+                <Text className="cursor-pointer font-Lato font-bold text-white">
                   {item.name}
                 </Text>
               </Anchor>
