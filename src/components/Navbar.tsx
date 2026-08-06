@@ -5,8 +5,7 @@ import darkBgLogo from "../assets/logos/darkBgLogo.png";
 import { MdAccountCircle } from "react-icons/md";
 import { useAuth } from "@/auth/useAuth";
 import { Role } from "@/types/users/userTypes";
-import Image from "next/image";
-import { Anchor, Text } from "@mantine/core";
+import { Anchor, Image, Text } from "@mantine/core";
 
 const navbarLinks: { name: string; href: string; roles: Role[] }[] = [
   { name: "Sessions", href: "/sessions", roles: ["STAFF", "ADMIN"] },
