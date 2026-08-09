@@ -56,13 +56,13 @@ const Navbar: React.FC = () => {
       )}
 
       {/* Profile Icon on the right */}
-      {false && auth.token && (
+      {false && auth.token ? (
         <ActionIcon variant="transparent">
           <Anchor href="/profile">
             <MdAccountCircle size={50} color="gray" />
           </Anchor>
         </ActionIcon>
-      )}
+      ) : <div></div>}
     </nav>
   );
 };
