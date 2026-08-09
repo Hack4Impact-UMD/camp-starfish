@@ -13,9 +13,9 @@ import {
   WithFieldValue,
   UpdateData
 } from "firebase/firestore";
-import { setDoc, getDoc, updateDoc, executeQuery, deleteDoc } from "./firestoreClientOperations";
+import { setDoc, getDoc, updateDoc, executeQuery, deleteDoc, mapSnapshotsToPaginatedQueryResult } from "./firestoreClientOperations";
 import { RootLevelCollection, SessionsSubcollection } from "./types/collections";
-import { FirestoreQueryOptions } from "./types/queries";
+import { FirestoreQueryOptions, PaginatedQueryResponse } from "./types/queries";
 import moment from "moment";
 
 function fromFirestore(snapshot: DocumentSnapshot<AttendeeDoc, AttendeeDoc> | QueryDocumentSnapshot<AttendeeDoc, AttendeeDoc>): Attendee {
@@ -76,9 +76,9 @@ export async function getAttendeeDoc(campminderId: number, sessionId: string, tr
   return fromFirestore(snapshot);
 };
 
-export async function listAttendeeDocs(sessionId: string, firestoreQueryOptions: FirestoreQueryOptions<AttendeeDoc> = {}): Promise<Attendee[]> {
+export async function listAttendeeDocs(sessionId: string, firestoreQueryOptions: FirestoreQueryOptions<AttendeeDoc> = {}): Promise<PaginatedQueryResponse<Attendee, AttendeeDoc>> {
   const snapshots = await executeQuery<AttendeeDoc>(collection(db, RootLevelCollection.SESSIONS, sessionId, SessionsSubcollection.ATTENDEES) as CollectionReference<AttendeeDoc, AttendeeDoc>, firestoreQueryOptions);
-  return snapshots.map(fromFirestore);
+  return mapSnapshotsToPaginatedQueryResult(snapshots, fromFirestore);
 }
 
 export async function createAttendeeDoc(campminderId: number, sessionId: string, attendee: WithFieldValue<AttendeeDoc>, instance?: Transaction | WriteBatch): Promise<number> {

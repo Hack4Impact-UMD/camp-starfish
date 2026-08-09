@@ -1,13 +1,13 @@
-import { listSectionDocs } from "@/data/firestore/sections";
-import { SectionDoc } from "@/data/firestore/types/documents";
+import { listAttendeeDocs } from "@/data/firestore/attendees";
+import { AttendeeDoc } from "@/data/firestore/types/documents";
 import { FirestoreQueryOptions } from "@/data/firestore/types/queries";
-import { Section } from "@/types/sessions/sessionTypes";
+import { Attendee } from "@/types/sessions/sessionTypes";
 import { infiniteQueryOptions, useInfiniteQuery } from "@tanstack/react-query";
 import { TanstackQueryFirestorePageParam } from "../types/tanstackQueryTypes";
 
-export function getUseSectionListOptions(sessionId: string, firestoreQueryOptions: FirestoreQueryOptions<SectionDoc> = {}) {
+export function getUseAttendeeListOptions(sessionId: string, firestoreQueryOptions: FirestoreQueryOptions<AttendeeDoc> = {}) {
   return infiniteQueryOptions({
-    queryKey: ['sessions', sessionId, 'sections', firestoreQueryOptions],
+    queryKey: ['sessions', sessionId, 'attendees', firestoreQueryOptions],
     queryFn: async ({ pageParam, client }) => {
       const updatedQueryOptions = firestoreQueryOptions ? { ...firestoreQueryOptions } : {};
       if (pageParam) {
@@ -19,16 +19,16 @@ export function getUseSectionListOptions(sessionId: string, firestoreQueryOption
           updatedQueryOptions.endAt = undefined;
         }
       }
-      const sectionsPage = await listSectionDocs(sessionId, updatedQueryOptions);
-      sectionsPage.docs.forEach((section: Section) => client.setQueryData(['sessions', sessionId, 'sections', section.id], section));
-      return sectionsPage;
+      const attendeesPage = await listAttendeeDocs(sessionId, updatedQueryOptions);
+      attendeesPage.docs.forEach((attendee: Attendee) => client.setQueryData(['sessions', sessionId, 'attendees', attendee.attendeeId], attendee));
+      return attendeesPage;
     },
-    initialPageParam: undefined as TanstackQueryFirestorePageParam<SectionDoc> | undefined,
+    initialPageParam: undefined as TanstackQueryFirestorePageParam<AttendeeDoc> | undefined,
     getPreviousPageParam: (firstPage) => firstPage.firstSnapshot ? ({ direction: 'previous' as const, snapshot: firstPage.firstSnapshot }) : undefined,
     getNextPageParam: (lastPage) => lastPage.lastSnapshot ? ({ direction: 'next' as const, snapshot: lastPage.lastSnapshot }) : undefined,
   });
 }
 
-export default function useSectionList(sessionId: string, firestoreQueryOptions: FirestoreQueryOptions<SectionDoc> = {}) {
-  return useInfiniteQuery(getUseSectionListOptions(sessionId, firestoreQueryOptions));
+export default function useAttendeeList(sessionId: string, firestoreQueryOptions: FirestoreQueryOptions<AttendeeDoc> = {}) {
+  return useInfiniteQuery(getUseAttendeeListOptions(sessionId, firestoreQueryOptions));
 }

@@ -20,7 +20,7 @@ import {
   ActionIcon,
   Tooltip,
 } from "@mantine/core";
-import useListAttendees from "@/hooks/attendees/useListAttendees";
+import useAttendeeList from "@/hooks/attendees/useAttendeeList";
 import { DirectoryTableCell } from "./DirectoryTableCell";
 import moment from "moment";
 import {
@@ -43,11 +43,7 @@ type LargeDirectoryBlockProps = {
 export default function DirectoryTableView({
   sessionId,
 }: LargeDirectoryBlockProps) {
-  const {
-    data: attendeeList,
-    isLoading,
-    isError,
-  } = useListAttendees(sessionId);
+  const { data: attendeeData, isLoading, isError } = useAttendeeList(sessionId);
   const daysOffScheduleQuery = useDaysOffSchedule(sessionId);
   const sessionQuery = useSession(sessionId);
 
@@ -57,6 +53,11 @@ export default function DirectoryTableView({
   // table filter/pagination options
   const [globalFilter, setGlobalFilter] = useState("");
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 });
+
+  const attendeeList = useMemo(
+    () => attendeeData?.pages.flatMap((page) => page.docs),
+    [attendeeData],
+  );
 
   const data: Attendee[] = useMemo(() => {
     if (!attendeeList) return [];
@@ -324,10 +325,11 @@ export default function DirectoryTableView({
     <div className="border border-black bg-[#F7F7F7] w-[80%] mx-auto py-[20px]">
       <div className="flex flex-row justify-between px-sm">
         <div></div>
-        <Title order={3}>
-          DIRECTORY
-        </Title>
-        <ActionIcon color="aqua" onClick={() => openAddAttendeesModal(sessionId)}>
+        <Title order={3}>DIRECTORY</Title>
+        <ActionIcon
+          color="aqua"
+          onClick={() => openAddAttendeesModal(sessionId)}
+        >
           <Tooltip label="Add Attendees">
             <MdPersonAdd size={30} />
           </Tooltip>

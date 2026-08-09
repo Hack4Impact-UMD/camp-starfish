@@ -18,7 +18,7 @@ interface GenerateBunkJamboreeScheduleRequest {
   currentSchedule: BunkJamboreeSectionSchedule;
 }
 
-export default function generateBunkJamboreeSchedule(req: GenerateBunkJamboreeScheduleRequest): BunkJamboreeSectionSchedule {
+export function generateBunkJamboreeSchedule(req: GenerateBunkJamboreeScheduleRequest): BunkJamboreeSectionSchedule {
   const { attendees, bunks, bunkActivityPreferences, currentSchedule } = req;
 
   const campers: CamperAttendee[] = [];
