@@ -1,13 +1,17 @@
 import { getSectionScheduleDoc } from "@/data/firestore/sectionSchedules";
 import { queryOptions, skipToken, useQuery } from "@tanstack/react-query";
 
-export function sectionScheduleQueryOptions(sessionId: string | undefined, sectionId: string | undefined, enabled: boolean = true) {
+export function sectionScheduleQueryOptions(sessionId: string, sectionId: string) {
   return queryOptions({
     queryKey: ['sessions', sessionId, 'sections', sectionId, 'schedule'],
-    queryFn: sessionId && sectionId && enabled ? (() => getSectionScheduleDoc(sessionId, sectionId)) : skipToken
+    queryFn: () => getSectionScheduleDoc(sessionId, sectionId)
   });
 }
 
-export default function useSectionSchedule(sessionId: string | undefined, sectionId: string | undefined, enabled: boolean = true) {
-  return useQuery(sectionScheduleQueryOptions(sessionId, sectionId, enabled));
+export default function useSectionSchedule(sessionId: string, sectionId: string, enabled: boolean = true) {
+  const defaultOptions = sectionScheduleQueryOptions(sessionId, sectionId);
+  return useQuery({
+    ...defaultOptions,
+    queryFn: enabled ? defaultOptions.queryFn : skipToken
+  });
 }
