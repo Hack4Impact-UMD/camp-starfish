@@ -1,5 +1,7 @@
 import useCreateActivity from "@/features/sessions/sections/useCreateActivity";
 import { sectionScheduleQueryOptions } from "@/hooks/schedules/useSectionSchedule";
+import { AGE_GROUPS } from "@/types/sessions/sessionTypes";
+import { Radio, Textarea, TextInput } from "@mantine/core";
 import { openModal } from "@mantine/modals";
 import { useSuspenseQuery } from "@tanstack/react-query";
 
@@ -18,7 +20,19 @@ function CreateActivityModal(props: CreateActivityModalProps) {
 
   const createActivityMutation = useCreateActivity();
 
-  return <div></div>;
+  return (
+    <div>
+      <TextInput label="Activity Name" />
+      <Textarea label="Activity Description" />
+      {sectionScheduleQuery.data.type === "BUNDLE" && (
+        <Radio.Group label="Age Group">
+          {AGE_GROUPS.map((ageGroup) => (
+            <Radio value={ageGroup} label={ageGroup} />
+          ))}
+        </Radio.Group>
+      )}
+    </div>
+  );
 }
 
 export default function openCreateActivityModal(
