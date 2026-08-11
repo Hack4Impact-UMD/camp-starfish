@@ -7,7 +7,7 @@ import { generateBunkJamboreeSchedule } from "../generateBunkJamboreeSchedule";
 import { generateNonBunkJamboreeSchedule } from "../generateNonBunkJamboreeSchedule";
 import { getUseAttendeeListOptions } from "@/hooks/attendees/useAttendeeList";
 import { getUseActivityPreferencesOptions } from "@/hooks/activityPreferences/useActivityPreferences";
-import { getUseSectionScheduleOptions } from "@/hooks/schedules/useSectionSchedule";
+import { sectionScheduleQueryOptions } from "@/hooks/schedules/useSectionSchedule";
 import { getUseDaysOffScheduleOptions } from "@/hooks/daysOffSchedules/useDaysOffSchedule";
 import { Section } from "@/types/sessions/sessionTypes";
 import { getUseSectionListOptions } from "@/hooks/sections/useSectionList";
@@ -37,7 +37,7 @@ async function generateSectionSchedule(req: GenerateSectionScheduleRequest, clie
       return generateBundleSchedule({
         attendees: (await client.ensureInfiniteQueryData(getUseAttendeeListOptions(sessionId))).pages.flatMap(page => page.docs),
         camperActivityPreferences: await client.ensureQueryData(getUseActivityPreferencesOptions(req)),
-        currentSchedule: await client.ensureQueryData(getUseSectionScheduleOptions(sessionId, sectionId)) as BundleSectionSchedule,
+        currentSchedule: await client.ensureQueryData(sectionScheduleQueryOptions(sessionId, sectionId)) as BundleSectionSchedule,
         daysOffSchedule: await client.ensureQueryData(getUseDaysOffScheduleOptions(sessionId)),
         section,
         isFirstBundleOfSession
@@ -47,12 +47,12 @@ async function generateSectionSchedule(req: GenerateSectionScheduleRequest, clie
         attendees: (await client.ensureInfiniteQueryData(getUseAttendeeListOptions(sessionId))).pages.flatMap(page => page.docs),
         bunkActivityPreferences: await client.ensureQueryData(getUseActivityPreferencesOptions(req)),
         bunks: (await client.ensureInfiniteQueryData(getUseBunkListOptions(sessionId))).pages.flatMap(page => page.docs),
-        currentSchedule: await client.ensureQueryData(getUseSectionScheduleOptions(sessionId, sectionId)) as BunkJamboreeSectionSchedule
+        currentSchedule: await client.ensureQueryData(sectionScheduleQueryOptions(sessionId, sectionId)) as BunkJamboreeSectionSchedule
       });
     case "NON-BUNK-JAMBO":
       return generateNonBunkJamboreeSchedule({
         attendees: (await client.ensureInfiniteQueryData(getUseAttendeeListOptions(sessionId))).pages.flatMap(page => page.docs),
-        currentSchedule: await client.ensureQueryData(getUseSectionScheduleOptions(sessionId, sectionId)) as NonBunkJamboreeSectionSchedule,
+        currentSchedule: await client.ensureQueryData(sectionScheduleQueryOptions(sessionId, sectionId)) as NonBunkJamboreeSectionSchedule,
         sectionActivityPreferences: await client.ensureQueryData(getUseActivityPreferencesOptions(req)),
       });
   }
