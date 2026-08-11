@@ -20,7 +20,7 @@
     "google-auth-library": "^10.7.0",
     "googleapis": "^173.0.0",
     "moment": "^2.30.1",
-    "zod": "^3.25.76"
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^8.44.1",

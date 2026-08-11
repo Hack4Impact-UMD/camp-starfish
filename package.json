@@ -47,7 +47,7 @@
     "tailwind-preset-mantine": "^4.0.3",
     "tsc-alias": "^1.8.16",
     "uuid": "^11.1.0",
-    "zod": "^3.25.76",
+    "zod": "^4.4.3",
     "zustand": "^5.0.14"
   },
   "devDependencies": {
