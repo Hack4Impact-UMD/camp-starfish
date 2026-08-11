@@ -4,6 +4,7 @@ import { AttendeeGroups } from "@/features/scheduling/generation/schedulingUtils
 import { Text, ActionIcon, ScrollArea } from "@mantine/core";
 import ActivityGridCell from "@/components/ActivityGridCell";
 import { MdAdd, MdChevronLeft, MdChevronRight } from "react-icons/md";
+import openCreateActivityModal from "@/features/scheduling/activityManagement/components/CreateActivityModal/CreateActivityModal";
 
 interface ActivityGridRowProps {
   block: Block;
@@ -25,6 +26,7 @@ export default function ActivityGridRow(props: ActivityGridRowProps) {
         }}
         variant="subtle"
         size="xs"
+        onClick={() => openCreateActivityModal({ sessionId: section.sessionId, sectionId: section.id, blockId: id })}
       >
         <MdAdd size={40} />
       </ActionIcon>
