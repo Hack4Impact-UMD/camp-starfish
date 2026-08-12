@@ -8,16 +8,18 @@ import { arrayUnion, runTransaction, Transaction } from "firebase/firestore";
 import { v4 as uuidv4 } from "uuid";
 import z from "zod";
 
-const CreateJamboreeActivityRequestSchema = z.strictObject({
+export const CreateJamboreeActivityRequestSchema = z.strictObject({
   sessionId: z.uuid(),
   sectionId: z.uuid(),
   blockId: z.string().min(1),
   name: z.string().min(1),
   description: z.string().min(1),
+  programAreaId: z.never().optional(),
+  ageGroup: z.never().optional(),
 });
 export type CreateJamboreeActivityRequest = z.infer<typeof CreateJamboreeActivityRequestSchema>;
 
-const CreateBundleActivityRequestSchema = z.strictObject({
+export const CreateBundleActivityRequestSchema = z.strictObject({
   sessionId: z.uuid(),
   sectionId: z.uuid(),
   blockId: z.string().min(1),
@@ -28,7 +30,7 @@ const CreateBundleActivityRequestSchema = z.strictObject({
 });
 export type CreateBundleActivityRequest = z.infer<typeof CreateBundleActivityRequestSchema>;
 
-const CreateActivityRequestSchema = z.union([CreateJamboreeActivityRequestSchema, CreateBundleActivityRequestSchema]);
+export const CreateActivityRequestSchema = z.union([CreateJamboreeActivityRequestSchema, CreateBundleActivityRequestSchema]);
 export type CreateActivityRequest = z.infer<typeof CreateActivityRequestSchema>;
 
 async function createActivity(req: CreateActivityRequest) {
