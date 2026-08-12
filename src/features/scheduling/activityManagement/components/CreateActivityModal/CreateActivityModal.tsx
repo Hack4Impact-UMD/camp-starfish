@@ -1,11 +1,12 @@
 import useCreateActivity, { CreateBundleActivityRequestSchema, CreateJamboreeActivityRequestSchema } from "@/features/sessions/sections/useCreateActivity";
 import { sectionScheduleQueryOptions } from "@/hooks/schedules/useSectionSchedule";
 import { AGE_GROUPS, SchedulingSectionType } from "@/types/sessions/sessionTypes";
-import { Radio, Textarea, TextInput } from "@mantine/core";
+import { Radio, Select, Textarea, TextInput } from "@mantine/core";
 import { openModal } from "@mantine/modals";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useSuspenseInfiniteQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { useForm } from "@tanstack/react-form";
 import z from "zod";
+import { getUseProgramAreaListOptions } from "@/hooks/programAreas/useProgramAreaList";
 
 interface CreateActivityModalProps {
   sessionId: string;
@@ -38,6 +39,7 @@ function CreateActivityModal(props: CreateActivityModalProps) {
   const sectionScheduleQuery = useSuspenseQuery(
     sectionScheduleQueryOptions(sessionId, sectionId),
   );
+  const programAreasQuery = useSuspenseInfiniteQuery(getUseProgramAreaListOptions());
 
   const createActivityMutation = useCreateActivity();
 
@@ -50,11 +52,14 @@ function CreateActivityModal(props: CreateActivityModalProps) {
       <TextInput label="Activity Name" />
       <Textarea label="Activity Description" />
       {sectionScheduleQuery.data.type === "BUNDLE" && (
-        <Radio.Group label="Age Group">
-          {AGE_GROUPS.map((ageGroup) => (
-            <Radio value={ageGroup} label={ageGroup} />
-          ))}
-        </Radio.Group>
+        <>
+          <Radio.Group label="Age Group">
+            {AGE_GROUPS.map((ageGroup) => (
+              <Radio value={ageGroup} label={ageGroup} />
+            ))}
+          </Radio.Group>
+          <Select label="Program Area" data={programAreasQuery.data.pages.flatMap(page => page.docs).map(programArea => ({ value: programArea.id, label: programArea.name }))}></Select>
+        </>
       )}
     </div>
   );
