@@ -44,7 +44,10 @@ function CreateActivityModal(props: CreateActivityModalProps) {
   const createActivityMutation = useCreateActivity();
 
   const form = useForm({
-    defaultValues: getCreateActivityFormDefaultValues(sectionScheduleQuery.data.type)
+    defaultValues: getCreateActivityFormDefaultValues(sectionScheduleQuery.data.type),
+    onSubmit: async ({ value }) => {
+      createActivityMutation.mutate({ sessionId, sectionId, blockId, ...value });
+    }
   })
 
   return (
