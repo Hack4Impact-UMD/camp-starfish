@@ -1,12 +1,25 @@
-import useCreateActivity, { CreateBundleActivityRequestSchema, CreateJamboreeActivityRequestSchema } from "@/features/sessions/sections/useCreateActivity";
+import useCreateActivity, {
+  CreateBundleActivityRequestSchema,
+  CreateJamboreeActivityRequestSchema,
+} from "@/features/sessions/sections/useCreateActivity";
 import { sectionScheduleQueryOptions } from "@/hooks/schedules/useSectionSchedule";
-import { AGE_GROUPS, SchedulingSectionType } from "@/types/sessions/sessionTypes";
+import {
+  AGE_GROUPS,
+  SchedulingSectionType,
+} from "@/types/sessions/sessionTypes";
 import { Radio, Select, Textarea, TextInput } from "@mantine/core";
 import { openModal } from "@mantine/modals";
-import { useSuspenseInfiniteQuery, useSuspenseQuery } from "@tanstack/react-query";
+import {
+  useSuspenseInfiniteQuery,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
 import { useForm } from "@tanstack/react-form";
 import z from "zod";
 import { getUseProgramAreaListOptions } from "@/hooks/programAreas/useProgramAreaList";
+import { ErrorBoundary } from "react-error-boundary";
+import { Suspense } from "react";
+import LoadingPage from "@/app/loading";
+import ErrorPage from "@/app/error";
 
 interface CreateActivityModalProps {
   sessionId: string;
@@ -73,6 +86,18 @@ export default function openCreateActivityModal(
 ) {
   openModal({
     title: "Create Activity",
-    children: <CreateActivityModal {...props} />,
+    children: (
+      <ErrorBoundary
+        fallbackRender={({ error }) => (
+          <ErrorPage
+            error={error instanceof Error ? error : Error("Unknown Error")}
+          />
+        )}
+      >
+        <Suspense fallback={<LoadingPage />}>
+          <CreateActivityModal {...props} />
+        </Suspense>
+      </ErrorBoundary>
+    ),
   });
 }
