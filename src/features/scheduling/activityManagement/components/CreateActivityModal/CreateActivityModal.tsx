@@ -58,7 +58,7 @@ function CreateActivityModal(props: CreateActivityModalProps) {
               <Radio value={ageGroup} label={ageGroup} />
             ))}
           </Radio.Group>
-          <Select label="Program Area" data={programAreasQuery.data.pages.flatMap(page => page.docs).map(programArea => ({ value: programArea.id, label: programArea.name }))}></Select>
+          <Select label="Program Area" data={programAreasQuery.data.map(programArea => ({ value: programArea.id, label: programArea.name }))}></Select>
         </>
       )}
     </div>
