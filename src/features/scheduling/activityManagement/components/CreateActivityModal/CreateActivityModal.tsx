@@ -27,23 +27,42 @@ interface CreateActivityModalProps {
   blockId: string;
 }
 
-const CreateBundleActivityFormDataSchema = CreateBundleActivityRequestSchema.omit({ sessionId: true, sectionId: true, blockId: true });
-type CreateBundleActivityFormData = z.infer<typeof CreateBundleActivityFormDataSchema>;
-const CreateJamboreeActivityFormDataSchema = CreateJamboreeActivityRequestSchema.omit({ sessionId: true, sectionId: true, blockId: true });
-type CreateJamboreeActivityFormData = z.infer<typeof CreateJamboreeActivityFormDataSchema>;
-const CreateActivityFormDataSchema = z.union([CreateJamboreeActivityFormDataSchema, CreateBundleActivityFormDataSchema]);
+const CreateBundleActivityFormDataSchema =
+  CreateBundleActivityRequestSchema.omit({
+    sessionId: true,
+    sectionId: true,
+    blockId: true,
+  });
+type CreateBundleActivityFormData = z.infer<
+  typeof CreateBundleActivityFormDataSchema
+>;
+const CreateJamboreeActivityFormDataSchema =
+  CreateJamboreeActivityRequestSchema.omit({
+    sessionId: true,
+    sectionId: true,
+    blockId: true,
+  });
+type CreateJamboreeActivityFormData = z.infer<
+  typeof CreateJamboreeActivityFormDataSchema
+>;
+const CreateActivityFormDataSchema = z.union([
+  CreateJamboreeActivityFormDataSchema,
+  CreateBundleActivityFormDataSchema,
+]);
 type CreateActivityFormData = z.infer<typeof CreateActivityFormDataSchema>;
 
-function getCreateActivityFormDefaultValues(type: SchedulingSectionType) {
-  return type === "BUNDLE" ? {
-    name: "",
-    description: "",
-    ageGroup: "NAV",
-    programAreaId: ""
-  } satisfies CreateBundleActivityFormData : {
-    name: "",
-    description: ""
-  } satisfies CreateJamboreeActivityFormData
+function getCreateActivityFormDefaultValues(type: SchedulingSectionType): CreateActivityFormData {
+  return type === "BUNDLE"
+    ? ({
+        name: "",
+        description: "",
+        ageGroup: "NAV",
+        programAreaId: "",
+      } satisfies CreateBundleActivityFormData)
+    : ({
+        name: "",
+        description: "",
+      } satisfies CreateJamboreeActivityFormData);
 }
 
 function CreateActivityModal(props: CreateActivityModalProps) {
@@ -52,16 +71,28 @@ function CreateActivityModal(props: CreateActivityModalProps) {
   const sectionScheduleQuery = useSuspenseQuery(
     sectionScheduleQueryOptions(sessionId, sectionId),
   );
-  const programAreasQuery = useSuspenseInfiniteQuery(getUseProgramAreaListOptions());
+  const programAreasQuery = useSuspenseInfiniteQuery(
+    getUseProgramAreaListOptions(),
+  );
 
   const createActivityMutation = useCreateActivity();
 
   const form = useForm({
-    defaultValues: getCreateActivityFormDefaultValues(sectionScheduleQuery.data.type),
+    defaultValues: getCreateActivityFormDefaultValues(
+      sectionScheduleQuery.data.type,
+    ),
+    validators: {
+      onSubmit: CreateActivityFormDataSchema,
+    },
     onSubmit: async ({ value }) => {
-      createActivityMutation.mutate({ sessionId, sectionId, blockId, ...value });
-    }
-  })
+      createActivityMutation.mutate({
+        sessionId,
+        sectionId,
+        blockId,
+        ...value,
+      });
+    },
+  });
 
   return (
     <div>
@@ -74,7 +105,13 @@ function CreateActivityModal(props: CreateActivityModalProps) {
               <Radio value={ageGroup} label={ageGroup} />
             ))}
           </Radio.Group>
-          <Select label="Program Area" data={programAreasQuery.data.map(programArea => ({ value: programArea.id, label: programArea.name }))}></Select>
+          <Select
+            label="Program Area"
+            data={programAreasQuery.data.map((programArea) => ({
+              value: programArea.id,
+              label: programArea.name,
+            }))}
+          ></Select>
         </>
       )}
     </div>
