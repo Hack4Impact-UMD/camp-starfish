@@ -12,8 +12,8 @@ export const CreateJamboreeActivityRequestSchema = z.strictObject({
   sessionId: z.uuid(),
   sectionId: z.uuid(),
   blockId: z.string().min(1),
-  name: z.string().min(1),
-  description: z.string().min(1),
+  name: z.string().min(1, "Name is required").max(20, "Name must be 20 characters or less"),
+  description: z.string().min(1).max(200, "Description must be 200 characters or less").optional(),
   programAreaId: z.never().optional(),
   ageGroup: z.never().optional(),
 });
@@ -23,8 +23,8 @@ export const CreateBundleActivityRequestSchema = z.strictObject({
   sessionId: z.uuid(),
   sectionId: z.uuid(),
   blockId: z.string().min(1),
-  name: z.string().min(1),
-  description: z.string().min(1),
+  name: z.string().min(1, "Name is required").max(20, "Name must be 20 characters or less"),
+  description: z.string().min(1).max(200, "Description must be 200 characters or less").optional(),
   programAreaId: z.string().min(1),
   ageGroup: z.enum(AGE_GROUPS)
 });

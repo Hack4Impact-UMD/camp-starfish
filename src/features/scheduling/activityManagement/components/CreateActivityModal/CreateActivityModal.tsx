@@ -5,6 +5,7 @@ import useCreateActivity, {
 import { sectionScheduleQueryOptions } from "@/hooks/schedules/useSectionSchedule";
 import {
   AGE_GROUPS,
+  AgeGroup,
   SchedulingSectionType,
 } from "@/types/sessions/sessionTypes";
 import { Radio, Select, Textarea, TextInput } from "@mantine/core";
@@ -51,7 +52,9 @@ const CreateActivityFormDataSchema = z.union([
 ]);
 type CreateActivityFormData = z.infer<typeof CreateActivityFormDataSchema>;
 
-function getCreateActivityFormDefaultValues(type: SchedulingSectionType): CreateActivityFormData {
+function getCreateActivityFormDefaultValues(
+  type: SchedulingSectionType,
+): CreateActivityFormData {
   return type === "BUNDLE"
     ? ({
         name: "",
@@ -96,22 +99,99 @@ function CreateActivityModal(props: CreateActivityModalProps) {
 
   return (
     <div>
-      <TextInput label="Activity Name" />
-      <Textarea label="Activity Description" />
+      <form.Field
+        name="name"
+        validators={{
+          onBlur: ({ value }) => {
+            const validationResult = (
+              sectionScheduleQuery.data.type === "BUNDLE"
+                ? CreateBundleActivityFormDataSchema
+                : CreateJamboreeActivityFormDataSchema
+            ).shape.name.safeParse(value);
+            console.log(validationResult);
+            if (validationResult.success) return;
+            return validationResult.error.issues
+              .map((issue) => issue.message)
+              .join(", ");
+          },
+        }}
+      >
+        {(field) => (
+          <TextInput
+            name={field.name}
+            label="Name"
+            onChange={(e) => field.handleChange(e.target.value)}
+            onBlur={field.handleBlur}
+            error={field.state.meta.errors.join(", ")}
+          />
+        )}
+      </form.Field>
+      <form.Field
+        name="description"
+        validators={{
+          onBlur: ({ value }) => {
+            const validationResult = (
+              sectionScheduleQuery.data.type === "BUNDLE"
+                ? CreateBundleActivityFormDataSchema
+                : CreateJamboreeActivityFormDataSchema
+            ).shape.description.safeParse(value);
+            if (validationResult.success) return;
+            return validationResult.error.issues
+              .map((issue) => issue.message)
+              .join(", ");
+          },
+        }}
+      >
+        {(field) => (
+          <Textarea
+            name={field.name}
+            label="Description"
+            onChange={(e) => field.handleChange(e.target.value)}
+            onBlur={field.handleBlur}
+            error={field.state.meta.errors.join(", ")}
+          />
+        )}
+      </form.Field>
       {sectionScheduleQuery.data.type === "BUNDLE" && (
         <>
-          <Radio.Group label="Age Group">
-            {AGE_GROUPS.map((ageGroup) => (
-              <Radio value={ageGroup} label={ageGroup} />
-            ))}
-          </Radio.Group>
-          <Select
-            label="Program Area"
-            data={programAreasQuery.data.map((programArea) => ({
-              value: programArea.id,
-              label: programArea.name,
-            }))}
-          ></Select>
+          <form.Field name="ageGroup" validators={{
+            onChange: ({ value }) => {
+              const validationResult = CreateBundleActivityFormDataSchema.shape.ageGroup.safeParse(value);
+              if (validationResult.success) return;
+              return validationResult.error.issues
+                .map((issue) => issue.message)
+                .join(", ");
+            }
+          }}>
+            {(field) => (
+              <Radio.Group label="Age Group" onChange={(value: AgeGroup) => field.handleChange(value)} onBlur={field.handleBlur}>
+                {AGE_GROUPS.map((ageGroup) => (
+                  <Radio value={ageGroup} label={ageGroup} />
+                ))}
+              </Radio.Group>
+            )}
+          </form.Field>
+          <form.Field name="programAreaId" validators={{
+            onChange: ({ value }) => {
+              const validationResult = CreateBundleActivityFormDataSchema.shape.programAreaId.safeParse(value);
+              if (validationResult.success) return;
+              return validationResult.error.issues
+                .map((issue) => issue.message)
+                .join(", ");
+            }
+          }}>
+            {(field) => (
+              <Select
+                label="Program Area"
+                data={programAreasQuery.data.map((programArea) => ({
+                  value: programArea.id,
+                  label: programArea.name,
+                }))}
+                onChange={(value) => field.handleChange(value ?? "")}
+                onBlur={field.handleBlur}
+              />
+            )}
+          </form.Field>
         </>
       )}
     </div>
