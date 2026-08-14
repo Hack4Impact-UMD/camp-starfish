@@ -194,6 +194,9 @@ function CreateActivityModal(props: CreateActivityModalProps) {
           </form.Field>
         </>
       )}
+      <Button color="green" onClick={form.handleSubmit}>
+        Submit
+      </Button>
     </div>
   );
 }
