@@ -160,21 +160,7 @@ function CreateActivityModal(props: CreateActivityModalProps) {
       </form.Field>
       {sectionScheduleQuery.data.type === "BUNDLE" && (
         <>
-          <form.Field
-            name="ageGroup"
-            validators={{
-              onChange: ({ value }) => {
-                const validationResult =
-                  CreateBundleActivityFormDataSchema.shape.ageGroup.safeParse(
-                    value,
-                  );
-                if (validationResult.success) return;
-                return validationResult.error.issues
-                  .map((issue) => issue.message)
-                  .join(", ");
-              },
-            }}
-          >
+          <form.Field name="ageGroup">
             {(field) => (
               <Radio.Group
                 label="Age Group"
@@ -191,21 +177,7 @@ function CreateActivityModal(props: CreateActivityModalProps) {
               </Radio.Group>
             )}
           </form.Field>
-          <form.Field
-            name="programAreaId"
-            validators={{
-              onChange: ({ value }) => {
-                const validationResult =
-                  CreateBundleActivityFormDataSchema.shape.programAreaId.safeParse(
-                    value,
-                  );
-                if (validationResult.success) return;
-                return validationResult.error.issues
-                  .map((issue) => issue.message)
-                  .join(", ");
-              },
-            }}
-          >
+          <form.Field name="programAreaId">
             {(field) => (
               <Select
                 label="Program Area"
