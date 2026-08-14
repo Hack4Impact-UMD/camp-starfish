@@ -98,7 +98,7 @@ function CreateActivityModal(props: CreateActivityModalProps) {
   });
 
   return (
-    <div>
+    <div className="flex flex-col gap-sm">
       <form.Field
         name="name"
         validators={{
@@ -181,9 +181,11 @@ function CreateActivityModal(props: CreateActivityModalProps) {
                 onBlur={field.handleBlur}
                 required
               >
-                {AGE_GROUPS.map((ageGroup) => (
-                  <Radio value={ageGroup} label={ageGroup} />
-                ))}
+                <div className="flex flex-col gap-xs">
+                  {AGE_GROUPS.map((ageGroup) => (
+                    <Radio value={ageGroup} label={ageGroup} />
+                  ))}
+                </div>
               </Radio.Group>
             )}
           </form.Field>
