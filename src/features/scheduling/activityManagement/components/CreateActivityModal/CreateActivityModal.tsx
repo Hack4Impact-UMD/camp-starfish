@@ -8,7 +8,7 @@ import {
   AgeGroup,
   SchedulingSectionType,
 } from "@/types/sessions/sessionTypes";
-import { Radio, Select, Textarea, TextInput } from "@mantine/core";
+import { Button, Radio, Select, Textarea, TextInput } from "@mantine/core";
 import { openModal } from "@mantine/modals";
 import {
   useSuspenseInfiniteQuery,
@@ -52,22 +52,6 @@ const CreateActivityFormDataSchema = z.union([
 ]);
 type CreateActivityFormData = z.infer<typeof CreateActivityFormDataSchema>;
 
-function getCreateActivityFormDefaultValues(
-  type: SchedulingSectionType,
-): CreateActivityFormData {
-  return type === "BUNDLE"
-    ? ({
-        name: "",
-        description: "",
-        ageGroup: "NAV",
-        programAreaId: "",
-      } satisfies CreateBundleActivityFormData)
-    : ({
-        name: "",
-        description: "",
-      } satisfies CreateJamboreeActivityFormData);
-}
-
 function CreateActivityModal(props: CreateActivityModalProps) {
   const { sessionId, sectionId, blockId } = props;
 
@@ -76,25 +60,37 @@ function CreateActivityModal(props: CreateActivityModalProps) {
   );
   const programAreasQuery = useSuspenseInfiniteQuery(
     getUseProgramAreaListOptions({
-      where: [{ fieldPath: "isDeleted", operation: "==", value: false }]
+      where: [{ fieldPath: "isDeleted", operation: "==", value: false }],
     }),
   );
 
   const createActivityMutation = useCreateActivity();
 
   const form = useForm({
-    defaultValues: getCreateActivityFormDefaultValues(
-      sectionScheduleQuery.data.type,
-    ),
+    defaultValues: sectionScheduleQuery.data.type === "BUNDLE"
+    ? {
+        name: "",
+        description: "",
+        ageGroup: "NAV" as AgeGroup,
+        programAreaId: undefined as string | undefined,
+      }
+    : {
+        name: "",
+        description: "",
+      },
     validators: {
       onSubmit: CreateActivityFormDataSchema,
     },
     onSubmit: async ({ value }) => {
+      const validationResult = CreateActivityFormDataSchema.safeParse(value);
+      if (!validationResult.success) {
+        return;
+      }
       createActivityMutation.mutate({
         sessionId,
         sectionId,
         blockId,
-        ...value,
+        ...validationResult.data,
       });
     },
   });
@@ -186,7 +182,7 @@ function CreateActivityModal(props: CreateActivityModalProps) {
                   label: `${programArea.id}: ${programArea.name}`,
                 }))}
                 value={field.state.value}
-                onChange={(value) => field.handleChange(value ?? "")}
+                onChange={(value) => field.handleChange(value ?? undefined)}
                 onBlur={field.handleBlur}
                 required
               />
