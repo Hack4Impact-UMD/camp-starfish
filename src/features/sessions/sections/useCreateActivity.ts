@@ -1,10 +1,11 @@
 import { db } from "@/config/firebase";
+import { getProgramAreaDoc, listProgramAreaDocs } from "@/data/firestore/programAreas";
 import { getSectionScheduleDoc, updateSectionScheduleDoc } from "@/data/firestore/sectionSchedules";
 import { isBundleSectionSchedule, isBunkJamboreeSectionSchedule } from "@/types/scheduling/schedulingTypeGuards";
 import { BundleActivityWithAssignments, BunkJamboreeActivityWithAssignments, NonBunkJamboreeActivityWithAssignments } from "@/types/scheduling/schedulingTypes";
 import { AGE_GROUPS } from "@/types/sessions/sessionTypes";
 import { useMutation } from "@tanstack/react-query";
-import { arrayUnion, runTransaction, Transaction } from "firebase/firestore";
+import { arrayUnion, documentId, runTransaction, Transaction } from "firebase/firestore";
 import { v4 as uuidv4 } from "uuid";
 import z from "zod";
 
@@ -44,6 +45,10 @@ async function createActivity(req: CreateActivityRequest) {
       const { sessionId, sectionId, blockId, ...rest } = inputValidationResult.data;
       if (sectionSchedule.blocks[blockId].activities.some((act) => act.programAreaId === rest.programAreaId)) {
         throw new Error("Cannot have multiple activities in the same block and program area");
+      }
+      const programArea = await getProgramAreaDoc(rest.programAreaId, transaction);
+      if (programArea.isDeleted) {
+        throw new Error("Program area does not exist");
       }
       await updateSectionScheduleDoc(sessionId, sectionId, {
         [`blocks.${blockId}.activities`]: arrayUnion({

@@ -75,7 +75,9 @@ function CreateActivityModal(props: CreateActivityModalProps) {
     sectionScheduleQueryOptions(sessionId, sectionId),
   );
   const programAreasQuery = useSuspenseInfiniteQuery(
-    getUseProgramAreaListOptions(),
+    getUseProgramAreaListOptions({
+      where: [{ fieldPath: "isDeleted", operation: "==", value: false }]
+    }),
   );
 
   const createActivityMutation = useCreateActivity();
