@@ -183,7 +183,7 @@ function CreateActivityModal(props: CreateActivityModalProps) {
                 label="Program Area"
                 data={programAreasQuery.data.map((programArea) => ({
                   value: programArea.id,
-                  label: programArea.name,
+                  label: `${programArea.id}: ${programArea.name}`,
                 }))}
                 value={field.state.value}
                 onChange={(value) => field.handleChange(value ?? "")}
