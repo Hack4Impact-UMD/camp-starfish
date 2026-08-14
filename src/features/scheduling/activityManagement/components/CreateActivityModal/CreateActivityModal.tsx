@@ -120,6 +120,7 @@ function CreateActivityModal(props: CreateActivityModalProps) {
           <TextInput
             name={field.name}
             label="Name"
+            value={field.state.value}
             onChange={(e) => field.handleChange(e.target.value)}
             onBlur={field.handleBlur}
             error={field.state.meta.errors.join(", ")}
@@ -147,6 +148,7 @@ function CreateActivityModal(props: CreateActivityModalProps) {
           <Textarea
             name={field.name}
             label="Description"
+            value={field.state.value}
             onChange={(e) => field.handleChange(e.target.value)}
             onBlur={field.handleBlur}
             error={field.state.meta.errors.join(", ")}
@@ -156,32 +158,50 @@ function CreateActivityModal(props: CreateActivityModalProps) {
       </form.Field>
       {sectionScheduleQuery.data.type === "BUNDLE" && (
         <>
-          <form.Field name="ageGroup" validators={{
-            onChange: ({ value }) => {
-              const validationResult = CreateBundleActivityFormDataSchema.shape.ageGroup.safeParse(value);
-              if (validationResult.success) return;
-              return validationResult.error.issues
-                .map((issue) => issue.message)
-                .join(", ");
-            }
-          }}>
+          <form.Field
+            name="ageGroup"
+            validators={{
+              onChange: ({ value }) => {
+                const validationResult =
+                  CreateBundleActivityFormDataSchema.shape.ageGroup.safeParse(
+                    value,
+                  );
+                if (validationResult.success) return;
+                return validationResult.error.issues
+                  .map((issue) => issue.message)
+                  .join(", ");
+              },
+            }}
+          >
             {(field) => (
-              <Radio.Group label="Age Group" onChange={(value: AgeGroup) => field.handleChange(value)} onBlur={field.handleBlur} required>
+              <Radio.Group
+                label="Age Group"
+                value={field.state.value}
+                onChange={(value: AgeGroup) => field.handleChange(value)}
+                onBlur={field.handleBlur}
+                required
+              >
                 {AGE_GROUPS.map((ageGroup) => (
                   <Radio value={ageGroup} label={ageGroup} />
                 ))}
               </Radio.Group>
             )}
           </form.Field>
-          <form.Field name="programAreaId" validators={{
-            onChange: ({ value }) => {
-              const validationResult = CreateBundleActivityFormDataSchema.shape.programAreaId.safeParse(value);
-              if (validationResult.success) return;
-              return validationResult.error.issues
-                .map((issue) => issue.message)
-                .join(", ");
-            }
-          }}>
+          <form.Field
+            name="programAreaId"
+            validators={{
+              onChange: ({ value }) => {
+                const validationResult =
+                  CreateBundleActivityFormDataSchema.shape.programAreaId.safeParse(
+                    value,
+                  );
+                if (validationResult.success) return;
+                return validationResult.error.issues
+                  .map((issue) => issue.message)
+                  .join(", ");
+              },
+            }}
+          >
             {(field) => (
               <Select
                 label="Program Area"
@@ -189,6 +209,7 @@ function CreateActivityModal(props: CreateActivityModalProps) {
                   value: programArea.id,
                   label: programArea.name,
                 }))}
+                value={field.state.value}
                 onChange={(value) => field.handleChange(value ?? "")}
                 onBlur={field.handleBlur}
                 required
