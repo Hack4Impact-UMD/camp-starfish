@@ -123,6 +123,7 @@ function CreateActivityModal(props: CreateActivityModalProps) {
             onChange={(e) => field.handleChange(e.target.value)}
             onBlur={field.handleBlur}
             error={field.state.meta.errors.join(", ")}
+            required
           />
         )}
       </form.Field>
@@ -149,6 +150,7 @@ function CreateActivityModal(props: CreateActivityModalProps) {
             onChange={(e) => field.handleChange(e.target.value)}
             onBlur={field.handleBlur}
             error={field.state.meta.errors.join(", ")}
+            required
           />
         )}
       </form.Field>
@@ -164,7 +166,7 @@ function CreateActivityModal(props: CreateActivityModalProps) {
             }
           }}>
             {(field) => (
-              <Radio.Group label="Age Group" onChange={(value: AgeGroup) => field.handleChange(value)} onBlur={field.handleBlur}>
+              <Radio.Group label="Age Group" onChange={(value: AgeGroup) => field.handleChange(value)} onBlur={field.handleBlur} required>
                 {AGE_GROUPS.map((ageGroup) => (
                   <Radio value={ageGroup} label={ageGroup} />
                 ))}
@@ -189,6 +191,7 @@ function CreateActivityModal(props: CreateActivityModalProps) {
                 }))}
                 onChange={(value) => field.handleChange(value ?? "")}
                 onBlur={field.handleBlur}
+                required
               />
             )}
           </form.Field>
