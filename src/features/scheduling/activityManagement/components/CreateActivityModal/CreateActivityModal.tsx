@@ -72,7 +72,7 @@ function CreateActivityModal(props: CreateActivityModalProps) {
         name: "",
         description: "",
         ageGroup: "NAV" as AgeGroup,
-        programAreaId: undefined as string | undefined,
+        programAreaId: null as string | null,
       }
     : {
         name: "",
@@ -184,7 +184,7 @@ function CreateActivityModal(props: CreateActivityModalProps) {
                   label: `${programArea.id}: ${programArea.name}`,
                 }))}
                 value={field.state.value}
-                onChange={(value) => field.handleChange(value ?? undefined)}
+                onChange={(value) => field.handleChange(value)}
                 onBlur={field.handleBlur}
                 required
               />
