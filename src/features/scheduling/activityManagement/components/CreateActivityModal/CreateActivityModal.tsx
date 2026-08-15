@@ -99,6 +99,7 @@ function CreateActivityModal(props: CreateActivityModalProps) {
     <div className="flex flex-col gap-sm">
       <form.Field
         name="name"
+        key="name"
         validators={{
           onBlur: ({ value }) => {
             const validationResult = (
@@ -128,6 +129,7 @@ function CreateActivityModal(props: CreateActivityModalProps) {
       </form.Field>
       <form.Field
         name="description"
+        key="description"
         validators={{
           onBlur: ({ value }) => {
             const validationResult = (
@@ -156,7 +158,7 @@ function CreateActivityModal(props: CreateActivityModalProps) {
       </form.Field>
       {sectionScheduleQuery.data.type === "BUNDLE" && (
         <>
-          <form.Field name="ageGroup">
+          <form.Field name="ageGroup" key="ageGroup">
             {(field) => (
               <Radio.Group
                 label="Age Group"
@@ -173,7 +175,7 @@ function CreateActivityModal(props: CreateActivityModalProps) {
               </Radio.Group>
             )}
           </form.Field>
-          <form.Field name="programAreaId">
+          <form.Field name="programAreaId" key="programAreaId">
             {(field) => (
               <Select
                 label="Program Area"
