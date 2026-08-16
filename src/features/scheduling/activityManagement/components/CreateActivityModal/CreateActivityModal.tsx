@@ -9,7 +9,7 @@ import {
   SchedulingSectionType,
 } from "@/types/sessions/sessionTypes";
 import { Button, Radio, Select, Textarea, TextInput } from "@mantine/core";
-import { openModal } from "@mantine/modals";
+import { modals, openModal } from "@mantine/modals";
 import {
   useSuspenseInfiniteQuery,
   useSuspenseQuery,
@@ -87,12 +87,17 @@ function CreateActivityModal(props: CreateActivityModalProps) {
       if (!validationResult.success) {
         return;
       }
-      createActivityMutation.mutate({
-        sessionId,
-        sectionId,
-        blockId,
-        ...validationResult.data,
-      });
+      await createActivityMutation.mutateAsync(
+        {
+          sessionId,
+          sectionId,
+          blockId,
+          ...validationResult.data,
+        },
+        {
+          onSuccess: () => modals.close(createActivityModalId(props)),
+        },
+      );
     },
   });
 
@@ -180,12 +185,15 @@ function CreateActivityModal(props: CreateActivityModalProps) {
             key="programAreaId"
             validators={{
               onSubmit: ({ value }) => {
-                const validationResult = CreateBundleActivityFormDataSchema.shape.programAreaId.safeParse(value);
+                const validationResult =
+                  CreateBundleActivityFormDataSchema.shape.programAreaId.safeParse(
+                    value,
+                  );
                 if (validationResult.success) return;
                 return validationResult.error.issues
                   .map((issue) => issue.message)
                   .join(", ");
-              }
+              },
             }}
           >
             {(field) => (
@@ -205,11 +213,19 @@ function CreateActivityModal(props: CreateActivityModalProps) {
           </form.Field>
         </>
       )}
-      <Button color="green" onClick={form.handleSubmit}>
+      <Button
+        color="green"
+        onClick={form.handleSubmit}
+        loading={form.state.isSubmitting}
+      >
         Submit
       </Button>
     </div>
   );
+}
+
+function createActivityModalId(props: CreateActivityModalProps) {
+  return `create-activity-modal-${props.sessionId}-${props.sectionId}-${props.blockId}`;
 }
 
 export default function openCreateActivityModal(
@@ -217,6 +233,7 @@ export default function openCreateActivityModal(
 ) {
   openModal({
     title: "Create Activity",
+    modalId: createActivityModalId(props),
     children: (
       <ErrorBoundary
         fallbackRender={({ error }) => (
