@@ -26,7 +26,7 @@ export const CreateBundleActivityRequestSchema = z.strictObject({
   blockId: z.string().min(1),
   name: z.string().min(1, "Name is required").max(20, "Name must be 20 characters or less"),
   description: z.string().min(1, "Description is required").max(200, "Description must be 200 characters or less"),
-  programAreaId: z.string().min(1),
+  programAreaId: z.string("Program area is required").min(1),
   ageGroup: z.enum(AGE_GROUPS)
 });
 export type CreateBundleActivityRequest = z.infer<typeof CreateBundleActivityRequestSchema>;

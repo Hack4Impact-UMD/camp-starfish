@@ -67,17 +67,18 @@ function CreateActivityModal(props: CreateActivityModalProps) {
   const createActivityMutation = useCreateActivity();
 
   const form = useForm({
-    defaultValues: sectionScheduleQuery.data.type === "BUNDLE"
-    ? {
-        name: "",
-        description: "",
-        ageGroup: "NAV" as AgeGroup,
-        programAreaId: null as string | null,
-      }
-    : {
-        name: "",
-        description: "",
-      },
+    defaultValues:
+      sectionScheduleQuery.data.type === "BUNDLE"
+        ? {
+            name: "",
+            description: "",
+            ageGroup: "NAV" as AgeGroup,
+            programAreaId: null as string | null,
+          }
+        : {
+            name: "",
+            description: "",
+          },
     validators: {
       onSubmit: CreateActivityFormDataSchema,
     },
@@ -175,7 +176,19 @@ function CreateActivityModal(props: CreateActivityModalProps) {
               </Radio.Group>
             )}
           </form.Field>
-          <form.Field name="programAreaId" key="programAreaId">
+          <form.Field
+            name="programAreaId"
+            key="programAreaId"
+            validators={{
+              onSubmit: ({ value }) => {
+                const validationResult = CreateBundleActivityFormDataSchema.shape.programAreaId.safeParse(value);
+                if (validationResult.success) return;
+                return validationResult.error.issues
+                  .map((issue) => issue.message)
+                  .join(", ");
+              }
+            }}
+          >
             {(field) => (
               <Select
                 label="Program Area"
@@ -186,6 +199,7 @@ function CreateActivityModal(props: CreateActivityModalProps) {
                 value={field.state.value}
                 onChange={(value) => field.handleChange(value)}
                 onBlur={field.handleBlur}
+                error={field.state.meta.errors.join(", ")}
                 required
               />
             )}
