@@ -108,7 +108,6 @@ function CreateActivityModal(props: CreateActivityModalProps) {
                 ? CreateBundleActivityFormDataSchema
                 : CreateJamboreeActivityFormDataSchema
             ).shape.name.safeParse(value);
-            console.log(validationResult);
             if (validationResult.success) return;
             return validationResult.error.issues
               .map((issue) => issue.message)
