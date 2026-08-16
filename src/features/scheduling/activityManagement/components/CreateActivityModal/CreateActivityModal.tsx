@@ -164,7 +164,7 @@ function CreateActivityModal(props: CreateActivityModalProps) {
               >
                 <div className="flex flex-col gap-xs">
                   {AGE_GROUPS.map((ageGroup) => (
-                    <Radio value={ageGroup} label={ageGroup} />
+                    <Radio key={ageGroup} value={ageGroup} label={ageGroup} />
                   ))}
                 </div>
               </Radio.Group>

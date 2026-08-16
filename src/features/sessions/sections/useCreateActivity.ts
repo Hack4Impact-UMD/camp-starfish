@@ -1,11 +1,11 @@
 import { db } from "@/config/firebase";
-import { getProgramAreaDoc, listProgramAreaDocs } from "@/data/firestore/programAreas";
+import { getProgramAreaDoc } from "@/data/firestore/programAreas";
 import { getSectionScheduleDoc, updateSectionScheduleDoc } from "@/data/firestore/sectionSchedules";
 import { isBundleSectionSchedule, isBunkJamboreeSectionSchedule } from "@/types/scheduling/schedulingTypeGuards";
 import { BundleActivityWithAssignments, BunkJamboreeActivityWithAssignments, NonBunkJamboreeActivityWithAssignments } from "@/types/scheduling/schedulingTypes";
 import { AGE_GROUPS } from "@/types/sessions/sessionTypes";
 import { useMutation } from "@tanstack/react-query";
-import { arrayUnion, documentId, runTransaction, Transaction } from "firebase/firestore";
+import { arrayUnion, runTransaction, Transaction } from "firebase/firestore";
 import { v4 as uuidv4 } from "uuid";
 import z from "zod";
 
