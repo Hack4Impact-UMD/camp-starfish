@@ -13,8 +13,9 @@ import {
   DocumentSnapshot,
   WithFieldValue
 } from "firebase/firestore";
-import { setDoc, getDoc, updateDoc, deleteDoc, batchGetDocs } from "./firestoreClientOperations";
+import { setDoc, getDoc, updateDoc, deleteDoc, batchGetDocs, executeQuery, mapSnapshotsToPaginatedQueryResult } from "./firestoreClientOperations";
 import { RootLevelCollection } from "./types/collections";
+import { FirestoreQueryOptions, PaginatedQueryResponse } from "./types/queries";
 
 function fromFirestore(snapshot: DocumentSnapshot<ProgramAreaDoc, ProgramAreaDoc> | QueryDocumentSnapshot<ProgramAreaDoc, ProgramAreaDoc>): ProgramArea {
   if (!snapshot.exists()) { throw Error("Document not found"); }
@@ -32,6 +33,11 @@ export async function getProgramAreaDoc(id: string, transaction?: Transaction): 
 export async function batchGetProgramAreaDocs(ids: string[]): Promise<ProgramArea[]> {
   const snapshots = await batchGetDocs<ProgramAreaDoc>(collection(db, RootLevelCollection.PROGRAM_AREAS) as CollectionReference<ProgramAreaDoc, ProgramAreaDoc>, ids);
   return snapshots.map(fromFirestore);
+}
+
+export async function listProgramAreaDocs(firestoreQueryOptions: FirestoreQueryOptions<ProgramAreaDoc> = {}): Promise<PaginatedQueryResponse<ProgramArea, ProgramAreaDoc>> {
+  const snapshots = await executeQuery<ProgramAreaDoc>(collection(db, RootLevelCollection.PROGRAM_AREAS) as CollectionReference<ProgramAreaDoc, ProgramAreaDoc>, firestoreQueryOptions);
+  return mapSnapshotsToPaginatedQueryResult(snapshots, fromFirestore);
 }
 
 export async function createProgramAreaDoc(id: string, programArea: WithFieldValue<ProgramAreaDoc>, instance?: Transaction | WriteBatch): Promise<void> {
