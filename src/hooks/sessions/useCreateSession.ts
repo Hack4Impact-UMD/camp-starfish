@@ -1,7 +1,9 @@
 import { useMutation } from '@tanstack/react-query';
 import { createSessionDoc } from '@/data/firestore/sessions';
 import { Moment } from 'moment';
-import { Timestamp } from 'firebase/firestore';
+import { runTransaction, Timestamp, Transaction } from 'firebase/firestore';
+import { db } from '@/config/firebase';
+import { createDaysOffScheduleDoc } from '@/data/firestore/daysOffSchedules';
 
 interface CreateSessionRequest {
   name: string;
@@ -11,11 +13,17 @@ interface CreateSessionRequest {
 
 async function createSession(req: CreateSessionRequest) {
   const { name, startDate, endDate } = req;
-  await createSessionDoc({
-    name,
-    startDate: Timestamp.fromDate(startDate.clone().startOf('day').toDate()),
-    endDate: Timestamp.fromDate(endDate.clone().endOf('day').toDate()),
-    attendeeIds: []
+  await runTransaction(db, async (transaction: Transaction) => {
+    const sessionId = await createSessionDoc({
+      name,
+      startDate: Timestamp.fromDate(startDate.clone().startOf('day').toDate()),
+      endDate: Timestamp.fromDate(endDate.clone().endOf('day').toDate()),
+      attendeeIds: []
+    }, transaction);
+    await createDaysOffScheduleDoc(sessionId, {
+      daysOffInSession: [],
+      daysOffByCounselorId: {},
+    }, transaction);
   });
 }
 
