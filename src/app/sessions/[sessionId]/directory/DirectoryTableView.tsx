@@ -220,9 +220,13 @@ export default function DirectoryTableView({
               value={info.getValue() as string | null}
               data={programAreasQuery.data?.map((area) => area.id)}
               placeholder="N/A"
-              onChange={(val) => {
-                if (!val) return;
-              }}
+              onChange={(val) =>
+                setProgramCounselorAreaMutation.mutate({
+                  sessionId,
+                  stafferId: info.row.original.attendeeId,
+                  programAreaId: val,
+                })
+              }
             />
           ),
         },
