@@ -27,6 +27,9 @@ async function setProgramCounselorArea(req: SetProgramCounselorAreaRequest) {
 
 export default function useSetProgramCounselorArea() {
   return useMutation({
-    mutationFn: (req: SetProgramCounselorAreaRequest) => setProgramCounselorArea(req)
+    mutationFn: (req: SetProgramCounselorAreaRequest) => setProgramCounselorArea(req),
+    onSuccess: (_data, { sessionId }, _result, { client }) => {
+      client.invalidateQueries({ queryKey: ['sessions', sessionId, 'attendees'] });
+    }
   })
 }
