@@ -5,7 +5,7 @@ import { ProgramArea } from "@/types/scheduling/schedulingTypes";
 import { infiniteQueryOptions, useInfiniteQuery } from "@tanstack/react-query";
 import { TanstackQueryFirestorePageParam } from "../types/tanstackQueryTypes";
 
-export function getUseProgramAreaListOptions(firestoreQueryOptions: FirestoreQueryOptions<ProgramAreaDoc> = {}) {
+export function programAreaListQueryOptions(firestoreQueryOptions: FirestoreQueryOptions<ProgramAreaDoc> = {}) {
   return infiniteQueryOptions({
     queryKey: ['programAreas', firestoreQueryOptions],
     queryFn: async ({ pageParam, client }) => {
@@ -31,5 +31,5 @@ export function getUseProgramAreaListOptions(firestoreQueryOptions: FirestoreQue
 }
 
 export default function useProgramAreaList(firestoreQueryOptions: FirestoreQueryOptions<ProgramAreaDoc> = {}) {
-  return useInfiniteQuery(getUseProgramAreaListOptions(firestoreQueryOptions));
+  return useInfiniteQuery(programAreaListQueryOptions(firestoreQueryOptions));
 }
