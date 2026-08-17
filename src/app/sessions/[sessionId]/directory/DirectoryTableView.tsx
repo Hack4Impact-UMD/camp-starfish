@@ -235,6 +235,21 @@ export default function DirectoryTableView({
             );
           },
         },
+        {
+          accessorFn: (row) =>
+            (row as StaffAttendee).programCounselorFor ?? "N/A",
+          header: "Program Counselor",
+          cell: (info) => (
+            <Select
+              value={info.getValue() as string | null}
+              data={programAreasQuery.data?.map((area) => area.id)}
+              placeholder="N/A"
+              onChange={(val) => {
+                if (!val) return;
+              }}
+            />
+          ),
+        },
       ];
     }
 
