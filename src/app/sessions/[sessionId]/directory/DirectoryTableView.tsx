@@ -38,6 +38,7 @@ import useSession from "@/hooks/sessions/useSession";
 import openAddAttendeesModal from "@/components/AddAttendeesModal/AddAttendeesModal";
 import { programAreaListQueryOptions } from "@/hooks/programAreas/useProgramAreaList";
 import { useInfiniteQuery } from "@tanstack/react-query";
+import useSetProgramCounselorArea from "@/features/sessions/attendees/hooks/useSetProgramCounselorArea";
 
 type LargeDirectoryBlockProps = {
   sessionId: string;
@@ -53,6 +54,8 @@ export default function DirectoryTableView({
       where: [{ fieldPath: "isDeleted", operation: "==", value: false }],
     }),
   );
+
+  const setProgramCounselorAreaMutation = useSetProgramCounselorArea();
 
   const [selectedRole, setSelectedRole] = useState<AttendeeRole>("CAMPER");
   const [sortNameOption, setSortNameOption] = useState<string | null>(null);
