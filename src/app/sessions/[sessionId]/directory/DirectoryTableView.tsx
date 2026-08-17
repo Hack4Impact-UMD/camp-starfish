@@ -209,9 +209,19 @@ export default function DirectoryTableView({
           cell: (info) => renderIdListAsNames(info.getValue<number[]>()),
         },
         {
-          accessorFn: (row) => (row as StaffAttendee).programCounselorFor,
+          accessorFn: (row) =>
+            (row as StaffAttendee).programCounselorFor ?? "N/A",
           header: "Program Counselor",
-          cell: (info) => render(info.getValue()),
+          cell: (info) => (
+            <Select
+              value={info.getValue() as string | null}
+              data={programAreasQuery.data?.map((area) => area.id)}
+              placeholder="N/A"
+              onChange={(val) => {
+                if (!val) return;
+              }}
+            />
+          ),
         },
         {
           accessorKey: "leadBunkCounselor",
@@ -234,21 +244,6 @@ export default function DirectoryTableView({
               dates.map((d) => moment(d).format("MM-YYYY")).join(", "),
             );
           },
-        },
-        {
-          accessorFn: (row) =>
-            (row as StaffAttendee).programCounselorFor ?? "N/A",
-          header: "Program Counselor",
-          cell: (info) => (
-            <Select
-              value={info.getValue() as string | null}
-              data={programAreasQuery.data?.map((area) => area.id)}
-              placeholder="N/A"
-              onChange={(val) => {
-                if (!val) return;
-              }}
-            />
-          ),
         },
       ];
     }
