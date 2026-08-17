@@ -36,6 +36,9 @@ import LoadingPage from "@/app/loading";
 import useDaysOffSchedule from "@/hooks/daysOffSchedules/useDaysOffSchedule";
 import useSession from "@/hooks/sessions/useSession";
 import openAddAttendeesModal from "@/components/AddAttendeesModal/AddAttendeesModal";
+import { programAreaListQueryOptions } from "@/hooks/programAreas/useProgramAreaList";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import useSetProgramCounselorArea from "@/features/sessions/attendees/hooks/useSetProgramCounselorArea";
 
 type LargeDirectoryBlockProps = {
   sessionId: string;
@@ -46,6 +49,13 @@ export default function DirectoryTableView({
   const { data: attendeeData, isLoading, isError } = useAttendeeList(sessionId);
   const daysOffScheduleQuery = useDaysOffSchedule(sessionId);
   const sessionQuery = useSession(sessionId);
+  const programAreasQuery = useInfiniteQuery(
+    programAreaListQueryOptions({
+      where: [{ fieldPath: "isDeleted", operation: "==", value: false }],
+    }),
+  );
+
+  const setProgramCounselorAreaMutation = useSetProgramCounselorArea();
 
   const [selectedRole, setSelectedRole] = useState<AttendeeRole>("CAMPER");
   const [sortNameOption, setSortNameOption] = useState<string | null>(null);
@@ -202,9 +212,23 @@ export default function DirectoryTableView({
           cell: (info) => renderIdListAsNames(info.getValue<number[]>()),
         },
         {
-          accessorFn: (row) => (row as StaffAttendee).programCounselorFor,
+          accessorFn: (row) =>
+            (row as StaffAttendee).programCounselorFor ?? "N/A",
           header: "Program Counselor",
-          cell: (info) => render(info.getValue()),
+          cell: (info) => (
+            <Select
+              value={info.getValue() as string | null}
+              data={programAreasQuery.data?.map((area) => area.id)}
+              placeholder="N/A"
+              onChange={(val) =>
+                setProgramCounselorAreaMutation.mutate({
+                  sessionId,
+                  stafferId: info.row.original.attendeeId,
+                  programAreaId: val,
+                })
+              }
+            />
+          ),
         },
         {
           accessorKey: "leadBunkCounselor",

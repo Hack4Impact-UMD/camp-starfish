@@ -3,10 +3,7 @@ import useCreateActivity, {
   CreateJamboreeActivityRequestSchema,
 } from "@/features/sessions/sections/useCreateActivity";
 import { sectionScheduleQueryOptions } from "@/hooks/schedules/useSectionSchedule";
-import {
-  AGE_GROUPS,
-  AgeGroup,
-} from "@/types/sessions/sessionTypes";
+import { AGE_GROUPS, AgeGroup } from "@/types/sessions/sessionTypes";
 import { Button, Radio, Select, Textarea, TextInput } from "@mantine/core";
 import { modals, openModal } from "@mantine/modals";
 import {
@@ -15,7 +12,7 @@ import {
 } from "@tanstack/react-query";
 import { useForm } from "@tanstack/react-form";
 import z from "zod";
-import { getUseProgramAreaListOptions } from "@/hooks/programAreas/useProgramAreaList";
+import { programAreaListQueryOptions } from "@/hooks/programAreas/useProgramAreaList";
 import { ErrorBoundary } from "react-error-boundary";
 import { Suspense } from "react";
 import LoadingPage from "@/app/loading";
@@ -53,16 +50,17 @@ function CreateActivityModal(props: CreateActivityModalProps) {
     sectionScheduleQueryOptions(sessionId, sectionId),
   );
   const programAreasQuery = useSuspenseInfiniteQuery(
-    getUseProgramAreaListOptions({
+    programAreaListQueryOptions({
       where: [{ fieldPath: "isDeleted", operation: "==", value: false }],
     }),
   );
 
   const createActivityMutation = useCreateActivity();
 
-  const validationSchema = sectionScheduleQuery.data.type === "BUNDLE"
-    ? CreateBundleActivityRequestSchema
-    : CreateJamboreeActivityRequestSchema;
+  const validationSchema =
+    sectionScheduleQuery.data.type === "BUNDLE"
+      ? CreateBundleActivityRequestSchema
+      : CreateJamboreeActivityRequestSchema;
 
   const form = useForm({
     defaultValues:
@@ -106,7 +104,8 @@ function CreateActivityModal(props: CreateActivityModalProps) {
         key="name"
         validators={{
           onBlur: ({ value }) => {
-            const validationResult = validationSchema.shape.name.safeParse(value);
+            const validationResult =
+              validationSchema.shape.name.safeParse(value);
             if (validationResult.success) return;
             return validationResult.error.issues
               .map((issue) => issue.message)
@@ -131,7 +130,8 @@ function CreateActivityModal(props: CreateActivityModalProps) {
         key="description"
         validators={{
           onBlur: ({ value }) => {
-            const validationResult = validationSchema.shape.description.safeParse(value);
+            const validationResult =
+              validationSchema.shape.description.safeParse(value);
             if (validationResult.success) return;
             return validationResult.error.issues
               .map((issue) => issue.message)
