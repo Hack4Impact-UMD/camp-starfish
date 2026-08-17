@@ -36,6 +36,8 @@ import LoadingPage from "@/app/loading";
 import useDaysOffSchedule from "@/hooks/daysOffSchedules/useDaysOffSchedule";
 import useSession from "@/hooks/sessions/useSession";
 import openAddAttendeesModal from "@/components/AddAttendeesModal/AddAttendeesModal";
+import { programAreaListQueryOptions } from "@/hooks/programAreas/useProgramAreaList";
+import { useInfiniteQuery } from "@tanstack/react-query";
 
 type LargeDirectoryBlockProps = {
   sessionId: string;
@@ -46,6 +48,11 @@ export default function DirectoryTableView({
   const { data: attendeeData, isLoading, isError } = useAttendeeList(sessionId);
   const daysOffScheduleQuery = useDaysOffSchedule(sessionId);
   const sessionQuery = useSession(sessionId);
+  const programAreasQuery = useInfiniteQuery(
+    programAreaListQueryOptions({
+      where: [{ fieldPath: "isDeleted", operation: "==", value: false }],
+    }),
+  );
 
   const [selectedRole, setSelectedRole] = useState<AttendeeRole>("CAMPER");
   const [sortNameOption, setSortNameOption] = useState<string | null>(null);
