@@ -26,6 +26,7 @@ export function postListQueryOptions(firestoreQueryOptions: FirestoreQueryOption
     initialPageParam: undefined as TanstackQueryFirestorePageParam<PostDoc> | undefined,
     getPreviousPageParam: (firstPage) => firstPage.firstSnapshot ? ({ direction: 'previous' as const, snapshot: firstPage.firstSnapshot }) : undefined,
     getNextPageParam: (lastPage) => lastPage.lastSnapshot ? ({ direction: 'next' as const, snapshot: lastPage.lastSnapshot }) : undefined,
+    select: (data) => data.pages.flatMap(page => page.docs),
   });
 }
 
