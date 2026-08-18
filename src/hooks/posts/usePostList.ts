@@ -5,7 +5,7 @@ import { Post } from "@/types/sessions/sessionTypes";
 import { infiniteQueryOptions, useInfiniteQuery } from "@tanstack/react-query";
 import { TanstackQueryFirestorePageParam } from "../types/tanstackQueryTypes";
 
-export function getUsePostListOptions(firestoreQueryOptions: FirestoreQueryOptions<PostDoc> = {}) {
+export function postListQueryOptions(firestoreQueryOptions: FirestoreQueryOptions<PostDoc> = {}) {
   return infiniteQueryOptions({
     queryKey: ['posts', firestoreQueryOptions],
     queryFn: async ({ pageParam, client }) => {
@@ -30,5 +30,5 @@ export function getUsePostListOptions(firestoreQueryOptions: FirestoreQueryOptio
 }
 
 export default function usePostList(firestoreQueryOptions: FirestoreQueryOptions<PostDoc> = {}) {
-  return useInfiniteQuery(getUsePostListOptions(firestoreQueryOptions));
+  return useInfiniteQuery(postListQueryOptions(firestoreQueryOptions));
 }
