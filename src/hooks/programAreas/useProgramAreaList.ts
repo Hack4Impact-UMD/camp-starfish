@@ -4,7 +4,7 @@ import { FirestoreQueryOptions } from "@/data/firestore/types/queries";
 import { ProgramArea } from "@/types/scheduling/schedulingTypes";
 import { infiniteQueryOptions, useInfiniteQuery } from "@tanstack/react-query";
 import { TanstackQueryFirestorePageParam } from "../types/tanstackQueryTypes";
-import { flattenFirestoreInfiniteQuery } from "../utils";
+import { flattenFirestoreInfiniteData } from "../utils";
 
 export function programAreaListQueryOptions(firestoreQueryOptions: FirestoreQueryOptions<ProgramAreaDoc> = {}) {
   return infiniteQueryOptions({
@@ -27,7 +27,7 @@ export function programAreaListQueryOptions(firestoreQueryOptions: FirestoreQuer
     initialPageParam: undefined as TanstackQueryFirestorePageParam<ProgramAreaDoc> | undefined,
     getPreviousPageParam: (firstPage) => firstPage.firstSnapshot ? ({ direction: 'previous' as const, snapshot: firstPage.firstSnapshot }) : undefined,
     getNextPageParam: (lastPage) => lastPage.lastSnapshot ? ({ direction: 'next' as const, snapshot: lastPage.lastSnapshot }) : undefined,
-    select: flattenFirestoreInfiniteQuery,
+    select: flattenFirestoreInfiniteData,
   });
 }
 

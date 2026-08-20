@@ -4,7 +4,7 @@ import { FirestoreQueryOptions } from "@/data/firestore/types/queries";
 import { Post } from "@/types/sessions/sessionTypes";
 import { infiniteQueryOptions, useInfiniteQuery } from "@tanstack/react-query";
 import { TanstackQueryFirestorePageParam } from "../types/tanstackQueryTypes";
-import { flattenFirestoreInfiniteQuery } from "../utils";
+import { flattenFirestoreInfiniteData } from "../utils";
 
 export function postListQueryOptions(firestoreQueryOptions: FirestoreQueryOptions<PostDoc> = {}) {
   return infiniteQueryOptions({
@@ -27,7 +27,7 @@ export function postListQueryOptions(firestoreQueryOptions: FirestoreQueryOption
     initialPageParam: undefined as TanstackQueryFirestorePageParam<PostDoc> | undefined,
     getPreviousPageParam: (firstPage) => firstPage.firstSnapshot ? ({ direction: 'previous' as const, snapshot: firstPage.firstSnapshot }) : undefined,
     getNextPageParam: (lastPage) => lastPage.lastSnapshot ? ({ direction: 'next' as const, snapshot: lastPage.lastSnapshot }) : undefined,
-    select: flattenFirestoreInfiniteQuery,
+    select: flattenFirestoreInfiniteData,
   });
 }
 
