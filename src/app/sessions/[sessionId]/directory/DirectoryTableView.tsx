@@ -308,6 +308,9 @@ export default function DirectoryTableView({
     getNameFromId,
     daysOffScheduleQuery,
     sessionQuery.data?.startDate,
+    programAreasQuery.data,
+    sessionId,
+    setProgramCounselorAreaMutation,
   ]);
 
   const table = useReactTable({
