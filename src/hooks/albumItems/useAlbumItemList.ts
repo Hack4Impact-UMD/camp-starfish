@@ -4,6 +4,7 @@ import { AlbumItem } from "@/types/albums/albumTypes";
 import { infiniteQueryOptions, useInfiniteQuery } from "@tanstack/react-query";
 import { TanstackQueryFirestorePageParam } from "../types/tanstackQueryTypes";
 import { FirestoreQueryOptions } from "@/data/firestore/types/queries";
+import { flattenFirestoreInfiniteData } from "../utils";
 
 export function getUseAlbumItemListOptions(albumId: string, firestoreQueryOptions?: FirestoreQueryOptions<AlbumItemDoc>, enabled: boolean = true) {
   return infiniteQueryOptions({
@@ -26,7 +27,8 @@ export function getUseAlbumItemListOptions(albumId: string, firestoreQueryOption
     initialPageParam: undefined as TanstackQueryFirestorePageParam<AlbumItemDoc> | undefined,
     getPreviousPageParam: (firstPage) => firstPage.firstSnapshot ? ({ direction: 'previous' as const, snapshot: firstPage.firstSnapshot }) : undefined,
     getNextPageParam: (lastPage) => lastPage.lastSnapshot ? ({ direction: 'next' as const, snapshot: lastPage.lastSnapshot }) : undefined,
-    enabled
+    enabled,
+    select: flattenFirestoreInfiniteData
   });
 }
 

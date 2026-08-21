@@ -4,6 +4,7 @@ import { FirestoreQueryOptions } from "@/data/firestore/types/queries";
 import { Freeplay } from "@/types/sessions/sessionTypes";
 import { infiniteQueryOptions, skipToken, useInfiniteQuery } from "@tanstack/react-query";
 import { TanstackQueryFirestorePageParam } from "../types/tanstackQueryTypes";
+import { flattenFirestoreInfiniteData } from "../utils";
 
 export function getUseFreeplayListOptions(sessionId: string | undefined, firestoreQueryOptions: FirestoreQueryOptions<FreeplayDoc> = {}) {
   return infiniteQueryOptions({
@@ -26,6 +27,7 @@ export function getUseFreeplayListOptions(sessionId: string | undefined, firesto
     initialPageParam: undefined as TanstackQueryFirestorePageParam<FreeplayDoc> | undefined,
     getPreviousPageParam: (firstPage) => firstPage.firstSnapshot ? ({ direction: 'previous' as const, snapshot: firstPage.firstSnapshot }) : undefined,
     getNextPageParam: (lastPage) => lastPage.lastSnapshot ? ({ direction: 'next' as const, snapshot: lastPage.lastSnapshot }) : undefined,
+    select: flattenFirestoreInfiniteData
   });
 }
 
