@@ -77,7 +77,7 @@ export default function NightScheduleTable(props: NightScheduleTableProps) {
     <NightScheduleTableContent
       daysOffSchedule={daysOffSchedule}
       session={session}
-      attendees={attendees.pages.flatMap(page => page.docs)}
+      attendees={attendees}
       nightShifts={nightShifts.docs}
     />
   );

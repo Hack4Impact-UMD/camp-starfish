@@ -26,7 +26,7 @@ export default function SessionsPage() {
     orderBy: [{ fieldPath: "startDate", direction: "desc" }],
     limit: 10,
   });
-  const sessions = sessionsQuery.data?.pages.flatMap((page) => page.docs) ?? [];
+  const sessions = sessionsQuery.data ?? [];
 
   const { ref, inViewport } = useInViewport();
   const { hasNextPage, isFetchingNextPage, fetchNextPage } = sessionsQuery;

@@ -43,7 +43,7 @@ export default function ActivityGrid(props: ActivityGridProps) {
     <ActivityGridContent
       schedule={scheduleQuery.data}
       section={sectionQuery.data}
-      attendees={attendeesQuery.data.pages.flatMap((page) => page.docs)}
+      attendees={attendeesQuery.data}
     />
   );
 }

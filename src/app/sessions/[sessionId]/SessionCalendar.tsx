@@ -30,7 +30,7 @@ export default function SessionCalendar(props: SessionCalendarProps) {
   } else if (sectionsQuery.isError) {
     return <ErrorPage error={sectionsQuery.error} />;
   } else {
-    return <SessionCalendarContent session={sessionQuery.data} sections={sectionsQuery.data.pages.flatMap(page => page.docs)} />;
+    return <SessionCalendarContent session={sessionQuery.data} sections={sectionsQuery.data} />;
   }
 }
 

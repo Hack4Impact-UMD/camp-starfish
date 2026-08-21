@@ -64,15 +64,10 @@ export default function DirectoryTableView({
   const [globalFilter, setGlobalFilter] = useState("");
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 });
 
-  const attendeeList = useMemo(
-    () => attendeeData?.pages.flatMap((page) => page.docs),
-    [attendeeData],
-  );
-
   const data: Attendee[] = useMemo(() => {
-    if (!attendeeList) return [];
+    if (!attendeeData) return [];
 
-    let attendeeArr = [...attendeeList];
+    let attendeeArr = [...attendeeData];
 
     if (selectedRole) {
       attendeeArr = attendeeArr.filter((a) => a.role === selectedRole);
@@ -101,15 +96,15 @@ export default function DirectoryTableView({
     }
 
     return attendeeArr;
-  }, [attendeeList, selectedRole, sortNameOption]);
+  }, [attendeeData, selectedRole, sortNameOption]);
 
   const getNameFromId = useCallback(
     (id: number) => {
-      const person = attendeeList?.find((a) => a.attendeeId === id);
+      const person = attendeeData?.find((a) => a.attendeeId === id);
       if (!person) return null;
       return `${person.snapshot.name.firstName} ${person.snapshot.name.lastName[0]}.`;
     },
-    [attendeeList],
+    [attendeeData],
   );
 
   const columns = useMemo<ColumnDef<Attendee>[]>(() => {

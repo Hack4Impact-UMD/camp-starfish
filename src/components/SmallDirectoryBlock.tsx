@@ -65,8 +65,7 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
   const usersToBunk = useMemo(() => {
     if (!bunksQuery.data) return [];
     const usersToBunk: { [userId: number]: number } = {};
-    bunksQuery.data.pages
-      .flatMap((page) => page.docs)
+    bunksQuery.data
       .forEach((bunk) => {
         [...bunk.camperIds, ...bunk.counselorIds].forEach(
           (userId) => (usersToBunk[userId] = bunk.bunkNum),

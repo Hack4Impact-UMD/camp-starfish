@@ -78,9 +78,7 @@ export default function PendingPage(props: PendingPageProps) {
       </div>
     );
   } else {
-    const pendingAlbumItems = pendingAlbumItemsQuery.data.pages.flatMap(
-      (page) => page.docs,
-    );
+    const pendingAlbumItems = pendingAlbumItemsQuery.data;
     if (pendingAlbumItems.length === 0) {
       albumItemContent = (
         <div className="flex flex-col justify-center items-center grow bg-neutral-3 gap-4">
