@@ -4,6 +4,7 @@ import { Bunk } from "@/types/sessions/sessionTypes";
 import { infiniteQueryOptions, skipToken, useInfiniteQuery } from "@tanstack/react-query";
 import { TanstackQueryFirestorePageParam } from "../types/tanstackQueryTypes";
 import { listBunkDocs } from "@/data/firestore/bunks";
+import { flattenFirestoreInfiniteData } from "../utils";
 
 export function getUseBunkListOptions(sessionId: string, firestoreQueryOptions: FirestoreQueryOptions<BunkDoc> = {}, enabled: boolean = true) {
   return infiniteQueryOptions({
@@ -25,7 +26,8 @@ export function getUseBunkListOptions(sessionId: string, firestoreQueryOptions: 
     }) : skipToken,
     initialPageParam: undefined as TanstackQueryFirestorePageParam<BunkDoc> | undefined,
     getPreviousPageParam: (firstPage) => firstPage.firstSnapshot ? ({ direction: 'previous' as const, snapshot: firstPage.firstSnapshot }) : undefined,
-    getNextPageParam: (lastPage) => lastPage.lastSnapshot ? ({ direction: 'next' as const, snapshot: lastPage.lastSnapshot }) : undefined
+    getNextPageParam: (lastPage) => lastPage.lastSnapshot ? ({ direction: 'next' as const, snapshot: lastPage.lastSnapshot }) : undefined,
+    select: flattenFirestoreInfiniteData
   });
 }
 

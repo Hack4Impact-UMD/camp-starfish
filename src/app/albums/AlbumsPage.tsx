@@ -69,7 +69,7 @@ export default function AlbumsPage() {
     return <LoadingPage />;
   }
 
-  const albums = albumsQuery.data?.pages.flatMap((page) => page.docs) ?? [];
+  const albums = albumsQuery.data ?? [];
   return (
     <div className="flex flex-col w-6/7 grow mx-auto px-4 py-6 gap-6">
       <div className="flex items-center justify-between">

@@ -4,6 +4,7 @@ import { FirestoreQueryOptions } from "@/data/firestore/types/queries";
 import { Attendee } from "@/types/sessions/sessionTypes";
 import { infiniteQueryOptions, useInfiniteQuery } from "@tanstack/react-query";
 import { TanstackQueryFirestorePageParam } from "../types/tanstackQueryTypes";
+import { flattenFirestoreInfiniteData } from "../utils";
 
 export function getUseAttendeeListOptions(sessionId: string, firestoreQueryOptions: FirestoreQueryOptions<AttendeeDoc> = {}) {
   return infiniteQueryOptions({
@@ -26,6 +27,7 @@ export function getUseAttendeeListOptions(sessionId: string, firestoreQueryOptio
     initialPageParam: undefined as TanstackQueryFirestorePageParam<AttendeeDoc> | undefined,
     getPreviousPageParam: (firstPage) => firstPage.firstSnapshot ? ({ direction: 'previous' as const, snapshot: firstPage.firstSnapshot }) : undefined,
     getNextPageParam: (lastPage) => lastPage.lastSnapshot ? ({ direction: 'next' as const, snapshot: lastPage.lastSnapshot }) : undefined,
+    select: flattenFirestoreInfiniteData
   });
 }
 

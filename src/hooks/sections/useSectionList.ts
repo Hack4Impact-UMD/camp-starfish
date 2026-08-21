@@ -4,6 +4,7 @@ import { FirestoreQueryOptions } from "@/data/firestore/types/queries";
 import { Section } from "@/types/sessions/sessionTypes";
 import { infiniteQueryOptions, useInfiniteQuery } from "@tanstack/react-query";
 import { TanstackQueryFirestorePageParam } from "../types/tanstackQueryTypes";
+import { flattenFirestoreInfiniteData } from "../utils";
 
 export function getUseSectionListOptions(sessionId: string, firestoreQueryOptions: FirestoreQueryOptions<SectionDoc> = {}) {
   return infiniteQueryOptions({
@@ -26,6 +27,7 @@ export function getUseSectionListOptions(sessionId: string, firestoreQueryOption
     initialPageParam: undefined as TanstackQueryFirestorePageParam<SectionDoc> | undefined,
     getPreviousPageParam: (firstPage) => firstPage.firstSnapshot ? ({ direction: 'previous' as const, snapshot: firstPage.firstSnapshot }) : undefined,
     getNextPageParam: (lastPage) => lastPage.lastSnapshot ? ({ direction: 'next' as const, snapshot: lastPage.lastSnapshot }) : undefined,
+    select: flattenFirestoreInfiniteData
   });
 }
 

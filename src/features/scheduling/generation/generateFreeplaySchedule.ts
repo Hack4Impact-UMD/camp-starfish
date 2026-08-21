@@ -6,7 +6,7 @@ import { Moment } from "moment";
 import { useMutation } from "@tanstack/react-query";
 import { getUseAttendeeListOptions } from "@/hooks/attendees/useAttendeeList";
 import { getUseFreeplayListOptions } from "@/hooks/freeplays/useFreeplayList";
-import { getUsePostListOptions } from "@/hooks/posts/usePostList";
+import { postListQueryOptions } from "@/hooks/posts/usePostList";
 
 interface UseGenerateFreeplayScheduleRequest {
   sessionId: string;
@@ -19,7 +19,7 @@ export default function useGenerateFreeplaySchedule() {
       const { sessionId, date } = req;
 
       const attendees = (await client.ensureInfiniteQueryData(getUseAttendeeListOptions(sessionId))).pages.flatMap(page => page.docs);
-      const posts = (await client.ensureInfiniteQueryData(getUsePostListOptions())).pages.flatMap(page => page.docs);
+      const posts = (await client.ensureInfiniteQueryData(postListQueryOptions())).pages.flatMap(page => page.docs);
       const otherFreeplaysInSession = (await client.ensureInfiniteQueryData(getUseFreeplayListOptions(sessionId, {
         where: [{ fieldPath: '__name__', operation: "!=", value: date.format("YYYY-MM-DD") }]
       }))).pages.flatMap(page => page.docs);
@@ -161,7 +161,7 @@ export function generateFreeplaySchedule(req: GenerateFreeplayScheduleRequest): 
   }
 
   const buddyAssignments: Freeplay["buddies"] = {};
-  let camperGroupsWithBuddyCandidates = camperGroups.map(camperGroup => ({camperGroup, buddyCandidates: typeof camperGroup === "number" ? buddyCandidatesById[camperGroup] : camperGroup.reduce((prev, camperId) => prev.union(buddyCandidatesById[camperId]), new Set<number>())}))
+  let camperGroupsWithBuddyCandidates = camperGroups.map(camperGroup => ({ camperGroup, buddyCandidates: typeof camperGroup === "number" ? buddyCandidatesById[camperGroup] : camperGroup.reduce((prev, camperId) => prev.union(buddyCandidatesById[camperId]), new Set<number>()) }))
   const numEmployeesToAssign = unassignedAdminIds.length + unassignedStaffIds.length;
   const unassignedEmployeeIds: number[] = [];
   for (let i = 0; i < numEmployeesToAssign; i++) {
