@@ -39,7 +39,7 @@ export const createAttendees = onCall(async (req) => {
             name: user.name,
             nonoList: user.nonoListIds
           }
-        } satisfies CamperAttendeeDoc)
+        } satisfies CamperAttendeeDoc, transaction);
       } else if (user.role === "STAFF" && attendeeRequest.role === "STAFF") {
         return createAttendeeDoc(user.id, sessionId, {
           bunk: attendeeRequest.bunk,
@@ -53,7 +53,7 @@ export const createAttendees = onCall(async (req) => {
             nonoList: user.nonoListIds,
             yesyesList: user.yesyesListIds
           }
-        } satisfies StaffAttendeeDoc)
+        } satisfies StaffAttendeeDoc, transaction);
       } else if (user.role === "ADMIN" && attendeeRequest.role === "ADMIN") {
         return createAttendeeDoc(user.id, sessionId, {
           role: "ADMIN",
@@ -65,7 +65,7 @@ export const createAttendees = onCall(async (req) => {
             nonoList: user.nonoListIds,
             yesyesList: user.yesyesListIds
           }
-        } satisfies AdminAttendeeDoc);
+        } satisfies AdminAttendeeDoc, transaction);
       }
       return;
     }))
