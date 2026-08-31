@@ -97,6 +97,7 @@ export const createAttendees = onCall(async (req) => {
             continue;
           }
           for (const activityId of activityIds) {
+            // @ts-ignore - TypeScript is being dumb
             updates[`blocks.${blockId}.${camperId}.${activityId}`] = Infinity;
           }
         }
