@@ -4,13 +4,14 @@ import { batchGetUserDocs } from "../../data/firestore/users";
 import { toRecord } from "@/utils/data/toRecord";
 import { createAttendeeDoc } from "../../data/firestore/attendees";
 import { ActivityPreferencesDoc, AdminAttendeeDoc, CamperAttendeeDoc, SectionScheduleDoc, StaffAttendeeDoc } from "@/data/firestore/types/documents";
-import { DocumentSnapshot, Timestamp, UpdateData } from "firebase-admin/firestore";
+import { DocumentSnapshot, FieldValue, Timestamp, UpdateData } from "firebase-admin/firestore";
 import { CreateAttendeesRequestSchema } from "@/hooks/attendees/types"
 import { mapActivityPreferencesFromFirestore, updateActivityPreferencesDoc } from "../../data/firestore/activityPreferences";
 import { SectionsSubcollection } from "@/data/firestore/types/collections";
 import { mapSectionScheduleFromFirestore } from "../../data/firestore/sectionSchedules";
 import { isBundleSectionSchedule } from "@/types/scheduling/schedulingTypeGuards";
 import { ActivityPreferences, SectionSchedule } from "@/types/scheduling/schedulingTypes";
+import { updateSessionDoc } from "../../data/firestore/sessions";
 
 export const createAttendees = onCall(async (req) => {
   if (!req.auth || !req.auth.token.role) {
@@ -37,7 +38,7 @@ export const createAttendees = onCall(async (req) => {
         sectionSchedule: sectionSchedules.find(sectionSchedule => sectionSchedule.sectionId === activityPrefs.sectionId) as SectionSchedule
       })
     }
-    
+
     await Promise.all(users.map(user => {
       const attendeeRequest = attendeeRequestsById[user.id];
       if (user.role === "CAMPER" && attendeeRequest.role === "CAMPER") {
@@ -89,7 +90,7 @@ export const createAttendees = onCall(async (req) => {
       const { activityPreferences, sectionSchedule } = section;
       const updates: UpdateData<ActivityPreferencesDoc> = {};
       for (const blockId of Object.keys(activityPreferences.blocks)) {
-        const activityIds =  isBundleSectionSchedule(sectionSchedule) ? sectionSchedule.blocks[blockId].activities.map(activity => activity.programAreaId) : sectionSchedule.blocks[blockId].activities.map(activity => activity.name);
+        const activityIds = isBundleSectionSchedule(sectionSchedule) ? sectionSchedule.blocks[blockId].activities.map(activity => activity.programAreaId) : sectionSchedule.blocks[blockId].activities.map(activity => activity.name);
         for (const attendee of attendees) {
           if (attendee.attendeeId in activityPreferences.blocks[blockId]) {
             continue;
@@ -102,5 +103,7 @@ export const createAttendees = onCall(async (req) => {
       }
       return updateActivityPreferencesDoc(sessionId, activityPreferences.sectionId, updates, transaction);
     }));
+
+    await updateSessionDoc(sessionId, { attendeeIds: FieldValue.arrayUnion(...attendees.map(attendee => attendee.attendeeId)) }, transaction);
   });
 });
