@@ -6,7 +6,7 @@ import { RootLevelCollection, SectionsSubcollection, SessionsSubcollection } fro
 import { deleteDoc, executeQuery, getDoc, mapSnapshotsToPaginatedQueryResult, setDoc, updateDoc, FirestoreQueryOptions, PaginatedQueryResponse } from "./firestoreAdminOperations";
 import { CollectionReference, DocumentReference, DocumentSnapshot, QueryDocumentSnapshot, Transaction, UpdateData, WithFieldValue, WriteBatch } from "firebase-admin/firestore";
 
-function fromFirestore(snapshot: DocumentSnapshot<ActivityPreferencesDoc, ActivityPreferencesDoc> | QueryDocumentSnapshot<ActivityPreferencesDoc, ActivityPreferencesDoc>): ActivityPreferences {
+export function mapActivityPreferencesFromFirestore(snapshot: DocumentSnapshot<ActivityPreferencesDoc, ActivityPreferencesDoc> | QueryDocumentSnapshot<ActivityPreferencesDoc, ActivityPreferencesDoc>): ActivityPreferences {
   if (!snapshot.exists) { throw Error("Document not found"); }
   const activityPreferencesDoc = snapshot.data() as ActivityPreferencesDoc;
   return {
@@ -26,12 +26,12 @@ function getActivityPreferencesCollectionRef(sessionId: string, sectionId: strin
 
 export async function getActivityPreferencesDoc(sessionId: string, sectionId: string, transaction?: Transaction): Promise<ActivityPreferences> {
   const snapshot = await getDoc<ActivityPreferencesDoc>(getActivityPreferencesDocRef(sessionId, sectionId), transaction);
-  return fromFirestore(snapshot);
+  return mapActivityPreferencesFromFirestore(snapshot);
 }
 
 export async function listActivityPreferencesDocs(sessionId: string, sectionId: string, queryOptions: FirestoreQueryOptions<ActivityPreferencesDoc> = {}, transaction?: Transaction): Promise<PaginatedQueryResponse<ActivityPreferences, ActivityPreferencesDoc>> {
   const snapshots = await executeQuery<ActivityPreferencesDoc>(getActivityPreferencesCollectionRef(sessionId, sectionId), { queryOptions, transaction });
-  return mapSnapshotsToPaginatedQueryResult(snapshots, fromFirestore);
+  return mapSnapshotsToPaginatedQueryResult(snapshots, mapActivityPreferencesFromFirestore);
 }
 
 export async function setActivityPreferencesDoc(sessionId: string, sectionId: string, activityPreferences: WithFieldValue<ActivityPreferencesDoc>, instance?: Transaction | WriteBatch): Promise<void> {

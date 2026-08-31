@@ -3,9 +3,14 @@ import { adminDb } from "../../config/firebaseAdminConfig";
 import { batchGetUserDocs } from "../../data/firestore/users";
 import { toRecord } from "@/utils/data/toRecord";
 import { createAttendeeDoc } from "../../data/firestore/attendees";
-import { AdminAttendeeDoc, CamperAttendeeDoc, StaffAttendeeDoc } from "@/data/firestore/types/documents";
-import { Timestamp } from "firebase-admin/firestore";
+import { ActivityPreferencesDoc, AdminAttendeeDoc, CamperAttendeeDoc, SectionScheduleDoc, StaffAttendeeDoc } from "@/data/firestore/types/documents";
+import { DocumentSnapshot, Timestamp, UpdateData } from "firebase-admin/firestore";
 import { CreateAttendeesRequestSchema } from "@/hooks/attendees/types"
+import { mapActivityPreferencesFromFirestore, updateActivityPreferencesDoc } from "../../data/firestore/activityPreferences";
+import { SectionsSubcollection } from "@/data/firestore/types/collections";
+import { mapSectionScheduleFromFirestore } from "../../data/firestore/sectionSchedules";
+import { isBundleSectionSchedule } from "@/types/scheduling/schedulingTypeGuards";
+import { ActivityPreferences, SectionSchedule } from "@/types/scheduling/schedulingTypes";
 
 export const createAttendees = onCall(async (req) => {
   if (!req.auth || !req.auth.token.role) {
@@ -23,6 +28,16 @@ export const createAttendees = onCall(async (req) => {
   const attendeeRequestsById = toRecord(attendees, attendee => attendee.attendeeId);
   await adminDb.runTransaction(async (transaction) => {
     const users = await batchGetUserDocs(attendees.map(attendee => attendee.attendeeId), transaction);
+    const activityPreferences = ((await adminDb.collectionGroup(SectionsSubcollection.ACTIVITY_PREFERENCES).where('__name__', '>=', `/sessions/${sessionId}`).where('__name__', '<', `/sessions/${sessionId}\uf8ff`).get()).docs as DocumentSnapshot<ActivityPreferencesDoc>[]).map(mapActivityPreferencesFromFirestore);
+    const sectionSchedules = ((await adminDb.collectionGroup(SectionsSubcollection.SCHEDULE).where('__name__', '>=', `/sessions/${sessionId}`).where('__name__', '<', `/sessions/${sessionId}\uf8ff`).get()).docs as DocumentSnapshot<SectionScheduleDoc>[]).map(mapSectionScheduleFromFirestore);
+    const sectionData: { activityPreferences: ActivityPreferences, sectionSchedule: SectionSchedule }[] = [];
+    for (const activityPrefs of activityPreferences) {
+      sectionData.push({
+        activityPreferences: activityPrefs,
+        sectionSchedule: sectionSchedules.find(sectionSchedule => sectionSchedule.sectionId === activityPrefs.sectionId) as SectionSchedule
+      })
+    }
+    
     await Promise.all(users.map(user => {
       const attendeeRequest = attendeeRequestsById[user.id];
       if (user.role === "CAMPER" && attendeeRequest.role === "CAMPER") {
@@ -68,6 +83,24 @@ export const createAttendees = onCall(async (req) => {
         } satisfies AdminAttendeeDoc, transaction);
       }
       return;
-    }))
+    }));
+
+    await Promise.all(sectionData.map(section => {
+      const { activityPreferences, sectionSchedule } = section;
+      const updates: UpdateData<ActivityPreferencesDoc> = {};
+      for (const blockId of Object.keys(activityPreferences.blocks)) {
+        const activityIds =  isBundleSectionSchedule(sectionSchedule) ? sectionSchedule.blocks[blockId].activities.map(activity => activity.programAreaId) : sectionSchedule.blocks[blockId].activities.map(activity => activity.name);
+        for (const attendee of attendees) {
+          if (attendee.attendeeId in activityPreferences.blocks[blockId]) {
+            continue;
+          }
+          for (const activityId of activityIds) {
+            // @ts-ignore - TypeScript is being dumb
+            updates[`blocks.${blockId}.${attendee.attendeeId}.${activityId}`] = Infinity;
+          }
+        }
+      }
+      return updateActivityPreferencesDoc(sessionId, activityPreferences.sectionId, updates, transaction);
+    }));
   });
 });
