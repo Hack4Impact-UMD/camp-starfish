@@ -9,9 +9,10 @@ import { CreateAttendeesRequestSchema } from "@/hooks/attendees/types"
 import { mapActivityPreferencesFromFirestore, updateActivityPreferencesDoc } from "../../data/firestore/activityPreferences";
 import { SectionsSubcollection } from "@/data/firestore/types/collections";
 import { mapSectionScheduleFromFirestore } from "../../data/firestore/sectionSchedules";
-import { isBundleSectionSchedule } from "@/types/scheduling/schedulingTypeGuards";
+import { isBundleSectionSchedule, isBunkJamboreeSectionSchedule } from "@/types/scheduling/schedulingTypeGuards";
 import { ActivityPreferences, SectionSchedule } from "@/types/scheduling/schedulingTypes";
 import { updateSessionDoc } from "../../data/firestore/sessions";
+import { uniqueArray } from "@/utils/data/unique";
 
 export const createAttendees = onCall(async (req) => {
   if (!req.auth || !req.auth.token.role) {
@@ -89,16 +90,16 @@ export const createAttendees = onCall(async (req) => {
     await Promise.all(sectionData.map(section => {
       const { activityPreferences, sectionSchedule } = section;
       const updates: UpdateData<ActivityPreferencesDoc> = {};
-      const camperIds = attendees.filter(attendee => attendee.role === "CAMPER").map(attendee => attendee.attendeeId);
+      const camperOrBunkIds = isBunkJamboreeSectionSchedule(sectionSchedule) ? uniqueArray(attendees.filter(attendee => attendee.role !== "ADMIN").map(attendee => attendee.bunk)) : attendees.filter(attendee => attendee.role === "CAMPER").map(attendee => attendee.attendeeId);
       for (const blockId of Object.keys(activityPreferences.blocks)) {
         const activityIds = isBundleSectionSchedule(sectionSchedule) ? sectionSchedule.blocks[blockId].activities.map(activity => activity.programAreaId) : sectionSchedule.blocks[blockId].activities.map(activity => activity.name);
-        for (const camperId of camperIds) {
-          if (camperId in activityPreferences.blocks[blockId]) {
+        for (const camperOrBunkId of camperOrBunkIds) {
+          if (camperOrBunkId in activityPreferences.blocks[blockId]) {
             continue;
           }
           for (const activityId of activityIds) {
             // @ts-ignore - TypeScript is being dumb
-            updates[`blocks.${blockId}.${camperId}.${activityId}`] = Infinity;
+            updates[`blocks.${blockId}.${camperOrBunkId}.${activityId}`] = Infinity;
           }
         }
       }
