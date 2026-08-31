@@ -89,15 +89,15 @@ export const createAttendees = onCall(async (req) => {
     await Promise.all(sectionData.map(section => {
       const { activityPreferences, sectionSchedule } = section;
       const updates: UpdateData<ActivityPreferencesDoc> = {};
+      const camperIds = attendees.filter(attendee => attendee.role === "CAMPER").map(attendee => attendee.attendeeId);
       for (const blockId of Object.keys(activityPreferences.blocks)) {
         const activityIds = isBundleSectionSchedule(sectionSchedule) ? sectionSchedule.blocks[blockId].activities.map(activity => activity.programAreaId) : sectionSchedule.blocks[blockId].activities.map(activity => activity.name);
-        for (const attendee of attendees) {
-          if (attendee.attendeeId in activityPreferences.blocks[blockId]) {
+        for (const camperId of camperIds) {
+          if (camperId in activityPreferences.blocks[blockId]) {
             continue;
           }
           for (const activityId of activityIds) {
-            // @ts-ignore - TypeScript is being dumb
-            updates[`blocks.${blockId}.${attendee.attendeeId}.${activityId}`] = Infinity;
+            updates[`blocks.${blockId}.${camperId}.${activityId}`] = Infinity;
           }
         }
       }
