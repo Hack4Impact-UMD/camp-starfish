@@ -101,6 +101,7 @@ export const createAttendees = onCall(async (req) => {
           }
         }
       }
+      if (Object.keys(updates).length === 0) return;
       return updateActivityPreferencesDoc(sessionId, activityPreferences.sectionId, updates, transaction);
     }));
 
