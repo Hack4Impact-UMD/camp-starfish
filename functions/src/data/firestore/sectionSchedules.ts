@@ -16,11 +16,11 @@ export function mapSectionScheduleFromFirestore(snapshot: DocumentSnapshot<Secti
 }
 
 function getSectionScheduleDocRef(sessionId: string, sectionId: string) {
-  return adminDb.collection(RootLevelCollection.SESSIONS).doc(sessionId).collection(SessionsSubcollection.SECTIONS).doc(sectionId).collection(SectionsSubcollection.ACTIVITY_PREFERENCES).doc(SectionsSubcollection.ACTIVITY_PREFERENCES) as DocumentReference<SectionScheduleDoc, SectionScheduleDoc>;
+  return adminDb.collection(RootLevelCollection.SESSIONS).doc(sessionId).collection(SessionsSubcollection.SECTIONS).doc(sectionId).collection(SectionsSubcollection.SCHEDULE).doc(SectionsSubcollection.SCHEDULE) as DocumentReference<SectionScheduleDoc, SectionScheduleDoc>;
 }
 
 function getSectionScheduleCollectionRef(sessionId: string, sectionId: string) {
-  return adminDb.collection(RootLevelCollection.SESSIONS).doc(sessionId).collection(SessionsSubcollection.SECTIONS).doc(sectionId).collection(SectionsSubcollection.ACTIVITY_PREFERENCES) as CollectionReference<SectionScheduleDoc, SectionScheduleDoc>;
+  return adminDb.collection(RootLevelCollection.SESSIONS).doc(sessionId).collection(SessionsSubcollection.SECTIONS).doc(sectionId).collection(SectionsSubcollection.SCHEDULE) as CollectionReference<SectionScheduleDoc, SectionScheduleDoc>;
 }
 
 export async function getSectionScheduleDoc(sessionId: string, sectionId: string, transaction?: Transaction): Promise<SectionSchedule> {
