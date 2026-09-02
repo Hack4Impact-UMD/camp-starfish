@@ -30,8 +30,8 @@ export const createAttendees = onCall(async (req) => {
   const attendeeRequestsById = toRecord(attendees, attendee => attendee.attendeeId);
   await adminDb.runTransaction(async (transaction) => {
     const users = await batchGetUserDocs(attendees.map(attendee => attendee.attendeeId), transaction);
-    const activityPreferences = ((await adminDb.collectionGroup(SectionsSubcollection.ACTIVITY_PREFERENCES).where('__name__', '>=', `/sessions/${sessionId}`).where('__name__', '<', `/sessions/${sessionId}\uf8ff`).get()).docs as DocumentSnapshot<ActivityPreferencesDoc>[]).map(mapActivityPreferencesFromFirestore);
-    const sectionSchedules = ((await adminDb.collectionGroup(SectionsSubcollection.SCHEDULE).where('__name__', '>=', `/sessions/${sessionId}`).where('__name__', '<', `/sessions/${sessionId}\uf8ff`).get()).docs as DocumentSnapshot<SectionScheduleDoc>[]).map(mapSectionScheduleFromFirestore);
+    const activityPreferences = ((await transaction.get(adminDb.collectionGroup(SectionsSubcollection.ACTIVITY_PREFERENCES).where('__name__', '>=', `/sessions/${sessionId}`).where('__name__', '<', `/sessions/${sessionId}\uf8ff`))).docs as DocumentSnapshot<ActivityPreferencesDoc>[]).map(mapActivityPreferencesFromFirestore);
+    const sectionSchedules = ((await transaction.get(adminDb.collectionGroup(SectionsSubcollection.SCHEDULE).where('__name__', '>=', `/sessions/${sessionId}`).where('__name__', '<', `/sessions/${sessionId}\uf8ff`))).docs as DocumentSnapshot<SectionScheduleDoc>[]).map(mapSectionScheduleFromFirestore);
     const sectionData: { activityPreferences: ActivityPreferences, sectionSchedule: SectionSchedule }[] = [];
     for (const activityPrefs of activityPreferences) {
       sectionData.push({
