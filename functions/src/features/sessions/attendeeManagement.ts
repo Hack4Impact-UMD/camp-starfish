@@ -40,7 +40,9 @@ export const createAttendees = onCall(async (req) => {
       })
     }
 
-    await Promise.all(users.map(user => {
+    const acceptedUsers = users.filter(user => user.id in attendeeRequestsById && attendeeRequestsById[user.id].role === user.role);
+
+    await Promise.all(acceptedUsers.map(user => {
       const attendeeRequest = attendeeRequestsById[user.id];
       if (user.role === "CAMPER" && attendeeRequest.role === "CAMPER") {
         return createAttendeeDoc(user.id, sessionId, {
@@ -107,6 +109,6 @@ export const createAttendees = onCall(async (req) => {
       return updateActivityPreferencesDoc(sessionId, activityPreferences.sectionId, updates, transaction);
     }));
 
-    await updateSessionDoc(sessionId, { attendeeIds: FieldValue.arrayUnion(...attendees.map(attendee => attendee.attendeeId)) }, transaction);
+    await updateSessionDoc(sessionId, { attendeeIds: FieldValue.arrayUnion(...acceptedUsers.map(attendee => attendee.id)) }, transaction);
   });
 });
