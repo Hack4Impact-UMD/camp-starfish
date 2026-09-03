@@ -3,9 +3,9 @@ import { adminDb } from "../../config/firebaseAdminConfig";
 import { batchGetUserDocs } from "../../data/firestore/users";
 import { toRecord } from "@/utils/data/toRecord";
 import { createAttendeeDoc } from "../../data/firestore/attendees";
-import { ActivityPreferencesDoc, AdminAttendeeDoc, CamperAttendeeDoc, SectionScheduleDoc, StaffAttendeeDoc } from "@/data/firestore/types/documents";
+import { ActivityPreferencesDoc, AdminAttendeeDoc, CamperAttendeeDoc, DaysOffScheduleDoc, SectionScheduleDoc, StaffAttendeeDoc } from "@/data/firestore/types/documents";
 import { DocumentSnapshot, FieldValue, Timestamp, Transaction, UpdateData } from "firebase-admin/firestore";
-import { CreateAttendeeRequest, CreateAttendeesRequestSchema } from "@/hooks/attendees/types"
+import { CreateAdminAttendeeRequest, CreateAttendeeRequest, CreateAttendeesRequestSchema, CreateCamperAttendeeRequest, CreateStaffAttendeeRequest } from "@/hooks/attendees/types"
 import { mapActivityPreferencesFromFirestore, updateActivityPreferencesDoc } from "../../data/firestore/activityPreferences";
 import { SectionsSubcollection } from "@/data/firestore/types/collections";
 import { mapSectionScheduleFromFirestore } from "../../data/firestore/sectionSchedules";
@@ -14,6 +14,7 @@ import { ActivityPreferences, SectionSchedule } from "@/types/scheduling/schedul
 import { updateSessionDoc } from "../../data/firestore/sessions";
 import { uniqueArray } from "@/utils/data/unique";
 import { User } from "@/types/users/userTypes";
+import { updateDaysOffScheduleDoc } from "../../data/firestore/daysOffSchedules";
 
 export const createAttendees = onCall(async (req) => {
   if (!req.auth || !req.auth.token.role) {
@@ -45,8 +46,8 @@ export const createAttendees = onCall(async (req) => {
 
     await Promise.all([
       ...createAttendeeDocs(acceptedAttendees, usersById, sessionId, transaction),
-      ...addAttendeesToSectionSchedules(sectionData, acceptedAttendees, sessionId, transaction),
-      updateSessionDocWithAttendeeIds(acceptedAttendees, sessionId, transaction)
+      ...addCamperAttendeesToSectionSchedules(sectionData, acceptedAttendees, sessionId, transaction),
+      updateSessionDocWithAttendeeIds(acceptedAttendees, sessionId, transaction),
     ])
   });
 });
@@ -100,7 +101,7 @@ function createAttendeeDocs(attendeeRequests: CreateAttendeeRequest[], usersById
   });
 }
 
-function addAttendeesToSectionSchedules(sectionData: { activityPreferences: ActivityPreferences, sectionSchedule: SectionSchedule }[], attendeeRequests: CreateAttendeeRequest[], sessionId: string, transaction: Transaction) {
+function addCamperAttendeesToSectionSchedules(sectionData: { activityPreferences: ActivityPreferences, sectionSchedule: SectionSchedule }[], attendeeRequests: CreateCamperAttendeeRequest[], sessionId: string, transaction: Transaction) {
   return sectionData.map(section => {
     const { activityPreferences, sectionSchedule } = section;
     const updates: UpdateData<ActivityPreferencesDoc> = {};
@@ -124,4 +125,8 @@ function addAttendeesToSectionSchedules(sectionData: { activityPreferences: Acti
 
 function updateSessionDocWithAttendeeIds(attendeeRequests: CreateAttendeeRequest[], sessionId: string, transaction: Transaction) {
   return updateSessionDoc(sessionId, { attendeeIds: FieldValue.arrayUnion(...attendeeRequests.map(attendee => attendee.attendeeId)) }, transaction);
+}
+
+function addEmployeesToDaysOffSchedule(attendeeRequests: (CreateStaffAttendeeRequest | CreateAdminAttendeeRequest)[], sessionId: string, transaction: Transaction) {
+  return updateDaysOffScheduleDoc(sessionId, attendeeRequests.reduce((acc, attendeeRequest) => ({ ...acc, [`daysOffByCounselorId.${attendeeRequest.attendeeId}`]: [] }), {} as UpdateData<DaysOffScheduleDoc>), transaction);
 }
