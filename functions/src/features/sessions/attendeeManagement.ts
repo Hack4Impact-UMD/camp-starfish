@@ -4,8 +4,8 @@ import { batchGetUserDocs } from "../../data/firestore/users";
 import { toRecord } from "@/utils/data/toRecord";
 import { createAttendeeDoc } from "../../data/firestore/attendees";
 import { ActivityPreferencesDoc, AdminAttendeeDoc, CamperAttendeeDoc, SectionScheduleDoc, StaffAttendeeDoc } from "@/data/firestore/types/documents";
-import { DocumentSnapshot, FieldValue, Timestamp, UpdateData } from "firebase-admin/firestore";
-import { CreateAttendeesRequestSchema } from "@/hooks/attendees/types"
+import { DocumentSnapshot, FieldValue, Timestamp, Transaction, UpdateData } from "firebase-admin/firestore";
+import { CreateAttendeeRequest, CreateAttendeesRequestSchema } from "@/hooks/attendees/types"
 import { mapActivityPreferencesFromFirestore, updateActivityPreferencesDoc } from "../../data/firestore/activityPreferences";
 import { SectionsSubcollection } from "@/data/firestore/types/collections";
 import { mapSectionScheduleFromFirestore } from "../../data/firestore/sectionSchedules";
@@ -13,6 +13,7 @@ import { isBundleSectionSchedule, isBunkJamboreeSectionSchedule } from "@/types/
 import { ActivityPreferences, SectionSchedule } from "@/types/scheduling/schedulingTypes";
 import { updateSessionDoc } from "../../data/firestore/sessions";
 import { uniqueArray } from "@/utils/data/unique";
+import { User } from "@/types/users/userTypes";
 
 export const createAttendees = onCall(async (req) => {
   if (!req.auth || !req.auth.token.role) {
@@ -27,7 +28,6 @@ export const createAttendees = onCall(async (req) => {
   }
 
   const { sessionId, attendees } = requestValidationResult.data;
-  const attendeeRequestsById = toRecord(attendees, attendee => attendee.attendeeId);
   await adminDb.runTransaction(async (transaction) => {
     const users = await batchGetUserDocs(attendees.map(attendee => attendee.attendeeId), transaction);
     const activityPreferences = ((await transaction.get(adminDb.collectionGroup(SectionsSubcollection.ACTIVITY_PREFERENCES).where('__name__', '>=', `/sessions/${sessionId}`).where('__name__', '<', `/sessions/${sessionId}\uf8ff`))).docs as DocumentSnapshot<ActivityPreferencesDoc>[]).map(mapActivityPreferencesFromFirestore);
@@ -43,73 +43,85 @@ export const createAttendees = onCall(async (req) => {
     const usersById = toRecord(users, user => user.id);
     const acceptedAttendees = attendees.filter(attendee => attendee.attendeeId in usersById && usersById[attendee.attendeeId].role === attendee.role);
 
-    await Promise.all(acceptedAttendees.map(attendeeRequest => {
-      const user = usersById[attendeeRequest.attendeeId];
-      if (user.role === "CAMPER" && attendeeRequest.role === "CAMPER") {
-        return createAttendeeDoc(user.id, sessionId, {
-          ageGroup: attendeeRequest.ageGroup,
-          bunk: attendeeRequest.bunk,
-          isOptedOutFromSwim: false,
-          level: 1,
-          role: "CAMPER",
-          snapshot: {
-            // @ts-expect-error - Timestamp class in Firestore client & admin SDKs are slightly different, doesn't affect functionality
-            dateOfBirth: Timestamp.fromDate(user.dateOfBirth.toDate()),
-            gender: user.gender,
-            name: user.name,
-            nonoList: user.nonoListIds
-          }
-        } satisfies CamperAttendeeDoc, transaction);
-      } else if (user.role === "STAFF" && attendeeRequest.role === "STAFF") {
-        return createAttendeeDoc(user.id, sessionId, {
-          bunk: attendeeRequest.bunk,
-          isLeadBunkCounselor: attendeeRequest.isLeadBunkCounselor,
-          role: "STAFF",
-          snapshot: {
-            // @ts-expect-error - Timestamp class in Firestore client & admin SDKs are slightly different, doesn't affect functionality
-            dateOfBirth: Timestamp.fromDate(user.dateOfBirth.toDate()),
-            gender: user.gender,
-            name: user.name,
-            nonoList: user.nonoListIds,
-            yesyesList: user.yesyesListIds
-          }
-        } satisfies StaffAttendeeDoc, transaction);
-      } else if (user.role === "ADMIN" && attendeeRequest.role === "ADMIN") {
-        return createAttendeeDoc(user.id, sessionId, {
-          role: "ADMIN",
-          snapshot: {
-            // @ts-expect-error - Timestamp class in Firestore client & admin SDKs are slightly different, doesn't affect functionality
-            dateOfBirth: Timestamp.fromDate(user.dateOfBirth.toDate()),
-            gender: user.gender,
-            name: user.name,
-            nonoList: user.nonoListIds,
-            yesyesList: user.yesyesListIds
-          }
-        } satisfies AdminAttendeeDoc, transaction);
-      }
-      return;
-    }));
-
-    await Promise.all(sectionData.map(section => {
-      const { activityPreferences, sectionSchedule } = section;
-      const updates: UpdateData<ActivityPreferencesDoc> = {};
-      const camperOrBunkIds = isBunkJamboreeSectionSchedule(sectionSchedule) ? uniqueArray(acceptedAttendees.filter(attendee => attendee.role !== "ADMIN").map(attendee => attendee.bunk)) : attendees.filter(attendee => attendee.role === "CAMPER").map(attendee => attendee.attendeeId);
-      for (const blockId of Object.keys(activityPreferences.blocks)) {
-        const activityIds = isBundleSectionSchedule(sectionSchedule) ? sectionSchedule.blocks[blockId].activities.map(activity => activity.programAreaId) : sectionSchedule.blocks[blockId].activities.map(activity => activity.name);
-        for (const camperOrBunkId of camperOrBunkIds) {
-          if (camperOrBunkId in activityPreferences.blocks[blockId]) {
-            continue;
-          }
-          for (const activityId of activityIds) {
-            // @ts-ignore - TypeScript is being dumb
-            updates[`blocks.${blockId}.${camperOrBunkId}.${activityId}`] = Infinity;
-          }
-        }
-      }
-      if (Object.keys(updates).length === 0) return;
-      return updateActivityPreferencesDoc(sessionId, activityPreferences.sectionId, updates, transaction);
-    }));
-
-    await updateSessionDoc(sessionId, { attendeeIds: FieldValue.arrayUnion(...acceptedAttendees.map(attendee => attendee.attendeeId)) }, transaction);
+    await Promise.all([
+      createAttendeeDocs(acceptedAttendees, usersById, sessionId, transaction),
+      addAttendeesToSectionSchedules(sectionData, acceptedAttendees, sessionId, transaction),
+      updateSessionDocWithAttendeeIds(acceptedAttendees, sessionId, transaction)
+    ])
   });
 });
+
+async function createAttendeeDocs(attendeeRequests: CreateAttendeeRequest[], usersById: Record<number, User>, sessionId: string, transaction: Transaction) {
+  return attendeeRequests.map(attendeeRequest => {
+    const user = usersById[attendeeRequest.attendeeId];
+    if (user.role === "CAMPER" && attendeeRequest.role === "CAMPER") {
+      return createAttendeeDoc(user.id, sessionId, {
+        ageGroup: attendeeRequest.ageGroup,
+        bunk: attendeeRequest.bunk,
+        isOptedOutFromSwim: false,
+        level: 1,
+        role: "CAMPER",
+        snapshot: {
+          // @ts-expect-error - Timestamp class in Firestore client & admin SDKs are slightly different, doesn't affect functionality
+          dateOfBirth: Timestamp.fromDate(user.dateOfBirth.toDate()),
+          gender: user.gender,
+          name: user.name,
+          nonoList: user.nonoListIds
+        }
+      } satisfies CamperAttendeeDoc, transaction);
+    } else if (user.role === "STAFF" && attendeeRequest.role === "STAFF") {
+      return createAttendeeDoc(user.id, sessionId, {
+        bunk: attendeeRequest.bunk,
+        isLeadBunkCounselor: attendeeRequest.isLeadBunkCounselor,
+        role: "STAFF",
+        snapshot: {
+          // @ts-expect-error - Timestamp class in Firestore client & admin SDKs are slightly different, doesn't affect functionality
+          dateOfBirth: Timestamp.fromDate(user.dateOfBirth.toDate()),
+          gender: user.gender,
+          name: user.name,
+          nonoList: user.nonoListIds,
+          yesyesList: user.yesyesListIds
+        }
+      } satisfies StaffAttendeeDoc, transaction);
+    } else if (user.role === "ADMIN" && attendeeRequest.role === "ADMIN") {
+      return createAttendeeDoc(user.id, sessionId, {
+        role: "ADMIN",
+        snapshot: {
+          // @ts-expect-error - Timestamp class in Firestore client & admin SDKs are slightly different, doesn't affect functionality
+          dateOfBirth: Timestamp.fromDate(user.dateOfBirth.toDate()),
+          gender: user.gender,
+          name: user.name,
+          nonoList: user.nonoListIds,
+          yesyesList: user.yesyesListIds
+        }
+      } satisfies AdminAttendeeDoc, transaction);
+    }
+    return;
+  });
+}
+
+async function addAttendeesToSectionSchedules(sectionData: { activityPreferences: ActivityPreferences, sectionSchedule: SectionSchedule }[], attendeeRequests: CreateAttendeeRequest[], sessionId: string, transaction: Transaction) {
+  return sectionData.map(section => {
+    const { activityPreferences, sectionSchedule } = section;
+    const updates: UpdateData<ActivityPreferencesDoc> = {};
+    const camperOrBunkIds = isBunkJamboreeSectionSchedule(sectionSchedule) ? uniqueArray(attendeeRequests.filter(attendee => attendee.role !== "ADMIN").map(attendee => attendee.bunk)) : attendeeRequests.filter(attendee => attendee.role === "CAMPER").map(attendee => attendee.attendeeId);
+    for (const blockId of Object.keys(activityPreferences.blocks)) {
+      const activityIds = isBundleSectionSchedule(sectionSchedule) ? sectionSchedule.blocks[blockId].activities.map(activity => activity.programAreaId) : sectionSchedule.blocks[blockId].activities.map(activity => activity.name);
+      for (const camperOrBunkId of camperOrBunkIds) {
+        if (camperOrBunkId in activityPreferences.blocks[blockId]) {
+          continue;
+        }
+        for (const activityId of activityIds) {
+          // @ts-ignore - TypeScript is being dumb
+          updates[`blocks.${blockId}.${camperOrBunkId}.${activityId}`] = Infinity;
+        }
+      }
+    }
+    if (Object.keys(updates).length === 0) return;
+    return updateActivityPreferencesDoc(sessionId, activityPreferences.sectionId, updates, transaction);
+  });
+}
+
+async function updateSessionDocWithAttendeeIds(attendeeRequests: CreateAttendeeRequest[], sessionId: string, transaction: Transaction) {
+  await updateSessionDoc(sessionId, { attendeeIds: FieldValue.arrayUnion(...attendeeRequests.map(attendee => attendee.attendeeId)) }, transaction);
+}
