@@ -40,10 +40,11 @@ export const createAttendees = onCall(async (req) => {
       })
     }
 
-    const acceptedUsers = users.filter(user => user.id in attendeeRequestsById && attendeeRequestsById[user.id].role === user.role);
+    const usersById = toRecord(users, user => user.id);
+    const acceptedAttendees = attendees.filter(attendee => attendee.attendeeId in usersById && usersById[attendee.attendeeId].role === attendee.role);
 
-    await Promise.all(acceptedUsers.map(user => {
-      const attendeeRequest = attendeeRequestsById[user.id];
+    await Promise.all(acceptedAttendees.map(attendeeRequest => {
+      const user = usersById[attendeeRequest.attendeeId];
       if (user.role === "CAMPER" && attendeeRequest.role === "CAMPER") {
         return createAttendeeDoc(user.id, sessionId, {
           ageGroup: attendeeRequest.ageGroup,
@@ -92,7 +93,7 @@ export const createAttendees = onCall(async (req) => {
     await Promise.all(sectionData.map(section => {
       const { activityPreferences, sectionSchedule } = section;
       const updates: UpdateData<ActivityPreferencesDoc> = {};
-      const camperOrBunkIds = isBunkJamboreeSectionSchedule(sectionSchedule) ? uniqueArray(attendees.filter(attendee => attendee.role !== "ADMIN").map(attendee => attendee.bunk)) : attendees.filter(attendee => attendee.role === "CAMPER").map(attendee => attendee.attendeeId);
+      const camperOrBunkIds = isBunkJamboreeSectionSchedule(sectionSchedule) ? uniqueArray(acceptedAttendees.filter(attendee => attendee.role !== "ADMIN").map(attendee => attendee.bunk)) : attendees.filter(attendee => attendee.role === "CAMPER").map(attendee => attendee.attendeeId);
       for (const blockId of Object.keys(activityPreferences.blocks)) {
         const activityIds = isBundleSectionSchedule(sectionSchedule) ? sectionSchedule.blocks[blockId].activities.map(activity => activity.programAreaId) : sectionSchedule.blocks[blockId].activities.map(activity => activity.name);
         for (const camperOrBunkId of camperOrBunkIds) {
@@ -109,6 +110,6 @@ export const createAttendees = onCall(async (req) => {
       return updateActivityPreferencesDoc(sessionId, activityPreferences.sectionId, updates, transaction);
     }));
 
-    await updateSessionDoc(sessionId, { attendeeIds: FieldValue.arrayUnion(...acceptedUsers.map(attendee => attendee.id)) }, transaction);
+    await updateSessionDoc(sessionId, { attendeeIds: FieldValue.arrayUnion(...acceptedAttendees.map(attendee => attendee.attendeeId)) }, transaction);
   });
 });
