@@ -44,14 +44,14 @@ export const createAttendees = onCall(async (req) => {
     const acceptedAttendees = attendees.filter(attendee => attendee.attendeeId in usersById && usersById[attendee.attendeeId].role === attendee.role);
 
     await Promise.all([
-      createAttendeeDocs(acceptedAttendees, usersById, sessionId, transaction),
-      addAttendeesToSectionSchedules(sectionData, acceptedAttendees, sessionId, transaction),
+      ...createAttendeeDocs(acceptedAttendees, usersById, sessionId, transaction),
+      ...addAttendeesToSectionSchedules(sectionData, acceptedAttendees, sessionId, transaction),
       updateSessionDocWithAttendeeIds(acceptedAttendees, sessionId, transaction)
     ])
   });
 });
 
-async function createAttendeeDocs(attendeeRequests: CreateAttendeeRequest[], usersById: Record<number, User>, sessionId: string, transaction: Transaction) {
+function createAttendeeDocs(attendeeRequests: CreateAttendeeRequest[], usersById: Record<number, User>, sessionId: string, transaction: Transaction) {
   return attendeeRequests.map(attendeeRequest => {
     const user = usersById[attendeeRequest.attendeeId];
     if (user.role === "CAMPER" && attendeeRequest.role === "CAMPER") {
@@ -100,7 +100,7 @@ async function createAttendeeDocs(attendeeRequests: CreateAttendeeRequest[], use
   });
 }
 
-async function addAttendeesToSectionSchedules(sectionData: { activityPreferences: ActivityPreferences, sectionSchedule: SectionSchedule }[], attendeeRequests: CreateAttendeeRequest[], sessionId: string, transaction: Transaction) {
+function addAttendeesToSectionSchedules(sectionData: { activityPreferences: ActivityPreferences, sectionSchedule: SectionSchedule }[], attendeeRequests: CreateAttendeeRequest[], sessionId: string, transaction: Transaction) {
   return sectionData.map(section => {
     const { activityPreferences, sectionSchedule } = section;
     const updates: UpdateData<ActivityPreferencesDoc> = {};
@@ -122,6 +122,6 @@ async function addAttendeesToSectionSchedules(sectionData: { activityPreferences
   });
 }
 
-async function updateSessionDocWithAttendeeIds(attendeeRequests: CreateAttendeeRequest[], sessionId: string, transaction: Transaction) {
-  await updateSessionDoc(sessionId, { attendeeIds: FieldValue.arrayUnion(...attendeeRequests.map(attendee => attendee.attendeeId)) }, transaction);
+function updateSessionDocWithAttendeeIds(attendeeRequests: CreateAttendeeRequest[], sessionId: string, transaction: Transaction) {
+  return updateSessionDoc(sessionId, { attendeeIds: FieldValue.arrayUnion(...attendeeRequests.map(attendee => attendee.attendeeId)) }, transaction);
 }
