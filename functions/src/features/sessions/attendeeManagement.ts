@@ -46,8 +46,9 @@ export const createAttendees = onCall(async (req) => {
 
     await Promise.all([
       ...createAttendeeDocs(acceptedAttendees, usersById, sessionId, transaction),
-      ...addCamperAttendeesToSectionSchedules(sectionData, acceptedAttendees, sessionId, transaction),
+      ...addAttendeesToSectionSchedules(sectionData, acceptedAttendees.filter(att => att.role === "CAMPER" || att.role === "STAFF"), sessionId, transaction),
       updateSessionDocWithAttendeeIds(acceptedAttendees, sessionId, transaction),
+      addEmployeesToDaysOffSchedule(acceptedAttendees.filter(att => att.role === "ADMIN" || att.role === "STAFF"), sessionId, transaction)
     ])
   });
 });
@@ -101,11 +102,11 @@ function createAttendeeDocs(attendeeRequests: CreateAttendeeRequest[], usersById
   });
 }
 
-function addCamperAttendeesToSectionSchedules(sectionData: { activityPreferences: ActivityPreferences, sectionSchedule: SectionSchedule }[], attendeeRequests: CreateCamperAttendeeRequest[], sessionId: string, transaction: Transaction) {
+function addAttendeesToSectionSchedules(sectionData: { activityPreferences: ActivityPreferences, sectionSchedule: SectionSchedule }[], attendeeRequests: (CreateCamperAttendeeRequest | CreateStaffAttendeeRequest)[], sessionId: string, transaction: Transaction) {
   return sectionData.map(section => {
     const { activityPreferences, sectionSchedule } = section;
     const updates: UpdateData<ActivityPreferencesDoc> = {};
-    const camperOrBunkIds = isBunkJamboreeSectionSchedule(sectionSchedule) ? uniqueArray(attendeeRequests.filter(attendee => attendee.role !== "ADMIN").map(attendee => attendee.bunk)) : attendeeRequests.filter(attendee => attendee.role === "CAMPER").map(attendee => attendee.attendeeId);
+    const camperOrBunkIds = isBunkJamboreeSectionSchedule(sectionSchedule) ? uniqueArray(attendeeRequests.map(attendee => attendee.bunk)) : attendeeRequests.filter(attendee => attendee.role === "CAMPER").map(attendee => attendee.attendeeId);
     for (const blockId of Object.keys(activityPreferences.blocks)) {
       const activityIds = isBundleSectionSchedule(sectionSchedule) ? sectionSchedule.blocks[blockId].activities.map(activity => activity.programAreaId) : sectionSchedule.blocks[blockId].activities.map(activity => activity.name);
       for (const camperOrBunkId of camperOrBunkIds) {
