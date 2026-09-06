@@ -9,13 +9,11 @@ import { CreateAdminAttendeeRequest, CreateAttendeeRequest, CreateAttendeesReque
 import { mapActivityPreferencesFromFirestore, updateActivityPreferencesDoc } from "../../data/firestore/activityPreferences";
 import { SectionsSubcollection } from "@/data/firestore/types/collections";
 import { mapSectionScheduleFromFirestore } from "../../data/firestore/sectionSchedules";
-import { isBundleSectionSchedule, isBunkJamboreeSectionSchedule } from "@/types/scheduling/schedulingTypeGuards";
-import { Activity, ActivityPreferences, BundleSectionSchedule, BunkJamboreeSectionSchedule, SectionSchedule } from "@/types/scheduling/schedulingTypes";
+import { ActivityPreferences, BundleSectionSchedule, BunkJamboreeSectionSchedule, SectionSchedule } from "@/types/scheduling/schedulingTypes";
 import { updateSessionDoc } from "../../data/firestore/sessions";
 import { uniqueArray } from "@/utils/data/unique";
 import { User } from "@/types/users/userTypes";
 import { updateDaysOffScheduleDoc } from "../../data/firestore/daysOffSchedules";
-import partition from "@/utils/data/partition";
 
 export const createAttendees = onCall(async (req) => {
   if (!req.auth || !req.auth.token.role) {
@@ -109,18 +107,14 @@ function addAttendeesToBundleActivityPreferences(sectionSchedule: BundleSectionS
   const ocpCampers = camperRequests.filter(camper => camper.ageGroup === "OCP");
   for (const blockId of Object.keys(sectionSchedule.blocks)) {
     for (const camper of navCampers) {
-      if (camper.attendeeId in activityPreferences.blocks[blockId]) {
-        continue;
-      }
+      if (camper.attendeeId in activityPreferences.blocks[blockId]) continue;
       for (const activity of sectionSchedule.blocks[blockId].activities.filter(act => act.ageGroup === "NAV")) {
         // @ts-ignore - TypeScript is being dumb
         updates[`blocks.${blockId}.${camper.attendeeId}.${activity.programAreaId}`] = Infinity;
       }
     }
     for (const camper of ocpCampers) {
-      if (camper.attendeeId in activityPreferences.blocks[blockId]) {
-        continue;
-      }
+      if (camper.attendeeId in activityPreferences.blocks[blockId]) continue;
       for (const activity of sectionSchedule.blocks[blockId].activities.filter(act => act.ageGroup === "OCP")) {
         // @ts-ignore - TypeScript is being dumb
         updates[`blocks.${blockId}.${camper.attendeeId}.${activity.programAreaId}`] = Infinity;
