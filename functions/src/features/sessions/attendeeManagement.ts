@@ -10,11 +10,12 @@ import { mapActivityPreferencesFromFirestore, updateActivityPreferencesDoc } fro
 import { SectionsSubcollection } from "@/data/firestore/types/collections";
 import { mapSectionScheduleFromFirestore } from "../../data/firestore/sectionSchedules";
 import { isBundleSectionSchedule, isBunkJamboreeSectionSchedule } from "@/types/scheduling/schedulingTypeGuards";
-import { ActivityPreferences, SectionSchedule } from "@/types/scheduling/schedulingTypes";
+import { Activity, ActivityPreferences, BundleSectionSchedule, BunkJamboreeSectionSchedule, SectionSchedule } from "@/types/scheduling/schedulingTypes";
 import { updateSessionDoc } from "../../data/firestore/sessions";
 import { uniqueArray } from "@/utils/data/unique";
 import { User } from "@/types/users/userTypes";
 import { updateDaysOffScheduleDoc } from "../../data/firestore/daysOffSchedules";
+import partition from "@/utils/data/partition";
 
 export const createAttendees = onCall(async (req) => {
   if (!req.auth || !req.auth.token.role) {
@@ -46,7 +47,7 @@ export const createAttendees = onCall(async (req) => {
 
     await Promise.all([
       ...createAttendeeDocs(acceptedAttendees, usersById, sessionId, transaction),
-      ...addAttendeesToSectionSchedules(sectionData, acceptedAttendees.filter(att => att.role === "CAMPER" || att.role === "STAFF"), sessionId, transaction),
+      ...addAttendeesToActivityPreferences(sectionData, acceptedAttendees.filter(att => att.role === "CAMPER" || att.role === "STAFF"), sessionId, transaction),
       updateSessionDocWithAttendeeIds(acceptedAttendees, sessionId, transaction),
       addEmployeesToDaysOffSchedule(acceptedAttendees.filter(att => att.role === "ADMIN" || att.role === "STAFF"), sessionId, transaction)
     ])
@@ -102,24 +103,79 @@ function createAttendeeDocs(attendeeRequests: CreateAttendeeRequest[], usersById
   });
 }
 
-function addAttendeesToSectionSchedules(sectionData: { activityPreferences: ActivityPreferences, sectionSchedule: SectionSchedule }[], attendeeRequests: (CreateCamperAttendeeRequest | CreateStaffAttendeeRequest)[], sessionId: string, transaction: Transaction) {
-  return sectionData.map(section => {
-    const { activityPreferences, sectionSchedule } = section;
-    const updates: UpdateData<ActivityPreferencesDoc> = {};
-    const camperOrBunkIds = isBunkJamboreeSectionSchedule(sectionSchedule) ? uniqueArray(attendeeRequests.map(attendee => attendee.bunk)) : attendeeRequests.filter(attendee => attendee.role === "CAMPER").map(attendee => attendee.attendeeId);
-    for (const blockId of Object.keys(activityPreferences.blocks)) {
-      const activityIds = isBundleSectionSchedule(sectionSchedule) ? sectionSchedule.blocks[blockId].activities.map(activity => activity.programAreaId) : sectionSchedule.blocks[blockId].activities.map(activity => activity.name);
-      for (const camperOrBunkId of camperOrBunkIds) {
-        if (camperOrBunkId in activityPreferences.blocks[blockId]) {
-          continue;
-        }
-        for (const activityId of activityIds) {
-          // @ts-ignore - TypeScript is being dumb
-          updates[`blocks.${blockId}.${camperOrBunkId}.${activityId}`] = Infinity;
-        }
+function addAttendeesToBundleActivityPreferences(sectionSchedule: BundleSectionSchedule, activityPreferences: ActivityPreferences, camperRequests: CreateCamperAttendeeRequest[]): UpdateData<ActivityPreferencesDoc> {
+  const updates: UpdateData<ActivityPreferencesDoc> = {};
+  const navCampers = camperRequests.filter(camper => camper.ageGroup === "NAV");
+  const ocpCampers = camperRequests.filter(camper => camper.ageGroup === "OCP");
+  for (const blockId of Object.keys(sectionSchedule.blocks)) {
+    for (const camper of navCampers) {
+      if (camper.attendeeId in activityPreferences.blocks[blockId]) {
+        continue;
+      }
+      for (const activity of sectionSchedule.blocks[blockId].activities.filter(act => act.ageGroup === "NAV")) {
+        // @ts-ignore - TypeScript is being dumb
+        updates[`blocks.${blockId}.${camper.attendeeId}.${activity.programAreaId}`] = Infinity;
       }
     }
-    if (Object.keys(updates).length === 0) return;
+    for (const camper of ocpCampers) {
+      if (camper.attendeeId in activityPreferences.blocks[blockId]) {
+        continue;
+      }
+      for (const activity of sectionSchedule.blocks[blockId].activities.filter(act => act.ageGroup === "OCP")) {
+        // @ts-ignore - TypeScript is being dumb
+        updates[`blocks.${blockId}.${camper.attendeeId}.${activity.programAreaId}`] = Infinity;
+      }
+    }
+  }
+  return updates;
+}
+
+function addAttendeesToBunkJamboreeActivityPreferences(sectionSchedule: BunkJamboreeSectionSchedule, activityPreferences: ActivityPreferences, attendeeRequests: (CreateCamperAttendeeRequest | CreateStaffAttendeeRequest)[]): UpdateData<ActivityPreferencesDoc> {
+  const updates: UpdateData<ActivityPreferencesDoc> = {};
+  const bunkIds = uniqueArray(attendeeRequests.map(att => att.bunk));
+  for (const blockId of Object.keys(sectionSchedule.blocks)) {
+    for (const bunkId of bunkIds) {
+      if (bunkId in activityPreferences.blocks[blockId]) continue;
+      for (const activity of sectionSchedule.blocks[blockId].activities) {
+        // @ts-ignore - TypeScript is being dumb
+        updates[`blocks.${blockId}.${bunkId}.${activity.name}`] = Infinity;
+      }
+    }
+  }
+  return updates;
+}
+
+function addAttendeesToNonBunkJamboreeActivityPreferences(sectionSchedule: SectionSchedule, activityPreferences: ActivityPreferences, camperRequests: CreateCamperAttendeeRequest[]): UpdateData<ActivityPreferencesDoc> {
+  const updates: UpdateData<ActivityPreferencesDoc> = {};
+  for (const blockId of Object.keys(sectionSchedule.blocks)) {
+    for (const camper of camperRequests) {
+      if (camper.attendeeId in activityPreferences.blocks[blockId]) continue;
+      for (const activity of sectionSchedule.blocks[blockId].activities) {
+        // @ts-ignore - TypeScript is being dumb
+        updates[`blocks.${blockId}.${camper.attendeeId}.${activity.name}`] = Infinity;
+      }
+    }
+  }
+  return updates;
+}
+
+function addAttendeesToActivityPreferences(sectionData: { activityPreferences: ActivityPreferences, sectionSchedule: SectionSchedule }[], attendeeRequests: (CreateCamperAttendeeRequest | CreateStaffAttendeeRequest)[], sessionId: string, transaction: Transaction) {
+  return sectionData.map(section => {
+    const { activityPreferences, sectionSchedule } = section;
+    let updates: UpdateData<ActivityPreferencesDoc> = {};
+    switch (sectionSchedule.type) {
+      case "BUNDLE":
+        updates = addAttendeesToBundleActivityPreferences(sectionSchedule, activityPreferences, attendeeRequests.filter(att => att.role === "CAMPER"));
+        break;
+      case "BUNK-JAMBO":
+        updates = addAttendeesToBunkJamboreeActivityPreferences(sectionSchedule, activityPreferences, attendeeRequests);
+        break;
+      case "NON-BUNK-JAMBO":
+        updates = addAttendeesToNonBunkJamboreeActivityPreferences(sectionSchedule, activityPreferences, attendeeRequests.filter(att => att.role === "CAMPER"));
+        break;
+    }
+
+   if (Object.keys(updates).length === 0) return;
     return updateActivityPreferencesDoc(sessionId, activityPreferences.sectionId, updates, transaction);
   });
 }
