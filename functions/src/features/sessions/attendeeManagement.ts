@@ -3,7 +3,7 @@ import { adminDb } from "../../config/firebaseAdminConfig";
 import { batchGetUserDocs } from "../../data/firestore/users";
 import { toRecord } from "@/utils/data/toRecord";
 import { createAttendeeDoc } from "../../data/firestore/attendees";
-import { ActivityPreferencesDoc, AdminAttendeeDoc, CamperAttendeeDoc, DaysOffScheduleDoc, SectionScheduleDoc, SessionDoc, StaffAttendeeDoc } from "@/data/firestore/types/documents";
+import { ActivityPreferencesDoc, AdminAttendeeDoc, CamperAttendeeDoc, DaysOffScheduleDoc, SectionScheduleDoc, StaffAttendeeDoc } from "@/data/firestore/types/documents";
 import { DocumentSnapshot, FieldValue, Timestamp, Transaction, UpdateData } from "firebase-admin/firestore";
 import { CreateAdminAttendeeRequest, CreateAttendeeRequest, CreateAttendeesRequestSchema, CreateCamperAttendeeRequest, CreateStaffAttendeeRequest } from "@/hooks/attendees/types"
 import { mapActivityPreferencesFromFirestore, updateActivityPreferencesDoc } from "../../data/firestore/activityPreferences";
