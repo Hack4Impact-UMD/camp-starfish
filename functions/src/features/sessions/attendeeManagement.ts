@@ -3,7 +3,7 @@ import { adminDb } from "../../config/firebaseAdminConfig";
 import { batchGetUserDocs } from "../../data/firestore/users";
 import { toRecord } from "@/utils/data/toRecord";
 import { createAttendeeDoc } from "../../data/firestore/attendees";
-import { ActivityPreferencesDoc, AdminAttendeeDoc, CamperAttendeeDoc, DaysOffScheduleDoc, SectionScheduleDoc, StaffAttendeeDoc } from "@/data/firestore/types/documents";
+import { ActivityPreferencesDoc, AdminAttendeeDoc, CamperAttendeeDoc, DaysOffScheduleDoc, SectionScheduleDoc, SessionDoc, StaffAttendeeDoc } from "@/data/firestore/types/documents";
 import { DocumentSnapshot, FieldValue, Timestamp, Transaction, UpdateData } from "firebase-admin/firestore";
 import { CreateAdminAttendeeRequest, CreateAttendeeRequest, CreateAttendeesRequestSchema, CreateCamperAttendeeRequest, CreateStaffAttendeeRequest } from "@/hooks/attendees/types"
 import { mapActivityPreferencesFromFirestore, updateActivityPreferencesDoc } from "../../data/firestore/activityPreferences";
@@ -179,5 +179,7 @@ function updateSessionDocWithAttendeeIds(attendeeRequests: CreateAttendeeRequest
 }
 
 function addEmployeesToDaysOffSchedule(attendeeRequests: (CreateStaffAttendeeRequest | CreateAdminAttendeeRequest)[], sessionId: string, transaction: Transaction) {
-  return updateDaysOffScheduleDoc(sessionId, attendeeRequests.reduce((acc, attendeeRequest) => ({ ...acc, [`daysOffByCounselorId.${attendeeRequest.attendeeId}`]: [] }), {} as UpdateData<DaysOffScheduleDoc>), transaction);
+  const updates: UpdateData<DaysOffScheduleDoc> = attendeeRequests.reduce((acc, attendeeRequest) => ({ ...acc, [`daysOffByCounselorId.${attendeeRequest.attendeeId}`]: [] }), {} as UpdateData<DaysOffScheduleDoc>);
+  if (Object.keys(updates).length === 0) return;
+  return updateDaysOffScheduleDoc(sessionId, updates, transaction);
 }
