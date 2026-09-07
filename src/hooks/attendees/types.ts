@@ -23,8 +23,8 @@ const CreateAdminAttendeeRequestSchema = z.object({
 const CreateAttendeeRequestSchema = z.union([CreateCamperAttendeeRequestSchema, CreateStaffAttendeeRequestSchema, CreateAdminAttendeeRequestSchema]);
 
 export const CreateAttendeesRequestSchema = z.object({
-  sessionId: z.string().uuid(),
-  attendees: z.array(CreateAttendeeRequestSchema),
+  sessionId: z.uuid(),
+  attendees: z.array(CreateAttendeeRequestSchema).min(1),
 })
 
 export type CreateCamperAttendeeRequest = z.infer<typeof CreateCamperAttendeeRequestSchema>;
