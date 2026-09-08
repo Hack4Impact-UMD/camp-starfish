@@ -3,7 +3,7 @@
   "scripts": {
     "lint": "eslint src",
     "build": "rm -rf dist && node build.mts && cp src/appsscript.json dist/appsscript.json",
-    "deploy": "npm run build && clasp push --force"
+    "deploy": "npm run build && CLASPDEBUG=true clasp push --force"
   },
   "devDependencies": {
     "@types/google-apps-script": "^2.0.7",
