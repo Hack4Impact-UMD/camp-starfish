@@ -4,7 +4,7 @@ import GoogleIcon from "@/assets/icons/Google.svg";
 import MicrosoftIcon from "@/assets/icons/Microsoft.svg";
 import BackgroundPattern from "@/components/BackgroundPattern";
 import { signInWithGooglePopup } from "@/auth/authN";
-import Image from "next/image";
+import { Image } from "@mantine/core";
 import { signInWithMicrosoftPopup } from "@/auth/authN";
 import { MdError } from "react-icons/md";
 

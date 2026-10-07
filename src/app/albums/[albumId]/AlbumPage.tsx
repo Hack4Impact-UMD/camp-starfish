@@ -4,7 +4,6 @@ import {
   MdOutlineFileDownload,
   MdPendingActions,
 } from "react-icons/md";
-import Link from "next/link";
 import AlbumItemCard from "@/components/AlbumItemCard";
 import CardGallery from "@/components/CardGallery";
 import TagSelect from "@/components/TagSelect";
@@ -141,7 +140,7 @@ export function AlbumPageContent(props: AlbumPageContentProps) {
               ))}
             </Menu.Dropdown>
           </Menu>
-          <Link href={`/albums/${album.id}/pending`}>
+          <Anchor href={`/albums/${album.id}/pending`}>
             <Tooltip label="Pending Items">
               <Indicator color="error" offset={7}>
                 <ActionIcon variant="outline">
@@ -149,7 +148,7 @@ export function AlbumPageContent(props: AlbumPageContentProps) {
                 </ActionIcon>
               </Indicator>
             </Tooltip>
-          </Link>
+          </Anchor>
           <Tooltip label="Upload Items">
             <ActionIcon
               color="aqua"

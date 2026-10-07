@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import PolaroidPhotos1 from "../assets/images/PolaroidPhotos1.png";
-import Image from "next/image";
+import { Image } from "@mantine/core";
 import { MdImage } from "react-icons/md";
 
 type GalleryCardProps = {
