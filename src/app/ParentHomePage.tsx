@@ -4,7 +4,7 @@ import { useAuth } from "@/auth/useAuth";
 import PolaroidPhotos1 from "../assets/images/PolaroidPhotos1.png";
 import pattern from "../assets/patterns/trailPattern3.svg";
 import { redirect } from "next/navigation";
-import Image from "next/image";
+import { Image } from "@mantine/core";
 
 export default function ParentHomePage() {
   const auth = useAuth();

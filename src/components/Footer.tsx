@@ -1,7 +1,6 @@
 import darkBgLogo from "../assets/logos/darkBgLogo.png";
 import h4ILogo from "../assets/icons/h4ILogo.png";
-import Link from "next/link";
-import Image from "next/image";
+import { Anchor, Image } from "@mantine/core";
 import {
   FaFacebook,
   FaInstagram,
@@ -23,26 +22,26 @@ export default function Footer() {
             height={214.37}
           />
           <div className="flex flex-row gap-[12px]">
-            <Link href="https://www.facebook.com/campstarfish/">
+            <Anchor href="https://www.facebook.com/campstarfish/">
               <ActionIcon color="orange" size="md">
                 <FaFacebook />
               </ActionIcon>
-            </Link>
-            <Link href="https://www.instagram.com/campstarfishrindge">
+            </Anchor>
+            <Anchor href="https://www.instagram.com/campstarfishrindge">
               <ActionIcon color="orange" size="md">
                 <FaInstagram />
               </ActionIcon>
-            </Link>
-            <Link href="https://www.linkedin.com/company/camp-starfish/">
+            </Anchor>
+            <Anchor href="https://www.linkedin.com/company/camp-starfish/">
               <ActionIcon color="orange" size="md">
                 <FaLinkedin />
               </ActionIcon>
-            </Link>
-            <Link href="https://www.youtube.com/@CampStarfish">
+            </Anchor>
+            <Anchor href="https://www.youtube.com/@CampStarfish">
               <ActionIcon color="orange" size="md">
                 <FaYoutube />
               </ActionIcon>
-            </Link>
+            </Anchor>
           </div>
         </div>
         <div className="flex flex-col w-[208px]">
@@ -87,7 +86,7 @@ export default function Footer() {
             </a>
           </p>
         </div>
-        <Link
+        <Anchor
           href="https://umd.hack4impact.org/ourwork/camp-starfish"
           target="_blank"
         >
@@ -102,7 +101,7 @@ export default function Footer() {
               height={40}
             />
           </div>
-        </Link>
+        </Anchor>
       </div>
     </div>
   );

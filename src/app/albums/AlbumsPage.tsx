@@ -17,7 +17,7 @@ import {
   Tooltip,
 } from "@mantine/core";
 import { MdAdd, MdPendingActions, MdSort } from "react-icons/md";
-import Link from "next/link";
+import { Anchor } from "@mantine/core";
 import { FirestoreQueryOptions } from "@/data/firestore/types/queries";
 import { AlbumDoc } from "@/data/firestore/types/documents";
 import { useInViewport } from "@mantine/hooks";
@@ -112,7 +112,7 @@ export default function AlbumsPage() {
               </Menu.Item>
             </Menu.Dropdown>
           </Menu>
-          <Link href="/albums/pending">
+          <Anchor href="/albums/pending">
             <Tooltip label="Pending Items">
               <Indicator color="error" offset={7}>
                 <ActionIcon variant="outline">
@@ -120,7 +120,7 @@ export default function AlbumsPage() {
                 </ActionIcon>
               </Indicator>
             </Tooltip>
-          </Link>
+          </Anchor>
           <Tooltip label="Create Album">
             <ActionIcon color="orange" onClick={() => openEditAlbumModal()}>
               <MdAdd size={40} />
