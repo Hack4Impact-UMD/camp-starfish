@@ -144,7 +144,7 @@ export interface SchedulingSectionDoc extends BaseSectionDoc {
 }
 export type SectionDoc = CommonSectionDoc | SchedulingSectionDoc;
 
-export type SectionScheduleDoc = NestedOmit<DistributiveOmit<SectionSchedule, "sessionId" | "sectionId">, "blocks.string.activities.string.id">;
+export type SectionScheduleDoc = NestedOmit<DistributiveOmit<SectionSchedule, "sessionId" | "sectionId">, "blocks.__dynamic__.activities.__dynamic__.id">;
 export type BunkDoc = Omit<Bunk, "bunkNum" | "sessionId">;
 export type NightScheduleDoc = Omit<NightSchedule, "date" | "sessionId">;
 export type FreeplayDoc = Omit<Freeplay, "date" | "sessionId">;

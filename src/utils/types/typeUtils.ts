@@ -10,12 +10,10 @@ export type NestedOmit<T, Path extends string> = Path extends `${infer Key}.${in
     ? Array<NestedOmit<Item, Path>>
     : T extends object
     ? {
-        [P in keyof T]: string extends P 
-          ? NestedOmit<T[P], Rest> // Handle dynamic string keys [key: string]
-          : number extends P
-          ? NestedOmit<T[P], Rest> // Handle dynamic number keys [key: number]
+        [P in keyof T]: Key extends '__dynamic__'
+          ? (string extends P ? NestedOmit<T[P], Rest> : T[P])
           : P extends Key
-          ? NestedOmit<T[P], Rest> // Handle explicit static keys
+          ? NestedOmit<T[P], Rest>
           : T[P];
       }
     : T
@@ -24,13 +22,10 @@ export type NestedOmit<T, Path extends string> = Path extends `${infer Key}.${in
     ? Array<NestedOmit<Item, Path>>
     : T extends object
     ? {
-        // Map keys, discarding the exact dynamic or static key matching the end of the path
-        [P in keyof T as P extends Path 
+        [P in keyof T as Path extends '__dynamic__'
+          ? (string extends P ? never : P)
+          : P extends Path 
           ? never 
-          : string extends Path 
-          ? (string extends P ? never : P) 
-          : number extends Path 
-          ? (number extends P ? never : P) 
           : P]: T[P];
       }
     : T
