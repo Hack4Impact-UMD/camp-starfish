@@ -41,7 +41,7 @@ export default function DownloadDaySchedulePDFButton(
       return [];
     const programAreaIds = new Set<string>();
     Object.values(scheduleQuery.data.blocks).forEach((block) =>
-      block.activities.forEach((activity) =>
+      Object.values(block.activities).forEach((activity) =>
         programAreaIds.add(activity.programAreaId),
       ),
     );

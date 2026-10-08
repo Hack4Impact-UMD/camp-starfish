@@ -177,7 +177,7 @@ export default function ProgramAreaGrid({
         {blockIds.map((blockId) => {
           const block = schedule.blocks[blockId];
           const blockActivitiesByProgramArea = toRecord(
-            block.activities,
+            Object.values(block.activities),
             (a) => a.programAreaId,
           );
 

@@ -99,7 +99,7 @@ export default function BlockRatiosGrid({
 
   // Find the maximum number of activities across all blocks
   const maxActivities = Math.max(
-    ...blocks.map((block) => block.activities.length),
+    ...blocks.map((block) => Object.keys(block.activities).length),
   );
 
   return (

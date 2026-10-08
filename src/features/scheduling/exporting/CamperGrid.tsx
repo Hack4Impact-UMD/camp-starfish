@@ -205,10 +205,10 @@ export default function CamperGrid(props: CamperGridProps) {
               {Object.keys(schedule.blocks).map((blockId, i) => {
                 const block = schedule.blocks[blockId];
                 const activity = isBunkJamboreeBlock(block)
-                  ? block.activities.find((act) =>
+                  ? Object.values(block.activities).find((act) =>
                       act.bunkNums.includes(camper.bunk),
                     )
-                  : block.activities.find((act) =>
+                  : Object.values(block.activities).find((act) =>
                       act.camperIds.includes(camper.attendeeId),
                     );
                 return (

@@ -47,11 +47,11 @@ export function generateBunkJamboreeSchedule(req: GenerateBunkJamboreeScheduleRe
     type: "BUNK-JAMBO",
     blocks: Object.entries(currentSchedule.blocks).reduce((prev, [blockId, _block]) => {
       prev[blockId] = {
-        activities: currentSchedule.blocks[blockId].activities.map(activity => ({
-          ...activity,
+        activities: Object.fromEntries(Object.keys(currentSchedule.blocks[blockId].activities).map(activityId => [activityId,({
+          ...currentSchedule.blocks[blockId].activities[activityId],
           adminIds: [],
           bunkNums: [],
-        })),
+        })])),
         periodsOff: []
       };
       return prev;
@@ -65,14 +65,14 @@ export function generateBunkJamboreeSchedule(req: GenerateBunkJamboreeScheduleRe
   const bunksByBunkNum = toRecord(bunks, bunks => bunks.bunkNum);  
   for (const [blockId, block] of Object.entries(newSchedule.blocks)) {
     const shuffledBunks = shuffle(bunks)
-    const maxBunksPerActivity = Math.ceil(shuffledBunks.length / block.activities.length);
+    const maxBunksPerActivity = Math.ceil(shuffledBunks.length / Object.values(block.activities).length);
 
     for (const bunk of shuffledBunks) {
       const bunkMembersById = toRecord([...bunk.camperIds.map((camperId: number) => campersById[camperId]), ...bunk.counselorIds.map((counselorId: number) => staffById[counselorId])], (bunkMember: CamperAttendee | StaffAttendee) => bunkMember.attendeeId);
       const bunkPrefs = bunkActivityPreferences.blocks[blockId][bunk.bunkNum];
-      let eligibleActivities = block.activities.filter((activity) => activity.bunkNums.length < maxBunksPerActivity && canBeAssignedToBunkAssignments(bunk, activity, bunksByBunkNum, bunkMembersById));
+      let eligibleActivities = Object.values(block.activities).filter((activity) => activity.bunkNums.length < maxBunksPerActivity && canBeAssignedToBunkAssignments(bunk, activity, bunksByBunkNum, bunkMembersById));
       if (eligibleActivities.length === 0) {
-        eligibleActivities = block.activities;
+        eligibleActivities = Object.values(block.activities);
       }
       const chosenActivity = eligibleActivities.sort((a, b) => bunkPrefs[a.name] - bunkPrefs[b.name])[0];
       chosenActivity.bunkNums.push(bunk.bunkNum);
@@ -89,9 +89,9 @@ export function generateBunkJamboreeSchedule(req: GenerateBunkJamboreeScheduleRe
 
   for (const [_blockId, block] of Object.entries(newSchedule.blocks)) {
     const adminsToAssign = shuffle(admins.filter((admin) => !block.periodsOff.includes(admin.attendeeId)));
-    const maxAdminsPerActivity = Math.ceil(adminsToAssign.length / block.activities.length);
-    const numAdminsAssigned = Math.min(admins.length, block.activities.length);
-    const shuffledActivities = shuffle(block.activities);
+    const maxAdminsPerActivity = Math.ceil(adminsToAssign.length / Object.keys(block.activities).length);
+    const numAdminsAssigned = Math.min(admins.length, Object.keys(block.activities).length);
+    const shuffledActivities = shuffle(Object.values(block.activities));
     for (let i = 0; i < numAdminsAssigned; i++) {
       shuffledActivities[i].adminIds.push(adminsToAssign[i].attendeeId);
     }
@@ -99,9 +99,9 @@ export function generateBunkJamboreeSchedule(req: GenerateBunkJamboreeScheduleRe
     if (numAdminsAssigned !== admins.length) {
       const remainingAdmins = adminsToAssign.slice(numAdminsAssigned);
       for (const admin of remainingAdmins) {
-        let eligibleActivities = block.activities.filter((activity) => activity.adminIds.length < maxAdminsPerActivity && canBeAssignedToBunkAssignments(admin, activity, bunksByBunkNum));
+        let eligibleActivities = Object.values(block.activities).filter((activity) => activity.adminIds.length < maxAdminsPerActivity && canBeAssignedToBunkAssignments(admin, activity, bunksByBunkNum));
         if (eligibleActivities.length === 0) {
-          eligibleActivities = block.activities;
+          eligibleActivities = Object.values(block.activities);
         }
         const chosenActivity = shuffle(eligibleActivities)[0];
         chosenActivity.adminIds.push(admin.attendeeId);

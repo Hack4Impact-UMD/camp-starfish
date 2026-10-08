@@ -42,12 +42,12 @@ export function generateNonBunkJamboreeSchedule(req: GenerateNonBunkJamboreeSche
     type: "NON-BUNK-JAMBO",
     blocks: Object.entries(currentSchedule.blocks).reduce((prev, [blockId, _block]) => {
       prev[blockId] = {
-        activities: currentSchedule.blocks[blockId].activities.map(activity => ({
-          ...activity,
+        activities: Object.fromEntries(Object.keys(currentSchedule.blocks[blockId].activities).map(activityId => [activityId, {
+          ...currentSchedule.blocks[blockId].activities[activityId],
           camperIds: [],
           staffIds: [],
           adminIds: [],
-        })),
+        }])),
         periodsOff: []
       };
       return prev;
@@ -60,12 +60,12 @@ export function generateNonBunkJamboreeSchedule(req: GenerateNonBunkJamboreeSche
 
   for (const [blockId, block] of Object.entries(newSchedule.blocks)) {
     const sortedCampers = shuffle(campers).sort((a, b) => b.snapshot.dateOfBirth.diff(a.snapshot.dateOfBirth, "years"));
-    const maxCampersPerActivity = Math.ceil(sortedCampers.length / block.activities.length);
+    const maxCampersPerActivity = Math.ceil(sortedCampers.length / Object.values(block.activities).length);
     for (const camper of sortedCampers) {
       const camperPrefs = sectionActivityPreferences.blocks[blockId][camper.attendeeId];
-      let eligibleActivities = block.activities.filter((activity) => activity.camperIds.length < maxCampersPerActivity && canBeAssignedToIndividualActivityAssignments(camper, activity));
+      let eligibleActivities = Object.values(block.activities).filter((activity) => activity.camperIds.length < maxCampersPerActivity && canBeAssignedToIndividualActivityAssignments(camper, activity));
       if (eligibleActivities.length === 0) {
-        eligibleActivities = block.activities;
+        eligibleActivities = Object.values(block.activities);
       }
       const chosenActivity = eligibleActivities.sort((a, b) => camperPrefs[a.name] - camperPrefs[b.name])[0];
       chosenActivity.camperIds.push(camper.attendeeId);
@@ -84,10 +84,10 @@ export function generateNonBunkJamboreeSchedule(req: GenerateNonBunkJamboreeSche
     const adminsToAssign = shuffle(admins.filter((admin) => !block.periodsOff.includes(admin.attendeeId)));
     const staffToAssign = shuffle(staff.filter((staffMember) => !block.periodsOff.includes(staffMember.attendeeId)));
 
-    const maxCounselorsPerActivity = Math.ceil((adminsToAssign.length + staffToAssign.length) / block.activities.length);
+    const maxCounselorsPerActivity = Math.ceil((adminsToAssign.length + staffToAssign.length) / Object.values(block.activities).length);
 
-    const numAdminsAssigned = Math.min(admins.length, block.activities.length);
-    const shuffledActivities = shuffle(block.activities);
+    const numAdminsAssigned = Math.min(admins.length, Object.values(block.activities).length);
+    const shuffledActivities = shuffle(Object.values(block.activities));
     for (let i = 0; i < numAdminsAssigned; i++) {
       shuffledActivities[i].adminIds.push(adminsToAssign[i].attendeeId);
     }
@@ -95,9 +95,9 @@ export function generateNonBunkJamboreeSchedule(req: GenerateNonBunkJamboreeSche
     if (numAdminsAssigned !== admins.length) {
       const remainingAdmins = adminsToAssign.slice(numAdminsAssigned);
       for (const admin of remainingAdmins) {
-        let eligibleActivities = block.activities.filter((activity) => activity.adminIds.length + activity.staffIds.length < maxCounselorsPerActivity && canBeAssignedToIndividualActivityAssignments(admin, activity));
+        let eligibleActivities = Object.values(block.activities).filter((activity) => activity.adminIds.length + activity.staffIds.length < maxCounselorsPerActivity && canBeAssignedToIndividualActivityAssignments(admin, activity));
         if (eligibleActivities.length === 0) {
-          eligibleActivities = block.activities;
+          eligibleActivities = Object.values(block.activities);
         }
         const chosenActivity = shuffle(eligibleActivities)[0];
         chosenActivity.adminIds.push(admin.attendeeId);
@@ -105,9 +105,9 @@ export function generateNonBunkJamboreeSchedule(req: GenerateNonBunkJamboreeSche
     }
 
     for (const staffMember of staffToAssign) {
-      let eligibleActivities = block.activities.filter((activity) => activity.adminIds.length + activity.staffIds.length < maxCounselorsPerActivity && canBeAssignedToIndividualActivityAssignments(staffMember, activity));
+      let eligibleActivities = Object.values(block.activities).filter((activity) => activity.adminIds.length + activity.staffIds.length < maxCounselorsPerActivity && canBeAssignedToIndividualActivityAssignments(staffMember, activity));
       if (eligibleActivities.length === 0) {
-        eligibleActivities = block.activities;
+        eligibleActivities = Object.values(block.activities);
       }
       const chosenActivity = shuffle(eligibleActivities)[0];
       chosenActivity.staffIds.push(staffMember.attendeeId);

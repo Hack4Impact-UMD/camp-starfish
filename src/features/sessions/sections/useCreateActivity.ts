@@ -43,7 +43,7 @@ async function createActivity(req: CreateActivityRequest) {
         throw new Error("Invalid input");
       }
       const { sessionId, sectionId, blockId, ...rest } = inputValidationResult.data;
-      if (sectionSchedule.blocks[blockId].activities.some((act) => act.programAreaId === rest.programAreaId)) {
+      if (Object.values(sectionSchedule.blocks[blockId].activities).some((act) => act.programAreaId === rest.programAreaId)) {
         throw new Error("Cannot have multiple activities in the same block and program area");
       }
       const programArea = await getProgramAreaDoc(rest.programAreaId, transaction);
@@ -65,7 +65,7 @@ async function createActivity(req: CreateActivityRequest) {
         throw new Error("Invalid input");
       }
       const { sessionId, sectionId, blockId, ...rest } = inputValidationResult.data;
-      if (sectionSchedule.blocks[blockId].activities.some((act) => act.name === rest.name)) {
+      if (Object.values(sectionSchedule.blocks[blockId].activities).some((act) => act.name === rest.name)) {
         throw new Error("Cannot have multiple activities in the same block with the same name");
       }
       await updateSectionScheduleDoc(sessionId, sectionId, {

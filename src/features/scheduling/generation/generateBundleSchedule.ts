@@ -43,12 +43,12 @@ export function generateBundleSchedule(req: GenerateBundleScheduleRequest): Bund
     type: "BUNDLE",
     blocks: Object.entries(currentSchedule.blocks).reduce((prev, [blockId, block]) => {
       prev[blockId] = {
-        activities: block.activities.map(activity => ({
-          ...activity,
+        activities: Object.fromEntries(Object.keys(block.activities).map(activityId => [activityId, {
+          ...block.activities[activityId],
           camperIds: [],
           staffIds: [],
           adminIds: [],
-        })),
+        }])),
         periodsOff: []
       };
       return prev;
@@ -62,7 +62,7 @@ export function generateBundleSchedule(req: GenerateBundleScheduleRequest): Bund
   const programCounselors = staff.filter(staffer => staffer.programCounselorFor !== undefined);
   const programCounselorsByProgramArea = groupBy(programCounselors, programCounselor => programCounselor.programCounselorFor!);
   for (const block of Object.values(newSchedule.blocks)) {
-    for (const activity of block.activities) {
+    for (const activity of Object.values(block.activities)) {
       const eligibleProgramCounselors = programCounselorsByProgramArea[activity.programAreaId]?.filter(programCounselor => daysOffSchedule.daysOffByCounselorId[programCounselor.attendeeId].every(dayOff => !isDayInRange(dayOff, [section.startDate, section.endDate])));
       if (!eligibleProgramCounselors) {
         continue;
@@ -73,7 +73,7 @@ export function generateBundleSchedule(req: GenerateBundleScheduleRequest): Bund
 
   const { trueGroup: navCampers, falseGroup: ocpCampers } = partition(campers, camper => camper.ageGroup === "NAV");
 
-  const navSwimActivities = Object.values(newSchedule.blocks).map((block) => block.activities.find(activity => activity.programAreaId === "WF" && activity.ageGroup === "NAV")).filter(activity => !!activity);
+  const navSwimActivities = Object.values(newSchedule.blocks).map((block) => Object.values(block.activities).find(activity => activity.programAreaId === "WF" && activity.ageGroup === "NAV")).filter(activity => !!activity);
   if (navSwimActivities.length !== 0) {
     const maxNavCampersPerSwimActivity = Math.ceil(navCampers.length / navSwimActivities.length);
     for (const camper of shuffle(navCampers)) {
@@ -89,7 +89,7 @@ export function generateBundleSchedule(req: GenerateBundleScheduleRequest): Bund
     }
   }
 
-  const ocpSwimActivities = Object.values(newSchedule.blocks).map((block) => block.activities.find(activity => activity.programAreaId === "WF" && activity.ageGroup === "OCP")).filter(activity => !!activity);
+  const ocpSwimActivities = Object.values(newSchedule.blocks).map((block) => Object.values(block.activities).find(activity => activity.programAreaId === "WF" && activity.ageGroup === "OCP")).filter(activity => !!activity);
   if (ocpSwimActivities.length !== 0) {
     const ocpCampersNeedingSwimActivities = ocpCampers.filter(camper => isFirstBundleOfSession || (camper.level >= 4 && camper.isOptedOutFromSwim));
     const maxOcpCampersPerSwimActivity = Math.ceil(ocpCampersNeedingSwimActivities.length / navSwimActivities.length);
@@ -106,7 +106,7 @@ export function generateBundleSchedule(req: GenerateBundleScheduleRequest): Bund
     }
   }
 
-  const ocpChatActivities = Object.values(newSchedule.blocks).map((block) => block.activities.find(activity => activity.programAreaId === "OCP")).filter(activity => !!activity);
+  const ocpChatActivities = Object.values(newSchedule.blocks).map((block) => Object.values(block.activities).find(activity => activity.programAreaId === "OCP")).filter(activity => !!activity);
   if (ocpChatActivities.length !== 0) {
     const maxOcpCampersPerChatActivity = Math.ceil(ocpCampers.length / ocpChatActivities.length);
     for (const camper of shuffle(ocpCampers)) {
@@ -123,13 +123,13 @@ export function generateBundleSchedule(req: GenerateBundleScheduleRequest): Bund
   }
 
   for (const [blockId, block] of Object.entries(newSchedule.blocks)) {
-    const sortedCampers = shuffle(campers.filter(camper => block.activities.every(activity => !activity.camperIds.includes(camper.attendeeId))).sort((a, b) => b.snapshot.dateOfBirth.diff(a.snapshot.dateOfBirth, "years")));
-    const maxCampersPerActivity = Math.ceil(sortedCampers.length / block.activities.length);
+    const sortedCampers = shuffle(campers.filter(camper => Object.values(block.activities).every(activity => !activity.camperIds.includes(camper.attendeeId))).sort((a, b) => b.snapshot.dateOfBirth.diff(a.snapshot.dateOfBirth, "years")));
+    const maxCampersPerActivity = Math.ceil(sortedCampers.length / Object.values(block.activities).length);
     for (const camper of sortedCampers) {
       const camperPrefs = camperActivityPreferences.blocks[blockId][camper.attendeeId];
-      let eligibleActivities = block.activities.filter((activity) => activity.camperIds.length < maxCampersPerActivity && canBeAssignedToIndividualActivityAssignments(camper, activity));
+      let eligibleActivities = Object.values(block.activities).filter((activity) => activity.camperIds.length < maxCampersPerActivity && canBeAssignedToIndividualActivityAssignments(camper, activity));
       if (eligibleActivities.length === 0) {
-        eligibleActivities = block.activities;
+        eligibleActivities = Object.values(block.activities);
       }
       const chosenActivity = eligibleActivities.sort((a, b) => camperPrefs[a.programAreaId] - camperPrefs[b.programAreaId])[0];
       chosenActivity.camperIds.push(camper.attendeeId);
@@ -141,7 +141,7 @@ export function generateBundleSchedule(req: GenerateBundleScheduleRequest): Bund
   let currBlockNum = 0;
   for (const yesyesListGroup of yesyesListGroups) {
     const blockId = getBlockIdFromNum(currBlockNum);
-    if (yesyesListGroup.some(counselorId => newSchedule.blocks[blockId].activities.some(activity => activity.staffIds.includes(counselorId)))) {
+    if (yesyesListGroup.some(counselorId => Object.values(newSchedule.blocks[blockId].activities).some(activity => activity.staffIds.includes(counselorId)))) {
       const alternatePeriodsOff = Object.keys(newSchedule.alternatePeriodsOff);
       const chosenAlternatePeriodOff = shuffle(alternatePeriodsOff)[0];
       newSchedule.alternatePeriodsOff[chosenAlternatePeriodOff].push(...yesyesListGroup);
@@ -153,12 +153,12 @@ export function generateBundleSchedule(req: GenerateBundleScheduleRequest): Bund
 
   for (const block of Object.values(newSchedule.blocks)) {
     const adminsToAssign = shuffle(admins.filter((admin) => !block.periodsOff.includes(admin.attendeeId)));
-    const staffToAssign = shuffle(staff.filter((staffMember) => !block.periodsOff.includes(staffMember.attendeeId) && block.activities.every(activity => !activity.staffIds.includes(staffMember.attendeeId))));
+    const staffToAssign = shuffle(staff.filter((staffMember) => !block.periodsOff.includes(staffMember.attendeeId) && Object.values(block.activities).every(activity => !activity.staffIds.includes(staffMember.attendeeId))));
 
-    const maxCounselorsPerActivity = Math.ceil((adminsToAssign.length + staffToAssign.length) / block.activities.length);
+    const maxCounselorsPerActivity = Math.ceil((adminsToAssign.length + staffToAssign.length) / Object.values(block.activities).length);
 
-    const numAdminsAssigned = Math.min(admins.length, block.activities.length);
-    const shuffledActivities = shuffle(block.activities);
+    const numAdminsAssigned = Math.min(admins.length, Object.values(block.activities).length);
+    const shuffledActivities = shuffle(Object.values(block.activities));
     for (let i = 0; i < numAdminsAssigned; i++) {
       shuffledActivities[i].adminIds.push(adminsToAssign[i].attendeeId);
     }
@@ -166,9 +166,9 @@ export function generateBundleSchedule(req: GenerateBundleScheduleRequest): Bund
     if (numAdminsAssigned !== adminsToAssign.length) {
       const remainingAdminsToAssign = adminsToAssign.slice(numAdminsAssigned);
       for (const admin of remainingAdminsToAssign) {
-        let eligibleActivities = block.activities.filter((activity) => activity.adminIds.length + activity.staffIds.length < maxCounselorsPerActivity && canBeAssignedToIndividualActivityAssignments(admin, activity));
+        let eligibleActivities = Object.values(block.activities).filter((activity) => activity.adminIds.length + activity.staffIds.length < maxCounselorsPerActivity && canBeAssignedToIndividualActivityAssignments(admin, activity));
         if (eligibleActivities.length === 0) {
-          eligibleActivities = block.activities;
+          eligibleActivities = Object.values(block.activities);
         }
         const chosenActivity = shuffle(eligibleActivities)[0];
         chosenActivity.adminIds.push(admin.attendeeId);
@@ -176,9 +176,9 @@ export function generateBundleSchedule(req: GenerateBundleScheduleRequest): Bund
     }
 
     for (const staffMember of staffToAssign) {
-      let eligibleActivities = block.activities.filter((activity) => activity.adminIds.length + activity.staffIds.length < maxCounselorsPerActivity && canBeAssignedToIndividualActivityAssignments(staffMember, activity));
+      let eligibleActivities = Object.values(block.activities).filter((activity) => activity.adminIds.length + activity.staffIds.length < maxCounselorsPerActivity && canBeAssignedToIndividualActivityAssignments(staffMember, activity));
       if (eligibleActivities.length === 0) {
-        eligibleActivities = block.activities;
+        eligibleActivities = Object.values(block.activities);
       }
       const chosenActivity = shuffle(eligibleActivities)[0];
       chosenActivity.staffIds.push(staffMember.attendeeId);

@@ -108,14 +108,14 @@ function addAttendeesToBundleActivityPreferences(sectionSchedule: BundleSectionS
   for (const blockId of Object.keys(sectionSchedule.blocks)) {
     for (const camper of navCampers) {
       if (camper.attendeeId in activityPreferences.blocks[blockId]) continue;
-      for (const activity of sectionSchedule.blocks[blockId].activities.filter(act => act.ageGroup === "NAV")) {
+      for (const activity of Object.values(sectionSchedule.blocks[blockId].activities).filter(act => act.ageGroup === "NAV")) {
         // @ts-ignore - TypeScript is being dumb
         updates[`blocks.${blockId}.${camper.attendeeId}.${activity.programAreaId}`] = Infinity;
       }
     }
     for (const camper of ocpCampers) {
       if (camper.attendeeId in activityPreferences.blocks[blockId]) continue;
-      for (const activity of sectionSchedule.blocks[blockId].activities.filter(act => act.ageGroup === "OCP")) {
+      for (const activity of Object.values(sectionSchedule.blocks[blockId].activities).filter(act => act.ageGroup === "OCP")) {
         // @ts-ignore - TypeScript is being dumb
         updates[`blocks.${blockId}.${camper.attendeeId}.${activity.programAreaId}`] = Infinity;
       }
@@ -130,7 +130,7 @@ function addAttendeesToBunkJamboreeActivityPreferences(sectionSchedule: BunkJamb
   for (const blockId of Object.keys(sectionSchedule.blocks)) {
     for (const bunkId of bunkIds) {
       if (bunkId in activityPreferences.blocks[blockId]) continue;
-      for (const activity of sectionSchedule.blocks[blockId].activities) {
+      for (const activity of Object.values(sectionSchedule.blocks[blockId].activities)) {
         // @ts-ignore - TypeScript is being dumb
         updates[`blocks.${blockId}.${bunkId}.${activity.name}`] = Infinity;
       }
@@ -144,7 +144,7 @@ function addAttendeesToNonBunkJamboreeActivityPreferences(sectionSchedule: Secti
   for (const blockId of Object.keys(sectionSchedule.blocks)) {
     for (const camper of camperRequests) {
       if (camper.attendeeId in activityPreferences.blocks[blockId]) continue;
-      for (const activity of sectionSchedule.blocks[blockId].activities) {
+      for (const activity of Object.values(sectionSchedule.blocks[blockId].activities)) {
         // @ts-ignore - TypeScript is being dumb
         updates[`blocks.${blockId}.${camper.attendeeId}.${activity.name}`] = Infinity;
       }
