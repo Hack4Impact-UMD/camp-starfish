@@ -30,3 +30,39 @@ export type NestedOmit<T, Path extends string> = Path extends `${infer Key}.${in
       }
     : T
   : T;
+
+export function nestedOmit<T, Path extends string>(obj: T, path: Path): NestedOmit<T, Path> {
+  if (typeof obj !== "object" || obj === null) {
+    return obj as NestedOmit<T, Path>;
+  } else if (Array.isArray(obj)) {
+    return obj.map(item => nestedOmit(item, path)) as NestedOmit<T, Path>;
+  }
+
+  const pathSegments = path.split('.');
+  const currSegment = pathSegments[0];
+  const remainingSegments = pathSegments.slice(1);
+  if (remainingSegments.length !== 0) {
+    if (currSegment !== '__dynamic__') {
+      if (!(currSegment in obj)) {
+        return obj as NestedOmit<T, Path>;
+      }
+      // @ts-ignore - TypeScript shortcoming
+      return Object.fromEntries(Object.entries(obj).map(([key, value]) => key === currSegment ? [key, nestedOmit(obj[key], remainingSegments.join('.'))] : [key, value])) as NestedOmit<T, Path>
+    }
+
+    const newObj: object = {};
+    for (const [key, value] of Object.entries(obj)) {
+      // @ts-ignore - TypeScript shortcoming
+      newObj[key] = nestedOmit(value, remainingSegments.join('.')) as NestedOmit<T, Path>
+    }
+    return newObj as NestedOmit<T, Path>;
+  }
+
+  if (currSegment !== "__dynamic__") {
+    if (!(currSegment in obj)) {
+      return obj as NestedOmit<T, Path>;
+    }
+    return Object.fromEntries(Object.entries(obj).filter(([key, _value]) => key !== currSegment)) as NestedOmit<T, Path>;
+  }
+  return {} as NestedOmit<T, Path>;
+}
