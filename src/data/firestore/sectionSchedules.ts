@@ -13,10 +13,10 @@ function fromFirestore(snapshot: DocumentSnapshot<SectionScheduleDoc, SectionSch
     sectionId: snapshot.ref.parent.parent!.id,
     sessionId: snapshot.ref.parent.parent!.parent.parent!.id,
     ...doc,
-    blocks: Object.keys(doc.blocks).reduce((acc, blockId) => {
+    blocks: Object.keys(doc.blocks).reduce((newBlocks, blockId) => {
       const block = doc.blocks[blockId];
       return {
-        ...acc,
+        ...newBlocks,
         [blockId]: {
           ...block,
           activities: Object.keys(block.activities).reduce((newActivities, activityId) => {
