@@ -1,8 +1,8 @@
 import { AlbumItemReportStatus, UserDirectory } from "@/types/albums/albumTypes";
-import { ActivityPreferences, BundleSectionSchedule, BunkJamboreeSectionSchedule, ProgramArea, SectionSchedule } from "@/types/scheduling/schedulingTypes";
+import { ActivityPreferences, ProgramArea, SectionSchedule } from "@/types/scheduling/schedulingTypes";
 import { AgeGroup, Bunk, Freeplay, NightSchedule, Post, SchedulingSectionType, SectionType } from "@/types/sessions/sessionTypes";
 import { Gender, Name, Role } from "@/types/users/userTypes";
-import { NestedOmit, DistributiveOmit, StrictExtract } from "@/utils/types/typeUtils";
+import { NestedOmit, DistributiveOmit } from "@/utils/types/typeUtils";
 import { Timestamp } from "firebase/firestore";
 
 export interface AlbumDoc {
@@ -145,10 +145,6 @@ export interface SchedulingSectionDoc extends BaseSectionDoc {
 export type SectionDoc = CommonSectionDoc | SchedulingSectionDoc;
 
 export type SectionScheduleDoc = NestedOmit<DistributiveOmit<SectionSchedule, "sessionId" | "sectionId">, "blocks.__dynamic__.activities.__dynamic__.id">;
-export type BundleSectionScheduleDoc = StrictExtract<SectionScheduleDoc, { type: "BUNDLE" }>;
-export type BunkJamboreeSectionScheduleDoc = StrictExtract<SectionScheduleDoc, { type: "BUNK-JAMBO" }>;
-export type NonBunkJamboreeSectionScheduleDoc = StrictExtract<SectionScheduleDoc, { type: "NON-BUNK-JAMBO" }>;
-
 export type BunkDoc = Omit<Bunk, "bunkNum" | "sessionId">;
 export type NightScheduleDoc = Omit<NightSchedule, "date" | "sessionId">;
 export type FreeplayDoc = Omit<Freeplay, "date" | "sessionId">;
@@ -164,5 +160,3 @@ export interface DaysOffScheduleDoc {
 }
 
 export type ActivityPreferencesDoc = Omit<ActivityPreferences, "sessionId" | "sectionId">;
-
-export type Doc<T> = T extends BundleSectionSchedule ? BundleSectionScheduleDoc : T extends BunkJamboreeSectionSchedule ? BunkJamboreeSectionScheduleDoc : NonBunkJamboreeSectionScheduleDoc;
