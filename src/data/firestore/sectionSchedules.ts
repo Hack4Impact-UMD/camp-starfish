@@ -1,17 +1,38 @@
-import { SectionSchedule } from "@/types/scheduling/schedulingTypes";
-import { SectionScheduleDoc } from "./types/documents";
+import { Activity, ActivityWithAssignments, Block, SectionSchedule } from "@/types/scheduling/schedulingTypes";
+import { Doc, SectionScheduleDoc } from "./types/documents";
 import { collection, CollectionReference, doc, DocumentReference, DocumentSnapshot, QueryDocumentSnapshot, Transaction, UpdateData, WithFieldValue, WriteBatch } from "firebase/firestore";
 import { deleteDoc, executeQuery, getDoc, setDoc, updateDoc } from "./firestoreClientOperations";
 import { db } from "@/config/firebase";
 import { RootLevelCollection, SectionsSubcollection, SessionsSubcollection } from "./types/collections";
 import { FirestoreQueryOptions } from "./types/queries";
 
-function fromFirestore(snapshot: DocumentSnapshot<SectionScheduleDoc, SectionScheduleDoc> | QueryDocumentSnapshot<SectionScheduleDoc, SectionScheduleDoc>): SectionSchedule {
+function fromFirestore<S extends SectionSchedule>(snapshot: DocumentSnapshot<Doc<S>, Doc<S>> | QueryDocumentSnapshot<Doc<S>, Doc<S>>): S {
   if (!snapshot.exists()) { throw Error("Document not found"); };
+  const doc = snapshot.data();
   return {
     sectionId: snapshot.ref.parent.parent!.id,
     sessionId: snapshot.ref.parent.parent!.parent.parent!.id,
-    ...snapshot.data()
+    alternatePeriodsOff: doc.alternatePeriodsOff,
+    type: doc.type,
+    blocks: Object.keys(doc.blocks).reduce<S['blocks']>((acc, blockId) => {
+      const block = doc.blocks[blockId];
+      return {
+        ...acc,
+        [blockId]: {
+          activities: Object.keys(block.activities).reduce((newActivities, activityId) => {
+            const activity = block.activities[activityId];
+            return {
+              ...newActivities,
+              [activityId]: {
+                ...activity,
+                id: activityId
+              }
+            }
+          }, {}),
+          periodsOff: block.periodsOff        
+        }
+      }
+    }, {})
   }
 }
 
