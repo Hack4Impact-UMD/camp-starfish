@@ -12,8 +12,7 @@ function fromFirestore(snapshot: DocumentSnapshot<SectionScheduleDoc, SectionSch
   return {
     sectionId: snapshot.ref.parent.parent!.id,
     sessionId: snapshot.ref.parent.parent!.parent.parent!.id,
-    alternatePeriodsOff: doc.alternatePeriodsOff,
-    type: doc.type,
+    ...doc,
     blocks: Object.keys(doc.blocks).reduce((acc, blockId) => {
       const block = doc.blocks[blockId];
       return {
