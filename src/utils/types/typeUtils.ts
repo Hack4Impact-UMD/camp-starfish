@@ -46,13 +46,13 @@ export function nestedOmit<T, Path extends string>(obj: T, path: Path): NestedOm
       if (!(currSegment in obj)) {
         return obj as NestedOmit<T, Path>;
       }
-      // @ts-ignore - TypeScript shortcoming
+      // @ts-expect-error - TypeScript shortcoming
       return Object.fromEntries(Object.entries(obj).map(([key, value]) => key === currSegment ? [key, nestedOmit(obj[key], remainingSegments.join('.'))] : [key, value])) as NestedOmit<T, Path>
     }
 
     const newObj: object = {};
     for (const [key, value] of Object.entries(obj)) {
-      // @ts-ignore - TypeScript shortcoming
+      // @ts-expect-error - TypeScript shortcoming
       newObj[key] = nestedOmit(value, remainingSegments.join('.')) as NestedOmit<T, Path>
     }
     return newObj as NestedOmit<T, Path>;
