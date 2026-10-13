@@ -61,10 +61,10 @@ export function CamperPreferencesSheet(props: CamperPreferencesSheetProps) {
         {Object.keys(schedule.blocks).map((blockId) => {
           const block = schedule.blocks[blockId];
           const activities = isBundleBlock(block)
-            ? block.activities.filter(
+            ? Object.values(block.activities).filter(
                 (act) => !ageGroup || act.ageGroup === ageGroup,
               )
-            : block.activities;
+            : Object.values(block.activities);
           if (activities.length === 0) return null;
           return (
             <View key={blockId} style={styles.block}>

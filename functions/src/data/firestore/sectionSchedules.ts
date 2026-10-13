@@ -5,13 +5,32 @@ import { RootLevelCollection, SectionsSubcollection, SessionsSubcollection } fro
 import { deleteDoc, executeQuery, getDoc, mapSnapshotsToPaginatedQueryResult, setDoc, updateDoc, FirestoreQueryOptions, PaginatedQueryResponse } from "./firestoreAdminOperations";
 import { CollectionReference, DocumentReference, DocumentSnapshot, QueryDocumentSnapshot, Transaction, UpdateData, WithFieldValue, WriteBatch } from "firebase-admin/firestore";
 
-export function mapSectionScheduleFromFirestore(snapshot: DocumentSnapshot<SectionScheduleDoc, SectionScheduleDoc> | QueryDocumentSnapshot<SectionScheduleDoc, SectionScheduleDoc>): SectionSchedule {
+export function fromFirestore(snapshot: DocumentSnapshot<SectionScheduleDoc, SectionScheduleDoc> | QueryDocumentSnapshot<SectionScheduleDoc, SectionScheduleDoc>): SectionSchedule {
   if (!snapshot.exists) { throw Error("Document not found"); }
-  const sectionScheduleDoc = snapshot.data() as SectionScheduleDoc;
+  const doc = snapshot.data() as SectionScheduleDoc;
   return {
-    sessionId: snapshot.ref.parent.parent!.parent.parent!.id,
     sectionId: snapshot.ref.parent.parent!.id,
-    ...sectionScheduleDoc
+    sessionId: snapshot.ref.parent.parent!.parent.parent!.id,
+    ...doc,
+    blocks: Object.keys(doc.blocks).reduce((newBlocks, blockId) => {
+      const block = doc.blocks[blockId];
+      return {
+        ...newBlocks,
+        [blockId]: {
+          ...block,
+          activities: Object.keys(block.activities).reduce((newActivities, activityId) => {
+            const activity = block.activities[activityId];
+            return {
+              ...newActivities,
+              [activityId]: {
+                ...activity,
+                id: activityId
+              }
+            }
+          }, {})
+        }
+      }
+    }, {})
   }
 }
 
@@ -25,12 +44,12 @@ function getSectionScheduleCollectionRef(sessionId: string, sectionId: string) {
 
 export async function getSectionScheduleDoc(sessionId: string, sectionId: string, transaction?: Transaction): Promise<SectionSchedule> {
   const snapshot = await getDoc<SectionScheduleDoc>(getSectionScheduleDocRef(sessionId, sectionId), transaction);
-  return mapSectionScheduleFromFirestore(snapshot);
+  return fromFirestore(snapshot);
 }
 
 export async function listSectionScheduleDocs(sessionId: string, sectionId: string, queryOptions: FirestoreQueryOptions<SectionScheduleDoc> = {}, transaction?: Transaction): Promise<PaginatedQueryResponse<SectionSchedule, SectionScheduleDoc>> {
   const snapshots = await executeQuery<SectionScheduleDoc>(getSectionScheduleCollectionRef(sessionId, sectionId), { queryOptions, transaction });
-  return mapSnapshotsToPaginatedQueryResult(snapshots, mapSectionScheduleFromFirestore);
+  return mapSnapshotsToPaginatedQueryResult(snapshots, fromFirestore);
 }
 
 export async function setSectionScheduleDoc(sessionId: string, sectionId: string, sectionSchedule: WithFieldValue<SectionScheduleDoc>, instance?: Transaction | WriteBatch): Promise<void> {

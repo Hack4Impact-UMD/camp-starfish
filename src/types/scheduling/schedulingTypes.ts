@@ -22,12 +22,12 @@ export interface NonBunkJamboreeSectionSchedule extends BaseSectionSchedule {
 export type SectionSchedule = BundleSectionSchedule | BunkJamboreeSectionSchedule | NonBunkJamboreeSectionSchedule;
 
 interface BaseBlock {
-  activities: ActivityWithAssignments[];
+  activities: { [activityId: string]: ActivityWithAssignments; };
   periodsOff: number[];
 }
-export interface BundleBlock extends BaseBlock { activities: BundleActivityWithAssignments[]; }
-export interface BunkJamboreeBlock extends BaseBlock { activities: BunkJamboreeActivityWithAssignments[]; }
-export interface NonBunkJamboreeBlock extends BaseBlock { activities: NonBunkJamboreeActivityWithAssignments[]; }
+export interface BundleBlock extends BaseBlock { activities: { [activityId: string]: BundleActivityWithAssignments; }; }
+export interface BunkJamboreeBlock extends BaseBlock { activities: { [activityId: string]: BunkJamboreeActivityWithAssignments; }; }
+export interface NonBunkJamboreeBlock extends BaseBlock { activities: { [activityId: string]: NonBunkJamboreeActivityWithAssignments; }; }
 export type Block = BundleBlock | BunkJamboreeBlock | NonBunkJamboreeBlock;
 
 export type BundleActivityWithAssignments = BundleActivity & IndividualActivityAssignments;

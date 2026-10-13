@@ -210,13 +210,13 @@ export default function EmployeeGrid(props: EmployeeGridProps) {
                 } else {
                   const activity = isStaffAttendee(employee)
                     ? isBunkJamboreeBlock(block)
-                      ? block.activities.find((act) =>
+                      ? Object.values(block.activities).find((act) =>
                           act.bunkNums.includes(employee.bunk),
                         )
-                      : block.activities.find((act) =>
+                      : Object.values(block.activities).find((act) =>
                           act.staffIds.includes(employee.attendeeId),
                         )
-                    : block.activities.find((act) =>
+                    : Object.values(block.activities).find((act) =>
                         act.adminIds.includes(employee.attendeeId),
                       );
                   activityText = activity

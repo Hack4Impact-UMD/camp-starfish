@@ -52,9 +52,9 @@ export default function AssignActivityModal(props: AssignActivityModalProps) {
             onChange={(value) => {
               setSelectedActivityName(value);
             }}
-            data={block.activities.map((activity) => ({
-              value: activity.name,
-              label: activity.name,
+            data={Object.keys(block.activities).map((activityId) => ({
+              value: block.activities[activityId].name,
+              label: block.activities[activityId].name,
             }))}
             className="w-full appearance-none bg-gray-300 rounded-lg px-4 py-3 pr-10 text-base text-gray-800 focus:outline-hidden focus:ring-2 focus:ring-green-500 cursor-pointer"
           />

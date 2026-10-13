@@ -8,10 +8,30 @@ import { FirestoreQueryOptions } from "./types/queries";
 
 function fromFirestore(snapshot: DocumentSnapshot<SectionScheduleDoc, SectionScheduleDoc> | QueryDocumentSnapshot<SectionScheduleDoc, SectionScheduleDoc>): SectionSchedule {
   if (!snapshot.exists()) { throw Error("Document not found"); };
+  const doc = snapshot.data();
   return {
     sectionId: snapshot.ref.parent.parent!.id,
     sessionId: snapshot.ref.parent.parent!.parent.parent!.id,
-    ...snapshot.data()
+    ...doc,
+    blocks: Object.keys(doc.blocks).reduce((newBlocks, blockId) => {
+      const block = doc.blocks[blockId];
+      return {
+        ...newBlocks,
+        [blockId]: {
+          ...block,
+          activities: Object.keys(block.activities).reduce((newActivities, activityId) => {
+            const activity = block.activities[activityId];
+            return {
+              ...newActivities,
+              [activityId]: {
+                ...activity,
+                id: activityId
+              }
+            }
+          }, {})
+        }
+      }
+    }, {})
   }
 }
 

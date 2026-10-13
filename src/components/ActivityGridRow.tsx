@@ -40,17 +40,18 @@ export default function ActivityGridRow(props: ActivityGridRowProps) {
         <MdChevronLeft size={40} />
       </ActionIcon>
       <ScrollArea type="scroll" className="w-full">
-        {block.activities.length === 0 ? (
+        {Object.keys(block.activities).length === 0 ? (
           <Text className="p-2 text-sm italic">No activities scheduled</Text>
         ) : (
           <div
             className="grid gap-0"
             style={{
-              gridTemplateColumns: `repeat(${2 * block.activities.length}, max-content)`,
+              gridTemplateColumns: `repeat(${2 * Object.keys(block.activities).length}, max-content)`,
             }}
           >
-            {block.activities.map((activity, i) => (
-              <div
+            {Object.keys(block.activities).map((activityId, i) => {
+              const activity = block.activities[activityId]
+              return <div
                 key={i}
                 className="grid grid-cols-subgrid grid-rows-subgrid row-start-1 row-end-4"
                 style={{ gridColumnStart: 2 * i + 1, gridColumnEnd: 2 * i + 3 }}
@@ -62,7 +63,7 @@ export default function ActivityGridRow(props: ActivityGridRowProps) {
                   attendeeGroups={attendeeGroups}
                 />
               </div>
-            ))}
+            })}
           </div>
         )}
       </ScrollArea>

@@ -4,9 +4,9 @@ export function isBundleSectionSchedule(sectionSchedule: SectionSchedule): secti
 export function isBunkJamboreeSectionSchedule(sectionSchedule: SectionSchedule): sectionSchedule is BunkJamboreeSectionSchedule { return sectionSchedule.type === "BUNK-JAMBO"; };
 export function isNonBunkJamboreeSectionSchedule(sectionSchedule: SectionSchedule): sectionSchedule is NonBunkJamboreeSectionSchedule { return sectionSchedule.type === "NON-BUNK-JAMBO"; };
 
-export function isBundleBlock(block: Block): block is BundleBlock { return block.activities.length > 0 && isBundleActivityWithAssignments(block.activities[0]); };
-export function isBunkJamboreeBlock(block: Block): block is BunkJamboreeBlock { return block.activities.length > 0 && isBunkJamboreeActivityWithAssignments(block.activities[0]); };
-export function isNonBunkJamboreeBlock(block: Block): block is NonBunkJamboreeBlock { return block.activities.length > 0 && isNonBunkJamboreeActivityWithAssignments(block.activities[0]); };
+export function isBundleBlock(block: Block): block is BundleBlock { return Object.keys(block.activities).length > 0 && isBundleActivityWithAssignments(block.activities[0]); };
+export function isBunkJamboreeBlock(block: Block): block is BunkJamboreeBlock { return Object.keys(block.activities).length > 0 && isBunkJamboreeActivityWithAssignments(block.activities[0]); };
+export function isNonBunkJamboreeBlock(block: Block): block is NonBunkJamboreeBlock { return Object.keys(block.activities).length > 0 && isNonBunkJamboreeActivityWithAssignments(block.activities[0]); };
 
 export function isBundleActivity(activity: Activity): activity is BundleActivity { return 'programAreaId' in activity };
 export function isJamboreeActivity(activity: Activity): activity is JamboreeActivity { return !('programAreaId' in activity); }

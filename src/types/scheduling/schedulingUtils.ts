@@ -21,7 +21,7 @@ export function getEmptySectionScheduleDoc(type: SchedulingSectionType, numBlock
   }
   for (let i = 0; i < numBlocks; i++) {
     sectionScheduleDoc.blocks[getBlockIdFromNum(i)] = {
-      activities: [],
+      activities: {},
       periodsOff: []
     }
   }

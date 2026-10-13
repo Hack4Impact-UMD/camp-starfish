@@ -194,8 +194,8 @@ const ALL_PROGRAM_AREAS = {
   "WF": "Waterfront"
 }
 
-export function generateBundleActivities(): BundleActivityWithAssignments[] {
-  return Object.keys(ALL_PROGRAM_AREAS).flatMap((programArea) => ({
+export function generateBundleActivities(): Record<string, BundleActivityWithAssignments> {
+  return Object.fromEntries(Object.keys(ALL_PROGRAM_AREAS).map((programArea) => [programArea, {
     id: faker.string.uuid(),
     name: faker.lorem.words({ min: 2, max: 5 }),
     description: faker.lorem.words({ min: 5, max: 20 }),
@@ -204,7 +204,7 @@ export function generateBundleActivities(): BundleActivityWithAssignments[] {
     adminIds: [],
     staffIds: [],
     camperIds: []
-  }) satisfies BundleActivityWithAssignments)
+  } satisfies BundleActivityWithAssignments]));
 }
 
 export function generateBundleBlock(): BundleBlock {
@@ -230,14 +230,14 @@ export function generateBundleSchedule(section: SchedulingSection): BundleSectio
   }
 }
 
-export function generateBunkJamboreeActivities(): BunkJamboreeActivityWithAssignments[] {
-  return Object.keys(ALL_PROGRAM_AREAS).flatMap((programArea) => ({
+export function generateBunkJamboreeActivities(): Record<string, BunkJamboreeActivityWithAssignments> {
+  return Object.fromEntries(Object.keys(ALL_PROGRAM_AREAS).map((programArea) => [programArea, {
     id: faker.string.uuid(),
     name: faker.lorem.words({ min: 2, max: 5 }),
     description: faker.lorem.words({ min: 5, max: 20 }),
     adminIds: [],
     bunkNums: []
-  }) satisfies BunkJamboreeActivityWithAssignments)
+  } satisfies BunkJamboreeActivityWithAssignments]))
 }
 
 export function generateBunkJamboreeBlock(): BunkJamboreeBlock {
@@ -247,15 +247,15 @@ export function generateBunkJamboreeBlock(): BunkJamboreeBlock {
   }
 }
 
-export function generateNonBunkJamboreeActivities(): NonBunkJamboreeActivityWithAssignments[] {
-  return Object.keys(ALL_PROGRAM_AREAS).flatMap((programArea) => ({
+export function generateNonBunkJamboreeActivities(): Record<string, NonBunkJamboreeActivityWithAssignments> {
+  return Object.fromEntries(Object.keys(ALL_PROGRAM_AREAS).map((programArea) => [programArea, {
     id: faker.string.uuid(),
     name: faker.lorem.words({ min: 2, max: 5 }),
     description: faker.lorem.words({ min: 5, max: 20 }),
     adminIds: [],
     staffIds: [],
     camperIds: []
-  }) satisfies NonBunkJamboreeActivityWithAssignments)
+  } satisfies NonBunkJamboreeActivityWithAssignments]));
 }
 
 export function generateNonBunkJamboreeBlock(): NonBunkJamboreeBlock {

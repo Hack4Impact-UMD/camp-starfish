@@ -8,7 +8,7 @@ import { DocumentSnapshot, FieldValue, Timestamp, Transaction, UpdateData } from
 import { CreateAdminAttendeeRequest, CreateAttendeeRequest, CreateAttendeesRequestSchema, CreateCamperAttendeeRequest, CreateStaffAttendeeRequest } from "@/hooks/attendees/types"
 import { mapActivityPreferencesFromFirestore, updateActivityPreferencesDoc } from "../../data/firestore/activityPreferences";
 import { SectionsSubcollection } from "@/data/firestore/types/collections";
-import { mapSectionScheduleFromFirestore } from "../../data/firestore/sectionSchedules";
+import { fromFirestore } from "../../data/firestore/sectionSchedules";
 import { ActivityPreferences, BundleSectionSchedule, BunkJamboreeSectionSchedule, SectionSchedule } from "@/types/scheduling/schedulingTypes";
 import { updateSessionDoc } from "../../data/firestore/sessions";
 import { uniqueArray } from "@/utils/data/unique";
@@ -31,7 +31,7 @@ export const createAttendees = onCall(async (req) => {
   await adminDb.runTransaction(async (transaction) => {
     const users = await batchGetUserDocs(attendees.map(attendee => attendee.attendeeId), transaction);
     const activityPreferences = ((await transaction.get(adminDb.collectionGroup(SectionsSubcollection.ACTIVITY_PREFERENCES).where('__name__', '>=', `/sessions/${sessionId}`).where('__name__', '<', `/sessions/${sessionId}\uf8ff`))).docs as DocumentSnapshot<ActivityPreferencesDoc>[]).map(mapActivityPreferencesFromFirestore);
-    const sectionSchedules = ((await transaction.get(adminDb.collectionGroup(SectionsSubcollection.SCHEDULE).where('__name__', '>=', `/sessions/${sessionId}`).where('__name__', '<', `/sessions/${sessionId}\uf8ff`))).docs as DocumentSnapshot<SectionScheduleDoc>[]).map(mapSectionScheduleFromFirestore);
+    const sectionSchedules = ((await transaction.get(adminDb.collectionGroup(SectionsSubcollection.SCHEDULE).where('__name__', '>=', `/sessions/${sessionId}`).where('__name__', '<', `/sessions/${sessionId}\uf8ff`))).docs as DocumentSnapshot<SectionScheduleDoc>[]).map(fromFirestore);
     const sectionData: { activityPreferences: ActivityPreferences, sectionSchedule: SectionSchedule }[] = [];
     for (const activityPrefs of activityPreferences) {
       sectionData.push({
@@ -108,14 +108,14 @@ function addAttendeesToBundleActivityPreferences(sectionSchedule: BundleSectionS
   for (const blockId of Object.keys(sectionSchedule.blocks)) {
     for (const camper of navCampers) {
       if (camper.attendeeId in activityPreferences.blocks[blockId]) continue;
-      for (const activity of sectionSchedule.blocks[blockId].activities.filter(act => act.ageGroup === "NAV")) {
+      for (const activity of Object.values(sectionSchedule.blocks[blockId].activities).filter(act => act.ageGroup === "NAV")) {
         // @ts-ignore - TypeScript is being dumb
         updates[`blocks.${blockId}.${camper.attendeeId}.${activity.programAreaId}`] = Infinity;
       }
     }
     for (const camper of ocpCampers) {
       if (camper.attendeeId in activityPreferences.blocks[blockId]) continue;
-      for (const activity of sectionSchedule.blocks[blockId].activities.filter(act => act.ageGroup === "OCP")) {
+      for (const activity of Object.values(sectionSchedule.blocks[blockId].activities).filter(act => act.ageGroup === "OCP")) {
         // @ts-ignore - TypeScript is being dumb
         updates[`blocks.${blockId}.${camper.attendeeId}.${activity.programAreaId}`] = Infinity;
       }
@@ -130,7 +130,7 @@ function addAttendeesToBunkJamboreeActivityPreferences(sectionSchedule: BunkJamb
   for (const blockId of Object.keys(sectionSchedule.blocks)) {
     for (const bunkId of bunkIds) {
       if (bunkId in activityPreferences.blocks[blockId]) continue;
-      for (const activity of sectionSchedule.blocks[blockId].activities) {
+      for (const activity of Object.values(sectionSchedule.blocks[blockId].activities)) {
         // @ts-ignore - TypeScript is being dumb
         updates[`blocks.${blockId}.${bunkId}.${activity.name}`] = Infinity;
       }
@@ -144,7 +144,7 @@ function addAttendeesToNonBunkJamboreeActivityPreferences(sectionSchedule: Secti
   for (const blockId of Object.keys(sectionSchedule.blocks)) {
     for (const camper of camperRequests) {
       if (camper.attendeeId in activityPreferences.blocks[blockId]) continue;
-      for (const activity of sectionSchedule.blocks[blockId].activities) {
+      for (const activity of Object.values(sectionSchedule.blocks[blockId].activities)) {
         // @ts-ignore - TypeScript is being dumb
         updates[`blocks.${blockId}.${camper.attendeeId}.${activity.name}`] = Infinity;
       }
@@ -169,7 +169,7 @@ function addAttendeesToActivityPreferences(sectionData: { activityPreferences: A
         break;
     }
 
-   if (Object.keys(updates).length === 0) return;
+    if (Object.keys(updates).length === 0) return;
     return updateActivityPreferencesDoc(sessionId, activityPreferences.sectionId, updates, transaction);
   });
 }
