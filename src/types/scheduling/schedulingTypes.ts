@@ -1,3 +1,4 @@
+import { Moment } from "moment";
 import { AgeGroup, SchedulingSectionType } from "../sessions/sessionTypes";
 
 interface BaseSectionSchedule {
@@ -22,6 +23,8 @@ export interface NonBunkJamboreeSectionSchedule extends BaseSectionSchedule {
 export type SectionSchedule = BundleSectionSchedule | BunkJamboreeSectionSchedule | NonBunkJamboreeSectionSchedule;
 
 interface BaseBlock {
+  startTime: Moment;
+  endTime: Moment
   activities: { [activityId: string]: ActivityWithAssignments; };
   periodsOff: number[];
 }
