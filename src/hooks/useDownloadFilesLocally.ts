@@ -28,14 +28,14 @@ export async function downloadFilesLocally(req: DownloadFilesLocallyRequest) {
   if (items.length === 0) {
     throw Error("No files to download");
   } else if (items.length === 1) {
-    await downloadFileLocally(items[0]);
+    downloadFileLocally(items[0]);
   } else {
     const zip = new JSZip();
     for (const item of items) {
       zip.file(item.filename, item.blob);
     }
     const zipFile = await zip.generateAsync({ type: "blob" });
-    await downloadFileLocally({
+    downloadFileLocally({
       blob: zipFile,
       filename: zipFileName ?? 'albumItems.zip'
     });
