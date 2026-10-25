@@ -37,7 +37,7 @@ export async function downloadFilesLocally(req: DownloadFilesLocallyRequest) {
     const zipFile = await zip.generateAsync({ type: "blob" });
     downloadFileLocally({
       blob: zipFile,
-      filename: zipFileName ?? 'albumItems.zip'
+      filename: zipFileName ?? 'files.zip'
     });
   }
 }
