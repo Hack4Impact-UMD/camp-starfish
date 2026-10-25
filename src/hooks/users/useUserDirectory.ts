@@ -1,5 +1,5 @@
 import { executeUserDirectoryQuery } from "@/data/firestore/userDirectory";
-import { UserDirectory } from "@/types/albums/albumTypes";
+import { UserDirectory } from "@/types/sessions/sessionTypes";
 import { queryOptions, useQuery } from "@tanstack/react-query";
 
 export async function getFullUserDirectory(): Promise<Omit<UserDirectory, 'page'>> {

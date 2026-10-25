@@ -38,7 +38,6 @@ export const processFamilyCsv = onCall(async (req) => {
           ...camperDoc,
           dateOfBirth: Timestamp.fromDate(moment(camperDoc.dateOfBirth).toDate()),
           role: "CAMPER",
-          photoPermissions: "PRIVATE",
           nonoListIds: [],
         }, transaction);
       }),

@@ -4,7 +4,7 @@ import { RootLevelCollection } from "./types/collections";
 import { UserDirectoryDoc } from "./types/documents";
 import { db } from "@/config/firebase";
 import { FirestoreQueryOptions } from "./types/queries";
-import { UserDirectory } from "@/types/albums/albumTypes";
+import { UserDirectory } from "@/types/sessions/sessionTypes";
 
 function fromFirestore(snapshot: DocumentSnapshot<UserDirectoryDoc, UserDirectoryDoc> | QueryDocumentSnapshot<UserDirectoryDoc, UserDirectoryDoc>): UserDirectory {
   if (!snapshot.exists()) { throw Error("Document not found"); }

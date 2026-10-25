@@ -1,45 +1,11 @@
-import { AlbumItemReportStatus, UserDirectory } from "@/types/albums/albumTypes";
+import { UserDirectory } from "@/types/sessions/sessionTypes";
 import { ActivityPreferences, ProgramArea, SectionSchedule } from "@/types/scheduling/schedulingTypes";
 import { AgeGroup, Bunk, Freeplay, NightSchedule, Post, SchedulingSectionType, SectionType } from "@/types/sessions/sessionTypes";
 import { Gender, Name, Role } from "@/types/users/userTypes";
 import { NestedOmit, DistributiveOmit } from "@/utils/types/typeUtils";
 import { Timestamp } from "firebase/firestore";
 
-export interface AlbumDoc {
-  name: string;
-  numItems: number;
-  startDate?: Timestamp | null;
-  endDate?: Timestamp | null;
-  hasThumbnail: boolean;
-  linkedSessionId?: string;
-}
-
-export interface AlbumItemDoc {
-  name: string;
-  dateTaken: Timestamp;
-  inReview: boolean;
-  tagIds: {
-    approved: number[];
-    inReview: number[];
-  }
-}
-
 export type UserDirectoryDoc = Omit<UserDirectory, "page">;
-
-interface BaseAlbumItemReportDoc {
-  status: AlbumItemReportStatus;
-  reporterId: number;
-  reportMessage: string;
-  reportedAt: Timestamp;
-}
-export interface PendingAlbumItemReportDoc extends BaseAlbumItemReportDoc { status: "PENDING" };
-export interface ResolvedAlbumItemReportDoc extends BaseAlbumItemReportDoc {
-  status: "RESOLVED";
-  resolverId: number;
-  resolutionMessage: string;
-  resolvedAt: Timestamp;
-};
-export type AlbumItemReportDoc = PendingAlbumItemReportDoc | ResolvedAlbumItemReportDoc;
 
 interface BaseUserDoc {
   uid?: string;
@@ -50,10 +16,8 @@ interface BaseUserDoc {
   dateOfBirth: Timestamp;
 }
 
-export type PhotoPermissions = "PUBLIC" | "PRIVATE";
 export interface CamperDoc extends BaseUserDoc {
   role: "CAMPER";
-  photoPermissions: PhotoPermissions;
   parentIds: number[];
   nonoListIds: number[];
 }
@@ -93,7 +57,6 @@ export interface SessionDoc {
   name: string;
   startDate: Timestamp;
   endDate: Timestamp;
-  linkedAlbumId?: string;
   driveFolderId?: string;
   attendeeIds: number[];
 }

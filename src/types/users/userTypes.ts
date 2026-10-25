@@ -25,10 +25,8 @@ export interface Name {
 
 export type Gender = "Male" | "Female" | "Other";
 
-export type PhotoPermissions = "PUBLIC" | "PRIVATE";
 export interface Camper extends BaseUser {
   role: "CAMPER";
-  photoPermissions: PhotoPermissions;
   parentIds: number[];
   nonoListIds: number[];
 }

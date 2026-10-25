@@ -4,7 +4,7 @@ import { adminDb } from "../config/firebaseAdminConfig";
 import { aggregateUserDirectoryDocs, createUserDirectoryDoc, executeUserDirectoryQuery, updateUserDirectoryDoc } from "../data/firestore/userDirectory";
 import { FieldValue } from "firebase-admin/firestore";
 import { UserDoc } from "@/data/firestore/types/documents";
-import { UserDirectoryItem } from "@/types/albums/albumTypes";
+import { UserDirectoryItem } from "@/types/sessions/sessionTypes";
 
 const onUserCreated = onDocumentCreated(`/${RootLevelCollection.USERS}/{userId}`, async (event) => {
   const { userId } = event.params;

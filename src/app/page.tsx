@@ -3,7 +3,6 @@
 import RequireAuth from "@/auth/RequireAuth";
 import LoginPage from "./LoginPage";
 import EmployeeHomePage from "./EmployeeHomePage";
-import ParentHomePage from "./ParentHomePage";
 import { useAuth } from "@/auth/useAuth";
 import { Role } from "@/types/users/userTypes";
 
@@ -17,10 +16,6 @@ export default function HomePage() {
         {
           authFn: () => !token,
           component: <LoginPage />,
-        },
-        {
-          authFn: () => role === "PARENT",
-          component: <ParentHomePage />,
         },
         {
           authFn: () =>

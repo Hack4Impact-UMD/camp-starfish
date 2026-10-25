@@ -10,11 +10,6 @@ import { ActionIcon, Anchor, Image, Text } from "@mantine/core";
 const navbarLinks: { name: string; href: string; roles: Role[] }[] = [
   { name: "Sessions", href: "/sessions", roles: ["STAFF", "ADMIN"] },
   {
-    name: "Albums",
-    href: "/albums",
-    roles: ["STAFF", "ADMIN", "PHOTOGRAPHER", "PARENT"],
-  },
-  {
     name: "Users",
     href: "/users",
     roles: ["ADMIN"],

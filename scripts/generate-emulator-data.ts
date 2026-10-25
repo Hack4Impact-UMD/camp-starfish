@@ -1,6 +1,5 @@
 import { faker } from "@faker-js/faker";
 import { Admin, Camper, Gender, Name, Parent, Photographer, Staff } from "@/types/users/userTypes";
-import { Album } from "@/types/albums/albumTypes";
 import { CommonSection, SchedulingSection, Section, Session } from "@/types/sessions/sessionTypes";
 import { BundleActivityWithAssignments, BundleBlock, BundleSectionSchedule, BunkJamboreeActivityWithAssignments, BunkJamboreeBlock, BunkJamboreeSectionSchedule, NonBunkJamboreeActivityWithAssignments, NonBunkJamboreeBlock, NonBunkJamboreeSectionSchedule } from "@/types/scheduling/schedulingTypes";
 import moment from "moment";
@@ -61,7 +60,6 @@ export function generateCamper(): Camper {
     uid: faker.string.alphanumeric(28),
     nonoListIds: [],
     parentIds: [],
-    photoPermissions: faker.number.float() < 0.5 ? "PUBLIC" : "PRIVATE"
   }
 }
 
@@ -92,10 +90,6 @@ export function generatePhotographer(): Photographer {
 
 export function generateFamily() {
 
-}
-
-export function generateAlbum(): Album {
-  return {} as Album;
 }
 
 export function generateSession(): Session {

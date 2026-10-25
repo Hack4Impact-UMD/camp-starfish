@@ -31,7 +31,6 @@ function fromFirestore(snapshot: DocumentSnapshot<SessionDoc, SessionDoc> | Quer
     startDate: moment(sessionDoc.startDate.toDate()),
     endDate: moment(sessionDoc.endDate.toDate()),
     driveFolderId: sessionDoc.driveFolderId,
-    linkedAlbumId: sessionDoc.linkedAlbumId,
     attendeeIds: sessionDoc.attendeeIds
   };
 }

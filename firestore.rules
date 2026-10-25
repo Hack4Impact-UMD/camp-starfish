@@ -77,17 +77,7 @@ service cloud.firestore {
         allow write: if isStaffOrAdmin();
       }
     }
-    
-    // Albums collection
-    match /albums/{albumId} {
-      allow read: if isStaffOrAdmin();
-      allow write: if isStaffOrAdmin();
-      
-      match /albumItems/{albumItemId} {
-        allow read: if isStaffOrAdmin();
-        allow write: if isStaffOrAdmin();
-      }
-    }
+
     
     // Users collection (all roles unified)
     match /users/{userId} {

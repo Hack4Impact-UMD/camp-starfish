@@ -2,7 +2,6 @@
 
 import { useAuth } from "@/auth/useAuth";
 import GalleryCardOne from "../components/GalleryCardOne";
-import React from 'react';
 
 export default function EmployeeHomePage() {
   const auth = useAuth();
@@ -16,11 +15,6 @@ export default function EmployeeHomePage() {
       </div>
 
       <div className="flex flex-wrap justify-center items-center gap-[84px]">
-        <GalleryCardOne 
-          title="ALBUMS" 
-          href="/albums" 
-          description="Manage photos from past and ongoing sessions"
-        />
         <GalleryCardOne 
           title="SESSIONS" 
           href="/sessions" 

@@ -139,7 +139,7 @@ const fontObjs: Record<CampStarfishFont, NextFontWithVariable> = {
 
 export const metadata: Metadata = {
   title: "Camp Starfish",
-  description: "Camp Starfish's photo portal and scheduling application",
+  description: "Camp Starfish's scheduling application",
 };
 
 export default function RootLayout({
