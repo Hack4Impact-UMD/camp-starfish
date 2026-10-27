@@ -3,7 +3,7 @@ import { DocumentSnapshot, QueryDocumentSnapshot, Transaction, UpdateData, Write
 import { createDoc, deleteDoc, executeAggregationQuery, ExecuteAggregationQueryOptions, executeQuery, ExecuteQueryOptions, getDoc, updateDoc } from "./firestoreAdminOperations";
 import { adminDb } from "../../config/firebaseAdminConfig";
 import { RootLevelCollection } from "@/data/firestore/types/collections";
-import { UserDirectory } from "@/types/albums/albumTypes";
+import { UserDirectory } from "@/types/sessions/sessionTypes";
 
 function fromFirestore(snapshot: DocumentSnapshot<UserDirectoryDoc, UserDirectoryDoc> | QueryDocumentSnapshot<UserDirectoryDoc, UserDirectoryDoc>): UserDirectory {
   if (!snapshot.exists) { throw Error("Document not found"); }

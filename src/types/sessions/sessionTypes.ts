@@ -7,7 +7,6 @@ export interface Session {
   name: string;
   startDate: Moment;
   endDate: Moment;
-  linkedAlbumId?: string;
   driveFolderId?: string;
   attendeeIds: number[];
 }
@@ -105,4 +104,14 @@ export interface DaysOffSchedule {
   daysOffByCounselorId: {
     [counselorId: number]: Moment[];
   }
+}
+
+export interface UserDirectoryItem {
+  name: Name;
+  role: Role;
+}
+
+export interface UserDirectory {
+  page: number;
+  [userId: number]: UserDirectoryItem;
 }

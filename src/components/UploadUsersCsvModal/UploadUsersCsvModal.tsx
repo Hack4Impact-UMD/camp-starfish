@@ -22,7 +22,7 @@ import FamilyUsersInputTables from "./FamilyUsersInputTables";
 
 const usersCsvTypeToLabel: Record<UsersCsvType, string> = {
   FAMILY: "Families (Campers + Parents)",
-  EMPLOYEE: "Employees (Admins + Staff + Photographers)",
+  EMPLOYEE: "Employees (Admins + Staff)",
 };
 
 export function UploadUsersCsvModal() {

@@ -38,7 +38,6 @@ export const processFamilyCsv = onCall(async (req) => {
           ...camperDoc,
           dateOfBirth: Timestamp.fromDate(moment(camperDoc.dateOfBirth).toDate()),
           role: "CAMPER",
-          photoPermissions: "PRIVATE",
           nonoListIds: [],
         }, transaction);
       }),
@@ -83,12 +82,18 @@ export const processEmployeeCsv = onCall(async (req) => {
     const newEmployees = employees.filter(employee => !existingEmployees.some(user => user.id === employee.id));
     const promises = newEmployees.map(employee => {
       const { id, ...employeeDoc } = employee;
-      // @ts-expect-error - prevent extra fields from being added to Photographer type
-      return createUserDoc(id, employeeDoc.role === "PHOTOGRAPHER" ? { ...employeeDoc, dateOfBirth: Timestamp.fromDate(moment(employeeDoc.dateOfBirth).toDate()) } : {
+      // @ts-expect-error - limitation of Firebase's types with using discriminated unions
+      return createUserDoc(id, employeeDoc.role === "STAFF" ? {
         ...employeeDoc,
         dateOfBirth: Timestamp.fromDate(moment(employeeDoc.dateOfBirth).toDate()),
         nonoListIds: [],
         yesyesListIds: []
+      } : {
+        ...employeeDoc,
+        dateOfBirth: Timestamp.fromDate(moment(employeeDoc.dateOfBirth).toDate()),
+        nonoListIds: [],
+        yesyesListIds: [],
+        isSuperAdmin: false
       }, transaction);
     });
     await Promise.all(promises);

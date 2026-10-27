@@ -1,21 +1,12 @@
-export type Collection = RootLevelCollection | AlbumsSubcollection | AlbumItemsSubcollection | SessionsSubcollection | SectionsSubcollection;
+export type Collection = RootLevelCollection | SessionsSubcollection | SectionsSubcollection;
 
 export const enum RootLevelCollection {
   USERS = "users",
-  ALBUMS = "albums",
   USER_DIRECTORY = "userDirectory",
   SESSIONS = "sessions",
   PROGRAM_AREAS = "programAreas",
   POSTS = "posts",
   GOOGLE_OAUTH2_TOKENS = "googleOAuth2Tokens",
-}
-
-export const enum AlbumsSubcollection {
-  ALBUM_ITEMS = "albumItems"
-}
-
-export const enum AlbumItemsSubcollection {
-  REPORTS = "reports"
 }
 
 export const enum SessionsSubcollection {
