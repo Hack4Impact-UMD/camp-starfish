@@ -1,9 +1,9 @@
 import { StrictExtract } from "@/utils/types/typeUtils";
 import { Moment } from "moment";
 
-export type Role = "CAMPER" | "PARENT" | "STAFF" | "PHOTOGRAPHER" | "ADMIN";
+export type Role = "CAMPER" | "PARENT" | "STAFF" | "ADMIN";
 export type FamilyRole = StrictExtract<Role, "CAMPER" | "PARENT">;
-export type EmployeeRole = StrictExtract<Role, "STAFF" | "PHOTOGRAPHER" | "ADMIN">;
+export type EmployeeRole = StrictExtract<Role, "STAFF" | "ADMIN">;
 export type CounselorRole = StrictExtract<EmployeeRole, "STAFF" | "ADMIN">;
 
 interface BaseUser {
@@ -37,11 +37,6 @@ export interface Parent extends BaseUser {
   camperIds: number[];
 }
 
-export interface Photographer extends BaseUser {
-  role: "PHOTOGRAPHER";
-  email: string;
-}
-
 export interface Counselor extends BaseUser {
   role: "STAFF" | "ADMIN";
   email: string;
@@ -59,5 +54,5 @@ export interface Admin extends Counselor {
 }
 
 export type FamilyMember = Camper | Parent;
-export type Employee = Staff | Photographer | Admin;
-export type User = Camper | Parent | Photographer | Staff | Admin;
+export type Employee = Staff | Admin;
+export type User = Camper | Parent | Staff | Admin;

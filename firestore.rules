@@ -106,11 +106,6 @@ service cloud.firestore {
       allow write: if isStaffOrAdmin();
     }
     
-    match /photographers/{photographerId} {
-      allow read: if isStaffOrAdmin();
-      allow write: if isStaffOrAdmin();
-    }
-    
     // Shared resources
     match /programAreas/{areaId} {
       allow read: if isStaffOrAdmin();

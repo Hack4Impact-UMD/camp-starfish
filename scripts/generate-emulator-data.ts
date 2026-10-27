@@ -1,5 +1,5 @@
 import { faker } from "@faker-js/faker";
-import { Admin, Camper, Gender, Name, Parent, Photographer, Staff } from "@/types/users/userTypes";
+import { Admin, Camper, Gender, Name, Parent, Staff } from "@/types/users/userTypes";
 import { CommonSection, SchedulingSection, Section, Session } from "@/types/sessions/sessionTypes";
 import { BundleActivityWithAssignments, BundleBlock, BundleSectionSchedule, BunkJamboreeActivityWithAssignments, BunkJamboreeBlock, BunkJamboreeSectionSchedule, NonBunkJamboreeActivityWithAssignments, NonBunkJamboreeBlock, NonBunkJamboreeSectionSchedule } from "@/types/scheduling/schedulingTypes";
 import moment from "moment";
@@ -73,18 +73,6 @@ export function generateParent(): Parent {
     email: faker.internet.email(),
     uid: faker.string.alphanumeric(28),
     camperIds: []
-  }
-}
-
-export function generatePhotographer(): Photographer {
-  return {
-    id: faker.number.int({ min: 10000000, max: 99999999 }),
-    name: generateName(),
-    role: "PHOTOGRAPHER",
-    dateOfBirth: moment(faker.date.birthdate({ mode: 'age', min: 18, max: 60 }).toISOString()),
-    gender: generateGender(),
-    email: faker.internet.email(),
-    uid: faker.string.alphanumeric(28),
   }
 }
 

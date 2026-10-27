@@ -7,6 +7,7 @@ import { batchGetUserDocs, createUserDoc, updateUserDoc } from "../data/firestor
 import partition from "@/utils/data/partition";
 import { FieldValue, Timestamp } from "firebase-admin/firestore";
 import moment from "moment";
+import { StaffDoc } from "@/data/firestore/types/documents";
 
 export const processFamilyCsv = onCall(async (req) => {
   const role: Role | undefined = req.auth?.token.role;
@@ -82,12 +83,18 @@ export const processEmployeeCsv = onCall(async (req) => {
     const newEmployees = employees.filter(employee => !existingEmployees.some(user => user.id === employee.id));
     const promises = newEmployees.map(employee => {
       const { id, ...employeeDoc } = employee;
-      // @ts-expect-error - prevent extra fields from being added to Photographer type
-      return createUserDoc(id, employeeDoc.role === "PHOTOGRAPHER" ? { ...employeeDoc, dateOfBirth: Timestamp.fromDate(moment(employeeDoc.dateOfBirth).toDate()) } : {
+      // @ts-expect-error - limitation of Firebase's types with using discriminated unions
+      return createUserDoc(id, employeeDoc.role === "STAFF" ? {
         ...employeeDoc,
         dateOfBirth: Timestamp.fromDate(moment(employeeDoc.dateOfBirth).toDate()),
         nonoListIds: [],
         yesyesListIds: []
+      } : {
+        ...employeeDoc,
+        dateOfBirth: Timestamp.fromDate(moment(employeeDoc.dateOfBirth).toDate()),
+        nonoListIds: [],
+        yesyesListIds: [],
+        isSuperAdmin: false
       }, transaction);
     });
     await Promise.all(promises);

@@ -28,11 +28,6 @@ export interface ParentDoc extends BaseUserDoc {
   camperIds: number[];
 }
 
-export interface PhotographerDoc extends BaseUserDoc {
-  role: "PHOTOGRAPHER";
-  email: string;
-}
-
 export interface CounselorDoc extends BaseUserDoc {
   role: "STAFF" | "ADMIN";
   email: string;
@@ -50,8 +45,8 @@ export interface AdminDoc extends CounselorDoc {
 }
 
 export type FamilyMemberDoc = CamperDoc | ParentDoc;
-export type EmployeeDoc = StaffDoc | PhotographerDoc | AdminDoc;
-export type UserDoc = CamperDoc | ParentDoc | PhotographerDoc | StaffDoc | AdminDoc;
+export type EmployeeDoc = StaffDoc | AdminDoc;
+export type UserDoc = CamperDoc | ParentDoc | StaffDoc | AdminDoc;
 
 export interface SessionDoc {
   name: string;

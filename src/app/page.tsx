@@ -19,7 +19,7 @@ export default function HomePage() {
         },
         {
           authFn: () =>
-            role === "ADMIN" || role === "PHOTOGRAPHER" || role === "STAFF",
+            role === "ADMIN" || role === "STAFF",
           component: <EmployeeHomePage />,
         },
       ]}
