@@ -7,7 +7,6 @@ import { batchGetUserDocs, createUserDoc, updateUserDoc } from "../data/firestor
 import partition from "@/utils/data/partition";
 import { FieldValue, Timestamp } from "firebase-admin/firestore";
 import moment from "moment";
-import { StaffDoc } from "@/data/firestore/types/documents";
 
 export const processFamilyCsv = onCall(async (req) => {
   const role: Role | undefined = req.auth?.token.role;
