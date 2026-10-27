@@ -15,7 +15,7 @@ import { Dropzone, DropzoneProps } from "@mantine/dropzone";
 import { modals } from "@mantine/modals";
 import { useState } from "react";
 import { MdOutlineFileUpload } from "react-icons/md";
-import { EmployeeRole, Gender } from "@/types/users/userTypes";
+import { CounselorRole, Gender } from "@/types/users/userTypes";
 import EmployeeUsersInputTable from "./EmployeeUsersInputTable";
 import { Moment } from "moment";
 import FamilyUsersInputTables from "./FamilyUsersInputTables";
@@ -29,7 +29,7 @@ export function UploadUsersCsvModal() {
   const [csvFile, setCsvFile] = useState<File | null>(null);
   const [csvType, setCsvType] = useState<UsersCsvType>("FAMILY");
   const [roleSelects, setRoleSelects] = useState<{
-    [employeeId: number]: EmployeeRole | null;
+    [employeeId: number]: CounselorRole | null;
   } | null>(null);
   const [genderSelects, setGenderSelects] = useState<{
     [employeeId: number]: Gender | null;
@@ -76,7 +76,7 @@ export function UploadUsersCsvModal() {
         { csvFile },
         {
           onSuccess: (data) => {
-            const roleSelects: { [employeeId: number]: EmployeeRole | null } =
+            const roleSelects: { [employeeId: number]: CounselorRole | null } =
               {};
             const genderSelects: { [employeeId: number]: Gender | null } = {};
             const dateOfBirthSelects: { [employeeId: number]: Moment | null } =

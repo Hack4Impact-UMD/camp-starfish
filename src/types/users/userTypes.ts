@@ -3,8 +3,7 @@ import { Moment } from "moment";
 
 export type Role = "CAMPER" | "PARENT" | "STAFF" | "ADMIN";
 export type FamilyRole = StrictExtract<Role, "CAMPER" | "PARENT">;
-export type EmployeeRole = StrictExtract<Role, "STAFF" | "ADMIN">;
-export type CounselorRole = StrictExtract<EmployeeRole, "STAFF" | "ADMIN">;
+export type CounselorRole = StrictExtract<Role, "STAFF" | "ADMIN">;
 
 interface BaseUser {
   id: number;

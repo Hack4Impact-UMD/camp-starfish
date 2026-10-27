@@ -6,8 +6,8 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { Select, Table, Text } from "@mantine/core";
-import { EMPLOYEE_ROLES, GENDERS, getFullName } from "@/types/users/userUtils";
-import { Employee, EmployeeRole, Gender } from "@/types/users/userTypes";
+import { COUNSELOR_ROLES, GENDERS, getFullName } from "@/types/users/userUtils";
+import { Employee, CounselorRole, Gender } from "@/types/users/userTypes";
 import { DatePickerInput } from "@mantine/dates";
 import { Moment } from "moment";
 import { useMemo } from "react";
@@ -17,11 +17,11 @@ import moment from "moment";
 interface EmployeeUsersInputTableProps {
   employees: ParsedEmployeeCsvData;
   roleSelects: {
-    [employeeId: number]: EmployeeRole | null;
+    [employeeId: number]: CounselorRole | null;
   };
   setRoleSelects: React.Dispatch<
     React.SetStateAction<{
-      [employeeId: number]: EmployeeRole | null;
+      [employeeId: number]: CounselorRole | null;
     } | null>
   >;
   genderSelects: { [employeeId: number]: Gender | null };
@@ -86,7 +86,7 @@ export default function EmployeeUsersInputTable(
         header: "Role",
         cell: (props) => (
           <Select
-            data={EMPLOYEE_ROLES}
+            data={COUNSELOR_ROLES}
             value={props.row.original.role}
             onChange={(val) => setRoleSelects((prev) => ({
                 ...prev,
