@@ -7,7 +7,7 @@ import {
 } from "@tanstack/react-table";
 import { Select, Table, Text } from "@mantine/core";
 import { COUNSELOR_ROLES, GENDERS, getFullName } from "@/types/users/userUtils";
-import { Employee, CounselorRole, Gender } from "@/types/users/userTypes";
+import { Counselor, CounselorRole, Gender } from "@/types/users/userTypes";
 import { DatePickerInput } from "@mantine/dates";
 import { Moment } from "moment";
 import { useMemo } from "react";
@@ -65,7 +65,7 @@ export default function EmployeeUsersInputTable(
   const columns = useMemo(() => {
     const columnHelper = createColumnHelper<
       ParsedEmployeeCsvData[number] &
-        Nullable<Pick<Employee, "role" | "gender" | "dateOfBirth">>
+        Nullable<Pick<Counselor, "role" | "gender" | "dateOfBirth">>
     >();
 
     return [
@@ -88,7 +88,8 @@ export default function EmployeeUsersInputTable(
           <Select
             data={COUNSELOR_ROLES}
             value={props.row.original.role}
-            onChange={(val) => setRoleSelects((prev) => ({
+            onChange={(val) =>
+              setRoleSelects((prev) => ({
                 ...prev,
                 [props.cell.row.original.id]: val,
               }))
@@ -99,25 +100,33 @@ export default function EmployeeUsersInputTable(
       columnHelper.display({
         id: "gender",
         header: "Gender",
-        cell: (props) => (<Select
-          data={GENDERS}
-          value={props.row.original.gender}
-          onChange={(val) => setGenderSelects((prev) => ({
-            ...prev,
-            [props.cell.row.original.id]: val,
-          }))}
-        />),
+        cell: (props) => (
+          <Select
+            data={GENDERS}
+            value={props.row.original.gender}
+            onChange={(val) =>
+              setGenderSelects((prev) => ({
+                ...prev,
+                [props.cell.row.original.id]: val,
+              }))
+            }
+          />
+        ),
       }),
       columnHelper.display({
         id: "dateOfBirth",
         header: "Date of Birth",
-        cell: (props) => (<DatePickerInput
-          value={props.row.original.dateOfBirth?.toDate()}
-          onChange={(val) => setDateOfBirthSelects((prev) => ({
-            ...prev,
-            [props.cell.row.original.id]: moment(val),
-          }))}
-        />),
+        cell: (props) => (
+          <DatePickerInput
+            value={props.row.original.dateOfBirth?.toDate()}
+            onChange={(val) =>
+              setDateOfBirthSelects((prev) => ({
+                ...prev,
+                [props.cell.row.original.id]: moment(val),
+              }))
+            }
+          />
+        ),
       }),
     ];
   }, [setRoleSelects, setGenderSelects, setDateOfBirthSelects]);
@@ -139,7 +148,8 @@ export default function EmployeeUsersInputTable(
                 <Table.Th key={header.id}>
                   {flexRender(
                     header.column.columnDef.header,
-                    header.getContext(),)}
+                    header.getContext(),
+                  )}
                 </Table.Th>
               ))}
             </Table.Tr>
