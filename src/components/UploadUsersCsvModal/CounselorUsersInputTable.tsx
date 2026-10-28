@@ -1,4 +1,4 @@
-import { ParsedEmployeeCsvData } from "@/features/userManagement/types";
+import { ParsedCounselorCsvData } from "@/features/userManagement/types";
 import {
   createColumnHelper,
   flexRender,
@@ -14,35 +14,35 @@ import { useMemo } from "react";
 import { Nullable } from "@/utils/types/typeUtils";
 import moment from "moment";
 
-interface EmployeeUsersInputTableProps {
-  employees: ParsedEmployeeCsvData;
+interface CounselorUsersInputTableProps {
+  counselors: ParsedCounselorCsvData;
   roleSelects: {
-    [employeeId: number]: CounselorRole | null;
+    [counselorId: number]: CounselorRole | null;
   };
   setRoleSelects: React.Dispatch<
     React.SetStateAction<{
-      [employeeId: number]: CounselorRole | null;
+      [counselorId: number]: CounselorRole | null;
     } | null>
   >;
-  genderSelects: { [employeeId: number]: Gender | null };
+  genderSelects: { [counselorId: number]: Gender | null };
   setGenderSelects: React.Dispatch<
     React.SetStateAction<{
-      [employeeId: number]: Gender | null;
+      [counselorId: number]: Gender | null;
     }>
   >;
-  dateOfBirthSelects: { [employeeId: number]: Moment | null };
+  dateOfBirthSelects: { [counselorId: number]: Moment | null };
   setDateOfBirthSelects: React.Dispatch<
     React.SetStateAction<{
-      [employeeId: number]: Moment | null;
+      [counselorId: number]: Moment | null;
     }>
   >;
 }
 
-export default function EmployeeUsersInputTable(
-  props: EmployeeUsersInputTableProps,
+export default function CounselorUsersInputTable(
+  props: CounselorUsersInputTableProps,
 ) {
   const {
-    employees,
+    counselors,
     roleSelects,
     setRoleSelects,
     genderSelects,
@@ -53,18 +53,18 @@ export default function EmployeeUsersInputTable(
 
   const data = useMemo(
     () =>
-      employees.map((employee) => ({
-        ...employee,
-        role: roleSelects[employee.id],
-        gender: genderSelects[employee.id],
-        dateOfBirth: dateOfBirthSelects[employee.id],
+      counselors.map((counselor) => ({
+        ...counselor,
+        role: roleSelects[counselor.id],
+        gender: genderSelects[counselor.id],
+        dateOfBirth: dateOfBirthSelects[counselor.id],
       })),
-    [employees, roleSelects, genderSelects, dateOfBirthSelects],
+    [counselors, roleSelects, genderSelects, dateOfBirthSelects],
   );
 
   const columns = useMemo(() => {
     const columnHelper = createColumnHelper<
-      ParsedEmployeeCsvData[number] &
+      ParsedCounselorCsvData[number] &
         Nullable<Pick<Counselor, "role" | "gender" | "dateOfBirth">>
     >();
 
@@ -139,7 +139,7 @@ export default function EmployeeUsersInputTable(
 
   return (
     <div className="flex flex-col gap-xs">
-      <Text>Employees</Text>
+      <Text>Counselors</Text>
       <Table>
         <Table.Thead>
           {table.getHeaderGroups().map((headerGroup) => (

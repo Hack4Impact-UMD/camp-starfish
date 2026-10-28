@@ -1,7 +1,7 @@
 import { Camper, Parent, Role } from "@/types/users/userTypes";
 import { HttpsError, onCall } from "firebase-functions/https"
 import { ProcessFamilyCsvRequest } from "@/features/userManagement/useProcessFamilyCsv";
-import { ProcessEmployeeCsvRequest } from "@/features/userManagement/useProcessEmployeeCsv";
+import { ProcessCounselorCsvRequest } from "@/features/userManagement/useProcessCounselorCsv";
 import { adminDb } from "../config/firebaseAdminConfig";
 import { batchGetUserDocs, createUserDoc, updateUserDoc } from "../data/firestore/users";
 import partition from "@/utils/data/partition";
@@ -66,31 +66,31 @@ export const processFamilyCsv = onCall(async (req) => {
   });
 });
 
-export const processEmployeeCsv = onCall(async (req) => {
+export const processCounselorCsv = onCall(async (req) => {
   const role: Role | undefined = req.auth?.token.role;
   if (role !== "ADMIN") {
     throw new HttpsError("permission-denied", "You do not have permission to create new users.");
   }
 
-  const employees = (JSON.parse(req.data) as ProcessEmployeeCsvRequest).employees.map(employee => ({
-    ...employee,
-    dateOfBirth: moment(employee.dateOfBirth)
+  const counselors = (JSON.parse(req.data) as ProcessCounselorCsvRequest).counselors.map(counselor => ({
+    ...counselor,
+    dateOfBirth: moment(counselor.dateOfBirth)
   }));
   await adminDb.runTransaction(async (transaction) => {
-    const allIds: number[] = employees.map(employee => employee.id);
-    const existingEmployees = await batchGetUserDocs(allIds);
-    const newEmployees = employees.filter(employee => !existingEmployees.some(user => user.id === employee.id));
-    const promises = newEmployees.map(employee => {
-      const { id, ...employeeDoc } = employee;
+    const allIds: number[] = counselors.map(counselor => counselor.id);
+    const existingCounselors = await batchGetUserDocs(allIds);
+    const newCounselors = counselors.filter(counselor => !existingCounselors.some(user => user.id === counselor.id));
+    const promises = newCounselors.map(counselor => {
+      const { id, ...counselorDoc } = counselor;
       // @ts-expect-error - limitation of Firebase's types with using discriminated unions
-      return createUserDoc(id, employeeDoc.role === "STAFF" ? {
-        ...employeeDoc,
-        dateOfBirth: Timestamp.fromDate(moment(employeeDoc.dateOfBirth).toDate()),
+      return createUserDoc(id, counselorDoc.role === "STAFF" ? {
+        ...counselorDoc,
+        dateOfBirth: Timestamp.fromDate(moment(counselorDoc.dateOfBirth).toDate()),
         nonoListIds: [],
         yesyesListIds: []
       } : {
-        ...employeeDoc,
-        dateOfBirth: Timestamp.fromDate(moment(employeeDoc.dateOfBirth).toDate()),
+        ...counselorDoc,
+        dateOfBirth: Timestamp.fromDate(moment(counselorDoc.dateOfBirth).toDate()),
         nonoListIds: [],
         yesyesListIds: [],
         isSuperAdmin: false

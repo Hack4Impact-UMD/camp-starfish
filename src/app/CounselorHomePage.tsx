@@ -3,7 +3,7 @@
 import { useAuth } from "@/auth/useAuth";
 import GalleryCardOne from "../components/GalleryCardOne";
 
-export default function EmployeeHomePage() {
+export default function CounselorHomePage() {
   const auth = useAuth();
   return (
     <div className="p-10 lg:p-20 font-lato text-[20px] font-normal leading-normal text-primary-300 bg-white">

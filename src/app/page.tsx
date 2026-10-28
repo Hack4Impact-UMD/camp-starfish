@@ -2,7 +2,7 @@
 
 import RequireAuth from "@/auth/RequireAuth";
 import LoginPage from "./LoginPage";
-import EmployeeHomePage from "./EmployeeHomePage";
+import CounselorHomePage from "./CounselorHomePage";
 import { useAuth } from "@/auth/useAuth";
 import { Role } from "@/types/users/userTypes";
 
@@ -20,7 +20,7 @@ export default function HomePage() {
         {
           authFn: () =>
             role === "ADMIN" || role === "STAFF",
-          component: <EmployeeHomePage />,
+          component: <CounselorHomePage />,
         },
       ]}
     />

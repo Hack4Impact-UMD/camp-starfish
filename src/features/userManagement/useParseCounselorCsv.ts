@@ -1,31 +1,31 @@
 import { useMutation } from "@tanstack/react-query";
 import { Info, parse } from "csv-parse/sync";
-import { ParsedEmployeeCsvData } from "./types";
+import { ParsedCounselorCsvData } from "./types";
 import { z } from "zod";
 
-interface ParseEmployeeCsvRequest {
+interface ParseCounselorCsvRequest {
   csvFile: File;
 }
 
-interface RawEmployeeCsvRecord {
+interface RawCounselorCsvRecord {
   "First Name": string;
   "Last Name": string;
   PersonID: string;
   "Login/Email": string;
 }
 
-interface RawEmployeeCsvRecordWithInfo {
-  record: RawEmployeeCsvRecord;
+interface RawCounselorCsvRecordWithInfo {
+  record: RawCounselorCsvRecord;
   info: Info;
 }
 
-const EmployeeCsvRecordSchema = z.object({
+const CounselorCsvRecordSchema = z.object({
   "First Name": z.string().min(1),
   "Last Name": z.string().min(1),
   PersonID: z.preprocess(value => value === "" ? NaN : value, z.coerce.number()),
   "Login/Email": z.string().email(),
 })
-type ParsedEmployeeCsvRecord = z.infer<typeof EmployeeCsvRecordSchema>;
+type ParsedCounselorCsvRecord = z.infer<typeof CounselorCsvRecordSchema>;
 
 const REQUIRED_COLUMNS = [
   "First Name",
@@ -34,7 +34,7 @@ const REQUIRED_COLUMNS = [
   "Login/Email"
 ]
 
-export async function parseEmployeeCsv(req: ParseEmployeeCsvRequest): Promise<ParsedEmployeeCsvData> {
+export async function parseCounselorCsv(req: ParseCounselorCsvRequest): Promise<ParsedCounselorCsvData> {
   const { csvFile } = req;
   const rawText = await csvFile.text();
   const data = parse(rawText, {
@@ -47,13 +47,13 @@ export async function parseEmployeeCsv(req: ParseEmployeeCsvRequest): Promise<Pa
     },
     info: true,
     skip_empty_lines: true
-  }) as RawEmployeeCsvRecordWithInfo[];
+  }) as RawCounselorCsvRecordWithInfo[];
   return data.map(({ record, info }) => {
-    const validationResult = EmployeeCsvRecordSchema.safeParse(record);
+    const validationResult = CounselorCsvRecordSchema.safeParse(record);
     if (!validationResult.success) {
       throw Error(`Invalid record on line ${info.lines}. Please fix before uploading.`);
     }
-    const parsedRecord: ParsedEmployeeCsvRecord = validationResult.data;
+    const parsedRecord: ParsedCounselorCsvRecord = validationResult.data;
     return {
       id: parsedRecord.PersonID,
       name: {
@@ -65,8 +65,8 @@ export async function parseEmployeeCsv(req: ParseEmployeeCsvRequest): Promise<Pa
   });
 }
 
-export default function useParseEmployeeCsv() {
+export default function useParseCounselorCsv() {
   return useMutation({
-    mutationFn: (req: ParseEmployeeCsvRequest) => parseEmployeeCsv(req)
+    mutationFn: (req: ParseCounselorCsvRequest) => parseCounselorCsv(req)
   })
 }
