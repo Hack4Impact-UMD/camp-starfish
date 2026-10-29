@@ -56,8 +56,8 @@ export function getCounselorIdsFromBunkAssignments(assignments: BunkActivityAssi
 }
 
 export function getFreeplayAssignmentId(freeplay: Freeplay, id: number): number[] | number | string | null {
-  for (const [postId, employeeIds] of Object.entries(freeplay.posts)) {
-    if (employeeIds.includes(id)) {
+  for (const [postId, counselorIds] of Object.entries(freeplay.posts)) {
+    if (counselorIds.includes(id)) {
       return postId;
     }
   }

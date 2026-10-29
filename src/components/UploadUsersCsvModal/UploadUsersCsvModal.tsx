@@ -1,13 +1,13 @@
 import {
-  isParsedEmployeeCsvData,
+  isParsedCounselorCsvData,
   isParsedFamilyCsvData,
   ParsedUsersCsvData,
   UsersCsvType,
   usersCsvTypes,
 } from "@/features/userManagement/types";
 import useParseFamilyCsv from "@/features/userManagement/useParseFamilyCsv";
-import useParseEmployeeCsv from "@/features/userManagement/useParseEmployeeCsv";
-import useProcessEmployeeCsv from "@/features/userManagement/useProcessEmployeeCsv";
+import useParseCounselorCsv from "@/features/userManagement/useParseCounselorCsv";
+import useProcessCounselorCsv from "@/features/userManagement/useProcessCounselorCsv";
 import useProcessFamilyCsv from "@/features/userManagement/useProcessFamilyCsv";
 import { MBToBytes } from "@/utils/fileUtils";
 import { Button, Loader, Radio, ScrollArea, Text, Title } from "@mantine/core";
@@ -15,50 +15,50 @@ import { Dropzone, DropzoneProps } from "@mantine/dropzone";
 import { modals } from "@mantine/modals";
 import { useState } from "react";
 import { MdOutlineFileUpload } from "react-icons/md";
-import { EmployeeRole, Gender } from "@/types/users/userTypes";
-import EmployeeUsersInputTable from "./EmployeeUsersInputTable";
+import { CounselorRole, Gender } from "@/types/users/userTypes";
+import CounselorUsersInputTable from "./CounselorUsersInputTable";
 import { Moment } from "moment";
 import FamilyUsersInputTables from "./FamilyUsersInputTables";
 
 const usersCsvTypeToLabel: Record<UsersCsvType, string> = {
   FAMILY: "Families (Campers + Parents)",
-  EMPLOYEE: "Employees (Admins + Staff)",
+  COUNSELOR: "Counselors (Admins + Staff)",
 };
 
 export function UploadUsersCsvModal() {
   const [csvFile, setCsvFile] = useState<File | null>(null);
   const [csvType, setCsvType] = useState<UsersCsvType>("FAMILY");
   const [roleSelects, setRoleSelects] = useState<{
-    [employeeId: number]: EmployeeRole | null;
+    [counselorId: number]: CounselorRole | null;
   } | null>(null);
   const [genderSelects, setGenderSelects] = useState<{
-    [employeeId: number]: Gender | null;
+    [counselorId: number]: Gender | null;
   }>({});
   const [dateOfBirthSelects, setDateOfBirthSelects] = useState<{
-    [employeeId: number]: Moment | null;
+    [counselorId: number]: Moment | null;
   }>({});
 
   const parseFamilyCsvMutation = useParseFamilyCsv();
-  const parseEmployeeCsvMutation = useParseEmployeeCsv();
+  const parseCounselorCsvMutation = useParseCounselorCsv();
   const parsedData: ParsedUsersCsvData | undefined =
     csvType === "FAMILY"
       ? parseFamilyCsvMutation.data
-      : parseEmployeeCsvMutation.data;
+      : parseCounselorCsvMutation.data;
 
   const processFamilyCsvMutation = useProcessFamilyCsv();
-  const processEmployeeCsvMutation = useProcessEmployeeCsv();
+  const processCounselorCsvMutation = useProcessCounselorCsv();
 
   const parseCsvFile = (usersCsvType: UsersCsvType, csvFile: File) => {
     processFamilyCsvMutation.reset();
-    processEmployeeCsvMutation.reset();
+    processCounselorCsvMutation.reset();
     if (usersCsvType === "FAMILY") {
-      parseEmployeeCsvMutation.reset();
+      parseCounselorCsvMutation.reset();
       parseFamilyCsvMutation.mutate(
         { csvFile },
         {
           onSuccess: (data) => {
-            const genderSelects: { [employeeId: number]: Gender | null } = {};
-            const dateOfBirthSelects: { [employeeId: number]: Moment | null } =
+            const genderSelects: { [counselorId: number]: Gender | null } = {};
+            const dateOfBirthSelects: { [counselorId: number]: Moment | null } =
               {};
             [...data.campers, ...data.parents].forEach((familyMember) => {
               genderSelects[familyMember.id] = null;
@@ -72,19 +72,19 @@ export function UploadUsersCsvModal() {
       );
     } else {
       parseFamilyCsvMutation.reset();
-      parseEmployeeCsvMutation.mutate(
+      parseCounselorCsvMutation.mutate(
         { csvFile },
         {
           onSuccess: (data) => {
-            const roleSelects: { [employeeId: number]: EmployeeRole | null } =
+            const roleSelects: { [counselorId: number]: CounselorRole | null } =
               {};
-            const genderSelects: { [employeeId: number]: Gender | null } = {};
-            const dateOfBirthSelects: { [employeeId: number]: Moment | null } =
+            const genderSelects: { [counselorId: number]: Gender | null } = {};
+            const dateOfBirthSelects: { [counselorId: number]: Moment | null } =
               {};
-            data.forEach((employee) => {
-              roleSelects[employee.id] = null;
-              genderSelects[employee.id] = null;
-              dateOfBirthSelects[employee.id] = null;
+            data.forEach((counselor) => {
+              roleSelects[counselor.id] = null;
+              genderSelects[counselor.id] = null;
+              dateOfBirthSelects[counselor.id] = null;
             });
             setRoleSelects(roleSelects);
             setGenderSelects(genderSelects);
@@ -125,15 +125,15 @@ export function UploadUsersCsvModal() {
       }
       return true;
     } else if (
-      csvType === "EMPLOYEE" &&
-      isParsedEmployeeCsvData(parsedData) &&
+      csvType === "COUNSELOR" &&
+      isParsedCounselorCsvData(parsedData) &&
       roleSelects
     ) {
-      for (const employee of parsedData) {
+      for (const counselor of parsedData) {
         if (
-          !roleSelects[employee.id] ||
-          !genderSelects[employee.id] ||
-          !dateOfBirthSelects[employee.id]
+          !roleSelects[counselor.id] ||
+          !genderSelects[counselor.id] ||
+          !dateOfBirthSelects[counselor.id]
         ) {
           return false;
         }
@@ -167,20 +167,20 @@ export function UploadUsersCsvModal() {
         },
         { onSuccess: () => modals.closeAll() },
       );
-      processEmployeeCsvMutation.reset();
+      processCounselorCsvMutation.reset();
     } else if (
-      csvType === "EMPLOYEE" &&
-      isParsedEmployeeCsvData(parsedData) &&
+      csvType === "COUNSELOR" &&
+      isParsedCounselorCsvData(parsedData) &&
       roleSelects
     ) {
-      processEmployeeCsvMutation.mutate(
+      processCounselorCsvMutation.mutate(
         {
           // @ts-expect-error - Submit button is disabled if any field is missing
-          employees: parsedData.map((employee) => ({
-            ...employee,
-            role: roleSelects[employee.id],
-            gender: genderSelects[employee.id],
-            dateOfBirth: dateOfBirthSelects[employee.id],
+          counselors: parsedData.map((counselor) => ({
+            ...counselor,
+            role: roleSelects[counselor.id],
+            gender: genderSelects[counselor.id],
+            dateOfBirth: dateOfBirthSelects[counselor.id],
           })),
         },
         { onSuccess: () => modals.closeAll() },
@@ -222,7 +222,7 @@ export function UploadUsersCsvModal() {
         </Text>
       </Dropzone>
       {(parseFamilyCsvMutation.isPending ||
-        parseEmployeeCsvMutation.isPending) && (
+        parseCounselorCsvMutation.isPending) && (
         <Loader className="self-center" size="xs" />
       )}
       {parseFamilyCsvMutation.error && (
@@ -230,9 +230,9 @@ export function UploadUsersCsvModal() {
           {parseFamilyCsvMutation.error.message}
         </Text>
       )}
-      {parseEmployeeCsvMutation.error && (
+      {parseCounselorCsvMutation.error && (
         <Text className="text-error text-sm text-center">
-          {parseEmployeeCsvMutation.error.message}
+          {parseCounselorCsvMutation.error.message}
         </Text>
       )}
       {parsedData && (
@@ -251,8 +251,8 @@ export function UploadUsersCsvModal() {
                 setDateOfBirthSelects={setDateOfBirthSelects}
               />
             ) : (
-              <EmployeeUsersInputTable
-                employees={parsedData}
+              <CounselorUsersInputTable
+                counselors={parsedData}
                 roleSelects={roleSelects!}
                 setRoleSelects={setRoleSelects}
                 genderSelects={genderSelects}
@@ -270,7 +270,7 @@ export function UploadUsersCsvModal() {
         disabled={parsedData === undefined || !areAllFieldsFilled()}
         loading={
           processFamilyCsvMutation.isPending ||
-          processEmployeeCsvMutation.isPending
+          processCounselorCsvMutation.isPending
         }
       >
         Create Users
@@ -280,9 +280,9 @@ export function UploadUsersCsvModal() {
           {processFamilyCsvMutation.error.message}
         </Text>
       )}
-      {processEmployeeCsvMutation.error && (
+      {processCounselorCsvMutation.error && (
         <Text className="text-error text-sm text-center">
-          {processEmployeeCsvMutation.error.message}
+          {processCounselorCsvMutation.error.message}
         </Text>
       )}
     </div>

@@ -141,21 +141,21 @@ const styles = StyleSheet.create({
   },
 });
 
-interface EmployeeGridProps {
+interface CounselorGridProps {
   schedule: SectionSchedule;
   freeplay: Freeplay;
   campers: CamperAttendee[];
-  employees: AdminAttendee[] | StaffAttendee[];
+  counselors: AdminAttendee[] | StaffAttendee[];
 }
 
-export default function EmployeeGrid(props: EmployeeGridProps) {
-  const { schedule, freeplay, campers, employees } = props;
+export default function CounselorGrid(props: CounselorGridProps) {
+  const { schedule, freeplay, campers, counselors } = props;
   return (
     <View style={styles.page}>
       <Text style={styles.sectionTitle}>
-        {employees.length === 0
-          ? "Employee"
-          : employees[0].role === "ADMIN"
+        {counselors.length === 0
+          ? "Counselor"
+          : counselors[0].role === "ADMIN"
             ? "Admin"
             : "Staff"}{" "}
         Assignments
@@ -172,10 +172,10 @@ export default function EmployeeGrid(props: EmployeeGridProps) {
           <Text style={styles.headerCell}>AM/PM FP</Text>
         </View>
 
-        {employees.map((employee) => {
+        {counselors.map((counselor) => {
           const fpBuddyIds = getFreeplayAssignmentId(
             freeplay,
-            employee.attendeeId,
+            counselor.attendeeId,
           );
           const fpBuddies = fpBuddyIds
             ? (fpBuddyIds as number[]).map((id) =>
@@ -186,7 +186,7 @@ export default function EmployeeGrid(props: EmployeeGridProps) {
           let apoText: string = "-";
           for (const period of Object.keys(schedule.alternatePeriodsOff)) {
             if (
-              schedule.alternatePeriodsOff[period].includes(employee.attendeeId)
+              schedule.alternatePeriodsOff[period].includes(counselor.attendeeId)
             ) {
               apoText = period;
               break;
@@ -194,30 +194,30 @@ export default function EmployeeGrid(props: EmployeeGridProps) {
           }
 
           return (
-            <View key={employee.attendeeId} style={styles.row}>
+            <View key={counselor.attendeeId} style={styles.row}>
               {/* Name column - Use dataCell style */}
               <View style={styles.dataCell}>
                 <Text>
-                  {employee.snapshot.name.firstName}{" "}
-                  {employee.snapshot.name.lastName[0]}.
+                  {counselor.snapshot.name.firstName}{" "}
+                  {counselor.snapshot.name.lastName[0]}.
                 </Text>
               </View>
               {Object.keys(schedule.blocks).map((blockId) => {
                 const block = schedule.blocks[blockId];
                 let activityText;
-                if (block.periodsOff.includes(employee.attendeeId)) {
+                if (block.periodsOff.includes(counselor.attendeeId)) {
                   activityText = "OFF";
                 } else {
-                  const activity = isStaffAttendee(employee)
+                  const activity = isStaffAttendee(counselor)
                     ? isBunkJamboreeBlock(block)
                       ? Object.values(block.activities).find((act) =>
-                          act.bunkNums.includes(employee.bunk),
+                          act.bunkNums.includes(counselor.bunk),
                         )
                       : Object.values(block.activities).find((act) =>
-                          act.staffIds.includes(employee.attendeeId),
+                          act.staffIds.includes(counselor.attendeeId),
                         )
                     : Object.values(block.activities).find((act) =>
-                        act.adminIds.includes(employee.attendeeId),
+                        act.adminIds.includes(counselor.attendeeId),
                       );
                   activityText = activity
                     ? isBundleActivity(activity)

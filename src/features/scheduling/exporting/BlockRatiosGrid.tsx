@@ -167,7 +167,7 @@ export default function BlockRatiosGrid({
                     />
                   );
 
-                const employeeIds = isIndividualActivityAssignments(activity)
+                const counselorIds = isIndividualActivityAssignments(activity)
                   ? [
                       ...activity.staffIds,
                       ...activity.adminIds,
@@ -175,7 +175,7 @@ export default function BlockRatiosGrid({
                   : [
                       ...activity.bunkNums.flatMap((bunkNum) =>
                         (staffByBunk[bunkNum] ?? []).map(
-                          (employee) => employee.attendeeId,
+                          (counselor) => counselor.attendeeId,
                         ),
                       ),
                       ...activity.adminIds,
@@ -217,16 +217,16 @@ export default function BlockRatiosGrid({
                         { backgroundColor: rowBgColor },
                       ]}
                     >
-                      {employeeIds.map((employeeId) => (
+                      {counselorIds.map((counselorId) => (
                         <Text
-                          key={employeeId}
+                          key={counselorId}
                           style={
-                            attendeesById[employeeId]?.role === "ADMIN"
+                            attendeesById[counselorId]?.role === "ADMIN"
                               ? { fontWeight: "bold" }
                               : {}
                           }
                         >
-                          {getAttendeeName(attendeesById, employeeId)}
+                          {getAttendeeName(attendeesById, counselorId)}
                         </Text>
                       ))}
                     </View>

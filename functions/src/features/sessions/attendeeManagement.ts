@@ -47,7 +47,7 @@ export const createAttendees = onCall(async (req) => {
       ...createAttendeeDocs(acceptedAttendees, usersById, sessionId, transaction),
       ...addAttendeesToActivityPreferences(sectionData, acceptedAttendees.filter(att => att.role === "CAMPER" || att.role === "STAFF"), sessionId, transaction),
       updateSessionDocWithAttendeeIds(acceptedAttendees, sessionId, transaction),
-      addEmployeesToDaysOffSchedule(acceptedAttendees.filter(att => att.role === "ADMIN" || att.role === "STAFF"), sessionId, transaction)
+      addCounselorsToDaysOffSchedule(acceptedAttendees.filter(att => att.role === "ADMIN" || att.role === "STAFF"), sessionId, transaction)
     ])
   });
 });
@@ -178,7 +178,7 @@ function updateSessionDocWithAttendeeIds(attendeeRequests: CreateAttendeeRequest
   return updateSessionDoc(sessionId, { attendeeIds: FieldValue.arrayUnion(...attendeeRequests.map(attendee => attendee.attendeeId)) }, transaction);
 }
 
-function addEmployeesToDaysOffSchedule(attendeeRequests: (CreateStaffAttendeeRequest | CreateAdminAttendeeRequest)[], sessionId: string, transaction: Transaction) {
+function addCounselorsToDaysOffSchedule(attendeeRequests: (CreateStaffAttendeeRequest | CreateAdminAttendeeRequest)[], sessionId: string, transaction: Transaction) {
   const updates: UpdateData<DaysOffScheduleDoc> = attendeeRequests.reduce((acc, attendeeRequest) => ({ ...acc, [`daysOffByCounselorId.${attendeeRequest.attendeeId}`]: [] }), {} as UpdateData<DaysOffScheduleDoc>);
   if (Object.keys(updates).length === 0) return;
   return updateDaysOffScheduleDoc(sessionId, updates, transaction);

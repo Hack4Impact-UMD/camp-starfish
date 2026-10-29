@@ -28,24 +28,24 @@ export interface ParentDoc extends BaseUserDoc {
   camperIds: number[];
 }
 
-export interface CounselorDoc extends BaseUserDoc {
+export interface BaseCounselorDoc extends BaseUserDoc {
   role: "STAFF" | "ADMIN";
   email: string;
   nonoListIds: number[];
   yesyesListIds: number[];
 }
 
-export interface StaffDoc extends CounselorDoc {
+export interface StaffDoc extends BaseCounselorDoc {
   role: "STAFF";
 }
 
-export interface AdminDoc extends CounselorDoc {
+export interface AdminDoc extends BaseCounselorDoc {
   role: "ADMIN";
   isSuperAdmin: boolean;
 }
 
 export type FamilyMemberDoc = CamperDoc | ParentDoc;
-export type EmployeeDoc = StaffDoc | AdminDoc;
+export type CounselorDoc = StaffDoc | AdminDoc;
 export type UserDoc = CamperDoc | ParentDoc | StaffDoc | AdminDoc;
 
 export interface SessionDoc {
