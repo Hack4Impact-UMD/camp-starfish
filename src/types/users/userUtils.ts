@@ -17,7 +17,6 @@ export function isCounselorRole(role: Role): role is CounselorRole {
 }
 
 export function isAttendeeRole(role: Role): role is AttendeeRole {
-  // @ts-expect-error - Type 'Role' is not assignable to type 'AttendeeRole', but this is a type guard
   return ATTENDEE_ROLES.includes(role);
 }
 

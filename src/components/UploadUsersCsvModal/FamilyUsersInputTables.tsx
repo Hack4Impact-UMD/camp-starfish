@@ -111,75 +111,6 @@ export default function FamilyUsersInputTables(
     getCoreRowModel: getCoreRowModel(),
   });
 
-  const parentData = useMemo(
-    () =>
-      familyMembers.parents.map((parent) => ({
-        ...parent,
-        gender: genderSelects[parent.id],
-        dateOfBirth: dateOfBirthSelects[parent.id],
-      })),
-    [familyMembers, genderSelects, dateOfBirthSelects],
-  );
-
-  const parentColumns = useMemo(() => {
-    const columnHelper = createColumnHelper<
-      ParsedFamilyCsvData["parents"][number] &
-        Nullable<Pick<Camper, "gender" | "dateOfBirth">>
-    >();
-
-    return [
-      columnHelper.accessor((row) => row.id, {
-        id: "id",
-        header: "ID",
-      }),
-      columnHelper.accessor((row) => getFullName(row.name), {
-        id: "name",
-        header: "Name",
-      }),
-      columnHelper.accessor((row) => row.email, {
-        id: "email",
-        header: "Email",
-      }),
-      columnHelper.display({
-        id: "gender",
-        header: "Gender",
-        cell: (props) => (
-          <Select
-            data={GENDERS}
-            value={props.row.original.gender}
-            onChange={(val) =>
-              setGenderSelects((prev) => ({
-                ...prev,
-                [props.cell.row.original.id]: val,
-              }))
-            }
-          />
-        ),
-      }),
-      columnHelper.display({
-        id: "dateOfBirth",
-        header: "Date of Birth",
-        cell: (props) => (
-          <DatePickerInput
-            value={props.row.original.dateOfBirth?.toDate()}
-            onChange={(val) =>
-              setDateOfBirthSelects((prev) => ({
-                ...prev,
-                [props.cell.row.original.id]: moment(val),
-              }))
-            }
-          />
-        ),
-      }),
-    ];
-  }, [setGenderSelects, setDateOfBirthSelects]);
-
-  const parentTable = useReactTable({
-    data: parentData,
-    columns: parentColumns,
-    getCoreRowModel: getCoreRowModel(),
-  });
-
   return (
     <div className="flex flex-col gap-sm">
       <div className="flex flex-col gap-xs">
@@ -201,36 +132,6 @@ export default function FamilyUsersInputTables(
           </Table.Thead>
           <Table.Tbody>
             {camperTable.getRowModel().rows.map((row) => (
-              <Table.Tr key={row.id}>
-                {row.getVisibleCells().map((cell) => (
-                  <Table.Td key={cell.id}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </Table.Td>
-                ))}
-              </Table.Tr>
-            ))}
-          </Table.Tbody>
-        </Table>
-      </div>
-      <div className="flex flex-col gap-xs">
-        <Text>Parents</Text>
-        <Table>
-          <Table.Thead>
-            {parentTable.getHeaderGroups().map((headerGroup) => (
-              <Table.Tr key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <Table.Th key={header.id}>
-                    {flexRender(
-                      header.column.columnDef.header,
-                      header.getContext(),
-                    )}
-                  </Table.Th>
-                ))}
-              </Table.Tr>
-            ))}
-          </Table.Thead>
-          <Table.Tbody>
-            {parentTable.getRowModel().rows.map((row) => (
               <Table.Tr key={row.id}>
                 {row.getVisibleCells().map((cell) => (
                   <Table.Td key={cell.id}>

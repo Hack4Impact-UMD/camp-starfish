@@ -21,7 +21,7 @@ import { Moment } from "moment";
 import FamilyUsersInputTables from "./FamilyUsersInputTables";
 
 const usersCsvTypeToLabel: Record<UsersCsvType, string> = {
-  FAMILY: "Families (Campers + Parents)",
+  FAMILY: "Campers",
   COUNSELOR: "Counselors (Admins + Staff)",
 };
 
@@ -60,9 +60,9 @@ export function UploadUsersCsvModal() {
             const genderSelects: { [counselorId: number]: Gender | null } = {};
             const dateOfBirthSelects: { [counselorId: number]: Moment | null } =
               {};
-            [...data.campers, ...data.parents].forEach((familyMember) => {
-              genderSelects[familyMember.id] = null;
-              dateOfBirthSelects[familyMember.id] = null;
+            data.campers.forEach((camper) => {
+              genderSelects[camper.id] = null;
+              dateOfBirthSelects[camper.id] = null;
             });
             setGenderSelects(genderSelects);
             setDateOfBirthSelects(dateOfBirthSelects);
@@ -112,13 +112,10 @@ export function UploadUsersCsvModal() {
     if (!parsedData) {
       return true;
     } else if (csvType === "FAMILY" && isParsedFamilyCsvData(parsedData)) {
-      for (const familyMember of [
-        ...parsedData.campers,
-        ...parsedData.parents,
-      ]) {
+      for (const camper of parsedData.campers) {
         if (
-          !genderSelects[familyMember.id] ||
-          !dateOfBirthSelects[familyMember.id]
+          !genderSelects[camper.id] ||
+          !dateOfBirthSelects[camper.id]
         ) {
           return false;
         }
@@ -157,12 +154,6 @@ export function UploadUsersCsvModal() {
             ...camper,
             gender: genderSelects[camper.id],
             dateOfBirth: dateOfBirthSelects[camper.id],
-          })),
-          // @ts-expect-error - Submit button is disabled if any field is missing
-          parents: parsedData.parents.map((parent) => ({
-            ...parent,
-            gender: genderSelects[parent.id],
-            dateOfBirth: dateOfBirthSelects[parent.id],
           })),
         },
         { onSuccess: () => modals.closeAll() },

@@ -19,50 +19,23 @@ export const processFamilyCsv = onCall(async (req) => {
     ...camper,
     dateOfBirth: moment(camper.dateOfBirth)
   }));
-  const parents = input.parents.map(parent => ({
-    ...parent,
-    dateOfBirth: moment(parent.dateOfBirth)
-  }))
 
   await adminDb.runTransaction(async (transaction) => {
-    const allIds: number[] = [...campers.map(camper => camper.id), ...parents.map(parent => parent.id)];
+    const allIds: number[] = campers.map(camper => camper.id);
     const existingUsers = await batchGetUserDocs(allIds);
 
-    const { trueGroup: existingCamperUpdates, falseGroup: newCampers } = partition(campers, (camper) => existingUsers.some(user => user.id === camper.id));
-    const { trueGroup: existingParentUpdates, falseGroup: newParents } = partition(parents, (parent) => existingUsers.some(user => user.id === parent.id));
+    const newCampers = campers.filter((camper) => existingUsers.every(user => user.id !== camper.id));
 
-    const promises = [
-      newCampers.map((camper) => {
-        const { id, ...camperDoc } = camper;
-        return createUserDoc(id, {
-          ...camperDoc,
-          dateOfBirth: Timestamp.fromDate(moment(camperDoc.dateOfBirth).toDate()),
-          role: "CAMPER",
-          nonoListIds: [],
-        }, transaction);
-      }),
-      newParents.map((parent) => {
-        const { id, ...parentDoc } = parent;
-        return createUserDoc(id, { ...parentDoc, role: "PARENT", dateOfBirth: Timestamp.fromDate(moment(parentDoc.dateOfBirth).toDate()) }, transaction);
-      }),
-      existingCamperUpdates.map((camperUpdates) => {
-        const { id, ...docUpdates } = camperUpdates;
-        const existingCamper = existingUsers.find(camper => camper.id === id) as Camper;
-        if (docUpdates.parentIds.every(parentId => existingCamper.parentIds.includes(parentId))) return;
-        return updateUserDoc(id, {
-          parentIds: FieldValue.arrayUnion(...docUpdates.parentIds),
-        }, transaction);
-      }),
-      existingParentUpdates.map((parentUpdates) => {
-        const { id, ...docUpdates } = parentUpdates;
-        const existingParent = existingUsers.find(parent => parent.id === id) as Parent;
-        if (docUpdates.camperIds.every(camperId => existingParent.camperIds.includes(camperId))) return;
-        return updateUserDoc(id, {
-          camperIds: FieldValue.arrayUnion(...docUpdates.camperIds),
-        }, transaction);
-      })
-    ];
-    await Promise.all(promises);
+    const camperPromises = newCampers.map((camper) => {
+      const { id, ...camperDoc } = camper;
+      return createUserDoc(id, {
+        ...camperDoc,
+        dateOfBirth: Timestamp.fromDate(moment(camperDoc.dateOfBirth).toDate()),
+        role: "CAMPER",
+        nonoListIds: [],
+      }, transaction);
+    });
+    await Promise.all(camperPromises);
   });
 });
 
