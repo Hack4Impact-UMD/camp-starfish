@@ -48,7 +48,6 @@ import openUploadUsersCsvModal from "@/components/UploadUsersCsvModal/UploadUser
 const ROLE_COLORS: Record<Role, string> = {
   ADMIN: "error",
   STAFF: "blue",
-  PARENT: "green",
   CAMPER: "orange",
 };
 

@@ -1,4 +1,4 @@
-import { Camper, Parent, Role } from "@/types/users/userTypes";
+import { Camper, Role } from "@/types/users/userTypes";
 import { HttpsError, onCall } from "firebase-functions/https"
 import { ProcessFamilyCsvRequest } from "@/features/userManagement/useProcessFamilyCsv";
 import { ProcessCounselorCsvRequest } from "@/features/userManagement/useProcessCounselorCsv";

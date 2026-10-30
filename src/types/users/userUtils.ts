@@ -5,7 +5,7 @@ export function getFullName(name: Name) {
   return `${name.firstName} ${name.middleName ? `${name.middleName} ` : ''}${name.lastName}`
 }
 
-export const ALL_ROLES: Role[] = ["CAMPER", "PARENT", "STAFF", "ADMIN"];
+export const ALL_ROLES: Role[] = ["CAMPER", "STAFF", "ADMIN"];
 export const COUNSELOR_ROLES: CounselorRole[] = ["STAFF", "ADMIN"];
 export const ATTENDEE_ROLES: AttendeeRole[] = ["CAMPER", "STAFF", "ADMIN"];
 
@@ -29,7 +29,5 @@ export function getPluralRole(role: Role) {
       return "Admins";
     case "CAMPER":
       return "Campers";
-    case "PARENT":
-      return "Parents";
   }
 }

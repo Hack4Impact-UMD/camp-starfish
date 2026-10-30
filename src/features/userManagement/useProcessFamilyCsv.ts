@@ -1,11 +1,10 @@
 import { httpsCallable } from "firebase/functions";
 import { functions } from "@/config/firebase";
 import { useMutation } from "@tanstack/react-query";
-import { Camper, Parent } from "@/types/users/userTypes";
+import { Camper } from "@/types/users/userTypes";
 
 export interface ProcessFamilyCsvRequest {
-  campers: Pick<Camper, "id" | "name" | "parentIds" | "gender" | "dateOfBirth">[];
-  parents: Pick<Parent, "id" | "name" | "email" | "camperIds" | "gender" | "dateOfBirth">[];
+  campers: Pick<Camper, "id" | "name" | "gender" | "dateOfBirth">[];
 }
 
 async function processFamilyCsv(req: ProcessFamilyCsvRequest) {
