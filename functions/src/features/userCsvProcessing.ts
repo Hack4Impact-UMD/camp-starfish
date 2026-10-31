@@ -1,20 +1,19 @@
-import { Camper, Role } from "@/types/users/userTypes";
+import { Role } from "@/types/users/userTypes";
 import { HttpsError, onCall } from "firebase-functions/https"
-import { ProcessFamilyCsvRequest } from "@/features/userManagement/useProcessFamilyCsv";
+import { ProcessCamperCsvRequest } from "@/features/userManagement/useProcessCamperCsv";
 import { ProcessCounselorCsvRequest } from "@/features/userManagement/useProcessCounselorCsv";
 import { adminDb } from "../config/firebaseAdminConfig";
-import { batchGetUserDocs, createUserDoc, updateUserDoc } from "../data/firestore/users";
-import partition from "@/utils/data/partition";
-import { FieldValue, Timestamp } from "firebase-admin/firestore";
+import { batchGetUserDocs, createUserDoc } from "../data/firestore/users";
+import { Timestamp } from "firebase-admin/firestore";
 import moment from "moment";
 
-export const processFamilyCsv = onCall(async (req) => {
+export const processCamperCsv = onCall(async (req) => {
   const role: Role | undefined = req.auth?.token.role;
   if (!role || role !== "ADMIN") {
     throw new HttpsError("permission-denied", "You do not have permission to create new users.");
   }
 
-  const input = JSON.parse(req.data) as ProcessFamilyCsvRequest;
+  const input = JSON.parse(req.data) as ProcessCamperCsvRequest;
   const campers = input.campers.map(camper => ({
     ...camper,
     dateOfBirth: moment(camper.dateOfBirth)

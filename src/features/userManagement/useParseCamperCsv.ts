@@ -1,39 +1,39 @@
 import { useMutation } from "@tanstack/react-query";
 import { parse, Info } from "csv-parse/sync";
-import { ParsedFamilyCsvData } from "./types";
+import { ParsedCamperCsvData } from "./types";
 import { z } from "zod";
 
-interface ParseFamilyCsvRequest {
+interface ParseCamperCsvRequest {
   csvFile: File;
 }
 
-type RawFamilyCsvRecord = {
+type RawCamperCsvRecord = {
   "First Name": string;
   "Last Name": string;
   PersonID: string;
 }
 
-type RawFamilyCsvRecordWithInfo = {
-  record: RawFamilyCsvRecord;
+type RawCamperCsvRecordWithInfo = {
+  record: RawCamperCsvRecord;
   info: Info;
 };
 
-const ParsedFamilyCsvRecordSchema = z.object({
+const ParsedCamperCsvRecordSchema = z.object({
   "First Name": z.string().min(1),
   "Last Name": z.string().min(1),
   PersonID: z.preprocess(value => value === "" ? NaN : value, z.coerce.number()),
 })
-type ParsedFamilyCsvRecord = z.infer<typeof ParsedFamilyCsvRecordSchema>;
+type ParsedCamperCsvRecord = z.infer<typeof ParsedCamperCsvRecordSchema>;
 
-function parseFamilyRecords(data: RawFamilyCsvRecordWithInfo[]): ParsedFamilyCsvData {
-  const campers: ParsedFamilyCsvData["campers"] = [];
+function parseCamperRecords(data: RawCamperCsvRecordWithInfo[]): ParsedCamperCsvData {
+  const campers: ParsedCamperCsvData["campers"] = [];
   data.forEach(({ record, info }) => {
-    const validationResult = ParsedFamilyCsvRecordSchema.safeParse(record);
+    const validationResult = ParsedCamperCsvRecordSchema.safeParse(record);
     if (!validationResult.success) {
       throw Error(`Invalid record on line ${info.lines}. Please fix before uploading.`);
     }
 
-    const parsedRecord: ParsedFamilyCsvRecord = validationResult.data;
+    const parsedRecord: ParsedCamperCsvRecord = validationResult.data;
     const camperId = parsedRecord.PersonID;
     campers.push({
       id: camperId,
@@ -52,7 +52,7 @@ const REQUIRED_COLUMNS = [
   "PersonID",
 ]
 
-export async function parseFamilyCsv(req: ParseFamilyCsvRequest): Promise<ParsedFamilyCsvData> {
+export async function parseCamperCsv(req: ParseCamperCsvRequest): Promise<ParsedCamperCsvData> {
   const { csvFile } = req;
   const rawText = await csvFile.text();
   const data = parse(rawText, {
@@ -65,12 +65,12 @@ export async function parseFamilyCsv(req: ParseFamilyCsvRequest): Promise<Parsed
     },
     info: true,
     skip_empty_lines: true
-  }) as RawFamilyCsvRecordWithInfo[];
-  return parseFamilyRecords(data);
+  }) as RawCamperCsvRecordWithInfo[];
+  return parseCamperRecords(data);
 }
 
-export default function useParseFamilyCsv() {
+export default function useParseCamperCsv() {
   return useMutation({
-    mutationFn: (req: ParseFamilyCsvRequest) => parseFamilyCsv(req)
+    mutationFn: (req: ParseCamperCsvRequest) => parseCamperCsv(req)
   })
 }

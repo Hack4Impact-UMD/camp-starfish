@@ -62,10 +62,6 @@ export function generateCamper(): Camper {
   }
 }
 
-export function generateFamily() {
-
-}
-
 export function generateSession(): Session {
   const sessionLength = faker.number.int({ min: 5, max: 14 });
   const startDate = faker.date.future();

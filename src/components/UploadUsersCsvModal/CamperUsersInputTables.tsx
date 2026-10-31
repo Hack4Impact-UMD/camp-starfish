@@ -1,5 +1,5 @@
 import {
-  ParsedFamilyCsvData,
+  ParsedCamperCsvData,
 } from "@/features/userManagement/types";
 import {
   createColumnHelper,
@@ -19,27 +19,27 @@ import { useMemo } from "react";
 import { Nullable } from "@/utils/types/typeUtils";
 import moment from "moment";
 
-interface FamilyUsersInputTablesProps {
-  familyMembers: ParsedFamilyCsvData;
-  genderSelects: { [familyMemberId: number]: Gender | null };
+interface CamperUsersInputTablesProps {
+  campers: ParsedCamperCsvData;
+  genderSelects: { [camperId: number]: Gender | null };
   setGenderSelects: React.Dispatch<
     React.SetStateAction<{
-      [familyMemberId: number]: Gender | null;
+      [camperId: number]: Gender | null;
     }>
   >;
-  dateOfBirthSelects: { [familyMemberId: number]: Moment | null };
+  dateOfBirthSelects: { [camperId: number]: Moment | null };
   setDateOfBirthSelects: React.Dispatch<
     React.SetStateAction<{
-      [familyMemberId: number]: Moment | null;
+      [camperId: number]: Moment | null;
     }>
   >;
 }
 
-export default function FamilyUsersInputTables(
-  props: FamilyUsersInputTablesProps,
+export default function CamperUsersInputTables(
+  props: CamperUsersInputTablesProps,
 ) {
   const {
-    familyMembers,
+    campers,
     genderSelects,
     setGenderSelects,
     dateOfBirthSelects,
@@ -48,17 +48,17 @@ export default function FamilyUsersInputTables(
 
   const camperData = useMemo(
     () =>
-      familyMembers.campers.map((camper) => ({
+      campers.campers.map((camper) => ({
         ...camper,
         gender: genderSelects[camper.id],
         dateOfBirth: dateOfBirthSelects[camper.id],
       })),
-    [familyMembers, genderSelects, dateOfBirthSelects],
+    [campers, genderSelects, dateOfBirthSelects],
   );
 
   const camperColumns = useMemo(() => {
     const columnHelper = createColumnHelper<
-      ParsedFamilyCsvData["campers"][number] &
+      ParsedCamperCsvData["campers"][number] &
         Nullable<Pick<Camper, "gender" | "dateOfBirth">>
     >();
 

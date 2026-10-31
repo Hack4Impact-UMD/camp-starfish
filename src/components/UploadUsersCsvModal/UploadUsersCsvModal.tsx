@@ -1,14 +1,14 @@
 import {
   isParsedCounselorCsvData,
-  isParsedFamilyCsvData,
+  isParsedCamperCsvData,
   ParsedUsersCsvData,
   UsersCsvType,
   usersCsvTypes,
 } from "@/features/userManagement/types";
-import useParseFamilyCsv from "@/features/userManagement/useParseFamilyCsv";
+import useParseCamperCsv from "@/features/userManagement/useParseCamperCsv";
 import useParseCounselorCsv from "@/features/userManagement/useParseCounselorCsv";
 import useProcessCounselorCsv from "@/features/userManagement/useProcessCounselorCsv";
-import useProcessFamilyCsv from "@/features/userManagement/useProcessFamilyCsv";
+import useProcessCamperCsv from "@/features/userManagement/useProcessCamperCsv";
 import { MBToBytes } from "@/utils/fileUtils";
 import { Button, Loader, Radio, ScrollArea, Text, Title } from "@mantine/core";
 import { Dropzone, DropzoneProps } from "@mantine/dropzone";
@@ -18,16 +18,16 @@ import { MdOutlineFileUpload } from "react-icons/md";
 import { CounselorRole, Gender } from "@/types/users/userTypes";
 import CounselorUsersInputTable from "./CounselorUsersInputTable";
 import { Moment } from "moment";
-import FamilyUsersInputTables from "./FamilyUsersInputTables";
+import CamperUsersInputTables from "./CamperUsersInputTables";
 
 const usersCsvTypeToLabel: Record<UsersCsvType, string> = {
-  FAMILY: "Campers",
+  CAMPER: "Campers",
   COUNSELOR: "Counselors (Admins + Staff)",
 };
 
 export function UploadUsersCsvModal() {
   const [csvFile, setCsvFile] = useState<File | null>(null);
-  const [csvType, setCsvType] = useState<UsersCsvType>("FAMILY");
+  const [csvType, setCsvType] = useState<UsersCsvType>("CAMPER");
   const [roleSelects, setRoleSelects] = useState<{
     [counselorId: number]: CounselorRole | null;
   } | null>(null);
@@ -38,22 +38,22 @@ export function UploadUsersCsvModal() {
     [counselorId: number]: Moment | null;
   }>({});
 
-  const parseFamilyCsvMutation = useParseFamilyCsv();
+  const parseCamperCsvMutation = useParseCamperCsv();
   const parseCounselorCsvMutation = useParseCounselorCsv();
   const parsedData: ParsedUsersCsvData | undefined =
-    csvType === "FAMILY"
-      ? parseFamilyCsvMutation.data
+    csvType === "CAMPER"
+      ? parseCamperCsvMutation.data
       : parseCounselorCsvMutation.data;
 
-  const processFamilyCsvMutation = useProcessFamilyCsv();
+  const processCamperCsvMutation = useProcessCamperCsv();
   const processCounselorCsvMutation = useProcessCounselorCsv();
 
   const parseCsvFile = (usersCsvType: UsersCsvType, csvFile: File) => {
-    processFamilyCsvMutation.reset();
+    processCamperCsvMutation.reset();
     processCounselorCsvMutation.reset();
-    if (usersCsvType === "FAMILY") {
+    if (usersCsvType === "CAMPER") {
       parseCounselorCsvMutation.reset();
-      parseFamilyCsvMutation.mutate(
+      parseCamperCsvMutation.mutate(
         { csvFile },
         {
           onSuccess: (data) => {
@@ -71,7 +71,7 @@ export function UploadUsersCsvModal() {
         },
       );
     } else {
-      parseFamilyCsvMutation.reset();
+      parseCamperCsvMutation.reset();
       parseCounselorCsvMutation.mutate(
         { csvFile },
         {
@@ -111,7 +111,7 @@ export function UploadUsersCsvModal() {
   const areAllFieldsFilled = () => {
     if (!parsedData) {
       return true;
-    } else if (csvType === "FAMILY" && isParsedFamilyCsvData(parsedData)) {
+    } else if (csvType === "CAMPER" && isParsedCamperCsvData(parsedData)) {
       for (const camper of parsedData.campers) {
         if (
           !genderSelects[camper.id] ||
@@ -143,11 +143,11 @@ export function UploadUsersCsvModal() {
     if (!parsedData) {
       return;
     } else if (
-      csvType === "FAMILY" &&
-      isParsedFamilyCsvData(parsedData) &&
+      csvType === "CAMPER" &&
+      isParsedCamperCsvData(parsedData) &&
       !roleSelects
     ) {
-      processFamilyCsvMutation.mutate(
+      processCamperCsvMutation.mutate(
         {
           // @ts-expect-error - Submit button is disabled if any field is missing
           campers: parsedData.campers.map((camper) => ({
@@ -176,7 +176,7 @@ export function UploadUsersCsvModal() {
         },
         { onSuccess: () => modals.closeAll() },
       );
-      processFamilyCsvMutation.reset();
+      processCamperCsvMutation.reset();
     }
   };
 
@@ -212,13 +212,13 @@ export function UploadUsersCsvModal() {
             : "Upload a users CSV file exported from Campminder here (Max: 5MB)"}
         </Text>
       </Dropzone>
-      {(parseFamilyCsvMutation.isPending ||
+      {(parseCamperCsvMutation.isPending ||
         parseCounselorCsvMutation.isPending) && (
         <Loader className="self-center" size="xs" />
       )}
-      {parseFamilyCsvMutation.error && (
+      {parseCamperCsvMutation.error && (
         <Text className="text-error text-sm text-center">
-          {parseFamilyCsvMutation.error.message}
+          {parseCamperCsvMutation.error.message}
         </Text>
       )}
       {parseCounselorCsvMutation.error && (
@@ -233,9 +233,9 @@ export function UploadUsersCsvModal() {
             before uploading.
           </Title>
           <ScrollArea.Autosize className="max-h-[40vh] w-full">
-            {isParsedFamilyCsvData(parsedData) ? (
-              <FamilyUsersInputTables
-                familyMembers={parsedData}
+            {isParsedCamperCsvData(parsedData) ? (
+              <CamperUsersInputTables
+                campers={parsedData}
                 genderSelects={genderSelects}
                 setGenderSelects={setGenderSelects}
                 dateOfBirthSelects={dateOfBirthSelects}
@@ -260,15 +260,15 @@ export function UploadUsersCsvModal() {
         onClick={handleSubmit}
         disabled={parsedData === undefined || !areAllFieldsFilled()}
         loading={
-          processFamilyCsvMutation.isPending ||
+          processCamperCsvMutation.isPending ||
           processCounselorCsvMutation.isPending
         }
       >
         Create Users
       </Button>
-      {processFamilyCsvMutation.error && (
+      {processCamperCsvMutation.error && (
         <Text className="text-error text-sm text-center">
-          {processFamilyCsvMutation.error.message}
+          {processCamperCsvMutation.error.message}
         </Text>
       )}
       {processCounselorCsvMutation.error && (
