@@ -44,4 +44,4 @@ export interface Admin extends BaseCounselor {
 }
 
 export type Counselor = Staff | Admin;
-export type User = Camper | Staff | Admin;
+export type Person = Camper | Staff | Admin;

@@ -37,7 +37,7 @@ import {
   MdChevronRight,
   MdUploadFile,
 } from "react-icons/md";
-import { User, Role } from "@/types/users/userTypes";
+import { Person, Role } from "@/types/users/userTypes";
 import { ALL_ROLES } from "@/types/users/userUtils";
 import { toNormalCase } from "@/utils/stringUtils";
 import useUserList from "@/hooks/users/useUserList";
@@ -64,7 +64,7 @@ export default function UsersPage() {
 }
 
 interface UsersPageContentProps {
-  users: User[];
+  users: Person[];
 }
 
 export function UsersPageContent({ users }: UsersPageContentProps) {
@@ -80,7 +80,7 @@ export function UsersPageContent({ users }: UsersPageContentProps) {
     return users.filter((u) => u.role === roleFilter);
   }, [users, roleFilter]);
 
-  const columns = useMemo<ColumnDef<User>[]>(
+  const columns = useMemo<ColumnDef<Person>[]>(
     () => [
       {
         id: "firstName",

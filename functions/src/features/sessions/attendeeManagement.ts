@@ -12,7 +12,7 @@ import { fromFirestore } from "../../data/firestore/sectionSchedules";
 import { ActivityPreferences, BundleSectionSchedule, BunkJamboreeSectionSchedule, SectionSchedule } from "@/types/scheduling/schedulingTypes";
 import { updateSessionDoc } from "../../data/firestore/sessions";
 import { uniqueArray } from "@/utils/data/unique";
-import { User } from "@/types/users/userTypes";
+import { Person } from "@/types/users/userTypes";
 import { updateDaysOffScheduleDoc } from "../../data/firestore/daysOffSchedules";
 
 export const createAttendees = onCall(async (req) => {
@@ -52,7 +52,7 @@ export const createAttendees = onCall(async (req) => {
   });
 });
 
-function createAttendeeDocs(attendeeRequests: CreateAttendeeRequest[], usersById: Record<number, User>, sessionId: string, transaction: Transaction) {
+function createAttendeeDocs(attendeeRequests: CreateAttendeeRequest[], usersById: Record<number, Person>, sessionId: string, transaction: Transaction) {
   return attendeeRequests.map(attendeeRequest => {
     const user = usersById[attendeeRequest.attendeeId];
     if (user.role === "CAMPER" && attendeeRequest.role === "CAMPER") {

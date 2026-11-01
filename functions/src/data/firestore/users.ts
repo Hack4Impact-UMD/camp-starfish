@@ -1,4 +1,4 @@
-import { User } from "@/types/users/userTypes";
+import { Person } from "@/types/users/userTypes";
 import { UserDoc } from "@/data/firestore/types/documents";
 import {
   Transaction,
@@ -15,7 +15,7 @@ import { RootLevelCollection } from "@/data/firestore/types/collections";
 import { adminDb } from "../../config/firebaseAdminConfig";
 import moment from "moment";
 
-function fromFirestore(snapshot: DocumentSnapshot<UserDoc, UserDoc> | QueryDocumentSnapshot<UserDoc, UserDoc>): User {
+function fromFirestore(snapshot: DocumentSnapshot<UserDoc, UserDoc> | QueryDocumentSnapshot<UserDoc, UserDoc>): Person {
   if (!snapshot.exists) { throw Error("Document not found"); };
   const userDoc = snapshot.data() as UserDoc;
   return {
@@ -25,17 +25,17 @@ function fromFirestore(snapshot: DocumentSnapshot<UserDoc, UserDoc> | QueryDocum
   }
 }
 
-export async function getUserDocById(id: number, transaction?: Transaction): Promise<User> {
+export async function getUserDocById(id: number, transaction?: Transaction): Promise<Person> {
   const snapshot = await getDoc<UserDoc>(adminDb.collection(RootLevelCollection.USERS).doc(String(id)) as DocumentReference<UserDoc, UserDoc>, transaction);
   return fromFirestore(snapshot);
 };
 
-export async function batchGetUserDocs(ids: number[], transaction?: Transaction): Promise<User[]> {
+export async function batchGetUserDocs(ids: number[], transaction?: Transaction): Promise<Person[]> {
   const snapshots = await batchGetDocs<UserDoc>(adminDb.collection(RootLevelCollection.USERS) as CollectionReference<UserDoc, UserDoc>, ids.map(id => String(id)), transaction);
   return snapshots.map(fromFirestore);
 }
 
-export async function getUserDocByEmail(email: string, transaction?: Transaction): Promise<User> {
+export async function getUserDocByEmail(email: string, transaction?: Transaction): Promise<Person> {
   const snapshots = await executeQuery<UserDoc>(adminDb.collection(RootLevelCollection.USERS) as CollectionReference<UserDoc, UserDoc>, {
     transaction,
     queryOptions: {
