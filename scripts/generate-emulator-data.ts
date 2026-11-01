@@ -1,5 +1,5 @@
 import { faker } from "@faker-js/faker";
-import { Admin, Camper, Gender, Name, Parent, Staff } from "@/types/users/userTypes";
+import { Admin, Camper, Gender, Name, Staff } from "@/types/users/userTypes";
 import { CommonSection, SchedulingSection, Section, Session } from "@/types/sessions/sessionTypes";
 import { BundleActivityWithAssignments, BundleBlock, BundleSectionSchedule, BunkJamboreeActivityWithAssignments, BunkJamboreeBlock, BunkJamboreeSectionSchedule, NonBunkJamboreeActivityWithAssignments, NonBunkJamboreeBlock, NonBunkJamboreeSectionSchedule } from "@/types/scheduling/schedulingTypes";
 import moment from "moment";
@@ -56,28 +56,8 @@ export function generateCamper(): Camper {
     role: "CAMPER",
     dateOfBirth: moment(faker.date.birthdate({ mode: 'age', min: 7, max: 18 }).toISOString()),
     gender: generateGender(),
-    ...(faker.datatype.boolean() ? { email: faker.internet.email() } : {}),
-    uid: faker.string.alphanumeric(28),
     nonoListIds: [],
-    parentIds: [],
   }
-}
-
-export function generateParent(): Parent {
-  return {
-    id: faker.number.int({ min: 10000000, max: 99999999 }),
-    name: generateName(),
-    dateOfBirth: moment(faker.date.birthdate({ mode: 'age', min: 25, max: 60 }).toISOString()),
-    role: "PARENT",
-    gender: generateGender(),
-    email: faker.internet.email(),
-    uid: faker.string.alphanumeric(28),
-    camperIds: []
-  }
-}
-
-export function generateFamily() {
-
 }
 
 export function generateSession(): Session {

@@ -18,14 +18,7 @@ interface BaseUserDoc {
 
 export interface CamperDoc extends BaseUserDoc {
   role: "CAMPER";
-  parentIds: number[];
   nonoListIds: number[];
-}
-
-export interface ParentDoc extends BaseUserDoc {
-  role: "PARENT";
-  email: string;
-  camperIds: number[];
 }
 
 export interface BaseCounselorDoc extends BaseUserDoc {
@@ -44,9 +37,8 @@ export interface AdminDoc extends BaseCounselorDoc {
   isSuperAdmin: boolean;
 }
 
-export type FamilyMemberDoc = CamperDoc | ParentDoc;
 export type CounselorDoc = StaffDoc | AdminDoc;
-export type UserDoc = CamperDoc | ParentDoc | StaffDoc | AdminDoc;
+export type UserDoc = CamperDoc | StaffDoc | AdminDoc;
 
 export interface SessionDoc {
   name: string;

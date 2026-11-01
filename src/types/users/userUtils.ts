@@ -5,7 +5,7 @@ export function getFullName(name: Name) {
   return `${name.firstName} ${name.middleName ? `${name.middleName} ` : ''}${name.lastName}`
 }
 
-export const ALL_ROLES: Role[] = ["CAMPER", "PARENT", "STAFF", "ADMIN"];
+export const ALL_ROLES: Role[] = ["CAMPER", "STAFF", "ADMIN"];
 export const COUNSELOR_ROLES: CounselorRole[] = ["STAFF", "ADMIN"];
 export const ATTENDEE_ROLES: AttendeeRole[] = ["CAMPER", "STAFF", "ADMIN"];
 
@@ -17,7 +17,6 @@ export function isCounselorRole(role: Role): role is CounselorRole {
 }
 
 export function isAttendeeRole(role: Role): role is AttendeeRole {
-  // @ts-expect-error - Type 'Role' is not assignable to type 'AttendeeRole', but this is a type guard
   return ATTENDEE_ROLES.includes(role);
 }
 
@@ -29,7 +28,5 @@ export function getPluralRole(role: Role) {
       return "Admins";
     case "CAMPER":
       return "Campers";
-    case "PARENT":
-      return "Parents";
   }
 }
