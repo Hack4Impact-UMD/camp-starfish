@@ -56,8 +56,6 @@ export function generateCamper(): Camper {
     role: "CAMPER",
     dateOfBirth: moment(faker.date.birthdate({ mode: 'age', min: 7, max: 18 }).toISOString()),
     gender: generateGender(),
-    ...(faker.datatype.boolean() ? { email: faker.internet.email() } : {}),
-    uid: faker.string.alphanumeric(28),
     nonoListIds: [],
   }
 }

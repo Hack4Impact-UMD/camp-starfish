@@ -18,7 +18,9 @@ const checkAllowlist = beforeUserCreated(async (event) => {
   
   try {
     const user = await getUserDocByEmail(email);
-    if (user.uid) {
+    if (user.role === "CAMPER") {
+      throw new HttpsError("failed-precondition", "User does not exist");
+    } else if (user.uid) {
       throw new HttpsError("failed-precondition", "An user with this email already exists");
     }
     await updateUserDoc(user.id, { uid: event.data.uid });
