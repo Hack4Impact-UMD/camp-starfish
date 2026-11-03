@@ -1,5 +1,6 @@
 import { Moment } from "moment";
 import { AgeGroup, SchedulingSectionType } from "../sessions/sessionTypes";
+import { UUIDV4 } from "../utils/idTypes";
 
 interface BaseSectionSchedule {
   sessionId: string;
@@ -10,19 +11,20 @@ interface BaseSectionSchedule {
 }
 export interface BundleSectionSchedule extends BaseSectionSchedule {
   type: "BUNDLE",
-  blocks: { [blockId: string]: BundleBlock };
+  blocks: { [blockId: UUIDV4]: BundleBlock };
 }
 export interface BunkJamboreeSectionSchedule extends BaseSectionSchedule {
   type: "BUNK-JAMBO",
-  blocks: { [blockId: string]: BunkJamboreeBlock };
+  blocks: { [blockId: UUIDV4]: BunkJamboreeBlock };
 }
 export interface NonBunkJamboreeSectionSchedule extends BaseSectionSchedule {
   type: "NON-BUNK-JAMBO",
-  blocks: { [blockId: string]: NonBunkJamboreeBlock };
+  blocks: { [blockId: UUIDV4]: NonBunkJamboreeBlock };
 }
 export type SectionSchedule = BundleSectionSchedule | BunkJamboreeSectionSchedule | NonBunkJamboreeSectionSchedule;
 
 interface BaseBlock {
+  blockId: UUIDV4;
   startTime: Moment;
   endTime: Moment
   activities: { [activityId: string]: ActivityWithAssignments; };
