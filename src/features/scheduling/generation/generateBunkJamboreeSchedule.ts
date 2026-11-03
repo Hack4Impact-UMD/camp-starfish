@@ -6,7 +6,7 @@ import {
   Bunk,
 } from "@/types/sessions/sessionTypes";
 import { SectionActivityPreferences, BunkJamboreeSectionSchedule } from "@/types/scheduling/schedulingTypes";
-import { getBlockIdFromNum } from "@/types/scheduling/schedulingUtils";
+import { getBlockIndexFromNum } from "@/types/scheduling/schedulingUtils";
 import shuffle from "@/utils/data/shuffle";
 import { canBeAssignedToBunkAssignments, getYesYesListGroups } from "./schedulingUtils";
 import { toRecord } from "@/utils/data/toRecord";
@@ -47,7 +47,7 @@ export function generateBunkJamboreeSchedule(req: GenerateBunkJamboreeScheduleRe
     type: "BUNK-JAMBO",
     blocks: Object.entries(currentSchedule.blocks).reduce((prev, [blockId, _block]) => {
       prev[blockId] = {
-        activities: Object.fromEntries(Object.keys(currentSchedule.blocks[blockId].activities).map(activityId => [activityId,({
+        activities: Object.fromEntries(Object.keys(currentSchedule.blocks[blockId].activities).map(activityId => [activityId, ({
           ...currentSchedule.blocks[blockId].activities[activityId],
           adminIds: [],
           bunkNums: [],
@@ -62,7 +62,7 @@ export function generateBunkJamboreeSchedule(req: GenerateBunkJamboreeScheduleRe
     }, {} as BunkJamboreeSectionSchedule["alternatePeriodsOff"]),
   }
 
-  const bunksByBunkNum = toRecord(bunks, bunks => bunks.bunkNum);  
+  const bunksByBunkNum = toRecord(bunks, bunks => bunks.bunkNum);
   for (const [blockId, block] of Object.entries(newSchedule.blocks)) {
     const shuffledBunks = shuffle(bunks)
     const maxBunksPerActivity = Math.ceil(shuffledBunks.length / Object.values(block.activities).length);
@@ -83,7 +83,7 @@ export function generateBunkJamboreeSchedule(req: GenerateBunkJamboreeScheduleRe
   const numBlocks = Object.keys(newSchedule.blocks).length;
   let currBlockNum = 0;
   for (const yesyesListGroup of yesyesListGroups) {
-    newSchedule.blocks[getBlockIdFromNum(currBlockNum)].periodsOff.push(...yesyesListGroup);
+    newSchedule.blocks[getBlockIndexFromNum(currBlockNum)].periodsOff.push(...yesyesListGroup);
     currBlockNum = (currBlockNum + 1) % numBlocks;
   }
 

@@ -5,7 +5,7 @@ import {
   Attendee,
 } from "@/types/sessions/sessionTypes";
 import { SectionActivityPreferences, NonBunkJamboreeSectionSchedule } from "@/types/scheduling/schedulingTypes";
-import { getBlockIdFromNum } from "@/types/scheduling/schedulingUtils";
+import { getBlockIndexFromNum } from "@/types/scheduling/schedulingUtils";
 import shuffle from "@/utils/data/shuffle";
 import { canBeAssignedToIndividualActivityAssignments, getYesYesListGroups } from "./schedulingUtils";
 
@@ -76,7 +76,7 @@ export function generateNonBunkJamboreeSchedule(req: GenerateNonBunkJamboreeSche
   const numBlocks = Object.keys(newSchedule.blocks).length;
   let currBlockNum = 0;
   for (const yesyesListGroup of yesyesListGroups) {
-    newSchedule.blocks[getBlockIdFromNum(currBlockNum)].periodsOff.push(...yesyesListGroup);
+    newSchedule.blocks[getBlockIndexFromNum(currBlockNum)].periodsOff.push(...yesyesListGroup);
     currBlockNum = (currBlockNum + 1) % numBlocks;
   }
 

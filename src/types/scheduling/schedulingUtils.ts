@@ -8,9 +8,21 @@ export function getActivityName(activity: Activity): string {
 }
 
 const CAPITAL_A_CHAR_CODE = 65;
-export function getBlockIdFromNum(num: number) {
-  if (num < 0 || num >= 10) throw Error("Invalid block number");
-  return String.fromCharCode(num + CAPITAL_A_CHAR_CODE);
+export function getBlockIndexFromNum(num: number) {
+  let numDigits = 1;
+  let mult = 26;
+  while(num >= mult) {
+    num -= mult;
+    numDigits++;
+    mult *= 26;
+  }
+  let blockIndex = "";
+  for (let i = 0; i < numDigits; i++) {
+    const remainder = num % 26;
+    blockIndex = String.fromCharCode(remainder + CAPITAL_A_CHAR_CODE) + blockIndex;
+    num = (num - remainder) / 26;
+  }
+  return blockIndex;
 }
 
 export function getEmptySectionScheduleDoc(type: SchedulingSectionType): SectionScheduleDoc {

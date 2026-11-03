@@ -2,7 +2,7 @@ import { StaffAttendee, CamperAttendee, AdminAttendee, Attendee, DaysOffSchedule
 import { BundleSectionSchedule, SectionActivityPreferences } from "@/types/scheduling/schedulingTypes";
 import shuffle from "@/utils/data/shuffle";
 import { canBeAssignedToIndividualActivityAssignments, getYesYesListGroups } from "./schedulingUtils";
-import { getBlockIdFromNum } from "@/types/scheduling/schedulingUtils";
+import { getBlockIndexFromNum } from "@/types/scheduling/schedulingUtils";
 import partition from "@/utils/data/partition";
 import { groupBy } from "@/utils/data/groupBy";
 import { isDayInRange } from "@/utils/timeUtils";
@@ -140,7 +140,7 @@ export function generateBundleSchedule(req: GenerateBundleScheduleRequest): Bund
   const numBlocks = Object.keys(newSchedule.blocks).length;
   let currBlockNum = 0;
   for (const yesyesListGroup of yesyesListGroups) {
-    const blockId = getBlockIdFromNum(currBlockNum);
+    const blockId = getBlockIndexFromNum(currBlockNum);
     if (yesyesListGroup.some(counselorId => Object.values(newSchedule.blocks[blockId].activities).some(activity => activity.staffIds.includes(counselorId)))) {
       const alternatePeriodsOff = Object.keys(newSchedule.alternatePeriodsOff);
       const chosenAlternatePeriodOff = shuffle(alternatePeriodsOff)[0];
