@@ -1,5 +1,5 @@
 import { Moment } from "moment";
-import { Gender, Name, Role } from "../users/userTypes";
+import { Gender, Name, Role } from "../people/personTypes";
 import { StrictExtract } from "@/utils/types/typeUtils";
 
 export interface Session {
@@ -7,7 +7,6 @@ export interface Session {
   name: string;
   startDate: Moment;
   endDate: Moment;
-  linkedAlbumId?: string;
   driveFolderId?: string;
   attendeeIds: number[];
 }
@@ -105,4 +104,14 @@ export interface DaysOffSchedule {
   daysOffByCounselorId: {
     [counselorId: number]: Moment[];
   }
+}
+
+export interface PersonDirectoryItem {
+  name: Name;
+  role: Role;
+}
+
+export interface PersonDirectory {
+  page: number;
+  [personId: number]: PersonDirectoryItem;
 }

@@ -1,6 +1,6 @@
 import { AuthContextType } from "@/auth/AuthProvider";
-import { Role } from "@/types/users/userTypes";
+import { CounselorRole } from "@/types/people/personTypes";
 
-export function getUserRole(auth: AuthContextType): Role | undefined {
-  return auth.token?.claims.role as Role | undefined;
+export function getUserRole(auth: AuthContextType): CounselorRole | undefined {
+  return auth.token?.claims.role as CounselorRole | undefined;
 }

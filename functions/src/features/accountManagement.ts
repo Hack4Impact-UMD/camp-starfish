@@ -2,9 +2,9 @@ import { CallableRequest, HttpsError, onCall } from "firebase-functions/https";
 import { beforeUserCreated } from "firebase-functions/v2/identity";
 import { z } from "zod";
 import { adminAuth } from "../config/firebaseAdminConfig";
-import { getUserDocByEmail, getUserDocById, deleteUserDoc, updateUserDoc } from "../data/firestore/users";
+import { getPersonDocByEmail, getPersonDocById, deletePersonDoc, updatePersonDoc } from "../data/firestore/people";
 import { CustomClaims } from "@/auth/types/clientAuthTypes";
-import { isAdmin } from "@/types/users/userTypeGuards";
+import { isAdmin, isCamper } from "@/types/people/personTypeGuards";
 
 const checkAllowlist = beforeUserCreated(async (event) => {
   if (!event.data) {
@@ -17,20 +17,22 @@ const checkAllowlist = beforeUserCreated(async (event) => {
   }
   
   try {
-    const user = await getUserDocByEmail(email);
-    if (user.uid) {
+    const person = await getPersonDocByEmail(email);
+    if (person.role === "CAMPER") {
+      throw new HttpsError("failed-precondition", "User does not exist");
+    } else if (person.uid) {
       throw new HttpsError("failed-precondition", "An user with this email already exists");
     }
-    await updateUserDoc(user.id, { uid: event.data.uid });
+    await updatePersonDoc(person.id, { uid: event.data.uid });
     return {
-      customClaims: (user.role === "ADMIN" ?
+      customClaims: (person.role === "ADMIN" ?
         {
           role: "ADMIN",
-          campminderId: user.id,
+          campminderId: person.id,
           isSuperAdmin: false
         } : {
-          role: user.role,
-          campminderId: user.id
+          role: person.role,
+          campminderId: person.id
         }) satisfies CustomClaims
     }
   } catch (error: unknown) {
@@ -44,7 +46,7 @@ const checkAllowlist = beforeUserCreated(async (event) => {
   }
 });
 
-const UserIdSchema = z.object({ userId: z.number() });
+const PersonIdSchema = z.object({ personId: z.number() });
 
 function isAuthUserNotFound(error: unknown): boolean {
   return (
@@ -55,38 +57,36 @@ function isAuthUserNotFound(error: unknown): boolean {
   );
 }
 
-// Deletes a user's Firebase Auth account (so access is actually revoked) and then their
-// Firestore user record. Callable rather than a Firestore trigger so the admin UI gets
-// synchronous success/error feedback and the action is gated on the caller being an admin.
-const deleteUserAccount = onCall(async (req: CallableRequest<unknown>) => {
+const deletePerson = onCall(async (req: CallableRequest<unknown>) => {
   if (!req.auth || req.auth.token.role !== "ADMIN") {
-    throw new HttpsError("permission-denied", "Only admins can delete users.");
+    throw new HttpsError("permission-denied", "Only admins can delete people.");
   }
 
-  const result = UserIdSchema.safeParse(req.data);
+  const result = PersonIdSchema.safeParse(req.data);
   if (!result.success) {
     throw new HttpsError("invalid-argument", "Invalid payload: " + result.error.message);
   }
-  const { userId } = result.data;
-  if (req.auth.token.campminderId === userId) {
+  const { personId } = result.data;
+  if (req.auth.token.campminderId === personId) {
     throw new HttpsError("failed-precondition", "You cannot delete your own account.");
   }
 
-  let user;
+  let person;
   try {
-    user = await getUserDocById(userId);
-    if (isAdmin(user) && user.isSuperAdmin) {
+    person = await getPersonDocById(personId);
+    if (isAdmin(person) && person.isSuperAdmin) {
       throw new HttpsError("failed-precondition", "Super admin account cannot be deleted.");
+    } else if (isCamper(person)) {
+      return await deletePersonDoc(personId);
     }
   } catch {
     throw new HttpsError("not-found", "User not found.");
   }
 
-  // Revoke access first: delete the Auth account if one exists for this email. Some users
-  // (e.g. campers without logins) may have no Auth account, which is fine.
-  if ('email' in user && user.email) {
+  // Revoke access first: delete the Auth account if one exists for this email. Some users may have no Auth account, which is fine.
+  if ('email' in person && person.email) {
     try {
-      const authUser = await adminAuth.getUserByEmail(user.email);
+      const authUser = await adminAuth.getUserByEmail(person.email);
       await adminAuth.deleteUser(authUser.uid);
     } catch (error: unknown) {
       if (!isAuthUserNotFound(error)) {
@@ -96,7 +96,7 @@ const deleteUserAccount = onCall(async (req: CallableRequest<unknown>) => {
   }
 
   try {
-    await deleteUserDoc(userId);
+    await deletePersonDoc(personId);
   } catch {
     throw new HttpsError("internal", "Failed to delete the user record.");
   }
@@ -104,5 +104,5 @@ const deleteUserAccount = onCall(async (req: CallableRequest<unknown>) => {
 
 export const accountManagementCloudFunctions = {
   checkAllowlist,
-  deleteUserAccount,
+  deletePerson,
 };

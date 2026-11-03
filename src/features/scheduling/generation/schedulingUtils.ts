@@ -1,7 +1,7 @@
 import { BunkActivityAssignments, IndividualActivityAssignments } from "@/types/scheduling/schedulingTypes";
 import { isAdminAttendee, isCamperAttendee, isStaffAttendee } from "@/types/sessions/sessionTypeGuards";
 import { AdminAttendee, Attendee, Bunk, CamperAttendee, CounselorAttendee, Freeplay, StaffAttendee } from "@/types/sessions/sessionTypes";
-import { getFullName } from "@/types/users/userUtils";
+import { getFullName } from "@/types/people/personUtils";
 import { toRecord } from "@/utils/data/toRecord";
 
 export function canBeAssignedToIndividualActivityAssignments(attendee: Attendee, assignments: IndividualActivityAssignments) {
@@ -56,8 +56,8 @@ export function getCounselorIdsFromBunkAssignments(assignments: BunkActivityAssi
 }
 
 export function getFreeplayAssignmentId(freeplay: Freeplay, id: number): number[] | number | string | null {
-  for (const [postId, employeeIds] of Object.entries(freeplay.posts)) {
-    if (employeeIds.includes(id)) {
+  for (const [postId, counselorIds] of Object.entries(freeplay.posts)) {
+    if (counselorIds.includes(id)) {
       return postId;
     }
   }

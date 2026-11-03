@@ -1,21 +1,21 @@
 "use client";
 
 import { Loader, MultiSelect, Pill, Text } from "@mantine/core";
-import useUserDirectory from "@/hooks/users/useUserDirectory";
+import usePersonDirectory from "@/hooks/people/usePersonDirectory";
 import { MdError } from "react-icons/md";
-import { getFullName } from "@/types/users/userUtils";
+import { getFullName } from "@/types/people/personUtils";
 
 export default function TagSelect() {
-  const userDirectoryQuery = useUserDirectory();
+  const personDirectoryQuery = usePersonDirectory();
 
-  if (userDirectoryQuery.isPending) {
+  if (personDirectoryQuery.isPending) {
     return (
       <MultiSelect
         placeholder="Loading data..."
         rightSection={<Loader size={20} />}
       />
     );
-  } else if (userDirectoryQuery.isError) {
+  } else if (personDirectoryQuery.isError) {
     return (
       <MultiSelect
         placeholder="Failed to load tags"
@@ -25,17 +25,17 @@ export default function TagSelect() {
     );
   }
 
-  const userDirectory = userDirectoryQuery.data;
+  const personDirectory = personDirectoryQuery.data;
   return (
     <MultiSelect
       placeholder="Search tags"
-      data={Object.keys(userDirectory)}
+      data={Object.keys(personDirectory)}
       renderOption={(optionInput) => <div className="flex flex-col">
-        <Text className="text-sm">{getFullName(userDirectory[Number(optionInput.option.value)].name)}</Text>
+        <Text className="text-sm">{getFullName(personDirectory[Number(optionInput.option.value)].name)}</Text>
         <Text className="text-xs">ID: {optionInput.option.value}</Text>
       </div>}
-      renderPill={(optionInput) => <Pill>{getFullName(userDirectory[Number(optionInput.option.value)].name)}</Pill>}
-      filter={(filterObj) => filterObj.options.filter((option) => 'value' in option && getFullName(userDirectory[Number(option.value)].name).toLowerCase().includes(filterObj.search.toLowerCase())).slice(0, filterObj.limit)}
+      renderPill={(optionInput) => <Pill>{getFullName(personDirectory[Number(optionInput.option.value)].name)}</Pill>}
+      filter={(filterObj) => filterObj.options.filter((option) => 'value' in option && getFullName(personDirectory[Number(option.value)].name).toLowerCase().includes(filterObj.search.toLowerCase())).slice(0, filterObj.limit)}
       searchable
       hidePickedOptions
       maxValues={5}

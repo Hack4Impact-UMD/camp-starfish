@@ -1,6 +1,5 @@
 import { faker } from "@faker-js/faker";
-import { Admin, Camper, Gender, Name, Parent, Photographer, Staff } from "@/types/users/userTypes";
-import { Album } from "@/types/albums/albumTypes";
+import { Admin, Camper, Gender, Name, Staff } from "@/types/people/personTypes";
 import { CommonSection, SchedulingSection, Section, Session } from "@/types/sessions/sessionTypes";
 import { BundleActivityWithAssignments, BundleBlock, BundleSectionSchedule, BunkJamboreeActivityWithAssignments, BunkJamboreeBlock, BunkJamboreeSectionSchedule, NonBunkJamboreeActivityWithAssignments, NonBunkJamboreeBlock, NonBunkJamboreeSectionSchedule } from "@/types/scheduling/schedulingTypes";
 import moment from "moment";
@@ -57,45 +56,8 @@ export function generateCamper(): Camper {
     role: "CAMPER",
     dateOfBirth: moment(faker.date.birthdate({ mode: 'age', min: 7, max: 18 }).toISOString()),
     gender: generateGender(),
-    ...(faker.datatype.boolean() ? { email: faker.internet.email() } : {}),
-    uid: faker.string.alphanumeric(28),
     nonoListIds: [],
-    parentIds: [],
-    photoPermissions: faker.number.float() < 0.5 ? "PUBLIC" : "PRIVATE"
   }
-}
-
-export function generateParent(): Parent {
-  return {
-    id: faker.number.int({ min: 10000000, max: 99999999 }),
-    name: generateName(),
-    dateOfBirth: moment(faker.date.birthdate({ mode: 'age', min: 25, max: 60 }).toISOString()),
-    role: "PARENT",
-    gender: generateGender(),
-    email: faker.internet.email(),
-    uid: faker.string.alphanumeric(28),
-    camperIds: []
-  }
-}
-
-export function generatePhotographer(): Photographer {
-  return {
-    id: faker.number.int({ min: 10000000, max: 99999999 }),
-    name: generateName(),
-    role: "PHOTOGRAPHER",
-    dateOfBirth: moment(faker.date.birthdate({ mode: 'age', min: 18, max: 60 }).toISOString()),
-    gender: generateGender(),
-    email: faker.internet.email(),
-    uid: faker.string.alphanumeric(28),
-  }
-}
-
-export function generateFamily() {
-
-}
-
-export function generateAlbum(): Album {
-  return {} as Album;
 }
 
 export function generateSession(): Session {

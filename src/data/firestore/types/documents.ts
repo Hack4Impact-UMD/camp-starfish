@@ -1,47 +1,13 @@
-import { AlbumItemReportStatus, UserDirectory } from "@/types/albums/albumTypes";
+import { PersonDirectory } from "@/types/sessions/sessionTypes";
 import { ActivityPreferences, ProgramArea, SectionSchedule } from "@/types/scheduling/schedulingTypes";
 import { AgeGroup, Bunk, Freeplay, NightSchedule, Post, SchedulingSectionType, SectionType } from "@/types/sessions/sessionTypes";
-import { Gender, Name, Role } from "@/types/users/userTypes";
+import { Gender, Name, Role } from "@/types/people/personTypes";
 import { NestedOmit, DistributiveOmit } from "@/utils/types/typeUtils";
 import { Timestamp } from "firebase/firestore";
 
-export interface AlbumDoc {
-  name: string;
-  numItems: number;
-  startDate?: Timestamp | null;
-  endDate?: Timestamp | null;
-  hasThumbnail: boolean;
-  linkedSessionId?: string;
-}
+export type PersonDirectoryDoc = Omit<PersonDirectory, "page">;
 
-export interface AlbumItemDoc {
-  name: string;
-  dateTaken: Timestamp;
-  inReview: boolean;
-  tagIds: {
-    approved: number[];
-    inReview: number[];
-  }
-}
-
-export type UserDirectoryDoc = Omit<UserDirectory, "page">;
-
-interface BaseAlbumItemReportDoc {
-  status: AlbumItemReportStatus;
-  reporterId: number;
-  reportMessage: string;
-  reportedAt: Timestamp;
-}
-export interface PendingAlbumItemReportDoc extends BaseAlbumItemReportDoc { status: "PENDING" };
-export interface ResolvedAlbumItemReportDoc extends BaseAlbumItemReportDoc {
-  status: "RESOLVED";
-  resolverId: number;
-  resolutionMessage: string;
-  resolvedAt: Timestamp;
-};
-export type AlbumItemReportDoc = PendingAlbumItemReportDoc | ResolvedAlbumItemReportDoc;
-
-interface BaseUserDoc {
+interface BasePersonDoc {
   uid?: string;
   email?: string;
   name: Name;
@@ -50,50 +16,34 @@ interface BaseUserDoc {
   dateOfBirth: Timestamp;
 }
 
-export type PhotoPermissions = "PUBLIC" | "PRIVATE";
-export interface CamperDoc extends BaseUserDoc {
+export interface CamperDoc extends BasePersonDoc {
   role: "CAMPER";
-  photoPermissions: PhotoPermissions;
-  parentIds: number[];
   nonoListIds: number[];
 }
 
-export interface ParentDoc extends BaseUserDoc {
-  role: "PARENT";
-  email: string;
-  camperIds: number[];
-}
-
-export interface PhotographerDoc extends BaseUserDoc {
-  role: "PHOTOGRAPHER";
-  email: string;
-}
-
-export interface CounselorDoc extends BaseUserDoc {
+export interface BaseCounselorDoc extends BasePersonDoc {
   role: "STAFF" | "ADMIN";
   email: string;
   nonoListIds: number[];
   yesyesListIds: number[];
 }
 
-export interface StaffDoc extends CounselorDoc {
+export interface StaffDoc extends BaseCounselorDoc {
   role: "STAFF";
 }
 
-export interface AdminDoc extends CounselorDoc {
+export interface AdminDoc extends BaseCounselorDoc {
   role: "ADMIN";
   isSuperAdmin: boolean;
 }
 
-export type FamilyMemberDoc = CamperDoc | ParentDoc;
-export type EmployeeDoc = StaffDoc | PhotographerDoc | AdminDoc;
-export type UserDoc = CamperDoc | ParentDoc | PhotographerDoc | StaffDoc | AdminDoc;
+export type CounselorDoc = StaffDoc | AdminDoc;
+export type PersonDoc = CamperDoc | StaffDoc | AdminDoc;
 
 export interface SessionDoc {
   name: string;
   startDate: Timestamp;
   endDate: Timestamp;
-  linkedAlbumId?: string;
   driveFolderId?: string;
   attendeeIds: number[];
 }

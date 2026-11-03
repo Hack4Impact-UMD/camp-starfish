@@ -65,29 +65,29 @@ export function generateFreeplaySchedule(req: GenerateFreeplayScheduleRequest): 
 
   const buddiesInOtherFreeplays: { [attendeeId: number]: Set<number>; } = {};
   for (const freeplay of otherFreeplaysInSession) {
-    for (const [employeeIdStr, camperIds] of Object.entries(freeplay.buddies)) {
-      const employeeId = Number(employeeIdStr);
-      if (!(employeeId in buddiesInOtherFreeplays)) {
-        buddiesInOtherFreeplays[employeeId] = new Set();
+    for (const [counselorIdStr, camperIds] of Object.entries(freeplay.buddies)) {
+      const counselorId = Number(counselorIdStr);
+      if (!(counselorId in buddiesInOtherFreeplays)) {
+        buddiesInOtherFreeplays[counselorId] = new Set();
       }
       camperIds.forEach(camperId => {
-        buddiesInOtherFreeplays[employeeId].add(camperId);
+        buddiesInOtherFreeplays[counselorId].add(camperId);
         if (!(camperId in buddiesInOtherFreeplays)) {
           buddiesInOtherFreeplays[camperId] = new Set();
         }
-        buddiesInOtherFreeplays[camperId].add(employeeId);
+        buddiesInOtherFreeplays[camperId].add(counselorId);
       });
     }
   }
 
   const camperIds = campers.map(camper => camper.attendeeId);
-  const employeeIds = [...staff, ...admins].map(employee => employee.attendeeId);
+  const counselorIds = [...staff, ...admins].map(counselor => counselor.attendeeId);
   const buddyCandidatesById: { [attendeeId: number]: Set<number>; } = {};
-  attendees.forEach(attendee => buddyCandidatesById[attendee.attendeeId] = new Set((attendee.role === "CAMPER" ? employeeIds : camperIds).filter(potentialCandidateId => {
+  attendees.forEach(attendee => buddyCandidatesById[attendee.attendeeId] = new Set((attendee.role === "CAMPER" ? counselorIds : camperIds).filter(potentialCandidateId => {
     const isPotentialCandidateOnNonoList = attendee.snapshot.nonoList.includes(potentialCandidateId);
     const isPotentialCandidateBuddyInOtherFreeplay = buddiesInOtherFreeplays[attendee.attendeeId].has(potentialCandidateId);
     const areInSameBunk = areAttendeesInSameBunk(attendee, attendeesById[potentialCandidateId]);
-    return !isPotentialCandidateOnNonoList && !isPotentialCandidateBuddyInOtherFreeplay && !areInSameBunk && isFemaleEmployeeAssignedToFemaleCamper(attendee, attendeesById[potentialCandidateId]);
+    return !isPotentialCandidateOnNonoList && !isPotentialCandidateBuddyInOtherFreeplay && !areInSameBunk && isFemaleCounselorAssignedToFemaleCamper(attendee, attendeesById[potentialCandidateId]);
   })));
 
   const unassignedCamperIds: number[] = camperIds;
@@ -95,7 +95,7 @@ export function generateFreeplaySchedule(req: GenerateFreeplayScheduleRequest): 
   let unassignedAdminIds: number[] = admins.map(admin => admin.attendeeId);
 
   const postAssignments: Freeplay["posts"] = {};
-  const numEmployeesAssignedToPosts = Math.max(posts.length, employeeIds.length - camperIds.length);
+  const numCounselorsAssignedToPosts = Math.max(posts.length, counselorIds.length - camperIds.length);
   const { trueGroup: postsRequiringAdminSupervision, falseGroup: postsNotRequiringAdminSupervision } = partition(posts, post => post.requiresAdminSupervision);
   if (postsRequiringAdminSupervision.length > unassignedAdminIds.length) {
     throw Error(`There are ${postsRequiringAdminSupervision.length} posts that require admin supervision, but there are only ${unassignedAdminIds.length} admins in the session.`);
@@ -119,7 +119,7 @@ export function generateFreeplaySchedule(req: GenerateFreeplayScheduleRequest): 
     postAssignments[post.id] = [staffId];
     unassignedStaffIds = unassignedStaffIds.filter((_, i) => i !== staffIndex);
   }
-  for (let i = 0; i < numEmployeesAssignedToPosts - posts.length; i++) {
+  for (let i = 0; i < numCounselorsAssignedToPosts - posts.length; i++) {
     if (unassignedAdminIds.length !== 0) {
       const postIndex = Math.floor(Math.random() * posts.length);
       const postId = posts[postIndex].id;
@@ -162,25 +162,25 @@ export function generateFreeplaySchedule(req: GenerateFreeplayScheduleRequest): 
 
   const buddyAssignments: Freeplay["buddies"] = {};
   let camperGroupsWithBuddyCandidates = camperGroups.map(camperGroup => ({ camperGroup, buddyCandidates: typeof camperGroup === "number" ? buddyCandidatesById[camperGroup] : camperGroup.reduce((prev, camperId) => prev.union(buddyCandidatesById[camperId]), new Set<number>()) }))
-  const numEmployeesToAssign = unassignedAdminIds.length + unassignedStaffIds.length;
-  const unassignedEmployeeIds: number[] = [];
-  for (let i = 0; i < numEmployeesToAssign; i++) {
-    const employeeId = unassignedAdminIds.shift() ?? unassignedStaffIds.shift()!;
-    const validCamperGroups = camperGroupsWithBuddyCandidates.filter(({ buddyCandidates }) => buddyCandidates.has(employeeId));
+  const numCounselorsToAssign = unassignedAdminIds.length + unassignedStaffIds.length;
+  const unassignedCounselorIds: number[] = [];
+  for (let i = 0; i < numCounselorsToAssign; i++) {
+    const counselorId = unassignedAdminIds.shift() ?? unassignedStaffIds.shift()!;
+    const validCamperGroups = camperGroupsWithBuddyCandidates.filter(({ buddyCandidates }) => buddyCandidates.has(counselorId));
     if (validCamperGroups.length === 0) {
-      unassignedEmployeeIds.push(employeeId);
+      unassignedCounselorIds.push(counselorId);
       continue;
     }
     const camperGroupIndex = Math.floor(Math.random() * validCamperGroups.length);
     const assignedCamperGroup = validCamperGroups[camperGroupIndex];
     camperGroupsWithBuddyCandidates = camperGroupsWithBuddyCandidates.filter((_, i) => i !== camperGroupIndex);
-    buddyAssignments[employeeId] = typeof assignedCamperGroup.camperGroup === "number" ? [assignedCamperGroup.camperGroup] : assignedCamperGroup.camperGroup;
+    buddyAssignments[counselorId] = typeof assignedCamperGroup.camperGroup === "number" ? [assignedCamperGroup.camperGroup] : assignedCamperGroup.camperGroup;
   }
 
-  // just assign unassigned employees to random camper groups, this should be a rare case, so we can fix later with a more complex algorithm
-  for (let i = 0; i < unassignedEmployeeIds.length; i++) {
+  // just assign unassigned counselors to random camper groups, this should be a rare case, so we can fix later with a more complex algorithm
+  for (let i = 0; i < unassignedCounselorIds.length; i++) {
     const camperGroup = camperGroupsWithBuddyCandidates[i].camperGroup;
-    buddyAssignments[unassignedEmployeeIds[i]] = typeof camperGroup === "number" ? [camperGroup] : camperGroup;
+    buddyAssignments[unassignedCounselorIds[i]] = typeof camperGroup === "number" ? [camperGroup] : camperGroup;
   }
 
   return {
@@ -191,7 +191,7 @@ export function generateFreeplaySchedule(req: GenerateFreeplayScheduleRequest): 
   }
 }
 
-function isFemaleEmployeeAssignedToFemaleCamper(buddy1: Attendee, buddy2: Attendee) {
+function isFemaleCounselorAssignedToFemaleCamper(buddy1: Attendee, buddy2: Attendee) {
   if ((buddy1.role === "CAMPER" && buddy2.role === "CAMPER") || (buddy1.role !== "CAMPER" && buddy2.role !== "CAMPER")) {
     return false;
   } else if (buddy1.role === "CAMPER") {
