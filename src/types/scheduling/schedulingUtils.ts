@@ -13,29 +13,16 @@ export function getBlockIdFromNum(num: number) {
   return String.fromCharCode(num + CAPITAL_A_CHAR_CODE);
 }
 
-export function getEmptySectionScheduleDoc(type: SchedulingSectionType, numBlocks: number) {
-  const sectionScheduleDoc: SectionScheduleDoc = {
+export function getEmptySectionScheduleDoc(type: SchedulingSectionType): SectionScheduleDoc {
+  return {
     type,
     blocks: {},
     alternatePeriodsOff: {}
   }
-  for (let i = 0; i < numBlocks; i++) {
-    sectionScheduleDoc.blocks[getBlockIdFromNum(i)] = {
-      activities: {},
-      periodsOff: []
-    }
-  }
-  return sectionScheduleDoc;
 }
 
-export function getEmptyActivityPreferencesDoc(numBlocks: number) {
-  const activityPreferencesDoc: ActivityPreferencesDoc = {
+export function getEmptyActivityPreferencesDoc(): ActivityPreferencesDoc {
+  return {
     blocks: {}
   }
-  for (let i = 0; i < numBlocks; i++) {
-    activityPreferencesDoc.blocks[getBlockIdFromNum(i)] = {}
-  }
-  return activityPreferencesDoc;
 }
-
-export const DEFAULT_NUMBER_BLOCKS = 5;
