@@ -5,7 +5,7 @@ import { ActivityWithAssignments } from "@/types/scheduling/schedulingTypes";
 import { Attendee, SchedulingSection } from "@/types/sessions/sessionTypes";
 import { isIndividualActivityAssignments } from "@/types/scheduling/schedulingTypeGuards";
 import { getActivityName } from "@/types/scheduling/schedulingUtils";
-import { getFullName } from "@/types/users/userUtils";
+import { getFullName } from "@/types/people/personUtils";
 import {
   AttendeeGroups,
   getAttendeeName,

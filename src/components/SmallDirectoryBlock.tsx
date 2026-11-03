@@ -19,12 +19,12 @@ import {
   MdClose,
 } from "react-icons/md";
 import { MdAccountCircle } from "react-icons/md";
-import useUserDirectory from "@/hooks/users/useUserDirectory";
+import usePersonDirectory from "@/hooks/people/usePersonDirectory";
 import {
   ATTENDEE_ROLES,
   getFullName,
   getPluralRole,
-} from "@/types/users/userUtils";
+} from "@/types/people/personUtils";
 import useBunkList from "@/hooks/bunks/useBunkList";
 import useSession from "@/hooks/sessions/useSession";
 
@@ -40,49 +40,49 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
   const [isBunkErrorOpen, setIsBunkErrorOpen] = useState<boolean>(true);
 
   const sessionQuery = useSession(sessionId);
-  const userDirectoryQuery = useUserDirectory();
+  const personDirectoryQuery = usePersonDirectory();
   const bunksQuery = useBunkList(sessionId);
 
   const attendeesToDisplay = useMemo(() => {
-    if (!userDirectoryQuery.data || !sessionQuery.data) return [];
-    return Object.keys(userDirectoryQuery.data)
-      .filter((userId) =>
-        sessionQuery.data.attendeeIds.includes(Number(userId)),
+    if (!personDirectoryQuery.data || !sessionQuery.data) return [];
+    return Object.keys(personDirectoryQuery.data)
+      .filter((personId) =>
+        sessionQuery.data.attendeeIds.includes(Number(personId)),
       )
-      .map((userId) => ({
-        id: Number(userId),
-        ...userDirectoryQuery.data[Number(userId)],
+      .map((personId) => ({
+        id: Number(personId),
+        ...personDirectoryQuery.data[Number(personId)],
       }))
       .filter(
-        (user) =>
-          user.role === roleFilter &&
-          getFullName(user.name)
+        (person) =>
+          person.role === roleFilter &&
+          getFullName(person.name)
             .toLowerCase()
             .includes(searchQuery.toLowerCase()),
       );
-  }, [sessionQuery.data, userDirectoryQuery.data, roleFilter, searchQuery]);
+  }, [sessionQuery.data, personDirectoryQuery.data, roleFilter, searchQuery]);
 
-  const usersToBunk = useMemo(() => {
+  const peopleToBunk = useMemo(() => {
     if (!bunksQuery.data) return [];
-    const usersToBunk: { [userId: number]: number } = {};
+    const peopleToBunk: { [personId: number]: number } = {};
     bunksQuery.data
       .forEach((bunk) => {
         [...bunk.camperIds, ...bunk.counselorIds].forEach(
-          (userId) => (usersToBunk[userId] = bunk.bunkNum),
+          (personId) => (peopleToBunk[personId] = bunk.bunkNum),
         );
       });
-    return usersToBunk;
+    return peopleToBunk;
   }, [bunksQuery.data]);
 
   let smallDirectoryBlockContent = <></>;
-  if (userDirectoryQuery.isError || sessionQuery.isError) {
+  if (personDirectoryQuery.isError || sessionQuery.isError) {
     smallDirectoryBlockContent = (
       <div className="flex items-center gap-sm p-sm bg-error-0 border border-error rounded-md">
         <MdErrorOutline size={32} className="text-error" />
         <Text className="text-error">Unable to load directory</Text>
       </div>
     );
-  } else if (userDirectoryQuery.isPending || sessionQuery.isPending) {
+  } else if (personDirectoryQuery.isPending || sessionQuery.isPending) {
     smallDirectoryBlockContent = (
       <Text className="text-neutral">Loading directory...</Text>
     );
@@ -137,7 +137,7 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
                 <MdAccountCircle />
                 <Text className="font-bold">
                   {getFullName(attendee.name)}
-                  {usersToBunk[attendee.id] && ` (${usersToBunk[attendee.id]})`}
+                  {peopleToBunk[attendee.id] && ` (${peopleToBunk[attendee.id]})`}
                 </Text>
               </div>
             ))}

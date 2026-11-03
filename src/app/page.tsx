@@ -4,7 +4,7 @@ import RequireAuth from "@/auth/RequireAuth";
 import LoginPage from "./LoginPage";
 import CounselorHomePage from "./CounselorHomePage";
 import { useAuth } from "@/auth/useAuth";
-import { Role } from "@/types/users/userTypes";
+import { Role } from "@/types/people/personTypes";
 
 export default function HomePage() {
   const { token } = useAuth();

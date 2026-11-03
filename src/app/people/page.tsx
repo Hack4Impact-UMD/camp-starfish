@@ -2,16 +2,16 @@
 
 import RequireAuth from "@/auth/RequireAuth";
 import { useAuth } from "@/auth/useAuth";
-import UsersPage from "./UsersPage";
+import PeoplePage from "./PeoplePage";
 
-export default function UsersRoute() {
+export default function PeopleRoute() {
   const { token } = useAuth();
   return (
     <RequireAuth
       authCases={[
         {
           authFn: () => token?.claims.role === "ADMIN",
-          component: <UsersPage />,
+          component: <PeoplePage />,
         },
       ]}
     />

@@ -1,7 +1,7 @@
 import { httpsCallable } from "firebase/functions";
 import { functions } from "@/config/firebase";
 import { useMutation } from "@tanstack/react-query";
-import { Counselor } from "@/types/users/userTypes";
+import { Counselor } from "@/types/people/personTypes";
 
 export interface ProcessCounselorCsvRequest {
   counselors: Pick<Counselor, "id" | "name" | "email" | "role" | "gender" | "dateOfBirth">[];

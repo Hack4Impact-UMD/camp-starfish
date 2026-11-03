@@ -3,7 +3,7 @@ import { onAuthStateChanged, User, IdTokenResult } from "firebase/auth";
 import React, { JSX, createContext, useEffect, useState } from "react";
 import { auth } from "@/config/firebase";
 import LoadingPage from "@/app/loading";
-import { Role } from "@/types/users/userTypes";
+import { Role } from "@/types/people/personTypes";
 
 export interface AuthContextType {
   user: User | null;

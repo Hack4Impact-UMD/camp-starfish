@@ -1,16 +1,16 @@
-import { Role } from "@/types/users/userTypes";
+import { Role } from "@/types/people/personTypes";
 import { HttpsError, onCall } from "firebase-functions/https"
-import { ProcessCamperCsvRequest } from "@/features/userManagement/useProcessCamperCsv";
-import { ProcessCounselorCsvRequest } from "@/features/userManagement/useProcessCounselorCsv";
+import { ProcessCamperCsvRequest } from "@/features/personManagement/useProcessCamperCsv";
+import { ProcessCounselorCsvRequest } from "@/features/personManagement/useProcessCounselorCsv";
 import { adminDb } from "../config/firebaseAdminConfig";
-import { batchGetUserDocs, createUserDoc } from "../data/firestore/users";
+import { batchGetPersonDocs, createPersonDoc } from "../data/firestore/people";
 import { Timestamp } from "firebase-admin/firestore";
 import moment from "moment";
 
 export const processCamperCsv = onCall(async (req) => {
   const role: Role | undefined = req.auth?.token.role;
   if (!role || role !== "ADMIN") {
-    throw new HttpsError("permission-denied", "You do not have permission to create new users.");
+    throw new HttpsError("permission-denied", "You do not have permission to create new people.");
   }
 
   const input = JSON.parse(req.data) as ProcessCamperCsvRequest;
@@ -21,13 +21,13 @@ export const processCamperCsv = onCall(async (req) => {
 
   await adminDb.runTransaction(async (transaction) => {
     const allIds: number[] = campers.map(camper => camper.id);
-    const existingUsers = await batchGetUserDocs(allIds);
+    const existingPeople = await batchGetPersonDocs(allIds);
 
-    const newCampers = campers.filter((camper) => existingUsers.every(user => user.id !== camper.id));
+    const newCampers = campers.filter((camper) => existingPeople.every(person => person.id !== camper.id));
 
     const camperPromises = newCampers.map((camper) => {
       const { id, ...camperDoc } = camper;
-      return createUserDoc(id, {
+      return createPersonDoc(id, {
         ...camperDoc,
         dateOfBirth: Timestamp.fromDate(moment(camperDoc.dateOfBirth).toDate()),
         role: "CAMPER",
@@ -41,7 +41,7 @@ export const processCamperCsv = onCall(async (req) => {
 export const processCounselorCsv = onCall(async (req) => {
   const role: Role | undefined = req.auth?.token.role;
   if (role !== "ADMIN") {
-    throw new HttpsError("permission-denied", "You do not have permission to create new users.");
+    throw new HttpsError("permission-denied", "You do not have permission to create new people.");
   }
 
   const counselors = (JSON.parse(req.data) as ProcessCounselorCsvRequest).counselors.map(counselor => ({
@@ -50,12 +50,12 @@ export const processCounselorCsv = onCall(async (req) => {
   }));
   await adminDb.runTransaction(async (transaction) => {
     const allIds: number[] = counselors.map(counselor => counselor.id);
-    const existingCounselors = await batchGetUserDocs(allIds);
-    const newCounselors = counselors.filter(counselor => !existingCounselors.some(user => user.id === counselor.id));
+    const existingCounselors = await batchGetPersonDocs(allIds);
+    const newCounselors = counselors.filter(counselor => !existingCounselors.some(person => person.id === counselor.id));
     const promises = newCounselors.map(counselor => {
       const { id, ...counselorDoc } = counselor;
-      // @ts-expect-error - limitation of Firebase's types with using discriminated unions
-      return createUserDoc(id, counselorDoc.role === "STAFF" ? {
+      // @ts-expect-error - TypeScript limitation
+      return createPersonDoc(id, counselorDoc.role === "STAFF" ? {
         ...counselorDoc,
         dateOfBirth: Timestamp.fromDate(moment(counselorDoc.dateOfBirth).toDate()),
         nonoListIds: [],

@@ -4,7 +4,7 @@ import {
   StaffAttendee,
 } from "@/types/sessions/sessionTypes";
 import { SectionSchedule } from "@/types/scheduling/schedulingTypes";
-import { getFullName } from "@/types/users/userUtils";
+import { getFullName } from "@/types/people/personUtils";
 import { StyleSheet, View, Text } from "@react-pdf/renderer";
 import { getFreeplayAssignmentId } from "../generation/schedulingUtils";
 import {

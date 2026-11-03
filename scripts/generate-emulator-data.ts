@@ -1,5 +1,5 @@
 import { faker } from "@faker-js/faker";
-import { Admin, Camper, Gender, Name, Staff } from "@/types/users/userTypes";
+import { Admin, Camper, Gender, Name, Staff } from "@/types/people/personTypes";
 import { CommonSection, SchedulingSection, Section, Session } from "@/types/sessions/sessionTypes";
 import { BundleActivityWithAssignments, BundleBlock, BundleSectionSchedule, BunkJamboreeActivityWithAssignments, BunkJamboreeBlock, BunkJamboreeSectionSchedule, NonBunkJamboreeActivityWithAssignments, NonBunkJamboreeBlock, NonBunkJamboreeSectionSchedule } from "@/types/scheduling/schedulingTypes";
 import moment from "moment";

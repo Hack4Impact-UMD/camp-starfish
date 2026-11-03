@@ -1,13 +1,13 @@
-import { UserDirectory } from "@/types/sessions/sessionTypes";
+import { PersonDirectory } from "@/types/sessions/sessionTypes";
 import { ActivityPreferences, ProgramArea, SectionSchedule } from "@/types/scheduling/schedulingTypes";
 import { AgeGroup, Bunk, Freeplay, NightSchedule, Post, SchedulingSectionType, SectionType } from "@/types/sessions/sessionTypes";
-import { Gender, Name, Role } from "@/types/users/userTypes";
+import { Gender, Name, Role } from "@/types/people/personTypes";
 import { NestedOmit, DistributiveOmit } from "@/utils/types/typeUtils";
 import { Timestamp } from "firebase/firestore";
 
-export type UserDirectoryDoc = Omit<UserDirectory, "page">;
+export type PersonDirectoryDoc = Omit<PersonDirectory, "page">;
 
-interface BaseUserDoc {
+interface BasePersonDoc {
   uid?: string;
   email?: string;
   name: Name;
@@ -16,12 +16,12 @@ interface BaseUserDoc {
   dateOfBirth: Timestamp;
 }
 
-export interface CamperDoc extends BaseUserDoc {
+export interface CamperDoc extends BasePersonDoc {
   role: "CAMPER";
   nonoListIds: number[];
 }
 
-export interface BaseCounselorDoc extends BaseUserDoc {
+export interface BaseCounselorDoc extends BasePersonDoc {
   role: "STAFF" | "ADMIN";
   email: string;
   nonoListIds: number[];
@@ -38,7 +38,7 @@ export interface AdminDoc extends BaseCounselorDoc {
 }
 
 export type CounselorDoc = StaffDoc | AdminDoc;
-export type UserDoc = CamperDoc | StaffDoc | AdminDoc;
+export type PersonDoc = CamperDoc | StaffDoc | AdminDoc;
 
 export interface SessionDoc {
   name: string;

@@ -15,7 +15,7 @@ import {
   isBundleActivity,
   isIndividualActivityAssignments,
 } from "@/types/scheduling/schedulingTypeGuards";
-import { getFullName } from "@/types/users/userUtils";
+import { getFullName } from "@/types/people/personUtils";
 
 interface BlockRatiosGridProps {
   schedule: SectionSchedule;

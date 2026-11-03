@@ -1,4 +1,4 @@
-import { ParsedCounselorCsvData } from "@/features/userManagement/types";
+import { ParsedCounselorCsvData } from "@/features/personManagement/types";
 import {
   createColumnHelper,
   flexRender,
@@ -6,15 +6,15 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { Select, Table, Text } from "@mantine/core";
-import { COUNSELOR_ROLES, GENDERS, getFullName } from "@/types/users/userUtils";
-import { Counselor, CounselorRole, Gender } from "@/types/users/userTypes";
+import { COUNSELOR_ROLES, GENDERS, getFullName } from "@/types/people/personUtils";
+import { Counselor, CounselorRole, Gender } from "@/types/people/personTypes";
 import { DatePickerInput } from "@mantine/dates";
 import { Moment } from "moment";
 import { useMemo } from "react";
 import { Nullable } from "@/utils/types/typeUtils";
 import moment from "moment";
 
-interface CounselorUsersInputTableProps {
+interface CounselorPeopleInputTableProps {
   counselors: ParsedCounselorCsvData;
   roleSelects: {
     [counselorId: number]: CounselorRole | null;
@@ -38,8 +38,8 @@ interface CounselorUsersInputTableProps {
   >;
 }
 
-export default function CounselorUsersInputTable(
-  props: CounselorUsersInputTableProps,
+export default function CounselorPeopleInputTable(
+  props: CounselorPeopleInputTableProps,
 ) {
   const {
     counselors,

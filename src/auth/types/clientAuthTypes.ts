@@ -1,5 +1,5 @@
 import { ParsedToken } from "firebase/auth";
-import { Role } from "@/types/users/userTypes";
+import { Role } from "@/types/people/personTypes";
 
 export interface NonAdminCustomClaims {
   role: Exclude<Role, "ADMIN">;

@@ -1,8 +1,8 @@
 export type Collection = RootLevelCollection | SessionsSubcollection | SectionsSubcollection;
 
 export const enum RootLevelCollection {
-  USERS = "users",
-  USER_DIRECTORY = "userDirectory",
+  PEOPLE = "people",
+  PERSON_DIRECTORY = "personDirectory",
   SESSIONS = "sessions",
   PROGRAM_AREAS = "programAreas",
   POSTS = "posts",

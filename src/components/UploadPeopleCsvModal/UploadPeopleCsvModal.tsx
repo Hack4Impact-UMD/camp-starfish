@@ -1,33 +1,33 @@
 import {
   isParsedCounselorCsvData,
   isParsedCamperCsvData,
-  ParsedUsersCsvData,
-  UsersCsvType,
-  usersCsvTypes,
-} from "@/features/userManagement/types";
-import useParseCamperCsv from "@/features/userManagement/useParseCamperCsv";
-import useParseCounselorCsv from "@/features/userManagement/useParseCounselorCsv";
-import useProcessCounselorCsv from "@/features/userManagement/useProcessCounselorCsv";
-import useProcessCamperCsv from "@/features/userManagement/useProcessCamperCsv";
+  ParsedPeopleCsvData,
+  PeopleCsvType,
+  peopleCsvTypes,
+} from "@/features/personManagement/types";
+import useParseCamperCsv from "@/features/personManagement/useParseCamperCsv";
+import useParseCounselorCsv from "@/features/personManagement/useParseCounselorCsv";
+import useProcessCounselorCsv from "@/features/personManagement/useProcessCounselorCsv";
+import useProcessCamperCsv from "@/features/personManagement/useProcessCamperCsv";
 import { MBToBytes } from "@/utils/fileUtils";
 import { Button, Loader, Radio, ScrollArea, Text, Title } from "@mantine/core";
 import { Dropzone, DropzoneProps } from "@mantine/dropzone";
 import { modals } from "@mantine/modals";
 import { useState } from "react";
 import { MdOutlineFileUpload } from "react-icons/md";
-import { CounselorRole, Gender } from "@/types/users/userTypes";
-import CounselorUsersInputTable from "./CounselorUsersInputTable";
+import { CounselorRole, Gender } from "@/types/people/personTypes";
+import CounselorPeopleInputTable from "./CounselorPeopleInputTable";
 import { Moment } from "moment";
-import CamperUsersInputTables from "./CamperUsersInputTables";
+import CamperPeopleInputTable from "./CamperPeopleInputTable";
 
-const usersCsvTypeToLabel: Record<UsersCsvType, string> = {
+const peopleCsvTypeToLabel: Record<PeopleCsvType, string> = {
   CAMPER: "Campers",
   COUNSELOR: "Counselors (Admins + Staff)",
 };
 
-export function UploadUsersCsvModal() {
+export function UploadPeopleCsvModal() {
   const [csvFile, setCsvFile] = useState<File | null>(null);
-  const [csvType, setCsvType] = useState<UsersCsvType>("CAMPER");
+  const [csvType, setCsvType] = useState<PeopleCsvType>("CAMPER");
   const [roleSelects, setRoleSelects] = useState<{
     [counselorId: number]: CounselorRole | null;
   } | null>(null);
@@ -40,7 +40,7 @@ export function UploadUsersCsvModal() {
 
   const parseCamperCsvMutation = useParseCamperCsv();
   const parseCounselorCsvMutation = useParseCounselorCsv();
-  const parsedData: ParsedUsersCsvData | undefined =
+  const parsedData: ParsedPeopleCsvData | undefined =
     csvType === "CAMPER"
       ? parseCamperCsvMutation.data
       : parseCounselorCsvMutation.data;
@@ -48,10 +48,10 @@ export function UploadUsersCsvModal() {
   const processCamperCsvMutation = useProcessCamperCsv();
   const processCounselorCsvMutation = useProcessCounselorCsv();
 
-  const parseCsvFile = (usersCsvType: UsersCsvType, csvFile: File) => {
+  const parseCsvFile = (peopleCsvType: PeopleCsvType, csvFile: File) => {
     processCamperCsvMutation.reset();
     processCounselorCsvMutation.reset();
-    if (usersCsvType === "CAMPER") {
+    if (peopleCsvType === "CAMPER") {
       parseCounselorCsvMutation.reset();
       parseCamperCsvMutation.mutate(
         { csvFile },
@@ -95,7 +95,7 @@ export function UploadUsersCsvModal() {
     }
   };
 
-  const handleUsersCsvTypeChange = (type: UsersCsvType) => {
+  const handlePeopleCsvTypeChange = (type: PeopleCsvType) => {
     setCsvType(type);
     if (csvFile) {
       parseCsvFile(type, csvFile);
@@ -113,10 +113,7 @@ export function UploadUsersCsvModal() {
       return true;
     } else if (csvType === "CAMPER" && isParsedCamperCsvData(parsedData)) {
       for (const camper of parsedData.campers) {
-        if (
-          !genderSelects[camper.id] ||
-          !dateOfBirthSelects[camper.id]
-        ) {
+        if (!genderSelects[camper.id] || !dateOfBirthSelects[camper.id]) {
           return false;
         }
       }
@@ -185,15 +182,15 @@ export function UploadUsersCsvModal() {
       <Radio.Group
         classNames={{ root: "w-full" }}
         value={csvType}
-        label={"Type of Users"}
+        label={"Type of People"}
       >
         <div className="flex flex-col gap-xs">
-          {usersCsvTypes.map((type) => (
+          {peopleCsvTypes.map((type) => (
             <Radio
               key={type}
               value={type}
-              label={usersCsvTypeToLabel[type]}
-              onChange={() => handleUsersCsvTypeChange(type)}
+              label={peopleCsvTypeToLabel[type]}
+              onChange={() => handlePeopleCsvTypeChange(type)}
               required
             />
           ))}
@@ -209,7 +206,7 @@ export function UploadUsersCsvModal() {
         <Text>
           {csvFile
             ? `Selected File: "${csvFile.name}"`
-            : "Upload a users CSV file exported from Campminder here (Max: 5MB)"}
+            : "Upload a people CSV file exported from Campminder here (Max: 5MB)"}
         </Text>
       </Dropzone>
       {(parseCamperCsvMutation.isPending ||
@@ -229,12 +226,12 @@ export function UploadUsersCsvModal() {
       {parsedData && (
         <>
           <Title order={6}>
-            The following users were found. Please provide the missing fields
+            The following people were found. Please provide the missing fields
             before uploading.
           </Title>
           <ScrollArea.Autosize className="max-h-[40vh] w-full">
             {isParsedCamperCsvData(parsedData) ? (
-              <CamperUsersInputTables
+              <CamperPeopleInputTable
                 campers={parsedData}
                 genderSelects={genderSelects}
                 setGenderSelects={setGenderSelects}
@@ -242,7 +239,7 @@ export function UploadUsersCsvModal() {
                 setDateOfBirthSelects={setDateOfBirthSelects}
               />
             ) : (
-              <CounselorUsersInputTable
+              <CounselorPeopleInputTable
                 counselors={parsedData}
                 roleSelects={roleSelects!}
                 setRoleSelects={setRoleSelects}
@@ -264,7 +261,7 @@ export function UploadUsersCsvModal() {
           processCounselorCsvMutation.isPending
         }
       >
-        Create Users
+        Create People
       </Button>
       {processCamperCsvMutation.error && (
         <Text className="text-error text-sm text-center">
@@ -280,10 +277,10 @@ export function UploadUsersCsvModal() {
   );
 }
 
-export default function openUploadUsersCsvModal() {
+export default function openUploadPeopleCsvModal() {
   modals.open({
-    title: "Upload Users CSV",
-    children: <UploadUsersCsvModal />,
+    title: "Upload People CSV",
+    children: <UploadPeopleCsvModal />,
     size: "auto",
   });
 }
