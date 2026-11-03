@@ -4,7 +4,7 @@ import { z } from "zod";
 import { adminAuth } from "../config/firebaseAdminConfig";
 import { getPersonDocByEmail, getPersonDocById, deletePersonDoc, updatePersonDoc } from "../data/firestore/people";
 import { CustomClaims } from "@/auth/types/clientAuthTypes";
-import { isAdmin } from "@/types/people/personTypeGuards";
+import { isAdmin, isCamper } from "@/types/people/personTypeGuards";
 
 const checkAllowlist = beforeUserCreated(async (event) => {
   if (!event.data) {
@@ -46,7 +46,7 @@ const checkAllowlist = beforeUserCreated(async (event) => {
   }
 });
 
-const UserIdSchema = z.object({ userId: z.number() });
+const PersonIdSchema = z.object({ personId: z.number() });
 
 function isAuthUserNotFound(error: unknown): boolean {
   return (
@@ -57,28 +57,27 @@ function isAuthUserNotFound(error: unknown): boolean {
   );
 }
 
-// Deletes a user's Firebase Auth account (so access is actually revoked) and then their
-// Firestore user record. Callable rather than a Firestore trigger so the admin UI gets
-// synchronous success/error feedback and the action is gated on the caller being an admin.
-const deleteUserAccount = onCall(async (req: CallableRequest<unknown>) => {
+const deletePerson = onCall(async (req: CallableRequest<unknown>) => {
   if (!req.auth || req.auth.token.role !== "ADMIN") {
-    throw new HttpsError("permission-denied", "Only admins can delete users.");
+    throw new HttpsError("permission-denied", "Only admins can delete people.");
   }
 
-  const result = UserIdSchema.safeParse(req.data);
+  const result = PersonIdSchema.safeParse(req.data);
   if (!result.success) {
     throw new HttpsError("invalid-argument", "Invalid payload: " + result.error.message);
   }
-  const { userId } = result.data;
-  if (req.auth.token.campminderId === userId) {
+  const { personId } = result.data;
+  if (req.auth.token.campminderId === personId) {
     throw new HttpsError("failed-precondition", "You cannot delete your own account.");
   }
 
   let person;
   try {
-    person = await getPersonDocById(userId);
+    person = await getPersonDocById(personId);
     if (isAdmin(person) && person.isSuperAdmin) {
       throw new HttpsError("failed-precondition", "Super admin account cannot be deleted.");
+    } else if (isCamper(person)) {
+      return await deletePersonDoc(personId);
     }
   } catch {
     throw new HttpsError("not-found", "User not found.");
@@ -97,7 +96,7 @@ const deleteUserAccount = onCall(async (req: CallableRequest<unknown>) => {
   }
 
   try {
-    await deletePersonDoc(userId);
+    await deletePersonDoc(personId);
   } catch {
     throw new HttpsError("internal", "Failed to delete the user record.");
   }
@@ -105,5 +104,5 @@ const deleteUserAccount = onCall(async (req: CallableRequest<unknown>) => {
 
 export const accountManagementCloudFunctions = {
   checkAllowlist,
-  deleteUserAccount,
+  deletePerson,
 };

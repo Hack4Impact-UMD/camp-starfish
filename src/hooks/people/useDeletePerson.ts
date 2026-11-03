@@ -9,7 +9,7 @@ interface DeletePersonRequest {
 
 async function deletePerson(req: DeletePersonRequest) {
   const { personId } = req;
-  await httpsCallable(functions, "deletePersonAccount")({ personId });
+  await httpsCallable(functions, "deletePerson")({ personId });
 }
 
 export default function useDeletePerson() {
