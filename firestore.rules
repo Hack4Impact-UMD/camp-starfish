@@ -19,7 +19,7 @@ service cloud.firestore {
       return isStaff() || isAdmin();
     }
 
-    match /userDirectory/{pageId} {
+    match /personDirectory/{pageId} {
       allow read, write: if isStaffOrAdmin();
     }
 
@@ -72,9 +72,7 @@ service cloud.firestore {
       }
     }
 
-    
-    // Users collection (all roles unified)
-    match /users/{userId} {
+    match /people/{personId} {
       allow read: if isAdmin();
       allow write: if isAdmin();
     }

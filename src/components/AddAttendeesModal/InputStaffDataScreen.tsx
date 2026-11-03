@@ -9,12 +9,12 @@ import {
   useAddAttendeesModalActions,
   useAdditionalStaffData,
 } from "./AddAttendeesModalStore";
-import { getUseUserDirectoryOptions } from "@/hooks/users/useUserDirectory";
-import { getFullName } from "@/types/users/userUtils";
+import { getUsePersonDirectoryOptions } from "@/hooks/people/usePersonDirectory";
+import { getFullName } from "@/types/people/personUtils";
 import { Button, Checkbox, NumberInput, Table } from "@mantine/core";
 import { getObjectKeysAsNumbers } from "@/utils/stringUtils";
 import { useMemo } from "react";
-import { Name } from "@/types/users/userTypes";
+import { Name } from "@/types/people/personTypes";
 import { useSuspenseQuery } from "@tanstack/react-query";
 
 interface InputStaffTableRow {
@@ -29,17 +29,17 @@ export default function InputStaffDataScreen() {
   const { prevStep, nextStep, setBunk, setIsLeadBunkCounselor } =
     useAddAttendeesModalActions();
 
-  const userDirectoryQuery = useSuspenseQuery(getUseUserDirectoryOptions());
+  const personDirectoryQuery = useSuspenseQuery(getUsePersonDirectoryOptions());
 
   const data = useMemo(() => {
     const staffIds = getObjectKeysAsNumbers(additionalStaffData);
     return staffIds.map((stafferId) => ({
       stafferId,
-      name: userDirectoryQuery.data[stafferId].name,
+      name: personDirectoryQuery.data[stafferId].name,
       bunk: additionalStaffData[stafferId].bunk,
       isLeadBunkCounselor: additionalStaffData[stafferId].isLeadBunkCounselor,
     }));
-  }, [additionalStaffData, userDirectoryQuery.data]);
+  }, [additionalStaffData, personDirectoryQuery.data]);
 
   const additionalStaffDataValidationResult =
     AdditionalStaffDataSchema.safeParse(additionalStaffData);

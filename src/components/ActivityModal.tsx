@@ -16,7 +16,7 @@ import {
   getAttendeesById,
 } from "@/features/scheduling/generation/schedulingUtils";
 import { getActivityName } from "@/types/scheduling/schedulingUtils";
-import { getFullName } from "@/types/users/userUtils";
+import { getFullName } from "@/types/people/personUtils";
 import { Title, Text } from "@mantine/core";
 
 interface ActivityModalProps {

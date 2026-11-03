@@ -1,5 +1,5 @@
 import { Moment } from "moment";
-import { Gender, Name, Role } from "../users/userTypes";
+import { Gender, Name, Role } from "../people/personTypes";
 import { StrictExtract } from "@/utils/types/typeUtils";
 
 export interface Session {
@@ -106,12 +106,12 @@ export interface DaysOffSchedule {
   }
 }
 
-export interface UserDirectoryItem {
+export interface PersonDirectoryItem {
   name: Name;
   role: Role;
 }
 
-export interface UserDirectory {
+export interface PersonDirectory {
   page: number;
-  [userId: number]: UserDirectoryItem;
+  [personId: number]: PersonDirectoryItem;
 }

@@ -10,12 +10,12 @@ import {
   useAdditionalCamperData,
 } from "./AddAttendeesModalStore";
 import { AGE_GROUPS, AgeGroup } from "@/types/sessions/sessionTypes";
-import { getUseUserDirectoryOptions } from "@/hooks/users/useUserDirectory";
-import { getFullName } from "@/types/users/userUtils";
+import { getUsePersonDirectoryOptions } from "@/hooks/people/usePersonDirectory";
+import { getFullName } from "@/types/people/personUtils";
 import { Button, NumberInput, Select, Table } from "@mantine/core";
 import { getObjectKeysAsNumbers } from "@/utils/stringUtils";
 import { useMemo } from "react";
-import { Name } from "@/types/users/userTypes";
+import { Name } from "@/types/people/personTypes";
 import { useSuspenseQuery } from "@tanstack/react-query";
 
 interface InputCamperDataTableRow {
@@ -30,17 +30,17 @@ export default function InputCamperDataScreen() {
   const { prevStep, nextStep, setAgeGroup, setBunk } =
     useAddAttendeesModalActions();
 
-  const userDirectoryQuery = useSuspenseQuery(getUseUserDirectoryOptions());
+  const personDirectoryQuery = useSuspenseQuery(getUsePersonDirectoryOptions());
 
   const data: InputCamperDataTableRow[] = useMemo(() => {
     const camperIds = getObjectKeysAsNumbers(additionalCamperData);
     return camperIds.map((camperId) => ({
       camperId,
-      name: userDirectoryQuery.data[camperId].name,
+      name: personDirectoryQuery.data[camperId].name,
       ageGroup: additionalCamperData[camperId].ageGroup,
       bunk: additionalCamperData[camperId].bunk,
     }));
-  }, [userDirectoryQuery.data, additionalCamperData]);
+  }, [personDirectoryQuery.data, additionalCamperData]);
 
   const additionalCamperDataValidationResult =
     AdditionalCamperDataSchema.safeParse(additionalCamperData);

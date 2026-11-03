@@ -21,9 +21,9 @@ export default function CounselorHomePage() {
           description="Use the activity scheduler to organize campers and staff"
         />
         <GalleryCardOne 
-          title="USERS"
-          href="/users" 
-          description="Create and manage user accounts"
+          title="PEOPLE"
+          href="/people" 
+          description="Create and manage person profiles"
         />
       </div>
     </div>

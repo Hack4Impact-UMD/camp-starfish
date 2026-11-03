@@ -1,6 +1,4 @@
-import {
-  ParsedCamperCsvData,
-} from "@/features/userManagement/types";
+import { ParsedCamperCsvData } from "@/features/personManagement/types";
 import {
   createColumnHelper,
   flexRender,
@@ -8,18 +6,15 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { Select, Table, Text } from "@mantine/core";
-import { GENDERS, getFullName } from "@/types/users/userUtils";
-import {
-  Camper,
-  Gender,
-} from "@/types/users/userTypes";
+import { GENDERS, getFullName } from "@/types/people/personUtils";
+import { Camper, Gender } from "@/types/people/personTypes";
 import { DatePickerInput } from "@mantine/dates";
 import { Moment } from "moment";
 import { useMemo } from "react";
 import { Nullable } from "@/utils/types/typeUtils";
 import moment from "moment";
 
-interface CamperUsersInputTablesProps {
+interface CamperPeopleInputTableProps {
   campers: ParsedCamperCsvData;
   genderSelects: { [camperId: number]: Gender | null };
   setGenderSelects: React.Dispatch<
@@ -35,8 +30,8 @@ interface CamperUsersInputTablesProps {
   >;
 }
 
-export default function CamperUsersInputTables(
-  props: CamperUsersInputTablesProps,
+export default function CamperPeopleInputTable(
+  props: CamperPeopleInputTableProps,
 ) {
   const {
     campers,

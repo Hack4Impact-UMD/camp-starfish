@@ -11,7 +11,7 @@ import {
   isBundleActivity,
   isBunkJamboreeBlock,
 } from "@/types/scheduling/schedulingTypeGuards";
-import { getFullName } from "@/types/users/userUtils";
+import { getFullName } from "@/types/people/personUtils";
 import { isStaffAttendee } from "@/types/sessions/sessionTypeGuards";
 
 const styles = StyleSheet.create({

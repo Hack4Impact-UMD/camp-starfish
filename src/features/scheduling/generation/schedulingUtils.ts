@@ -1,7 +1,7 @@
 import { BunkActivityAssignments, IndividualActivityAssignments } from "@/types/scheduling/schedulingTypes";
 import { isAdminAttendee, isCamperAttendee, isStaffAttendee } from "@/types/sessions/sessionTypeGuards";
 import { AdminAttendee, Attendee, Bunk, CamperAttendee, CounselorAttendee, Freeplay, StaffAttendee } from "@/types/sessions/sessionTypes";
-import { getFullName } from "@/types/users/userUtils";
+import { getFullName } from "@/types/people/personUtils";
 import { toRecord } from "@/utils/data/toRecord";
 
 export function canBeAssignedToIndividualActivityAssignments(attendee: Attendee, assignments: IndividualActivityAssignments) {

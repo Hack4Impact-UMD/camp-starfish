@@ -1,5 +1,5 @@
 import { AttendeeRole } from "../sessions/sessionTypes";
-import { CounselorRole, Gender, Name, Role } from "./userTypes";
+import { CounselorRole, Gender, Name, Role } from "./personTypes";
 
 export function getFullName(name: Name) {
   return `${name.firstName} ${name.middleName ? `${name.middleName} ` : ''}${name.lastName}`

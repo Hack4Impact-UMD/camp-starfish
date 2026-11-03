@@ -1,7 +1,7 @@
 import { httpsCallable } from "firebase/functions";
 import { functions } from "@/config/firebase";
 import { useMutation } from "@tanstack/react-query";
-import { Camper } from "@/types/users/userTypes";
+import { Camper } from "@/types/people/personTypes";
 
 export interface ProcessCamperCsvRequest {
   campers: Pick<Camper, "id" | "name" | "gender" | "dateOfBirth">[];

@@ -37,13 +37,13 @@ import {
   MdChevronRight,
   MdUploadFile,
 } from "react-icons/md";
-import { Person, Role } from "@/types/users/userTypes";
-import { ALL_ROLES } from "@/types/users/userUtils";
+import { Person, Role } from "@/types/people/personTypes";
+import { ALL_ROLES } from "@/types/people/personUtils";
 import { toNormalCase } from "@/utils/stringUtils";
-import useUserList from "@/hooks/users/useUserList";
+import usePersonList from "@/hooks/people/usePersonList";
 import LoadingPage from "../loading";
 import ErrorPage from "../error";
-import openUploadUsersCsvModal from "@/components/UploadUsersCsvModal/UploadUsersCsvModal";
+import openUploadPeopleCsvModal from "@/components/UploadPeopleCsvModal/UploadPeopleCsvModal";
 
 const ROLE_COLORS: Record<Role, string> = {
   ADMIN: "error",
@@ -51,23 +51,23 @@ const ROLE_COLORS: Record<Role, string> = {
   CAMPER: "orange",
 };
 
-export default function UsersPage() {
-  const usersQuery = useUserList();
-  switch (usersQuery.status) {
+export default function PeoplePage() {
+  const peopleQuery = usePersonList();
+  switch (peopleQuery.status) {
     case "pending":
       return <LoadingPage />;
     case "error":
-      return <ErrorPage error={new Error("Error loading users")} />;
+      return <ErrorPage error={new Error("Error loading people")} />;
     case "success":
-      return <UsersPageContent users={usersQuery.data} />;
+      return <PeoplePageContent people={peopleQuery.data} />;
   }
 }
 
-interface UsersPageContentProps {
-  users: Person[];
+interface PeoplePageContentProps {
+  people: Person[];
 }
 
-export function UsersPageContent({ users }: UsersPageContentProps) {
+export function PeoplePageContent({ people }: PeoplePageContentProps) {
   const [globalFilter, setGlobalFilter] = useState("");
   const [roleFilter, setRoleFilter] = useState<string | null>(null);
   const [sorting, setSorting] = useState<SortingState>([
@@ -76,9 +76,9 @@ export function UsersPageContent({ users }: UsersPageContentProps) {
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 });
 
   const data = useMemo(() => {
-    if (!roleFilter) return users;
-    return users.filter((u) => u.role === roleFilter);
-  }, [users, roleFilter]);
+    if (!roleFilter) return people;
+    return people.filter((person) => person.role === roleFilter);
+  }, [people, roleFilter]);
 
   const columns = useMemo<ColumnDef<Person>[]>(
     () => [
@@ -143,16 +143,16 @@ export function UsersPageContent({ users }: UsersPageContentProps) {
     <div className="flex flex-col w-6/7 grow mx-auto px-4 py-6 gap-6">
       <div className="flex flex-col gap-xs">
         <Breadcrumbs separator=">>">
-          {[{ title: "USERS", href: "/users" }].map((breadcrumb) => (
+          {[{ title: "PEOPLE", href: "/people" }].map((breadcrumb) => (
             <Anchor href={breadcrumb.href} key={breadcrumb.title}>
               <Title order={6}>{breadcrumb.title}</Title>
             </Anchor>
           ))}
         </Breadcrumbs>
         <div className="flex items-center justify-between">
-          <Title order={1}>Users</Title>
-          <Tooltip label="Upload Users CSV">
-            <ActionIcon color="aqua" onClick={() => openUploadUsersCsvModal()}>
+          <Title order={1}>People</Title>
+          <Tooltip label="Upload People CSV">
+            <ActionIcon color="aqua" onClick={() => openUploadPeopleCsvModal()}>
               <MdUploadFile size={30} />
             </ActionIcon>
           </Tooltip>
@@ -168,7 +168,7 @@ export function UsersPageContent({ users }: UsersPageContentProps) {
         >
           <Group gap="lg" wrap="wrap">
             <TextInput
-              placeholder="Search users..."
+              placeholder="Search people..."
               value={globalFilter}
               onChange={(e) => setGlobalFilter(e.target.value)}
               leftSection={<MdSearch size={16} />}
@@ -254,7 +254,7 @@ export function UsersPageContent({ users }: UsersPageContentProps) {
                     colSpan={columns.length}
                     className="text-center p-8"
                   >
-                    <Text c="dimmed">No users found.</Text>
+                    <Text c="dimmed">No people found.</Text>
                   </Table.Td>
                 </Table.Tr>
               ) : (

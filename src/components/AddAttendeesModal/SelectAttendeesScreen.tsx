@@ -3,9 +3,9 @@ import {
   useAddAttendeesModalActions,
   useSelectedAttendeeIds,
 } from "./AddAttendeesModalStore";
-import { getUseUserDirectoryOptions } from "@/hooks/users/useUserDirectory";
+import { getUsePersonDirectoryOptions } from "@/hooks/people/usePersonDirectory";
 import { getObjectEntriesWithNumberKeys } from "@/utils/stringUtils";
-import { getFullName, isAttendeeRole } from "@/types/users/userUtils";
+import { getFullName, isAttendeeRole } from "@/types/people/personUtils";
 import { useMemo } from "react";
 import { Button, MultiSelect } from "@mantine/core";
 import { AttendeeRole } from "@/types/sessions/sessionTypes";
@@ -20,19 +20,19 @@ export default function SelectAttendeesScreen({
   const { prevStep, nextStep, selectAttendeeId, deselectAttendeeId } =
     useAddAttendeesModalActions();
 
-  const [sessionQuery, userDirectoryQuery] = useSuspenseQueries({
-    queries: [getUseSessionOptions(sessionId), getUseUserDirectoryOptions()],
+  const [sessionQuery, personDirectoryQuery] = useSuspenseQueries({
+    queries: [getUseSessionOptions(sessionId), getUsePersonDirectoryOptions()],
   });
 
   const potentialSessionAttendees = useMemo(() => {
     return Object.fromEntries(
-      getObjectEntriesWithNumberKeys(userDirectoryQuery.data).filter(
-        ([userId, user]) =>
-          isAttendeeRole(user.role) &&
-          !sessionQuery.data.attendeeIds.includes(userId),
+      getObjectEntriesWithNumberKeys(personDirectoryQuery.data).filter(
+        ([personId, person]) =>
+          isAttendeeRole(person.role) &&
+          !sessionQuery.data.attendeeIds.includes(personId),
       ),
     );
-  }, [sessionQuery.data, userDirectoryQuery.data]);
+  }, [sessionQuery.data, personDirectoryQuery.data]);
 
   return (
     <div className="flex flex-col gap-sm">
@@ -41,22 +41,22 @@ export default function SelectAttendeesScreen({
           root: "w-full",
         }}
         data={getObjectEntriesWithNumberKeys(potentialSessionAttendees).map(
-          ([userId, user]) => ({
-            value: userId,
-            label: getFullName(user.name),
+          ([personId, person]) => ({
+            value: personId,
+            label: getFullName(person.name),
           }),
         )}
         value={selectedAttendeeIds}
         onOptionSubmit={(attendeeId) =>
           selectAttendeeId(
             attendeeId,
-            userDirectoryQuery.data[attendeeId].role as AttendeeRole,
+            personDirectoryQuery.data[attendeeId].role as AttendeeRole,
           )
         }
         onRemove={(attendeeId) =>
           deselectAttendeeId(
             attendeeId,
-            userDirectoryQuery.data[attendeeId].role as AttendeeRole,
+            personDirectoryQuery.data[attendeeId].role as AttendeeRole,
           )
         }
       />

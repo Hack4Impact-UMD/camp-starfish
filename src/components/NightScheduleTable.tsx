@@ -14,7 +14,7 @@ import {
   Session,
   DaysOffSchedule,
 } from "@/types/sessions/sessionTypes";
-import { getFullName } from "@/types/users/userUtils";
+import { getFullName } from "@/types/people/personUtils";
 import moment, { Moment } from "moment";
 import useAttendeeList from "@/hooks/attendees/useAttendeeList";
 import useNightScheduleList from "@/hooks/nightSchedules/useNightScheduleList";

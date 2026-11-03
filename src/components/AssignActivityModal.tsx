@@ -4,7 +4,7 @@ import { useState } from "react";
 
 import { MdAccountCircle } from "react-icons/md";
 import { Box, Button, Container, Select, Text, Title } from "@mantine/core";
-import { getFullName } from "@/types/users/userUtils";
+import { getFullName } from "@/types/people/personUtils";
 import { modals } from "@mantine/modals";
 
 interface AssignActivityModalProps {
