@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "emulators": "node ./emulatorRunner.js",
+    "emulators:export": "firebase emulators:export ./test/emulatorData",
     "build": "next build",
     "compile": "npx tsc --noEmit",
     "start": "next start",
