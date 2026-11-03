@@ -9,6 +9,7 @@ export function getActivityName(activity: Activity): string {
 
 const CAPITAL_A_CHAR_CODE = 65;
 export function getBlockIndexFromNum(num: number) {
+  if (num < 0) { throw new Error("Invalid block num"); }
   let numDigits = 1;
   let mult = 26;
   while(num >= mult) {
