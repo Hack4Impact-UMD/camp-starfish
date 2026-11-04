@@ -66,3 +66,11 @@ export function nestedOmit<T, Path extends string>(obj: T, path: Path): NestedOm
   }
   return {} as NestedOmit<T, Path>;
 }
+
+export function objectKeys<T extends object>(obj: T): (keyof T)[] {
+  return Object.keys(obj) as (keyof T)[];
+}
+
+export function objectValues<T extends object>(obj: T): (T[keyof T])[] {
+  return Object.values(obj) as (T[keyof T])[];
+}

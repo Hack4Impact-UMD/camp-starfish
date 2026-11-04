@@ -1,6 +1,6 @@
 "use client";
 
-import { SectionSchedule } from "@/types/scheduling/schedulingTypes";
+import { Block, SectionSchedule } from "@/types/scheduling/schedulingTypes";
 import { Attendee, SchedulingSection } from "@/types/sessions/sessionTypes";
 import { useMemo } from "react";
 import ActivityGridRow from "@/components/ActivityGridRow";
@@ -12,6 +12,8 @@ import { isNotFoundError } from "@/data/firestore/firestoreClientOperations";
 import { getAttendeeGroups } from "@/features/scheduling/generation/schedulingUtils";
 import useSection from "@/hooks/sections/useSection";
 import { isSchedulingSection } from "@/types/sessions/sessionTypeGuards";
+import { getBlockIndexFromNum } from "@/types/scheduling/schedulingUtils";
+import { objectValues } from "@/utils/types/typeUtils";
 
 interface ActivityGridProps {
   sessionId: string;
@@ -21,7 +23,11 @@ interface ActivityGridProps {
 export default function ActivityGrid(props: ActivityGridProps) {
   const { sessionId, sectionId } = props;
   const sectionQuery = useSection(sessionId, sectionId);
-  const scheduleQuery = useSectionSchedule(sessionId, sectionId, sectionQuery.data && isSchedulingSection(sectionQuery.data));
+  const scheduleQuery = useSectionSchedule(
+    sessionId,
+    sectionId,
+    sectionQuery.data && isSchedulingSection(sectionQuery.data),
+  );
   const attendeesQuery = useAttendeeList(sessionId);
 
   if (sectionQuery.data && !isSchedulingSection(sectionQuery.data)) {
@@ -36,7 +42,11 @@ export default function ActivityGrid(props: ActivityGridProps) {
     );
   } else if (attendeesQuery.isError) {
     return <p>Error loading attendees</p>;
-  } else if (sectionQuery.isPending || scheduleQuery.isPending || attendeesQuery.isPending) {
+  } else if (
+    sectionQuery.isPending ||
+    scheduleQuery.isPending ||
+    attendeesQuery.isPending
+  ) {
     return <LoadingPage />;
   }
   return (
@@ -57,20 +67,34 @@ interface ActivityGridContentProps {
 export function ActivityGridContent(props: ActivityGridContentProps) {
   const { schedule, section, attendees } = props;
 
-  const attendeeGroups = useMemo(() => getAttendeeGroups(attendees), [attendees]);
+  const attendeeGroups = useMemo(
+    () => getAttendeeGroups(attendees),
+    [attendees],
+  );
 
   return (
     <SimpleGrid className="grid-cols-[minmax(20px,60px)_20px_20px_minmax(0px,3fr)_20px] gap-0 border border-neutral-5">
       <Box className="col-start-1 col-end-6 bg-neutral-3 border border-neutral-5">
         Options
       </Box>
-      {Object.keys(schedule.blocks)
-        .sort((a, b) => a[0].localeCompare(b[0]))
-        .map((blockId) => (
+      {objectValues(schedule.blocks)
+        .sort((a, b) => {
+          if (a.startTime.isBefore(b.startTime)) {
+            return -1;
+          } else if (a.startTime.isAfter(b.startTime)) {
+            return 1;
+          } else if (a.endTime.isBefore(b.endTime)) {
+            return -1;
+          } else if (a.endTime.isAfter(b.endTime)) {
+            return 1;
+          }
+          return a.blockId.localeCompare(b.blockId);
+        })
+        .map((block: Block, i) => (
           <ActivityGridRow
-            key={blockId}
-            id={blockId}
-            block={schedule.blocks[blockId]}
+            key={i}
+            index={getBlockIndexFromNum(i)}
+            block={block}
             section={section}
             attendeeGroups={attendeeGroups}
           />

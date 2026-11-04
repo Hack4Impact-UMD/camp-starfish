@@ -6,7 +6,7 @@ interface BaseSectionSchedule {
   sessionId: string;
   sectionId: string;
   type: SchedulingSectionType;
-  blocks: { [blockId: string]: Block };
+  blocks: { [blockId: UUIDV4]: Block };
   alternatePeriodsOff: { [periodId: string]: number[] };
 }
 export interface BundleSectionSchedule extends BaseSectionSchedule {
