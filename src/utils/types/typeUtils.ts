@@ -31,6 +31,38 @@ export type NestedOmit<T, Path extends string> = Path extends `${infer Key}.${in
     : T
   : T;
 
+// True for any index-signature key (string, number, branded string, `${string}-x`, ...)
+type IsIndexKey<P extends PropertyKey> = {} extends Record<P, unknown> ? true : false;
+
+// Paths with no dot: keys to omit at the current level
+type LeafPaths<Path extends string> = Exclude<Path, `${string}.${string}`>;
+
+// Remaining sub-paths to apply to T[P]
+type SubPaths<P extends PropertyKey, Path extends string> =
+  Path extends `${infer Key}.${infer Rest}`
+    ? Key extends '__dynamic__'
+      ? IsIndexKey<P> extends true ? Rest : never
+      : P extends Key ? Rest : never
+    : never;
+
+export type DistributiveNestedOmit<T, Path extends string> =
+  T extends unknown
+    ? T extends readonly (infer Item)[]
+      ? DistributiveNestedOmit<Item, Path>[]
+      : T extends object
+        ? {
+            [P in keyof T as P extends LeafPaths<Path>
+              ? never
+              : '__dynamic__' extends LeafPaths<Path>
+                ? IsIndexKey<P> extends true ? never : P
+                : P
+            ]: [SubPaths<P, Path>] extends [never]
+              ? T[P]
+              : DistributiveNestedOmit<T[P], SubPaths<P, Path>>;
+          }
+        : T
+    : never;
+    
 export function nestedOmit<T, Path extends string>(obj: T, path: Path): NestedOmit<T, Path> {
   if (typeof obj !== "object" || obj === null) {
     return obj as NestedOmit<T, Path>;

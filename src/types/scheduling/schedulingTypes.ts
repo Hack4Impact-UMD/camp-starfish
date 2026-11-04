@@ -6,20 +6,20 @@ interface BaseSectionSchedule {
   sessionId: string;
   sectionId: string;
   type: SchedulingSectionType;
-  blocks: { [blockId: UUIDV4]: Block };
+  blocks: Record<UUIDV4, Block>;
   alternatePeriodsOff: { [periodId: string]: number[] };
 }
 export interface BundleSectionSchedule extends BaseSectionSchedule {
   type: "BUNDLE",
-  blocks: { [blockId: UUIDV4]: BundleBlock };
+  blocks: Record<UUIDV4, BundleBlock>;
 }
 export interface BunkJamboreeSectionSchedule extends BaseSectionSchedule {
   type: "BUNK-JAMBO",
-  blocks: { [blockId: UUIDV4]: BunkJamboreeBlock };
+  blocks: Record<UUIDV4, BunkJamboreeBlock>;
 }
 export interface NonBunkJamboreeSectionSchedule extends BaseSectionSchedule {
   type: "NON-BUNK-JAMBO",
-  blocks: { [blockId: UUIDV4]: NonBunkJamboreeBlock };
+  blocks: Record<UUIDV4, NonBunkJamboreeBlock>;
 }
 export type SectionSchedule = BundleSectionSchedule | BunkJamboreeSectionSchedule | NonBunkJamboreeSectionSchedule;
 
