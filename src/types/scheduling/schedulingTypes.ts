@@ -24,7 +24,6 @@ export interface NonBunkJamboreeSectionSchedule extends BaseSectionSchedule {
 export type SectionSchedule = BundleSectionSchedule | BunkJamboreeSectionSchedule | NonBunkJamboreeSectionSchedule;
 
 interface BaseBlock {
-  blockId: UUIDV4;
   startTime: Moment;
   endTime: Moment
   activities: { [activityId: string]: ActivityWithAssignments; };
@@ -41,7 +40,6 @@ export type NonBunkJamboreeActivityWithAssignments = JamboreeActivity & Individu
 export type ActivityWithAssignments = BundleActivityWithAssignments | BunkJamboreeActivityWithAssignments | NonBunkJamboreeActivityWithAssignments;
 
 interface BaseActivity {
-  id: string;
   name: string;
   description: string;
 }
