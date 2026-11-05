@@ -5,6 +5,7 @@ import { deleteDoc, executeQuery, getDoc, setDoc, updateDoc } from "./firestoreC
 import { db } from "@/config/firebase";
 import { RootLevelCollection, SectionsSubcollection, SessionsSubcollection } from "./types/collections";
 import { FirestoreQueryOptions } from "./types/queries";
+import { objectEntries } from "@/utils/types/typeUtils";
 
 function fromFirestore(snapshot: DocumentSnapshot<SectionScheduleDoc, SectionScheduleDoc> | QueryDocumentSnapshot<SectionScheduleDoc, SectionScheduleDoc>): SectionSchedule {
   if (!snapshot.exists()) { throw Error("Document not found"); };
@@ -13,25 +14,20 @@ function fromFirestore(snapshot: DocumentSnapshot<SectionScheduleDoc, SectionSch
     sectionId: snapshot.ref.parent.parent!.id,
     sessionId: snapshot.ref.parent.parent!.parent.parent!.id,
     ...doc,
-    blocks: Object.keys(doc.blocks).reduce((newBlocks, blockId) => {
-      const block = doc.blocks[blockId];
-      return {
-        ...newBlocks,
-        [blockId]: {
-          ...block,
-          activities: Object.keys(block.activities).reduce((newActivities, activityId) => {
-            const activity = block.activities[activityId];
-            return {
-              ...newActivities,
-              [activityId]: {
-                ...activity,
-                id: activityId
-              }
-            }
-          }, {})
-        }
+    blocks: objectEntries(doc.blocks).reduce((blocks, [blockId, block]) => ({
+      ...blocks,
+      [blockId]: {
+        ...block,
+        blockId,
+        activities: objectEntries(block.activities).reduce((activities, [activityId, activity]) => ({
+          ...activities,
+          [activityId]: {
+            ...activity,
+            id: activityId
+          }
+        }), {})
       }
-    }, {})
+    }), {})
   }
 }
 
