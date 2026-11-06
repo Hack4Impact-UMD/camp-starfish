@@ -26,12 +26,12 @@ export type SectionSchedule = BundleSectionSchedule | BunkJamboreeSectionSchedul
 interface BaseBlock {
   startTime: Moment;
   endTime: Moment
-  activities: { [activityId: string]: ActivityWithAssignments; };
+  activities: { [activityId: UUIDV4]: ActivityWithAssignments; };
   periodsOff: number[];
 }
-export interface BundleBlock extends BaseBlock { activities: { [activityId: string]: BundleActivityWithAssignments; }; }
-export interface BunkJamboreeBlock extends BaseBlock { activities: { [activityId: string]: BunkJamboreeActivityWithAssignments; }; }
-export interface NonBunkJamboreeBlock extends BaseBlock { activities: { [activityId: string]: NonBunkJamboreeActivityWithAssignments; }; }
+export interface BundleBlock extends BaseBlock { activities: { [activityId: UUIDV4]: BundleActivityWithAssignments; }; }
+export interface BunkJamboreeBlock extends BaseBlock { activities: { [activityId: UUIDV4]: BunkJamboreeActivityWithAssignments; }; }
+export interface NonBunkJamboreeBlock extends BaseBlock { activities: { [activityId: UUIDV4]: NonBunkJamboreeActivityWithAssignments; }; }
 export type Block = BundleBlock | BunkJamboreeBlock | NonBunkJamboreeBlock;
 
 export type BundleActivityWithAssignments = BundleActivity & IndividualActivityAssignments;
