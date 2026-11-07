@@ -13,7 +13,7 @@ export function getBlockIndexFromNum(num: number) {
   if (num < 0) { throw new Error("Invalid block num"); }
   let numDigits = 1;
   let mult = 26;
-  while(num >= mult) {
+  while (num >= mult) {
     num -= mult;
     numDigits++;
     mult *= 26;
