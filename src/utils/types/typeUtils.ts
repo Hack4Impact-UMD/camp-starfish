@@ -32,14 +32,16 @@ export type DistributiveNestedOmit<T, Path extends string> =
         : T
     : never;
 
-export function objectKeys<T extends object>(obj: T): (keyof T)[] {
-  return Object.keys(obj) as (keyof T)[];
+type TypedObjectKeys<T extends object> = (keyof T)[];
+export function objectKeys<T extends object>(obj: T): TypedObjectKeys<T> {
+  return Object.keys(obj) as TypedObjectKeys<T>;
 }
 
 export function objectValues<T extends object>(obj: T): (T[keyof T])[] {
   return Object.values(obj);
 }
 
-export function objectEntries<T extends object>(obj: T): { [K in keyof T]: [K, T[K]] }[keyof T][] {
-  return Object.values(obj);
+type TypedObjectEntries<T> = { [K in keyof T]: [K, T[K]] }[keyof T][];
+export function objectEntries<T extends object>(obj: T): TypedObjectEntries<T> {
+  return Object.entries(obj) as TypedObjectEntries<T>;
 }
