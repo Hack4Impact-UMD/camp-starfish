@@ -5,6 +5,8 @@ import { deleteDoc, executeQuery, getDoc, setDoc, updateDoc } from "./firestoreC
 import { db } from "@/config/firebase";
 import { RootLevelCollection, SectionsSubcollection, SessionsSubcollection } from "./types/collections";
 import { FirestoreQueryOptions } from "./types/queries";
+import { objectEntries } from "@/utils/types/typeUtils";
+import moment from "moment";
 
 function fromFirestore(snapshot: DocumentSnapshot<SectionScheduleDoc, SectionScheduleDoc> | QueryDocumentSnapshot<SectionScheduleDoc, SectionScheduleDoc>): SectionSchedule {
   if (!snapshot.exists()) { throw Error("Document not found"); };
@@ -13,6 +15,14 @@ function fromFirestore(snapshot: DocumentSnapshot<SectionScheduleDoc, SectionSch
     sectionId: snapshot.ref.parent.parent!.id,
     sessionId: snapshot.ref.parent.parent!.parent.parent!.id,
     ...doc,
+    blocks: objectEntries(doc.blocks).reduce((blocks, [blockId, block]) => ({
+      ...blocks,
+      [blockId]: {
+        ...block,
+        startTime: moment(block.startTime.toDate()),
+        endTime: moment(block.endTime.toDate())
+      }
+    }), {})
   }
 }
 
