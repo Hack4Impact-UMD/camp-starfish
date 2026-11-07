@@ -72,11 +72,8 @@ export type ActivityAssignments = IndividualActivityAssignments | BunkActivityAs
 export type ActivityPreferences = {
   sessionId: string;
   sectionId: string;
-} & SectionActivityPreferences;
-
-export interface SectionActivityPreferences {
-  blocks: { [blockId: string]: BlockActivityPreferences }
-}
+  blocks: Record<UUIDV4, BlockActivityPreferences>;
+};
 
 export interface BlockActivityPreferences {
   [camperId: number]: { [activityId: string]: number; };
