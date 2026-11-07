@@ -5,20 +5,23 @@ import { Text, ActionIcon, ScrollArea } from "@mantine/core";
 import ActivityGridCell from "@/components/ActivityGridCell";
 import { MdAdd, MdChevronLeft, MdChevronRight } from "react-icons/md";
 import openCreateActivityModal from "@/features/scheduling/activityManagement/components/CreateActivityModal/CreateActivityModal";
+import { UUIDV4 } from "@/types/utils/idTypes";
+import { objectKeys } from "@/utils/types/typeUtils";
 
 interface ActivityGridRowProps {
   block: Block;
-  id: string;
+  blockId: UUIDV4;
+  index: string;
   section: SchedulingSection;
   attendeeGroups: AttendeeGroups;
 }
 
 export default function ActivityGridRow(props: ActivityGridRowProps) {
-  const { block, id, section, attendeeGroups } = props;
+  const { block, blockId, index, section, attendeeGroups } = props;
   return (
     <>
       <Text className="flex justify-center items-center w-full h-full p-0 border border-solid border-neutral-5 bg-neutral-2 text-sm font-semibold">
-        Block {id}
+        Block {index}
       </Text>
       <ActionIcon
         classNames={{
@@ -26,7 +29,7 @@ export default function ActivityGridRow(props: ActivityGridRowProps) {
         }}
         variant="subtle"
         size="xs"
-        onClick={() => openCreateActivityModal({ sessionId: section.sessionId, sectionId: section.id, blockId: id })}
+        onClick={() => openCreateActivityModal({ sessionId: section.sessionId, sectionId: section.id, blockId })}
       >
         <MdAdd size={40} />
       </ActionIcon>
@@ -40,16 +43,16 @@ export default function ActivityGridRow(props: ActivityGridRowProps) {
         <MdChevronLeft size={40} />
       </ActionIcon>
       <ScrollArea type="scroll" className="w-full">
-        {Object.keys(block.activities).length === 0 ? (
+        {objectKeys(block.activities).length === 0 ? (
           <Text className="p-2 text-sm italic">No activities scheduled</Text>
         ) : (
           <div
             className="grid gap-0"
             style={{
-              gridTemplateColumns: `repeat(${2 * Object.keys(block.activities).length}, max-content)`,
+              gridTemplateColumns: `repeat(${2 * objectKeys(block.activities).length}, max-content)`,
             }}
           >
-            {Object.keys(block.activities).map((activityId, i) => {
+            {objectKeys(block.activities).map((activityId, i) => {
               const activity = block.activities[activityId]
               return <div
                 key={i}
@@ -58,7 +61,7 @@ export default function ActivityGridRow(props: ActivityGridRowProps) {
               >
                 <ActivityGridCell
                   activity={activity}
-                  blockId={id}
+                  blockId={blockId}
                   section={section}
                   attendeeGroups={attendeeGroups}
                 />

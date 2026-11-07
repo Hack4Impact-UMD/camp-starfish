@@ -8,6 +8,7 @@ import {
   isBundleSectionSchedule,
   isNonBunkJamboreeSectionSchedule,
 } from "@/types/scheduling/schedulingTypeGuards";
+import { objectKeys } from "@/utils/types/typeUtils";
 
 const styles = StyleSheet.create({
   page: { padding: 40, fontSize: 12, fontFamily: "Helvetica" },
@@ -58,7 +59,7 @@ export function CamperPreferencesSheet(props: CamperPreferencesSheetProps) {
           {`${sectionName} Preference Sheet${isBundleSectionSchedule(schedule) ? ` - ${props.ageGroup}` : ""}`}
         </Text>
 
-        {Object.keys(schedule.blocks).map((blockId) => {
+        {objectKeys(schedule.blocks).map((blockId) => {
           const block = schedule.blocks[blockId];
           const activities = isBundleBlock(block)
             ? Object.values(block.activities).filter(

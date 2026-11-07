@@ -160,7 +160,6 @@ const ALL_PROGRAM_AREAS = {
 
 export function generateBundleActivities(): Record<string, BundleActivityWithAssignments> {
   return Object.fromEntries(Object.keys(ALL_PROGRAM_AREAS).map((programArea) => [programArea, {
-    id: faker.string.uuid(),
     name: faker.lorem.words({ min: 2, max: 5 }),
     description: faker.lorem.words({ min: 5, max: 20 }),
     programAreaId: programArea,
@@ -173,7 +172,6 @@ export function generateBundleActivities(): Record<string, BundleActivityWithAss
 
 export function generateBundleBlock(): BundleBlock {
   return {
-    blockId: v4() as UUIDV4,
     startTime: moment().subtract(1, 'days'),
     endTime: moment().add(1, 'days'),
     activities: generateBundleActivities(),
@@ -199,7 +197,6 @@ export function generateBundleSchedule(section: SchedulingSection): BundleSectio
 
 export function generateBunkJamboreeActivities(): Record<string, BunkJamboreeActivityWithAssignments> {
   return Object.fromEntries(Object.keys(ALL_PROGRAM_AREAS).map((programArea) => [programArea, {
-    id: faker.string.uuid(),
     name: faker.lorem.words({ min: 2, max: 5 }),
     description: faker.lorem.words({ min: 5, max: 20 }),
     adminIds: [],
@@ -209,7 +206,6 @@ export function generateBunkJamboreeActivities(): Record<string, BunkJamboreeAct
 
 export function generateBunkJamboreeBlock(): BunkJamboreeBlock {
   return {
-    blockId: v4() as UUIDV4,
     startTime: moment().subtract(1, 'day'),
     endTime: moment().add(1, 'day'),
     activities: generateBunkJamboreeActivities(),
@@ -219,7 +215,6 @@ export function generateBunkJamboreeBlock(): BunkJamboreeBlock {
 
 export function generateNonBunkJamboreeActivities(): Record<string, NonBunkJamboreeActivityWithAssignments> {
   return Object.fromEntries(Object.keys(ALL_PROGRAM_AREAS).map((programArea) => [programArea, {
-    id: faker.string.uuid(),
     name: faker.lorem.words({ min: 2, max: 5 }),
     description: faker.lorem.words({ min: 5, max: 20 }),
     adminIds: [],
@@ -230,7 +225,6 @@ export function generateNonBunkJamboreeActivities(): Record<string, NonBunkJambo
 
 export function generateNonBunkJamboreeBlock(): NonBunkJamboreeBlock {
   return {
-    blockId: v4() as UUIDV4,
     startTime: moment().subtract(1, 'day'),
     endTime: moment().add(1, 'day'),
     activities: generateNonBunkJamboreeActivities(),

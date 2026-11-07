@@ -6,10 +6,10 @@ import {
   Bunk,
 } from "@/types/sessions/sessionTypes";
 import { SectionActivityPreferences, BunkJamboreeSectionSchedule } from "@/types/scheduling/schedulingTypes";
-import { getBlockIndexFromNum } from "@/types/scheduling/schedulingUtils";
 import shuffle from "@/utils/data/shuffle";
 import { canBeAssignedToBunkAssignments, getYesYesListGroups } from "./schedulingUtils";
 import { toRecord } from "@/utils/data/toRecord";
+import { objectEntries, objectKeys } from "@/utils/types/typeUtils";
 
 interface GenerateBunkJamboreeScheduleRequest {
   attendees: Attendee[];
@@ -45,21 +45,24 @@ export function generateBunkJamboreeSchedule(req: GenerateBunkJamboreeScheduleRe
     sessionId: currentSchedule.sessionId,
     sectionId: currentSchedule.sectionId,
     type: "BUNK-JAMBO",
-    blocks: Object.entries(currentSchedule.blocks).reduce((prev, [blockId, _block]) => {
-      prev[blockId] = {
-        activities: Object.fromEntries(Object.keys(currentSchedule.blocks[blockId].activities).map(activityId => [activityId, ({
-          ...currentSchedule.blocks[blockId].activities[activityId],
-          adminIds: [],
-          bunkNums: [],
-        })])),
+    blocks: objectEntries(currentSchedule.blocks).reduce((prev, [blockId, block]) => ({
+      ...prev,
+      [blockId]: {
+        activities: objectEntries(block.activities).reduce((prev, [activityId, activity]) => ({
+          ...prev,
+          [activityId]: {
+            ...activity,
+            adminIds: [],
+            bunkNums: [],
+          }
+        })),
         periodsOff: []
-      };
-      return prev;
-    }, {} as BunkJamboreeSectionSchedule["blocks"]),
-    alternatePeriodsOff: Object.entries(currentSchedule.alternatePeriodsOff).reduce((prev, [periodId, _counselorIds]) => {
-      prev[periodId] = [];
-      return prev;
-    }, {} as BunkJamboreeSectionSchedule["alternatePeriodsOff"]),
+      }
+    }), {}),
+    alternatePeriodsOff: objectKeys(currentSchedule.alternatePeriodsOff).reduce((prev, periodId) => ({
+      ...prev,
+      [periodId]: []
+    }), {})
   }
 
   const bunksByBunkNum = toRecord(bunks, bunks => bunks.bunkNum);
@@ -80,10 +83,11 @@ export function generateBunkJamboreeSchedule(req: GenerateBunkJamboreeScheduleRe
   }
 
   const yesyesListGroups = getYesYesListGroups([...shuffle(admins), ...shuffle(staff).sort((a, b) => a.bunk - b.bunk)]);
-  const numBlocks = Object.keys(newSchedule.blocks).length;
+  const blocks = objectEntries(newSchedule.blocks);
+  const numBlocks = blocks.length;
   let currBlockNum = 0;
   for (const yesyesListGroup of yesyesListGroups) {
-    newSchedule.blocks[getBlockIndexFromNum(currBlockNum)].periodsOff.push(...yesyesListGroup);
+    blocks[currBlockNum][1].periodsOff.push(...yesyesListGroup);
     currBlockNum = (currBlockNum + 1) % numBlocks;
   }
 

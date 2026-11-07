@@ -2,10 +2,11 @@ import { StaffAttendee, CamperAttendee, AdminAttendee, Attendee, DaysOffSchedule
 import { BundleSectionSchedule, SectionActivityPreferences } from "@/types/scheduling/schedulingTypes";
 import shuffle from "@/utils/data/shuffle";
 import { canBeAssignedToIndividualActivityAssignments, getYesYesListGroups } from "./schedulingUtils";
-import { getBlockIndexFromNum } from "@/types/scheduling/schedulingUtils";
+import { getBlocksInOrder } from "@/types/scheduling/schedulingUtils";
 import partition from "@/utils/data/partition";
 import { groupBy } from "@/utils/data/groupBy";
 import { isDayInRange } from "@/utils/timeUtils";
+import { objectEntries, objectKeys } from "@/utils/types/typeUtils";
 
 interface GenerateBundleScheduleRequest {
   attendees: Attendee[];
@@ -41,22 +42,24 @@ export function generateBundleSchedule(req: GenerateBundleScheduleRequest): Bund
     sessionId: currentSchedule.sessionId,
     sectionId: currentSchedule.sectionId,
     type: "BUNDLE",
-    blocks: Object.entries(currentSchedule.blocks).reduce((prev, [blockId, block]) => {
-      prev[blockId] = {
-        activities: Object.fromEntries(Object.keys(block.activities).map(activityId => [activityId, {
-          ...block.activities[activityId],
-          camperIds: [],
-          staffIds: [],
-          adminIds: [],
-        }])),
+    blocks: objectEntries(currentSchedule.blocks).reduce((prev, [blockId, block]) => ({
+      ...prev,
+      [blockId]: {
+        activities: objectEntries(block.activities).reduce((prev, [activityId, activity]) => ({
+          ...prev,
+          [activityId]: {
+            ...activity,
+            adminIds: [],
+            bunkNums: [],
+          }
+        })),
         periodsOff: []
-      };
-      return prev;
-    }, {} as BundleSectionSchedule["blocks"]),
-    alternatePeriodsOff: Object.keys(currentSchedule.alternatePeriodsOff).reduce((prev, periodId) => {
-      prev[periodId] = [];
-      return prev;
-    }, {} as BundleSectionSchedule["alternatePeriodsOff"]),
+      }
+    }), {}),
+    alternatePeriodsOff: objectKeys(currentSchedule.alternatePeriodsOff).reduce((prev, periodId) => ({
+      ...prev,
+      [periodId]: []
+    }), {})
   }
 
   const programCounselors = staff.filter(staffer => staffer.programCounselorFor !== undefined);
@@ -137,10 +140,11 @@ export function generateBundleSchedule(req: GenerateBundleScheduleRequest): Bund
   }
 
   const yesyesListGroups = getYesYesListGroups([...shuffle(admins), ...shuffle(staff)]);
-  const numBlocks = Object.keys(newSchedule.blocks).length;
+  const blocks = getBlocksInOrder(newSchedule.blocks);
+  const numBlocks = blocks.length;
   let currBlockNum = 0;
   for (const yesyesListGroup of yesyesListGroups) {
-    const blockId = getBlockIndexFromNum(currBlockNum);
+    const blockId = blocks[currBlockNum][0];
     if (yesyesListGroup.some(counselorId => Object.values(newSchedule.blocks[blockId].activities).some(activity => activity.staffIds.includes(counselorId)))) {
       const alternatePeriodsOff = Object.keys(newSchedule.alternatePeriodsOff);
       const chosenAlternatePeriodOff = shuffle(alternatePeriodsOff)[0];

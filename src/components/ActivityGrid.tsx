@@ -1,6 +1,6 @@
 "use client";
 
-import { Block, SectionSchedule } from "@/types/scheduling/schedulingTypes";
+import { SectionSchedule } from "@/types/scheduling/schedulingTypes";
 import { Attendee, SchedulingSection } from "@/types/sessions/sessionTypes";
 import { useMemo } from "react";
 import ActivityGridRow from "@/components/ActivityGridRow";
@@ -12,8 +12,10 @@ import { isNotFoundError } from "@/data/firestore/firestoreClientOperations";
 import { getAttendeeGroups } from "@/features/scheduling/generation/schedulingUtils";
 import useSection from "@/hooks/sections/useSection";
 import { isSchedulingSection } from "@/types/sessions/sessionTypeGuards";
-import { getBlockIndexFromNum } from "@/types/scheduling/schedulingUtils";
-import { objectValues } from "@/utils/types/typeUtils";
+import {
+  getBlockIndexFromNum,
+  getBlocksInOrder,
+} from "@/types/scheduling/schedulingUtils";
 
 interface ActivityGridProps {
   sessionId: string;
@@ -77,28 +79,16 @@ export function ActivityGridContent(props: ActivityGridContentProps) {
       <Box className="col-start-1 col-end-6 bg-neutral-3 border border-neutral-5">
         Options
       </Box>
-      {objectValues(schedule.blocks)
-        .sort((a, b) => {
-          if (a.startTime.isBefore(b.startTime)) {
-            return -1;
-          } else if (a.startTime.isAfter(b.startTime)) {
-            return 1;
-          } else if (a.endTime.isBefore(b.endTime)) {
-            return -1;
-          } else if (a.endTime.isAfter(b.endTime)) {
-            return 1;
-          }
-          return a.blockId.localeCompare(b.blockId);
-        })
-        .map((block: Block, i) => (
-          <ActivityGridRow
-            key={i}
-            index={getBlockIndexFromNum(i)}
-            block={block}
-            section={section}
-            attendeeGroups={attendeeGroups}
-          />
-        ))}
+      {getBlocksInOrder(schedule.blocks).map((blockEntry, i) => (
+        <ActivityGridRow
+          key={i}
+          index={getBlockIndexFromNum(i)}
+          blockId={blockEntry[0]}
+          block={blockEntry[1]}
+          section={section}
+          attendeeGroups={attendeeGroups}
+        />
+      ))}
     </SimpleGrid>
   );
 }

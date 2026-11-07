@@ -17,11 +17,12 @@ import { ErrorBoundary } from "react-error-boundary";
 import { Suspense } from "react";
 import LoadingPage from "@/app/loading";
 import ErrorPage from "@/app/error";
+import { UUIDV4 } from "@/types/utils/idTypes";
 
 interface CreateActivityModalProps {
   sessionId: string;
   sectionId: string;
-  blockId: string;
+  blockId: UUIDV4;
 }
 
 const CreateBundleActivityFormDataSchema =

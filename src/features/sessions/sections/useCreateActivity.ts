@@ -4,15 +4,16 @@ import { getSectionScheduleDoc, updateSectionScheduleDoc } from "@/data/firestor
 import { isBundleSectionSchedule, isBunkJamboreeSectionSchedule } from "@/types/scheduling/schedulingTypeGuards";
 import { BundleActivityWithAssignments, BunkJamboreeActivityWithAssignments, NonBunkJamboreeActivityWithAssignments } from "@/types/scheduling/schedulingTypes";
 import { AGE_GROUPS } from "@/types/sessions/sessionTypes";
+import { UUIDV4Schema } from "@/types/utils/idTypes";
 import { useMutation } from "@tanstack/react-query";
-import { arrayUnion, runTransaction, Transaction } from "firebase/firestore";
-import { v4 as uuidv4 } from "uuid";
+import { runTransaction, Transaction } from "firebase/firestore";
+import { uuidv4 } from "@/types/utils/idTypes";
 import z from "zod";
 
 export const CreateJamboreeActivityRequestSchema = z.strictObject({
   sessionId: z.uuid(),
   sectionId: z.uuid(),
-  blockId: z.string().min(1),
+  blockId: UUIDV4Schema,
   name: z.string().min(1, "Name is required").max(20, "Name must be 20 characters or less"),
   description: z.string().min(1, "Description is required").max(200, "Description must be 200 characters or less"),
   programAreaId: z.never().optional(),
@@ -23,7 +24,7 @@ export type CreateJamboreeActivityRequest = z.infer<typeof CreateJamboreeActivit
 export const CreateBundleActivityRequestSchema = z.strictObject({
   sessionId: z.uuid(),
   sectionId: z.uuid(),
-  blockId: z.string().min(1),
+  blockId: UUIDV4Schema,
   name: z.string().min(1, "Name is required").max(20, "Name must be 20 characters or less"),
   description: z.string().min(1, "Description is required").max(200, "Description must be 200 characters or less"),
   programAreaId: z.string("Program area is required").min(1),
@@ -51,13 +52,12 @@ async function createActivity(req: CreateActivityRequest) {
         throw new Error("Program area does not exist");
       }
       await updateSectionScheduleDoc(sessionId, sectionId, {
-        [`blocks.${blockId}.activities`]: arrayUnion({
-          id: uuidv4(),
+        [`blocks.${blockId}.activities.${uuidv4()}`]: {
           camperIds: [],
           staffIds: [],
           adminIds: [],
           ...rest,
-        } satisfies BundleActivityWithAssignments)
+        } satisfies BundleActivityWithAssignments
       }, transaction);
     } else {
       const inputValidationResult = CreateJamboreeActivityRequestSchema.safeParse(req);
@@ -69,18 +69,16 @@ async function createActivity(req: CreateActivityRequest) {
         throw new Error("Cannot have multiple activities in the same block with the same name");
       }
       await updateSectionScheduleDoc(sessionId, sectionId, {
-        [`blocks.${blockId}.activities`]: arrayUnion(isBunkJamboreeSectionSchedule(sectionSchedule) ? {
-          id: uuidv4(),
+        [`blocks.${blockId}.activities.${uuidv4()}`]: isBunkJamboreeSectionSchedule(sectionSchedule) ? {
           bunkNums: [],
           adminIds: [],
           ...rest,
         } satisfies BunkJamboreeActivityWithAssignments : {
-          id: uuidv4(),
           camperIds: [],
           staffIds: [],
           adminIds: [],
           ...rest
-        } satisfies NonBunkJamboreeActivityWithAssignments)
+        } satisfies NonBunkJamboreeActivityWithAssignments
       }, transaction);
     }
   })

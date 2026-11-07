@@ -1,7 +1,8 @@
 import { ActivityPreferencesDoc, SectionScheduleDoc } from "@/data/firestore/types/documents";
 import { isBundleActivity } from "@/types/scheduling/schedulingTypeGuards";
-import { Activity } from "@/types/scheduling/schedulingTypes";
+import { Activity, SectionSchedule } from "@/types/scheduling/schedulingTypes";
 import { SchedulingSectionType } from "../sessions/sessionTypes";
+import { objectEntries } from "@/utils/types/typeUtils";
 
 export function getActivityName(activity: Activity): string {
   return isBundleActivity(activity) ? `${activity.programAreaId}: ${activity.name}` : activity.name;
@@ -38,4 +39,19 @@ export function getEmptyActivityPreferencesDoc(): ActivityPreferencesDoc {
   return {
     blocks: {}
   }
+}
+
+export function getBlocksInOrder(blocks: SectionSchedule['blocks']) {
+  return objectEntries(blocks).sort(([aBlockId, aBlock], [bBlockId, bBlock]) => {
+    if (aBlock.startTime.isBefore(bBlock.startTime)) {
+      return -1;
+    } else if (aBlock.startTime.isAfter(bBlock.startTime)) {
+      return 1;
+    } else if (aBlock.endTime.isBefore(bBlock.endTime)) {
+      return -1;
+    } else if (aBlock.endTime.isAfter(bBlock.endTime)) {
+      return 1;
+    }
+    return aBlockId.localeCompare(bBlockId);
+  });
 }

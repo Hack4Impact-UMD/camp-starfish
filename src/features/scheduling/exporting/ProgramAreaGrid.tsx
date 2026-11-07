@@ -6,6 +6,7 @@ import {
   BundleSectionSchedule,
 } from "@/types/scheduling/schedulingTypes";
 import { toRecord } from "@/utils/data/toRecord";
+import { getBlocksInOrder } from "@/types/scheduling/schedulingUtils";
 
 // ---------- Styles ----------
 const styles = StyleSheet.create({
@@ -121,8 +122,7 @@ export default function ProgramAreaGrid({
     .sort((a, b) => a.localeCompare(b));
   const programAreasById = toRecord(programAreas, (a) => a.id);
 
-  // Sort blocks alphabetically
-  const blockIds = Object.keys(schedule.blocks).sort();
+  const blocks = getBlocksInOrder(schedule.blocks);
 
   // Split areas into chunks for multiple tables (max 8 areas per table to fit on page)
   const maxAreasPerTable = 8;
@@ -174,8 +174,7 @@ export default function ProgramAreaGrid({
         </View>
 
         {/* Table Rows */}
-        {blockIds.map((blockId) => {
-          const block = schedule.blocks[blockId];
+        {blocks.map(([blockId, block]) => {
           const blockActivitiesByProgramArea = toRecord(
             Object.values(block.activities),
             (a) => a.programAreaId,

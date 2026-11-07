@@ -11,6 +11,7 @@ import {
   isBundleActivity,
   isBunkJamboreeBlock,
 } from "@/types/scheduling/schedulingTypeGuards";
+import { objectKeys } from "@/utils/types/typeUtils";
 
 const styles = StyleSheet.create({
   page: {
@@ -202,7 +203,7 @@ export default function CamperGrid(props: CamperGridProps) {
               <View style={styles.compactDataCell}>
                 <Text>{getFullName(camper.snapshot.name)}</Text>
               </View>
-              {Object.keys(schedule.blocks).map((blockId, i) => {
+              {objectKeys(schedule.blocks).map((blockId, i) => {
                 const block = schedule.blocks[blockId];
                 const activity = isBunkJamboreeBlock(block)
                   ? Object.values(block.activities).find((act) =>
