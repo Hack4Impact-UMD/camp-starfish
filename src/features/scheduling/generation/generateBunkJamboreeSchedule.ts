@@ -5,7 +5,7 @@ import {
   Attendee,
   Bunk,
 } from "@/types/sessions/sessionTypes";
-import { SectionActivityPreferences, BunkJamboreeSectionSchedule } from "@/types/scheduling/schedulingTypes";
+import { ActivityPreferences, BunkJamboreeSectionSchedule } from "@/types/scheduling/schedulingTypes";
 import shuffle from "@/utils/data/shuffle";
 import { canBeAssignedToBunkAssignments, getYesYesListGroups } from "./schedulingUtils";
 import { toRecord } from "@/utils/data/toRecord";
@@ -14,7 +14,7 @@ import { objectEntries, objectKeys } from "@/utils/types/typeUtils";
 interface GenerateBunkJamboreeScheduleRequest {
   attendees: Attendee[];
   bunks: Bunk[];
-  bunkActivityPreferences: SectionActivityPreferences;
+  bunkActivityPreferences: ActivityPreferences;
   currentSchedule: BunkJamboreeSectionSchedule;
 }
 
@@ -66,7 +66,7 @@ export function generateBunkJamboreeSchedule(req: GenerateBunkJamboreeScheduleRe
   }
 
   const bunksByBunkNum = toRecord(bunks, bunks => bunks.bunkNum);
-  for (const [blockId, block] of Object.entries(newSchedule.blocks)) {
+  for (const [blockId, block] of objectEntries(newSchedule.blocks)) {
     const shuffledBunks = shuffle(bunks)
     const maxBunksPerActivity = Math.ceil(shuffledBunks.length / Object.values(block.activities).length);
 

@@ -1,5 +1,5 @@
 import { StaffAttendee, CamperAttendee, AdminAttendee, Attendee, DaysOffSchedule, Section } from "@/types/sessions/sessionTypes";
-import { BundleSectionSchedule, SectionActivityPreferences } from "@/types/scheduling/schedulingTypes";
+import { ActivityPreferences, BundleSectionSchedule } from "@/types/scheduling/schedulingTypes";
 import shuffle from "@/utils/data/shuffle";
 import { canBeAssignedToIndividualActivityAssignments, getYesYesListGroups } from "./schedulingUtils";
 import { getBlocksInOrder } from "@/types/scheduling/schedulingUtils";
@@ -10,7 +10,7 @@ import { objectEntries, objectKeys } from "@/utils/types/typeUtils";
 
 interface GenerateBundleScheduleRequest {
   attendees: Attendee[];
-  camperActivityPreferences: SectionActivityPreferences;
+  camperActivityPreferences: ActivityPreferences;
   currentSchedule: BundleSectionSchedule;
   daysOffSchedule: DaysOffSchedule;
   section: Section;
@@ -125,7 +125,7 @@ export function generateBundleSchedule(req: GenerateBundleScheduleRequest): Bund
     }
   }
 
-  for (const [blockId, block] of Object.entries(newSchedule.blocks)) {
+  for (const [blockId, block] of objectEntries(newSchedule.blocks)) {
     const sortedCampers = shuffle(campers.filter(camper => Object.values(block.activities).every(activity => !activity.camperIds.includes(camper.attendeeId))).sort((a, b) => b.snapshot.dateOfBirth.diff(a.snapshot.dateOfBirth, "years")));
     const maxCampersPerActivity = Math.ceil(sortedCampers.length / Object.values(block.activities).length);
     for (const camper of sortedCampers) {

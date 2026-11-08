@@ -4,14 +4,14 @@ import {
   CamperAttendee,
   Attendee,
 } from "@/types/sessions/sessionTypes";
-import { SectionActivityPreferences, NonBunkJamboreeSectionSchedule } from "@/types/scheduling/schedulingTypes";
+import { ActivityPreferences, NonBunkJamboreeSectionSchedule } from "@/types/scheduling/schedulingTypes";
 import shuffle from "@/utils/data/shuffle";
 import { canBeAssignedToIndividualActivityAssignments, getYesYesListGroups } from "./schedulingUtils";
 import { objectEntries, objectKeys } from "@/utils/types/typeUtils";
 
 interface GenerateNonBunkJamboreeScheduleRequest {
   attendees: Attendee[];
-  sectionActivityPreferences: SectionActivityPreferences;
+  sectionActivityPreferences: ActivityPreferences;
   currentSchedule: NonBunkJamboreeSectionSchedule;
 }
 
@@ -60,7 +60,7 @@ export function generateNonBunkJamboreeSchedule(req: GenerateNonBunkJamboreeSche
     }), {})
   }
 
-  for (const [blockId, block] of Object.entries(newSchedule.blocks)) {
+  for (const [blockId, block] of objectEntries(newSchedule.blocks)) {
     const sortedCampers = shuffle(campers).sort((a, b) => b.snapshot.dateOfBirth.diff(a.snapshot.dateOfBirth, "years"));
     const maxCampersPerActivity = Math.ceil(sortedCampers.length / Object.values(block.activities).length);
     for (const camper of sortedCampers) {
