@@ -2,8 +2,11 @@ import { PersonDirectory } from "@/types/sessions/sessionTypes";
 import { ActivityPreferences, ProgramArea, SectionSchedule } from "@/types/scheduling/schedulingTypes";
 import { AgeGroup, Bunk, Freeplay, NightSchedule, Post, SchedulingSectionType, SectionType } from "@/types/sessions/sessionTypes";
 import { Gender, Name, Role } from "@/types/people/personTypes";
-import { DistributiveOmit } from "@/utils/types/typeUtils";
-import { Timestamp } from "firebase/firestore";
+import { DistributiveOmit, ReplaceType } from "@/utils/types/typeUtils";
+import { FieldValue, Timestamp } from "firebase/firestore";
+import { Moment } from "moment";
+import { uuidv4 } from "@/types/utils/idTypes";
+import moment from "moment";
 
 export type PersonDirectoryDoc = Omit<PersonDirectory, "page">;
 
@@ -94,7 +97,7 @@ export interface SchedulingSectionDoc extends BaseSectionDoc {
 }
 export type SectionDoc = CommonSectionDoc | SchedulingSectionDoc;
 
-export type SectionScheduleDoc = DistributiveOmit<SectionSchedule, "sessionId" | "sectionId">;
+export type SectionScheduleDoc = ReplaceType<DistributiveOmit<SectionSchedule, "sessionId" | "sectionId">, Moment, Timestamp>;
 export type BunkDoc = Omit<Bunk, "bunkNum" | "sessionId">;
 export type NightScheduleDoc = Omit<NightSchedule, "date" | "sessionId">;
 export type FreeplayDoc = Omit<Freeplay, "date" | "sessionId">;
