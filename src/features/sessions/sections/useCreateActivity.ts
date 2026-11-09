@@ -6,9 +6,10 @@ import { BundleActivityWithAssignments, BunkJamboreeActivityWithAssignments, Non
 import { AGE_GROUPS } from "@/types/sessions/sessionTypes";
 import { UUIDV4Schema } from "@/types/utils/idTypes";
 import { useMutation } from "@tanstack/react-query";
-import { runTransaction, Transaction } from "firebase/firestore";
+import { runTransaction, Transaction, UpdateData } from "firebase/firestore";
 import { uuidv4 } from "@/types/utils/idTypes";
 import z from "zod";
+import { SectionScheduleDoc } from "@/data/firestore/types/documents";
 
 export const CreateJamboreeActivityRequestSchema = z.strictObject({
   sessionId: z.uuid(),
@@ -57,8 +58,8 @@ async function createActivity(req: CreateActivityRequest) {
           staffIds: [],
           adminIds: [],
           ...rest,
-        } satisfies BundleActivityWithAssignments
-      }, transaction);
+        }
+      } as unknown as UpdateData<SectionScheduleDoc>, transaction);
     } else {
       const inputValidationResult = CreateJamboreeActivityRequestSchema.safeParse(req);
       if (!inputValidationResult.success) {
@@ -79,7 +80,7 @@ async function createActivity(req: CreateActivityRequest) {
           adminIds: [],
           ...rest
         } satisfies NonBunkJamboreeActivityWithAssignments
-      }, transaction);
+      } as unknown as UpdateData<SectionScheduleDoc>, transaction);
     }
   })
 }
