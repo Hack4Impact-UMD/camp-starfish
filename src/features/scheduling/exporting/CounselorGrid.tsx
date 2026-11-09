@@ -14,6 +14,7 @@ import {
 import { getFullName } from "@/types/people/personUtils";
 import { isStaffAttendee } from "@/types/sessions/sessionTypeGuards";
 import { objectKeys } from "@/utils/types/typeUtils";
+import { getBlockIndexFromNum } from "@/types/scheduling/schedulingUtils";
 
 const styles = StyleSheet.create({
   page: {
@@ -164,9 +165,9 @@ export default function CounselorGrid(props: CounselorGridProps) {
       <View style={styles.table}>
         <View style={styles.headerRow}>
           <Text style={styles.headerCell}>NAME</Text>
-          {Object.keys(schedule.blocks).map((blockId) => (
+          {objectKeys(schedule.blocks).map((blockId, i) => (
             <Text key={blockId} style={styles.headerCell}>
-              {blockId}
+              {getBlockIndexFromNum(i)}
             </Text>
           ))}
           <Text style={styles.headerCell}>APO</Text>

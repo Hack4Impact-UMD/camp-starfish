@@ -12,6 +12,7 @@ import {
   isBunkJamboreeBlock,
 } from "@/types/scheduling/schedulingTypeGuards";
 import { objectKeys } from "@/utils/types/typeUtils";
+import { getBlockIndexFromNum, getBlocksInOrder } from "@/types/scheduling/schedulingUtils";
 
 const styles = StyleSheet.create({
   page: {
@@ -173,9 +174,9 @@ export default function CamperGrid(props: CamperGridProps) {
         <View style={styles.headerRow}>
           <Text style={styles.compactHeaderCell}>BUNK</Text>
           <Text style={styles.compactHeaderCell}>NAME</Text>
-          {Object.keys(schedule.blocks).map((blockId) => (
+          {Object.keys(schedule.blocks).map((blockId, i) => (
             <Text key={blockId} style={styles.compactHeaderCell}>
-              {blockId}
+              {getBlockIndexFromNum(i)}
             </Text>
           ))}
           <Text style={styles.compactHeaderCell}>+</Text>
@@ -203,8 +204,7 @@ export default function CamperGrid(props: CamperGridProps) {
               <View style={styles.compactDataCell}>
                 <Text>{getFullName(camper.snapshot.name)}</Text>
               </View>
-              {objectKeys(schedule.blocks).map((blockId, i) => {
-                const block = schedule.blocks[blockId];
+              {getBlocksInOrder(schedule.blocks).map(([_blockId, block], i) => {
                 const activity = isBunkJamboreeBlock(block)
                   ? Object.values(block.activities).find((act) =>
                       act.bunkNums.includes(camper.bunk),

@@ -6,7 +6,7 @@ import {
   BundleSectionSchedule,
 } from "@/types/scheduling/schedulingTypes";
 import { toRecord } from "@/utils/data/toRecord";
-import { getBlocksInOrder } from "@/types/scheduling/schedulingUtils";
+import { getBlockIndexFromNum, getBlocksInOrder } from "@/types/scheduling/schedulingUtils";
 
 // ---------- Styles ----------
 const styles = StyleSheet.create({
@@ -174,7 +174,7 @@ export default function ProgramAreaGrid({
         </View>
 
         {/* Table Rows */}
-        {blocks.map(([blockId, block]) => {
+        {blocks.map(([blockId, block], i) => {
           const blockActivitiesByProgramArea = toRecord(
             Object.values(block.activities),
             (a) => a.programAreaId,
@@ -184,7 +184,7 @@ export default function ProgramAreaGrid({
             <View key={blockId} style={styles.row}>
               {/* Block Label */}
               <View style={[styles.blockCell, styles.blockLabel]}>
-                <Text>{`BLOCK ${blockId}`}</Text>
+                <Text>{`BLOCK ${getBlockIndexFromNum(i)}`}</Text>
               </View>
 
               {/* Area Cells */}

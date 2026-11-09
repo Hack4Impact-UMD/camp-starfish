@@ -9,6 +9,7 @@ import {
   isNonBunkJamboreeSectionSchedule,
 } from "@/types/scheduling/schedulingTypeGuards";
 import { objectKeys } from "@/utils/types/typeUtils";
+import { getBlockIndexFromNum } from "@/types/scheduling/schedulingUtils";
 
 const styles = StyleSheet.create({
   page: { padding: 40, fontSize: 12, fontFamily: "Helvetica" },
@@ -59,7 +60,7 @@ export function CamperPreferencesSheet(props: CamperPreferencesSheetProps) {
           {`${sectionName} Preference Sheet${isBundleSectionSchedule(schedule) ? ` - ${props.ageGroup}` : ""}`}
         </Text>
 
-        {objectKeys(schedule.blocks).map((blockId) => {
+        {objectKeys(schedule.blocks).map((blockId, i) => {
           const block = schedule.blocks[blockId];
           const activities = isBundleBlock(block)
             ? Object.values(block.activities).filter(
@@ -69,7 +70,7 @@ export function CamperPreferencesSheet(props: CamperPreferencesSheetProps) {
           if (activities.length === 0) return null;
           return (
             <View key={blockId} style={styles.block}>
-              <Text style={styles.blockTitle}>Block {blockId}</Text>
+              <Text style={styles.blockTitle}>Block {getBlockIndexFromNum(i)}</Text>
               {activities.map((activity, idx) => (
                 <View key={`${blockId}-${idx}`} style={styles.activity}>
                   <View style={styles.activityInfo}>
