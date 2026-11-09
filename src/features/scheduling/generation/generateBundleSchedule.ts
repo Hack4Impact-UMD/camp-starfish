@@ -52,7 +52,7 @@ export function generateBundleSchedule(req: GenerateBundleScheduleRequest): Bund
             ...activity,
             camperIds: [],
             adminIds: [],
-            staffIds: []            
+            staffIds: []           
           }
         }), {}),
         periodsOff: []
