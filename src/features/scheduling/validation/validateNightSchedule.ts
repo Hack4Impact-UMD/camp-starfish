@@ -1,4 +1,4 @@
-import { nightScheduleSchema } from "./scheduleSchemas";
+import { nightScheduleSchema } from "@/features/scheduling/validation/scheduleSchemas";
 import { getAttendeeName } from "@/features/scheduling/generation/schedulingUtils";
 import { NIGHT_SCHEDULE_POSITIONS } from "@/types/sessions/nightScheduleUtils";
 import {
@@ -10,13 +10,13 @@ import {
 } from "@/types/sessions/sessionTypes";
 import { isStaffAttendee } from "@/types/sessions/sessionTypeGuards";
 import { toRecord } from "@/utils/data/toRecord";
-import { MIN_COUNSELORS_ON_DUTY, MIN_NIGHT_BUNK_DUTY } from "./constants";
+import { MIN_COUNSELORS_ON_DUTY, MIN_NIGHT_BUNK_DUTY } from "@/features/scheduling/validation/constants";
 import {
   ScheduleIssue,
   toScheduleValidationResult,
   ScheduleValidationResult,
-} from "./scheduleIssues";
-import { isCounselorOffOnDate } from "./validationUtils";
+} from "@/features/scheduling/validation/scheduleIssues";
+import { isCounselorOffOnDate } from "@/features/scheduling/validation/validationUtils";
 
 export interface ValidateNightScheduleInput {
   nightSchedule: NightSchedule;

@@ -1,4 +1,4 @@
-import { sectionScheduleSchema } from "./scheduleSchemas";
+import { sectionScheduleSchema } from "@/features/scheduling/validation/scheduleSchemas";
 import { Block, SectionSchedule } from "@/types/scheduling/schedulingTypes";
 import {
   Attendee,
@@ -10,14 +10,14 @@ import {
   ScheduleIssue,
   ScheduleIssueCode,
   toScheduleValidationResult,
-} from "./scheduleIssues";
+} from "@/features/scheduling/validation/scheduleIssues";
 import {
   dayOffsDuringSection,
   isOffEntireSection,
   namesOf,
   pairKey,
   relationshipPairs,
-} from "./validationUtils";
+} from "@/features/scheduling/validation/validationUtils";
 import {
   ACTIVITY_CAMPER_LIMITS,
   MAX_STAFFING_IMBALANCE,
@@ -26,7 +26,7 @@ import {
   OCP_CHAT_PROGRAM_AREA_ID,
   OCP_SWIM_BLOCK_IDS,
   SWIM_PROGRAM_AREA_ID,
-} from "./constants";
+} from "@/features/scheduling/validation/constants";
 
 export interface ValidateSectionScheduleInput {
   schedule: SectionSchedule;

@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { isMoment, Moment } from "moment";
+import { AGE_GROUPS } from "@/types/sessions/sessionTypes";
 
 const ids = z.array(z.number().int());
 const baseActivity = {
@@ -13,7 +14,7 @@ const bundleActivity = z.object({
   ...baseActivity,
   ...individual,
   programAreaId: z.string(),
-  ageGroup: z.enum(["NAV", "OCP"]),
+  ageGroup: z.enum(AGE_GROUPS),
 });
 const bunkActivity = z.object({
   ...baseActivity,
