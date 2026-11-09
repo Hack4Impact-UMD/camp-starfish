@@ -80,9 +80,7 @@ export function validateNightSchedule(input: ValidateNightScheduleInput): Schedu
       continue;
     }
 
-    const assignedByPosition: Partial<
-      Record<NightSchedulePosition, Set<number>>
-    > = {};
+    const assignedByPosition: Partial<Record<NightSchedulePosition, Set<number>>> = {};
 
     for (const position of NIGHT_SCHEDULE_POSITIONS) {
       const seen = new Set<number>();
@@ -149,9 +147,7 @@ export function validateNightSchedule(input: ValidateNightScheduleInput): Schedu
     const name = getAttendeeName(attendeesById, attendeeId);
 
     if (slots.length > 1) {
-      const places = slots
-        .map((slot) => `${positionLabel(slot.position)} at bunk ${slot.bunkNum}`)
-        .join(", ");
+      const places = slots.map((slot) => `${positionLabel(slot.position)} at bunk ${slot.bunkNum}`).join(", ");
 
       issues.push({
         code: "NIGHT_COLLISION",

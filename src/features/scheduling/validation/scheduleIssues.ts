@@ -105,9 +105,7 @@ export const scheduleValidationResultSchema = z
 export type ScheduleIssueCode = (typeof SCHEDULE_ISSUE_CODES)[number];
 export type ScheduleIssueSeverity = (typeof SCHEDULE_ISSUE_SEVERITIES)[number];
 export type ScheduleIssue = z.input<typeof scheduleIssueSchema>;
-export type ScheduleValidationResult = z.output<
-  typeof scheduleValidationResultSchema
->;
+export type ScheduleValidationResult = z.output<typeof scheduleValidationResultSchema>;
 
 export function toScheduleValidationResult(issues: ScheduleIssue[]): ScheduleValidationResult {
   const sorted = [...issues].sort(compareIssues);

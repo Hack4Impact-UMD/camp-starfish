@@ -40,11 +40,7 @@ export function relationshipPairs(counselors: CounselorAttendee[]): [number, num
 export function sectionDays(section: Pick<Section, "startDate" | "endDate">): Moment[] {
   const days: Moment[] = [];
 
-  for (
-    let cursor = section.startDate.clone().startOf("day");
-    cursor.isSameOrBefore(section.endDate, "day");
-    cursor = cursor.clone().add(1, "day")
-  ) {
+  for (let cursor = section.startDate.clone().startOf("day"); cursor.isSameOrBefore(section.endDate, "day"); cursor = cursor.clone().add(1, "day")) {
     days.push(cursor.clone());
   }
 
@@ -80,9 +76,7 @@ export function isCounselorOffOnDate(counselorId: number, date: Moment, daysOffS
 }
 
 export function namesOf(attendeesById: Record<number, Attendee>, attendeeIds: number[]): string {
-  return attendeeIds
-    .map((attendeeId) => getAttendeeName(attendeesById, attendeeId))
-    .join(", ");
+  return attendeeIds.map((attendeeId) => getAttendeeName(attendeesById, attendeeId)).join(", ");
 }
 
 export function uniqueNumbers(values: number[]): number[] {

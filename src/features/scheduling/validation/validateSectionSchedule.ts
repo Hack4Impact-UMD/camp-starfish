@@ -58,8 +58,7 @@ export function validateSectionSchedule(input: ValidateSectionScheduleInput) {
   const special = new Map<number, { swim: string[]; chat: string[] }>();
   const add = (code: ScheduleIssueCode, message: string, details: Partial<ScheduleIssue> = {}, severity: ScheduleIssue["severity"] = "error") => issues.push({ code, severity, message, ...details });
   const name = (id: number) => namesOf(people, [id]);
-  const offEntire = (id: number) =>
-    isOffEntireSection(id, daysOffSchedule, section);
+  const offEntire = (id: number) => isOffEntireSection(id, daysOffSchedule, section);
 
   function readOff(ids: number[], slot: string, blockId?: string) {
     const seen = new Set<number>();
@@ -233,8 +232,7 @@ export function validateSectionSchedule(input: ValidateSectionScheduleInput) {
 
         areas.add(area);
 
-        const isSpecial =
-          area === SWIM_PROGRAM_AREA_ID || area === OCP_CHAT_PROGRAM_AREA_ID;
+        const isSpecial = area === SWIM_PROGRAM_AREA_ID || area === OCP_CHAT_PROGRAM_AREA_ID;
 
         if (!isSpecial) {
           const n = campers.length;
@@ -267,9 +265,7 @@ export function validateSectionSchedule(input: ValidateSectionScheduleInput) {
 
         for (const counselor of counselors) {
           if (counselor.role === "STAFF" && counselor.programCounselorFor === area && !assigned.has(counselor.attendeeId)) {
-            const unavailable =
-              block.periodsOff.includes(counselor.attendeeId) ||
-              dayOffsDuringSection(counselor.attendeeId, daysOffSchedule, section).length > 0;
+            const unavailable = block.periodsOff.includes(counselor.attendeeId) || dayOffsDuringSection(counselor.attendeeId, daysOffSchedule, section).length > 0;
 
             add(unavailable ? "PROGRAM_COUNSELOR_UNAVAILABLE" : "PROGRAM_COUNSELOR_MISSING", `${name(counselor.attendeeId)} is the program counselor for ${area} but is absent.`, {
               ...context,
@@ -331,11 +327,7 @@ export function validateSectionSchedule(input: ValidateSectionScheduleInput) {
   if (schedule.type === "BUNDLE") {
     for (const camper of attendees.filter((a) => a.role === "CAMPER")) {
       const counts = special.get(camper.attendeeId) ?? { swim: [], chat: [] };
-      const optedOut =
-        camper.ageGroup === "OCP" &&
-        !input.isFirstBundleOfSession &&
-        camper.level >= 4 &&
-        camper.isOptedOutFromSwim;
+      const optedOut = camper.ageGroup === "OCP" && !input.isFirstBundleOfSession && camper.level >= 4 && camper.isOptedOutFromSwim;
       const expected = optedOut ? 0 : 1;
       const context = { attendeeId: camper.attendeeId };
 
@@ -343,8 +335,7 @@ export function validateSectionSchedule(input: ValidateSectionScheduleInput) {
         add(optedOut && counts.swim.length ? "SWIM_OPTED_OUT" : "SWIM_COUNT", `${name(camper.attendeeId)} needs ${expected} swim block(s), has ${counts.swim.length}.`, { ...context, expected, actual: counts.swim.length });
       }
 
-      const allowed: readonly string[] =
-        camper.ageGroup === "NAV" ? NAV_SWIM_BLOCK_IDS : OCP_SWIM_BLOCK_IDS;
+      const allowed: readonly string[] = camper.ageGroup === "NAV" ? NAV_SWIM_BLOCK_IDS : OCP_SWIM_BLOCK_IDS;
 
       for (const blockId of counts.swim) {
         if (!allowed.includes(blockId)) {
