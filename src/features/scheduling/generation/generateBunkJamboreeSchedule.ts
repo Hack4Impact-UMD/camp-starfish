@@ -48,6 +48,7 @@ export function generateBunkJamboreeSchedule(req: GenerateBunkJamboreeScheduleRe
     blocks: objectEntries(currentSchedule.blocks).reduce((prev, [blockId, block]) => ({
       ...prev,
       [blockId]: {
+        ...block,
         activities: objectEntries(block.activities).reduce((prev, [activityId, activity]) => ({
           ...prev,
           [activityId]: {
@@ -55,7 +56,7 @@ export function generateBunkJamboreeSchedule(req: GenerateBunkJamboreeScheduleRe
             adminIds: [],
             bunkNums: [],
           }
-        })),
+        }), {}),
         periodsOff: []
       }
     }), {}),

@@ -43,14 +43,16 @@ export function generateNonBunkJamboreeSchedule(req: GenerateNonBunkJamboreeSche
     blocks: objectEntries(currentSchedule.blocks).reduce((prev, [blockId, block]) => ({
       ...prev,
       [blockId]: {
+        ...block,
         activities: objectEntries(block.activities).reduce((prev, [activityId, activity]) => ({
           ...prev,
           [activityId]: {
             ...activity,
+            camperIds: [],
             adminIds: [],
-            bunkNums: [],
+            staffIds: []            
           }
-        })),
+        }), {}),
         periodsOff: []
       }
     }), {}),

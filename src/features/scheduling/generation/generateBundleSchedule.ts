@@ -1,5 +1,5 @@
 import { StaffAttendee, CamperAttendee, AdminAttendee, Attendee, DaysOffSchedule, Section } from "@/types/sessions/sessionTypes";
-import { ActivityPreferences, BundleSectionSchedule } from "@/types/scheduling/schedulingTypes";
+import { ActivityPreferences, BundleBlock, BundleSectionSchedule } from "@/types/scheduling/schedulingTypes";
 import shuffle from "@/utils/data/shuffle";
 import { canBeAssignedToIndividualActivityAssignments, getYesYesListGroups } from "./schedulingUtils";
 import { getBlocksInOrder } from "@/types/scheduling/schedulingUtils";
@@ -45,14 +45,16 @@ export function generateBundleSchedule(req: GenerateBundleScheduleRequest): Bund
     blocks: objectEntries(currentSchedule.blocks).reduce((prev, [blockId, block]) => ({
       ...prev,
       [blockId]: {
+        ...block,
         activities: objectEntries(block.activities).reduce((prev, [activityId, activity]) => ({
           ...prev,
           [activityId]: {
             ...activity,
+            camperIds: [],
             adminIds: [],
-            bunkNums: [],
+            staffIds: []            
           }
-        })),
+        }), {}),
         periodsOff: []
       }
     }), {}),
