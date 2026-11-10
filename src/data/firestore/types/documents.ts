@@ -3,10 +3,8 @@ import { ActivityPreferences, ProgramArea, SectionSchedule } from "@/types/sched
 import { AgeGroup, Bunk, Freeplay, NightSchedule, Post, SchedulingSectionType, SectionType } from "@/types/sessions/sessionTypes";
 import { Gender, Name, Role } from "@/types/people/personTypes";
 import { DistributiveOmit, ReplaceType } from "@/utils/types/typeUtils";
-import { FieldValue, Timestamp } from "firebase/firestore";
+import { Timestamp } from "firebase/firestore";
 import { Moment } from "moment";
-import { uuidv4 } from "@/types/utils/idTypes";
-import moment from "moment";
 
 export type PersonDirectoryDoc = Omit<PersonDirectory, "page">;
 

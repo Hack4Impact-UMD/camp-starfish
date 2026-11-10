@@ -1,5 +1,5 @@
 import { StaffAttendee, CamperAttendee, AdminAttendee, Attendee, DaysOffSchedule, Section } from "@/types/sessions/sessionTypes";
-import { ActivityPreferences, BundleBlock, BundleSectionSchedule } from "@/types/scheduling/schedulingTypes";
+import { ActivityPreferences, BundleSectionSchedule } from "@/types/scheduling/schedulingTypes";
 import shuffle from "@/utils/data/shuffle";
 import { canBeAssignedToIndividualActivityAssignments, getYesYesListGroups } from "./schedulingUtils";
 import { getBlocksInOrder } from "@/types/scheduling/schedulingUtils";

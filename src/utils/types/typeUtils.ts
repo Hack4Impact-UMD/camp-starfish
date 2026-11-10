@@ -1,5 +1,3 @@
-import { UUIDV4 } from "@/types/utils/idTypes";
-
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type DistributiveOmit<T, K extends keyof any> = T extends any ? Omit<T, K> : never;
 export type DistributiveKeyof<T> = T extends T ? keyof T : never
@@ -21,9 +19,8 @@ export function objectEntries<T extends object>(obj: T): TypedObjectEntries<T> {
   return Object.entries(obj) as TypedObjectEntries<T>;
 }
 
-type Builtin =
-  | string | number | boolean | bigint | symbol | null | undefined
-  | Function | Date | RegExp | Error;
+// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+type Builtin = string | number | boolean | bigint | symbol | null | undefined | Function | Date | RegExp | Error;
 
 type Matches<T, From, Exact extends boolean> =
   Exact extends true

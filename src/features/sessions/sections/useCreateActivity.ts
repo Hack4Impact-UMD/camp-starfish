@@ -58,7 +58,7 @@ async function createActivity(req: CreateActivityRequest) {
           staffIds: [],
           adminIds: [],
           ...rest,
-        }
+        } satisfies BundleActivityWithAssignments
       } as unknown as UpdateData<SectionScheduleDoc>, transaction);
     } else {
       const inputValidationResult = CreateJamboreeActivityRequestSchema.safeParse(req);

@@ -11,7 +11,6 @@ import {
   isBundleActivity,
   isBunkJamboreeBlock,
 } from "@/types/scheduling/schedulingTypeGuards";
-import { objectKeys } from "@/utils/types/typeUtils";
 import { getBlockIndexFromNum, getBlocksInOrder } from "@/types/scheduling/schedulingUtils";
 
 const styles = StyleSheet.create({
