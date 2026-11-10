@@ -2,7 +2,7 @@ import { db } from "@/config/firebase";
 import { setActivityPreferencesDoc } from "@/data/firestore/activityPreferences";
 import { createSectionDoc } from "@/data/firestore/sections";
 import { setSectionScheduleDoc } from "@/data/firestore/sectionSchedules";
-import { DEFAULT_NUMBER_BLOCKS, getEmptyActivityPreferencesDoc, getEmptySectionScheduleDoc } from "@/types/scheduling/schedulingUtils";
+import { getEmptyActivityPreferencesDoc, getEmptySectionScheduleDoc } from "@/types/scheduling/schedulingUtils";
 import { SectionType } from "@/types/sessions/sessionTypes";
 import { useMutation } from "@tanstack/react-query";
 import { runTransaction, Timestamp, Transaction } from "firebase/firestore";
@@ -28,8 +28,8 @@ async function createSection(req: CreateSectionRequest) {
     return;
   }
 
-  const sectionScheduleDoc = getEmptySectionScheduleDoc(rest.type, DEFAULT_NUMBER_BLOCKS);
-  const activityPreferencesDoc = getEmptyActivityPreferencesDoc(DEFAULT_NUMBER_BLOCKS);
+  const sectionScheduleDoc = getEmptySectionScheduleDoc(rest.type);
+  const activityPreferencesDoc = getEmptyActivityPreferencesDoc();
   await runTransaction(db, async (transaction: Transaction) => {
     const sectionId = await createSectionDoc(sessionId, {
       name: rest.name,

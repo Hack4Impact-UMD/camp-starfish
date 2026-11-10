@@ -1,34 +1,39 @@
+import { Moment } from "moment";
 import { AgeGroup, SchedulingSectionType } from "../sessions/sessionTypes";
+import { UUIDV4 } from "../utils/idTypes";
 
 interface BaseSectionSchedule {
   sessionId: string;
   sectionId: string;
   type: SchedulingSectionType;
-  blocks: { [blockId: string]: Block };
+  blocks: Record<UUIDV4, Block>;
   alternatePeriodsOff: { [periodId: string]: number[] };
 }
 export interface BundleSectionSchedule extends BaseSectionSchedule {
   type: "BUNDLE",
-  blocks: { [blockId: string]: BundleBlock };
+  blocks: Record<UUIDV4, BundleBlock>;
 }
 export interface BunkJamboreeSectionSchedule extends BaseSectionSchedule {
   type: "BUNK-JAMBO",
-  blocks: { [blockId: string]: BunkJamboreeBlock };
+  blocks: Record<UUIDV4, BunkJamboreeBlock>;
 }
 export interface NonBunkJamboreeSectionSchedule extends BaseSectionSchedule {
   type: "NON-BUNK-JAMBO",
-  blocks: { [blockId: string]: NonBunkJamboreeBlock };
+  blocks: Record<UUIDV4, NonBunkJamboreeBlock>;
 }
 export type SectionSchedule = BundleSectionSchedule | BunkJamboreeSectionSchedule | NonBunkJamboreeSectionSchedule;
 
 interface BaseBlock {
-  activities: { [activityId: string]: ActivityWithAssignments; };
+  startTime: Moment;
+  endTime: Moment
+  activities: Record<UUIDV4, ActivityWithAssignments>;
   periodsOff: number[];
 }
-export interface BundleBlock extends BaseBlock { activities: { [activityId: string]: BundleActivityWithAssignments; }; }
-export interface BunkJamboreeBlock extends BaseBlock { activities: { [activityId: string]: BunkJamboreeActivityWithAssignments; }; }
-export interface NonBunkJamboreeBlock extends BaseBlock { activities: { [activityId: string]: NonBunkJamboreeActivityWithAssignments; }; }
-export type Block = BundleBlock | BunkJamboreeBlock | NonBunkJamboreeBlock;
+export interface BundleBlock extends BaseBlock { activities: Record<UUIDV4, BundleActivityWithAssignments>; }
+export interface BunkJamboreeBlock extends BaseBlock { activities: Record<UUIDV4, BunkJamboreeActivityWithAssignments>; }
+export interface NonBunkJamboreeBlock extends BaseBlock { activities: Record<UUIDV4, NonBunkJamboreeActivityWithAssignments>; }
+export interface EmptyBlock extends BaseBlock { activities: Record<UUIDV4, never>; };
+export type Block = BundleBlock | BunkJamboreeBlock | NonBunkJamboreeBlock | EmptyBlock;
 
 export type BundleActivityWithAssignments = BundleActivity & IndividualActivityAssignments;
 export type BunkJamboreeActivityWithAssignments = JamboreeActivity & BunkActivityAssignments;
@@ -36,7 +41,6 @@ export type NonBunkJamboreeActivityWithAssignments = JamboreeActivity & Individu
 export type ActivityWithAssignments = BundleActivityWithAssignments | BunkJamboreeActivityWithAssignments | NonBunkJamboreeActivityWithAssignments;
 
 interface BaseActivity {
-  id: string;
   name: string;
   description: string;
 }
@@ -68,11 +72,8 @@ export type ActivityAssignments = IndividualActivityAssignments | BunkActivityAs
 export type ActivityPreferences = {
   sessionId: string;
   sectionId: string;
-} & SectionActivityPreferences;
-
-export interface SectionActivityPreferences {
-  blocks: { [blockId: string]: BlockActivityPreferences }
-}
+  blocks: Record<UUIDV4, BlockActivityPreferences>;
+};
 
 export interface BlockActivityPreferences {
   [camperId: number]: { [activityId: string]: number; };

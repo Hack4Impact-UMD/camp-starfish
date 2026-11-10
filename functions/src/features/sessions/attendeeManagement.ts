@@ -14,6 +14,7 @@ import { updateSessionDoc } from "../../data/firestore/sessions";
 import { uniqueArray } from "@/utils/data/unique";
 import { Person } from "@/types/people/personTypes";
 import { updateDaysOffScheduleDoc } from "../../data/firestore/daysOffSchedules";
+import { objectKeys, objectValues } from "@/utils/types/typeUtils";
 
 export const createAttendees = onCall(async (req) => {
   if (!req.auth || !req.auth.token.role) {
@@ -105,10 +106,10 @@ function addAttendeesToBundleActivityPreferences(sectionSchedule: BundleSectionS
   const updates: UpdateData<ActivityPreferencesDoc> = {};
   const navCampers = camperRequests.filter(camper => camper.ageGroup === "NAV");
   const ocpCampers = camperRequests.filter(camper => camper.ageGroup === "OCP");
-  for (const blockId of Object.keys(sectionSchedule.blocks)) {
+  for (const blockId of objectKeys(sectionSchedule.blocks)) {
     for (const camper of navCampers) {
       if (camper.attendeeId in activityPreferences.blocks[blockId]) continue;
-      for (const activity of Object.values(sectionSchedule.blocks[blockId].activities).filter(act => act.ageGroup === "NAV")) {
+      for (const activity of objectValues(sectionSchedule.blocks[blockId].activities).filter(act => act.ageGroup === "NAV")) {
         // @ts-ignore - TypeScript is being dumb
         updates[`blocks.${blockId}.${camper.attendeeId}.${activity.programAreaId}`] = Infinity;
       }
@@ -127,10 +128,10 @@ function addAttendeesToBundleActivityPreferences(sectionSchedule: BundleSectionS
 function addAttendeesToBunkJamboreeActivityPreferences(sectionSchedule: BunkJamboreeSectionSchedule, activityPreferences: ActivityPreferences, attendeeRequests: (CreateCamperAttendeeRequest | CreateStaffAttendeeRequest)[]): UpdateData<ActivityPreferencesDoc> {
   const updates: UpdateData<ActivityPreferencesDoc> = {};
   const bunkIds = uniqueArray(attendeeRequests.map(att => att.bunk));
-  for (const blockId of Object.keys(sectionSchedule.blocks)) {
+  for (const blockId of objectKeys(sectionSchedule.blocks)) {
     for (const bunkId of bunkIds) {
       if (bunkId in activityPreferences.blocks[blockId]) continue;
-      for (const activity of Object.values(sectionSchedule.blocks[blockId].activities)) {
+      for (const activity of objectValues(sectionSchedule.blocks[blockId].activities)) {
         // @ts-ignore - TypeScript is being dumb
         updates[`blocks.${blockId}.${bunkId}.${activity.name}`] = Infinity;
       }
@@ -141,10 +142,10 @@ function addAttendeesToBunkJamboreeActivityPreferences(sectionSchedule: BunkJamb
 
 function addAttendeesToNonBunkJamboreeActivityPreferences(sectionSchedule: SectionSchedule, activityPreferences: ActivityPreferences, camperRequests: CreateCamperAttendeeRequest[]): UpdateData<ActivityPreferencesDoc> {
   const updates: UpdateData<ActivityPreferencesDoc> = {};
-  for (const blockId of Object.keys(sectionSchedule.blocks)) {
+  for (const blockId of objectKeys(sectionSchedule.blocks)) {
     for (const camper of camperRequests) {
       if (camper.attendeeId in activityPreferences.blocks[blockId]) continue;
-      for (const activity of Object.values(sectionSchedule.blocks[blockId].activities)) {
+      for (const activity of objectValues(sectionSchedule.blocks[blockId].activities)) {
         // @ts-ignore - TypeScript is being dumb
         updates[`blocks.${blockId}.${camper.attendeeId}.${activity.name}`] = Infinity;
       }

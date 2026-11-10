@@ -6,6 +6,7 @@ import { MdAccountCircle } from "react-icons/md";
 import { Box, Button, Container, Select, Text, Title } from "@mantine/core";
 import { getFullName } from "@/types/people/personUtils";
 import { modals } from "@mantine/modals";
+import { objectKeys } from "@/utils/types/typeUtils";
 
 interface AssignActivityModalProps {
   participant: Attendee;
@@ -52,7 +53,7 @@ export default function AssignActivityModal(props: AssignActivityModalProps) {
             onChange={(value) => {
               setSelectedActivityName(value);
             }}
-            data={Object.keys(block.activities).map((activityId) => ({
+            data={objectKeys(block.activities).map((activityId) => ({
               value: block.activities[activityId].name,
               label: block.activities[activityId].name,
             }))}

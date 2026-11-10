@@ -3,7 +3,7 @@ import { deleteActivityPreferencesDoc, setActivityPreferencesDoc } from "@/data/
 import { updateSectionDoc } from "@/data/firestore/sections";
 import { deleteSectionScheduleDoc, setSectionScheduleDoc } from "@/data/firestore/sectionSchedules";
 import { SchedulingSectionDoc } from "@/data/firestore/types/documents";
-import { DEFAULT_NUMBER_BLOCKS, getEmptyActivityPreferencesDoc, getEmptySectionScheduleDoc } from "@/types/scheduling/schedulingUtils";
+import { getEmptyActivityPreferencesDoc, getEmptySectionScheduleDoc } from "@/types/scheduling/schedulingUtils";
 import { SectionType } from "@/types/sessions/sessionTypes";
 import { useMutation } from "@tanstack/react-query";
 import { deleteField, runTransaction, Timestamp, Transaction, UpdateData } from "firebase/firestore";
@@ -47,8 +47,8 @@ async function updateSection(req: UpdateSectionRequest) {
         type: updates.type,
         publishedAt: null
       }
-      const sectionScheduleDoc = getEmptySectionScheduleDoc(updates.type, DEFAULT_NUMBER_BLOCKS);
-      const activityPreferencesDoc = getEmptyActivityPreferencesDoc(DEFAULT_NUMBER_BLOCKS);
+      const sectionScheduleDoc = getEmptySectionScheduleDoc(updates.type);
+      const activityPreferencesDoc = getEmptyActivityPreferencesDoc();
       await runTransaction(db, async (transaction: Transaction) => {
         await Promise.all([
           updateSectionDoc(sessionId, sectionId, sectionUpdates, transaction),

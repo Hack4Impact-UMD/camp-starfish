@@ -1,15 +1,16 @@
 import { StaffAttendee, CamperAttendee, AdminAttendee, Attendee, DaysOffSchedule, Section } from "@/types/sessions/sessionTypes";
-import { BundleSectionSchedule, SectionActivityPreferences } from "@/types/scheduling/schedulingTypes";
+import { ActivityPreferences, BundleSectionSchedule } from "@/types/scheduling/schedulingTypes";
 import shuffle from "@/utils/data/shuffle";
 import { canBeAssignedToIndividualActivityAssignments, getYesYesListGroups } from "./schedulingUtils";
-import { getBlockIdFromNum } from "@/types/scheduling/schedulingUtils";
+import { getBlocksInOrder } from "@/types/scheduling/schedulingUtils";
 import partition from "@/utils/data/partition";
 import { groupBy } from "@/utils/data/groupBy";
 import { isDayInRange } from "@/utils/timeUtils";
+import { objectEntries, objectKeys } from "@/utils/types/typeUtils";
 
 interface GenerateBundleScheduleRequest {
   attendees: Attendee[];
-  camperActivityPreferences: SectionActivityPreferences;
+  camperActivityPreferences: ActivityPreferences;
   currentSchedule: BundleSectionSchedule;
   daysOffSchedule: DaysOffSchedule;
   section: Section;
@@ -41,22 +42,26 @@ export function generateBundleSchedule(req: GenerateBundleScheduleRequest): Bund
     sessionId: currentSchedule.sessionId,
     sectionId: currentSchedule.sectionId,
     type: "BUNDLE",
-    blocks: Object.entries(currentSchedule.blocks).reduce((prev, [blockId, block]) => {
-      prev[blockId] = {
-        activities: Object.fromEntries(Object.keys(block.activities).map(activityId => [activityId, {
-          ...block.activities[activityId],
-          camperIds: [],
-          staffIds: [],
-          adminIds: [],
-        }])),
+    blocks: objectEntries(currentSchedule.blocks).reduce((prev, [blockId, block]) => ({
+      ...prev,
+      [blockId]: {
+        ...block,
+        activities: objectEntries(block.activities).reduce((prev, [activityId, activity]) => ({
+          ...prev,
+          [activityId]: {
+            ...activity,
+            camperIds: [],
+            adminIds: [],
+            staffIds: []           
+          }
+        }), {}),
         periodsOff: []
-      };
-      return prev;
-    }, {} as BundleSectionSchedule["blocks"]),
-    alternatePeriodsOff: Object.keys(currentSchedule.alternatePeriodsOff).reduce((prev, periodId) => {
-      prev[periodId] = [];
-      return prev;
-    }, {} as BundleSectionSchedule["alternatePeriodsOff"]),
+      }
+    }), {}),
+    alternatePeriodsOff: objectKeys(currentSchedule.alternatePeriodsOff).reduce((prev, periodId) => ({
+      ...prev,
+      [periodId]: []
+    }), {})
   }
 
   const programCounselors = staff.filter(staffer => staffer.programCounselorFor !== undefined);
@@ -122,7 +127,7 @@ export function generateBundleSchedule(req: GenerateBundleScheduleRequest): Bund
     }
   }
 
-  for (const [blockId, block] of Object.entries(newSchedule.blocks)) {
+  for (const [blockId, block] of objectEntries(newSchedule.blocks)) {
     const sortedCampers = shuffle(campers.filter(camper => Object.values(block.activities).every(activity => !activity.camperIds.includes(camper.attendeeId))).sort((a, b) => b.snapshot.dateOfBirth.diff(a.snapshot.dateOfBirth, "years")));
     const maxCampersPerActivity = Math.ceil(sortedCampers.length / Object.values(block.activities).length);
     for (const camper of sortedCampers) {
@@ -137,10 +142,11 @@ export function generateBundleSchedule(req: GenerateBundleScheduleRequest): Bund
   }
 
   const yesyesListGroups = getYesYesListGroups([...shuffle(admins), ...shuffle(staff)]);
-  const numBlocks = Object.keys(newSchedule.blocks).length;
+  const blocks = getBlocksInOrder(newSchedule.blocks);
+  const numBlocks = blocks.length;
   let currBlockNum = 0;
   for (const yesyesListGroup of yesyesListGroups) {
-    const blockId = getBlockIdFromNum(currBlockNum);
+    const blockId = blocks[currBlockNum][0];
     if (yesyesListGroup.some(counselorId => Object.values(newSchedule.blocks[blockId].activities).some(activity => activity.staffIds.includes(counselorId)))) {
       const alternatePeriodsOff = Object.keys(newSchedule.alternatePeriodsOff);
       const chosenAlternatePeriodOff = shuffle(alternatePeriodsOff)[0];

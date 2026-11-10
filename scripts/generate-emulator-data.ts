@@ -3,6 +3,8 @@ import { Admin, Camper, Gender, Name, Staff } from "@/types/people/personTypes";
 import { CommonSection, SchedulingSection, Section, Session } from "@/types/sessions/sessionTypes";
 import { BundleActivityWithAssignments, BundleBlock, BundleSectionSchedule, BunkJamboreeActivityWithAssignments, BunkJamboreeBlock, BunkJamboreeSectionSchedule, NonBunkJamboreeActivityWithAssignments, NonBunkJamboreeBlock, NonBunkJamboreeSectionSchedule } from "@/types/scheduling/schedulingTypes";
 import moment from "moment";
+import { v4 } from "uuid";
+import { UUIDV4 } from "@/types/utils/idTypes";
 
 export function resetFaker() {
   faker.seed(0);
@@ -158,7 +160,6 @@ const ALL_PROGRAM_AREAS = {
 
 export function generateBundleActivities(): Record<string, BundleActivityWithAssignments> {
   return Object.fromEntries(Object.keys(ALL_PROGRAM_AREAS).map((programArea) => [programArea, {
-    id: faker.string.uuid(),
     name: faker.lorem.words({ min: 2, max: 5 }),
     description: faker.lorem.words({ min: 5, max: 20 }),
     programAreaId: programArea,
@@ -171,6 +172,8 @@ export function generateBundleActivities(): Record<string, BundleActivityWithAss
 
 export function generateBundleBlock(): BundleBlock {
   return {
+    startTime: moment().subtract(1, 'days'),
+    endTime: moment().add(1, 'days'),
     activities: generateBundleActivities(),
     periodsOff: [],
   }
@@ -182,11 +185,11 @@ export function generateBundleSchedule(section: SchedulingSection): BundleSectio
     sectionId: section.id,
     type: "BUNDLE",
     blocks: {
-      "A": generateBundleBlock(),
-      "B": generateBundleBlock(),
-      "C": generateBundleBlock(),
-      "D": generateBundleBlock(),
-      "E": generateBundleBlock(),
+      [v4()]: generateBundleBlock(),
+      [v4()]: generateBundleBlock(),
+      [v4()]: generateBundleBlock(),
+      [v4()]: generateBundleBlock(),
+      [v4()]: generateBundleBlock(),
     },
     alternatePeriodsOff: {},
   }
@@ -194,7 +197,6 @@ export function generateBundleSchedule(section: SchedulingSection): BundleSectio
 
 export function generateBunkJamboreeActivities(): Record<string, BunkJamboreeActivityWithAssignments> {
   return Object.fromEntries(Object.keys(ALL_PROGRAM_AREAS).map((programArea) => [programArea, {
-    id: faker.string.uuid(),
     name: faker.lorem.words({ min: 2, max: 5 }),
     description: faker.lorem.words({ min: 5, max: 20 }),
     adminIds: [],
@@ -204,6 +206,8 @@ export function generateBunkJamboreeActivities(): Record<string, BunkJamboreeAct
 
 export function generateBunkJamboreeBlock(): BunkJamboreeBlock {
   return {
+    startTime: moment().subtract(1, 'day'),
+    endTime: moment().add(1, 'day'),
     activities: generateBunkJamboreeActivities(),
     periodsOff: [],
   }
@@ -211,7 +215,6 @@ export function generateBunkJamboreeBlock(): BunkJamboreeBlock {
 
 export function generateNonBunkJamboreeActivities(): Record<string, NonBunkJamboreeActivityWithAssignments> {
   return Object.fromEntries(Object.keys(ALL_PROGRAM_AREAS).map((programArea) => [programArea, {
-    id: faker.string.uuid(),
     name: faker.lorem.words({ min: 2, max: 5 }),
     description: faker.lorem.words({ min: 5, max: 20 }),
     adminIds: [],
@@ -222,6 +225,8 @@ export function generateNonBunkJamboreeActivities(): Record<string, NonBunkJambo
 
 export function generateNonBunkJamboreeBlock(): NonBunkJamboreeBlock {
   return {
+    startTime: moment().subtract(1, 'day'),
+    endTime: moment().add(1, 'day'),
     activities: generateNonBunkJamboreeActivities(),
     periodsOff: [],
   }
@@ -233,11 +238,11 @@ export function generateBunkJamboreeSchedule(section: SchedulingSection): BunkJa
     sectionId: section.id,
     type: "BUNK-JAMBO",
     blocks: {
-      "A": generateBunkJamboreeBlock(),
-      "B": generateBunkJamboreeBlock(),
-      "C": generateBunkJamboreeBlock(),
-      "D": generateBunkJamboreeBlock(),
-      "E": generateBunkJamboreeBlock(),
+      [v4()]: generateBunkJamboreeBlock(),
+      [v4()]: generateBunkJamboreeBlock(),
+      [v4()]: generateBunkJamboreeBlock(),
+      [v4()]: generateBunkJamboreeBlock(),
+      [v4()]: generateBunkJamboreeBlock(),
     },
     alternatePeriodsOff: {},
   }
@@ -249,11 +254,11 @@ export function generateNonBunkJamboreeSchedule(section: SchedulingSection): Non
     sectionId: section.id,
     type: "NON-BUNK-JAMBO",
     blocks: {
-      "A": generateNonBunkJamboreeBlock(),
-      "B": generateNonBunkJamboreeBlock(),
-      "C": generateNonBunkJamboreeBlock(),
-      "D": generateNonBunkJamboreeBlock(),
-      "E": generateNonBunkJamboreeBlock(),
+      [v4()]: generateNonBunkJamboreeBlock(),
+      [v4()]: generateNonBunkJamboreeBlock(),
+      [v4()]: generateNonBunkJamboreeBlock(),
+      [v4()]: generateNonBunkJamboreeBlock(),
+      [v4()]: generateNonBunkJamboreeBlock(),
     },
     alternatePeriodsOff: {},
   }

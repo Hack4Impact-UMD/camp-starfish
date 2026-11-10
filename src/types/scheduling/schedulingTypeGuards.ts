@@ -1,12 +1,14 @@
-import { Activity, ActivityAssignments, ActivityWithAssignments, Block, BundleActivity, BundleActivityWithAssignments, BundleBlock, BundleSectionSchedule, BunkActivityAssignments, BunkJamboreeActivityWithAssignments, BunkJamboreeBlock, BunkJamboreeSectionSchedule, IndividualActivityAssignments, JamboreeActivity, NonBunkJamboreeActivityWithAssignments, NonBunkJamboreeBlock, NonBunkJamboreeSectionSchedule, SectionSchedule } from "./schedulingTypes";
+import { objectValues } from "@/utils/types/typeUtils";
+import { Activity, ActivityAssignments, ActivityWithAssignments, Block, BundleActivity, BundleActivityWithAssignments, BundleBlock, BundleSectionSchedule, BunkActivityAssignments, BunkJamboreeActivityWithAssignments, BunkJamboreeBlock, BunkJamboreeSectionSchedule, EmptyBlock, IndividualActivityAssignments, JamboreeActivity, NonBunkJamboreeActivityWithAssignments, NonBunkJamboreeBlock, NonBunkJamboreeSectionSchedule, SectionSchedule } from "./schedulingTypes";
 
 export function isBundleSectionSchedule(sectionSchedule: SectionSchedule): sectionSchedule is BundleSectionSchedule { return sectionSchedule.type === "BUNDLE"; };
 export function isBunkJamboreeSectionSchedule(sectionSchedule: SectionSchedule): sectionSchedule is BunkJamboreeSectionSchedule { return sectionSchedule.type === "BUNK-JAMBO"; };
 export function isNonBunkJamboreeSectionSchedule(sectionSchedule: SectionSchedule): sectionSchedule is NonBunkJamboreeSectionSchedule { return sectionSchedule.type === "NON-BUNK-JAMBO"; };
 
-export function isBundleBlock(block: Block): block is BundleBlock { return Object.keys(block.activities).length > 0 && isBundleActivityWithAssignments(block.activities[0]); };
-export function isBunkJamboreeBlock(block: Block): block is BunkJamboreeBlock { return Object.keys(block.activities).length > 0 && isBunkJamboreeActivityWithAssignments(block.activities[0]); };
-export function isNonBunkJamboreeBlock(block: Block): block is NonBunkJamboreeBlock { return Object.keys(block.activities).length > 0 && isNonBunkJamboreeActivityWithAssignments(block.activities[0]); };
+export function isBundleBlock(block: Block): block is BundleBlock { return !isEmptyBlock(block) && isBundleActivityWithAssignments(objectValues(block.activities)[0]); };
+export function isBunkJamboreeBlock(block: Block): block is BunkJamboreeBlock { return !isEmptyBlock(block) && isBunkJamboreeActivityWithAssignments(objectValues(block.activities)[0]); };
+export function isNonBunkJamboreeBlock(block: Block): block is NonBunkJamboreeBlock { return !isEmptyBlock(block) && isNonBunkJamboreeActivityWithAssignments(objectValues(block.activities)[0]); };
+export function isEmptyBlock(block: Block): block is EmptyBlock { return Object.keys(block.activities).length === 0 };
 
 export function isBundleActivity(activity: Activity): activity is BundleActivity { return 'programAreaId' in activity };
 export function isJamboreeActivity(activity: Activity): activity is JamboreeActivity { return !('programAreaId' in activity); }
