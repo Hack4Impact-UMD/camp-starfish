@@ -1,3 +1,4 @@
+import { getAttendeesById } from "@/features/scheduling/generation/schedulingUtils";
 import { sectionScheduleSchema } from "@/features/scheduling/validation/scheduleSchemas";
 import { Block, SectionSchedule } from "@/types/scheduling/schedulingTypes";
 import {
@@ -13,7 +14,6 @@ import {
 } from "@/features/scheduling/validation/scheduleIssues";
 import {
   dayOffsDuringSection,
-  isOffEntireSection,
   namesOf,
   pairKey,
   relationshipPairs,
@@ -51,14 +51,16 @@ export function validateSectionSchedule(input: ValidateSectionScheduleInput) {
     })));
   }
 
-  const people = Object.fromEntries(attendees.map((a) => [a.attendeeId, a]));
+  const people = getAttendeesById(attendees);
   const counselors = attendees.filter((a) => a.role !== "CAMPER");
   const relationships = relationshipPairs(counselors);
   const offSlots = new Map<number, Set<string>>();
   const special = new Map<number, { swim: string[]; chat: string[] }>();
   const add = (code: ScheduleIssueCode, message: string, details: Partial<ScheduleIssue> = {}, severity: ScheduleIssue["severity"] = "error") => issues.push({ code, severity, message, ...details });
   const name = (id: number) => namesOf(people, [id]);
-  const offEntire = (id: number) => isOffEntireSection(id, daysOffSchedule, section);
+  const hasDayOff = new Set(counselors
+    .filter((person) => dayOffsDuringSection(person.attendeeId, daysOffSchedule, section).length > 0)
+    .map((person) => person.attendeeId));
 
   function readOff(ids: number[], slot: string, blockId?: string) {
     const seen = new Set<number>();
@@ -95,6 +97,10 @@ export function validateSectionSchedule(input: ValidateSectionScheduleInput) {
   }
 
   for (const [blockId, block] of Object.entries<Block>(schedule.blocks)) {
+    const availability = (id: number) => ({
+      periodOff: block.periodsOff.includes(id),
+      dayOff: hasDayOff.has(id),
+    });
     const placements = new Map<number, string[]>();
     const bunkPlacements = new Map<number, string[]>();
     const areas = new Set<string>();
@@ -125,8 +131,10 @@ export function validateSectionSchedule(input: ValidateSectionScheduleInput) {
             continue;
           }
 
-          // A bunk's staff remain with it except during their own time off.
-          if (implicit && role !== "CAMPER" && (block.periodsOff.includes(id) || offEntire(id))) {
+          const { periodOff, dayOff } = availability(id);
+
+          // Bunk staff remain with their bunk unless they have this period off.
+          if (implicit && role !== "CAMPER" && periodOff) {
             continue;
           }
 
@@ -141,11 +149,11 @@ export function validateSectionSchedule(input: ValidateSectionScheduleInput) {
           slots.push(activityId);
           placements.set(id, slots);
 
-          if (role !== "CAMPER" && block.periodsOff.includes(id)) {
+          if (role !== "CAMPER" && periodOff) {
             add("ASSIGNED_DURING_PERIOD_OFF", `${name(id)} is assigned during their period off.`, { ...context, attendeeId: id });
           }
 
-          if (role !== "CAMPER" && dayOffsDuringSection(id, daysOffSchedule, section).length) {
+          if (role !== "CAMPER" && dayOff) {
             add("SCHEDULED_ON_DAY_OFF", `${name(id)} has a day off during this section but is assigned to ${activity.name}.`, { ...context, attendeeId: id });
           }
         }
@@ -265,7 +273,7 @@ export function validateSectionSchedule(input: ValidateSectionScheduleInput) {
 
         for (const counselor of counselors) {
           if (counselor.role === "STAFF" && counselor.programCounselorFor === area && !assigned.has(counselor.attendeeId)) {
-            const unavailable = block.periodsOff.includes(counselor.attendeeId) || dayOffsDuringSection(counselor.attendeeId, daysOffSchedule, section).length > 0;
+            const unavailable = availability(counselor.attendeeId).periodOff;
 
             add(unavailable ? "PROGRAM_COUNSELOR_UNAVAILABLE" : "PROGRAM_COUNSELOR_MISSING", `${name(counselor.attendeeId)} is the program counselor for ${area} but is absent.`, {
               ...context,
@@ -289,7 +297,7 @@ export function validateSectionSchedule(input: ValidateSectionScheduleInput) {
         add("CAMPER_MISSING_ACTIVITY", `${name(person.attendeeId)} has no activity.`, context);
       }
 
-      if (!slots.length && person.role !== "CAMPER" && !block.periodsOff.includes(person.attendeeId) && !offEntire(person.attendeeId)) {
+      if (!slots.length && person.role !== "CAMPER" && !availability(person.attendeeId).periodOff) {
         add("COUNSELOR_UNACCOUNTED", `${name(person.attendeeId)} has no activity or period off.`, { ...context, role: person.role });
       }
     }
@@ -310,7 +318,7 @@ export function validateSectionSchedule(input: ValidateSectionScheduleInput) {
   }
 
   for (const counselor of counselors) {
-    if (!offEntire(counselor.attendeeId) && !offSlots.get(counselor.attendeeId)?.size) {
+    if (!offSlots.get(counselor.attendeeId)?.size) {
       add("COUNSELOR_MISSING_PERIOD_OFF", `${name(counselor.attendeeId)} has no period off.`, { attendeeId: counselor.attendeeId }, "warning");
     }
   }

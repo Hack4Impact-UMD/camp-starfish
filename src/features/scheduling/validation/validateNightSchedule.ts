@@ -1,6 +1,6 @@
 import { nightScheduleSchema } from "@/features/scheduling/validation/scheduleSchemas";
 import { getAttendeeName } from "@/features/scheduling/generation/schedulingUtils";
-import { NIGHT_SCHEDULE_POSITIONS } from "@/types/sessions/nightScheduleUtils";
+import { getNightSchedulePositionFullName, NIGHT_SCHEDULE_POSITIONS } from "@/types/sessions/nightScheduleUtils";
 import {
   Attendee,
   Bunk,
@@ -73,6 +73,8 @@ export function validateNightSchedule(input: ValidateNightScheduleInput): Schedu
         date: dateLabel,
         bunkNum,
       });
+      
+      continue;
     }
 
     if (!assignments) {
@@ -240,12 +242,5 @@ function reportNightUnderstaffing(issues: ScheduleIssue[], dateLabel: string, bu
 }
 
 function positionLabel(position: NightSchedulePosition): string {
-  switch (position) {
-    case "COUNSELOR-ON-DUTY":
-      return "counselor on duty";
-    case "NIGHT-BUNK-DUTY":
-      return "night bunk duty";
-    case "ROVER":
-      return "rover";
-  }
+  return getNightSchedulePositionFullName(position).toLowerCase();
 }

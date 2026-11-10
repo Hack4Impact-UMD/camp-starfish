@@ -1,3 +1,4 @@
+import { MIN_COUNSELORS_ON_DUTY, MIN_NIGHT_BUNK_DUTY } from "@/features/scheduling/validation/constants";
 import { getUseAttendeeListOptions } from "@/hooks/attendees/useAttendeeList";
 import { getUseBunkListOptions } from "@/hooks/bunks/useBunkList";
 import { getUseDaysOffScheduleOptions } from "@/hooks/daysOffSchedules/useDaysOffSchedule";
@@ -91,8 +92,6 @@ export default function generateNightSchedules(req: GenerateNightSchedulesReques
   return Object.values(nightSchedulesByDate);
 }
 
-const MIN_COUNSELORS_ON_DUTY = 2;
-const MIN_NIGHT_BUNK_DUTY = 2;
 
 function generateNightSchedulesForBunk(bunk: Bunk, daysOffSchedule: DaysOffSchedule, session: Session): { [date: string]: Record<NightSchedulePosition, number[]>; } {
   const positionCounts: { [counselorId: number]: Record<StrictExtract<NightSchedulePosition, "COUNSELOR-ON-DUTY" | "NIGHT-BUNK-DUTY">, number>; } = {};
