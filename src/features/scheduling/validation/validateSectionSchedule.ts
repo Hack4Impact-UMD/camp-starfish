@@ -14,6 +14,7 @@ import {
 } from "@/features/scheduling/validation/scheduleIssues";
 import {
   dayOffsDuringSection,
+  isOffEntireSection,
   namesOf,
   pairKey,
   relationshipPairs,
@@ -62,6 +63,10 @@ export function validateSectionSchedule(input: ValidateSectionScheduleInput) {
     .filter((person) => dayOffsDuringSection(person.attendeeId, daysOffSchedule, section).length > 0)
     .map((person) => person.attendeeId));
 
+  const offEntireSection = new Set(counselors
+    .filter((person) => isOffEntireSection(person.attendeeId, daysOffSchedule, section))
+    .map((person) => person.attendeeId));
+
   function readOff(ids: number[], slot: string, blockId?: string) {
     const seen = new Set<number>();
 
@@ -100,6 +105,7 @@ export function validateSectionSchedule(input: ValidateSectionScheduleInput) {
     const availability = (id: number) => ({
       periodOff: block.periodsOff.includes(id),
       dayOff: hasDayOff.has(id),
+      excusedFromBlock: block.periodsOff.includes(id) || offEntireSection.has(id),
     });
     const placements = new Map<number, string[]>();
     const bunkPlacements = new Map<number, string[]>();
@@ -131,10 +137,10 @@ export function validateSectionSchedule(input: ValidateSectionScheduleInput) {
             continue;
           }
 
-          const { periodOff, dayOff } = availability(id);
+          const { periodOff, dayOff, excusedFromBlock } = availability(id);
 
-          // Bunk staff remain with their bunk unless they have this period off.
-          if (implicit && role !== "CAMPER" && periodOff) {
+          // Partial-section days off do not excuse the whole block assignment.
+          if (implicit && role !== "CAMPER" && excusedFromBlock) {
             continue;
           }
 
@@ -273,7 +279,8 @@ export function validateSectionSchedule(input: ValidateSectionScheduleInput) {
 
         for (const counselor of counselors) {
           if (counselor.role === "STAFF" && counselor.programCounselorFor === area && !assigned.has(counselor.attendeeId)) {
-            const unavailable = availability(counselor.attendeeId).periodOff;
+            const { periodOff, dayOff } = availability(counselor.attendeeId);
+            const unavailable = periodOff || dayOff;
 
             add(unavailable ? "PROGRAM_COUNSELOR_UNAVAILABLE" : "PROGRAM_COUNSELOR_MISSING", `${name(counselor.attendeeId)} is the program counselor for ${area} but is absent.`, {
               ...context,
@@ -297,7 +304,7 @@ export function validateSectionSchedule(input: ValidateSectionScheduleInput) {
         add("CAMPER_MISSING_ACTIVITY", `${name(person.attendeeId)} has no activity.`, context);
       }
 
-      if (!slots.length && person.role !== "CAMPER" && !availability(person.attendeeId).periodOff) {
+      if (!slots.length && person.role !== "CAMPER" && !availability(person.attendeeId).excusedFromBlock) {
         add("COUNSELOR_UNACCOUNTED", `${name(person.attendeeId)} has no activity or period off.`, { ...context, role: person.role });
       }
     }
@@ -318,7 +325,7 @@ export function validateSectionSchedule(input: ValidateSectionScheduleInput) {
   }
 
   for (const counselor of counselors) {
-    if (!offSlots.get(counselor.attendeeId)?.size) {
+    if (!offEntireSection.has(counselor.attendeeId) && !offSlots.get(counselor.attendeeId)?.size) {
       add("COUNSELOR_MISSING_PERIOD_OFF", `${name(counselor.attendeeId)} has no period off.`, { attendeeId: counselor.attendeeId }, "warning");
     }
   }
