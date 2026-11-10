@@ -16,6 +16,8 @@ import {
   isIndividualActivityAssignments,
 } from "@/types/scheduling/schedulingTypeGuards";
 import { getFullName } from "@/types/people/personUtils";
+import { getBlockIndexFromNum, getBlocksInOrder } from "@/types/scheduling/schedulingUtils";
+import { objectKeys, objectValues } from "@/utils/types/typeUtils";
 
 interface BlockRatiosGridProps {
   schedule: SectionSchedule;
@@ -90,8 +92,7 @@ export default function BlockRatiosGrid({
   staff,
   admins,
 }: BlockRatiosGridProps) {
-  const blockIds = Object.keys(schedule.blocks).sort();
-  const blocks = blockIds.map((blockId) => schedule.blocks[blockId]);
+  const blocks = getBlocksInOrder(schedule.blocks)
 
   const attendeesById = getAttendeesById([...campers, ...staff, ...admins]);
   const campersByBunk = groupAttendeesByBunk(campers);
@@ -99,16 +100,16 @@ export default function BlockRatiosGrid({
 
   // Find the maximum number of activities across all blocks
   const maxActivities = Math.max(
-    ...blocks.map((block) => Object.keys(block.activities).length),
+    ...blocks.map(([_blockId, block]) => objectKeys(block.activities).length),
   );
 
   return (
     <View style={styles.container}>
       {/* Block Headers Row */}
       <View style={styles.row}>
-        {blockIds.map((blockId) => (
+        {blocks.map(([blockId, _block], i) => (
           <View key={blockId} style={styles.blockHeader}>
-            <Text>BLOCK {blockId}</Text>
+            <Text>BLOCK {getBlockIndexFromNum(i)}</Text>
           </View>
         ))}
       </View>
@@ -122,9 +123,9 @@ export default function BlockRatiosGrid({
           <React.Fragment key={`activity-row-${activityIndex}`}>
             {/* Activity Headers Row */}
             <View style={styles.row}>
-              {blockIds.map((blockId) => {
-                const block = schedule.blocks[blockId];
-                const activity = block.activities[activityIndex];
+              {blocks.map(([blockId, block]) => {
+                const sortedActivities = objectValues(block.activities).sort((activityA, activityB) => activityA.name.localeCompare(activityB.name))
+                const activity = sortedActivities[activityIndex];
                 if (!activity)
                   return (
                     <View
@@ -156,9 +157,9 @@ export default function BlockRatiosGrid({
 
             {/* Data Columns Row - all aligned to same height */}
             <View style={styles.row}>
-              {blockIds.map((blockId) => {
-                const block = schedule.blocks[blockId];
-                const activity = block.activities[activityIndex];
+              {blocks.map(([blockId, block]) => {
+                const sortedActivities = objectValues(block.activities).sort((activityA, activityB) => activityA.name.localeCompare(activityB.name))
+                const activity = sortedActivities[activityIndex];
                 if (!activity)
                   return (
                     <View

@@ -4,6 +4,8 @@ import { adminDb } from "../../config/firebaseAdminConfig";
 import { RootLevelCollection, SectionsSubcollection, SessionsSubcollection } from "@/data/firestore/types/collections";
 import { deleteDoc, executeQuery, getDoc, mapSnapshotsToPaginatedQueryResult, setDoc, updateDoc, FirestoreQueryOptions, PaginatedQueryResponse } from "./firestoreAdminOperations";
 import { CollectionReference, DocumentReference, DocumentSnapshot, QueryDocumentSnapshot, Transaction, UpdateData, WithFieldValue, WriteBatch } from "firebase-admin/firestore";
+import { objectEntries } from "@/utils/types/typeUtils";
+import moment from "moment";
 
 export function fromFirestore(snapshot: DocumentSnapshot<SectionScheduleDoc, SectionScheduleDoc> | QueryDocumentSnapshot<SectionScheduleDoc, SectionScheduleDoc>): SectionSchedule {
   if (!snapshot.exists) { throw Error("Document not found"); }
@@ -12,25 +14,14 @@ export function fromFirestore(snapshot: DocumentSnapshot<SectionScheduleDoc, Sec
     sectionId: snapshot.ref.parent.parent!.id,
     sessionId: snapshot.ref.parent.parent!.parent.parent!.id,
     ...doc,
-    blocks: Object.keys(doc.blocks).reduce((newBlocks, blockId) => {
-      const block = doc.blocks[blockId];
-      return {
-        ...newBlocks,
-        [blockId]: {
-          ...block,
-          activities: Object.keys(block.activities).reduce((newActivities, activityId) => {
-            const activity = block.activities[activityId];
-            return {
-              ...newActivities,
-              [activityId]: {
-                ...activity,
-                id: activityId
-              }
-            }
-          }, {})
-        }
+    blocks: objectEntries(doc.blocks).reduce((blocks, [blockId, block]) => ({
+      ...blocks,
+      [blockId]: {
+        ...block,
+        startTime: moment(block.startTime.toDate()),
+        endTime: moment(block.endTime.toDate())
       }
-    }, {})
+    }), {})
   }
 }
 
