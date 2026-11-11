@@ -4,7 +4,6 @@ import { AGE_GROUPS } from "@/types/sessions/sessionTypes";
 
 const ids = z.array(z.number().int());
 const baseActivity = {
-  id: z.string(),
   name: z.string(),
   description: z.string(),
 };
@@ -23,6 +22,8 @@ const bunkActivity = z.object({
 });
 const block = <T extends z.ZodType>(activity: T) =>
   z.object({
+    startTime: z.custom<Moment>((value) => isMoment(value) && value.isValid(), "Expected a valid Moment date"),
+    endTime: z.custom<Moment>((value) => isMoment(value) && value.isValid(), "Expected a valid Moment date"),
     activities: z.record(z.string(), activity),
     periodsOff: ids,
   });

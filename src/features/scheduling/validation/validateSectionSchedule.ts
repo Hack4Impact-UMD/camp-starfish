@@ -1,6 +1,7 @@
 import { getAttendeesById } from "@/features/scheduling/generation/schedulingUtils";
 import { sectionScheduleSchema } from "@/features/scheduling/validation/scheduleSchemas";
 import { Block, SectionSchedule } from "@/types/scheduling/schedulingTypes";
+import { getBlockIndexFromNum, getBlocksInOrder } from "@/types/scheduling/schedulingUtils";
 import {
   Attendee,
   Bunk,
@@ -13,7 +14,7 @@ import {
   toScheduleValidationResult,
 } from "@/features/scheduling/validation/scheduleIssues";
 import {
-  dayOffsDuringSection,
+  isCounselorOffOnDate,
   isOffEntireSection,
   namesOf,
   pairKey,
@@ -59,10 +60,6 @@ export function validateSectionSchedule(input: ValidateSectionScheduleInput) {
   const special = new Map<number, { swim: string[]; chat: string[] }>();
   const add = (code: ScheduleIssueCode, message: string, details: Partial<ScheduleIssue> = {}, severity: ScheduleIssue["severity"] = "error") => issues.push({ code, severity, message, ...details });
   const name = (id: number) => namesOf(people, [id]);
-  const hasDayOff = new Set(counselors
-    .filter((person) => dayOffsDuringSection(person.attendeeId, daysOffSchedule, section).length > 0)
-    .map((person) => person.attendeeId));
-
   const offEntireSection = new Set(counselors
     .filter((person) => isOffEntireSection(person.attendeeId, daysOffSchedule, section))
     .map((person) => person.attendeeId));
@@ -102,10 +99,13 @@ export function validateSectionSchedule(input: ValidateSectionScheduleInput) {
   }
 
   for (const [blockId, block] of Object.entries<Block>(schedule.blocks)) {
+    const counselorsOffOnBlockDate = new Set(counselors
+      .filter((person) => isCounselorOffOnDate(person.attendeeId, block.startTime, daysOffSchedule))
+      .map((person) => person.attendeeId));
     const availability = (id: number) => ({
       periodOff: block.periodsOff.includes(id),
-      dayOff: hasDayOff.has(id),
-      excusedFromBlock: block.periodsOff.includes(id) || offEntireSection.has(id),
+      dayOff: counselorsOffOnBlockDate.has(id),
+      excusedFromBlock: block.periodsOff.includes(id) || counselorsOffOnBlockDate.has(id),
     });
     const placements = new Map<number, string[]>();
     const bunkPlacements = new Map<number, string[]>();
@@ -139,7 +139,7 @@ export function validateSectionSchedule(input: ValidateSectionScheduleInput) {
 
           const { periodOff, dayOff, excusedFromBlock } = availability(id);
 
-          // Partial-section days off do not excuse the whole block assignment.
+          // Bunk counselors on a period off or day off do not join the activity.
           if (implicit && role !== "CAMPER" && excusedFromBlock) {
             continue;
           }
@@ -160,7 +160,7 @@ export function validateSectionSchedule(input: ValidateSectionScheduleInput) {
           }
 
           if (role !== "CAMPER" && dayOff) {
-            add("SCHEDULED_ON_DAY_OFF", `${name(id)} has a day off during this section but is assigned to ${activity.name}.`, { ...context, attendeeId: id });
+            add("SCHEDULED_ON_DAY_OFF", `${name(id)} has a day off on ${block.startTime.format("YYYY-MM-DD")} but is assigned to ${activity.name}.`, { ...context, attendeeId: id });
           }
         }
       }
@@ -340,6 +340,14 @@ export function validateSectionSchedule(input: ValidateSectionScheduleInput) {
   }
 
   if (schedule.type === "BUNDLE") {
+    const orderedBlocks = getBlocksInOrder(schedule.blocks);
+    const blockIdsForPositions = (positions: readonly string[]): string[] => orderedBlocks
+      .filter((_, index) => positions.includes(getBlockIndexFromNum(index)))
+      .map(([blockId]) => blockId);
+    const navSwimBlockIds = blockIdsForPositions(NAV_SWIM_BLOCK_IDS);
+    const ocpSwimBlockIds = blockIdsForPositions(OCP_SWIM_BLOCK_IDS);
+    const ocpChatBlockIds = blockIdsForPositions(OCP_CHAT_BLOCK_IDS);
+
     for (const camper of attendees.filter((a) => a.role === "CAMPER")) {
       const counts = special.get(camper.attendeeId) ?? { swim: [], chat: [] };
       const optedOut = camper.ageGroup === "OCP" && !input.isFirstBundleOfSession && camper.level >= 4 && camper.isOptedOutFromSwim;
@@ -350,7 +358,7 @@ export function validateSectionSchedule(input: ValidateSectionScheduleInput) {
         add(optedOut && counts.swim.length ? "SWIM_OPTED_OUT" : "SWIM_COUNT", `${name(camper.attendeeId)} needs ${expected} swim block(s), has ${counts.swim.length}.`, { ...context, expected, actual: counts.swim.length });
       }
 
-      const allowed: readonly string[] = camper.ageGroup === "NAV" ? NAV_SWIM_BLOCK_IDS : OCP_SWIM_BLOCK_IDS;
+      const allowed = camper.ageGroup === "NAV" ? navSwimBlockIds : ocpSwimBlockIds;
 
       for (const blockId of counts.swim) {
         if (!allowed.includes(blockId)) {
@@ -364,8 +372,8 @@ export function validateSectionSchedule(input: ValidateSectionScheduleInput) {
         }
 
         for (const blockId of counts.chat) {
-          if (!(OCP_CHAT_BLOCK_IDS as readonly string[]).includes(blockId)) {
-            add("OCP_CHAT_WRONG_BLOCK", `${name(camper.attendeeId)} has OCP chat outside C–E.`, { ...context, blockId, allowedBlockIds: [...OCP_CHAT_BLOCK_IDS] });
+          if (!ocpChatBlockIds.includes(blockId)) {
+            add("OCP_CHAT_WRONG_BLOCK", `${name(camper.attendeeId)} has OCP chat outside C–E.`, { ...context, blockId, allowedBlockIds: [...ocpChatBlockIds] });
           }
         }
       }
