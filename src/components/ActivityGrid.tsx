@@ -4,7 +4,7 @@ import { SectionSchedule } from "@/types/scheduling/schedulingTypes";
 import { Attendee, SchedulingSection } from "@/types/sessions/sessionTypes";
 import { useMemo } from "react";
 import ActivityGridRow from "@/components/ActivityGridRow";
-import { Box, SimpleGrid } from "@mantine/core";
+import { ActionIcon, Box, SimpleGrid } from "@mantine/core";
 import useSectionSchedule from "@/hooks/schedules/useSectionSchedule";
 import useAttendeeList from "@/hooks/attendees/useAttendeeList";
 import LoadingPage from "@/app/loading";
@@ -16,6 +16,7 @@ import {
   getBlockIndexFromNum,
   getBlocksInOrder,
 } from "@/types/scheduling/schedulingUtils";
+import { MdAdd } from "react-icons/md";
 
 interface ActivityGridProps {
   sessionId: string;
@@ -89,6 +90,18 @@ export function ActivityGridContent(props: ActivityGridContentProps) {
           attendeeGroups={attendeeGroups}
         />
       ))}
+      <div className="col-start-1 col-end-6 bg-neutra">
+        <ActionIcon
+          classNames={{
+            root: "w-full h-full rounded-none border border-solid border-neutral-5",
+          }}
+          variant="subtle"
+          size="xs"
+          onClick={() => console.log("bruh")}
+        >
+          <MdAdd size={20} />
+        </ActionIcon>{" "}
+      </div>
     </SimpleGrid>
   );
 }
