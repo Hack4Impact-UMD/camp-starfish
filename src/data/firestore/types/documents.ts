@@ -1,5 +1,5 @@
 import { PersonDirectory } from "@/types/sessions/sessionTypes";
-import { ActivityPreferences, ProgramArea, SectionSchedule } from "@/types/scheduling/schedulingTypes";
+import { ActivityPreferences, Block, ProgramArea, SectionSchedule } from "@/types/scheduling/schedulingTypes";
 import { AgeGroup, Bunk, Freeplay, NightSchedule, Post, SchedulingSectionType, SectionType } from "@/types/sessions/sessionTypes";
 import { Gender, Name, Role } from "@/types/people/personTypes";
 import { DistributiveOmit, ReplaceType } from "@/utils/types/typeUtils";
@@ -95,6 +95,7 @@ export interface SchedulingSectionDoc extends BaseSectionDoc {
 }
 export type SectionDoc = CommonSectionDoc | SchedulingSectionDoc;
 
+export type BlockDoc = ReplaceType<Block, Moment, Timestamp>;
 export type SectionScheduleDoc = ReplaceType<DistributiveOmit<SectionSchedule, "sessionId" | "sectionId">, Moment, Timestamp>;
 export type BunkDoc = Omit<Bunk, "bunkNum" | "sessionId">;
 export type NightScheduleDoc = Omit<NightSchedule, "date" | "sessionId">;
