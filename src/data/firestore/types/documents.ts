@@ -5,6 +5,7 @@ import { Gender, Name, Role } from "@/types/people/personTypes";
 import { DistributiveOmit, ReplaceType } from "@/utils/types/typeUtils";
 import { Timestamp } from "firebase/firestore";
 import { Moment } from "moment";
+import { TimeOnlyMoment } from "@/utils/timeUtils";
 
 export type PersonDirectoryDoc = Omit<PersonDirectory, "page">;
 
@@ -96,7 +97,7 @@ export interface SchedulingSectionDoc extends BaseSectionDoc {
 export type SectionDoc = CommonSectionDoc | SchedulingSectionDoc;
 
 export type BlockDoc = ReplaceType<Block, Moment, Timestamp>;
-export type SectionScheduleDoc = ReplaceType<DistributiveOmit<SectionSchedule, "sessionId" | "sectionId">, Moment, Timestamp>;
+export type SectionScheduleDoc = ReplaceType<DistributiveOmit<SectionSchedule, "sessionId" | "sectionId">, Moment | TimeOnlyMoment, Timestamp>;
 export type BunkDoc = Omit<Bunk, "bunkNum" | "sessionId">;
 export type NightScheduleDoc = Omit<NightSchedule, "date" | "sessionId">;
 export type FreeplayDoc = Omit<Freeplay, "date" | "sessionId">;
