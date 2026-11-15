@@ -4,6 +4,7 @@ import { Moment } from 'moment';
 import { runTransaction, Timestamp, Transaction } from 'firebase/firestore';
 import { db } from '@/config/firebase';
 import { createDaysOffScheduleDoc } from '@/data/firestore/daysOffSchedules';
+import { emptyAttendeeIds } from '@/types/sessions/sessionUtils';
 
 interface CreateSessionRequest {
   name: string;
@@ -18,7 +19,7 @@ async function createSession(req: CreateSessionRequest) {
       name,
       startDate: Timestamp.fromDate(startDate.clone().startOf('day').toDate()),
       endDate: Timestamp.fromDate(endDate.clone().endOf('day').toDate()),
-      attendeeIds: []
+      attendeeIds: emptyAttendeeIds()
     }, transaction);
     await createDaysOffScheduleDoc(sessionId, {
       daysOffInSession: [],

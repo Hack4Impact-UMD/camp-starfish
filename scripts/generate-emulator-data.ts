@@ -5,6 +5,7 @@ import { BundleActivityWithAssignments, BundleBlock, BundleSectionSchedule, Bunk
 import moment from "moment";
 import { v4 } from "uuid";
 import { UUIDV4 } from "@/types/utils/idTypes";
+import { emptyAttendeeIds } from "@/types/sessions/sessionUtils";
 
 export function resetFaker() {
   faker.seed(0);
@@ -73,7 +74,7 @@ export function generateSession(): Session {
     startDate: moment(startDate),
     endDate: moment(endDate),
     driveFolderId: '',
-    attendeeIds: []
+    attendeeIds: emptyAttendeeIds()
   }
 }
 

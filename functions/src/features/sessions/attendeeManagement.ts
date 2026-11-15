@@ -15,6 +15,7 @@ import { uniqueArray } from "@/utils/data/unique";
 import { Person } from "@/types/people/personTypes";
 import { updateDaysOffScheduleDoc } from "../../data/firestore/daysOffSchedules";
 import { objectKeys, objectValues } from "@/utils/types/typeUtils";
+import { Session } from "@/types/sessions/sessionTypes";
 
 export const createAttendees = onCall(async (req) => {
   if (!req.auth || !req.auth.token.role) {
@@ -176,7 +177,27 @@ function addAttendeesToActivityPreferences(sectionData: { activityPreferences: A
 }
 
 function updateSessionDocWithAttendeeIds(attendeeRequests: CreateAttendeeRequest[], sessionId: string, transaction: Transaction) {
-  return updateSessionDoc(sessionId, { attendeeIds: FieldValue.arrayUnion(...attendeeRequests.map(attendee => attendee.attendeeId)) }, transaction);
+  const attendeeIdsByRoleAndAgeGroup: Session['attendeeIds'] = {
+    admins: [],
+    staff: [],
+    campers: {
+      NAV: [],
+      OCP: []
+    }
+  };
+  attendeeRequests.forEach((att) => {
+    switch (att.role) {
+      case "ADMIN": attendeeIdsByRoleAndAgeGroup.admins.push(att.attendeeId); return;
+      case "STAFF": attendeeIdsByRoleAndAgeGroup.staff.push(att.attendeeId); return;
+      case "CAMPER": attendeeIdsByRoleAndAgeGroup.campers[att.ageGroup].push(att.attendeeId); return;
+    }
+  })
+  return updateSessionDoc(sessionId, {
+    [`attendeeIds.admins`]: FieldValue.arrayUnion(...attendeeIdsByRoleAndAgeGroup.admins),
+    [`attendeeIds.staff`]: FieldValue.arrayUnion(...attendeeIdsByRoleAndAgeGroup.staff),
+    [`attendeeIds.campers.NAV`]: FieldValue.arrayUnion(...attendeeIdsByRoleAndAgeGroup.campers.NAV),
+    [`attendeeIds.campers.OCP`]: FieldValue.arrayUnion(...attendeeIdsByRoleAndAgeGroup.campers.OCP)
+  }, transaction);
 }
 
 function addCounselorsToDaysOffSchedule(attendeeRequests: (CreateStaffAttendeeRequest | CreateAdminAttendeeRequest)[], sessionId: string, transaction: Transaction) {

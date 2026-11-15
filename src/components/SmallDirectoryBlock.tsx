@@ -27,6 +27,7 @@ import {
 } from "@/types/people/personUtils";
 import useBunkList from "@/hooks/bunks/useBunkList";
 import useSession from "@/hooks/sessions/useSession";
+import { attendeeIds } from "@/types/sessions/sessionUtils";
 
 type SmallDirectoryBlockProps = {
   sessionId: string;
@@ -47,7 +48,7 @@ export function SmallDirectoryBlock({ sessionId }: SmallDirectoryBlockProps) {
     if (!personDirectoryQuery.data || !sessionQuery.data) return [];
     return Object.keys(personDirectoryQuery.data)
       .filter((personId) =>
-        sessionQuery.data.attendeeIds.includes(Number(personId)),
+        attendeeIds(sessionQuery.data).includes(Number(personId)),
       )
       .map((personId) => ({
         id: Number(personId),
