@@ -40,3 +40,7 @@ export function emptyAttendeeIds(): Session['attendeeIds'] {
     }
   }
 }
+
+export function hasAttendee(session: Session, attendeeId: number): boolean {
+  return attendeeIds(session).includes(attendeeId);
+}

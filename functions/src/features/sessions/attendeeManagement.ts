@@ -10,12 +10,13 @@ import { mapActivityPreferencesFromFirestore, updateActivityPreferencesDoc } fro
 import { SectionsSubcollection } from "@/data/firestore/types/collections";
 import { fromFirestore } from "../../data/firestore/sectionSchedules";
 import { ActivityPreferences, BundleSectionSchedule, BunkJamboreeSectionSchedule, SectionSchedule } from "@/types/scheduling/schedulingTypes";
-import { updateSessionDoc } from "../../data/firestore/sessions";
+import { getSessionDoc, updateSessionDoc } from "../../data/firestore/sessions";
 import { uniqueArray } from "@/utils/data/unique";
 import { Person } from "@/types/people/personTypes";
 import { updateDaysOffScheduleDoc } from "../../data/firestore/daysOffSchedules";
 import { objectKeys, objectValues } from "@/utils/types/typeUtils";
 import { Session } from "@/types/sessions/sessionTypes";
+import { hasAttendee } from "@/types/sessions/sessionUtils";
 
 export const createAttendees = onCall(async (req) => {
   if (!req.auth || !req.auth.token.role) {
@@ -31,6 +32,7 @@ export const createAttendees = onCall(async (req) => {
 
   const { sessionId, attendees } = requestValidationResult.data;
   await adminDb.runTransaction(async (transaction) => {
+    const session = await getSessionDoc(sessionId, transaction);
     const people = await batchGetPersonDocs(attendees.map(attendee => attendee.attendeeId), transaction);
     const activityPreferences = ((await transaction.get(adminDb.collectionGroup(SectionsSubcollection.ACTIVITY_PREFERENCES).where('__name__', '>=', `/sessions/${sessionId}`).where('__name__', '<', `/sessions/${sessionId}\uf8ff`))).docs as DocumentSnapshot<ActivityPreferencesDoc>[]).map(mapActivityPreferencesFromFirestore);
     const sectionSchedules = ((await transaction.get(adminDb.collectionGroup(SectionsSubcollection.SCHEDULE).where('__name__', '>=', `/sessions/${sessionId}`).where('__name__', '<', `/sessions/${sessionId}\uf8ff`))).docs as DocumentSnapshot<SectionScheduleDoc>[]).map(fromFirestore);
@@ -43,7 +45,7 @@ export const createAttendees = onCall(async (req) => {
     }
 
     const peopleById = toRecord(people, person => person.id);
-    const acceptedAttendees = attendees.filter(attendee => attendee.attendeeId in peopleById && peopleById[attendee.attendeeId].role === attendee.role);
+    const acceptedAttendees = attendees.filter(attendee => attendee.attendeeId in peopleById && peopleById[attendee.attendeeId].role === attendee.role && !hasAttendee(session, attendee.attendeeId));
 
     await Promise.all([
       ...createAttendeeDocs(acceptedAttendees, peopleById, sessionId, transaction),
