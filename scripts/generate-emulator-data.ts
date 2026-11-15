@@ -73,7 +73,14 @@ export function generateSession(): Session {
     startDate: moment(startDate),
     endDate: moment(endDate),
     driveFolderId: '',
-    attendeeIds: []
+    attendeeIds: {
+      admins: [],
+      staff: [],
+      campers: {
+        NAV: [],
+        OCP: []
+      }
+    }
   }
 }
 
