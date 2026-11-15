@@ -1,4 +1,4 @@
-import { PersonDirectory } from "@/types/sessions/sessionTypes";
+import { PersonDirectory, Session } from "@/types/sessions/sessionTypes";
 import { ActivityPreferences, ProgramArea, SectionSchedule } from "@/types/scheduling/schedulingTypes";
 import { AgeGroup, Bunk, Freeplay, NightSchedule, Post, SchedulingSectionType, SectionType } from "@/types/sessions/sessionTypes";
 import { Gender, Name, Role } from "@/types/people/personTypes";
@@ -41,13 +41,7 @@ export interface AdminDoc extends BaseCounselorDoc {
 export type CounselorDoc = StaffDoc | AdminDoc;
 export type PersonDoc = CamperDoc | StaffDoc | AdminDoc;
 
-export interface SessionDoc {
-  name: string;
-  startDate: Timestamp;
-  endDate: Timestamp;
-  driveFolderId?: string;
-  attendeeIds: number[];
-}
+export type SessionDoc = ReplaceType<Omit<Session, "id">, Moment, Timestamp>;
 
 interface BaseAttendeeDoc {
   snapshot: {
