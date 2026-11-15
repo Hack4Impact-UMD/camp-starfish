@@ -32,10 +32,17 @@ export const createAttendees = onCall(async (req) => {
 
   const { sessionId, attendees } = requestValidationResult.data;
   await adminDb.runTransaction(async (transaction) => {
-    const session = await getSessionDoc(sessionId, transaction);
-    const people = await batchGetPersonDocs(attendees.map(attendee => attendee.attendeeId), transaction);
-    const activityPreferences = ((await transaction.get(adminDb.collectionGroup(SectionsSubcollection.ACTIVITY_PREFERENCES).where('__name__', '>=', `/sessions/${sessionId}`).where('__name__', '<', `/sessions/${sessionId}\uf8ff`))).docs as DocumentSnapshot<ActivityPreferencesDoc>[]).map(mapActivityPreferencesFromFirestore);
-    const sectionSchedules = ((await transaction.get(adminDb.collectionGroup(SectionsSubcollection.SCHEDULE).where('__name__', '>=', `/sessions/${sessionId}`).where('__name__', '<', `/sessions/${sessionId}\uf8ff`))).docs as DocumentSnapshot<SectionScheduleDoc>[]).map(fromFirestore);
+    const sessionPromise = getSessionDoc(sessionId, transaction);
+    const peoplePromise = batchGetPersonDocs(attendees.map(attendee => attendee.attendeeId), transaction);
+    const activityPreferencesPromise = await transaction.get(adminDb.collectionGroup(SectionsSubcollection.ACTIVITY_PREFERENCES).where('__name__', '>=', `/sessions/${sessionId}`).where('__name__', '<', `/sessions/${sessionId}\uf8ff`));
+    const sectionSchedulesPromise = await transaction.get(adminDb.collectionGroup(SectionsSubcollection.SCHEDULE).where('__name__', '>=', `/sessions/${sessionId}`).where('__name__', '<', `/sessions/${sessionId}\uf8ff`));
+    
+    const data = await Promise.all([sessionPromise, peoplePromise, activityPreferencesPromise, sectionSchedulesPromise]);
+    const session = data[0];
+    const people = data[1];
+    const activityPreferences = (data[2].docs as DocumentSnapshot<ActivityPreferencesDoc>[]).map(mapActivityPreferencesFromFirestore);
+    const sectionSchedules = (data[3].docs as DocumentSnapshot<SectionScheduleDoc>[]).map(fromFirestore);
+
     const sectionData: { activityPreferences: ActivityPreferences, sectionSchedule: SectionSchedule }[] = [];
     for (const activityPrefs of activityPreferences) {
       sectionData.push({
