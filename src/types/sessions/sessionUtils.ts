@@ -14,3 +14,18 @@ export function getFullSectionTypeName(sectionType: SectionType) {
     "NON-BUNK-JAMBO": "Non-Bunk Jamboree"
   }[sectionType];
 }
+
+export function attendeeIds(session: Session) {
+  return [
+    ...session.attendeeIds.admins,
+    ...session.attendeeIds.staff,
+    ...camperIds(session)
+  ]
+}
+
+export function camperIds(session: Session) {
+  return [
+    ...session.attendeeIds.campers.NAV,
+    ...session.attendeeIds.campers.OCP
+  ]
+}
