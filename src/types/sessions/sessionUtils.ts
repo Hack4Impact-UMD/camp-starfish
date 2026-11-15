@@ -29,3 +29,14 @@ export function camperIds(session: Session) {
     ...session.attendeeIds.campers.OCP
   ]
 }
+
+export function emptyAttendeeIds(): Session['attendeeIds'] {
+  return {
+    admins: [],
+    staff: [],
+    campers: {
+      NAV: [],
+      OCP: []
+    }
+  }
+}
