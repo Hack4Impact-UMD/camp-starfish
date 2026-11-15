@@ -27,11 +27,9 @@ function fromFirestore(snapshot: DocumentSnapshot<SessionDoc, SessionDoc> | Quer
   const sessionDoc = snapshot.data() as SessionDoc;
   return {
     id: snapshot.ref.id,
-    name: sessionDoc.name,
+    ...sessionDoc,
     startDate: moment(sessionDoc.startDate.toDate()),
     endDate: moment(sessionDoc.endDate.toDate()),
-    driveFolderId: sessionDoc.driveFolderId,
-    attendeeIds: sessionDoc.attendeeIds
   };
 }
 
