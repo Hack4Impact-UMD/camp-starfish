@@ -140,8 +140,8 @@ function EditBlockModal(props: EditBlockModalProps) {
         </form.Field>
       </div>
       <div className="flex flex-row justify-center w-full gap-xl">
-        <Button>Cancel</Button>
-        <Button loading={mutationToUse.isPending}>Create</Button>
+        <Button variant="light">Cancel</Button>
+        <Button color="green" loading={mutationToUse.isPending}>Create</Button>
       </div>
     </div>
   );
