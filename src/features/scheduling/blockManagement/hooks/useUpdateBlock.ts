@@ -7,8 +7,8 @@ import { runTransaction, Timestamp, Transaction } from "firebase/firestore";
 import z from "zod";
 
 const UpdateBlockRequestSchema = z.object({
-  sessionId: UUIDV4Schema,
-  sectionId: UUIDV4Schema,
+  sessionId: z.string(),
+  sectionId: z.string(),
   blockId: UUIDV4Schema,
   startTime: TimeOnlyMomentSchema.optional(),
   endTime: TimeOnlyMomentSchema.optional()

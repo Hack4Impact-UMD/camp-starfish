@@ -11,8 +11,8 @@ import * as SessionUtils from "@/types/sessions/sessionUtils";
 import { getSessionDoc } from "@/data/firestore/sessions";
 
 const CreateBlockRequestSchema = z.object({
-  sessionId: UUIDV4Schema,
-  sectionId: UUIDV4Schema,
+  sessionId: z.string(),
+  sectionId: z.string(),
   startTime: TimeOnlyMomentSchema,
   endTime: TimeOnlyMomentSchema
 }).refine((req) => req.endTime.isAfter(req.startTime), {
