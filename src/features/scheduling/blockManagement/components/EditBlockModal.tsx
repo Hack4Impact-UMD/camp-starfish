@@ -3,7 +3,7 @@ import LoadingPage from "@/app/loading";
 import { sectionScheduleQueryOptions } from "@/hooks/schedules/useSectionSchedule";
 import { UUIDV4 } from "@/types/utils/idTypes";
 import { TimeOnlyMomentSchema } from "@/utils/timeUtils";
-import { Text } from "@mantine/core";
+import { Button, Text } from "@mantine/core";
 import { TimeInput } from "@mantine/dates";
 import { openModal } from "@mantine/modals";
 import { useForm } from "@tanstack/react-form";
@@ -29,12 +29,20 @@ type EditBlockModalProps =
       blockId: UUIDV4;
     };
 
-const EditBlockFormSchema = z.object({
-  startTime: z.string().transform((val: string) => moment(val, "HH:mm")).pipe(TimeOnlyMomentSchema),
-  endTime: z.string().transform((val: string) => moment(val, "HH:mm")).pipe(TimeOnlyMomentSchema)
-}).refine((obj) => obj.endTime.isAfter(obj.startTime), {
-  error: "End time must be after start time"
-})
+const EditBlockFormSchema = z
+  .object({
+    startTime: z
+      .string()
+      .transform((val: string) => moment(val, "HH:mm"))
+      .pipe(TimeOnlyMomentSchema),
+    endTime: z
+      .string()
+      .transform((val: string) => moment(val, "HH:mm"))
+      .pipe(TimeOnlyMomentSchema),
+  })
+  .refine((obj) => obj.endTime.isAfter(obj.startTime), {
+    error: "End time must be after start time",
+  });
 
 function EditBlockModal(props: EditBlockModalProps) {
   const { sessionId, sectionId, mode, blockId } = props;
@@ -58,7 +66,7 @@ function EditBlockModal(props: EditBlockModalProps) {
           : sectionScheduleQuery.data.blocks[blockId].endTime.format("HH:mm"),
     },
     validators: {
-      onSubmit: EditBlockFormSchema
+      onSubmit: EditBlockFormSchema,
     },
     onSubmit: ({ value, formApi }) => {
       const valResult = EditBlockFormSchema.safeParse(value);
@@ -66,57 +74,74 @@ function EditBlockModal(props: EditBlockModalProps) {
         formApi.setErrorMap({
           onSubmit: {
             fields: {},
-            form: valResult.error.issues.flatMap(issue => issue.message).join(", ")
-          }
-        })
+            form: valResult.error.issues
+              .flatMap((issue) => issue.message)
+              .join(", "),
+          },
+        });
         return;
       }
       const { startTime, endTime } = valResult.data;
       if (mode === "CREATE") {
-        createBlockMutation.mutate({ sessionId, sectionId, startTime, endTime });
+        createBlockMutation.mutate({
+          sessionId,
+          sectionId,
+          startTime,
+          endTime,
+        });
       } else if (mode === "UPDATE") {
         updateBlockMutation.mutate({
           sessionId,
           sectionId,
           blockId,
-          startTime: formApi.getFieldMeta('startTime')?.isDefaultValue ? undefined : startTime,
-          endTime: formApi.getFieldMeta('endTime')?.isDefaultValue ? undefined : endTime
-        })
+          startTime: formApi.getFieldMeta("startTime")?.isDefaultValue
+            ? undefined
+            : startTime,
+          endTime: formApi.getFieldMeta("endTime")?.isDefaultValue
+            ? undefined
+            : endTime,
+        });
       }
-    }
+    },
   });
 
   return (
-    <div className="flex flex-row w-full p-sm gap-sm">
-      <form.Field name="startTime" key="startTime">
-        {(field) => (
-          <TimeInput
-            classNames={{ root: "grow" }}
-            name={field.name}
-            label="Start Time"
-            value={field.state.value}
-            onChange={(e) => field.handleChange(e.target.value)}
-            onBlur={field.handleBlur}
-            error={field.state.meta.errors.join(", ")}
-            required
-          />
-        )}
-      </form.Field>
-      <Text className="h-full text-xl self-center pt-lg">-</Text>
-      <form.Field name="endTime" key="endTime">
-        {(field) => (
-          <TimeInput
-            classNames={{ root: "grow" }}
-            name={field.name}
-            label="End Time"
-            value={field.state.value}
-            onChange={(e) => field.handleChange(e.target.value)}
-            onBlur={field.handleBlur}
-            error={field.state.meta.errors.join(", ")}
-            required
-          />
-        )}
-      </form.Field>
+    <div className="flex flex-col w-full">
+      <div className="flex flex-row w-full p-sm gap-sm">
+        <form.Field name="startTime" key="startTime">
+          {(field) => (
+            <TimeInput
+              classNames={{ root: "grow" }}
+              name={field.name}
+              label="Start Time"
+              value={field.state.value}
+              onChange={(e) => field.handleChange(e.target.value)}
+              onBlur={field.handleBlur}
+              error={field.state.meta.errors.join(", ")}
+              required
+            />
+          )}
+        </form.Field>
+        <Text className="h-full text-xl self-center pt-lg">-</Text>
+        <form.Field name="endTime" key="endTime">
+          {(field) => (
+            <TimeInput
+              classNames={{ root: "grow" }}
+              name={field.name}
+              label="End Time"
+              value={field.state.value}
+              onChange={(e) => field.handleChange(e.target.value)}
+              onBlur={field.handleBlur}
+              error={field.state.meta.errors.join(", ")}
+              required
+            />
+          )}
+        </form.Field>
+      </div>
+      <div className="flex flex-row justify-center w-full gap-xl">
+        <Button>Cancel</Button>
+        <Button>Create</Button>
+      </div>
     </div>
   );
 }
