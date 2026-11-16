@@ -10,6 +10,7 @@ import { useMemo } from "react";
 import { Button, MultiSelect } from "@mantine/core";
 import { AttendeeRole } from "@/types/sessions/sessionTypes";
 import { useSuspenseQueries } from "@tanstack/react-query";
+import { attendeeIds } from "@/types/sessions/sessionUtils";
 
 export default function SelectAttendeesScreen({
   sessionId,
@@ -29,7 +30,7 @@ export default function SelectAttendeesScreen({
       getObjectEntriesWithNumberKeys(personDirectoryQuery.data).filter(
         ([personId, person]) =>
           isAttendeeRole(person.role) &&
-          !sessionQuery.data.attendeeIds.includes(personId),
+          !attendeeIds(sessionQuery.data).includes(personId),
       ),
     );
   }, [sessionQuery.data, personDirectoryQuery.data]);

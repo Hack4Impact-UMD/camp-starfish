@@ -10,11 +10,13 @@ import { mapActivityPreferencesFromFirestore, updateActivityPreferencesDoc } fro
 import { SectionsSubcollection } from "@/data/firestore/types/collections";
 import { fromFirestore } from "../../data/firestore/sectionSchedules";
 import { ActivityPreferences, BundleSectionSchedule, BunkJamboreeSectionSchedule, SectionSchedule } from "@/types/scheduling/schedulingTypes";
-import { updateSessionDoc } from "../../data/firestore/sessions";
+import { getSessionDoc, updateSessionDoc } from "../../data/firestore/sessions";
 import { uniqueArray } from "@/utils/data/unique";
 import { Person } from "@/types/people/personTypes";
 import { updateDaysOffScheduleDoc } from "../../data/firestore/daysOffSchedules";
 import { objectKeys, objectValues } from "@/utils/types/typeUtils";
+import { Session } from "@/types/sessions/sessionTypes";
+import { hasAttendee } from "@/types/sessions/sessionUtils";
 
 export const createAttendees = onCall(async (req) => {
   if (!req.auth || !req.auth.token.role) {
@@ -30,9 +32,17 @@ export const createAttendees = onCall(async (req) => {
 
   const { sessionId, attendees } = requestValidationResult.data;
   await adminDb.runTransaction(async (transaction) => {
-    const people = await batchGetPersonDocs(attendees.map(attendee => attendee.attendeeId), transaction);
-    const activityPreferences = ((await transaction.get(adminDb.collectionGroup(SectionsSubcollection.ACTIVITY_PREFERENCES).where('__name__', '>=', `/sessions/${sessionId}`).where('__name__', '<', `/sessions/${sessionId}\uf8ff`))).docs as DocumentSnapshot<ActivityPreferencesDoc>[]).map(mapActivityPreferencesFromFirestore);
-    const sectionSchedules = ((await transaction.get(adminDb.collectionGroup(SectionsSubcollection.SCHEDULE).where('__name__', '>=', `/sessions/${sessionId}`).where('__name__', '<', `/sessions/${sessionId}\uf8ff`))).docs as DocumentSnapshot<SectionScheduleDoc>[]).map(fromFirestore);
+    const sessionPromise = getSessionDoc(sessionId, transaction);
+    const peoplePromise = batchGetPersonDocs(attendees.map(attendee => attendee.attendeeId), transaction);
+    const activityPreferencesPromise = await transaction.get(adminDb.collectionGroup(SectionsSubcollection.ACTIVITY_PREFERENCES).where('__name__', '>=', `/sessions/${sessionId}`).where('__name__', '<', `/sessions/${sessionId}\uf8ff`));
+    const sectionSchedulesPromise = await transaction.get(adminDb.collectionGroup(SectionsSubcollection.SCHEDULE).where('__name__', '>=', `/sessions/${sessionId}`).where('__name__', '<', `/sessions/${sessionId}\uf8ff`));
+    
+    const data = await Promise.all([sessionPromise, peoplePromise, activityPreferencesPromise, sectionSchedulesPromise]);
+    const session = data[0];
+    const people = data[1];
+    const activityPreferences = (data[2].docs as DocumentSnapshot<ActivityPreferencesDoc>[]).map(mapActivityPreferencesFromFirestore);
+    const sectionSchedules = (data[3].docs as DocumentSnapshot<SectionScheduleDoc>[]).map(fromFirestore);
+
     const sectionData: { activityPreferences: ActivityPreferences, sectionSchedule: SectionSchedule }[] = [];
     for (const activityPrefs of activityPreferences) {
       sectionData.push({
@@ -42,7 +52,7 @@ export const createAttendees = onCall(async (req) => {
     }
 
     const peopleById = toRecord(people, person => person.id);
-    const acceptedAttendees = attendees.filter(attendee => attendee.attendeeId in peopleById && peopleById[attendee.attendeeId].role === attendee.role);
+    const acceptedAttendees = attendees.filter(attendee => attendee.attendeeId in peopleById && peopleById[attendee.attendeeId].role === attendee.role && !hasAttendee(session, attendee.attendeeId));
 
     await Promise.all([
       ...createAttendeeDocs(acceptedAttendees, peopleById, sessionId, transaction),
@@ -176,7 +186,27 @@ function addAttendeesToActivityPreferences(sectionData: { activityPreferences: A
 }
 
 function updateSessionDocWithAttendeeIds(attendeeRequests: CreateAttendeeRequest[], sessionId: string, transaction: Transaction) {
-  return updateSessionDoc(sessionId, { attendeeIds: FieldValue.arrayUnion(...attendeeRequests.map(attendee => attendee.attendeeId)) }, transaction);
+  const attendeeIdsByRoleAndAgeGroup: Session['attendeeIds'] = {
+    admins: [],
+    staff: [],
+    campers: {
+      NAV: [],
+      OCP: []
+    }
+  };
+  attendeeRequests.forEach((att) => {
+    switch (att.role) {
+      case "ADMIN": attendeeIdsByRoleAndAgeGroup.admins.push(att.attendeeId); return;
+      case "STAFF": attendeeIdsByRoleAndAgeGroup.staff.push(att.attendeeId); return;
+      case "CAMPER": attendeeIdsByRoleAndAgeGroup.campers[att.ageGroup].push(att.attendeeId); return;
+    }
+  })
+  return updateSessionDoc(sessionId, {
+    [`attendeeIds.admins`]: FieldValue.arrayUnion(...attendeeIdsByRoleAndAgeGroup.admins),
+    [`attendeeIds.staff`]: FieldValue.arrayUnion(...attendeeIdsByRoleAndAgeGroup.staff),
+    [`attendeeIds.campers.NAV`]: FieldValue.arrayUnion(...attendeeIdsByRoleAndAgeGroup.campers.NAV),
+    [`attendeeIds.campers.OCP`]: FieldValue.arrayUnion(...attendeeIdsByRoleAndAgeGroup.campers.OCP)
+  }, transaction);
 }
 
 function addCounselorsToDaysOffSchedule(attendeeRequests: (CreateStaffAttendeeRequest | CreateAdminAttendeeRequest)[], sessionId: string, transaction: Transaction) {

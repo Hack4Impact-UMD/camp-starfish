@@ -8,7 +8,11 @@ export interface Session {
   startDate: Moment;
   endDate: Moment;
   driveFolderId?: string;
-  attendeeIds: number[];
+  attendeeIds: {
+    admins: number[];
+    staff: number[];
+    campers: Record<AgeGroup, number[]>;
+  };
 }
 
 export type SchedulingSectionType = "BUNDLE" | "BUNK-JAMBO" | "NON-BUNK-JAMBO";
