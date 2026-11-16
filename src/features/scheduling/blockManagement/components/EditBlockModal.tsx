@@ -5,7 +5,7 @@ import { UUIDV4 } from "@/types/utils/idTypes";
 import { TimeOnlyMomentSchema } from "@/utils/timeUtils";
 import { Button, Text } from "@mantine/core";
 import { TimeInput } from "@mantine/dates";
-import { openModal } from "@mantine/modals";
+import { modals, openModal } from "@mantine/modals";
 import { useForm } from "@tanstack/react-form";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import moment from "moment";
@@ -53,6 +53,7 @@ function EditBlockModal(props: EditBlockModalProps) {
 
   const createBlockMutation = useCreateBlock();
   const updateBlockMutation = useUpdateBlock();
+  const mutationToUse = mode === "CREATE" ? createBlockMutation : updateBlockMutation;
 
   const form = useForm({
     defaultValues: {
@@ -88,7 +89,7 @@ function EditBlockModal(props: EditBlockModalProps) {
           sectionId,
           startTime,
           endTime,
-        });
+        }, { onSuccess: () => modals.close(editBlockModalId(props)) });
       } else if (mode === "UPDATE") {
         updateBlockMutation.mutate({
           sessionId,
@@ -100,7 +101,7 @@ function EditBlockModal(props: EditBlockModalProps) {
           endTime: formApi.getFieldMeta("endTime")?.isDefaultValue
             ? undefined
             : endTime,
-        });
+        }, { onSuccess: () => modals.close(editBlockModalId(props)) });
       }
     },
   });
@@ -140,15 +141,20 @@ function EditBlockModal(props: EditBlockModalProps) {
       </div>
       <div className="flex flex-row justify-center w-full gap-xl">
         <Button>Cancel</Button>
-        <Button>Create</Button>
+        <Button loading={mutationToUse.isPending}>Create</Button>
       </div>
     </div>
   );
 }
 
+function editBlockModalId(props: EditBlockModalProps) {
+  return `edit-block-modal-${props.sessionId}-${props.sectionId}-${props.blockId}`;
+}
+
 export default function openEditBlockModal(props: EditBlockModalProps) {
   openModal({
     title: props.mode === "CREATE" ? "Create Block" : "Edit Block",
+    modalId: editBlockModalId(props),
     children: (
       <ErrorBoundary
         fallbackRender={({ error }) => (
