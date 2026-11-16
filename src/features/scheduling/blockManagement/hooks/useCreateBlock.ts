@@ -1,10 +1,14 @@
+import { db } from "@/config/firebase";
+import { getActivityPreferencesDoc, updateActivityPreferencesDoc } from "@/data/firestore/activityPreferences";
 import { updateSectionScheduleDoc } from "@/data/firestore/sectionSchedules";
 import { BlockDoc, SectionScheduleDoc } from "@/data/firestore/types/documents";
 import { uuidv4, UUIDV4Schema } from "@/types/utils/idTypes";
 import { TimeOnlyMomentSchema } from "@/utils/timeUtils";
 import { useMutation } from "@tanstack/react-query";
-import { Timestamp, UpdateData } from "firebase/firestore";
+import { runTransaction, Timestamp, Transaction, UpdateData } from "firebase/firestore";
 import z from "zod";
+import * as SessionUtils from "@/types/sessions/sessionUtils";
+import { getSessionDoc } from "@/data/firestore/sessions";
 
 const CreateBlockRequestSchema = z.object({
   sessionId: UUIDV4Schema,
@@ -20,14 +24,25 @@ async function createBlock(req: CreateBlockRequest) {
   const valResult = CreateBlockRequestSchema.parse(req);
   const { sessionId, sectionId, startTime, endTime } = valResult;
   const blockId = uuidv4();
-  await updateSectionScheduleDoc(sessionId, sectionId, {
-    [`blocks.${blockId}`]: {
-      activities: {},
-      periodsOff: [],
-      startTime: Timestamp.fromDate(startTime.toDate()),
-      endTime: Timestamp.fromDate(endTime.toDate())
-    } satisfies BlockDoc
-  } as unknown as UpdateData<SectionScheduleDoc>)
+  await runTransaction(db, async (tx: Transaction) => {
+    const session = await getSessionDoc(sessionId, tx);
+    const sectionScheduleUpdate = updateSectionScheduleDoc(sessionId, sectionId, {
+      [`blocks.${blockId}`]: {
+        activities: {},
+        periodsOff: [],
+        startTime: Timestamp.fromDate(startTime.toDate()),
+        endTime: Timestamp.fromDate(endTime.toDate())
+      } satisfies BlockDoc
+    } as unknown as UpdateData<SectionScheduleDoc>, tx);
+    const camperIds = SessionUtils.camperIds(session);
+    const activityPrefsUpdate = updateActivityPreferencesDoc(sessionId, sectionId, {
+      [`blocks.${blockId}`]: camperIds.reduce((acc, camperId) => ({
+        ...acc,
+        [camperId]: {}
+      }), {})
+    }, tx);
+    await Promise.all([sectionScheduleUpdate, activityPrefsUpdate]);
+  });
 }
 
 export default function useCreateBlock() {
