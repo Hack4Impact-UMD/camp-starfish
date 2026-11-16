@@ -42,12 +42,20 @@ async function createBlock(req: CreateBlockRequest) {
       }), {})
     }, tx);
     await Promise.all([sectionScheduleUpdate, activityPrefsUpdate]);
+    return blockId;
   });
 }
 
 export default function useCreateBlock() {
   return useMutation({
     mutationKey: ['create-block'],
-    mutationFn: createBlock
+    mutationFn: createBlock,
+    onSuccess: (_data, variables, _onMutateResult, { client }) => {
+      const { sessionId, sectionId } = variables;
+      client.invalidateQueries({
+        predicate: (query) => query.queryHash === JSON.stringify(['sessions', sessionId, 'sections', sectionId, 'schedule']) ||
+          query.queryHash === JSON.stringify(['sessions', sessionId, 'sections', sectionId, 'activityPreferences'])
+      })
+    },
   })
 }

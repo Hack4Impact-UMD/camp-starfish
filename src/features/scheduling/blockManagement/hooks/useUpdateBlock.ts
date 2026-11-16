@@ -43,6 +43,12 @@ async function updateBlock(req: UpdateBlockRequest) {
 export default function useUpdateBlock() {
   return useMutation({
     mutationKey: ['update-block'],
-    mutationFn: updateBlock
+    mutationFn: updateBlock,
+    onSuccess: (_data, variables, _onMutateResult, { client }) => {
+      const { sessionId, sectionId } = variables;
+      client.invalidateQueries({
+        predicate: (query) => query.queryHash === JSON.stringify(['sessions', sessionId, 'sections', sectionId, 'schedule'])
+      })
+    },
   })
 }
