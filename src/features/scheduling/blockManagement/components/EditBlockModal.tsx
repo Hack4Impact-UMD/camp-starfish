@@ -102,7 +102,7 @@ function EditBlockModal(props: EditBlockModalProps) {
           />
         )}
       </form.Field>
-      <Text className="text-xl self-center">-</Text>
+      <Text className="h-full text-xl self-center pt-lg">-</Text>
       <form.Field name="endTime" key="endTime">
         {(field) => (
           <TimeInput
