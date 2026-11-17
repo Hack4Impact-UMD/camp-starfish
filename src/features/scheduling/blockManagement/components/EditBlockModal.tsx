@@ -152,7 +152,7 @@ function EditBlockModal(props: EditBlockModalProps) {
         <Button variant="light" onClick={closeModal}>
           Cancel
         </Button>
-        <Button color="green" loading={mutationToUse.isPending}>
+        <Button color="green" loading={mutationToUse.isPending} onClick={form.handleSubmit}>
           Create
         </Button>
       </div>
