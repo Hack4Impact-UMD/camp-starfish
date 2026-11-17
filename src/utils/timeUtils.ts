@@ -13,9 +13,9 @@ export function isDayInRange(day: Moment, range: [Moment, Moment]) {
 export const TimeOnlyMomentSchema = z.custom<Moment>((obj: unknown) => isMoment(obj) && obj.isValid() && obj.year() === 1970 && obj.month() === 1 && obj.day() === 1).brand("TimeOnlyMoment");
 export type TimeOnlyMoment = z.infer<typeof TimeOnlyMomentSchema>;
 export function asTimeOnlyMoment(moment: Moment): TimeOnlyMoment {
-  return moment.set({
+  return TimeOnlyMomentSchema.parse(moment.clone().set({
     year: 1970,
     month: 1,
     day: 1
-  }) as TimeOnlyMoment;
+  }));
 }
