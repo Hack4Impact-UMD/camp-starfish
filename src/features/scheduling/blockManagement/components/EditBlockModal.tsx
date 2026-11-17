@@ -53,7 +53,10 @@ function EditBlockModal(props: EditBlockModalProps) {
 
   const createBlockMutation = useCreateBlock();
   const updateBlockMutation = useUpdateBlock();
-  const mutationToUse = mode === "CREATE" ? createBlockMutation : updateBlockMutation;
+  const mutationToUse =
+    mode === "CREATE" ? createBlockMutation : updateBlockMutation;
+
+  const closeModal = () => modals.close(editBlockModalId(props));
 
   const form = useForm({
     defaultValues: {
@@ -84,24 +87,30 @@ function EditBlockModal(props: EditBlockModalProps) {
       }
       const { startTime, endTime } = valResult.data;
       if (mode === "CREATE") {
-        createBlockMutation.mutate({
-          sessionId,
-          sectionId,
-          startTime,
-          endTime,
-        }, { onSuccess: () => modals.close(editBlockModalId(props)) });
+        createBlockMutation.mutate(
+          {
+            sessionId,
+            sectionId,
+            startTime,
+            endTime,
+          },
+          { onSuccess: closeModal },
+        );
       } else if (mode === "UPDATE") {
-        updateBlockMutation.mutate({
-          sessionId,
-          sectionId,
-          blockId,
-          startTime: formApi.getFieldMeta("startTime")?.isDefaultValue
-            ? undefined
-            : startTime,
-          endTime: formApi.getFieldMeta("endTime")?.isDefaultValue
-            ? undefined
-            : endTime,
-        }, { onSuccess: () => modals.close(editBlockModalId(props)) });
+        updateBlockMutation.mutate(
+          {
+            sessionId,
+            sectionId,
+            blockId,
+            startTime: formApi.getFieldMeta("startTime")?.isDefaultValue
+              ? undefined
+              : startTime,
+            endTime: formApi.getFieldMeta("endTime")?.isDefaultValue
+              ? undefined
+              : endTime,
+          },
+          { onSuccess: closeModal },
+        );
       }
     },
   });
@@ -140,8 +149,12 @@ function EditBlockModal(props: EditBlockModalProps) {
         </form.Field>
       </div>
       <div className="flex flex-row justify-center w-full gap-xl">
-        <Button variant="light">Cancel</Button>
-        <Button color="green" loading={mutationToUse.isPending}>Create</Button>
+        <Button variant="light" onClick={closeModal}>
+          Cancel
+        </Button>
+        <Button color="green" loading={mutationToUse.isPending}>
+          Create
+        </Button>
       </div>
     </div>
   );
