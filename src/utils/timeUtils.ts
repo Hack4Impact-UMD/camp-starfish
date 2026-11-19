@@ -10,12 +10,14 @@ export function isDayInRange(day: Moment, range: [Moment, Moment]) {
   return range[0].isSameOrBefore(day, 'day') && range[1].isSameOrAfter(day, 'day');
 }
 
-export const TimeOnlyMomentSchema = z.custom<Moment>((obj: unknown) => isMoment(obj) && obj.isValid() && obj.year() === 1970 && obj.month() === 1 && obj.day() === 1).brand("TimeOnlyMoment");
+export const TimeOnlyMomentSchema = z.custom<Moment>((obj: unknown) => isMoment(obj) && obj.isValid() && obj.year() === 1970 && obj.month() === 1 && obj.date() === 1).brand("TimeOnlyMoment");
 export type TimeOnlyMoment = z.infer<typeof TimeOnlyMomentSchema>;
 export function asTimeOnlyMoment(moment: Moment): TimeOnlyMoment {
   return TimeOnlyMomentSchema.parse(moment.clone().set({
     year: 1970,
     month: 1,
-    day: 1
+    date: 1
   }));
 }
+
+export const timeRegex = /([01]\d|2[0-3]):[0-5]\d/;

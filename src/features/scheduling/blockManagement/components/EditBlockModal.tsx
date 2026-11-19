@@ -2,7 +2,11 @@ import ErrorPage from "@/app/error";
 import LoadingPage from "@/app/loading";
 import { sectionScheduleQueryOptions } from "@/hooks/schedules/useSectionSchedule";
 import { UUIDV4 } from "@/types/utils/idTypes";
-import { TimeOnlyMomentSchema } from "@/utils/timeUtils";
+import {
+  asTimeOnlyMoment,
+  TimeOnlyMomentSchema,
+  timeRegex,
+} from "@/utils/timeUtils";
 import { Button, Text } from "@mantine/core";
 import { TimeInput } from "@mantine/dates";
 import { modals, openModal } from "@mantine/modals";
@@ -33,12 +37,12 @@ const EditBlockFormSchema = z
   .object({
     startTime: z
       .string()
-      .transform((val: string) => moment(val, "HH:mm"))
-      .pipe(TimeOnlyMomentSchema),
+      .regex(timeRegex, "Invalid time")
+      .transform((val: string) => asTimeOnlyMoment(moment(val, "HH:mm"))),
     endTime: z
       .string()
-      .transform((val: string) => moment(val, "HH:mm"))
-      .pipe(TimeOnlyMomentSchema),
+      .regex(timeRegex, "Invalid time")
+      .transform((val: string) => asTimeOnlyMoment(moment(val, "HH:mm"))),
   })
   .refine((obj) => obj.endTime.isAfter(obj.startTime), {
     error: "End time must be after start time",
@@ -74,16 +78,16 @@ function EditBlockModal(props: EditBlockModalProps) {
     },
     onSubmit: ({ value, formApi }) => {
       const valResult = EditBlockFormSchema.safeParse(value);
+      console.log(valResult);
       if (!valResult.success) {
-        formApi.setErrorMap({
+        return {
           onSubmit: {
             fields: {},
             form: valResult.error.issues
               .flatMap((issue) => issue.message)
               .join(", "),
           },
-        });
-        return;
+        };
       }
       const { startTime, endTime } = valResult.data;
       if (mode === "CREATE") {
@@ -118,31 +122,51 @@ function EditBlockModal(props: EditBlockModalProps) {
   return (
     <div className="flex flex-col w-full">
       <div className="flex flex-row w-full p-sm gap-sm">
-        <form.Field name="startTime" key="startTime">
+        <form.Field
+          name="startTime"
+          key="startTime"
+          validators={{ onBlur: EditBlockFormSchema.shape.startTime }}
+          listeners={{
+            onChange: ({ fieldApi }) =>
+              fieldApi.setErrorMap({ onBlur: undefined, onSubmit: undefined }),
+          }}
+        >
           {(field) => (
             <TimeInput
-              classNames={{ root: "grow" }}
+              classNames={{ root: "grow max-w-1/2" }}
               name={field.name}
               label="Start Time"
               value={field.state.value}
               onChange={(e) => field.handleChange(e.target.value)}
               onBlur={field.handleBlur}
-              error={field.state.meta.errors.join(", ")}
+              error={field.state.meta.errors
+                .map((err) => err?.message)
+                .join(", ")}
               required
             />
           )}
         </form.Field>
         <Text className="h-full text-xl self-center pt-lg">-</Text>
-        <form.Field name="endTime" key="endTime">
+        <form.Field
+          name="endTime"
+          key="endTime"
+          validators={{ onBlur: EditBlockFormSchema.shape.endTime }}
+          listeners={{
+            onChange: ({ fieldApi }) =>
+              fieldApi.setErrorMap({ onBlur: undefined, onSubmit: undefined }),
+          }}
+        >
           {(field) => (
             <TimeInput
-              classNames={{ root: "grow" }}
+              classNames={{ root: "grow max-w-1/2", error: "text-wrap" }}
               name={field.name}
               label="End Time"
               value={field.state.value}
               onChange={(e) => field.handleChange(e.target.value)}
               onBlur={field.handleBlur}
-              error={field.state.meta.errors.join(", ")}
+              error={field.state.meta.errors
+                .map((err) => err?.message)
+                .join(", ")}
               required
             />
           )}
@@ -152,7 +176,11 @@ function EditBlockModal(props: EditBlockModalProps) {
         <Button variant="light" onClick={closeModal}>
           Cancel
         </Button>
-        <Button color="green" loading={mutationToUse.isPending} onClick={form.handleSubmit}>
+        <Button
+          color="green"
+          loading={mutationToUse.isPending}
+          onClick={form.handleSubmit}
+        >
           Create
         </Button>
       </div>
