@@ -17,6 +17,7 @@ import {
   getBlocksInOrder,
 } from "@/types/scheduling/schedulingUtils";
 import { MdAdd } from "react-icons/md";
+import openEditBlockModal from "@/features/scheduling/blockManagement/components/EditBlockModal";
 
 interface ActivityGridProps {
   sessionId: string;
@@ -97,10 +98,14 @@ export function ActivityGridContent(props: ActivityGridContentProps) {
           }}
           variant="subtle"
           size="xs"
-          onClick={() => console.log("bruh")}
+          onClick={() => openEditBlockModal({
+            sessionId: section.sessionId,
+            sectionId: section.id,
+            mode: "CREATE"
+          })}
         >
           <MdAdd size={20} />
-        </ActionIcon>{" "}
+        </ActionIcon>
       </div>
     </SimpleGrid>
   );
