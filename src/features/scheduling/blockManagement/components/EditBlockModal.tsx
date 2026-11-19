@@ -181,7 +181,7 @@ function EditBlockModal(props: EditBlockModalProps) {
           loading={mutationToUse.isPending}
           onClick={form.handleSubmit}
         >
-          Create
+          {mode === "CREATE" ? "Create" : "Save"}
         </Button>
       </div>
     </div>
