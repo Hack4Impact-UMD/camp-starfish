@@ -4,8 +4,7 @@ import { sectionScheduleQueryOptions } from "@/hooks/schedules/useSectionSchedul
 import { UUIDV4 } from "@/types/utils/idTypes";
 import {
   asTimeOnlyMoment,
-  TimeOnlyMomentSchema,
-  timeRegex,
+  hoursMinutesRegex,
 } from "@/utils/timeUtils";
 import { Button, Text } from "@mantine/core";
 import { TimeInput } from "@mantine/dates";
@@ -37,11 +36,11 @@ const EditBlockFormSchema = z
   .object({
     startTime: z
       .string()
-      .regex(timeRegex, "Invalid time")
+      .regex(hoursMinutesRegex, "Invalid time")
       .transform((val: string) => asTimeOnlyMoment(moment(val, "HH:mm"))),
     endTime: z
       .string()
-      .regex(timeRegex, "Invalid time")
+      .regex(hoursMinutesRegex, "Invalid time")
       .transform((val: string) => asTimeOnlyMoment(moment(val, "HH:mm"))),
   })
   .refine((obj) => obj.endTime.isAfter(obj.startTime), {
@@ -74,11 +73,27 @@ function EditBlockModal(props: EditBlockModalProps) {
           : sectionScheduleQuery.data.blocks[blockId].endTime.format("HH:mm"),
     },
     validators: {
+      onChange: ({ formApi, value }) => {
+        console.log(
+          formApi.getFieldMeta("startTime")?.isValid,
+          formApi.getFieldMeta("endTime")?.isValid,
+        );
+        if (
+          !formApi.getFieldMeta("startTime")?.isValid ||
+          !formApi.getFieldMeta("endTime")?.isValid
+        ) {
+          return;
+        }
+        return asTimeOnlyMoment(moment(value.startTime, "HH:mm")).isBefore(
+          asTimeOnlyMoment(moment(value.endTime, "HH:mm")),
+        )
+          ? ""
+          : "End time must be after start time";
+      },
       onSubmit: EditBlockFormSchema,
     },
     onSubmit: ({ value, formApi }) => {
       const valResult = EditBlockFormSchema.safeParse(value);
-      console.log(valResult);
       if (!valResult.success) {
         return {
           onSubmit: {
@@ -125,10 +140,13 @@ function EditBlockModal(props: EditBlockModalProps) {
         <form.Field
           name="startTime"
           key="startTime"
-          validators={{ onBlur: EditBlockFormSchema.shape.startTime }}
+          validators={{
+            onBlur: EditBlockFormSchema.shape.startTime,
+            onMount: EditBlockFormSchema.shape.endTime,
+          }}
           listeners={{
             onChange: ({ fieldApi }) =>
-              fieldApi.setErrorMap({ onBlur: undefined, onSubmit: undefined }),
+              fieldApi.setErrorMap({ onBlur: undefined }),
           }}
         >
           {(field) => (
@@ -139,8 +157,8 @@ function EditBlockModal(props: EditBlockModalProps) {
               value={field.state.value}
               onChange={(e) => field.handleChange(e.target.value)}
               onBlur={field.handleBlur}
-              error={field.state.meta.errors
-                .map((err) => err?.message)
+              error={field.state.meta.errorMap.onBlur
+                ?.map((err) => err?.message)
                 .join(", ")}
               required
             />
@@ -150,10 +168,13 @@ function EditBlockModal(props: EditBlockModalProps) {
         <form.Field
           name="endTime"
           key="endTime"
-          validators={{ onBlur: EditBlockFormSchema.shape.endTime }}
+          validators={{
+            onBlur: EditBlockFormSchema.shape.endTime,
+            onMount: EditBlockFormSchema.shape.endTime,
+          }}
           listeners={{
             onChange: ({ fieldApi }) =>
-              fieldApi.setErrorMap({ onBlur: undefined, onSubmit: undefined }),
+              fieldApi.setErrorMap({ onBlur: undefined }),
           }}
         >
           {(field) => (
@@ -164,25 +185,35 @@ function EditBlockModal(props: EditBlockModalProps) {
               value={field.state.value}
               onChange={(e) => field.handleChange(e.target.value)}
               onBlur={field.handleBlur}
-              error={field.state.meta.errors
-                .map((err) => err?.message)
+              error={field.state.meta.errorMap.onBlur
+                ?.map((err) => err?.message)
                 .join(", ")}
               required
             />
           )}
         </form.Field>
       </div>
+      <form.Subscribe selector={(state) => state.errorMap}>
+        {(errorMap) => (
+          <Text className="self-center text-error">{errorMap.onChange}</Text>
+        )}
+      </form.Subscribe>
       <div className="flex flex-row justify-center w-full gap-xl">
         <Button variant="light" onClick={closeModal}>
           Cancel
         </Button>
-        <Button
-          color="green"
-          loading={mutationToUse.isPending}
-          onClick={form.handleSubmit}
-        >
-          {mode === "CREATE" ? "Create" : "Save"}
-        </Button>
+        <form.Subscribe selector={(state) => state.canSubmit}>
+          {(canSubmit) => (
+            <Button
+              color="green"
+              disabled={!canSubmit}
+              loading={mutationToUse.isPending}
+              onClick={form.handleSubmit}
+            >
+              {mode === "CREATE" ? "Create" : "Save"}
+            </Button>
+          )}
+        </form.Subscribe>
       </div>
     </div>
   );
