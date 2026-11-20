@@ -74,10 +74,6 @@ function EditBlockModal(props: EditBlockModalProps) {
     },
     validators: {
       onChange: ({ formApi, value }) => {
-        console.log(
-          formApi.getFieldMeta("startTime")?.isValid,
-          formApi.getFieldMeta("endTime")?.isValid,
-        );
         if (
           !formApi.getFieldMeta("startTime")?.isValid ||
           !formApi.getFieldMeta("endTime")?.isValid
