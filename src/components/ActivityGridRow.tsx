@@ -1,13 +1,14 @@
 import { Block } from "@/types/scheduling/schedulingTypes";
 import { SchedulingSection } from "@/types/sessions/sessionTypes";
 import { AttendeeGroups } from "@/features/scheduling/generation/schedulingUtils";
-import { Text, ActionIcon, ScrollArea } from "@mantine/core";
+import { Text, ActionIcon, ScrollArea, Badge, Button } from "@mantine/core";
 import ActivityGridCell from "@/components/ActivityGridCell";
-import { MdAdd, MdChevronLeft, MdChevronRight } from "react-icons/md";
+import { MdAdd, MdChevronLeft, MdChevronRight, MdEdit } from "react-icons/md";
 import openCreateActivityModal from "@/features/scheduling/activityManagement/components/CreateActivityModal/CreateActivityModal";
 import { UUIDV4 } from "@/types/utils/idTypes";
 import { objectKeys } from "@/utils/types/typeUtils";
 import moment from "moment";
+import openEditBlockModal from "@/features/scheduling/blockManagement/components/EditBlockModal";
 
 interface ActivityGridRowProps {
   block: Block;
@@ -21,12 +22,34 @@ export default function ActivityGridRow(props: ActivityGridRowProps) {
   const { block, blockId, index, section, attendeeGroups } = props;
   return (
     <>
-      <div className="flex flex-col justify-center items-center w-full h-full px-xs border border-solid border-neutral-5 bg-neutral-2">
-        <Text className="text-sm font-semibold">
-          Block {index}
-        </Text>
-        <Text className="text-xs font-semibold">{moment(block.startTime).format("h:mm A")} - {moment(block.endTime).format("h:mm A")}</Text>
+      <div className="flex flex-col justify-center items-center w-full h-full p-xs border border-solid border-neutral-5 bg-neutral-2">
+        <Text className="text-sm font-semibold">Block {index}</Text>
+        <Badge
+          variant="subtle"
+          size="md"
+          rightSection={
+            <ActionIcon
+              variant="subtle"
+              size="xs"
+              onClick={() =>
+                openEditBlockModal({
+                  mode: "UPDATE",
+                  sessionId: section.sessionId,
+                  sectionId: section.id,
+                  blockId,
+                })
+              }
+            >
+              <MdEdit size={15} />
+            </ActionIcon>
+          }
+        >
+          <Text className="text-xs font-semibold">
+            {`${moment(block.startTime).format("h:mm A")} - ${moment(block.endTime).format("h:mm A")}`}
+          </Text>
+        </Badge>
       </div>
+
       <ActionIcon
         classNames={{
           root: "w-full h-full rounded-none border border-solid border-neutral-5",
