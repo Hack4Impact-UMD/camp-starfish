@@ -77,7 +77,7 @@ export function ActivityGridContent(props: ActivityGridContentProps) {
   );
 
   return (
-    <SimpleGrid className="grid-cols-[minmax(20px,60px)_20px_20px_minmax(0px,3fr)_20px] gap-0 border border-neutral-5">
+    <SimpleGrid className="grid-cols-[max-content_20px_20px_minmax(0px,3fr)_20px] gap-0 border border-neutral-5">
       <Box className="col-start-1 col-end-6 bg-neutral-3 border border-neutral-5">
         Options
       </Box>
