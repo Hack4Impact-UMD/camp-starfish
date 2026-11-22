@@ -72,6 +72,7 @@ export default function ActivityGridRow(props: ActivityGridRowProps) {
               onClick={() =>
                 openConfirmationModal({
                   title: `Are you sure you want to delete "Block ${index}"`,
+                  message: "This will also delete all activities and preferences info associated with this block.",
                   onConfirm: () => deleteBlockMutation.mutateAsync({ sessionId: section.sessionId, sectionId: section.id, blockId })
                 })
               }
