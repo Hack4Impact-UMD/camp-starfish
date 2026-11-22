@@ -1,12 +1,20 @@
 import { Block } from "@/types/scheduling/schedulingTypes";
 import { SchedulingSection } from "@/types/sessions/sessionTypes";
 import { AttendeeGroups } from "@/features/scheduling/generation/schedulingUtils";
-import { Text, ActionIcon, ScrollArea, Badge, Button } from "@mantine/core";
+import {
+  Text,
+  ActionIcon,
+  ScrollArea,
+  Badge,
+  Button,
+  Menu,
+} from "@mantine/core";
 import ActivityGridCell from "@/components/ActivityGridCell";
 import {
   MdAdd,
   MdChevronLeft,
   MdChevronRight,
+  MdDelete,
   MdEdit,
   MdMoreVert,
 } from "react-icons/md";
@@ -15,6 +23,8 @@ import { UUIDV4 } from "@/types/utils/idTypes";
 import { objectKeys } from "@/utils/types/typeUtils";
 import moment from "moment";
 import openEditBlockModal from "@/features/scheduling/blockManagement/components/EditBlockModal";
+import openConfirmationModal from "./modals/ConfirmationModal";
+import useDeleteBlock from "@/features/scheduling/blockManagement/hooks/useDeleteBlock";
 
 interface ActivityGridRowProps {
   block: Block;
@@ -26,17 +36,51 @@ interface ActivityGridRowProps {
 
 export default function ActivityGridRow(props: ActivityGridRowProps) {
   const { block, blockId, index, section, attendeeGroups } = props;
+
+  const deleteBlockMutation = useDeleteBlock();
+
   return (
     <>
       <div className="flex flex-col justify-center items-center w-full h-full pb-xs border border-solid border-neutral-5 bg-neutral-2">
-        <ActionIcon
-          color="neutral"
-          size="xs"
-          variant="subtle"
-          classNames={{ root: "self-end" }}
-        >
-          <MdMoreVert />
-        </ActionIcon>
+        <Menu>
+          <Menu.Target>
+            <ActionIcon
+              color="neutral"
+              size="xs"
+              variant="subtle"
+              classNames={{ root: "self-end" }}
+            >
+              <MdMoreVert />
+            </ActionIcon>
+          </Menu.Target>
+          <Menu.Dropdown>
+            <Menu.Item
+              leftSection={<MdEdit />}
+              onClick={() =>
+                openEditBlockModal({
+                  mode: "UPDATE",
+                  sessionId: section.sessionId,
+                  sectionId: section.id,
+                  blockId,
+                })
+              }
+            >
+              Edit
+            </Menu.Item>
+            <Menu.Item
+              color="error"
+              leftSection={<MdDelete />}
+              onClick={() =>
+                openConfirmationModal({
+                  title: `Are you sure you want to delete "Block ${index}"`,
+                  onConfirm: () => deleteBlockMutation.mutate({ sessionId: section.sessionId, sectionId: section.id, blockId }),
+                })
+              }
+            >
+              Delete
+            </Menu.Item>
+          </Menu.Dropdown>
+        </Menu>
         <div className="flex flex-col justify-center items-center grow">
           <Text className="text-sm font-semibold">Block {index}</Text>
           <Badge variant="subtle" size="md">
