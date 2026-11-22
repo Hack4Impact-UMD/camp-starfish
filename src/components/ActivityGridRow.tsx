@@ -42,10 +42,9 @@ export default function ActivityGridRow(props: ActivityGridRowProps) {
   return (
     <>
       <div className="flex flex-col justify-center items-center w-full h-full pb-xs border border-solid border-neutral-5 bg-neutral-2">
-        <Menu>
+        <Menu position="bottom-end">
           <Menu.Target>
             <ActionIcon
-              color="neutral"
               size="xs"
               variant="subtle"
               classNames={{ root: "self-end" }}
@@ -73,7 +72,7 @@ export default function ActivityGridRow(props: ActivityGridRowProps) {
               onClick={() =>
                 openConfirmationModal({
                   title: `Are you sure you want to delete "Block ${index}"`,
-                  onConfirm: () => deleteBlockMutation.mutate({ sessionId: section.sessionId, sectionId: section.id, blockId }),
+                  onConfirm: () => deleteBlockMutation.mutateAsync({ sessionId: section.sessionId, sectionId: section.id, blockId })
                 })
               }
             >
