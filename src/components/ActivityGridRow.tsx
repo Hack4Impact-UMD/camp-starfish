@@ -24,6 +24,7 @@ import moment from "moment";
 import openEditBlockModal from "@/features/scheduling/blockManagement/components/EditBlockModal";
 import openConfirmationModal from "./modals/ConfirmationModal";
 import useDeleteBlock from "@/features/scheduling/blockManagement/hooks/useDeleteBlock";
+import useNotifications from "@/features/notifications/useNotifications";
 
 interface ActivityGridRowProps {
   block: Block;
@@ -35,6 +36,8 @@ interface ActivityGridRowProps {
 
 export default function ActivityGridRow(props: ActivityGridRowProps) {
   const { block, blockId, index, section, attendeeGroups } = props;
+
+  const notifications = useNotifications();
 
   const deleteBlockMutation = useDeleteBlock();
 
@@ -74,7 +77,7 @@ export default function ActivityGridRow(props: ActivityGridRowProps) {
                 openConfirmationModal({
                   title: `Are you sure you want to delete "Block ${index}"`,
                   message: "This will also delete all activities and preferences info associated with this block.",
-                  onConfirm: () => deleteBlockMutation.mutateAsync({ sessionId: section.sessionId, sectionId: section.id, blockId })
+                  onConfirm: () => deleteBlockMutation.mutate({ sessionId: section.sessionId, sectionId: section.id, blockId }, { onError: (error) => notifications.error(error.message, `Failed to delete "Block ${index}"`) })
                 })
               }
               aria-label={`Delete Block ${index}`}
