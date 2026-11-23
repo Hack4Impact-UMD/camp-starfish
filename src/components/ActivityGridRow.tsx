@@ -6,7 +6,6 @@ import {
   ActionIcon,
   ScrollArea,
   Badge,
-  Button,
   Menu,
 } from "@mantine/core";
 import ActivityGridCell from "@/components/ActivityGridCell";

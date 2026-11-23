@@ -3,7 +3,7 @@ import { updateActivityPreferencesDoc } from "@/data/firestore/activityPreferenc
 import { updateSectionScheduleDoc } from "@/data/firestore/sectionSchedules";
 import { UUIDV4Schema } from "@/types/utils/idTypes";
 import { useMutation } from "@tanstack/react-query";
-import { deleteField, runTransaction, Timestamp, Transaction } from "firebase/firestore";
+import { deleteField, runTransaction, Transaction } from "firebase/firestore";
 import z from "zod";
 
 const DeleteBlockRequestSchema = z.object({

@@ -1,8 +1,8 @@
 import { db } from "@/config/firebase";
-import { getActivityPreferencesDoc, updateActivityPreferencesDoc } from "@/data/firestore/activityPreferences";
+import { updateActivityPreferencesDoc } from "@/data/firestore/activityPreferences";
 import { updateSectionScheduleDoc } from "@/data/firestore/sectionSchedules";
 import { BlockDoc, SectionScheduleDoc } from "@/data/firestore/types/documents";
-import { uuidv4, UUIDV4Schema } from "@/types/utils/idTypes";
+import { uuidv4 } from "@/types/utils/idTypes";
 import { TimeOnlyMomentSchema } from "@/utils/timeUtils";
 import { useMutation } from "@tanstack/react-query";
 import { runTransaction, Timestamp, Transaction, UpdateData } from "firebase/firestore";
