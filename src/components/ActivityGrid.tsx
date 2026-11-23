@@ -91,7 +91,7 @@ export function ActivityGridContent(props: ActivityGridContentProps) {
           attendeeGroups={attendeeGroups}
         />
       ))}
-      <div className="col-start-1 col-end-6 bg-neutral">
+      <div className="col-start-1 col-end-6">
         <ActionIcon
           classNames={{
             root: "w-full h-full rounded-none border border-solid border-neutral-5",
