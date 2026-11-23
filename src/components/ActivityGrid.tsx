@@ -91,7 +91,7 @@ export function ActivityGridContent(props: ActivityGridContentProps) {
           attendeeGroups={attendeeGroups}
         />
       ))}
-      <div className="col-start-1 col-end-6 bg-neutra">
+      <div className="col-start-1 col-end-6 bg-neutral">
         <ActionIcon
           classNames={{
             root: "w-full h-full rounded-none border border-solid border-neutral-5",
@@ -103,6 +103,7 @@ export function ActivityGridContent(props: ActivityGridContentProps) {
             sectionId: section.id,
             mode: "CREATE"
           })}
+          aria-label="Create new block"
         >
           <MdAdd size={20} />
         </ActionIcon>

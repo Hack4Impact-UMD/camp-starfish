@@ -47,6 +47,7 @@ export default function ActivityGridRow(props: ActivityGridRowProps) {
               size="xs"
               variant="subtle"
               classNames={{ root: "self-end" }}
+              aria-label={`Block ${index} Options`}
             >
               <MdMoreVert />
             </ActionIcon>
@@ -62,6 +63,7 @@ export default function ActivityGridRow(props: ActivityGridRowProps) {
                   blockId,
                 })
               }
+              aria-label={`Edit Block ${index}`}
             >
               Edit
             </Menu.Item>
@@ -75,6 +77,7 @@ export default function ActivityGridRow(props: ActivityGridRowProps) {
                   onConfirm: () => deleteBlockMutation.mutateAsync({ sessionId: section.sessionId, sectionId: section.id, blockId })
                 })
               }
+              aria-label={`Delete Block ${index}`}
             >
               Delete
             </Menu.Item>
@@ -103,6 +106,7 @@ export default function ActivityGridRow(props: ActivityGridRowProps) {
             blockId,
           })
         }
+        aria-label={`Add Activity to Block ${index}`}
       >
         <MdAdd size={40} />
       </ActionIcon>
@@ -112,6 +116,7 @@ export default function ActivityGridRow(props: ActivityGridRowProps) {
         }}
         variant="subtle"
         size="xs"
+        aria-label={`Scroll Left on Block ${index} Activities`}
       >
         <MdChevronLeft size={40} />
       </ActionIcon>
@@ -154,6 +159,7 @@ export default function ActivityGridRow(props: ActivityGridRowProps) {
         }}
         variant="subtle"
         size="xs"
+        aria-label={`Scroll Right on Block ${index} Activities`}
       >
         <MdChevronRight size={40} />
       </ActionIcon>
