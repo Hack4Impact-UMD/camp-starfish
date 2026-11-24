@@ -2,10 +2,7 @@ import ErrorPage from "@/app/error";
 import LoadingPage from "@/app/loading";
 import { sectionScheduleQueryOptions } from "@/hooks/schedules/useSectionSchedule";
 import { UUIDV4 } from "@/types/utils/idTypes";
-import {
-  asTimeOnlyMoment,
-  hoursMinutesRegex,
-} from "@/utils/timeUtils";
+import { asTimeOnlyMoment, hoursMinutesRegex } from "@/utils/timeUtils";
 import { Button, Text } from "@mantine/core";
 import { TimeInput } from "@mantine/dates";
 import { modals, openModal } from "@mantine/modals";
@@ -56,8 +53,6 @@ function EditBlockModal(props: EditBlockModalProps) {
 
   const createBlockMutation = useCreateBlock();
   const updateBlockMutation = useUpdateBlock();
-  const mutationToUse =
-    mode === "CREATE" ? createBlockMutation : updateBlockMutation;
 
   const closeModal = () => modals.close(editBlockModalId(props));
 
@@ -88,7 +83,7 @@ function EditBlockModal(props: EditBlockModalProps) {
       },
       onSubmit: EditBlockFormSchema,
     },
-    onSubmit: ({ value, formApi }) => {
+    onSubmit: async ({ value, formApi }) => {
       const valResult = EditBlockFormSchema.safeParse(value);
       if (!valResult.success) {
         return {
@@ -101,31 +96,40 @@ function EditBlockModal(props: EditBlockModalProps) {
         };
       }
       const { startTime, endTime } = valResult.data;
-      if (mode === "CREATE") {
-        createBlockMutation.mutate(
-          {
-            sessionId,
-            sectionId,
-            startTime,
-            endTime,
-          },
-          { onSuccess: closeModal },
-        );
-      } else if (mode === "UPDATE") {
-        updateBlockMutation.mutate(
-          {
-            sessionId,
-            sectionId,
-            blockId,
-            startTime: formApi.getFieldMeta("startTime")?.isDefaultValue
-              ? undefined
-              : startTime,
-            endTime: formApi.getFieldMeta("endTime")?.isDefaultValue
-              ? undefined
-              : endTime,
-          },
-          { onSuccess: closeModal },
-        );
+      try {
+        if (mode === "CREATE") {
+          await createBlockMutation.mutateAsync(
+            {
+              sessionId,
+              sectionId,
+              startTime,
+              endTime,
+            },
+            { onSuccess: closeModal },
+          );
+        } else if (mode === "UPDATE") {
+          await updateBlockMutation.mutateAsync(
+            {
+              sessionId,
+              sectionId,
+              blockId,
+              startTime: formApi.getFieldMeta("startTime")?.isDefaultValue
+                ? undefined
+                : startTime,
+              endTime: formApi.getFieldMeta("endTime")?.isDefaultValue
+                ? undefined
+                : endTime,
+            },
+            { onSuccess: closeModal },
+          );
+        }
+      } catch (error) {
+        formApi.setErrorMap({
+          onSubmit: {
+            fields: {},
+            form: error instanceof Error ? error.message : "An unexpected error occurred."
+          }
+        })
       }
     },
   });
@@ -191,19 +195,21 @@ function EditBlockModal(props: EditBlockModalProps) {
       </div>
       <form.Subscribe selector={(state) => state.errorMap}>
         {(errorMap) => (
-          <Text className="self-center text-error">{errorMap.onChange}</Text>
+          <Text className="self-center text-error">
+            {errorMap.onChange ?? (typeof errorMap.onSubmit === "string" ? errorMap.onSubmit : "An unexpected error occurred.")}
+          </Text>
         )}
       </form.Subscribe>
       <div className="flex flex-row justify-center w-full gap-xl">
         <Button variant="light" onClick={closeModal}>
           Cancel
         </Button>
-        <form.Subscribe selector={(state) => state.canSubmit}>
-          {(canSubmit) => (
+        <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
+          {([canSubmit, isSubmitting]) => (
             <Button
               color="green"
-              disabled={!canSubmit}
-              loading={mutationToUse.isPending}
+              disabled={!canSubmit || isSubmitting}
+              loading={isSubmitting}
               onClick={form.handleSubmit}
             >
               {mode === "CREATE" ? "Create" : "Save"}
