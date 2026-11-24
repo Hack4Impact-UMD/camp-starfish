@@ -2,7 +2,11 @@ import ErrorPage from "@/app/error";
 import LoadingPage from "@/app/loading";
 import { sectionScheduleQueryOptions } from "@/hooks/schedules/useSectionSchedule";
 import { UUIDV4 } from "@/types/utils/idTypes";
-import { asTimeOnlyMoment, hoursMinutesRegex } from "@/utils/timeUtils";
+import {
+  asTimeOnlyMoment,
+  hoursMinutesRegex,
+  isTimeOnlyMoment,
+} from "@/utils/timeUtils";
 import { Button, Text } from "@mantine/core";
 import { TimeInput } from "@mantine/dates";
 import { modals, openModal } from "@mantine/modals";
@@ -71,7 +75,11 @@ function EditBlockModal(props: EditBlockModalProps) {
       onChange: ({ formApi, value }) => {
         if (
           !formApi.getFieldMeta("startTime")?.isValid ||
-          !formApi.getFieldMeta("endTime")?.isValid
+          !formApi.getFieldMeta("endTime")?.isValid ||
+          !isTimeOnlyMoment(
+            moment(formApi.getFieldValue("startTime"), "HH:mm"),
+          ) ||
+          !isTimeOnlyMoment(moment(formApi.getFieldValue("endTime"), "HH:mm"))
         ) {
           return;
         }
@@ -127,9 +135,12 @@ function EditBlockModal(props: EditBlockModalProps) {
         formApi.setErrorMap({
           onSubmit: {
             fields: {},
-            form: error instanceof Error ? error.message : "An unexpected error occurred."
-          }
-        })
+            form:
+              error instanceof Error
+                ? error.message
+                : "An unexpected error occurred.",
+          },
+        });
       }
     },
   });
@@ -194,17 +205,27 @@ function EditBlockModal(props: EditBlockModalProps) {
         </form.Field>
       </div>
       <form.Subscribe selector={(state) => state.errorMap}>
-        {(errorMap) => (
-          <Text className="self-center text-error">
-            {errorMap.onChange ?? (typeof errorMap.onSubmit === "string" ? errorMap.onSubmit : "An unexpected error occurred.")}
-          </Text>
-        )}
+        {(errorMap) => {
+          if (!errorMap.onChange && !errorMap.onSubmit) {
+            return <></>;
+          }
+          return (
+            <Text className="self-center text-error">
+              {errorMap.onChange ??
+                (errorMap.onSubmit && typeof errorMap.onSubmit === "string"
+                  ? errorMap.onSubmit
+                  : "An unexpected error occurred.")}
+            </Text>
+          );
+        }}
       </form.Subscribe>
       <div className="flex flex-row justify-center w-full gap-xl">
         <Button variant="light" onClick={closeModal}>
           Cancel
         </Button>
-        <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
+        <form.Subscribe
+          selector={(state) => [state.canSubmit, state.isSubmitting]}
+        >
           {([canSubmit, isSubmitting]) => (
             <Button
               color="green"
