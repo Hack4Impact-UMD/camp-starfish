@@ -18,8 +18,15 @@ const UpdateBlockRequestSchema = z.object({
 type UpdateBlockRequest = z.infer<typeof UpdateBlockRequestSchema>;
 
 async function updateBlock(req: UpdateBlockRequest) {
-  const valResult = UpdateBlockRequestSchema.parse(req);
-  const { sessionId, sectionId, blockId, ...updates } = valResult;
+  const valResult = UpdateBlockRequestSchema.safeParse(req);
+  if (!valResult.success) {
+    if (valResult.error.issues[0].message === "At least 1 update must be provided") {
+      return;
+    }
+    throw new Error("Invalid Request");
+  }
+
+  const { sessionId, sectionId, blockId, ...updates } = valResult.data;
   await runTransaction(db, async (tx: Transaction) => {
     const sectionSchedule = await getSectionScheduleDoc(sessionId, sectionId, tx);
     if (!(blockId in sectionSchedule.blocks)) {
