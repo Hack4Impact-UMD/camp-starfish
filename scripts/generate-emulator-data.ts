@@ -4,7 +4,7 @@ import { CommonSection, SchedulingSection, Section, Session } from "@/types/sess
 import { BundleActivityWithAssignments, BundleBlock, BundleSectionSchedule, BunkJamboreeActivityWithAssignments, BunkJamboreeBlock, BunkJamboreeSectionSchedule, NonBunkJamboreeActivityWithAssignments, NonBunkJamboreeBlock, NonBunkJamboreeSectionSchedule } from "@/types/scheduling/schedulingTypes";
 import moment from "moment";
 import { v4 } from "uuid";
-import { UUIDV4 } from "@/types/utils/idTypes";
+import { asTimeOnlyMoment } from "@/utils/timeUtils";
 import { emptyAttendeeIds } from "@/types/sessions/sessionUtils";
 
 export function resetFaker() {
@@ -173,8 +173,8 @@ export function generateBundleActivities(): Record<string, BundleActivityWithAss
 
 export function generateBundleBlock(): BundleBlock {
   return {
-    startTime: moment().subtract(1, 'days'),
-    endTime: moment().add(1, 'days'),
+    startTime: asTimeOnlyMoment(moment().subtract(1, 'days')),
+    endTime: asTimeOnlyMoment(moment().add(1, 'days')),
     activities: generateBundleActivities(),
     periodsOff: [],
   }
@@ -207,8 +207,8 @@ export function generateBunkJamboreeActivities(): Record<string, BunkJamboreeAct
 
 export function generateBunkJamboreeBlock(): BunkJamboreeBlock {
   return {
-    startTime: moment().subtract(1, 'day'),
-    endTime: moment().add(1, 'day'),
+    startTime: asTimeOnlyMoment(moment().subtract(1, 'day')),
+    endTime: asTimeOnlyMoment(moment().add(1, 'day')),
     activities: generateBunkJamboreeActivities(),
     periodsOff: [],
   }
@@ -226,8 +226,8 @@ export function generateNonBunkJamboreeActivities(): Record<string, NonBunkJambo
 
 export function generateNonBunkJamboreeBlock(): NonBunkJamboreeBlock {
   return {
-    startTime: moment().subtract(1, 'day'),
-    endTime: moment().add(1, 'day'),
+    startTime: asTimeOnlyMoment(moment().subtract(1, 'day')),
+    endTime: asTimeOnlyMoment(moment().add(1, 'day')),
     activities: generateNonBunkJamboreeActivities(),
     periodsOff: [],
   }
