@@ -58,12 +58,30 @@ function SectionPageContent(props: SectionPageContentProps) {
   const publishMutation = usePublishSectionSchedule();
   const notifications = useNotifications();
 
-  // Unsaved edits to the schedule (from generating or drag & drop). null = showing the saved schedule.
+  // Unsaved manual edits to the schedule (from drag & drop). null = showing the saved schedule.
   const [draftSchedule, setDraftSchedule] = useState<SectionSchedule | null>(null);
   const hasUnsavedChanges = draftSchedule !== null;
 
   useUnsavedChangesWarning(hasUnsavedChanges);
 
+  const saveSchedule = (schedule: SectionSchedule, successMessage: string) => {
+    // Show the schedule being saved right away, so edits made during the save build on it
+    setDraftSchedule(schedule);
+    saveSectionScheduleMutation.mutate(
+      { sectionSchedule: schedule },
+      {
+        onSuccess: (_data, { sectionSchedule }) => {
+          // Only clear the draft if no edits were made while saving; otherwise keep the newer edits unsaved
+          setDraftSchedule((current) => (current === sectionSchedule ? null : current));
+          notifications.success(successMessage);
+        },
+        onError: () =>
+          notifications.error("Failed to save the schedule. Your changes are still here; please try again."),
+      },
+    );
+  };
+
+  // Generated schedules are saved immediately; admins can then adjust them with drag & drop
   const generateSchedule = () =>
     generateSectionScheduleMutation.mutate(
       {
@@ -72,29 +90,13 @@ function SectionPageContent(props: SectionPageContentProps) {
       },
       {
         onSuccess: (data) =>
-          setDraftSchedule({
-            ...data,
-            sessionId: session.id,
-            sectionId: section.id,
-          }),
+          saveSchedule(
+            { ...data, sessionId: session.id, sectionId: section.id },
+            "Schedule generated and saved.",
+          ),
+        onError: () => notifications.error("Failed to generate the schedule. Please try again."),
       },
     );
-
-  const saveSchedule = () => {
-    if (!draftSchedule) return;
-    saveSectionScheduleMutation.mutate(
-      { sectionSchedule: draftSchedule },
-      {
-        onSuccess: (_data, { sectionSchedule }) => {
-          // Only clear the draft if no edits were made while saving; otherwise keep the newer edits unsaved
-          setDraftSchedule((current) => (current === sectionSchedule ? null : current));
-          notifications.success("Schedule saved.");
-        },
-        onError: () =>
-          notifications.error("Failed to save the schedule. Your changes are still here; please try again."),
-      },
-    );
-  };
 
   return (
     <div className="flex flex-col gap-md p-md">
@@ -112,8 +114,12 @@ function SectionPageContent(props: SectionPageContentProps) {
           </Text>
         </div>
         <div className="flex items-center gap-2">
-          {hasUnsavedChanges && (
-            <Text className="text-sm italic text-warning">Unsaved changes</Text>
+          {saveSectionScheduleMutation.isPending ? (
+            <Text className="text-sm italic">Saving...</Text>
+          ) : (
+            hasUnsavedChanges && (
+              <Text className="text-sm italic text-warning">Unsaved changes</Text>
+            )
           )}
           <Button
             color="green"
@@ -121,7 +127,7 @@ function SectionPageContent(props: SectionPageContentProps) {
               openConfirmationModal({
                 title: "Generate a new schedule?",
                 message:
-                  "This will replace the schedule shown below, including any unsaved edits. Nothing is saved until you click SAVE.",
+                  "This will replace and save over the current schedule, including any unsaved edits.",
                 onConfirm: generateSchedule,
                 loading: generateSectionScheduleMutation.isPending,
               })
@@ -133,7 +139,7 @@ function SectionPageContent(props: SectionPageContentProps) {
           </Button>
           <Button
             color="green"
-            onClick={saveSchedule}
+            onClick={() => draftSchedule && saveSchedule(draftSchedule, "Schedule saved.")}
             loading={saveSectionScheduleMutation.isPending}
             disabled={!hasUnsavedChanges}
           >
