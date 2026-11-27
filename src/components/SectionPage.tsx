@@ -28,9 +28,12 @@ export default function SectionPage(props: SectionPageProps) {
   const sessionQuery = useSession(sessionId);
   const sectionQuery = useSection(sessionId, sectionId);
 
-  if (sessionQuery.isError || sectionQuery.isError) {
-    return <p>Error loading session data</p>;
-  } else if (sessionQuery.isPending || sectionQuery.isPending) {
+  // Only show loading/error when there's no data yet. A failed background refetch keeps the cached data,
+  // and unmounting SectionPageContent then would throw away the user's unsaved edits.
+  if (!sessionQuery.data || !sectionQuery.data) {
+    if (sessionQuery.isError || sectionQuery.isError) {
+      return <p>Error loading session data</p>;
+    }
     return <LoadingPage />;
   }
 
