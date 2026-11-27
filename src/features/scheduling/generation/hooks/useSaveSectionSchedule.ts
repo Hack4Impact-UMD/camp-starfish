@@ -2,6 +2,7 @@ import { setSectionScheduleDoc } from "@/data/firestore/sectionSchedules";
 import { SectionSchedule } from "@/types/scheduling/schedulingTypes";
 import { objectEntries } from "@/utils/types/typeUtils";
 import { useMutation } from "@tanstack/react-query";
+import { sectionScheduleQueryOptions } from "@/hooks/schedules/useSectionSchedule";
 import { Timestamp } from "firebase/firestore";
 
 interface SaveSectionScheduleRequest {
@@ -27,6 +28,11 @@ async function saveSectionSchedule(req: SaveSectionScheduleRequest) {
 export default function useSaveSectionSchedule() {
   return useMutation({
     mutationFn: (req: SaveSectionScheduleRequest) => saveSectionSchedule(req),
-    onSuccess: (_data, { sectionSchedule }, _onMutateResult, { client }) => client.invalidateQueries({ queryKey: ['sessions', sectionSchedule.sessionId, 'sections', sectionSchedule.sectionId, 'schedule'] }),
+    onSuccess: (_data, { sectionSchedule }, _onMutateResult, { client }) => {
+      const { queryKey } = sectionScheduleQueryOptions(sectionSchedule.sessionId, sectionSchedule.sectionId);
+      // Show the saved schedule immediately instead of the stale cached one while refetching
+      client.setQueryData(queryKey, sectionSchedule);
+      return client.invalidateQueries({ queryKey });
+    },
   })
 }
