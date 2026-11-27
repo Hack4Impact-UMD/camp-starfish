@@ -18,6 +18,7 @@ import SelectThemeExtension from "./components/SelectThemeExtension";
 import TextInputThemeExtension from "./components/TextInputThemeExtension";
 import TextThemeExtension from "./components/TextThemeExtension";
 import TextareaThemeExtension from "./components/TextareaThemeExtension";
+import TimeInputThemeExtension from "./components/TimeInputThemeExtension";
 import TitleThemeExtension from "./components/TitleThemeExtension";
 import TooltipThemeExtension from "./components/TooltipThemeExtension";
 
@@ -42,6 +43,7 @@ const theme: MantineThemeOverride = {
     TextInput: TextInputThemeExtension,
     Text: TextThemeExtension,
     Textarea: TextareaThemeExtension,
+    TimeInput: TimeInputThemeExtension,
     Title: TitleThemeExtension,
     Tooltip: TooltipThemeExtension
   }

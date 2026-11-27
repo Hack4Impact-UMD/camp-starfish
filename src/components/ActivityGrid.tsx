@@ -4,7 +4,7 @@ import { SectionSchedule } from "@/types/scheduling/schedulingTypes";
 import { Attendee, SchedulingSection } from "@/types/sessions/sessionTypes";
 import { useMemo } from "react";
 import ActivityGridRow from "@/components/ActivityGridRow";
-import { Box, SimpleGrid } from "@mantine/core";
+import { ActionIcon, Box, SimpleGrid, Tooltip } from "@mantine/core";
 import useSectionSchedule from "@/hooks/schedules/useSectionSchedule";
 import useAttendeeList from "@/hooks/attendees/useAttendeeList";
 import LoadingPage from "@/app/loading";
@@ -18,6 +18,9 @@ import {
 } from "@/types/scheduling/schedulingUtils";
 import { DragDropContext, DropResult } from "@hello-pangea/dnd";
 import { moveAssignment } from "@/features/scheduling/editing/moveAssignment";
+import { MdAdd } from "react-icons/md";
+import openEditBlockModal from "@/features/scheduling/blockManagement/components/EditBlockModal";
+import { STRUCTURE_LOCKED_MESSAGE } from "@/components/ActivityGridRow";
 
 interface ActivityGridProps {
   sessionId: string;
@@ -98,7 +101,7 @@ export function ActivityGridContent(props: ActivityGridContentProps) {
 
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
-      <SimpleGrid className="grid-cols-[minmax(20px,60px)_20px_20px_minmax(0px,3fr)_20px] gap-0 border border-neutral-5">
+      <SimpleGrid className="grid-cols-[max-content_20px_20px_minmax(0px,3fr)_20px] gap-0 border border-neutral-5">
         <Box className="col-start-1 col-end-6 bg-neutral-3 border border-neutral-5">
           Options
         </Box>
@@ -110,9 +113,34 @@ export function ActivityGridContent(props: ActivityGridContentProps) {
             block={block}
             section={section}
             attendeeGroups={attendeeGroups}
-            isAddActivityDisabled={hasUnsavedChanges}
+            isStructureLocked={hasUnsavedChanges}
           />
         ))}
+        <div className="col-start-1 col-end-6">
+          <Tooltip label={STRUCTURE_LOCKED_MESSAGE} disabled={!hasUnsavedChanges}>
+            {/* data-disabled (not disabled) so the tooltip still receives hover events */}
+            <ActionIcon
+              classNames={{
+                root: "w-full h-full rounded-none border border-solid border-neutral-5",
+              }}
+              variant="subtle"
+              size="xs"
+              data-disabled={hasUnsavedChanges || undefined}
+              aria-disabled={hasUnsavedChanges}
+              onClick={() => {
+                if (hasUnsavedChanges) return;
+                openEditBlockModal({
+                  sessionId: section.sessionId,
+                  sectionId: section.id,
+                  mode: "CREATE",
+                });
+              }}
+              aria-label="Create new block"
+            >
+              <MdAdd size={20} />
+            </ActionIcon>
+          </Tooltip>
+        </div>
       </SimpleGrid>
     </DragDropContext>
   );

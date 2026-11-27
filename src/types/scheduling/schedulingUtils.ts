@@ -42,16 +42,16 @@ export function getEmptyActivityPreferencesDoc(): ActivityPreferencesDoc {
 }
 
 export function getBlocksInOrder(blocks: SectionSchedule['blocks']) {
-  return objectEntries(blocks).sort(([aBlockId, aBlock], [bBlockId, bBlock]) => {
-    if (aBlock.startTime.isBefore(bBlock.startTime)) {
+  return objectEntries(blocks).sort(([blockIdA, blockA], [blockIdB, blockB]) => {
+    if (blockA.startTime.isBefore(blockB.startTime)) {
       return -1;
-    } else if (aBlock.startTime.isAfter(bBlock.startTime)) {
+    } else if (blockA.startTime.isAfter(blockB.startTime)) {
       return 1;
-    } else if (aBlock.endTime.isBefore(bBlock.endTime)) {
+    } else if (blockA.endTime.isBefore(blockB.endTime)) {
       return -1;
-    } else if (aBlock.endTime.isAfter(bBlock.endTime)) {
+    } else if (blockA.endTime.isAfter(blockB.endTime)) {
       return 1;
     }
-    return aBlockId.localeCompare(bBlockId);
+    return blockIdA.localeCompare(blockIdB);
   });
 }

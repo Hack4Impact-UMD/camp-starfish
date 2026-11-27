@@ -1,6 +1,6 @@
-import { Moment } from "moment";
 import { AgeGroup, SchedulingSectionType } from "../sessions/sessionTypes";
 import { UUIDV4 } from "../utils/idTypes";
+import { TimeOnlyMoment } from "@/utils/timeUtils";
 
 interface BaseSectionSchedule {
   sessionId: string;
@@ -24,8 +24,8 @@ export interface NonBunkJamboreeSectionSchedule extends BaseSectionSchedule {
 export type SectionSchedule = BundleSectionSchedule | BunkJamboreeSectionSchedule | NonBunkJamboreeSectionSchedule;
 
 interface BaseBlock {
-  startTime: Moment;
-  endTime: Moment
+  startTime: TimeOnlyMoment;
+  endTime: TimeOnlyMoment;
   activities: Record<UUIDV4, ActivityWithAssignments>;
   periodsOff: number[];
 }
