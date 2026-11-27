@@ -1,5 +1,7 @@
 "use client";
+import { useState } from "react";
 import { Button, Text, Title } from "@mantine/core";
+import { SectionSchedule } from "@/types/scheduling/schedulingTypes";
 import { Session, SchedulingSection } from "@/types/sessions/sessionTypes";
 import LoadingPage from "@/app/loading";
 import { usePublishSectionSchedule } from "@/features/scheduling/publishing/publishSectionSchedule";
@@ -12,6 +14,8 @@ import ActivityGrid from "@/components/ActivityGrid";
 import useGenerateSectionSchedule from "@/features/scheduling/generation/hooks/useGenerateSectionSchedule.";
 import useSaveSectionSchedule from "@/features/scheduling/generation/hooks/useSaveSectionSchedule";
 import openConfirmationModal from "./modals/ConfirmationModal";
+import useNotifications from "@/features/notifications/useNotifications";
+import useUnsavedChangesWarning from "@/hooks/useUnsavedChangesWarning";
 
 interface SectionPageProps {
   sessionId: string;
@@ -24,9 +28,12 @@ export default function SectionPage(props: SectionPageProps) {
   const sessionQuery = useSession(sessionId);
   const sectionQuery = useSection(sessionId, sectionId);
 
-  if (sessionQuery.isError || sectionQuery.isError) {
-    return <p>Error loading session data</p>;
-  } else if (sessionQuery.isPending || sectionQuery.isPending) {
+  // Only show loading/error when there's no data yet. A failed background refetch keeps the cached data,
+  // and unmounting SectionPageContent then would throw away the user's unsaved edits.
+  if (!sessionQuery.data || !sectionQuery.data) {
+    if (sessionQuery.isError || sectionQuery.isError) {
+      return <p>Error loading session data</p>;
+    }
     return <LoadingPage />;
   }
 
@@ -52,8 +59,33 @@ function SectionPageContent(props: SectionPageContentProps) {
   const saveSectionScheduleMutation = useSaveSectionSchedule();
 
   const publishMutation = usePublishSectionSchedule();
+  const notifications = useNotifications();
 
-  const generateAndSaveSchedule = () =>
+  // Unsaved manual edits to the schedule (from drag & drop). null = showing the saved schedule.
+  const [draftSchedule, setDraftSchedule] = useState<SectionSchedule | null>(null);
+  const hasUnsavedChanges = draftSchedule !== null;
+
+  useUnsavedChangesWarning(hasUnsavedChanges);
+
+  const saveSchedule = (schedule: SectionSchedule, successMessage: string) => {
+    // Show the schedule being saved right away, so edits made during the save build on it
+    setDraftSchedule(schedule);
+    saveSectionScheduleMutation.mutate(
+      { sectionSchedule: schedule },
+      {
+        onSuccess: (_data, { sectionSchedule }) => {
+          // Only clear the draft if no edits were made while saving; otherwise keep the newer edits unsaved
+          setDraftSchedule((current) => (current === sectionSchedule ? null : current));
+          notifications.success(successMessage);
+        },
+        onError: () =>
+          notifications.error("Failed to save the schedule. Your changes are still here; please try again."),
+      },
+    );
+  };
+
+  // Generated schedules are saved immediately; admins can then adjust them with drag & drop
+  const generateSchedule = () =>
     generateSectionScheduleMutation.mutate(
       {
         sessionId: session.id,
@@ -61,13 +93,11 @@ function SectionPageContent(props: SectionPageContentProps) {
       },
       {
         onSuccess: (data) =>
-          saveSectionScheduleMutation.mutate({
-            sectionSchedule: {
-              ...data,
-              sessionId: session.id,
-              sectionId: section.id,
-            },
-          }),
+          saveSchedule(
+            { ...data, sessionId: session.id, sectionId: section.id },
+            "Schedule generated and saved.",
+          ),
+        onError: () => notifications.error("Failed to generate the schedule. Please try again."),
       },
     );
 
@@ -86,28 +116,49 @@ function SectionPageContent(props: SectionPageContentProps) {
             }`}
           </Text>
         </div>
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2">
+          {saveSectionScheduleMutation.isPending ? (
+            <Text className="text-sm italic">Saving...</Text>
+          ) : (
+            hasUnsavedChanges && (
+              <Text className="text-sm italic text-warning">Unsaved changes</Text>
+            )
+          )}
           <Button
             color="green"
             onClick={() =>
               openConfirmationModal({
-                title:
-                  "Generating a new schedule will overwrite the existing one",
-                onConfirm: generateAndSaveSchedule,
-                loading:
-                  generateSectionScheduleMutation.isPending ||
-                  saveSectionScheduleMutation.isPending,
+                title: "Generate a new schedule?",
+                message:
+                  "This will replace and save over the current schedule, including any unsaved edits.",
+                onConfirm: generateSchedule,
+                loading: generateSectionScheduleMutation.isPending,
               })
             }
-            loading={
-              generateSectionScheduleMutation.isPending ||
-              saveSectionScheduleMutation.isPending
-            }
+            loading={generateSectionScheduleMutation.isPending}
+            disabled={saveSectionScheduleMutation.isPending}
           >
             GENERATE
           </Button>
           <Button
             color="green"
+            onClick={() => draftSchedule && saveSchedule(draftSchedule, "Schedule saved.")}
+            loading={saveSectionScheduleMutation.isPending}
+            disabled={!hasUnsavedChanges}
+          >
+            SAVE
+          </Button>
+          <Button
+            color="neutral"
+            variant="outline"
+            onClick={() => setDraftSchedule(null)}
+            disabled={!hasUnsavedChanges || saveSectionScheduleMutation.isPending}
+          >
+            DISCARD
+          </Button>
+          <Button
+            color="green"
+            disabled={hasUnsavedChanges}
             onClick={() => {
               publishMutation.mutate({
                 sessionId: session.id,
@@ -124,7 +175,12 @@ function SectionPageContent(props: SectionPageContentProps) {
           />
         </div>
       </div>
-      <ActivityGrid sessionId={session.id} sectionId={section.id} />
+      <ActivityGrid
+        sessionId={session.id}
+        sectionId={section.id}
+        draftSchedule={draftSchedule}
+        onScheduleChange={setDraftSchedule}
+      />
     </div>
   );
 }

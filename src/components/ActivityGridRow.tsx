@@ -7,6 +7,7 @@ import {
   ScrollArea,
   Badge,
   Menu,
+  Tooltip,
 } from "@mantine/core";
 import ActivityGridCell from "@/components/ActivityGridCell";
 import {
@@ -26,16 +27,24 @@ import openConfirmationModal from "./modals/ConfirmationModal";
 import useDeleteBlock from "@/features/scheduling/blockManagement/hooks/useDeleteBlock";
 import useNotifications from "@/features/notifications/useNotifications";
 
+export const STRUCTURE_LOCKED_MESSAGE = "Save or discard your changes first";
+
 interface ActivityGridRowProps {
   block: Block;
   blockId: UUIDV4;
   index: string;
   section: SchedulingSection;
   attendeeGroups: AttendeeGroups;
+  /**
+   * Adding activities and editing/deleting blocks write straight to Firestore, so while there's an
+   * unsaved draft they'd be invisible (or reappear) and then be overwritten when the draft is saved.
+   * Block them until the draft is saved or discarded.
+   */
+  isStructureLocked: boolean;
 }
 
 export default function ActivityGridRow(props: ActivityGridRowProps) {
-  const { block, blockId, index, section, attendeeGroups } = props;
+  const { block, blockId, index, section, attendeeGroups, isStructureLocked } = props;
 
   const notifications = useNotifications();
 
@@ -56,8 +65,10 @@ export default function ActivityGridRow(props: ActivityGridRowProps) {
             </ActionIcon>
           </Menu.Target>
           <Menu.Dropdown>
+            {isStructureLocked && <Menu.Label>{STRUCTURE_LOCKED_MESSAGE}</Menu.Label>}
             <Menu.Item
               leftSection={<MdEdit />}
+              disabled={isStructureLocked}
               onClick={() =>
                 openEditBlockModal({
                   mode: "UPDATE",
@@ -73,6 +84,7 @@ export default function ActivityGridRow(props: ActivityGridRowProps) {
             <Menu.Item
               color="error"
               leftSection={<MdDelete />}
+              disabled={isStructureLocked}
               onClick={() =>
                 openConfirmationModal({
                   title: `Are you sure you want to delete "Block ${index}"`,
@@ -96,23 +108,29 @@ export default function ActivityGridRow(props: ActivityGridRowProps) {
         </div>
       </div>
 
-      <ActionIcon
-        classNames={{
-          root: "w-full h-full rounded-none border border-solid border-neutral-5",
-        }}
-        variant="subtle"
-        size="xs"
-        onClick={() =>
-          openCreateActivityModal({
-            sessionId: section.sessionId,
-            sectionId: section.id,
-            blockId,
-          })
-        }
-        aria-label={`Add Activity to Block ${index}`}
-      >
-        <MdAdd size={40} />
-      </ActionIcon>
+      <Tooltip label={STRUCTURE_LOCKED_MESSAGE} disabled={!isStructureLocked}>
+        {/* data-disabled (not disabled) so the tooltip still receives hover events */}
+        <ActionIcon
+          classNames={{
+            root: "w-full h-full rounded-none border border-solid border-neutral-5",
+          }}
+          variant="subtle"
+          size="xs"
+          data-disabled={isStructureLocked || undefined}
+          aria-disabled={isStructureLocked}
+          onClick={() => {
+            if (isStructureLocked) return;
+            openCreateActivityModal({
+              sessionId: section.sessionId,
+              sectionId: section.id,
+              blockId,
+            });
+          }}
+          aria-label={`Add Activity to Block ${index}`}
+        >
+          <MdAdd size={40} />
+        </ActionIcon>
+      </Tooltip>
       <ActionIcon
         classNames={{
           root: "w-full h-full rounded-none border border-solid border-neutral-5",
@@ -137,7 +155,7 @@ export default function ActivityGridRow(props: ActivityGridRowProps) {
               const activity = block.activities[activityId];
               return (
                 <div
-                  key={i}
+                  key={activityId}
                   className="grid grid-cols-subgrid grid-rows-subgrid row-start-1 row-end-4"
                   style={{
                     gridColumnStart: 2 * i + 1,
@@ -146,6 +164,7 @@ export default function ActivityGridRow(props: ActivityGridRowProps) {
                 >
                   <ActivityGridCell
                     activity={activity}
+                    activityId={activityId}
                     blockId={blockId}
                     section={section}
                     attendeeGroups={attendeeGroups}
